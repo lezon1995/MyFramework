@@ -184,53 +184,50 @@ public class GameDownload
                 mTipCallback?.Invoke(DOWNLOAD_TIP.VERIFY_FAILED);
             }
 
-            // 所有文件已经下载完毕
-            if (++mDownloadedCount >= mNeedDownloadFileList.Count)
-            {
-                allFinished();
-            }
-            // 还没下载完,下载下一个文件,这里延迟执行,避免可能的递归太深,导致栈溢出
-            else
-            {
-                downloadFile(mDownloadedCount);
-            }
-        }, (downloaded, downloadDelta, deltaTimeMillis, progress) =>
-        {
-            mDownloadSpeed = (int)(downloadDelta * 1000 / (float)deltaTimeMillis);
-            if ((DateTime.Now - mDownloadingTimer).TotalSeconds > 1.0f)
-            {
-                downloadProgress(fileName, index, progress);
-            }
-        });
-    }
-
-    // 计算剩余下载时间
-    protected void downloadProgress(string fileName, int index, float progress)
-    {
-        var remoteFiles = mAssetVersionSystem.getRemoteAssetsFile();
-        // 计算剩余的下载字节数,计算剩余时间
-        int allCount = mNeedDownloadFileList.Count;
-        ulong remainBytes = (ulong)(remoteFiles.get(mNeedDownloadFileList[index]).mFileSize * (1.0f - progress));
-        for (int i = index + 1; i < allCount; ++i)
-        {
-            remainBytes += (ulong)remoteFiles.get(mNeedDownloadFileList[i]).mFileSize;
-        }
-
-        int remainTime = mDownloadSpeed != 0 ? (int)(remainBytes / (ulong)mDownloadSpeed) : 0;
-        mProgressCallback?.Invoke(allCount != 0 ? index / (float)allCount : 0.0f, PROGRESS_TYPE.DOWNLOAD_RESOURCE, fileName, mDownloadSpeed, remainTime);
-    }
-
-    // 所有资源更新完毕
-    protected void allFinished()
-    {
-        // 更新FileList文件,VERSION文件
-        if (mAssetVersionSystem.getRemoteVersion() != null)
-        {
-            writeTxtFile(mDownloadWritePath + VERSION, mAssetVersionSystem.getRemoteVersion());
-            mAssetVersionSystem.setPersistentDataVersion(mAssetVersionSystem.getRemoteVersion());
-        }
-
-        updateLocalFileList();
+			// 所有文件已经下载完毕
+			if (++mDownloadedCount >= mNeedDownloadFileList.Count)
+			{
+				allFinished();
+			}
+			// 还没下载完,下载下一个文件,这里延迟执行,避免可能的递归太深,导致栈溢出
+			else
+			{
+				downloadFile(mDownloadedCount);
+			}
+		}, (ulong downloaded, int downloadDelta, double deltaTimeMillis, float progress)=>
+		{
+			mDownloadSpeed = (int)(downloadDelta * 1000 / (float)deltaTimeMillis);
+			if ((DateTime.Now - mDownloadingTimer).TotalSeconds > 1.0f)
+			{
+				downloadProgress(fileName, index, progress);
+			}
+		});
+	}
+	// 计算剩余下载时间
+	protected void downloadProgress(string fileName, int index, float progress)
+	{
+		var remoteFiles = mAssetVersionSystem.getRemoteAssetsFile();
+		// 计算剩余的下载字节数,计算剩余时间
+		int allCount = mNeedDownloadFileList.Count;
+		ulong remainBytes = (ulong)(remoteFiles.get(mNeedDownloadFileList[index]).mFileSize * (1.0f - progress));
+		for (int i = index + 1; i < allCount; ++i)
+		{
+			remainBytes += (ulong)remoteFiles.get(mNeedDownloadFileList[i]).mFileSize;
+		}
+		int remainTime = mDownloadSpeed != 0 ? (int)(remainBytes / (ulong)mDownloadSpeed) : 0;
+		mProgressCallback?.Invoke(allCount != 0 ? index / (float)allCount : 0.0f, PROGRESS_TYPE.DOWNLOAD_RESOURCE, fileName, mDownloadSpeed, remainTime);
+	}
+	// 所有资源更新完毕
+	protected void allFinished()
+	{
+		// 更新FileList文件,VERSION文件
+		string remoteVersion = mAssetVersionSystem.getRemoteVersion();
+		if (!remoteVersion.isEmpty())
+		{
+			writeTxtFile(mDownloadWritePath + VERSION, remoteVersion);
+			mAssetVersionSystem.setPersistentDataVersion(remoteVersion);
+		}
+		updateLocalFileList();
 
         // 游戏更新完毕
         mAllFinish = true;
