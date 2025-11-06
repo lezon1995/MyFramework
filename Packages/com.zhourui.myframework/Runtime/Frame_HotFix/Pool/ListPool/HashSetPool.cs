@@ -22,7 +22,7 @@ public class HashSetPool : FrameSystem
 		base.init();
 		if (isEditor())
 		{
-			mObject.AddComponent<HashSetPoolDebug>();
+			go.AddComponent<HashSetPoolDebug>();
 		}
 	}
 	public override void update(float elapsedTime)
