@@ -49,7 +49,7 @@ public class myUGUIScrollRect : myUGUIObject
 		mViewport.tryGetUnityComponent(out mViewportImage);
 		if (mScrollRectImage == null || mViewportImage == null)
 		{
-			logError("需要ScrollRect和viewport都有一个的Image组件,window:" + mName + ", layout:" + mLayout.getName());
+			logError("需要ScrollRect和viewport都有一个的Image组件,window:" + name + ", layout:" + mLayout.getName());
 		}
 		if (mScrollRectImage != null)
 		{

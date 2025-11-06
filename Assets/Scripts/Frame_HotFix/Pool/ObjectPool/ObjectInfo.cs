@@ -1,5 +1,5 @@
-﻿using UnityEngine;
-using System;
+﻿using System;
+using UnityEngine;
 using static StringUtility;
 using static UnityUtility;
 using static FrameBaseUtility;
@@ -8,46 +8,94 @@ using static FrameBaseUtility;
 [Serializable]
 public class ObjectInfo : ClassObject
 {
-	protected PrefabPool mPool;			// 所属的对象池
-	protected GameObject mObject;		// 物体实例
-	protected string mFileWithPath;		// 带GameResources下相对路径的文件名,不带后缀
-	protected int mTag;					// 物体的标签,外部给物体添加标签后,方便统一对指定标签的物体进行销毁,从而不用指定具体的实例或名字
-	protected bool mUsing;				// 是否正在使用
-	protected bool mMoveToHide;         // 是否通过移动到远处来隐藏
-	public override void destroy()
-	{
-		base.destroy();
-		destroyObject();
-	}
-	public PrefabPool getPool()					{ return mPool; }
-	public GameObject getObject()				{ return mObject; }
-	public string getFileWithPath()				{ return mFileWithPath; }
-	public int getTag()							{ return mTag; }
-	public bool isUsing()						{ return mUsing; }
-	public bool isMoveToHide()					{ return mMoveToHide; }
-	public void setPool(PrefabPool pool)		{ mPool = pool; }
-	public void setObject(GameObject obj)		{ mObject = obj; }
-	public void setTag(int tag)					{ mTag = tag; }
-	public void setUsing(bool value)			{ mUsing = value; }
-	public void setMoveToHide(bool moveToHide)	{ mMoveToHide = moveToHide; }
-	// 同步创建物体
-	public void createObject(GameObject prefab, string fileWithPath)
-	{
-		if (prefab == null)
-		{
-			return;
-		}
-		mObject = instantiatePrefab(null, prefab, getFileNameWithSuffix(prefab.name), true);
-		mFileWithPath = fileWithPath;
-	}
-	// 异步创建物体
-	public void createObjectAsync(GameObject prefab, string fileWithPath, Action<ObjectInfo> callback)
-	{
-		if (prefab == null)
-		{
-			callback?.Invoke(this);
-			return;
-		}
+    protected PrefabPool pool; // 所属的对象池
+    protected GameObject obj; // 物体实例
+    protected string fileWithPath; // 带GameResources下相对路径的文件名,不带后缀
+    protected int tag; // 物体的标签,外部给物体添加标签后,方便统一对指定标签的物体进行销毁,从而不用指定具体的实例或名字
+    protected bool inuse; // 是否正在使用
+    protected bool moveToHide; // 是否通过移动到远处来隐藏
+
+    public override void destroy()
+    {
+        base.destroy();
+        destroyObject();
+    }
+
+    public PrefabPool getPool()
+    {
+        return pool;
+    }
+
+    public GameObject getObject()
+    {
+        return obj;
+    }
+
+    public string getFileWithPath()
+    {
+        return fileWithPath;
+    }
+
+    public int getTag()
+    {
+        return tag;
+    }
+
+    public bool isUsing()
+    {
+        return inuse;
+    }
+
+    public bool isMoveToHide()
+    {
+        return moveToHide;
+    }
+
+    public void setPool(PrefabPool pool)
+    {
+        this.pool = pool;
+    }
+
+    public void setObject(GameObject obj)
+    {
+        this.obj = obj;
+    }
+
+    public void setTag(int tag)
+    {
+        this.tag = tag;
+    }
+
+    public void setUsing(bool value)
+    {
+        inuse = value;
+    }
+
+    public void setMoveToHide(bool moveToHide)
+    {
+        this.moveToHide = moveToHide;
+    }
+
+    // 同步创建物体
+    public void createObject(GameObject prefab, string fileWithPath)
+    {
+        if (prefab == null)
+        {
+            return;
+        }
+
+        obj = instantiatePrefab(null, prefab, getFileNameWithSuffix(prefab.name), true);
+        this.fileWithPath = fileWithPath;
+    }
+
+    // 异步创建物体
+    public void createObjectAsync(GameObject prefab, string fileWithPath, Action<ObjectInfo> callback)
+    {
+        if (prefab == null)
+        {
+            callback?.Invoke(this);
+            return;
+        }
 #if UNITY_6000_0_OR_NEWER
 		long curAssignID = mAssignID;
 		instantiatePrefabAsync(prefab, getFileNameWithSuffix(prefab.name), true, (GameObject go)=> 
@@ -56,24 +104,26 @@ public class ObjectInfo : ClassObject
 			callback?.Invoke(curAssignID == mAssignID ? this : null);
 		});
 #else
-		mObject = instantiatePrefab(null, prefab, getFileNameWithSuffix(prefab.name), true);
-		callback?.Invoke(this);
+        obj = instantiatePrefab(null, prefab, getFileNameWithSuffix(prefab.name), true);
+        callback?.Invoke(this);
 #endif
-		mFileWithPath = fileWithPath;
-	}
-	// 销毁物体
-	public void destroyObject()
-	{
-		destroyUnityObject(ref mObject);
-	}
-	public override void resetProperty()
-	{
-		base.resetProperty();
-		mPool = null;
-		mObject = null;
-		mFileWithPath = null;
-		mTag = 0;
-		mUsing = false;
-		mMoveToHide = false;
-	}
+        this.fileWithPath = fileWithPath;
+    }
+
+    // 销毁物体
+    public void destroyObject()
+    {
+        destroyUnityObject(ref obj);
+    }
+
+    public override void resetProperty()
+    {
+        base.resetProperty();
+        pool = null;
+        obj = null;
+        fileWithPath = null;
+        tag = 0;
+        inuse = false;
+        moveToHide = false;
+    }
 }

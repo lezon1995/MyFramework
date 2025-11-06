@@ -16,7 +16,7 @@ public struct ListScope<T> : IDisposable
 			mList = null;
 			return;
 		}
-		string stackTrace = GameEntry.getInstance().mFramworkParam.mEnablePoolStackTrace ? getStackTrace() : EMPTY;
+		string stackTrace = GameEntry.getInstance().frameworkParam.enablePoolStackTrace ? getStackTrace() : EMPTY;
 		list = mListPool.newList(typeof(T), typeof(List<T>), stackTrace, true) as List<T>;
 		mList = list;
 		if (initList != null)

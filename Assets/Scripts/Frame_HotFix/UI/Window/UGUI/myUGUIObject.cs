@@ -33,7 +33,7 @@ public class myUGUIObject : Transformable, IMouseEventCollect
 	{
 		mID = makeID();
 		mNeedUpdate = false;    // 出于效率考虑,窗口默认不启用更新,只有部分窗口和使用组件进行变化时才自动启用更新
-		mDestroy = false;       // 由于一般myUGUIObject不会使用对象池来管理,所以构造时就设置当前对象为有效
+		destroyed = false;       // 由于一般myUGUIObject不会使用对象池来管理,所以构造时就设置当前对象为有效
 	}
 	public virtual void init()
 	{
@@ -303,7 +303,7 @@ public class myUGUIObject : Transformable, IMouseEventCollect
 			logError("can not call window's destroy()! use destroyWindow(myUGUIObject window, bool destroyReally) instead");
 		}
 		base.destroy();
-		mDestroy = true;
+		destroyed = true;
 	}
 	public override void setActive(bool active)
 	{

@@ -1,15 +1,15 @@
 ﻿using UnityEngine;
-using Obfuz;
+// using Obfuz;
 using static FrameBaseHotFix;
 
 public class GoogleToken : MonoBehaviour
 {
-	[ObfuzIgnore]
+	// [ObfuzIgnore]
 	public void onLogin(string token)
     {
 		mGoogleLogin.onLogin(token);
     }
-	[ObfuzIgnore]
+	// [ObfuzIgnore]
 	public void onLoginError(string errorCode)
 	{
 		mGoogleLogin.onLoginError(errorCode);

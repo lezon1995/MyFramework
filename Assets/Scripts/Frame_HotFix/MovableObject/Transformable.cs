@@ -38,9 +38,9 @@ public class Transformable : ComponentOwner
 		if (mObject != null)
 		{
 			mTransform = mObject.transform;
-			if (mObject.name != mName)
+			if (mObject.name != name)
 			{
-				mObject.name = mName;
+				mObject.name = name;
 			}
 		}
 		else

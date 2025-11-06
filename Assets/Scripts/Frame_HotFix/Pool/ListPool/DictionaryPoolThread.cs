@@ -22,7 +22,7 @@ public class DictionaryPoolThread : FrameSystem
 		base.init();
 		if (isEditor())
 		{
-			mObject.AddComponent<DictionaryPoolThreadDebug>();
+			go.AddComponent<DictionaryPoolThreadDebug>();
 		}
 	}
 	public ThreadLock getLock() { return mListLock; }

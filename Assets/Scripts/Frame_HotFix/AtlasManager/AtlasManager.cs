@@ -29,7 +29,7 @@ public class AtlasManager : FrameSystem
 		SpriteAtlasManager.atlasRequested += onAtlasRequested;
 		if (isEditor())
 		{
-			mObject.AddComponent<TPSpriteManagerDebug>();
+			go.AddComponent<TPSpriteManagerDebug>();
 		}
 	}
 	public override void destroy()

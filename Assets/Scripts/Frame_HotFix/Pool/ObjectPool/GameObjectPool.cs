@@ -24,8 +24,8 @@ public class GameObjectPool : FrameSystem
 	}
 	public HashSet<GameObject> getInusedList() { return mInusedList; }
 	public Queue<GameObject> getUnusedList() { return mUnusedList; }
-	public GameObject newObject() { return newObject(null, mObject); }
-	public GameObject newObject(string name){ return newObject(name, mObject); }
+	public GameObject newObject() { return newObject(null, go); }
+	public GameObject newObject(string name){ return newObject(name, go); }
 	public GameObject newObject(string name, GameObject parent)
 	{
 		bool isNew = false;
@@ -65,7 +65,7 @@ public class GameObjectPool : FrameSystem
 		{
 			return;
 		}
-		setNormalProperty(go, mObject);
+		setNormalProperty(go, base.go);
 		// 加入未使用列表
 		mUnusedList.Enqueue(go);
 

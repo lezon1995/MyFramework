@@ -19,7 +19,7 @@ public class ComponentTrackTargetParabola : ComponentTrackTarget
 	//------------------------------------------------------------------------------------------------------------------------------
 	protected override void tick(float elapsedTime)
 	{
-		if (mTarget != null && (mTarget.getAssignID() != mTargetAssignID || mTarget.isDestroy()))
+		if (mTarget != null && (mTarget.id != mTargetAssignID || mTarget.isDestroy()))
 		{
 			mTarget = null;
 			mDoneCallback?.Invoke(this, true);

@@ -36,7 +36,7 @@ public class myUGUIImageNumber : myUGUIObject
 		{
 			if (!mObject.TryGetComponent<ImageAtlasPath>(out var imageAtlasPath))
 			{
-				logError("找不到图集,请添加ImageAtlasPath组件, window:" + mName + ", layout:" + mLayout.getName());
+				logError("找不到图集,请添加ImageAtlasPath组件, window:" + name + ", layout:" + mLayout.getName());
 			}
 			string atlasPath = imageAtlasPath.mAtlasPath;
 			// unity_builtin_extra是unity内置的资源,不需要再次加载
@@ -54,7 +54,7 @@ public class myUGUIImageNumber : myUGUIObject
 				}
 				if (mOriginAtlasPtr == null || !mOriginAtlasPtr.isValid())
 				{
-					logWarning("无法加载初始化的图集:" + atlasPath + ", window:" + mName + ", layout:" + mLayout.getName() +
+					logWarning("无法加载初始化的图集:" + atlasPath + ", window:" + name + ", layout:" + mLayout.getName() +
 						",请确保ImageAtlasPath中记录的图片路径正确,记录的路径:" + (imageAtlasPath != null ? imageAtlasPath.mAtlasPath : EMPTY));
 				}
 			}

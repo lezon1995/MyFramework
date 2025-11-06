@@ -6,31 +6,32 @@ using static StringUtility;
 // 线性安全的对象池调试信息
 public class ClassPoolThreadDebug : MonoBehaviour
 {
-	public List<string> TypeList = new();	// 类型信息列表
-	public void Update()
-	{
-		if (GameEntry.getInstance() == null || !GameEntry.getInstance().mFramworkParam.mEnableScriptDebug)
-		{
-			return;
-		}
+    public List<string> types = new(); // 类型信息列表
 
-		using (new ThreadLockScope(mClassPoolThread.getLock()))
-		{
-			TypeList.Clear();
-			foreach (var item in mClassPoolThread.getPoolList())
-			{
-				using var a = new MyStringBuilderScope(out var builder);
-				builder.append(item.Key.ToString());
-				if (item.Value.getInusedList().Count > 0)
-				{
-					builder.append(", 已使用:", IToS(item.Value.getInusedList().Count));
-				}
-				if (item.Value.getUnusedList().Count > 0)
-				{
-					builder.append(", 未使用:", IToS(item.Value.getUnusedList().Count));
-				}
-				TypeList.Add(builder.ToString());
-			}
-		}
-	}
+    public void Update()
+    {
+        if (GameEntry.getInstance() == null || !GameEntry.getInstance().frameworkParam.enableScriptDebug)
+            return;
+
+        using (new ThreadLockScope(mClassPoolThread.getLock()))
+        {
+            types.Clear();
+            foreach (var (key, value) in mClassPoolThread.getPoolList())
+            {
+                using var a = new MyStringBuilderScope(out var builder);
+                builder.append(key.ToString());
+                if (value.getInusedList().Count > 0)
+                {
+                    builder.append(", 已使用:", IToS(value.getInusedList().Count));
+                }
+
+                if (value.getUnusedList().Count > 0)
+                {
+                    builder.append(", 未使用:", IToS(value.getUnusedList().Count));
+                }
+
+                types.Add(builder.ToString());
+            }
+        }
+    }
 }

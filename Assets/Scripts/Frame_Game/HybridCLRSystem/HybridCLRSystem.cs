@@ -1,10 +1,10 @@
-﻿using System;
-using System.Reflection;
-using System.Collections.Generic;
-using UnityEngine;
-#if USE_HYBRID_CLR
+﻿#if USE_HYBRID_CLR
 using HybridCLR;
 #endif
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using UnityEngine;
 using static FileUtility;
 using static FrameBaseDefine;
 using static StringUtility;
@@ -15,49 +15,53 @@ using static FrameBase;
 // HybridCLR系统,用于启动HybridCLR热更
 public class HybridCLRSystem
 {
-	protected static bool mHotFixLaunched;
-	public static void launchHotFix(byte[] aesKey, byte[] aesIV, Action<string, BytesIntCallback> openOrDownloadDll, Action errorCallback = null)
-	{
-		if (mHotFixLaunched)
-		{
-			logErrorBase("已经启动了热更逻辑,无法再次启动");
-			return;
-		}
-		mHotFixLaunched = true;
-		try
-		{
-			// 存储所有需要跨域的参数
-			backupFrameParam();
-			// 启动热更系统
+    protected static bool hotFixLaunched;
+
+    public static void launchHotFix(byte[] aesKey, byte[] aesIV, Action<string, BytesIntCallback> openOrDownloadDll, Action errorCallback = null)
+    {
+        if (hotFixLaunched)
+        {
+            logErrorBase("已经启动了热更逻辑,无法再次启动");
+            return;
+        }
+
+        hotFixLaunched = true;
+        try
+        {
+            // 存储所有需要跨域的参数
+            backupFrameParam();
+            // 启动热更系统
 #if UNITY_EDITOR || !USE_HYBRID_CLR
-			launchEditor(errorCallback);
+            launchEditor(errorCallback);
 #else
 			launchRuntime(aesKey, aesIV, openOrDownloadDll, errorCallback);
 #endif
-		}
-		catch (Exception e)
-		{
-			logExceptionBase(e);
-		}
-	}
-	//------------------------------------------------------------------------------------------------------------------------------
-	protected static void backupFrameParam()
-	{
-		FrameCrossParam.mLocalizationName = ResLocalizationText.mCurLanguage;
-		FrameCrossParam.mDownloadURL = mResourceManager.getDownloadURL();
-		FrameCrossParam.mStreamingAssetsVersion = mAssetVersionSystem.getStreamingAssetsVersion();
-		FrameCrossParam.mPersistentDataVersion = mAssetVersionSystem.getPersistentDataVersion();
-		FrameCrossParam.mRemoteVersion = mAssetVersionSystem.getRemoteVersion();
-		FrameCrossParam.mStreamingAssetsFileList.setRange(mAssetVersionSystem.getStreamingAssetsFile());
-		FrameCrossParam.mPersistentAssetsFileList.setRange(mAssetVersionSystem.getPersistentAssetsFile());
-		FrameCrossParam.mRemoteAssetsFileList.setRange(mAssetVersionSystem.getRemoteAssetsFile());
-		FrameCrossParam.mTotalDownloadedFiles.setRange(mAssetVersionSystem.getTotalDownloadedFiles());
-		FrameCrossParam.mTotalDownloadByteCount = mAssetVersionSystem.getTotalDownloadedByteCount();
-		FrameCrossParam.mAssetReadPath = mAssetVersionSystem.getAssetReadPath();
-	}
-	// 执行AOT补充元数据
-	protected static void loadMetaDataForAOT(Action<string, BytesIntCallback> openOrDownloadDll, Action callback, Action errorCallback)
-	{
+        }
+        catch (Exception e)
+        {
+            logExceptionBase(e);
+        }
+    }
+
+    //------------------------------------------------------------------------------------------------------------------------------
+    protected static void backupFrameParam()
+    {
+        FrameCrossParam.localizationName = ResLocalizationText.mCurLanguage;
+        FrameCrossParam.downloadURL = mResourceManager.getDownloadURL();
+        FrameCrossParam.streamingAssetsVersion = mAssetVersionSystem.getStreamingAssetsVersion();
+        FrameCrossParam.persistentDataVersion = mAssetVersionSystem.getPersistentDataVersion();
+        FrameCrossParam.remoteVersion = mAssetVersionSystem.getRemoteVersion();
+        FrameCrossParam.streamingAssetsFileList.setRange(mAssetVersionSystem.getStreamingAssetsFile());
+        FrameCrossParam.persistentAssetsFileList.setRange(mAssetVersionSystem.getPersistentAssetsFile());
+        FrameCrossParam.remoteAssetsFileList.setRange(mAssetVersionSystem.getRemoteAssetsFile());
+        FrameCrossParam.totalDownloadedFiles.setRange(mAssetVersionSystem.getTotalDownloadedFiles());
+        FrameCrossParam.totalDownloadByteCount = mAssetVersionSystem.getTotalDownloadedByteCount();
+        FrameCrossParam.assetReadPath = mAssetVersionSystem.getAssetReadPath();
+    }
+
+    // 执行AOT补充元数据
+    protected static void LoadMetadataForAOT(Action<string, BytesIntCallback> openOrDownloadDLL, Action callback, Action errorCallback)
+    {
 #if USE_HYBRID_CLR
 		Dictionary<string, byte[]> downloadFilesResource = new();
 		foreach (string aotFile in AOTGenericReferences.PatchedAOTAssemblyList)
@@ -68,7 +72,7 @@ public class HybridCLRSystem
 		foreach (string item in new List<string>(downloadFilesResource.Keys))
 		{
 			string fileDllName = item;
-			openOrDownloadDll(fileDllName, (byte[] bytes, int length) =>
+			openOrDownloadDLL(fileDllName, (bytes, length) =>
 			{
 				if (onAOTDownloaded(downloadFilesResource, ref finishCount, fileDllName, bytes, errorCallback))
 				{
@@ -77,27 +81,27 @@ public class HybridCLRSystem
 			});
 		}
 #else
-		callback?.Invoke();
+        callback?.Invoke();
 #endif
-	}
-	// 返回值表示是否已经全部下载完成
-	protected static bool onAOTDownloaded(Dictionary<string, byte[]> downloadFilesResource, ref int finishCount, string fileDllName, byte[] bytes, Action errorCallback)
-	{
-		if (bytes == null)
-		{
-			downloadFilesResource = null;
-			errorCallback?.Invoke();
-			return false;
-		}
-		if (downloadFilesResource == null)
-		{
-			return false;
-		}
-		downloadFilesResource.set(fileDllName, bytes);
-		if (++finishCount < downloadFilesResource.Count)
-		{
-			return false;
-		}
+    }
+
+    // 返回值表示是否已经全部下载完成
+    protected static bool onAOTDownloaded(Dictionary<string, byte[]> downloadFilesResource, ref int finishCount, string fileDllName, byte[] bytes, Action errorCallback)
+    {
+        if (bytes == null)
+        {
+            downloadFilesResource = null;
+            errorCallback?.Invoke();
+            return false;
+        }
+
+        if (downloadFilesResource == null)
+            return false;
+
+        downloadFilesResource.set(fileDllName, bytes);
+        if (++finishCount < downloadFilesResource.Count)
+            return false;
+
 #if USE_HYBRID_CLR
 		foreach (string aotFile in AOTGenericReferences.PatchedAOTAssemblyList)
 		{
@@ -113,119 +117,130 @@ public class HybridCLRSystem
 			}
 		}
 #endif
-		return true;
-	}
-	protected static void launchRuntime(byte[] aesKey, byte[] aesIV, Action<string, BytesIntCallback> openOrDownloadDll, Action errorCallback)
-	{
-		loadMetaDataForAOT(openOrDownloadDll, ()=>
-		{
-			Dictionary<string, byte[]> downloadFiles = new()
-			{
-				{ HOTFIX_FRAME_BYTES_FILE, null },
-				{ HOTFIX_BYTES_FILE, null }
-			};
-			int finishCount = 0;
-			foreach (string item in new List<string>(downloadFiles.Keys))
-			{
-				string fileDllName = item;
-				openOrDownloadDll(fileDllName, (byte[] bytes, int length) =>
-				{
-					onHotFixDllLoaded(downloadFiles, ref finishCount, fileDllName, bytes, aesKey, aesIV, errorCallback);
-				});
-			}
-		}, errorCallback);
-	}
-	protected static void onHotFixDllLoaded(Dictionary<string, byte[]> downloadFiles, ref int finishCount, string fileDllName, byte[] bytes, byte[] aesKey, byte[] aesIV, Action errorCallback)
-	{
-		if (bytes == null)
-		{
-			downloadFiles = null;
-			errorCallback?.Invoke();
-			return;
-		}
-		if (downloadFiles == null)
-		{
-			return;
-		}
-		downloadFiles.set(fileDllName, bytes);
-		if (++finishCount < downloadFiles.Count)
-		{
-			return;
-		}
-		// 加载以后不再卸载
-		Assembly.Load(decryptAES(downloadFiles.get(HOTFIX_FRAME_BYTES_FILE), aesKey, aesIV));
-		launchInternal(Assembly.Load(decryptAES(downloadFiles.get(HOTFIX_BYTES_FILE), aesKey, aesIV)));
-	}
-	protected static void launchEditor(Action errorCallback)
-	{
-		Assembly hotFixAssembly = null;
-		string dllName = getFileNameNoSuffixNoDir(HOTFIX_FILE);
-		foreach (Assembly item in AppDomain.CurrentDomain.GetAssemblies())
-		{
-			if (item.GetName().Name == dllName)
-			{
-				hotFixAssembly = item;
-				break;
-			}
-		}
-		if (hotFixAssembly == null)
-		{
-			errorCallback?.Invoke();
-			return;
-		}
-		launchInternal(hotFixAssembly);
-	}
-	protected static void launchInternal(Assembly hotFixAssembly)
-	{
-		if (hotFixAssembly == null)
-		{
-			logErrorBase("加载热更程序集失败:" + HOTFIX_FILE);
-			return;
-		}
-		Type type = hotFixAssembly.GetType("GameHotFix");
-		if (type == null)
-		{
-			logErrorBase("在热更程序集中找不到GameHotFix类");
-			return;
-		}
-		if (type.BaseType.Name != "GameHotFixBase")
-		{
-			logErrorBase("GameHotFix类需要继承自GameHotFixBase");
-			return;
-		}
-		Action preStartCallback = () =>
-		{
-			// 创建热更对象示例的函数签名为public void createHotFixInstance()
-			MethodInfo methodCreate = type.GetMethod("createHotFixInstance");
-			if (methodCreate == null)
-			{
-				logErrorBase("在GameHotFix类中找不到静态函数createHotFixInstance");
-				return;
-			}
-			// 查找start函数
-			MethodInfo methodStart = type.GetMethod("start");
-			if (methodStart == null)
-			{
-				logErrorBase("在GameHotFix类中找不到函数start");
-				return;
-			}
-			// 执行热更的启动函数
-			Action callback = () =>
-			{
-				Debug.Log("热更初始化完毕");
-				// 热更初始化完毕后将非热更层加载的所有资源都清除,这样避免中间的黑屏
-				GameEntry.getInstance().getFrameworkAOT().destroy();
-				GameEntry.getInstance().setFrameworkAOT(null);
-			};
-			// 使用createHotFixInstance创建一个HotFix的实例,然后调用此实例的start函数
-			methodStart.Invoke(methodCreate.Invoke(null, null), new object[1] { callback });
-		};
-		MethodInfo methodPreStart = getMethodRecursive(type, "preStart", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
-		if (methodPreStart == null)
-		{
-			logErrorBase("在GameHotFix类或者父类中找不到静态函数preStart");
-			return;
-		}
-		methodPreStart.Invoke(null, new object[1] { preStartCallback });
-	}
+        return true;
+    }
+
+    protected static void launchRuntime(byte[] aesKey, byte[] aesIV, Action<string, BytesIntCallback> openOrDownloadDLL, Action errorCallback)
+    {
+        LoadMetadataForAOT(openOrDownloadDLL, () =>
+        {
+            Dictionary<string, byte[]> downloadFiles = new()
+            {
+                { HOTFIX_FRAME_BYTES_FILE, null },
+                { HOTFIX_BYTES_FILE, null }
+            };
+            int finishCount = 0;
+            foreach (string item in new List<string>(downloadFiles.Keys))
+            {
+                string fileDllName = item;
+                openOrDownloadDLL(fileDllName, (bytes, length) =>
+                {
+                    onHotFixDllLoaded(downloadFiles, ref finishCount, fileDllName, bytes, aesKey, aesIV, errorCallback);
+                });
+            }
+        }, errorCallback);
+    }
+
+    protected static void onHotFixDllLoaded(Dictionary<string, byte[]> downloadFiles, ref int finishCount, string fileDllName, byte[] bytes, byte[] aesKey, byte[] aesIV, Action errorCallback)
+    {
+        if (bytes == null)
+        {
+            downloadFiles = null;
+            errorCallback?.Invoke();
+            return;
+        }
+
+        if (downloadFiles == null)
+            return;
+
+        downloadFiles.set(fileDllName, bytes);
+        if (++finishCount < downloadFiles.Count)
+            return;
+
+        // 加载以后不再卸载
+        Assembly.Load(decryptAES(downloadFiles.get(HOTFIX_FRAME_BYTES_FILE), aesKey, aesIV));
+        launchInternal(Assembly.Load(decryptAES(downloadFiles.get(HOTFIX_BYTES_FILE), aesKey, aesIV)));
+    }
+
+    protected static void launchEditor(Action errorCallback)
+    {
+        Assembly hotFixAssembly = null;
+        string dllName = getFileNameNoSuffixNoDir(HOTFIX_FILE);
+        foreach (Assembly item in AppDomain.CurrentDomain.GetAssemblies())
+        {
+            if (item.GetName().Name == dllName)
+            {
+                hotFixAssembly = item;
+                break;
+            }
+        }
+
+        if (hotFixAssembly == null)
+        {
+            errorCallback?.Invoke();
+            return;
+        }
+
+        launchInternal(hotFixAssembly);
+    }
+
+    protected static void launchInternal(Assembly hotFixAssembly)
+    {
+        if (hotFixAssembly == null)
+        {
+            logErrorBase("加载热更程序集失败:" + HOTFIX_FILE);
+            return;
+        }
+
+        Type type = hotFixAssembly.GetType("GameHotFix");
+        if (type == null)
+        {
+            logErrorBase("在热更程序集中找不到GameHotFix类");
+            return;
+        }
+
+        if (type.BaseType.Name != "GameHotFixBase")
+        {
+            logErrorBase("GameHotFix类需要继承自GameHotFixBase");
+            return;
+        }
+
+        Action preStartCallback = () =>
+        {
+            // 创建热更对象示例的函数签名为public void createHotFixInstance()
+            MethodInfo methodCreate = type.GetMethod("createHotFixInstance");
+            if (methodCreate == null)
+            {
+                logErrorBase("在GameHotFix类中找不到静态函数createHotFixInstance");
+                return;
+            }
+
+            // 查找start函数
+            MethodInfo methodStart = type.GetMethod("start");
+            if (methodStart == null)
+            {
+                logErrorBase("在GameHotFix类中找不到函数start");
+                return;
+            }
+
+            // 执行热更的启动函数
+            Action callback = () =>
+            {
+                Debug.Log("热更初始化完毕");
+                // 热更初始化完毕后将非热更层加载的所有资源都清除,这样避免中间的黑屏
+                GameEntry.getInstance().getFrameworkAOT().destroy();
+                GameEntry.getInstance().setFrameworkAOT(null);
+            };
+            // 使用createHotFixInstance创建一个HotFix的实例,然后调用此实例的start函数
+            methodStart.Invoke(methodCreate.Invoke(null, null), new object[] { callback });
+        };
+        MethodInfo methodPreStart = getMethodRecursive(type, "preStart", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+        if (methodPreStart == null)
+        {
+            logErrorBase("在GameHotFix类或者父类中找不到静态函数preStart");
+            return;
+        }
+
+        methodPreStart.Invoke(null, new object[] { preStartCallback });
+    }
 }

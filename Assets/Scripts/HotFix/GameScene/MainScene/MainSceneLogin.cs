@@ -1,12 +1,12 @@
-﻿
-public class MainSceneLogin : SceneProcedure
+﻿public class MainSceneLogin : SceneProcedure
 {
-	protected override void onInit(SceneProcedure lastProcedure)
-	{
-		LT.LOAD_SHOW<UILogin>();
-	}
-	protected override void onExit(SceneProcedure nextProcedure)
-	{
-		LT.HIDE<UILogin>();
-	}
+    protected override void onInit(SceneProcedure lastProcedure)
+    {
+        LT.LOAD_SHOW<UILogin>();
+    }
+
+    protected override void onExit(SceneProcedure nextProcedure)
+    {
+        LT.HIDE<UILogin>();
+    }
 }

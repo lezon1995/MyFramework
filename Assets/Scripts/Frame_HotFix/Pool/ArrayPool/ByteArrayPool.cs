@@ -25,7 +25,7 @@ public class ByteArrayPool : FrameSystem
 		base.init();
 		if (isEditor())
 		{
-			mObject.AddComponent<ArrayPoolDebug>();
+			go.AddComponent<ArrayPoolDebug>();
 		}
 	}
 	public override void update(float elapsedTime)
@@ -94,7 +94,7 @@ public class ByteArrayPool : FrameSystem
 		if (isEditor())
 		{
 			addInuse(array, onlyOnce);
-			mObjectStack.Add(array, GameEntry.getInstance().mFramworkParam.mEnablePoolStackTrace ? getStackTrace() : EMPTY);
+			mObjectStack.Add(array, GameEntry.getInstance().frameworkParam.enablePoolStackTrace ? getStackTrace() : EMPTY);
 			if (isNew && mCreatedCount % 1000 == 0)
 			{
 				logNoLock("byte[" + size + "]" + "数量已经达到了" + mCreatedCount + "个");

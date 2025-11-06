@@ -44,7 +44,7 @@ public class KeyFrameManager : FrameSystem
 				mCurveList.Remove(deleteKeys[i]);
 			}
 
-			GameObject keyFrameObject = instantiatePrefab(mObject, asset, getFileNameWithSuffix(asset.name), true);
+			GameObject keyFrameObject = instantiatePrefab(go, asset, getFileNameWithSuffix(asset.name), true);
 			// 查找关键帧曲线,加入列表中
 			if (!keyFrameObject.TryGetComponent<GameKeyframe>(out var gameKeyframe))
 			{

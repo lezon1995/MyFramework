@@ -16,7 +16,7 @@ public class LaunchSceneVersion : SceneProcedure
 		if (isEditor() || !enableHotFix)
 		{
 			mAssetVersionSystem.setStreamingAssetsVersion(null);
-			mGameSceneManager.getCurScene().changeProcedure<LaunchSceneDownload>();
+			mGameSceneManager.CurScene.changeProcedure<LaunchSceneDownload>();
 			return;
 		}
 		// 正在检查版本号
@@ -47,8 +47,8 @@ public class LaunchSceneVersion : SceneProcedure
 					", RemoteVersion:" + mAssetVersionSystem.getRemoteVersion());
 			// 需要设置自己的远端下载路径
 			//mResourceManager.setDownloadURL(OBS_URL + getRemoteFolder(mAssetVersionSystem.getRemoteVersion()));
-			FrameCrossParam.mDownloadURL = mResourceManager.getDownloadURL();
-			mGameSceneManager.getCurScene().changeProcedure<LaunchSceneFileList>();
+			FrameCrossParam.downloadURL = mResourceManager.getDownloadURL();
+			mGameSceneManager.CurScene.changeProcedure<LaunchSceneFileList>();
 		}
 	}
 }

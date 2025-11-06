@@ -22,11 +22,11 @@ public class CmdGlobalDelayCallParam3<T0, T1, T2> : Command
 	public void setGuard(ClassObject guard)
 	{
 		mGuard = guard;
-		mGuardAssignID = mGuard.getAssignID();
+		mGuardAssignID = mGuard.id;
 	}
 	public override void execute()
 	{
-		if (mGuard != null && mGuard.getAssignID() != mGuardAssignID)
+		if (mGuard != null && mGuard.id != mGuardAssignID)
 		{
 			return;
 		}
