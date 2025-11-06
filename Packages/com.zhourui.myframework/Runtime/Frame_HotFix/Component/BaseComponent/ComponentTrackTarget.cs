@@ -66,7 +66,7 @@ public class ComponentTrackTarget : GameComponent, IComponentModifyPosition, ICo
 		}
 		mDoneCallback = doneCallback;
 		mTarget = target;
-		mTargetAssignID = mTarget?.getAssignID() ?? 0;
+		mTargetAssignID = mTarget?.id ?? 0;
 		if (mTarget == null)
 		{
 			setActive(false);
@@ -95,7 +95,7 @@ public class ComponentTrackTarget : GameComponent, IComponentModifyPosition, ICo
 	protected virtual Vector3 getTargetPosition() { return mTarget.getWorldPosition() + mTarget.localToWorldDirection(mTargetOffset); }
 	protected virtual void tick(float elapsedTime)
 	{
-		if (mTarget != null && (mTarget.getAssignID() != mTargetAssignID || mTarget.isDestroy()))
+		if (mTarget != null && (mTarget.id != mTargetAssignID || mTarget.isDestroy()))
 		{
 			mTarget = null;
 			BoolCallback tempCallback = mDoneCallback;
