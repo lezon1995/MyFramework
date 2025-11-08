@@ -6,11 +6,12 @@ using UnityEngine;
 [CustomPropertyDrawer(typeof(CustomLabelAttribute))]
 public class CustomLabelDrawer : PropertyDrawer
 {
-	protected GUIContent mLabel;
-	public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
-	{
-		mLabel ??= new((attribute as CustomLabelAttribute).getLabel());
-		EditorGUI.PropertyField(position, property, mLabel);
-	}
+    protected GUIContent mLabel;
+
+    public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+    {
+        mLabel ??= new((attribute as CustomLabelAttribute).getLabel());
+        EditorGUI.PropertyField(position, property, mLabel);
+    }
 }
 #endif

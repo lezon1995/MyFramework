@@ -58,11 +58,11 @@ public class PrefabPoolManager : FrameSystem
 		mPrefabPoolList.clear();
 		base.destroy();
 	}
-	public override void update(float elapsedTime)
+	public override void update(float dt)
 	{
-		base.update(elapsedTime);
+		base.update(dt);
 		// 每隔一定时间销毁不再使用的对象池
-		if (tickTimerLoop(ref mDestroyTimer, elapsedTime, mTimerInterval))
+		if (tickTimerLoop(ref mDestroyTimer, dt, mTimerInterval))
 		{
 			foreach (var item in mPrefabPoolList)
 			{

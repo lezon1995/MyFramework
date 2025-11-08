@@ -1,8 +1,8 @@
 ﻿public interface IFramework
 {
-    public void update(float elapsedTime);
-    public void fixedUpdate(float elapsedTime);
-    public void lateUpdate(float elapsedTime);
+    public void update(float dt);
+    public void fixedUpdate(float dt);
+    public void lateUpdate(float dt);
     public void drawGizmos();
     public void onApplicationFocus(bool focus);
     public void onApplicationQuit();

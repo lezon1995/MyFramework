@@ -1,11 +1,12 @@
 ﻿// 系统组件基类,一般都是管理器
+
 public class FrameSystem
 {
     public virtual void init()
     {
     }
 
-    public virtual void update(float elapsedTime)
+    public virtual void update(float dt)
     {
     }
 

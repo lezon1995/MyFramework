@@ -37,7 +37,7 @@ public class CameraLinker : GameComponent
 	{
 		base.init(owner);
 		initSwitch();
-		mCamera = mComponentOwner as GameCamera;
+		mCamera = base.owner as GameCamera;
 	}
 	public override void destroy()
 	{
@@ -63,43 +63,43 @@ public class CameraLinker : GameComponent
 		mIgnoreLayer = -1;
 		mTempResults.setAllValue(null);
 	}
-	public override void update(float elapsedTime)
+	public override void update(float dt)
 	{
-		base.update(elapsedTime);
+		base.update(dt);
 		if (mLinkObject == null)
 		{
 			return;
 		}
 		if (mUpdateMoment == LINKER_UPDATE.UPDATE)
 		{
-			mCurSwitch?.update(elapsedTime);
-			updateLinker(elapsedTime);
+			mCurSwitch?.update(dt);
+			updateLinker(dt);
 		}
 	}
-	public override void lateUpdate(float elapsedTime)
+	public override void lateUpdate(float dt)
 	{
-		base.lateUpdate(elapsedTime);
+		base.lateUpdate(dt);
 		if (mLinkObject == null)
 		{
 			return;
 		}
 		if (mUpdateMoment == LINKER_UPDATE.LATE_UPDATE)
 		{
-			mCurSwitch?.update(elapsedTime);
-			updateLinker(elapsedTime);
+			mCurSwitch?.update(dt);
+			updateLinker(dt);
 		}
 	}
-	public override void fixedUpdate(float elapsedTime)
+	public override void fixedUpdate(float dt)
 	{
-		base.fixedUpdate(elapsedTime);
+		base.fixedUpdate(dt);
 		if (mLinkObject == null)
 		{
 			return;
 		}
 		if (mUpdateMoment == LINKER_UPDATE.FIXED_UPDATE)
 		{
-			mCurSwitch?.update(elapsedTime);
-			updateLinker(elapsedTime);
+			mCurSwitch?.update(dt);
+			updateLinker(dt);
 		}
 	}
 	// 当使用此连接器时调用

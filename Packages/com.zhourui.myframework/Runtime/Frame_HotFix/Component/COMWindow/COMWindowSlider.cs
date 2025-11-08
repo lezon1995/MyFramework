@@ -17,7 +17,7 @@ public class COMWindowSlider : ComponentKeyFrame
 	//------------------------------------------------------------------------------------------------------------------------------
 	protected override void applyTrembling(float value)
 	{
-		if (mComponentOwner is not ISlider slider)
+		if (owner is not ISlider slider)
 		{
 			logError("window is not a Slider Window!");
 			return;
