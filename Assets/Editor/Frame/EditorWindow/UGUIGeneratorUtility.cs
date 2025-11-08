@@ -388,10 +388,10 @@ public class UGUIGeneratorUtility
         generator.mMemberList.Sort((a, b) =>
         {
             // 带模板参数的始终要排在后面,为了保证都在一起,而且不会因为前置节点未创建而导致错误
-            if (a.mWindowType == WINDOW_TYPE.POOL || a.mWindowType == WINDOW_TYPE.SCROLL_LIST)
+            if (a.mWindowType is WINDOW_TYPE.POOL or WINDOW_TYPE.SCROLL_LIST)
                 return 1;
 
-            if (b.mWindowType == WINDOW_TYPE.POOL || b.mWindowType == WINDOW_TYPE.SCROLL_LIST)
+            if (b.mWindowType is WINDOW_TYPE.POOL or WINDOW_TYPE.SCROLL_LIST)
                 return -1;
 
             if (a.mObject == null)
@@ -551,7 +551,7 @@ public class UGUIGeneratorUtility
         }
 
         string parentParam = parentName != null ? parentName + ", " : "";
-        lines.Add(prefix + "newObject(out " + typeof(myUGUIObject).ToString() + " " + varName + ", " + parentParam + "\"" + curName + "\");");
+        lines.Add(prefix + "newObject(out " + typeof(myUGUIObject) + " " + varName + ", " + parentParam + "\"" + curName + "\");");
         return varName;
     }
 
@@ -852,7 +852,7 @@ public class UGUIGeneratorUtility
         foreach (Type type in Assembly.LoadFrom(F_PROJECT_PATH + "Library/ScriptAssemblies/HotFix.dll").GetTypes())
         {
             // 跳过无法加载的类型、接口和抽象类
-            if (type == null || type.IsInterface || type.IsAbstract)
+            if (type.IsInterface || type.IsAbstract)
             {
                 continue;
             }
@@ -886,7 +886,7 @@ public class UGUIGeneratorUtility
         foreach (Type type in Assembly.LoadFrom(dllFullPath).GetTypes())
         {
             // 跳过无法加载的类型、接口和抽象类
-            if (type == null || type.IsInterface || type.IsAbstract)
+            if (type.IsInterface || type.IsAbstract)
             {
                 continue;
             }
@@ -919,9 +919,9 @@ public class UGUIGeneratorUtility
         // 接口类型判断
         if (targetType.IsInterface)
         {
-            foreach (Type iface in type.GetInterfaces())
+            foreach (Type iType in type.GetInterfaces())
             {
-                if (IsMatchingGenericType(iface, targetType))
+                if (IsMatchingGenericType(iType, targetType))
                 {
                     return true;
                 }

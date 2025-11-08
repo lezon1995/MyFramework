@@ -16,10 +16,10 @@ public abstract class ComponentLerpRotation : ComponentLerp, IComponentModifyRot
 		mTargetRotation = Vector3.zero;
 		mMinRange = 0.001f;
 	}
-	public override void update(float elapsedTime)
+	public override void update(float dt)
 	{
-		base.update(elapsedTime);
-		Vector3 curRot = lerp(getRotation(), mTargetRotation, mLerpSpeed * elapsedTime, mMinRange);
+		base.update(dt);
+		Vector3 curRot = lerp(getRotation(), mTargetRotation, mLerpSpeed * dt, mMinRange);
 		applyRotation(curRot);
 		afterApplyLerp(isVectorEqual(curRot, mTargetRotation));
 	}

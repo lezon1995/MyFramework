@@ -35,9 +35,9 @@ public class myUGUIImageAnim : myUGUIImage, IUIAnimation
 		mControl.setPlayEndCallback(mPlayEndCallback);
 		mControl.setPlayingCallback(mPlayingCallback);
 	}
-	public override void update(float elapsedTime)
+	public override void update(float dt)
 	{
-		base.update(elapsedTime);
+		base.update(dt);
 		if (isCulled())
 		{
 			return;
@@ -46,7 +46,7 @@ public class myUGUIImageAnim : myUGUIImage, IUIAnimation
 		{
 			setSpriteName(null);
 		}
-		mControl.update(elapsedTime);
+		mControl.update(dt);
 	}
 	public override void setAtlas(UGUIAtlasPtr atlas, bool clearSprite = false, bool force = false)
 	{

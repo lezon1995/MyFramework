@@ -21,12 +21,12 @@ public class COMTransformableRotateFocus : GameComponent, IComponentModifyRotati
 		}
 	}
 	public void setFocusOffset(Vector3 offset) { mFocusOffset = offset; }
-	public override void update(float elapsedTime)
+	public override void update(float dt)
 	{
-		var obj = mComponentOwner as Transformable;
+		var obj = owner as Transformable;
 		Vector3 dir = mFocusTarget.localToWorldDirection(mFocusOffset) + mFocusTarget.getWorldPosition() - obj.getWorldPosition();
 		obj.setWorldRotation(getLookAtQuaternion(dir));
-		base.update(elapsedTime);
+		base.update(dt);
 	}
 	public void notifyBreak() { }
 }

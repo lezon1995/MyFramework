@@ -17,6 +17,6 @@ public class COMTransformableMove : ComponentKeyFrame, IComponentModifyPosition
 	//------------------------------------------------------------------------------------------------------------------------------
 	protected override void applyTrembling(float value)
 	{
-		(mComponentOwner as Transformable).setPosition(lerpSimple(mStart, mTarget, value));
+		(owner as Transformable).setPosition(lerpSimple(mStart, mTarget, value));
 	}
 }

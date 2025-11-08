@@ -6,17 +6,17 @@ using static UnityUtility;
 
 public static class DictionaryExtension
 {
-    public static IDictionary<TKey, TValue> safe<TKey, TValue>(this IDictionary<TKey, TValue> dic)
+    public static IDictionary<K, V> safe<K, V>(this IDictionary<K, V> dic)
     {
-        return dic ?? new MyEmptyDictionary<TKey, TValue>();
+        return dic ?? new MyEmptyDictionary<K, V>();
     }
 
-    public static void addOrSet<TKey, TValue>(this IDictionary<TKey, TValue> dic, TKey key, TValue value)
+    public static void addOrSet<K, V>(this IDictionary<K, V> dic, K key, V value)
     {
         dic[key] = value;
     }
 
-    public static void set<TKey, TValue>(this IDictionary<TKey, TValue> dic, TKey key, TValue value)
+    public static void set<K, V>(this IDictionary<K, V> dic, K key, V value)
     {
         if (isEditor() && !dic.ContainsKey(key))
         {
@@ -27,48 +27,46 @@ public static class DictionaryExtension
     }
 
     // 添加或者更新值,并且返回旧的值
-    public static TValue replace<TKey, TValue>(this IDictionary<TKey, TValue> dic, TKey key, TValue value)
+    public static V replace<K, V>(this IDictionary<K, V> dic, K key, V value)
     {
-        dic.TryGetValue(key, out TValue curValue);
+        dic.TryGetValue(key, out V curValue);
         dic[key] = value;
         return curValue;
     }
 
     // 等效于CollectionExtensions.GetValueOrDefault
-    public static Value get<Key, Value>(this IDictionary<Key, Value> map, Key key, Value defaultValue)
+    public static V get<K, V>(this IDictionary<K, V> map, K key, V defaultValue)
     {
-        return map != null && map.TryGetValue(key, out Value value) ? value : defaultValue;
+        return map != null && map.TryGetValue(key, out V value) ? value : defaultValue;
     }
 
     // 等效于CollectionExtensions.GetValueOrDefault
-    public static Value get<Key, Value>(this IDictionary<Key, Value> map, Key key)
+    public static V get<K, V>(this IDictionary<K, V> map, K key)
     {
         if (map == null)
-        {
             return default;
-        }
 
-        map.TryGetValue(key, out Value value);
+        map.TryGetValue(key, out V value);
         return value;
     }
 
-    public static Value add<Key, Value>(this IDictionary<Key, Value> map, Key key, Value value)
+    public static V add<K, V>(this IDictionary<K, V> map, K key, V value)
     {
         map.Add(key, value);
         return value;
     }
 
-    public static void add<Key, Value>(this IDictionary<Key, Value> map, KeyValuePair<Key, Value> pair)
+    public static void add<K, V>(this IDictionary<K, V> map, KeyValuePair<K, V> pair)
     {
         map.Add(pair.Key, pair.Value);
     }
 
-    public static Value addClass<Key, Value>(this IDictionary<Key, Value> map, Key key) where Value : ClassObject, new()
+    public static V addClass<K, V>(this IDictionary<K, V> map, K key) where V : ClassObject, new()
     {
-        return map.add(key, CLASS<Value>());
+        return map.add(key, CLASS<V>());
     }
 
-    public static Value addNotNullKey<Key, Value>(this IDictionary<Key, Value> map, Key key, Value value)
+    public static V addNotNullKey<K, V>(this IDictionary<K, V> map, K key, V value)
     {
         if (key == null)
         {
@@ -79,7 +77,7 @@ public static class DictionaryExtension
         return value;
     }
 
-    public static Value addNotNullValue<Key, Value>(this IDictionary<Key, Value> map, Key key, Value value)
+    public static V addNotNullValue<K, V>(this IDictionary<K, V> map, K key, V value)
     {
         if (value == null)
         {
@@ -90,7 +88,7 @@ public static class DictionaryExtension
         return value;
     }
 
-    public static void setRange<Key, Value>(this IDictionary<Key, Value> map, IDictionary<Key, Value> other)
+    public static void setRange<K, V>(this IDictionary<K, V> map, IDictionary<K, V> other)
     {
         map.Clear();
         if (other == null)
@@ -104,7 +102,7 @@ public static class DictionaryExtension
         }
     }
 
-    public static void addRange<Key, Value>(this IDictionary<Key, Value> map, IDictionary<Key, Value> other)
+    public static void addRange<K, V>(this IDictionary<K, V> map, IDictionary<K, V> other)
     {
         if (other == null)
         {
@@ -117,7 +115,7 @@ public static class DictionaryExtension
         }
     }
 
-    public static void addOrIncreaseValue<TKey>(this IDictionary<TKey, int> dic, TKey key, int increase)
+    public static void addOrIncreaseValue<K>(this IDictionary<K, int> dic, K key, int increase)
     {
         if (dic.TryGetValue(key, out int curValue))
         {
@@ -129,7 +127,7 @@ public static class DictionaryExtension
         }
     }
 
-    public static void addOrIncreaseValue<TKey>(this IDictionary<TKey, float> dic, TKey key, float increase)
+    public static void addOrIncreaseValue<K>(this IDictionary<K, float> dic, K key, float increase)
     {
         if (dic.TryGetValue(key, out float curValue))
         {
@@ -141,16 +139,16 @@ public static class DictionaryExtension
         }
     }
 
-    public static void setAllValue<Key, Value>(this IDictionary<Key, Value> map, Value value)
+    public static void setAllValue<K, V>(this IDictionary<K, V> map, V value)
     {
-        using var a = new ListScope<Key>(out var temp, map.Keys);
-        foreach (Key item in temp)
+        using var a = new ListScope<K>(out var temp, map.Keys);
+        foreach (K item in temp)
         {
             map[item] = value;
         }
     }
 
-    public static Dictionary<T0, T1> getOrAddListPersist<Key, T0, T1>(this IDictionary<Key, Dictionary<T0, T1>> map, Key key)
+    public static Dictionary<T0, T1> getOrAddListPersist<K, T0, T1>(this IDictionary<K, Dictionary<T0, T1>> map, K key)
     {
         if (!map.TryGetValue(key, out var value))
         {
@@ -161,7 +159,7 @@ public static class DictionaryExtension
         return value;
     }
 
-    public static T getOrAddClass<Key, T>(this IDictionary<Key, T> map, Key key) where T : ClassObject, new()
+    public static T getOrAddClass<K, T>(this IDictionary<K, T> map, K key) where T : ClassObject, new()
     {
         if (!map.TryGetValue(key, out T value))
         {
@@ -172,7 +170,7 @@ public static class DictionaryExtension
     }
 
     // 返回值表示是否获取到了列表中已经存在的值
-    public static bool getOrAddClass<Key, T>(this IDictionary<Key, T> map, Key key, out T value) where T : ClassObject, new()
+    public static bool getOrAddClass<K, T>(this IDictionary<K, T> map, K key, out T value) where T : ClassObject, new()
     {
         if (!map.TryGetValue(key, out value))
         {
@@ -184,7 +182,7 @@ public static class DictionaryExtension
     }
 
     // 返回值表示是否为列表中已经存在的对象出来的对象
-    public static bool getOrAddNew<Key, Value>(this IDictionary<Key, Value> map, Key key, out Value value) where Value : new()
+    public static bool getOrAddNew<K, V>(this IDictionary<K, V> map, K key, out V value) where V : new()
     {
         if (!map.TryGetValue(key, out value))
         {
@@ -196,9 +194,9 @@ public static class DictionaryExtension
         return true;
     }
 
-    public static Value getOrAddNew<Key, Value>(this IDictionary<Key, Value> map, Key key) where Value : new()
+    public static V getOrAddNew<K, V>(this IDictionary<K, V> map, K key) where V : new()
     {
-        if (!map.TryGetValue(key, out Value value))
+        if (!map.TryGetValue(key, out V value))
         {
             value = new();
             map.Add(key, value);
@@ -207,7 +205,7 @@ public static class DictionaryExtension
         return value;
     }
 
-    public static List<T> getOrAddListPersist<Key, T>(this IDictionary<Key, List<T>> map, Key key)
+    public static List<T> getOrAddListPersist<K, T>(this IDictionary<K, List<T>> map, K key)
     {
         if (!map.TryGetValue(key, out var value))
         {
@@ -218,7 +216,7 @@ public static class DictionaryExtension
         return value;
     }
 
-    public static HashSet<T> getOrAddListPersist<Key, T>(this IDictionary<Key, HashSet<T>> map, Key key)
+    public static HashSet<T> getOrAddListPersist<K, T>(this IDictionary<K, HashSet<T>> map, K key)
     {
         if (!map.TryGetValue(key, out var value))
         {
@@ -229,20 +227,20 @@ public static class DictionaryExtension
         return value;
     }
 
-    public static void remove<Key, T>(this IDictionary<Key, T> map, Key key0, Key key1)
+    public static void remove<K, T>(this IDictionary<K, T> map, K key0, K key1)
     {
         map.Remove(key0);
         map.Remove(key1);
     }
 
-    public static void remove<Key, T>(this IDictionary<Key, T> map, Key key0, Key key1, Key key2)
+    public static void remove<K, T>(this IDictionary<K, T> map, K key0, K key1, K key2)
     {
         map.Remove(key0);
         map.Remove(key1);
         map.Remove(key2);
     }
 
-    public static void remove<Key, T>(this IDictionary<Key, T> map, Key key0, Key key1, Key key2, Key key3)
+    public static void remove<K, T>(this IDictionary<K, T> map, K key0, K key1, K key2, K key3)
     {
         map.Remove(key0);
         map.Remove(key1);
@@ -250,7 +248,7 @@ public static class DictionaryExtension
         map.Remove(key3);
     }
 
-    public static void remove<Key, T>(this IDictionary<Key, T> map, Key key0, Key key1, Key key2, Key key3, Key key4)
+    public static void remove<K, T>(this IDictionary<K, T> map, K key0, K key1, K key2, K key3, K key4)
     {
         map.Remove(key0);
         map.Remove(key1);
@@ -259,12 +257,12 @@ public static class DictionaryExtension
         map.Remove(key4);
     }
 
-    public static bool isEmpty<TKey, TValue>(this IDictionary<TKey, TValue> list)
+    public static bool isEmpty<K, V>(this IDictionary<K, V> list)
     {
         return list == null || list.Count == 0;
     }
 
-    public static TValue firstValue<TKey, TValue>(this IDictionary<TKey, TValue> list)
+    public static V firstValue<K, V>(this IDictionary<K, V> list)
     {
         if (list.count() == 0)
         {
@@ -274,7 +272,7 @@ public static class DictionaryExtension
         return list.First().Value;
     }
 
-    public static TKey firstKey<TKey, TValue>(this IDictionary<TKey, TValue> list)
+    public static K firstKey<K, V>(this IDictionary<K, V> list)
     {
         if (list.count() == 0)
         {

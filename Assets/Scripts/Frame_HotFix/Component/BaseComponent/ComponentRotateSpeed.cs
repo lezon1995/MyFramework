@@ -22,23 +22,23 @@ public class ComponentRotateSpeed : GameComponent, IComponentModifyRotation, ICo
 		mCurRotation = Vector3.zero;
 		mUpdateInFixedTick = false;
 	}
-	public override void update(float elapsedTime)
+	public override void update(float dt)
 	{
-		base.update(elapsedTime);
+		base.update(dt);
 		if (mUpdateInFixedTick)
 		{
 			return;
 		}
-		tick(elapsedTime);
+		tick(dt);
 	}
-	public override void fixedUpdate(float elapsedTime)
+	public override void fixedUpdate(float dt)
 	{
-		base.fixedUpdate(elapsedTime);
+		base.fixedUpdate(dt);
 		if (!mUpdateInFixedTick)
 		{
 			return;
 		}
-		tick(elapsedTime);
+		tick(dt);
 	}
 	public Vector3 getRotateSpeed() { return mRotateSpeed; }
 	public Vector3 getRotateAcceleration() { return mRotateAcceleration; }
@@ -70,7 +70,7 @@ public class ComponentRotateSpeed : GameComponent, IComponentModifyRotation, ICo
 	public void pause(bool pause) { mPlayState = pause ? PLAY_STATE.PAUSE : PLAY_STATE.PLAY; }
 	public void setPlayState(PLAY_STATE state)
 	{
-		if (mComponentOwner == null)
+		if (owner == null)
 		{
 			return;
 		}

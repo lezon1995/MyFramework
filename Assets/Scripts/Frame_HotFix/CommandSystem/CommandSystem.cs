@@ -22,9 +22,9 @@ public class CommandSystem : FrameSystem
         base.destroy();
     }
 
-    public override void update(float elapsedTime)
+    public override void update(float dt)
     {
-        base.update(elapsedTime);
+        base.update(dt);
         // 同步命令输入列表到命令处理列表中
         syncCommandBuffer();
         // 执行之前需要先清空列表
@@ -36,7 +36,7 @@ public class CommandSystem : FrameSystem
             Command cmd = mCommandBufferProcess[i];
             if (!cmd.isIgnoreTimeScale())
             {
-                cmd.setDelayTime(cmd.getDelayTime() - elapsedTime);
+                cmd.setDelayTime(cmd.getDelayTime() - dt);
             }
             else
             {

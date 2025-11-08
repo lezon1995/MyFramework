@@ -7,100 +7,166 @@ using static FrameDefine;
 // 触摸点信息
 public class TouchPoint : ClassObject
 {
-	protected DateTime mDownTime;		// 触点按下的时间
-	protected DateTime mUpTime;			// 触点抬起的时间
-	protected Vector3 mDownPosition;	// 触点按下的坐标
-	protected Vector3 mLastPosition;	// 上一帧的触点位置
-	protected Vector3 mCurPosition;		// 当前的触点位置
-	protected Vector2 mMoveDelta;       // 触点在这一帧的移动量
-	protected int mTouchID;				// 触点ID
-	protected bool mCurrentDown;		// 触点是否在这一帧才按下的
-	protected bool mDoubleClick;		// 是否为双击操作
-	protected bool mCurrentUp;          // 触点是否在这一帧抬起
-	protected bool mMouse;				// 是否为鼠标的触点
-	protected bool mClick;				// 是否已点击
-	protected bool mDown;               // 当前是否按下
-	public override void resetProperty()
-	{
-		base.resetProperty();
-		mDownTime = DateTime.Now;
-		mUpTime = DateTime.Now;
-		mDownPosition = Vector3.zero;
-		mLastPosition = Vector3.zero;
-		mCurPosition = Vector3.zero;
-		mMoveDelta = Vector2.zero;
-		mTouchID = 0;
-		mCurrentDown = false;
-		mDoubleClick = false;
-		mCurrentUp = false;
-		mMouse = false;
-		mClick = false;
-		mDown = false;
-	}
-	public void pointDown(Vector3 pos)
-	{
-		mDownPosition = pos;
-		mDownTime = DateTime.Now;
-		mCurPosition = pos;
-		mLastPosition = pos;
-		mCurrentDown = true;
-		mDown = true;
-	}
-	public void pointUp(Vector3 pos, List<DeadClick> deadTouchList)
-	{
-		mCurrentUp = true;
-		mDown = false;
-		mUpTime = DateTime.Now;
-		mCurPosition = pos;
-		mClick = lengthLess(mDownPosition - mCurPosition, CLICK_LENGTH);
-		// 遍历一段时间内已经完成点击的触点列表,查看有没有点坐标相近,时间相近的触点
-		if (mClick)
-		{
-			foreach (DeadClick deadClick in deadTouchList)
-			{
-				if ((mUpTime - deadClick.mClickTime).TotalSeconds < DOUBLE_CLICK_TIME && 
-					lengthLess(mCurPosition - deadClick.mClickPosition, CLICK_LENGTH))
-				{
-					mDoubleClick = true;
-					break;
-				}
-			}
-		}
-	}
-	public void update(Vector3 newPosition)
-	{
-		mLastPosition = mCurPosition;
-		mCurPosition = newPosition;
-		mMoveDelta = mCurPosition - mLastPosition;
-	}
-	public void lateUpdate()
-	{
-		mCurrentDown = false;
-		mCurrentUp = false;
-		mClick = false;
-		mDoubleClick = false;
-	}
-	public void setMouse(bool mouse) { mMouse = mouse; }
-	public void setTouchID(int touchID) { mTouchID = touchID; }
-	public int getTouchID() { return mTouchID; }
-	public bool isMouse() { return mMouse; }
-	public bool isCurrentUp() { return mCurrentUp; }
-	public bool isCurrentDown() { return mCurrentDown; }
-	public bool isDoubleClick() { return mDoubleClick; }
-	public bool isClick() { return mClick; }
-	public bool isDown() { return mDown; }
-	public Vector3 getDownPosition() { return mDownPosition; }
-	public Vector3 getMoveDelta() { return mMoveDelta; }
-	public Vector3 getLastPosition() { return mLastPosition; }
-	public Vector3 getCurPosition() { return mCurPosition; }
-	public DateTime getDownTime() { return mDownTime; }
-	public DateTime getUpTime() { return mUpTime; }
-	public void resetState()
-	{
-		mCurrentUp = false;
-		mDown = false;
-		mUpTime = DateTime.Now;
-		mClick = false;
-		mDoubleClick = false;
-	}
+    protected DateTime downTime; // 触点按下的时间
+    protected DateTime upTime; // 触点抬起的时间
+    protected Vector3 downPos; // 触点按下的坐标
+    protected Vector3 lastPos; // 上一帧的触点位置
+    protected Vector3 curPos; // 当前的触点位置
+    protected Vector2 moveDelta; // 触点在这一帧的移动量
+    protected int touchId; // 触点ID
+    protected bool currentDown; // 触点是否在这一帧才按下的
+    protected bool doubleClick; // 是否为双击操作
+    protected bool currentUp; // 触点是否在这一帧抬起
+    protected bool mouse; // 是否为鼠标的触点
+    protected bool clicked; // 是否已点击
+    protected bool down; // 当前是否按下
+
+    public override void resetProperty()
+    {
+        base.resetProperty();
+        downTime = DateTime.Now;
+        upTime = DateTime.Now;
+        downPos = Vector3.zero;
+        lastPos = Vector3.zero;
+        curPos = Vector3.zero;
+        moveDelta = Vector2.zero;
+        touchId = 0;
+        currentDown = false;
+        doubleClick = false;
+        currentUp = false;
+        mouse = false;
+        clicked = false;
+        down = false;
+    }
+
+    public void pointDown(Vector3 pos)
+    {
+        downPos = pos;
+        downTime = DateTime.Now;
+        curPos = pos;
+        lastPos = pos;
+        currentDown = true;
+        down = true;
+    }
+
+    public void pointUp(Vector3 pos, List<DeadClick> deadTouchList)
+    {
+        currentUp = true;
+        down = false;
+        upTime = DateTime.Now;
+        curPos = pos;
+        clicked = lengthLess(downPos - curPos, CLICK_LENGTH);
+        // 遍历一段时间内已经完成点击的触点列表,查看有没有点坐标相近,时间相近的触点
+        if (clicked)
+        {
+            foreach (DeadClick deadClick in deadTouchList)
+            {
+                if ((upTime - deadClick.clickTime).TotalSeconds < DOUBLE_CLICK_TIME &&
+                    lengthLess(curPos - deadClick.clickPos, CLICK_LENGTH))
+                {
+                    doubleClick = true;
+                    break;
+                }
+            }
+        }
+    }
+
+    public void update(Vector3 newPosition)
+    {
+        lastPos = curPos;
+        curPos = newPosition;
+        moveDelta = curPos - lastPos;
+    }
+
+    public void lateUpdate()
+    {
+        currentDown = false;
+        currentUp = false;
+        clicked = false;
+        doubleClick = false;
+    }
+
+    public void setMouse(bool mouse)
+    {
+        this.mouse = mouse;
+    }
+
+    public void setTouchID(int touchID)
+    {
+        touchId = touchID;
+    }
+
+    public int getTouchID()
+    {
+        return touchId;
+    }
+
+    public bool isMouse()
+    {
+        return mouse;
+    }
+
+    public bool isCurrentUp()
+    {
+        return currentUp;
+    }
+
+    public bool isCurrentDown()
+    {
+        return currentDown;
+    }
+
+    public bool isDoubleClick()
+    {
+        return doubleClick;
+    }
+
+    public bool isClick()
+    {
+        return clicked;
+    }
+
+    public bool isDown()
+    {
+        return down;
+    }
+
+    public Vector3 getDownPosition()
+    {
+        return downPos;
+    }
+
+    public Vector3 getMoveDelta()
+    {
+        return moveDelta;
+    }
+
+    public Vector3 getLastPosition()
+    {
+        return lastPos;
+    }
+
+    public Vector3 getCurPosition()
+    {
+        return curPos;
+    }
+
+    public DateTime getDownTime()
+    {
+        return downTime;
+    }
+
+    public DateTime getUpTime()
+    {
+        return upTime;
+    }
+
+    public void resetState()
+    {
+        currentUp = false;
+        down = false;
+        upTime = DateTime.Now;
+        clicked = false;
+        doubleClick = false;
+    }
 }

@@ -307,7 +307,7 @@ public class FrameBaseUtility
         do
         {
             Transform trans = parent.transform.Find(name);
-            if (trans != null)
+            if (trans)
             {
                 go = trans.gameObject;
                 break;
@@ -321,7 +321,7 @@ public class FrameBaseUtility
                 {
                     GameObject thisParent = parent.transform.GetChild(i).gameObject;
                     go = getGameObject(name, thisParent, false, true);
-                    if (go != null)
+                    if (go)
                     {
                         break;
                     }
@@ -346,11 +346,9 @@ public class FrameBaseUtility
         string path = go.name;
         while (true)
         {
-            Transform parentTrans = transform != null ? transform.parent : null;
+            Transform parentTrans = transform ? transform.parent : null;
             if (parentTrans == null)
-            {
                 break;
-            }
 
             path = parentTrans.name + "/" + path;
             transform = transform.parent;

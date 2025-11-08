@@ -23,7 +23,7 @@ public class UGUICheckbox : WindowObjectUGUI, ICommonUI
 		{
 			logError("UGUICheckbox需要有一个名为Mark的节点");
 		}
-		mRoot.registeCollider(onCheckClick);
+		mRoot.registerCollider(onCheckClick);
 	}
 #if USE_TMP
 	public myUGUITextTMP getLabelObject() { return mLabel; }

@@ -468,7 +468,7 @@ public class CSharpUtility
         foreach (string line in splitLine(content))
         {
             var info = GameFileInfo.createInfo(line);
-            list.addNotNullKey(info?.mFileName, info);
+            list.addNotNullKey(info?.name, info);
         }
     }
 

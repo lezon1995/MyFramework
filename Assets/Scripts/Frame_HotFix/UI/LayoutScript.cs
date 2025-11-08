@@ -115,7 +115,7 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
         mScrollViewRegisteList.addIf(scrollRect, isEditor());
         scrollRect.initScrollRect(viewport, content, verticalPivot, horizontalPivot);
         // 所有的可滑动列表都是不能穿透射线的
-        scrollRect.registeCollider();
+        scrollRect.registerCollider();
         bindPassOnlyParent(viewport);
     }
 
@@ -124,7 +124,7 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
         mInputFieldRegisteList.addIf(inputField, isEditor());
         mInputSystem.registeInputField(inputField);
         // 所有的输入框都是不能穿透射线的
-        (inputField as myUGUIObject).registeCollider();
+        (inputField as myUGUIObject).registerCollider();
     }
 
     public void unregisteInputField(IInputField inputField)
@@ -139,15 +139,15 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
         parent.setDepthOverAllChild(true);
         parent.setDepth(parent.getParent().getDepth(), parent.getDepth().getOrderInParent());
         // 刷新深度
-        parent.registeCollider();
+        parent.registerCollider();
         mGlobalTouchSystem.bindPassOnlyParent(parent);
     }
 
     // parent的区域中只有passOnlyArea的区域可以穿透
     public void bindPassOnlyArea(myUGUIObject parent, myUGUIObject passOnlyArea)
     {
-        parent.registeCollider();
-        passOnlyArea.registeCollider();
+        parent.registerCollider();
+        passOnlyArea.registerCollider();
         mGlobalTouchSystem.bindPassOnlyArea(parent, passOnlyArea);
     }
 

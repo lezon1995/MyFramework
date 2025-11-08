@@ -2,9 +2,9 @@
 // 锁定物体旋转的组件
 public class COMTransformableRotateFixed : ComponentRotateFixed
 {
-	public override void update(float elapsedTime)
+	public override void update(float dt)
 	{
-		(mComponentOwner as Transformable).setWorldRotation(mFixedEuler);
-		base.update(elapsedTime);
+		(owner as Transformable).setWorldRotation(mFixedEuler);
+		base.update(dt);
 	}
 }

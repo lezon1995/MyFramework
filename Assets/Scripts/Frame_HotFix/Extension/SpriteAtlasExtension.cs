@@ -24,7 +24,8 @@ public static class SpriteAtlasExtension
 				return true;
 			}
 			// 通过路径拼接出完整的文件路径,加载后判断是否为指定的图片对象
-			else if (packable is DefaultAsset folder && loadAssetAtPath<Sprite>(getAssetPath(folder) + "/" + targetSprite.name + ".png") == targetSprite)
+
+			if (packable is DefaultAsset folder && loadAssetAtPath<Sprite>(getAssetPath(folder) + "/" + targetSprite.name + ".png") == targetSprite)
 			{
 				return true;
 			}

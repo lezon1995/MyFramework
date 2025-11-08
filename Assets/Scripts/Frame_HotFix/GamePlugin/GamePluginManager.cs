@@ -23,12 +23,12 @@ public class GamePluginManager : FrameSystem
 			item.init();
 		}
 	}
-	public override void update(float elapsedTime)
+	public override void update(float dt)
 	{
-		base.update(elapsedTime);
+		base.update(dt);
 		foreach (IGamePlugin item in mPluginList.Values)
 		{
-			item.update(elapsedTime);
+			item.update(dt);
 		}
 	}
 	public override void destroy()

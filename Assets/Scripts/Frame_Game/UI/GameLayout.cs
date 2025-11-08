@@ -20,7 +20,7 @@ public class GameLayout
     {
     }
 
-    public virtual void update(float elapsedTime)
+    public virtual void update(float dt)
     {
     }
 
@@ -82,9 +82,7 @@ public class GameLayout
     public void updateLayout(float elapsedTime)
     {
         if (!isVisible())
-        {
             return;
-        }
 
         // 更新脚本逻辑
         update(elapsedTime);
@@ -96,7 +94,7 @@ public class GameLayout
         destroyUnityObject(mCanvas.gameObject);
         mCanvas = null;
         mTransform = null;
-        mResourceManager.unloadInResources(ref mPrefab);
+        res.unloadInResources(ref mPrefab);
     }
 
     public void setRenderOrder(int renderOrder)
@@ -109,9 +107,7 @@ public class GameLayout
         }
 
         if (mCanvas == null)
-        {
             return;
-        }
 
         mCanvas.sortingOrder = mRenderOrder;
     }
@@ -119,14 +115,10 @@ public class GameLayout
     public void setVisible(bool visible)
     {
         if (mTransform == null)
-        {
             return;
-        }
 
         if (visible == isVisible())
-        {
             return;
-        }
 
         // 显示布局时立即显示
         if (visible)

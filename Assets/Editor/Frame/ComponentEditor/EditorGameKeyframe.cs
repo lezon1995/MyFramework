@@ -11,7 +11,7 @@ public class EditorGameKeyframe : GameEditorBase
 		EditorGUIUtility.labelWidth = 110.0f;
 		base.OnInspectorGUI();
 
-		if (GUILayout.Button("´´½¨"))
+		if (GUILayout.Button("ï¿½ï¿½ï¿½ï¿½"))
 		{
 			var keyframe = target as GameKeyframe;
 			keyframe.createKeyframe();
@@ -37,7 +37,7 @@ public class EditorGameKeyframe : GameEditorBase
 			{
 				GUI.changed = false;
 				EditorGUILayout.CurveField(item.mID.ToString(), item.mCurve, GUILayout.Width(170f), GUILayout.Height(62f));
-				// Èç¹ûÇúÏßÓÐ¸Ä¶¯,Ôò±ê¼ÇÕû¸öÔ¤ÉèÓÐ¸Ä¶¯
+				// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð¸Ä¶ï¿½,ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô¤ï¿½ï¿½ï¿½Ð¸Ä¶ï¿½
 				if (GUI.changed)
 				{
 					EditorUtility.SetDirty(target);

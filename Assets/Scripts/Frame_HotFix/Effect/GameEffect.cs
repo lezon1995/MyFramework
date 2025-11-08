@@ -63,9 +63,9 @@ public class GameEffect : MovableObject
         base.destroy();
     }
 
-    public override void update(float elapsedTime)
+    public override void update(float dt)
     {
-        base.update(elapsedTime);
+        base.update(dt);
         // 在忽略时间缩放时需要手动进行模拟
         // 播放后忽略了时间缩放,则只有在停止时才能修改忽略时间缩放,中间修改是无效的
         if (ignoreTimeScale && mPlayState == PLAY_STATE.PLAY)
@@ -81,7 +81,7 @@ public class GameEffect : MovableObject
             }
         }
 
-        if (tickTimerOnce(ref mLifeTimer, elapsedTime))
+        if (tickTimerOnce(ref mLifeTimer, dt))
         {
             mIsDead = true;
         }

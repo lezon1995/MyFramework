@@ -64,7 +64,7 @@ public abstract class ComponentOwner : CommandReceiver
     }
 
     // 更新正常更新的组件
-    public virtual void update(float elapsedTime)
+    public virtual void update(float dt)
     {
         if (comList == null || comList.count() == 0)
             return;
@@ -81,20 +81,13 @@ public abstract class ComponentOwner : CommandReceiver
             using var b = new ProfilerScope(com.GetType().Name);
             if (com.isValid() && com.isActive() && (disableTypes == null || !disableTypes.Contains(com.getType())))
             {
-                if (!com.isIgnoreTimeScale())
-                {
-                    com.update(elapsedTime);
-                }
-                else
-                {
-                    com.update(Time.unscaledDeltaTime);
-                }
+                com.update(com.isIgnoreTimeScale() ? Time.unscaledDeltaTime : dt);
             }
         }
     }
 
     // 后更新
-    public virtual void lateUpdate(float elapsedTime)
+    public virtual void lateUpdate(float dt)
     {
         if (comList == null || comList.count() == 0)
             return;
@@ -104,20 +97,13 @@ public abstract class ComponentOwner : CommandReceiver
         {
             if (com != null && com.isActive() && (disableTypes == null || !disableTypes.Contains(com.getType())))
             {
-                if (!com.isIgnoreTimeScale())
-                {
-                    com.lateUpdate(elapsedTime);
-                }
-                else
-                {
-                    com.lateUpdate(Time.unscaledDeltaTime);
-                }
+                com.lateUpdate(com.isIgnoreTimeScale() ? Time.unscaledDeltaTime : dt);
             }
         }
     }
 
     // 物理更新
-    public virtual void fixedUpdate(float elapsedTime)
+    public virtual void fixedUpdate(float dt)
     {
         if (comList == null || comList.count() == 0)
             return;
@@ -127,14 +113,7 @@ public abstract class ComponentOwner : CommandReceiver
         {
             if (com != null && com.isActive() && (disableTypes == null || !disableTypes.Contains(com.getType())))
             {
-                if (!com.isIgnoreTimeScale())
-                {
-                    com.fixedUpdate(elapsedTime);
-                }
-                else
-                {
-                    com.fixedUpdate(Time.unscaledDeltaTime);
-                }
+                com.fixedUpdate(com.isIgnoreTimeScale() ? Time.fixedUnscaledDeltaTime : dt);
             }
         }
     }

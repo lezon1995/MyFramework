@@ -36,18 +36,18 @@ public class COMMovableObjectMoveInfo : GameComponent
 		mMovedDuringFrame = false;
 		mHasLastPosition = false;
 	}
-	public override void update(float elapsedTime)
+	public override void update(float dt)
 	{
-		base.update(elapsedTime);
-		var movableObject = mComponentOwner as MovableObject;
+		base.update(dt);
+		var movableObject = owner as MovableObject;
 		if (movableObject.isDestroy())
 		{
 			return;
 		}
-		if (elapsedTime > 0.0f)
+		if (dt > 0.0f)
 		{
 			mCurFramePosition = movableObject.getPosition();
-			mMoveSpeedVector = mHasLastPosition ? divide(mCurFramePosition - mLastPosition, elapsedTime) : Vector3.zero;
+			mMoveSpeedVector = mHasLastPosition ? divide(mCurFramePosition - mLastPosition, dt) : Vector3.zero;
 			mRealtimeMoveSpeed = getLength(mMoveSpeedVector);
 			mMovedDuringFrame = !isVectorEqual(mLastPosition, mCurFramePosition) && mHasLastPosition;
 			mLastPosition = mCurFramePosition;
@@ -55,18 +55,18 @@ public class COMMovableObjectMoveInfo : GameComponent
 			mHasLastPosition = true;
 		}
 	}
-	public override void fixedUpdate(float elapsedTime)
+	public override void fixedUpdate(float dt)
 	{
 		if (!mEnableFixedUpdate)
 		{
 			return;
 		}
-		base.fixedUpdate(elapsedTime);
-		var movableObject = mComponentOwner as MovableObject;
+		base.fixedUpdate(dt);
+		var movableObject = owner as MovableObject;
 		Vector3 curPos = movableObject.getPosition();
-		mPhysicsSpeedVector = divide(curPos - mLastPhysicsPosition, elapsedTime);
+		mPhysicsSpeedVector = divide(curPos - mLastPhysicsPosition, dt);
 		mLastPhysicsPosition = curPos;
-		mPhysicsAcceleration = divide(mPhysicsSpeedVector - mLastPhysicsSpeedVector, elapsedTime);
+		mPhysicsAcceleration = divide(mPhysicsSpeedVector - mLastPhysicsSpeedVector, dt);
 		mLastPhysicsSpeedVector = mPhysicsSpeedVector;
 	}
 	public Vector3 getPhysicsSpeed()									{ return mPhysicsSpeedVector; }

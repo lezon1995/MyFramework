@@ -20,7 +20,7 @@ public class UGUITreeList : WindowObjectUGUI, ICommonUI
 	public override void init()
 	{
 		base.init();
-		mRoot.registeCollider();
+		mRoot.registerCollider();
 		mContent.initDragView(DRAG_DIRECTION.VERTICAL);
 	}
 	public override void update()

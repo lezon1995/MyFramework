@@ -42,19 +42,19 @@ public class SCCharacterFullGameData : NetPacketBit
     public override void write(SerializerBitWrite writer, out ulong fieldFlag)
     {
         base.write(writer, out fieldFlag);
-        if (mHP.mValid)
+        if (mHP.valid)
         {
             setBitOne(ref fieldFlag, 0);
             mHP.write(writer);
         }
 
-        if (mMaxHP.mValid)
+        if (mMaxHP.valid)
         {
             setBitOne(ref fieldFlag, 1);
             mMaxHP.write(writer);
         }
 
-        if (mName.mValid)
+        if (mName.valid)
         {
             setBitOne(ref fieldFlag, 2);
             mName.write(writer);

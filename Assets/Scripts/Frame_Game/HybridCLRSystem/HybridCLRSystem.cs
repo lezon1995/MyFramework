@@ -15,17 +15,17 @@ using static FrameBase;
 // HybridCLR系统,用于启动HybridCLR热更
 public class HybridCLRSystem
 {
-    protected static bool hotFixLaunched;
+    protected static bool hotfixLaunched;
 
-    public static void launchHotFix(byte[] aesKey, byte[] aesIV, Action<string, BytesIntCallback> openOrDownloadDll, Action errorCallback = null)
+    public static void launchHotfix(byte[] aesKey, byte[] aesIV, Action<string, BytesIntCallback> openOrDownloadDLL, Action errorCallback = null)
     {
-        if (hotFixLaunched)
+        if (hotfixLaunched)
         {
             logErrorBase("已经启动了热更逻辑,无法再次启动");
             return;
         }
 
-        hotFixLaunched = true;
+        hotfixLaunched = true;
         try
         {
             // 存储所有需要跨域的参数
@@ -34,7 +34,7 @@ public class HybridCLRSystem
 #if UNITY_EDITOR || !USE_HYBRID_CLR
             launchEditor(errorCallback);
 #else
-			launchRuntime(aesKey, aesIV, openOrDownloadDll, errorCallback);
+			launchRuntime(aesKey, aesIV, openOrDownloadDLL, errorCallback);
 #endif
         }
         catch (Exception e)
@@ -47,7 +47,7 @@ public class HybridCLRSystem
     protected static void backupFrameParam()
     {
         FrameCrossParam.localizationName = ResLocalizationText.mCurLanguage;
-        FrameCrossParam.downloadURL = mResourceManager.getDownloadURL();
+        FrameCrossParam.downloadURL = res.getDownloadURL();
         FrameCrossParam.streamingAssetsVersion = mAssetVersionSystem.getStreamingAssetsVersion();
         FrameCrossParam.persistentDataVersion = mAssetVersionSystem.getPersistentDataVersion();
         FrameCrossParam.remoteVersion = mAssetVersionSystem.getRemoteVersion();
@@ -90,7 +90,6 @@ public class HybridCLRSystem
     {
         if (bytes == null)
         {
-            downloadFilesResource = null;
             errorCallback?.Invoke();
             return false;
         }
@@ -130,7 +129,7 @@ public class HybridCLRSystem
                 { HOTFIX_BYTES_FILE, null }
             };
             int finishCount = 0;
-            foreach (string item in new List<string>(downloadFiles.Keys))
+            foreach (string item in downloadFiles.Keys)
             {
                 string fileDllName = item;
                 openOrDownloadDLL(fileDllName, (bytes, length) =>
@@ -145,7 +144,6 @@ public class HybridCLRSystem
     {
         if (bytes == null)
         {
-            downloadFiles = null;
             errorCallback?.Invoke();
             return;
         }
@@ -164,13 +162,14 @@ public class HybridCLRSystem
 
     protected static void launchEditor(Action errorCallback)
     {
-        Assembly hotFixAssembly = null;
         string dllName = getFileNameNoSuffixNoDir(HOTFIX_FILE);
-        foreach (Assembly item in AppDomain.CurrentDomain.GetAssemblies())
+        Assembly hotFixAssembly = null;
+        Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
+        foreach (Assembly assembly in assemblies)
         {
-            if (item.GetName().Name == dllName)
+            if (assembly.GetName().Name == dllName)
             {
-                hotFixAssembly = item;
+                hotFixAssembly = assembly;
                 break;
             }
         }
@@ -232,7 +231,8 @@ public class HybridCLRSystem
                 GameEntry.getInstance().setFrameworkAOT(null);
             };
             // 使用createHotFixInstance创建一个HotFix的实例,然后调用此实例的start函数
-            methodStart.Invoke(methodCreate.Invoke(null, null), new object[] { callback });
+            object hotfixInstance = methodCreate.Invoke(null, null);
+            methodStart.Invoke(hotfixInstance, new object[] { callback });
         };
         MethodInfo methodPreStart = getMethodRecursive(type, "preStart", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
         if (methodPreStart == null)

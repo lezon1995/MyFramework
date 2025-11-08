@@ -26,9 +26,9 @@ public class COMTransformableLockPosition : GameComponent, IComponentModifyPosit
 			setActive(false);
 		}
 	}
-	public override void update(float elapsedTime)
+	public override void update(float dt)
 	{
-		var obj = mComponentOwner as Transformable;
+		var obj = owner as Transformable;
 		Vector3 worldPos = obj.getWorldPosition();
 		if (mLockX)
 		{
@@ -43,7 +43,7 @@ public class COMTransformableLockPosition : GameComponent, IComponentModifyPosit
 			worldPos.z = mLockPosition.z;
 		}
 		obj.setWorldPosition(worldPos);
-		base.update(elapsedTime);
+		base.update(dt);
 	}
 	public void notifyBreak() { }
 }

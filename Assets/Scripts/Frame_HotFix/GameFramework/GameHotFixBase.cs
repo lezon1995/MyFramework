@@ -32,7 +32,7 @@ public abstract class GameHotFixBase
             // 注册对象类型
             registerAll();
 
-            DateTime startTime = DateTime.Now;
+            var startTime = DateTime.Now;
             mExcelManager.loadAllAsync(() =>
             {
                 log("打开所有表格耗时:" + (int)(DateTime.Now - startTime).TotalMilliseconds + "毫秒");
@@ -50,7 +50,7 @@ public abstract class GameHotFixBase
                 {
                     try
                     {
-                        DateTime start = DateTime.Now;
+                        var start = DateTime.Now;
                         frame.init();
                         log(frame.getName() + "初始化消耗时间:" + (int)(DateTime.Now - start).TotalMilliseconds + "毫秒");
                     }
@@ -64,7 +64,7 @@ public abstract class GameHotFixBase
                 {
                     try
                     {
-                        DateTime start = DateTime.Now;
+                        var start = DateTime.Now;
                         frame.lateInit();
                         log(frame.getName() + " late初始化消耗时间:" + (int)(DateTime.Now - start).TotalMilliseconds + "毫秒");
                     }

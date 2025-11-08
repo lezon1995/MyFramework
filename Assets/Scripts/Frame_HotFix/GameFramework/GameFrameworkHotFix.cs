@@ -12,12 +12,12 @@ using static FrameBaseHotFix;
 // [ObfuzIgnore]
 public class GameFrameworkHotFix : IFramework
 {
-    protected Dictionary<string, FrameSystem> frames = new(128); // 存储框架组件,用于查找
-    protected Dictionary<string, Action<FrameSystem>> framesCallback = new(128); // 用于通知框架系统创建或者销毁的回调
+    protected Dictionary<string, FrameSystem> frames = new(); // 存储框架组件,用于查找
+    protected Dictionary<string, Action<FrameSystem>> framesCallback = new(); // 用于通知框架系统创建或者销毁的回调
 
-    protected List<FrameSystem> framesInit = new(128); // 存储框架组件,用于初始化
-    protected List<FrameSystem> framesUpdate = new(128); // 存储框架组件,用于更新
-    protected List<FrameSystem> framesDestroy = new(128); // 存储框架组件,用于销毁
+    protected List<FrameSystem> framesInit = new(); // 存储框架组件,用于初始化
+    protected List<FrameSystem> framesUpdate = new(); // 存储框架组件,用于更新
+    protected List<FrameSystem> framesDestroy = new(); // 存储框架组件,用于销毁
 
     protected ThreadTimeLock timeLock = new(15); // 用于主线程锁帧,与Application.targetFrameRate功能类似
     protected DateTime startTime; // 启动游戏时的时间
@@ -88,7 +88,7 @@ public class GameFrameworkHotFix : IFramework
         }
     }
 
-    public void fixedUpdate(float elapsedTime)
+    public void fixedUpdate(float dt)
     {
         if (framesUpdate == null)
             return;
@@ -104,12 +104,12 @@ public class GameFrameworkHotFix : IFramework
             if (com.isValid())
             {
                 using var a = new ProfilerScope(com.getName());
-                com.fixedUpdate(elapsedTime);
+                com.fixedUpdate(dt);
             }
         }
     }
 
-    public void lateUpdate(float elapsedTime)
+    public void lateUpdate(float dt)
     {
         if (framesUpdate == null)
             return;
@@ -125,7 +125,7 @@ public class GameFrameworkHotFix : IFramework
             if (com.isValid())
             {
                 using var a = new ProfilerScope(com.getName());
-                com.lateUpdate(elapsedTime);
+                com.lateUpdate(dt);
             }
         }
     }

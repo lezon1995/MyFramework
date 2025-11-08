@@ -59,9 +59,9 @@ public class myUGUIImagePro : myUGUIImage, IShaderWindow
 		mNeedUpdate = true;
 	}
 	public WindowShader getWindowShader() { return mWindowShader; }
-	public override void update(float elapsedTime)
+	public override void update(float dt)
 	{
-		base.update(elapsedTime);
+		base.update(dt);
 		if (isCulled())
 		{
 			return;

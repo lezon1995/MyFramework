@@ -13,10 +13,10 @@ public class GameSceneManager : FrameSystem
         curScene.init();
     }
 
-    public override void update(float elapsedTime)
+    public override void update(float dt)
     {
-        base.update(elapsedTime);
-        curScene?.update(elapsedTime);
+        base.update(dt);
+        curScene?.update(dt);
     }
 
     public override void destroy()

@@ -25,9 +25,9 @@ public class HashSetPool : FrameSystem
 			go.AddComponent<HashSetPoolDebug>();
 		}
 	}
-	public override void update(float elapsedTime)
+	public override void update(float dt)
 	{
-		base.update(elapsedTime);
+		base.update(dt);
 		if (isEditor())
 		{
 			foreach (var item in mInusedList.Values)

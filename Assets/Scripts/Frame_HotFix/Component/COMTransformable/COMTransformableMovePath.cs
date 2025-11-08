@@ -6,6 +6,6 @@ public class COMTransformableMovePath : ComponentPath, IComponentModifyPosition
 	//------------------------------------------------------------------------------------------------------------------------------
 	protected override void setValue(Vector3 value)
 	{
-		(mComponentOwner as Transformable).setPosition(value);
+		(owner as Transformable).setPosition(value);
 	}
 }

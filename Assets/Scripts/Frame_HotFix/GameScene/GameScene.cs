@@ -77,19 +77,19 @@ public abstract class GameScene : ComponentOwner
         destroyUnityObject(ref go);
     }
 
-    public override void update(float elapsedTime)
+    public override void update(float dt)
     {
         // 更新组件
-        base.update(elapsedTime);
+        base.update(dt);
         // 更新当前流程
-        keyProcess(elapsedTime);
-        curProcedure?.update(elapsedTime);
+        keyProcess(dt);
+        curProcedure?.update(dt);
     }
 
-    public override void lateUpdate(float elapsedTime)
+    public override void lateUpdate(float dt)
     {
-        base.lateUpdate(elapsedTime);
-        curProcedure?.lateUpdate(elapsedTime);
+        base.lateUpdate(dt);
+        curProcedure?.lateUpdate(dt);
     }
 
     public virtual void keyProcess(float elapsedTime)

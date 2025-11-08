@@ -1324,7 +1324,8 @@ public class StringUtility
                     break;
                 }
                 // 遇到小数点就退出循环并且需要将小数点一起去除
-                else if (c == '.')
+
+                if (c == '.')
                 {
                     removeCount = i + 1;
                     break;

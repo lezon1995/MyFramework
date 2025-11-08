@@ -4,27 +4,28 @@ using static UnityUtility;
 using static FrameUtility;
 using static FrameBaseUtility;
 
-// 因为即使继承了IEquatable,也会因为本身是带T模板的,无法在重写的Equals中完全避免装箱和拆箱,所以不继承IEquatable
-// 而且实际使用时也不会调用此类型的比较函数
-public struct SafeListModify<T>
-{
-    public T value;
-    public bool isAdd;
-    public int removeIndex;
-
-    public SafeListModify(T v, bool add, int idx)
-    {
-        value = v;
-        isAdd = add;
-        removeIndex = idx;
-    }
-}
 
 // 非线程安全
 // 可安全遍历的列表,支持在遍历过程中对列表进行修改
 public class SafeList<T> : ClassObject
 {
-    protected List<SafeListModify<T>> modifies = new(); // 记录操作的列表,按顺序存储所有的操作
+    // 因为即使继承了IEquatable,也会因为本身是带T模板的,无法在重写的Equals中完全避免装箱和拆箱,所以不继承IEquatable
+    // 而且实际使用时也不会调用此类型的比较函数
+    protected struct Modify
+    {
+        public T value;
+        public bool isAdd;
+        public int removeIndex;
+
+        public Modify(T v, bool add, int idx)
+        {
+            value = v;
+            isAdd = add;
+            removeIndex = idx;
+        }
+    }
+
+    protected List<Modify> modifies = new(); // 记录操作的列表,按顺序存储所有的操作
     protected List<T> updates = new(); // 用于遍历更新的列表
     protected List<T> list = new(); // 用于存储实时数据的列表
     protected string lastFileName; // 上一次开始遍历时的文件名
@@ -203,6 +204,11 @@ public class SafeList<T> : ClassObject
         }
 
         list.Clear();
+    }
+
+    public SafeListReader<T> safeReader(out List<T> reader)
+    {
+        return new(this, out reader);
     }
 }
 

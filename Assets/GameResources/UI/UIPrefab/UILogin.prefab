@@ -453,7 +453,16 @@ MonoBehaviour:
   mMemberList:
   - mObject: {fileID: 3649696244049861466}
     mType: myUGUIObject
-    mDefaultActive: 0
-    mIsArray: 0
+    mArrayType: 0
     mArrayLength: 0
-  mIsPersistent: 0
+    mWindowType: 0
+    mViewportObject: {fileID: 0}
+    mPoolTemplate: {fileID: 0}
+    mTemplateWindowType: 
+    mParam0: 
+    mParam1: 
+    mCustomName: 
+    mHideError: 0
+    mUseCustomName: 0
+  mParentType: LayoutScript
+  mIsPersistent: 1

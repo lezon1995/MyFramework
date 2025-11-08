@@ -1,17 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 
-public struct SafeDictionaryReader<Key, Value> : IDisposable
+public struct SafeDictionaryReader<K, V> : IDisposable
 {
-	private SafeDictionary<Key, Value> mSafeList;
-	public Dictionary<Key, Value> mReadList;
-	public SafeDictionaryReader(SafeDictionary<Key, Value> list)
-	{
-		mSafeList = list;
-		mReadList = mSafeList.startForeach();
-	}
-	public void Dispose()
-	{
-		mSafeList.endForeach();
-	}
+    SafeDictionary<K, V> safeList;
+    public Dictionary<K, V> mReadList;
+
+    public SafeDictionaryReader(SafeDictionary<K, V> list)
+    {
+        safeList = list;
+        mReadList = list.startForeach();
+    }
+
+    public void Dispose()
+    {
+        safeList.endForeach();
+    }
 }

@@ -29,7 +29,7 @@ public abstract class NetPacketBit : NetPacket
         for (byte i = 0; i < count; ++i)
         {
             // 非可选字段或者是有效的可选字段才会写入到数据
-            if (!mParameters[i].mOptional)
+            if (!mParameters[i].optional)
             {
                 setBitOne(ref fieldFlag, i);
             }
@@ -40,14 +40,14 @@ public abstract class NetPacketBit : NetPacket
     {
         foreach (SerializableBit item in mParameters)
         {
-            item.mValid = valid;
+            item.valid = valid;
         }
     }
 
     //------------------------------------------------------------------------------------------------------------------------------
     protected void addParam(SerializableBit param, bool isOptional)
     {
-        param.mOptional = isOptional;
+        param.optional = isOptional;
         mParameters.Add(param);
     }
 }

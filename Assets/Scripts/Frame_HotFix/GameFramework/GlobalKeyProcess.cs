@@ -8,7 +8,7 @@ using static FrameBaseUtility;
 // 只是汇集一些快捷键操作,不对外提供接口
 public partial class GlobalKeyProcess : FrameSystem
 {
-    public override void update(float elapsedTime)
+    public override void update(float dt)
     {
         if (isEditor() || isWindows())
         {
@@ -26,7 +26,7 @@ public partial class GlobalKeyProcess : FrameSystem
                 Vector3 mousePos = getMousePosition();
                 using var a = new ListScope<IMouseEventCollect>(out var hoverList);
                 mGlobalTouchSystem.getAllHoverObject(hoverList, mousePos, null, true);
-                foreach (IMouseEventCollect item in hoverList)
+                foreach (var item in hoverList)
                 {
                     UIDepth depth = item.getDepth();
                     if (item is MovableObject)

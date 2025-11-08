@@ -9,54 +9,54 @@ using static StringUtility;
 // 用于管理资源的版本信息
 public class AssetVersionSystem : FrameSystem
 {
-    protected Dictionary<string, GameFileInfo> mStreamingAssetsFileList = new();
-    protected Dictionary<string, GameFileInfo> mPersistentAssetsFileList = new();
-    protected Dictionary<string, GameFileInfo> mRemoteAssetsFileList = new();
-    protected List<string> mTotalDownloadedFiles = new(); // 已经下载的文件列表,用于统计下载文件记录
-    protected long mTotalDownloadByteCount; // 已经消耗的总下载量,单位字节,用于统计下载字节数
-    protected Action mRemoteFileListFailCallback;
-    protected Action mSuccessCallback;
-    protected ASSET_READ_PATH mAssetReadPath;
-    protected string mRemoteVersion;
-    protected string mStreamingAssetsVersion;
-    protected string mPersistentDataVersion;
-    protected bool mPersistentDone;
-    protected bool mStreamingDone;
-    protected bool mRemoteDone;
-    protected bool mCheckFileListFailed;
+    protected Dictionary<string, GameFileInfo> streamingAssetFiles = new();
+    protected Dictionary<string, GameFileInfo> persistentAssetFiles = new();
+    protected Dictionary<string, GameFileInfo> remoteAssetFiles = new();
+    protected List<string> totalDownloadedFiles = new(); // 已经下载的文件列表,用于统计下载文件记录
+    protected long totalDownloadBytes; // 已经消耗的总下载量,单位字节,用于统计下载字节数
+    protected Action onRemoteFileListFail;
+    protected Action onSuccess;
+    protected ASSET_READ_PATH assetReadPath;
+    protected string remoteVersion;
+    protected string streamingAssetsVersion;
+    protected string persistentDataVersion;
+    protected bool persistentDone;
+    protected bool streamingDone;
+    protected bool remoteDone;
+    protected bool checkFileListFailed;
 
-    public override void update(float elapsedTime)
+    public override void update(float dt)
     {
-        base.update(elapsedTime);
-        if (mPersistentDone && mStreamingDone && mRemoteDone && !mCheckFileListFailed)
+        base.update(dt);
+        if (persistentDone && streamingDone && remoteDone && !checkFileListFailed)
         {
-            mSuccessCallback?.Invoke();
+            onSuccess?.Invoke();
         }
     }
 
     public long getTotalDownloadedByteCount()
     {
-        return mTotalDownloadByteCount;
+        return totalDownloadBytes;
     }
 
     public List<string> getTotalDownloadedFiles()
     {
-        return mTotalDownloadedFiles;
+        return totalDownloadedFiles;
     }
 
     public void addDownloadedInfo(int byteCount, string fileName)
     {
-        mTotalDownloadByteCount += byteCount;
-        mTotalDownloadedFiles.Add(fileName);
+        totalDownloadBytes += byteCount;
+        totalDownloadedFiles.Add(fileName);
     }
 
     // 获取文件的加载路径,filePath是StreamingAssets下的相对路径
     public string getFileReadPath(string filePath)
     {
-        if (mAssetReadPath == ASSET_READ_PATH.SAME_TO_REMOTE)
+        if (assetReadPath == ASSET_READ_PATH.SAME_TO_REMOTE)
         {
             // 远端没有此文件
-            if (!mRemoteAssetsFileList.TryGetValue(filePath, out GameFileInfo remoteInfo))
+            if (!remoteAssetFiles.TryGetValue(filePath, out var remoteInfo))
             {
                 // 完全没有此文件信息,无法加载
                 logErrorBase("远端没有此文件,filePath:" + filePath);
@@ -64,17 +64,15 @@ public class AssetVersionSystem : FrameSystem
             }
 
             // persistent中的文件信息与远端一致,则读取persistent中的文件
-            if (mPersistentAssetsFileList.TryGetValue(filePath, out GameFileInfo persistentInfo) &&
-                persistentInfo.mFileSize == remoteInfo.mFileSize &&
-                persistentInfo.mMD5 == remoteInfo.mMD5)
+            if (persistentAssetFiles.TryGetValue(filePath, out var persistentInfo) &&
+                persistentInfo.size == remoteInfo.size && persistentInfo.md5 == remoteInfo.md5)
             {
                 return F_PERSISTENT_ASSETS_PATH + filePath;
             }
 
             // streamingAssets中的文件信息与远端一致,则读取streamingAssets中的文件
-            if (mStreamingAssetsFileList.TryGetValue(filePath, out GameFileInfo streamingInfo) &&
-                streamingInfo.mFileSize == remoteInfo.mFileSize &&
-                streamingInfo.mMD5 == remoteInfo.mMD5)
+            if (streamingAssetFiles.TryGetValue(filePath, out var streamingInfo) &&
+                streamingInfo.size == remoteInfo.size && streamingInfo.md5 == remoteInfo.md5)
             {
                 return F_ASSET_BUNDLE_PATH + filePath;
             }
@@ -82,16 +80,17 @@ public class AssetVersionSystem : FrameSystem
             // 本地没有此文件,则从远端下载
             return null;
         }
-        else if (mAssetReadPath == ASSET_READ_PATH.PERSISTENT_FIRST)
+
+        if (assetReadPath == ASSET_READ_PATH.PERSISTENT_FIRST)
         {
             // 优先从Persistent中读取
-            if (mPersistentAssetsFileList.TryGetValue(filePath, out GameFileInfo persistentInfo))
+            if (persistentAssetFiles.TryGetValue(filePath, out var persistentInfo))
             {
                 return F_PERSISTENT_ASSETS_PATH + filePath;
             }
 
             // 没有再读取streamingAssets中的文件
-            if (mStreamingAssetsFileList.TryGetValue(filePath, out GameFileInfo streamingInfo))
+            if (streamingAssetFiles.TryGetValue(filePath, out var streamingInfo))
             {
                 return F_ASSET_BUNDLE_PATH + filePath;
             }
@@ -99,11 +98,13 @@ public class AssetVersionSystem : FrameSystem
             // 本地没有此文件,则从远端下载
             return null;
         }
-        else if (mAssetReadPath == ASSET_READ_PATH.STREAMING_ASSETS_ONLY)
+
+        if (assetReadPath == ASSET_READ_PATH.STREAMING_ASSETS_ONLY)
         {
             return F_ASSET_BUNDLE_PATH + filePath;
         }
-        else if (mAssetReadPath == ASSET_READ_PATH.REMOTE_ASSETS_ONLY)
+
+        if (assetReadPath == ASSET_READ_PATH.REMOTE_ASSETS_ONLY)
         {
             // 返回null,会自动开始下载
             return null;
@@ -115,91 +116,89 @@ public class AssetVersionSystem : FrameSystem
 
     public void setRemoteVersion(string version)
     {
-        mRemoteVersion = version ?? "0.0.0";
+        remoteVersion = version ?? "0.0.0";
     }
 
     public void setStreamingAssetsVersion(string version)
     {
-        mStreamingAssetsVersion = version ?? "0.0.0";
+        streamingAssetsVersion = version ?? "0.0.0";
     }
 
     public void setPersistentDataVersion(string version)
     {
-        mPersistentDataVersion = version ?? "0.0.0";
+        persistentDataVersion = version ?? "0.0.0";
     }
 
     public void setAssetReadPath(ASSET_READ_PATH read)
     {
-        mAssetReadPath = read;
+        assetReadPath = read;
     }
 
     public string getRemoteVersion()
     {
-        return mRemoteVersion;
+        return remoteVersion;
     }
 
     public string getStreamingAssetsVersion()
     {
-        return mStreamingAssetsVersion;
+        return streamingAssetsVersion;
     }
 
     public string getPersistentDataVersion()
     {
-        return mPersistentDataVersion;
+        return persistentDataVersion;
     }
 
     public ASSET_READ_PATH getAssetReadPath()
     {
-        return mAssetReadPath;
+        return assetReadPath;
     }
 
     public Dictionary<string, GameFileInfo> getStreamingAssetsFile()
     {
-        return mStreamingAssetsFileList;
+        return streamingAssetFiles;
     }
 
     public Dictionary<string, GameFileInfo> getPersistentAssetsFile()
     {
-        return mPersistentAssetsFileList;
+        return persistentAssetFiles;
     }
 
     public Dictionary<string, GameFileInfo> getRemoteAssetsFile()
     {
-        return mRemoteAssetsFileList;
+        return remoteAssetFiles;
     }
 
     public string getLocalVersion()
     {
-        if (mStreamingAssetsVersion == null && mPersistentDataVersion == null)
-        {
+        if (streamingAssetsVersion == null && persistentDataVersion == null)
             return null;
-        }
 
         // 选择更高版本号的
-        if (mPersistentDataVersion == null ||
-            compareVersion3(mStreamingAssetsVersion, mPersistentDataVersion, out _, out _) == VERSION_COMPARE.LOCAL_LOWER)
+        if (persistentDataVersion == null ||
+            compareVersion3(streamingAssetsVersion, persistentDataVersion, out _, out _) == VERSION_COMPARE.LOCAL_LOWER)
         {
-            return mStreamingAssetsVersion;
+            return streamingAssetsVersion;
         }
 
-        return mPersistentDataVersion;
+        return persistentDataVersion;
     }
 
     // remoteFileListCallback是获取到最新的远端文件列表
     public void startCheckFileList(bool enableHotFix, string remoteFileListMD5, List<string> ignorePath, List<string> ignoreFile, Action successCallback, Action failCallback, DownloadFileListCallback remoteFileListCallback)
     {
-        logBase("Remote Version:" + mRemoteVersion +
+        logBase("Remote Version:" + remoteVersion +
                 ", Local Version:" + getLocalVersion() +
-                ", streamingAssetsVersion:" + mStreamingAssetsVersion +
-                ", persistVersion:" + mPersistentDataVersion +
+                ", streamingAssetsVersion:" + streamingAssetsVersion +
+                ", persistVersion:" + persistentDataVersion +
                 ", streamingVersionPath:" + F_ASSET_BUNDLE_PATH + VERSION +
                 ", persistentVersionPath:" + F_PERSISTENT_ASSETS_PATH + VERSION);
 
-        mRemoteFileListFailCallback = failCallback;
-        mPersistentDone = false;
-        mStreamingDone = false;
-        mRemoteDone = false;
-        mCheckFileListFailed = false;
+        onRemoteFileListFail = failCallback;
+        persistentDone = false;
+        streamingDone = false;
+        remoteDone = false;
+        checkFileListFailed = false;
         ignoreFile ??= new();
         ignoreFile.addUnique(VERSION);
         ignoreFile.addUnique(FILE_LIST);
@@ -207,45 +206,45 @@ public class AssetVersionSystem : FrameSystem
         ignoreFile.addUnique(FILE_LIST_REMOTE);
         ignorePath ??= new();
         ignorePath.addUnique("/temp/");
-        mSuccessCallback = successCallback;
+        onSuccess = successCallback;
 
         logBase("开始获取所有文件列表");
         // 获取StreamingAssets,PersistentPath的所有文件信息
         openFileList(F_ASSET_BUNDLE_PATH, () =>
         {
             logBase("获取StreamingAssets文件列表完成");
-            mStreamingDone = true;
+            streamingDone = true;
         }, ignorePath, ignoreFile);
         // 编辑器下和不下载更新的版本中不获取远端文件列表和PersistentPath的文件列表
         // 如果本地版本号大于远端的,则不下载,此时远端资源还未上传,本地可以直接正常运行,认为安装的是全量包
         if (isEditor() ||
             !enableHotFix ||
-            compareVersion3(mRemoteVersion, getLocalVersion(), out _, out _) == VERSION_COMPARE.REMOTE_LOWER)
+            compareVersion3(remoteVersion, getLocalVersion(), out _, out _) == VERSION_COMPARE.REMOTE_LOWER)
         {
-            mPersistentDone = true;
-            mRemoteDone = true;
+            persistentDone = true;
+            remoteDone = true;
             return;
         }
 
         openFileList(F_PERSISTENT_ASSETS_PATH, () =>
         {
             logBase("获取PersistentPath文件列表完成");
-            mPersistentDone = true;
+            persistentDone = true;
         }, ignorePath, ignoreFile);
 
         // 先读本地缓存的文件列表
         // 如果本地的信息与远端的不一致,再下载,因为要减少不必要的下载量
         // 减少流量消耗以及时间消耗,下载一次可能会需要消耗500毫秒
-        openFileAsync(F_PERSISTENT_ASSETS_PATH + FILE_LIST_REMOTE, false, (byte[] content) =>
+        openFileAsync(F_PERSISTENT_ASSETS_PATH + FILE_LIST_REMOTE, false, content =>
         {
             string localMD5 = generateFileMD5(content);
             if (content == null || remoteFileListMD5 != localMD5)
             {
-                remoteFileListCallback((byte[] content0) =>
+                remoteFileListCallback(content0 =>
                 {
                     if (content0 == null)
                     {
-                        mRemoteFileListFailCallback?.Invoke();
+                        onRemoteFileListFail?.Invoke();
                         return;
                     }
 
@@ -267,7 +266,7 @@ public class AssetVersionSystem : FrameSystem
         DateTime start = DateTime.Now;
         string fileListFullPath = path + FILE_LIST;
         // 本地已经有生成好的FileList文件,不过即使读取的是已经生成好的文件信息,也要再获取所有文件的文件名和大小进行校验,避免记录错误的信息
-        openTxtFileAsync(fileListFullPath, false, (string content) =>
+        openTxtFileAsync(fileListFullPath, false, content =>
         {
             if (!content.isEmpty())
             {
@@ -385,7 +384,7 @@ public class AssetVersionSystem : FrameSystem
         DateTime start = DateTime.Now;
         Dictionary<string, GameFileInfo> fileInfoList = new();
         // 打开所有文件
-        openFileListAsync(fileList, true, (string fileName, byte[] bytes) =>
+        openFileListAsync(fileList, true, (fileName, bytes) =>
         {
             if (bytes == null)
             {
@@ -395,9 +394,9 @@ public class AssetVersionSystem : FrameSystem
             string relativeFileName = fileName.removeStartCount(path.Length);
             GameFileInfo info = new()
             {
-                mFileName = relativeFileName,
-                mFileSize = bytes.Length,
-                mMD5 = generateFileMD5(bytes)
+                name = relativeFileName,
+                size = bytes.Length,
+                md5 = generateFileMD5(bytes)
             };
             fileInfoList.Add(relativeFileName, info);
             if (fileInfoList.Count == fileList.Count)
@@ -423,8 +422,8 @@ public class AssetVersionSystem : FrameSystem
         parseFileList(bytesToString(contentBytes), remoteFileList);
         if (remoteFileList.isEmpty())
         {
-            mCheckFileListFailed = true;
-            mRemoteFileListFailCallback?.Invoke();
+            checkFileListFailed = true;
+            onRemoteFileListFail?.Invoke();
             return;
         }
 
@@ -434,7 +433,7 @@ public class AssetVersionSystem : FrameSystem
         remoteFileList.Remove(FILE_LIST_MD5);
         setRemoteAssetsFile(remoteFileList);
         logBase("远端资源文件数量:" + remoteFileList.Count);
-        mRemoteDone = true;
+        remoteDone = true;
     }
 
     protected void setFileListToAssetSystem(string path, Dictionary<string, GameFileInfo> fileInfoList)
@@ -476,9 +475,9 @@ public class AssetVersionSystem : FrameSystem
     public string generatePersistentAssetFileList()
     {
         StringBuilder fileString = new();
-        fileString.Append(mPersistentAssetsFileList.Count);
+        fileString.Append(persistentAssetFiles.Count);
         fileString.Append("\n");
-        foreach (GameFileInfo item in mPersistentAssetsFileList.Values)
+        foreach (GameFileInfo item in persistentAssetFiles.Values)
         {
             item.toString(fileString);
             fileString.Append("\n");
@@ -489,16 +488,16 @@ public class AssetVersionSystem : FrameSystem
 
     protected void setStreamingAssetsFile(Dictionary<string, GameFileInfo> infoList)
     {
-        mStreamingAssetsFileList.setRange(infoList);
+        streamingAssetFiles.setRange(infoList);
     }
 
     protected void setPersistentAssetsFile(Dictionary<string, GameFileInfo> infoList)
     {
-        mPersistentAssetsFileList.setRange(infoList);
+        persistentAssetFiles.setRange(infoList);
     }
 
     protected void setRemoteAssetsFile(Dictionary<string, GameFileInfo> infoList)
     {
-        mRemoteAssetsFileList.setRange(infoList);
+        remoteAssetFiles.setRange(infoList);
     }
 }

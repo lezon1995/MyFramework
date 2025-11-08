@@ -5,6 +5,6 @@ public class COMMovableObjectAlphaPath : ComponentPathAlpha, IComponentModifyAlp
 	//------------------------------------------------------------------------------------------------------------------------------
 	protected override void setValue(float value)
 	{
-		(mComponentOwner as MovableObject).setAlpha(value);
+		(owner as MovableObject).setAlpha(value);
 	}
 }

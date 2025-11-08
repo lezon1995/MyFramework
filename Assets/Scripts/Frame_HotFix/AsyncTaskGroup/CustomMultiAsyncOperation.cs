@@ -5,25 +5,32 @@
 // AsyncTaskGroup适用于需要设置回调函数的情况
 public class CustomMultiAsyncOperation : CustomAsyncOperation
 {
-	protected List<CustomAsyncOperation> mOperationList = new();
-	public void addOperation(CustomAsyncOperation op) { mOperationList.add(op); }
-	public override bool keepWaiting 
-	{
-		get 
-		{
-			foreach (CustomAsyncOperation op in mOperationList)
-			{
-				if (op.keepWaiting)
-				{
-					return true;
-				}
-			}
-			return false;
-		} 
-	}
-	public override void Reset()
-	{
-		base.Reset();
-		mOperationList.Clear();
-	}
+    protected List<CustomAsyncOperation> mOperationList = new();
+
+    public void addOperation(CustomAsyncOperation op)
+    {
+        mOperationList.add(op);
+    }
+
+    public override bool keepWaiting
+    {
+        get
+        {
+            foreach (CustomAsyncOperation op in mOperationList)
+            {
+                if (op.keepWaiting)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+    }
+
+    public override void Reset()
+    {
+        base.Reset();
+        mOperationList.Clear();
+    }
 }

@@ -5,7 +5,7 @@ using static CSharpUtility;
 // 逻辑场景管理器
 public class GameSceneManager : FrameSystem
 {
-    protected List<GameScene> mLastSceneList = new(); // 上一个场景的列表,用于在update中延迟销毁上一个场景
+    protected List<GameScene> lastScenes = new(); // 上一个场景的列表,用于在update中延迟销毁上一个场景
     protected GameScene curScene; // 当前场景
 
     public GameSceneManager()
@@ -18,7 +18,10 @@ public class GameSceneManager : FrameSystem
         return curScene;
     }
 
-    public bool enterScene<T>(Type startProcedure) where T : GameScene => enterScene(typeof(T), startProcedure);
+    public bool enterScene<T>(Type startProcedure) where T : GameScene
+    {
+        return enterScene(typeof(T), startProcedure);
+    }
 
     public bool enterScene(Type type, Type startProcedure)
     {
@@ -35,7 +38,7 @@ public class GameSceneManager : FrameSystem
             // 如果有上一个场景,则先销毁上一个场景,只是暂时保存下上个场景的指针,然后在更新中将场景销毁
             if (curScene)
             {
-                mLastSceneList.Add(curScene);
+                lastScenes.Add(curScene);
                 curScene.exit();
                 curScene = null;
             }
@@ -48,34 +51,32 @@ public class GameSceneManager : FrameSystem
         return true;
     }
 
-    public override void update(float elapsedTime)
+    public override void update(float dt)
     {
-        base.update(elapsedTime);
+        base.update(dt);
         // 如果上一个场景不为空,则将上一个场景销毁
-        foreach (GameScene scene in mLastSceneList)
+        foreach (var scene in lastScenes)
         {
             scene.willDestroy();
             scene.destroy();
         }
 
-        mLastSceneList.Clear();
-        curScene?.update(elapsedTime);
+        lastScenes.Clear();
+        curScene?.update(dt);
     }
 
-    public override void lateUpdate(float elapsedTime)
+    public override void lateUpdate(float dt)
     {
-        base.lateUpdate(elapsedTime);
-        curScene?.lateUpdate(elapsedTime);
+        base.lateUpdate(dt);
+        curScene?.lateUpdate(dt);
     }
 
     public override void destroy()
     {
-        foreach (GameScene scene in mLastSceneList)
-        {
+        foreach (var scene in lastScenes)
             scene.destroy();
-        }
 
-        mLastSceneList.Clear();
+        lastScenes.Clear();
         curScene?.exit();
         curScene?.destroy();
         curScene = null;
@@ -85,10 +86,8 @@ public class GameSceneManager : FrameSystem
     public override void willDestroy()
     {
         base.willDestroy();
-        foreach (GameScene scene in mLastSceneList)
-        {
+        foreach (var scene in lastScenes)
             scene.willDestroy();
-        }
 
         curScene?.willDestroy();
     }

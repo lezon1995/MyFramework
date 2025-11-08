@@ -3,31 +3,31 @@
 // 表示一个文件的信息
 public class GameFileInfo
 {
-    public string mFileName; // StreamingAssets下的相对路径
-    public long mFileSize; // 文件大小
-    public string mMD5; // 文件MD5
+    public string name; // StreamingAssets下的相对路径
+    public long size; // 文件大小
+    public string md5; // 文件MD5
 
     public static GameFileInfo createInfo(string infoString)
     {
         string[] list = infoString.Split('\t');
-        if (list == null || list.Length != 3)
+        if (list is not { Length: 3 })
             return null;
 
         GameFileInfo info = new()
         {
-            mFileName = list[0],
-            mFileSize = int.Parse(list[1]),
-            mMD5 = list[2]
+            name = list[0],
+            size = int.Parse(list[1]),
+            md5 = list[2]
         };
         return info;
     }
 
     public void toString(StringBuilder builder)
     {
-        builder.Append(mFileName);
+        builder.Append(name);
         builder.Append('\t');
-        builder.Append(mFileSize);
+        builder.Append(size);
         builder.Append('\t');
-        builder.Append(mMD5);
+        builder.Append(md5);
     }
 }

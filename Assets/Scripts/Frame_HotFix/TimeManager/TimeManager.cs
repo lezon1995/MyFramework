@@ -1,4 +1,5 @@
 ﻿// 时间管理器,用于对时间进行缩放
+
 public class TimeManager : FrameSystem
 {
     protected COMTimeScale mCOMTimeScale; // 时间缩放组件

@@ -2,12 +2,12 @@
 
 public abstract class SerializableBit : ClassObject
 {
-    public bool mValid; // 此字段是否有效
-    public bool mOptional; // 此字段是否为可选的
+    public bool valid; // 此字段是否有效
+    public bool optional; // 此字段是否为可选的
 
-    public SerializableBit()
+    protected SerializableBit()
     {
-        mValid = true;
+        valid = true;
     }
 
     public abstract bool read(SerializerBitRead reader);
@@ -16,8 +16,8 @@ public abstract class SerializableBit : ClassObject
     public override void resetProperty()
     {
         base.resetProperty();
-        mValid = true;
+        valid = true;
         // 构造中赋值的,不需要重置
-        // mOptional = false;
+        // optional = false;
     }
 }

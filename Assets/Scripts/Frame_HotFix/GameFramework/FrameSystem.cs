@@ -8,9 +8,9 @@ using static MathUtility;
 public class FrameSystem : ComponentOwner
 {
     protected GameObject go; // 管理器节点,一般用于作为管理物体的父节点,或者挂接调试脚本
-    protected int mDestroyOrder; // 销毁顺序
-    protected int mUpdateOrder; // 更新顺序
-    protected int mInitOrder; // 初始化顺序
+    protected int orderDestroy; // 销毁顺序
+    protected int orderUpdate; // 更新顺序
+    protected int orderInit; // 初始化顺序
     protected bool mCreateObject; // 是否要创建管理器节点,默认不创建,为了避免在场景结构中显示过多不必要的系统组件节点
 
     protected FrameSystem()
@@ -64,17 +64,17 @@ public class FrameSystem : ComponentOwner
 
     public void setInitOrder(int order)
     {
-        mInitOrder = order;
+        orderInit = order;
     }
 
     public void setUpdateOrder(int order)
     {
-        mUpdateOrder = order;
+        orderUpdate = order;
     }
 
     public void setDestroyOrder(int order)
     {
-        mDestroyOrder = order;
+        orderDestroy = order;
     }
 
     public void setCreateObject(bool create)
@@ -94,18 +94,18 @@ public class FrameSystem : ComponentOwner
     // a小于b返回-1, a等于b返回0, a大于b返回1,升序排序
     public static int compareInit(FrameSystem a, FrameSystem b)
     {
-        return sign(a.mInitOrder - b.mInitOrder);
+        return sign(a.orderInit - b.orderInit);
     }
 
     // a小于b返回-1, a等于b返回0, a大于b返回1,升序排序
     public static int compareUpdate(FrameSystem a, FrameSystem b)
     {
-        return sign(a.mUpdateOrder - b.mUpdateOrder);
+        return sign(a.orderUpdate - b.orderUpdate);
     }
 
     // a小于b返回-1, a等于b返回0, a大于b返回1,升序排序
     public static int compareDestroy(FrameSystem a, FrameSystem b)
     {
-        return sign(a.mDestroyOrder - b.mDestroyOrder);
+        return sign(a.orderDestroy - b.orderDestroy);
     }
 }

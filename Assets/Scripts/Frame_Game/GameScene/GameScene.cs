@@ -33,10 +33,10 @@ public abstract class GameScene
         procedures.Clear();
     }
 
-    public void update(float elapsedTime)
+    public void update(float dt)
     {
         // 更新当前流程
-        curProcedure?.update(elapsedTime);
+        curProcedure?.update(dt);
     }
 
     // 退出场景
@@ -51,10 +51,8 @@ public abstract class GameScene
 
     public virtual void willDestroy()
     {
-        foreach (SceneProcedure item in procedures.Values)
-        {
-            item.willDestroy();
-        }
+        foreach (var procedure in procedures.Values)
+            procedure.willDestroy();
     }
 
     public abstract void assignStartExitProcedure();

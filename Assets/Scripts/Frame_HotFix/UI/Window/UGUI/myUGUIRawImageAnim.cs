@@ -47,14 +47,14 @@ public class myUGUIRawImageAnim : myUGUIRawImage, IUIAnimation
 		}
 		mTextureList.Clear();
 	}
-	public override void update(float elapsedTime)
+	public override void update(float dt)
 	{
-		base.update(elapsedTime);
+		base.update(dt);
 		if (mTextureList.Count == 0)
 		{
 			setTexture(null, false);
 		}
-		mControl.update(elapsedTime);
+		mControl.update(dt);
 	}
 	public string getTextureSet() { return mTexturePath; }
 	public int getTextureFrameCount() { return mTextureList.Count; }

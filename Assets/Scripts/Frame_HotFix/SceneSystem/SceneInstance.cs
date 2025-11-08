@@ -6,8 +6,8 @@ using static UnityUtility;
 // 3D场景的实例
 public class SceneInstance : DelayCmdWatcher
 {
-    protected FloatCallback loadingCallback; // 加载中回调
-    protected Action loadedCallback; // 加载完成回调
+    protected FloatCallback onLoading; // 加载中回调
+    protected Action onLoaded; // 加载完成回调
     protected GameObject root; // 场景根节点,每个场景都应该添加一个名称格式固定的根节点,场景名_Root
     protected Scene scene; // Unity场景实例
     protected Type type; // 类型
@@ -34,8 +34,8 @@ public class SceneInstance : DelayCmdWatcher
     public override void resetProperty()
     {
         base.resetProperty();
-        loadingCallback = null;
-        loadedCallback = null;
+        onLoading = null;
+        onLoaded = null;
         root = null;
         scene = default;
         type = null;
@@ -60,18 +60,18 @@ public class SceneInstance : DelayCmdWatcher
     {
     }
 
-    public virtual void update(float elapsedTime)
+    public virtual void update(float dt)
     {
     }
 
-    public virtual void lateUpdate(float elapsedTime)
+    public virtual void lateUpdate(float dt)
     {
     }
 
     // 不要直接调用SceneInstance的setActive,应该使用SceneSystem的showScene或者hideScene
     public void setActive(bool active)
     {
-        if (root != null && root.activeSelf != active)
+        if (root && root.activeSelf != active)
         {
             root.SetActive(active);
         }
@@ -99,12 +99,12 @@ public class SceneInstance : DelayCmdWatcher
 
     public void setLoadedCallback(Action callback)
     {
-        loadedCallback = callback;
+        onLoaded = callback;
     }
 
     public void setLoadingCallback(FloatCallback callback)
     {
-        loadingCallback = callback;
+        onLoading = callback;
     }
 
     public void setScene(Scene s)
@@ -127,9 +127,9 @@ public class SceneInstance : DelayCmdWatcher
         return type;
     }
 
-    public bool getActive()
+    public bool isActive()
     {
-        return root != null && root.activeSelf;
+        return root && root.activeSelf;
     }
 
     public GameObject getRoot()
@@ -169,11 +169,11 @@ public class SceneInstance : DelayCmdWatcher
 
     public void callLoading(float percent)
     {
-        loadingCallback?.Invoke(percent);
+        onLoading?.Invoke(percent);
     }
 
     public void callLoaded()
     {
-        loadedCallback?.Invoke();
+        onLoaded?.Invoke();
     }
 }

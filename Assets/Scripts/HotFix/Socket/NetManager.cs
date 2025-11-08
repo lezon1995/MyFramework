@@ -39,10 +39,10 @@ public class NetManager : FrameSystem
         });
     }
 
-    public override void update(float elapsedTime)
+    public override void update(float dt)
     {
-        base.update(elapsedTime);
-        mServerConnect.update(elapsedTime);
+        base.update(dt);
+        mServerConnect.update(dt);
     }
 
     public override void destroy()

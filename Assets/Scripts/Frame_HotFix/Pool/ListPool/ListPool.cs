@@ -25,9 +25,9 @@ public class ListPool : FrameSystem
 			go.AddComponent<ListPoolDebug>();
 		}
 	}
-	public override void update(float elapsedTime)
+	public override void update(float dt)
 	{
-		base.update(elapsedTime);
+		base.update(dt);
 		if (isEditor())
 		{
 			foreach (var item in mInusedList.Values)

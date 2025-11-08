@@ -12,8 +12,8 @@ using static FrameBaseUtility;
 // 从Resources中加载资源
 public class ResourcesLoader
 {
-    protected Dictionary<string, Dictionary<string, ResourceLoadInfo>> mLoadedPath = new(); // 所有已加载的文件夹
-    protected Dictionary<UObject, ResourceLoadInfo> mLoadedObjects = new(); // 所有的已加载的资源
+    protected Dictionary<string, Dictionary<string, ResourceLoadInfo>> loadedPaths = new(); // 所有已加载的文件夹
+    protected Dictionary<UObject, ResourceLoadInfo> loadedObjects = new(); // 所有的已加载的资源
 
     public void init()
     {
@@ -42,7 +42,7 @@ public class ResourcesLoader
         }
 
         // 资源已经加载完
-        if (!mLoadedObjects.Remove(obj, out ResourceLoadInfo info))
+        if (!loadedObjects.Remove(obj, out ResourceLoadInfo info))
         {
             if (showError)
             {
@@ -57,7 +57,7 @@ public class ResourcesLoader
             Resources.UnloadAsset(obj);
         }
 
-        mLoadedPath.get(info.getPath()).Remove(info.getResourceName());
+        loadedPaths.get(info.getPath()).Remove(info.getResourceName());
         UN_CLASS(ref info);
         obj = null;
         return true;
@@ -66,7 +66,7 @@ public class ResourcesLoader
     // 卸载指定路径中的所有资源
     public void unloadPath(string path)
     {
-        using var a = new ListScope<string>(out var tempList, mLoadedPath.Keys);
+        using var a = new ListScope<string>(out var tempList, loadedPaths.Keys);
         foreach (string item0 in tempList)
         {
             if (!item0.startWith(path))
@@ -79,11 +79,11 @@ public class ResourcesLoader
                 log("unload path: " + item0);
             }
 
-            foreach (ResourceLoadInfo info in mLoadedPath.get(item0).Values)
+            foreach (ResourceLoadInfo info in loadedPaths.get(item0).Values)
             {
                 if (info.getObject() != null)
                 {
-                    mLoadedObjects.Remove(info.getObject());
+                    loadedObjects.Remove(info.getObject());
                     if (info.getObject() is not GameObject)
                     {
                         Resources.UnloadAsset(info.getObject());
@@ -95,18 +95,18 @@ public class ResourcesLoader
                 UN_CLASS(info);
             }
 
-            mLoadedPath.Remove(item0);
+            loadedPaths.Remove(item0);
         }
     }
 
     public bool isResourceLoaded(string name)
     {
-        return mLoadedPath.TryGetValue(getFilePath(name), out var resList) && resList.ContainsKey(name);
+        return loadedPaths.TryGetValue(getFilePath(name), out var resList) && resList.ContainsKey(name);
     }
 
     public UObject getResource(string name)
     {
-        return mLoadedPath.get(getFilePath(name))?.get(name)?.getObject();
+        return loadedPaths.get(getFilePath(name))?.get(name)?.getObject();
     }
 
     // 同步加载资源,name为Resources下的相对路径,不带后缀
@@ -115,7 +115,7 @@ public class ResourcesLoader
         mainAsset = null;
         string path = getFilePath(name);
         // 如果文件夹还未加载,则添加文件夹
-        var resList = mLoadedPath.getOrAddNew(path);
+        var resList = loadedPaths.getOrAddNew(path);
         // 资源未加载,则使用Resources.Load加载资源
         if (!resList.TryGetValue(name, out ResourceLoadInfo info))
         {
@@ -129,7 +129,8 @@ public class ResourcesLoader
             mainAsset = info.getObject();
             return info.getSubObjects();
         }
-        else if (info.getState() == LOAD_STATE.DOWNLOADING)
+
+        if (info.getState() == LOAD_STATE.DOWNLOADING)
         {
             logError("Resources资源无法下载,不能同步加载!" + name);
         }
@@ -150,7 +151,7 @@ public class ResourcesLoader
     {
         string path = getFilePath(name);
         // 如果文件夹还未加载,则添加文件夹
-        var resList = mLoadedPath.getOrAddNew(path);
+        var resList = loadedPaths.getOrAddNew(path);
         // 资源未加载,则使用Resources.Load加载资源
         if (!resList.TryGetValue(name, out ResourceLoadInfo info))
         {
@@ -186,7 +187,7 @@ public class ResourcesLoader
         CustomAsyncOperation op = new();
         string path = getFilePath(name);
         // 如果文件夹还未加载,则添加文件夹
-        var resList = mLoadedPath.getOrAddNew(path);
+        var resList = loadedPaths.getOrAddNew(path);
         // 已经加载,则返回true
         if (resList.TryGetValue(name, out ResourceLoadInfo info))
         {
@@ -207,7 +208,7 @@ public class ResourcesLoader
             // 资源已经下载完毕,直接调用回调
             else if (info.getState() == LOAD_STATE.LOADED)
             {
-                ResourceLoadInfo loadInfo = mLoadedPath.get(path).get(name);
+                ResourceLoadInfo loadInfo = loadedPaths.get(path).get(name);
                 doneCallback?.Invoke(loadInfo.getObject(), loadInfo.getSubObjects(), null, name);
                 op.setFinish();
             }
@@ -233,11 +234,9 @@ public class ResourcesLoader
     //------------------------------------------------------------------------------------------------------------------------------
     protected void load<T>(string path, string name) where T : UObject
     {
-        var resList = mLoadedPath.get(path);
+        var resList = loadedPaths.get(path);
         if (resList.ContainsKey(name))
-        {
             return;
-        }
 
         ResourceLoadInfo info = resList.addClass(name);
         info.setPath(path);
@@ -248,7 +247,7 @@ public class ResourcesLoader
         info.setState(LOAD_STATE.LOADED);
         if (info.getObject() != null)
         {
-            mLoadedObjects.Add(info.getObject(), info);
+            loadedObjects.Add(info.getObject(), info);
         }
         else
         {
@@ -265,7 +264,7 @@ public class ResourcesLoader
         info.setState(LOAD_STATE.LOADED);
         if (info.getObject() != null)
         {
-            mLoadedObjects.Add(info.getObject(), info);
+            loadedObjects.Add(info.getObject(), info);
         }
 
         try

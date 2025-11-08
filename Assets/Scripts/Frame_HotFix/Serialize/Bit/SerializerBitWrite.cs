@@ -8,126 +8,126 @@ using static MathUtility;
 // 只写缓冲区,用于生成二进制数据流,按位进行写入
 public class SerializerBitWrite : ClassObject
 {
-    protected byte[] mBuffer; // 缓冲区
-    protected int mBitIndex; // 当前写下标
+    protected byte[] buffer; // 缓冲区
+    protected int bitIndex; // 当前写下标
 
     public override void resetProperty()
     {
         base.resetProperty();
         // mBuffer不重置,保证可以尽可能复用数组
         // mBuffer = null;
-        if (mBuffer != null)
+        if (buffer != null)
         {
-            memset(mBuffer, (byte)0);
+            memset(buffer, (byte)0);
         }
 
-        mBitIndex = 0;
+        bitIndex = 0;
     }
 
     public void write(bool value)
     {
         writeCheck(sizeof(bool));
-        writeBit(mBuffer, mBuffer.Length, ref mBitIndex, value);
+        writeBit(buffer, buffer.Length, ref bitIndex, value);
     }
 
     public void write(Span<byte> values)
     {
         // 因为最差情况下实际所需的空间比value自身占的空间多7bit长度位,所以需要多扩容1个字节
         writeCheck(sizeof(byte) + 1);
-        writeListBit(mBuffer, mBuffer.Length, ref mBitIndex, values);
+        writeListBit(buffer, buffer.Length, ref bitIndex, values);
     }
 
     public void write(byte value)
     {
         // 因为最差情况下实际所需的空间比value自身占的空间多7bit长度位,所以需要多扩容1个字节
         writeCheck(sizeof(byte) + 1);
-        writeBit(mBuffer, mBuffer.Length, ref mBitIndex, value);
+        writeBit(buffer, buffer.Length, ref bitIndex, value);
     }
 
     public void write(Span<sbyte> values)
     {
         // 因为最差情况下实际所需的空间比value自身占的空间多8bit,7bit长度位+1bit符号位,所以需要多扩容1个字节
         writeCheck(sizeof(sbyte) + 1);
-        writeListBit(mBuffer, mBuffer.Length, ref mBitIndex, values);
+        writeListBit(buffer, buffer.Length, ref bitIndex, values);
     }
 
     public void write(sbyte value)
     {
         // 因为最差情况下实际所需的空间比value自身占的空间多8bit,7bit长度位+1bit符号位,所以需要多扩容1个字节
         writeCheck(sizeof(sbyte) + 1);
-        writeBit(mBuffer, mBuffer.Length, ref mBitIndex, value);
+        writeBit(buffer, buffer.Length, ref bitIndex, value);
     }
 
     public void write(Span<short> values)
     {
         writeCheck(sizeof(short) + 1);
-        writeListBit(mBuffer, mBuffer.Length, ref mBitIndex, values);
+        writeListBit(buffer, buffer.Length, ref bitIndex, values);
     }
 
     public void write(short value)
     {
         writeCheck(sizeof(short) + 1);
-        writeBit(mBuffer, mBuffer.Length, ref mBitIndex, value);
+        writeBit(buffer, buffer.Length, ref bitIndex, value);
     }
 
     public void write(Span<ushort> values)
     {
         writeCheck(sizeof(ushort) + 1);
-        writeListBit(mBuffer, mBuffer.Length, ref mBitIndex, values);
+        writeListBit(buffer, buffer.Length, ref bitIndex, values);
     }
 
     public void write(ushort value)
     {
         writeCheck(sizeof(ushort) + 1);
-        writeBit(mBuffer, mBuffer.Length, ref mBitIndex, value);
+        writeBit(buffer, buffer.Length, ref bitIndex, value);
     }
 
     public void write(Span<int> values)
     {
         writeCheck(sizeof(int) + 1);
-        writeListBit(mBuffer, mBuffer.Length, ref mBitIndex, values);
+        writeListBit(buffer, buffer.Length, ref bitIndex, values);
     }
 
     public void write(int value)
     {
         writeCheck(sizeof(int) + 1);
-        writeBit(mBuffer, mBuffer.Length, ref mBitIndex, value);
+        writeBit(buffer, buffer.Length, ref bitIndex, value);
     }
 
     public void write(Span<uint> values)
     {
         writeCheck(sizeof(uint) + 1);
-        writeListBit(mBuffer, mBuffer.Length, ref mBitIndex, values);
+        writeListBit(buffer, buffer.Length, ref bitIndex, values);
     }
 
     public void write(uint value)
     {
         writeCheck(sizeof(uint) + 1);
-        writeBit(mBuffer, mBuffer.Length, ref mBitIndex, value);
+        writeBit(buffer, buffer.Length, ref bitIndex, value);
     }
 
     public void write(Span<long> values)
     {
         writeCheck(sizeof(long) + 1);
-        writeListBit(mBuffer, mBuffer.Length, ref mBitIndex, values);
+        writeListBit(buffer, buffer.Length, ref bitIndex, values);
     }
 
     public void write(long value)
     {
         writeCheck(sizeof(long) + 1);
-        writeBit(mBuffer, mBuffer.Length, ref mBitIndex, value);
+        writeBit(buffer, buffer.Length, ref bitIndex, value);
     }
 
     public void write(Span<ulong> values)
     {
         writeCheck(sizeof(ulong) + 1);
-        writeListBit(mBuffer, mBuffer.Length, ref mBitIndex, values);
+        writeListBit(buffer, buffer.Length, ref bitIndex, values);
     }
 
     public void write(ulong value)
     {
         writeCheck(sizeof(ulong) + 1);
-        writeBit(mBuffer, mBuffer.Length, ref mBitIndex, value);
+        writeBit(buffer, buffer.Length, ref bitIndex, value);
     }
 
     public void write(Span<float> values, int precision = 3)
@@ -217,13 +217,13 @@ public class SerializerBitWrite : ClassObject
         }
 
         writeCheck(dataSize + 1);
-        wrtiteBufferBit(mBuffer, mBuffer.Length, ref mBitIndex, buffer, dataSize);
+        wrtiteBufferBit(this.buffer, this.buffer.Length, ref bitIndex, buffer, dataSize);
     }
 
     // 将最后一个字节未填充数据的位填充为0,并将位下标移动到字节末尾
     public void fillZeroToByteEnd()
     {
-        BinaryUtility.fillZeroToByteEnd(mBuffer, ref mBitIndex);
+        BinaryUtility.fillZeroToByteEnd(buffer, ref bitIndex);
     }
 
     public void writeString(string str, Encoding encoding = null)
@@ -253,61 +253,61 @@ public class SerializerBitWrite : ClassObject
     public void writeList(List<byte> list)
     {
         writeCheck(sizeof(int) + 1 + sizeof(byte) * list.Count);
-        writeListBit(mBuffer, mBuffer.Length, ref mBitIndex, list);
+        writeListBit(buffer, buffer.Length, ref bitIndex, list);
     }
 
     public void writeList(List<sbyte> list)
     {
         writeCheck(sizeof(int) + 1 + sizeof(sbyte) * list.Count);
-        writeListBit(mBuffer, mBuffer.Length, ref mBitIndex, list);
+        writeListBit(buffer, buffer.Length, ref bitIndex, list);
     }
 
     public void writeList(List<short> list)
     {
         writeCheck(sizeof(int) + 1 + sizeof(short) * list.Count);
-        writeListBit(mBuffer, mBuffer.Length, ref mBitIndex, list);
+        writeListBit(buffer, buffer.Length, ref bitIndex, list);
     }
 
     public void writeList(List<ushort> list)
     {
         writeCheck(sizeof(int) + 1 + sizeof(ushort) * list.Count);
-        writeListBit(mBuffer, mBuffer.Length, ref mBitIndex, list);
+        writeListBit(buffer, buffer.Length, ref bitIndex, list);
     }
 
     public void writeList(List<int> list)
     {
         writeCheck(sizeof(int) + 1 + sizeof(int) * list.Count);
-        writeListBit(mBuffer, mBuffer.Length, ref mBitIndex, list);
+        writeListBit(buffer, buffer.Length, ref bitIndex, list);
     }
 
     public void writeList(List<uint> list)
     {
         writeCheck(sizeof(int) + 1 + sizeof(uint) * list.Count);
-        writeListBit(mBuffer, mBuffer.Length, ref mBitIndex, list);
+        writeListBit(buffer, buffer.Length, ref bitIndex, list);
     }
 
     public void writeList(List<long> list)
     {
         writeCheck(sizeof(int) + 1 + sizeof(long) * list.Count);
-        writeListBit(mBuffer, mBuffer.Length, ref mBitIndex, list);
+        writeListBit(buffer, buffer.Length, ref bitIndex, list);
     }
 
     public void writeList(List<ulong> list)
     {
         writeCheck(sizeof(int) + 1 + sizeof(ulong) * list.Count);
-        writeListBit(mBuffer, mBuffer.Length, ref mBitIndex, list);
+        writeListBit(buffer, buffer.Length, ref bitIndex, list);
     }
 
     public void writeList(List<float> list, int precision = 3)
     {
         writeCheck(sizeof(int) + 1 + sizeof(float) * list.Count);
-        writeListBit(mBuffer, mBuffer.Length, ref mBitIndex, list, precision);
+        writeListBit(buffer, buffer.Length, ref bitIndex, list, precision);
     }
 
     public void writeList(List<double> list, int precision = 4)
     {
         writeCheck(sizeof(int) + 1 + sizeof(double) * list.Count);
-        writeListBit(mBuffer, mBuffer.Length, ref mBitIndex, list, precision);
+        writeListBit(buffer, buffer.Length, ref bitIndex, list, precision);
     }
 
     public void writeList(List<Vector2> list, int precision = 3)
@@ -382,25 +382,25 @@ public class SerializerBitWrite : ClassObject
 
     public byte[] getBuffer()
     {
-        return mBuffer;
+        return buffer;
     }
 
     public int getBitCount()
     {
-        return mBitIndex;
+        return bitIndex;
     }
 
     public int getByteCount()
     {
-        return bitCountToByteCount(mBitIndex);
+        return bitCountToByteCount(bitIndex);
     }
 
     public void clear()
     {
-        mBitIndex = 0;
-        if (mBuffer != null)
+        bitIndex = 0;
+        if (buffer != null)
         {
-            memset(mBuffer, (byte)0);
+            memset(buffer, (byte)0);
         }
     }
 
@@ -408,26 +408,26 @@ public class SerializerBitWrite : ClassObject
     protected void writeCheck(int writeLen)
     {
         // 如果缓冲区为空,则创建缓冲区
-        if (mBuffer == null)
+        if (buffer == null)
         {
             writeLen = getGreaterPow2(writeLen);
             // 至少分配32个字节,避免初期频繁扩容
             clampMin(ref writeLen, 32);
-            mBuffer = new byte[writeLen];
-            memset(mBuffer, (byte)0);
+            buffer = new byte[writeLen];
+            memset(buffer, (byte)0);
             return;
         }
 
         // 如果缓冲区已经不够用了,则重新扩展缓冲区
-        int curByte = bitCountToByteCount(mBitIndex);
-        int curSize = mBuffer.Length;
+        int curByte = bitCountToByteCount(bitIndex);
+        int curSize = buffer.Length;
         if (writeLen + curByte > curSize)
         {
             int maxSize = getGreaterPow2(writeLen + curByte);
             byte[] newBuffer = new byte[maxSize > curSize << 1 ? maxSize : curSize << 1];
-            memcpy(newBuffer, mBuffer, 0, 0, curSize);
+            memcpy(newBuffer, buffer, 0, 0, curSize);
             memset(newBuffer, (byte)0, curSize, newBuffer.Length - curSize);
-            mBuffer = newBuffer;
+            buffer = newBuffer;
         }
     }
 }

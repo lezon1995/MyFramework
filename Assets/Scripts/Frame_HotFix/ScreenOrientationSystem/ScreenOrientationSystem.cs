@@ -4,9 +4,9 @@ public class ScreenOrientationSystem : FrameSystem
 {
     protected ANDROID_ORIENTATION mAndroidOrientation = ANDROID_ORIENTATION.NONE;
 
-    public override void update(float elapsedTime)
+    public override void update(float dt)
     {
-        base.update(elapsedTime);
+        base.update(dt);
         if (isEditor())
             return;
 

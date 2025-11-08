@@ -31,12 +31,12 @@ public class CameraManager : FrameSystem
         activeCamera(mainCamera, true);
     }
 
-    public override void update(float elapsedTime)
+    public override void update(float dt)
     {
-        base.update(elapsedTime);
-        foreach (GameCamera camera in cameras)
+        base.update(dt);
+        foreach (var camera in cameras)
         {
-            camera.update(camera.isIgnoreTimeScale() ? Time.unscaledDeltaTime : elapsedTime);
+            camera.update(camera.isIgnoreTimeScale() ? Time.unscaledDeltaTime : dt);
         }
         // 编辑器中检查是否主摄像机被隐藏,任何情况下,主摄像机都不能被隐藏,这样会无法刷新屏幕
 #if USE_URP && UNITY_EDITOR
@@ -45,18 +45,18 @@ public class CameraManager : FrameSystem
 #endif
     }
 
-    public override void lateUpdate(float elapsedTime)
+    public override void lateUpdate(float dt)
     {
-        base.lateUpdate(elapsedTime);
+        base.lateUpdate(dt);
         foreach (var camera in cameras)
-            camera.lateUpdate(elapsedTime);
+            camera.lateUpdate(dt);
     }
 
-    public override void fixedUpdate(float elapsedTime)
+    public override void fixedUpdate(float dt)
     {
-        base.fixedUpdate(elapsedTime);
+        base.fixedUpdate(dt);
         foreach (var camera in cameras)
-            camera.fixedUpdate(elapsedTime);
+            camera.fixedUpdate(dt);
     }
 
     // 获得摄像机,名字是场景中摄像机的名字

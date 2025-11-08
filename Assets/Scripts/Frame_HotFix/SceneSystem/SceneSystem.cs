@@ -14,41 +14,51 @@ using static FrameUtility;
 // 3D场景管理器,管理unity场景资源
 public class SceneSystem : FrameSystem
 {
-    protected Dictionary<Type, List<SceneRegisterInfo>> mScriptMappingList = new(); // 场景脚本类型与场景注册信息的映射,允许多个相似的场景共用同一个场景脚本
-    protected Dictionary<string, SceneRegisterInfo> mSceneRegisteList = new(); // 场景注册信息
-    protected Dictionary<string, SceneInstance> mSceneList = new(); // 已经加载的所有场景
+    // 场景注册信息
+    protected class RegisterInfo
+    {
+        public string name; // 场景名
+        public string path; // 场景路径
+        public Type type; // 场景逻辑类的类型
+        public SceneScriptCallback callback; // 用于给场景脚本对象赋值
+    }
+
+    // 场景脚本类型与场景注册信息的映射,允许多个相似的场景共用同一个场景脚本
+    protected Dictionary<Type, List<RegisterInfo>> scriptMappings = new();
+    protected Dictionary<string, RegisterInfo> sceneRegisterInfos = new(); // 场景注册信息
+    protected Dictionary<string, SceneInstance> scenes = new(); // 已经加载的所有场景
 
     public override void destroy()
     {
         base.destroy();
-        foreach (string item in mSceneList.Keys)
+        foreach (string sceneName in scenes.Keys)
         {
-            unloadSceneOnly(item);
+            unloadSceneOnly(sceneName);
         }
 
-        mSceneList.Clear();
+        scenes.Clear();
     }
 
-    public override void update(float elapsedTime)
+    public override void update(float dt)
     {
-        base.update(elapsedTime);
-        foreach (var item in mSceneList.Values)
+        base.update(dt);
+        foreach (var scene in scenes.Values)
         {
-            if (item.getActive())
+            if (scene.isActive())
             {
-                item.update(elapsedTime);
+                scene.update(dt);
             }
         }
     }
 
-    public override void lateUpdate(float elapsedTime)
+    public override void lateUpdate(float dt)
     {
-        base.lateUpdate(elapsedTime);
-        foreach (var item in mSceneList.Values)
+        base.lateUpdate(dt);
+        foreach (var scene in scenes.Values)
         {
-            if (item.getActive())
+            if (scene.isActive())
             {
-                item.lateUpdate(elapsedTime);
+                scene.lateUpdate(dt);
             }
         }
     }
@@ -58,32 +68,32 @@ public class SceneSystem : FrameSystem
     {
         // 路径需要以/结尾
         validPath(ref filePath);
-        SceneRegisterInfo info = mSceneRegisteList.add(name, new());
+        RegisterInfo info = sceneRegisterInfos.add(name, new());
         info.name = name;
         info.path = filePath;
         info.type = type;
         info.callback = callback;
-        mScriptMappingList.getOrAddNew(type).Add(info);
+        scriptMappings.getOrAddNew(type).Add(info);
     }
 
     public string getScenePath(string name)
     {
-        return mSceneRegisteList.get(name)?.path ?? EMPTY;
+        return sceneRegisterInfos.get(name)?.path ?? EMPTY;
     }
 
     public T getScene<T>(string name) where T : SceneInstance
     {
-        return mSceneList.get(name) as T;
+        return scenes.get(name) as T;
     }
 
     public int getScriptMappingCount(Type classType)
     {
-        return mScriptMappingList.get(classType).count();
+        return scriptMappings.get(classType).count();
     }
 
     public void setMainScene(string name)
     {
-        if (!mSceneList.TryGetValue(name, out SceneInstance scene))
+        if (!scenes.TryGetValue(name, out var scene))
             return;
 
         SceneManager.SetActiveScene(scene.getScene());
@@ -91,7 +101,7 @@ public class SceneSystem : FrameSystem
 
     public void hideScene(string name)
     {
-        if (!mSceneList.TryGetValue(name, out SceneInstance scene))
+        if (!scenes.TryGetValue(name, out var scene))
             return;
 
         scene.setActive(false);
@@ -100,23 +110,22 @@ public class SceneSystem : FrameSystem
 
     public void showScene(string name, bool hideOther = true, bool mainScene = true)
     {
-        if (!mSceneList.TryGetValue(name, out SceneInstance scene))
+        if (!scenes.TryGetValue(name, out var scene))
             return;
 
         // 如果需要隐藏其他场景,则遍历所有场景设置可见性
         if (hideOther)
         {
-            foreach (var item in mSceneList)
+            foreach (var (sceneName, sceneInstance) in scenes)
             {
-                SceneInstance curScene = item.Value;
-                curScene.setActive(curScene == scene);
-                if (curScene == scene)
+                sceneInstance.setActive(sceneInstance == scene);
+                if (sceneInstance == scene)
                 {
-                    curScene.onShow();
+                    sceneInstance.onShow();
                 }
                 else
                 {
-                    curScene.onHide();
+                    sceneInstance.onHide();
                 }
             }
         }
@@ -137,9 +146,9 @@ public class SceneSystem : FrameSystem
     // 该方法只能保证在这一帧结束后场景能加载完毕,但是函数返回后场景并没有加载完毕
     public CustomAsyncOperation loadSceneAsync(string sceneName, bool active, bool mainScene, Action loadedCallback, FloatCallback loadingCallback = null)
     {
-        CustomAsyncOperation op = new();
+        var op = new CustomAsyncOperation();
         // 如果场景已经加载,则直接返回
-        if (mSceneList.ContainsKey(sceneName))
+        if (scenes.ContainsKey(sceneName))
         {
             showScene(sceneName, false, mainScene);
             if (loadingCallback != null || loadedCallback != null)
@@ -154,7 +163,7 @@ public class SceneSystem : FrameSystem
         }
         else
         {
-            SceneInstance scene = mSceneList.add(sceneName, createScene(sceneName));
+            SceneInstance scene = scenes.add(sceneName, createScene(sceneName));
             scene.setState(LOAD_STATE.NONE);
             scene.setActiveLoaded(active);
             scene.setMainScene(mainScene);
@@ -175,17 +184,17 @@ public class SceneSystem : FrameSystem
     {
         // 销毁场景,并且从列表中移除
         unloadSceneOnly(name);
-        mSceneList.Remove(name);
+        scenes.Remove(name);
         if (unloadPath)
         {
-            mResourceManager?.unloadPath(mSceneRegisteList.get(name).path);
+            mResourceManager?.unloadPath(sceneRegisterInfos.get(name).path);
         }
     }
 
     // 卸载除了dontUnloadSceneName以外的其他场景,初始默认场景除外
     public void unloadOtherScene(string dontUnloadSceneName, bool unloadPath = true)
     {
-        using var a = new ListScope<string>(out var tempList, mSceneList.Keys);
+        using var a = new ListScope<string>(out var tempList, scenes.Keys);
         foreach (string sceneName in tempList)
         {
             if (sceneName != dontUnloadSceneName)
@@ -247,9 +256,9 @@ public class SceneSystem : FrameSystem
 
     protected SceneInstance createScene(string sceneName)
     {
-        if (!mSceneRegisteList.TryGetValue(sceneName, out SceneRegisterInfo info))
+        if (!sceneRegisterInfos.TryGetValue(sceneName, out RegisterInfo info))
         {
-            logError("scene :" + sceneName + " is not registed!");
+            logError("scene :" + sceneName + " is not registered!");
             return null;
         }
 
@@ -263,7 +272,7 @@ public class SceneSystem : FrameSystem
     // 只销毁场景,不从列表移除
     protected void unloadSceneOnly(string name)
     {
-        if (!mSceneList.TryGetValue(name, out SceneInstance scene))
+        if (!scenes.TryGetValue(name, out var scene))
             return;
 
         notifySceneChanged(scene, false);
@@ -273,6 +282,6 @@ public class SceneSystem : FrameSystem
 
     protected void notifySceneChanged(SceneInstance scene, bool isLoad)
     {
-        mSceneRegisteList.get(scene.getName())?.callback?.Invoke(isLoad ? scene : null);
+        sceneRegisterInfos.get(scene.getName())?.callback?.Invoke(isLoad ? scene : null);
     }
 }

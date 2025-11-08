@@ -14,13 +14,13 @@ using static FrameBaseUtility;
 // 资源管理器,管理所有资源的加载
 public class ResourceManager : FrameSystem
 {
-    protected AssetDataBaseLoader mAssetDataBaseLoader = new(); // 通过AssetDataBase加载资源的加载器,只会在编辑器下使用
-    protected AssetBundleLoader mAssetBundleLoader = new(); // 通过AssetBundle加载资源的加载器,打包后强制使用AssetBundle加载
-    protected ResourcesLoader mResourcesLoader = new(); // 通过Resources加载资源的加载器,Resources在编辑器或者打包后都会使用,用于加载Resources中的非热更资源
-    protected List<UObjectCallback> mUnloadObjectCallback = new(); // 卸载某个单独资源的回调
-    protected List<StringCallback> mUnloadPathCallback = new(); // 卸载目录中所有资源的回调,不会再次通知其中的单个资源
-    protected LOAD_SOURCE mLoadSource; // 加载源,从AssetBundle加载还是从AssetDataBase加载
-    protected static int mDownloadTimeout = 10; // 下载超时时间,秒
+    protected AssetDatabaseLoader assetDatabaseLoader = new(); // 通过AssetDataBase加载资源的加载器,只会在编辑器下使用
+    protected AssetBundleLoader assetBundleLoader = new(); // 通过AssetBundle加载资源的加载器,打包后强制使用AssetBundle加载
+    protected ResourcesLoader resourcesLoader = new(); // 通过Resources加载资源的加载器,Resources在编辑器或者打包后都会使用,用于加载Resources中的非热更资源
+    protected List<UObjectCallback> unloadObjectCallback = new(); // 卸载某个单独资源的回调
+    protected List<StringCallback> unloadPathCallback = new(); // 卸载目录中所有资源的回调,不会再次通知其中的单个资源
+    protected LOAD_SOURCE loadSource; // 加载源,从AssetBundle加载还是从AssetDataBase加载
+    protected static int downloadTimeout = 10; // 下载超时时间,秒
 
     public ResourceManager()
     {
@@ -30,7 +30,7 @@ public class ResourceManager : FrameSystem
     public override void init()
     {
         base.init();
-        mLoadSource = isEditor() ? GameEntry.getInstance().frameworkParam.loadSource : LOAD_SOURCE.ASSET_BUNDLE;
+        loadSource = isEditor() ? GameEntry.getInstance().frameworkParam.loadSource : LOAD_SOURCE.ASSET_BUNDLE;
         if (isEditor())
         {
             go.AddComponent<ResourcesManagerDebug>();
@@ -39,95 +39,95 @@ public class ResourceManager : FrameSystem
 
     public override void preInitAsync(Action callback)
     {
-        if (mLoadSource != LOAD_SOURCE.ASSET_BUNDLE)
+        if (loadSource != LOAD_SOURCE.ASSET_BUNDLE)
         {
             callback?.Invoke();
             return;
         }
 
-        mAssetBundleLoader.initAssets(callback);
+        assetBundleLoader.initAssets(callback);
     }
 
     public bool isResourceInited()
     {
-        if (mLoadSource == LOAD_SOURCE.ASSET_BUNDLE)
+        if (loadSource == LOAD_SOURCE.ASSET_BUNDLE)
         {
-            return mAssetBundleLoader.isInited();
+            return assetBundleLoader.isInited();
         }
 
         return true;
     }
 
-    public override void update(float elapsedTime)
+    public override void update(float dt)
     {
-        base.update(elapsedTime);
-        if (mLoadSource == LOAD_SOURCE.ASSET_BUNDLE)
+        base.update(dt);
+        if (loadSource == LOAD_SOURCE.ASSET_BUNDLE)
         {
-            mAssetBundleLoader.update(elapsedTime);
+            assetBundleLoader.update(dt);
         }
     }
 
     public override void destroy()
     {
-        mAssetBundleLoader?.destroy();
-        mAssetDataBaseLoader?.destroy();
-        mResourcesLoader?.destroy();
+        assetBundleLoader?.destroy();
+        assetDatabaseLoader?.destroy();
+        resourcesLoader?.destroy();
         base.destroy();
     }
 
     public void addUnloadObjectCallback(UObjectCallback callback)
     {
-        mUnloadObjectCallback.Add(callback);
+        unloadObjectCallback.Add(callback);
     }
 
     public void addUnloadPathCallback(StringCallback callback)
     {
-        mUnloadPathCallback.Add(callback);
+        unloadPathCallback.Add(callback);
     }
 
     public void removeUnloadObjectCallback(UObjectCallback callback)
     {
-        mUnloadObjectCallback.Remove(callback);
+        unloadObjectCallback.Remove(callback);
     }
 
     public void removeUnloadPathCallback(StringCallback callback)
     {
-        mUnloadPathCallback.Remove(callback);
+        unloadPathCallback.Remove(callback);
     }
 
     public AssetBundleLoader getAssetBundleLoader()
     {
-        return mAssetBundleLoader;
+        return assetBundleLoader;
     }
 
-    public AssetDataBaseLoader getAssetDataBaseLoader()
+    public AssetDatabaseLoader getAssetDataBaseLoader()
     {
-        return mAssetDataBaseLoader;
+        return assetDatabaseLoader;
     }
 
     public ResourcesLoader getResourcesLoader()
     {
-        return mResourcesLoader;
+        return resourcesLoader;
     }
 
     public void setDownloadURL(string url)
     {
-        mAssetBundleLoader.setDownloadURL(url);
+        assetBundleLoader.setDownloadURL(url);
     }
 
     public string getDownloadURL()
     {
-        return mAssetBundleLoader.getDownloadURL();
+        return assetBundleLoader.getDownloadURL();
     }
 
     public int getDownloadTimeout()
     {
-        return mDownloadTimeout;
+        return downloadTimeout;
     }
 
     public void setDownloadTimeout(int timeout)
     {
-        mDownloadTimeout = timeout;
+        downloadTimeout = timeout;
     }
 
     // 卸载加载的资源,不是实例化出的物体,这里的泛型T是为了外部能传任意的类型的引用进来,而不是只能传ref UObject
@@ -138,20 +138,17 @@ public class ResourceManager : FrameSystem
             return false;
         }
 
-        foreach (UObjectCallback callback in mUnloadObjectCallback)
+        foreach (UObjectCallback callback in unloadObjectCallback)
         {
             callback.Invoke(obj);
         }
 
-        bool success = false;
-        if (mLoadSource == LOAD_SOURCE.ASSET_DATABASE)
+        bool success = loadSource switch
         {
-            success = mAssetDataBaseLoader.unloadResource(ref obj, showError);
-        }
-        else if (mLoadSource == LOAD_SOURCE.ASSET_BUNDLE)
-        {
-            success = mAssetBundleLoader.unloadAsset(ref obj, showError);
-        }
+            LOAD_SOURCE.ASSET_DATABASE => assetDatabaseLoader.unloadResource(ref obj, showError),
+            LOAD_SOURCE.ASSET_BUNDLE => assetBundleLoader.unloadAsset(ref obj, showError),
+            _ => false
+        };
 
         return success;
     }
@@ -159,25 +156,26 @@ public class ResourceManager : FrameSystem
     // 卸载从Resources中加载的资源
     public bool unloadInResources<T>(ref T obj, bool showError = true) where T : UObject
     {
-        return mResourcesLoader.unloadResource(ref obj, showError);
+        return resourcesLoader.unloadResource(ref obj, showError);
     }
 
     // 卸载指定目录中的所有资源,path为GameResources下的相对路径
     public void unloadPath(string path)
     {
         removeEndSlash(ref path);
-        foreach (StringCallback callback in mUnloadPathCallback)
+        foreach (StringCallback callback in unloadPathCallback)
         {
             callback.Invoke(path);
         }
 
-        if (mLoadSource == LOAD_SOURCE.ASSET_DATABASE)
+        switch (loadSource)
         {
-            mAssetDataBaseLoader.unloadPath(path);
-        }
-        else if (mLoadSource == LOAD_SOURCE.ASSET_BUNDLE)
-        {
-            mAssetBundleLoader.unloadPath(path);
+            case LOAD_SOURCE.ASSET_DATABASE:
+                assetDatabaseLoader.unloadPath(path);
+                break;
+            case LOAD_SOURCE.ASSET_BUNDLE:
+                assetBundleLoader.unloadPath(path);
+                break;
         }
     }
 
@@ -185,16 +183,16 @@ public class ResourceManager : FrameSystem
     public void unloadPathInResources(string path)
     {
         removeEndSlash(ref path);
-        mResourcesLoader.unloadPath(path);
+        resourcesLoader.unloadPath(path);
     }
 
     // 指定卸载资源包,StreamingAssets/平台名下的路径,不带后缀
     public void unloadAssetBundle(string bundleName)
     {
         // 只有从AssetBundle加载才能卸载AssetBundle
-        if (mLoadSource == LOAD_SOURCE.ASSET_BUNDLE)
+        if (loadSource == LOAD_SOURCE.ASSET_BUNDLE)
         {
-            mAssetBundleLoader.unloadAssetBundle(bundleName);
+            assetBundleLoader.unloadAssetBundle(bundleName);
         }
     }
 
@@ -202,15 +200,12 @@ public class ResourceManager : FrameSystem
     public bool isGameResourceLoaded<T>(string name) where T : UObject
     {
         checkRelativePath(name);
-        bool ret = false;
-        if (mLoadSource == LOAD_SOURCE.ASSET_DATABASE)
+        bool ret = loadSource switch
         {
-            ret = mAssetDataBaseLoader.isResourceLoaded(name);
-        }
-        else if (mLoadSource == LOAD_SOURCE.ASSET_BUNDLE)
-        {
-            ret = mAssetBundleLoader.isAssetLoaded<T>(name);
-        }
+            LOAD_SOURCE.ASSET_DATABASE => assetDatabaseLoader.isResourceLoaded(name),
+            LOAD_SOURCE.ASSET_BUNDLE => assetBundleLoader.isAssetLoaded<T>(name),
+            _ => false
+        };
 
         return ret;
     }
@@ -219,22 +214,19 @@ public class ResourceManager : FrameSystem
     public bool isInResourceLoaded<T>(string name) where T : UObject
     {
         checkRelativePath(name);
-        return mResourcesLoader.isResourceLoaded(removeSuffix(name));
+        return resourcesLoader.isResourceLoaded(removeSuffix(name));
     }
 
     // 获得资源,如果没有加载,则获取不到,使用频率可能比较低,name是GameResources下的相对路径,带后缀
     public T getGameResource<T>(string name, bool errorIfNull = true) where T : UObject
     {
         checkRelativePath(name);
-        T res = null;
-        if (mLoadSource == LOAD_SOURCE.ASSET_DATABASE)
+        T res = loadSource switch
         {
-            res = mAssetDataBaseLoader.getResource(name) as T;
-        }
-        else if (mLoadSource == LOAD_SOURCE.ASSET_BUNDLE)
-        {
-            res = mAssetBundleLoader.getAsset<T>(name);
-        }
+            LOAD_SOURCE.ASSET_DATABASE => assetDatabaseLoader.getResource(name) as T,
+            LOAD_SOURCE.ASSET_BUNDLE => assetBundleLoader.getAsset<T>(name),
+            _ => null
+        };
 
         if (res == null && errorIfNull)
         {
@@ -248,7 +240,7 @@ public class ResourceManager : FrameSystem
     public T getInResource<T>(string name, bool errorIfNull = true) where T : UObject
     {
         checkRelativePath(name);
-        T res = mResourcesLoader.getResource(removeSuffix(name)) as T;
+        T res = resourcesLoader.getResource(removeSuffix(name)) as T;
         if (res == null && errorIfNull)
         {
             logError("can not find resource : " + name + ",请确认文件存在,且带后缀名,且不能使用反斜杠\\," + (name.Contains(' ') || name.Contains('　') ? "注意此文件名中带有空格" : ""));
@@ -261,9 +253,9 @@ public class ResourceManager : FrameSystem
     // 不会出现还在被其他资源包依赖就已经被卸载的情况,因为卸载的时候会检查是否有被其他资源包依赖,除非是手动强制卸载
     public void checkAssetBundleDependenceLoaded(string bundleName)
     {
-        if (mLoadSource == LOAD_SOURCE.ASSET_BUNDLE)
+        if (loadSource == LOAD_SOURCE.ASSET_BUNDLE)
         {
-            mAssetBundleLoader.checkAssetBundleDependenceLoaded(bundleName);
+            assetBundleLoader.checkAssetBundleDependenceLoaded(bundleName);
         }
     }
 
@@ -271,23 +263,24 @@ public class ResourceManager : FrameSystem
     public void preloadAssetBundle(string bundleName)
     {
         // 只有从AssetBundle加载时才能加载AssetBundle
-        if (mLoadSource == LOAD_SOURCE.ASSET_BUNDLE)
+        if (loadSource == LOAD_SOURCE.ASSET_BUNDLE)
         {
-            mAssetBundleLoader.loadAssetBundle(bundleName, null);
+            assetBundleLoader.loadAssetBundle(bundleName, null);
         }
     }
 
     // 异步预加载资源包,一般不需要调用,只有需要预加载时才会用到
     public void preloadAssetBundleAsync(string bundleName, AssetBundleCallback callback)
     {
-        if (mLoadSource == LOAD_SOURCE.ASSET_DATABASE)
+        switch (loadSource)
         {
-            // 从Resource加载不能加载AssetBundle
-            callback?.Invoke(null);
-        }
-        else if (mLoadSource == LOAD_SOURCE.ASSET_BUNDLE)
-        {
-            mAssetBundleLoader.loadAssetBundleAsync(bundleName, callback);
+            case LOAD_SOURCE.ASSET_DATABASE:
+                // 从Resource加载不能加载AssetBundle
+                callback?.Invoke(null);
+                break;
+            case LOAD_SOURCE.ASSET_BUNDLE:
+                assetBundleLoader.loadAssetBundleAsync(bundleName, callback);
+                break;
         }
     }
 
@@ -296,15 +289,12 @@ public class ResourceManager : FrameSystem
     {
         using var a = new ProfilerScope(0);
         checkRelativePath(name);
-        T res = null;
-        if (mLoadSource == LOAD_SOURCE.ASSET_DATABASE)
+        T res = loadSource switch
         {
-            res = mAssetDataBaseLoader.loadResource<T>(name);
-        }
-        else if (mLoadSource == LOAD_SOURCE.ASSET_BUNDLE)
-        {
-            res = mAssetBundleLoader.loadAsset<T>(name);
-        }
+            LOAD_SOURCE.ASSET_DATABASE => assetDatabaseLoader.loadResource<T>(name),
+            LOAD_SOURCE.ASSET_BUNDLE => assetBundleLoader.loadAsset<T>(name),
+            _ => null
+        };
 
         if (res == null && errorIfNull)
         {
@@ -318,7 +308,7 @@ public class ResourceManager : FrameSystem
     public T loadInResource<T>(string name, bool errorIfNull = true) where T : UObject
     {
         checkRelativePath(name);
-        T res = mResourcesLoader.loadResource<T>(removeSuffix(name));
+        T res = resourcesLoader.loadResource<T>(removeSuffix(name));
         if (res == null && errorIfNull)
         {
             logError("can not find resource : " + name);
@@ -333,15 +323,12 @@ public class ResourceManager : FrameSystem
         using var a = new ProfilerScope(0);
         checkRelativePath(name);
         mainAsset = null;
-        UObject[] res = null;
-        if (mLoadSource == LOAD_SOURCE.ASSET_DATABASE)
+        UObject[] res = loadSource switch
         {
-            res = mAssetDataBaseLoader.loadSubResource<T>(name, out mainAsset);
-        }
-        else if (mLoadSource == LOAD_SOURCE.ASSET_BUNDLE)
-        {
-            res = mAssetBundleLoader.loadSubAsset<T>(name, out mainAsset);
-        }
+            LOAD_SOURCE.ASSET_DATABASE => assetDatabaseLoader.loadSubResource<T>(name, out mainAsset),
+            LOAD_SOURCE.ASSET_BUNDLE => assetBundleLoader.loadSubAsset<T>(name, out mainAsset),
+            _ => null
+        };
 
         if (res == null && errorIfNull)
         {
@@ -355,7 +342,7 @@ public class ResourceManager : FrameSystem
     public UObject[] loadSubInResource<T>(string name, out UObject mainAsset, bool errorIfNull = true) where T : UObject
     {
         checkRelativePath(name);
-        UObject[] res = mResourcesLoader.loadSubResource<T>(removeSuffix(name), out mainAsset);
+        UObject[] res = resourcesLoader.loadSubResource<T>(removeSuffix(name), out mainAsset);
         if (res == null && errorIfNull)
         {
             logError("can not find resource : " + name + ",请确认文件存在,且带后缀名,且不能使用反斜杠\\," + (name.Contains(' ') || name.Contains('　') ? "注意此文件名中带有空格" : ""));
@@ -369,22 +356,18 @@ public class ResourceManager : FrameSystem
     {
         using var a = new ProfilerScope(0);
         checkRelativePath(name);
-        if (mLoadSource == LOAD_SOURCE.ASSET_DATABASE)
+        return loadSource switch
         {
-            return mAssetDataBaseLoader.loadResourcesAsync<T>(name, doneCallback);
-        }
-        else if (mLoadSource == LOAD_SOURCE.ASSET_BUNDLE)
-        {
-            return mAssetBundleLoader.loadAssetAsync<T>(name, errorIfNull, doneCallback);
-        }
-
-        return null;
+            LOAD_SOURCE.ASSET_DATABASE => assetDatabaseLoader.loadResourcesAsync<T>(name, doneCallback),
+            LOAD_SOURCE.ASSET_BUNDLE => assetBundleLoader.loadAssetAsync<T>(name, errorIfNull, doneCallback),
+            _ => null
+        };
     }
 
     // 异步加载资源,name是GameResources下的相对路径,带后缀名,errorIfNull表示当找不到资源时是否报错提示
     public CustomAsyncOperation loadGameResourceAsync<T>(string name, Action<T, string> doneCallback, bool errorIfNull = true) where T : UObject
     {
-        return loadGameResourceAsync<T>(name, (UObject asset, UObject[] _, byte[] _, string loadPath) =>
+        return loadGameResourceAsync<T>(name, (asset, assets, bytes, loadPath) =>
         {
             doneCallback?.Invoke(asset as T, loadPath);
         }, errorIfNull);
@@ -395,7 +378,7 @@ public class ResourceManager : FrameSystem
     public CustomAsyncOperation loadGameResourceAsyncSafe<T>(ClassObject relatedObj, string name, Action<T, string> doneCallback, bool errorIfNull = true) where T : UObject
     {
         long assignID = relatedObj.id;
-        return loadGameResourceAsync<T>(name, (UObject asset, UObject[] _, byte[] _, string loadPath) =>
+        return loadGameResourceAsync<T>(name, (asset, assets, bytes, loadPath) =>
         {
             if (assignID != relatedObj.id)
             {
@@ -410,7 +393,7 @@ public class ResourceManager : FrameSystem
     // 异步加载资源,name是GameResources下的相对路径,带后缀名,errorIfNull表示当找不到资源时是否报错提示
     public CustomAsyncOperation loadGameResourceAsync<T>(string name, Action<T> doneCallback, bool errorIfNull = true) where T : UObject
     {
-        return loadGameResourceAsync<T>(name, (UObject asset, UObject[] _, byte[] _, string _) =>
+        return loadGameResourceAsync<T>(name, (asset, assets, bytes, loadPath) =>
         {
             doneCallback?.Invoke(asset as T);
         }, errorIfNull);
@@ -421,12 +404,10 @@ public class ResourceManager : FrameSystem
     public CustomAsyncOperation loadGameResourceAsyncSafe<T>(ClassObject relatedObj, string name, Action<T> doneCallback, bool errorIfNull = true) where T : UObject
     {
         long assignID = relatedObj.id;
-        return loadGameResourceAsync<T>(name, (UObject asset, UObject[] _, byte[] _, string _) =>
+        return loadGameResourceAsync<T>(name, (asset, assets, bytes, loadPath) =>
         {
             if (assignID != relatedObj.id)
-            {
                 return;
-            }
 
             doneCallback?.Invoke(asset as T);
         }, errorIfNull);
@@ -435,7 +416,7 @@ public class ResourceManager : FrameSystem
     // 强制在Resource中异步加载资源,name是Resources下的相对路径,带后缀,errorIfNull表示当找不到资源时是否报错提示
     public CustomAsyncOperation loadInResourceAsync<T>(string name, Action<T> doneCallback) where T : UObject
     {
-        return loadInResourceAsync<T>(name, (UObject asset, UObject[] _, byte[] _, string _) =>
+        return loadInResourceAsync<T>(name, (asset, assets, bytes, loadPath) =>
         {
             doneCallback?.Invoke(asset as T);
         });
@@ -445,16 +426,16 @@ public class ResourceManager : FrameSystem
     public CustomAsyncOperation loadInResourceAsync<T>(string name, AssetLoadDoneCallback doneCallback) where T : UObject
     {
         checkRelativePath(name);
-        return mResourcesLoader.loadResourcesAsync<T>(removeSuffix(name), doneCallback);
+        return resourcesLoader.loadResourcesAsync<T>(removeSuffix(name), doneCallback);
     }
 
     // 仅下载一个资源,下载后会写入本地文件,并且更新本地文件信息列表,fileName为带后缀,GameResources下的相对路径
     public void downloadGameResource(string name, BytesCallback callback)
     {
         checkRelativePath(name);
-        if (mLoadSource == LOAD_SOURCE.ASSET_BUNDLE)
+        if (loadSource == LOAD_SOURCE.ASSET_BUNDLE)
         {
-            mAssetBundleLoader.downloadAsset(name, callback);
+            assetBundleLoader.downloadAsset(name, callback);
         }
     }
 
@@ -467,7 +448,7 @@ public class ResourceManager : FrameSystem
     // 根据一个URL加载资源,一般都是一个网络资源
     public static void loadAssetsFromUrl<T>(string url, BytesCallback callback, DownloadCallback downloadingCallback = null) where T : UObject
     {
-        GameEntry.startCoroutine(loadAssetsUrl(url, typeof(T), (UObject _, UObject[] _, byte[] bytes, string _) =>
+        GameEntry.startCoroutine(loadAssetsUrl(url, typeof(T), (asset, assets, bytes, loadPath) =>
         {
             callback?.Invoke(bytes);
         }, downloadingCallback));
@@ -476,18 +457,18 @@ public class ResourceManager : FrameSystem
     // 根据一个URL加载资源,一般都是一个网络资源
     public static void loadAssetsFromUrl<T>(string url, Action<T> callback, DownloadCallback downloadingCallback = null) where T : UObject
     {
-        GameEntry.startCoroutine(loadAssetsUrl(url, typeof(T), (UObject obj, UObject[] _, byte[] _, string _) =>
+        GameEntry.startCoroutine(loadAssetsUrl(url, typeof(T), (asset, assets, bytes, loadPath) =>
         {
-            callback?.Invoke(obj as T);
+            callback?.Invoke(asset as T);
         }, downloadingCallback));
     }
 
     // 根据一个URL加载资源,一般都是一个网络资源
     public static void loadAssetsFromUrl<T>(string url, Action<T, string> callback, DownloadCallback downloadingCallback = null) where T : UObject
     {
-        GameEntry.startCoroutine(loadAssetsUrl(url, typeof(T), (UObject obj, UObject[] _, byte[] _, string loadPath) =>
+        GameEntry.startCoroutine(loadAssetsUrl(url, typeof(T), (asset, assets, bytes, loadPath) =>
         {
-            callback?.Invoke(obj as T, loadPath);
+            callback?.Invoke(asset as T, loadPath);
         }, downloadingCallback));
     }
 
@@ -500,7 +481,7 @@ public class ResourceManager : FrameSystem
     // 根据一个URL加载资源,一般都是一个网络资源
     public static void loadAssetsFromUrl(string url, BytesCallback callback, DownloadCallback downloadingCallback = null)
     {
-        GameEntry.startCoroutine(loadAssetsUrl(url, null, (UObject _, UObject[] _, byte[] bytes, string _) =>
+        GameEntry.startCoroutine(loadAssetsUrl(url, null, (asset, assets, bytes, loadPath) =>
         {
             callback?.Invoke(bytes);
         }, downloadingCallback));
@@ -509,7 +490,7 @@ public class ResourceManager : FrameSystem
     // 根据一个URL加载资源,一般都是一个网络资源
     public static void loadAssetsFromUrl(string url, BytesStringCallback callback, DownloadCallback downloadingCallback = null)
     {
-        GameEntry.startCoroutine(loadAssetsUrl(url, null, (UObject _, UObject[] _, byte[] bytes, string loadPath) =>
+        GameEntry.startCoroutine(loadAssetsUrl(url, null, (asset, assets, bytes, loadPath) =>
         {
             callback?.Invoke(bytes, loadPath);
         }, downloadingCallback));
@@ -524,7 +505,7 @@ public class ResourceManager : FrameSystem
     // 根据一个URL加载资源,一般都是一个网络资源,可在协程中等待
     public static IEnumerator loadAssetsFromUrlWaiting<T>(string url, Action<T> callback, DownloadCallback downloadingCallback = null) where T : UObject
     {
-        return loadAssetsUrl(url, typeof(T), (UObject asset, UObject[] _, byte[] _, string _) =>
+        return loadAssetsUrl(url, typeof(T), (asset, assets, bytes, loadPath) =>
         {
             callback?.Invoke(asset as T);
         }, downloadingCallback);
@@ -539,7 +520,7 @@ public class ResourceManager : FrameSystem
     // 根据一个URL加载资源,一般都是一个网络资源,可在协程中等待
     public static IEnumerator loadAssetsFromUrlWaiting(string url, BytesCallback callback, DownloadCallback downloadingCallback = null)
     {
-        return loadAssetsUrl(url, null, (UObject _, UObject[] _, byte[] bytes, string _) =>
+        return loadAssetsUrl(url, null, (asset, assets, bytes, loadPath) =>
         {
             callback?.Invoke(bytes);
         }, downloadingCallback);
@@ -588,7 +569,7 @@ public class ResourceManager : FrameSystem
             else
             {
                 timer += Time.unscaledDeltaTime;
-                if (timer >= mDownloadTimeout)
+                if (timer >= downloadTimeout)
                 {
                     log("下载超时");
                     break;
@@ -632,7 +613,7 @@ public class ResourceManager : FrameSystem
     public static IEnumerator loadAudioClipWithURL(string url, AssetLoadDoneCallback callback)
     {
         using var www = UnityWebRequestMultimedia.GetAudioClip(url, AudioType.UNKNOWN);
-        www.timeout = mDownloadTimeout;
+        www.timeout = downloadTimeout;
         yield return www.SendWebRequest();
         try
         {
@@ -658,7 +639,7 @@ public class ResourceManager : FrameSystem
     public static IEnumerator loadTextureWithURL(string url, AssetLoadDoneCallback callback)
     {
         using var www = UnityWebRequestTexture.GetTexture(url);
-        www.timeout = mDownloadTimeout;
+        www.timeout = downloadTimeout;
         yield return www.SendWebRequest();
         try
         {
@@ -702,7 +683,7 @@ public class ResourceManager : FrameSystem
             else
             {
                 timer += Time.unscaledDeltaTime;
-                if (timer >= mDownloadTimeout)
+                if (timer >= downloadTimeout)
                 {
                     log("下载超时");
                     break;

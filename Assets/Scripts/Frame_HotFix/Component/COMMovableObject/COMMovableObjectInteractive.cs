@@ -93,7 +93,7 @@ public class COMMovableObjectInteractive : GameComponent
 	public void setClickSound(int sound)								{ mClickSound = sound; }
 	public void onMouseEnter(Vector3 mousePos, int touchID)
 	{
-		var obj = mComponentOwner as MovableObject;
+		var obj = owner as MovableObject;
 		if (!mMouseHovered)
 		{
 			mMouseHovered = true;
@@ -105,7 +105,7 @@ public class COMMovableObjectInteractive : GameComponent
 	}
 	public void onMouseLeave(Vector3 mousePos, int touchID)
 	{
-		var obj = mComponentOwner as MovableObject;
+		var obj = owner as MovableObject;
 		if (mMouseHovered)
 		{
 			mMouseHovered = false;
@@ -120,7 +120,7 @@ public class COMMovableObjectInteractive : GameComponent
 		mMouseDownPosition = mousePos;
 		mMouseDownTime = DateTime.Now;
 		mPressCallback?.Invoke(true);
-		var obj = mComponentOwner as MovableObject;
+		var obj = owner as MovableObject;
 		mPressDetailCallback?.Invoke(obj, mousePos, true);
 		mOnMouseDown?.Invoke(mousePos, touchID);
 
@@ -136,7 +136,7 @@ public class COMMovableObjectInteractive : GameComponent
 	// 鼠标左键在窗口内放开
 	public void onMouseUp(Vector3 mousePos, int touchID)
 	{
-		var obj = mComponentOwner as MovableObject;
+		var obj = owner as MovableObject;
 		mPressCallback?.Invoke(false);
 		mPressDetailCallback?.Invoke(obj, mousePos, false);
 		if (lengthLess(mMouseDownPosition - mousePos, CLICK_LENGTH) &&
@@ -179,7 +179,7 @@ public class COMMovableObjectInteractive : GameComponent
 	// 鼠标在屏幕上抬起
 	public void onScreenMouseUp(Vector3 mousePos, int touchID)
 	{
-		mOnScreenMouseUp?.Invoke(mComponentOwner as MovableObject, mousePos, touchID);
+		mOnScreenMouseUp?.Invoke(owner as MovableObject, mousePos, touchID);
 	}
 	public void onReceiveDrag(IMouseEventCollect dragObj, Vector3 mousePos, ref bool continueEvent) { }
 	public void onDragHoverd(IMouseEventCollect dragObj, Vector3 mousePos, bool hover) { }

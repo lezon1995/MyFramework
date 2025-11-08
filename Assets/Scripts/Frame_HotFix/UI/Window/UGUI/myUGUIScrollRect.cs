@@ -60,9 +60,9 @@ public class myUGUIScrollRect : myUGUIObject
 			mViewportImage.raycastTarget = true;
 		}
 	}
-	public override void update(float elapsedTime)
+	public override void update(float dt)
 	{
-		base.update(elapsedTime);
+		base.update(dt);
 		if (mViewport == null || mContent == null)
 		{
 			logError("未找到viewport或content,请确保已经在布局的init中调用了initScrillRect函数进行ScrollRect的初始化");

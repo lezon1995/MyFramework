@@ -150,8 +150,8 @@ public class ObsSystem
 		getFileListInternal(path, fileList);
 		foreach (GameFileInfo info in fileList)
 		{
-			info.mFileName = info.mFileName.removeStartString(path);
-			fileMap.Add(info.mFileName, info);
+			info.name = info.name.removeStartString(path);
+			fileMap.Add(info.name, info);
 		}
 	}
 	//------------------------------------------------------------------------------------------------------------------------------
@@ -259,7 +259,7 @@ public class ObsSystem
 					reader.Read();
 					if (name == "Key")
 					{
-						info.mFileName = reader.Value;
+						info.name = reader.Value;
 						// 以/结尾的是目录,不需要放入列表
 						if (reader.Value[^1] == '/')
 						{
@@ -268,11 +268,11 @@ public class ObsSystem
 					}
 					else if (name == "ETag")
 					{
-						info.mMD5 = reader.Value.removeAll('\"');
+						info.md5 = reader.Value.removeAll('\"');
 					}
 					else if (name == "Size")
 					{
-						info.mFileSize = SToL(reader.Value);
+						info.size = SToL(reader.Value);
 						// 完成一个文件信息的解析
 						fileList.Add(info);
 						break;

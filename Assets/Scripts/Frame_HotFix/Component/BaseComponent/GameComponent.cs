@@ -3,10 +3,10 @@
 // 组件基类,只是使用了MonoBehaviour的组件思想
 public abstract class GameComponent : ClassObject
 {
-    protected ComponentOwner mComponentOwner; // 该组件的拥有者
-    protected bool mIgnoreTimeScale; // 更新时是否忽略时间缩放
-    protected bool mDefaultActive; // 默认的启用状态
-    protected bool mActive = true; // 是否激活组件
+    protected ComponentOwner owner; // 该组件的拥有者
+    protected bool ignoreTimeScale; // 更新时是否忽略时间缩放
+    protected bool defaultActive; // 默认的启用状态
+    protected bool active = true; // 是否激活组件
 
     protected GameComponent()
     {
@@ -14,79 +14,79 @@ public abstract class GameComponent : ClassObject
 
     public virtual void init(ComponentOwner owner)
     {
-        mComponentOwner = owner;
+        this.owner = owner;
     }
 
-    public virtual void update(float elapsedTime)
+    public virtual void update(float dt)
     {
     }
 
-    public virtual void fixedUpdate(float elapsedTime)
+    public virtual void fixedUpdate(float dt)
     {
     }
 
-    public virtual void lateUpdate(float elapsedTime)
+    public virtual void lateUpdate(float dt)
     {
     }
 
     public override void destroy()
     {
         base.destroy();
-        mComponentOwner = null;
+        owner = null;
     }
 
     public bool isActive()
     {
-        return mActive;
+        return active;
     }
 
     public override void resetProperty()
     {
         base.resetProperty();
-        mComponentOwner = null;
-        mIgnoreTimeScale = false;
-        mDefaultActive = false;
-        mActive = true;
+        owner = null;
+        ignoreTimeScale = false;
+        defaultActive = false;
+        active = true;
     }
 
     public virtual void setActive(bool active)
     {
-        mActive = active;
-        if (mActive)
+        this.active = active;
+        if (this.active)
         {
-            mComponentOwner.notifyComponentStart(this);
+            owner.notifyComponentStart(this);
         }
     }
 
     public void setDefaultActive(bool active)
     {
-        mDefaultActive = active;
+        defaultActive = active;
     }
 
     public virtual void setIgnoreTimeScale(bool ignore)
     {
-        mIgnoreTimeScale = ignore;
+        ignoreTimeScale = ignore;
     }
 
     // 获得成员变量
     public ComponentOwner getOwner()
     {
-        return mComponentOwner;
+        return owner;
     }
 
     public bool isComponentActive()
     {
-        return mActive;
+        return active;
     }
 
     public bool isIgnoreTimeScale()
     {
-        return mIgnoreTimeScale;
+        return ignoreTimeScale;
     }
 
     public bool isDefaultActive()
     {
-        return mDefaultActive;
+        return defaultActive;
     }
 
     public Type getType()

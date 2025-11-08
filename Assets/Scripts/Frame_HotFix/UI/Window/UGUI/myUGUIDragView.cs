@@ -35,7 +35,7 @@ public class myUGUIDragView : myUGUIObject
 	{
 		// 这里直接获取父节点作为viewport
 		mLayout.getScript().bindPassOnlyParent(mParent as myUGUIObject);
-		registeCollider(true);
+		registerCollider(true);
 		setDepthOverAllChild(true);
 		setDragDirection(direction);
 		setDragAngleThreshold(angleThresholdRadian);

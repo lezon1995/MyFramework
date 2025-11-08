@@ -5,13 +5,13 @@ using static FrameUtility;
 public class TweenerManager : FrameSystem
 {
 	protected SafeDictionary<long, MyTweener> mTweenerList = new(); // 渐变类的列表
-	public override void update(float elapsedTime)
+	public override void update(float dt)
 	{
-		base.update(elapsedTime);
+		base.update(dt);
 		using var a = new SafeDictionaryReader<long, MyTweener>(mTweenerList);
 		foreach (MyTweener item in a.mReadList.Values)
 		{
-			item.update(item.isIgnoreTimeScale() ? Time.unscaledDeltaTime : elapsedTime);
+			item.update(item.isIgnoreTimeScale() ? Time.unscaledDeltaTime : dt);
 		}
 	}
 	public MyTweenerFloat createTweenerFloat()

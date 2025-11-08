@@ -12,7 +12,7 @@ public abstract class UGUITreeNode : WindowRecycleableUGUI
 	public override void init()
 	{
 		base.init();
-		mRoot.registeCollider(onNodeClick);
+		mRoot.registerCollider(onNodeClick);
 	}
 	public void setTree(UGUITreeList tree) { mTree = tree; }
 	public void addChild(UGUITreeNode node) { mChildNodeList.Add(node); }

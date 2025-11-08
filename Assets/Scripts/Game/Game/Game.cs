@@ -10,7 +10,7 @@ public class Game : GameFramework
         OnInitFrameSystem += gameInitFrameSystem;
         OnRegisterStuff += gameRegiste;
         // 这里填写自己的安卓插件包名
-        OnPackageName += () => ANDROID_PLUGIN_BUNDLE_NAME;
+        packageNameGetter = () => ANDROID_PLUGIN_BUNDLE_NAME;
 
         base.init();
 

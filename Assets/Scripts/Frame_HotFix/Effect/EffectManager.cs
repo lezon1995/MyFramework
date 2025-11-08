@@ -30,15 +30,15 @@ public class EffectManager : FrameSystem
         }
     }
 
-    public override void update(float elapsedTime)
+    public override void update(float dt)
     {
-        base.update(elapsedTime);
+        base.update(dt);
         using var a = new SafeListReader<GameEffect>(effectList);
         foreach (GameEffect effect in a.mReadList)
         {
             if (effect.isActiveInHierarchy())
             {
-                effect.update(!effect.isIgnoreTimeScale() ? elapsedTime : Time.unscaledDeltaTime);
+                effect.update(!effect.isIgnoreTimeScale() ? dt : Time.unscaledDeltaTime);
             }
 
             // 销毁已死亡的特效
@@ -56,15 +56,15 @@ public class EffectManager : FrameSystem
         }
     }
 
-    public override void lateUpdate(float elapsedTime)
+    public override void lateUpdate(float dt)
     {
-        base.lateUpdate(elapsedTime);
+        base.lateUpdate(dt);
         using var a = new SafeListReader<GameEffect>(effectList);
         foreach (GameEffect effect in a.mReadList)
         {
             if (effect.isActiveInHierarchy())
             {
-                effect.lateUpdate(!effect.isIgnoreTimeScale() ? elapsedTime : Time.unscaledDeltaTime);
+                effect.lateUpdate(!effect.isIgnoreTimeScale() ? dt : Time.unscaledDeltaTime);
             }
         }
     }

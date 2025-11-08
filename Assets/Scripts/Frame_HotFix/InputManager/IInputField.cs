@@ -1,6 +1,5 @@
-﻿
-public interface IInputField
+﻿public interface IInputField
 {
-	bool isFocused();
-	bool isVisible();
+    bool isFocused();
+    bool isVisible();
 }

@@ -53,7 +53,7 @@ public class COMCharacterStateMachine : GameComponent
 		clearState();
 		base.destroy();
 	}
-	public override void update(float elapsedTime)
+	public override void update(float dt)
 	{
 		using var b = new SafeListReader<CharacterState>(mStateTickList);
 		foreach (CharacterState state in b.mReadList)
@@ -67,12 +67,12 @@ public class COMCharacterStateMachine : GameComponent
 				state.setJustEnter(false);
 				continue;
 			}
-			state.update(state.isIgnoreTimeScale() ? Time.unscaledDeltaTime : elapsedTime);
+			state.update(state.isIgnoreTimeScale() ? Time.unscaledDeltaTime : dt);
 		}
 	}
-	public override void fixedUpdate(float elapsedTime)
+	public override void fixedUpdate(float dt)
 	{
-		base.fixedUpdate(elapsedTime);
+		base.fixedUpdate(dt);
 		using var a = new SafeListReader<CharacterState>(mStateTickList);
 		foreach (CharacterState state in a.mReadList)
 		{
@@ -85,7 +85,7 @@ public class COMCharacterStateMachine : GameComponent
 				state.setJustEnter(false);
 				continue;
 			}
-			state.fixedUpdate(elapsedTime);
+			state.fixedUpdate(dt);
 		}
 	}
 	public T addStateIfNotExist<T>(StateParam param = null, float stateTime = -1.0f, long id = 0) where T : CharacterState
@@ -113,7 +113,7 @@ public class COMCharacterStateMachine : GameComponent
 	{
 		if (id > 0 && mStateMap.ContainsKey(id))
 		{
-			logWarning("不能重复添加状态,type:" + type + ", stateTime:" + stateTime + ", id:" + id + ", character:" + mComponentOwner.getName());
+			logWarning("不能重复添加状态,type:" + type + ", stateTime:" + stateTime + ", id:" + id + ", character:" + owner.getName());
 			return null;
 		}
 		CharacterState state = createState(type, param, id);

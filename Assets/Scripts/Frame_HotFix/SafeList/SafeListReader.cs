@@ -3,17 +3,24 @@ using System.Collections.Generic;
 
 public struct SafeListReader<T> : IDisposable
 {
-    SafeList<T> mSafeList;
+    SafeList<T> safeList;
     public List<T> mReadList;
 
     public SafeListReader(SafeList<T> list)
     {
-        mSafeList = list;
+        safeList = list;
         mReadList = list.startForeach();
+    }
+
+    public SafeListReader(SafeList<T> list, out List<T> readList)
+    {
+        safeList = list;
+        mReadList = list.startForeach();
+        readList = mReadList;
     }
 
     public void Dispose()
     {
-        mSafeList.endForeach();
+        safeList.endForeach();
     }
 }
