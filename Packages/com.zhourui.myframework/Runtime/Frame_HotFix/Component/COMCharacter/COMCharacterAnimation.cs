@@ -10,7 +10,7 @@ public class COMCharacterAnimation : GameComponent
 	public override void init(ComponentOwner owner)
 	{
 		base.init(owner);
-		mCharacter = mComponentOwner as Character;
+		mCharacter = base.owner as Character;
 	}
 	public override void resetProperty()
 	{
@@ -27,9 +27,9 @@ public class COMCharacterAnimation : GameComponent
 	{
 		UN_CLASS_LIST(mLayerList);
 	}
-	public override void update(float elapsedTime)
+	public override void update(float dt)
 	{
-		base.update(elapsedTime);
+		base.update(dt);
 		foreach (AnimationLayer layer in mLayerList)
 		{
 			layer.update();
