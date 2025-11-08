@@ -113,9 +113,9 @@ public class myUGUISprite : myUGUIObject, IShaderWindow
 		mNeedUpdate = true;
 	}
 	public WindowShader getWindowShader() { return mWindowShader; }
-	public override void update(float elapsedTime)
+	public override void update(float dt)
 	{
-		base.update(elapsedTime);
+		base.update(dt);
 		if (mWindowShader != null && !isCulled() && mSpriteRenderer.sharedMaterial != null)
 		{
 			mWindowShader.applyShader(mSpriteRenderer.sharedMaterial);

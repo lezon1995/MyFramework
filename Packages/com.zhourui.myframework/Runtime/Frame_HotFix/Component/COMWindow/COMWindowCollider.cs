@@ -18,7 +18,7 @@ public class COMWindowCollider : GameComponent
 			return;
 		}
 		mBoxCollider = collider;
-		var window = mComponentOwner as myUGUIObject;
+		var window = owner as myUGUIObject;
 		GameLayout layout = window.getLayout();
 		if (layout != null && layout.isCheckBoxAnchor() && mLayoutManager.isUseAnchor())
 		{

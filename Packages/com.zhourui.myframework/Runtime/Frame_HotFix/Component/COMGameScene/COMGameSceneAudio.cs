@@ -7,7 +7,7 @@ public class COMGameSceneAudio : ComponentAudio
 	//------------------------------------------------------------------------------------------------------------------------------
 	protected override void assignAudioSource()
 	{
-		var gameScene = mComponentOwner as GameScene;
+		var gameScene = owner as GameScene;
 		setAudioSource(getOrAddComponent<AudioSource>(gameScene.getObject()));
 	}
 }

@@ -16,6 +16,6 @@ public class COMWindowAudioVolume : ComponentKeyFrame
 	//------------------------------------------------------------------------------------------------------------------------------
 	protected override void applyTrembling(float value)
 	{
-		mComponentOwner.getOrAddComponent<COMWindowAudio>().setVolume(lerpSimple(mStart, mTarget, value));
+		owner.getOrAddComponent<COMWindowAudio>().setVolume(lerpSimple(mStart, mTarget, value));
 	}
 }
