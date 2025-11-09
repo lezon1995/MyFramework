@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using Obfuz;
+// using Obfuz;
 using System;
 using System.Collections.Generic;
 using static FrameBaseUtility;
@@ -10,7 +10,7 @@ using static TimeUtility;
 using static FrameBaseHotFix;
 
 // 最顶层的节点,也是游戏的入口,管理所有框架组件(管理器)
-[ObfuzIgnore]
+// [ObfuzIgnore]
 public class GameFrameworkHotFix : IFramework
 {
 	protected Dictionary<string, FrameSystem> mFrameComponentMap = new(128);		// 存储框架组件,用于查找

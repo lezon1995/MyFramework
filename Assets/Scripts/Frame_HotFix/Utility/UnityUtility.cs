@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using System.Collections;
+using TMPro;
 #if USE_SPINE
 using Spine.Unity;
 #endif

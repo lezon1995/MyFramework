@@ -1,5 +1,5 @@
-﻿using Obfuz;
-using Obfuz.EncryptionVM;
+﻿// using Obfuz;
+// using Obfuz.EncryptionVM;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -11,7 +11,7 @@ using static UnityUtility;
 using static FrameUtility;
 using static FrameBaseUtility;
 
-[ObfuzIgnore]
+// [ObfuzIgnore]
 public abstract class GameHotFixBase
 {
 	protected static GameHotFixBase mInstance;                      // 在子类中创建
@@ -98,7 +98,7 @@ public abstract class GameHotFixBase
 	// [ObfuzIgnore]指示Obfuz不要混淆这个函数
 	// 初始化EncryptionService后被混淆的代码才能正常运行，
 	// 此函数通过反射进行调用,并且不能使用任何会被混淆的代码
-	[ObfuzIgnore]
+	// [ObfuzIgnore]
 	protected static void preStart(Action callback)
 	{
 		if (isEditor())
@@ -109,7 +109,7 @@ public abstract class GameHotFixBase
 		// 在这之前需要确保PersistentAssets中的密钥文件是最新的
 		GameEntry.startCoroutine(openFileAsync("file://" + F_PERSISTENT_ASSETS_PATH + DYNAMIC_SECRET_FILE, (byte[] bytes) =>
 		{
-			EncryptionService<DefaultDynamicEncryptionScope>.Encryptor = new GeneratedEncryptionVirtualMachine(bytes);
+			// EncryptionService<DefaultDynamicEncryptionScope>.Encryptor = new GeneratedEncryptionVirtualMachine(bytes);
 			try
 			{
 				callback?.Invoke();
@@ -121,7 +121,7 @@ public abstract class GameHotFixBase
 		}));
 	}
 	// fileName为绝对路径
-	[ObfuzIgnore]
+	// [ObfuzIgnore]
 	protected static IEnumerator openFileAsync(string fileName, BytesCallback callback)
 	{
 		using var www = UnityWebRequest.Get(fileName);

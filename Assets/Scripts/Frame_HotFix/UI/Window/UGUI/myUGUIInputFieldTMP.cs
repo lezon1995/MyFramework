@@ -1,4 +1,4 @@
-﻿#if USE_TMP
+﻿// #if USE_TMP
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -95,4 +95,4 @@ public class myUGUIInputFieldTMP : myUGUIObject, IInputField
 	}
 	protected void onEditting(string value) { mOnEditting?.Invoke(value); }
 }
-#endif
+// #endif
