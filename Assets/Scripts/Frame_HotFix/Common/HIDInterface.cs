@@ -27,7 +27,7 @@ public class HIDDevice
 	protected bool mDeviceConnected;			// 是否已连接
 	// Creates an object to handle read/write functionality for a USB HID device
 	// Uses one filestream for each of read/write to allow for a write to occur during a blocking
-	// asnychronous read
+	// asynchronous read
 	// <param name="VID">The vendor ID of the USB device to connect to</param>
 	// <param name="PID">The product ID of the USB device to connect to</param>
 	// <param name="serialNumber">The serial number of the USB device to connect to</param>
@@ -46,7 +46,7 @@ public class HIDDevice
 	}
 	// Creates an object to handle read/write functionality for a USB HID device
 	// Uses one filestream for each of read/write to allow for a write to occur during a blocking
-	// asnychronous read
+	// asynchronous read
 	// <param name="devicePath">The USB device path - from getConnectedDevices</param>
 	// <param name="useAsyncReads">True - Read the device and generate events on data being available</param>
 	public HIDDevice(string devicePath)
@@ -55,7 +55,7 @@ public class HIDDevice
 	}
 	public static InterfaceDetails[] getConnectedDevices()
 	{
-		InterfaceDetails[] devices = new InterfaceDetails[0];
+		var devices = Array.Empty<InterfaceDetails>();
 
 		// Create structs to hold interface information
 		SP_DEVINFO_DATA devInfo = new();
@@ -93,11 +93,11 @@ public class HIDDevice
 			uint  shareMode = Kernel32.FILE_SHARE_READ | Kernel32.FILE_SHARE_WRITE;
 			SafeFileHandle tempHandle = Kernel32.CreateFile(devicePath, desiredAccess, shareMode, 
 															IntPtr.Zero, Kernel32.OPEN_EXISTING, 0, IntPtr.Zero);
-			// get capabilites - use getPreParsedData, and getCaps
-			// store the reportlengths
+			// get capabilities - use getPreParsedData, and getCaps
+			// store the report lengths
 			IntPtr ptrToPreParsedData = new();
-			bool ppdSucsess = HID.HidD_GetPreparsedData(tempHandle, ref ptrToPreParsedData);
-			if (!ppdSucsess)
+			bool ppdSuccess = HID.HidD_GetPreparsedData(tempHandle, ref ptrToPreParsedData);
+			if (!ppdSuccess)
 			{
 				continue;
 			}
@@ -130,7 +130,7 @@ public class HIDDevice
 			// Call freePreParsedData to release some stuff
 			HID.HidD_FreePreparsedData(ref ptrToPreParsedData);
 
-			// If connection was sucsessful, record the values in a global struct
+			// If connection was successful, record the values in a global struct
 			InterfaceDetails productInfo = new();
 			productInfo.devicePath = devicePath;
 			productInfo.manufacturer = manfString;
@@ -203,8 +203,8 @@ public class HIDDevice
 										Kernel32.FILE_SHARE_READ | Kernel32.FILE_SHARE_WRITE, 
 										IntPtr.Zero, Kernel32.OPEN_EXISTING, 0, IntPtr.Zero);
 
-		// get capabilites - use getPreParsedData, and getCaps
-		// store the reportlengths
+		// get capabilities - use getPreParsedData, and getCaps
+		// store the report lengths
 		IntPtr ptrToPreParsedData = new();
 		HID.HidD_GetPreparsedData(mHandle, ref ptrToPreParsedData);
 
@@ -242,7 +242,7 @@ public class HIDDevice
 
 		mDeviceConnected = true;
 
-		// If connection was sucsessful, record the values in a global struct
+		// If connection was successful, record the values in a global struct
 		mProductInfo = new();
 		mProductInfo.devicePath = devicePath;
 		mProductInfo.manufacturer = manfString;

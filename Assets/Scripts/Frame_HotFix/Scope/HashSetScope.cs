@@ -16,7 +16,7 @@ public struct HashSetScope<T> : IDisposable
 			mList = null;
 			return;
 		}
-		string stackTrace = GameEntry.getInstance().mFramworkParam.mEnablePoolStackTrace ? getStackTrace() : EMPTY;
+		string stackTrace = GameEntry.getInstance().frameworkParam.enablePoolStackTrace ? getStackTrace() : EMPTY;
 		list = mHashSetPool.newList(typeof(T), typeof(HashSet<T>), stackTrace, true) as HashSet<T>;
 		mList = list;
 		if (initList != null)

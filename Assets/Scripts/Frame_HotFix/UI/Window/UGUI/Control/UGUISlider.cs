@@ -51,7 +51,7 @@ public class UGUISlider : WindowObjectUGUI, ISlider, ICommonUI
 		mOriginForegroundPosition = mForeground.getPosition();
 		if (mEnableDrag)
 		{
-			mRoot.registeCollider();
+			mRoot.registerCollider();
 			mRoot.setOnMouseDown(onMouseDown);
 			mRoot.setOnScreenMouseUp(onScreenMouseUp);
 			mRoot.setOnMouseMove(onMouseMove);

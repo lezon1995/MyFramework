@@ -1,10 +1,10 @@
-﻿using UnityEngine;
-using System.Collections.Generic;
-using System.Net;
-using UnityEngine.Networking;
-#if USE_AVPRO_VIDEO
+﻿#if USE_AVPRO_VIDEO
 using RenderHeads.Media.AVProVideo;
 #endif
+using System.Collections.Generic;
+using System.Net;
+using UnityEngine;
+using UnityEngine.Networking;
 using UObject = UnityEngine.Object;
 
 // 游戏委托定义
@@ -58,7 +58,7 @@ public delegate void OnMouseMove(Vector3 mousePos, Vector3 moveDelta, float move
 public delegate void OnScreenMouseUp(IMouseEventCollect obj, Vector3 mousePos, int touchID);
 public delegate void HeadDownloadCallback(Texture head, string openID);
 public delegate void OnDragViewStartCallback(ref bool allowDrag);
-public delegate void MyThreadCallback(ref bool run);    // run表示是否继续运行该线程,可在运行时修改
+public delegate void MyThreadCallback(ref bool run); // run表示是否继续运行该线程,可在运行时修改
 public delegate void OnPlayingCallback(AnimControl control, int frame, bool isPlaying); // isPlaying表示是否是在播放过程中触发的该回调
 public delegate void OnPlayEndCallback(AnimControl control, bool callback, bool isBreak);
 public delegate void OnScrollItem(IScrollItem item, int index);

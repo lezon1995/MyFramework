@@ -1,7 +1,7 @@
-﻿using Mono.Data.Sqlite;
-using System;
-using System.Collections.Generic;
-
+﻿// using Mono.Data.Sqlite;
+// using System;
+// using System.Collections.Generic;
+//
 // public class TDDemo : SQLiteData
 // {
 // 	public static string DemoColName = "DemoColName";

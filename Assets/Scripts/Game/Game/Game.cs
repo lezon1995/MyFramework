@@ -5,18 +5,15 @@ using static GameDefine;
 
 public class Game : GameFramework
 {
-    public Game()
-    {
-    }
-
     public override void init()
     {
-        mOnInitFrameSystem += gameInitFrameSystem;
-        mOnRegisteStuff += gameRegiste;
+        OnInitFrameSystem += gameInitFrameSystem;
+        OnRegisterStuff += gameRegiste;
         // 这里填写自己的安卓插件包名
-        mOnPackageName += () => ANDROID_PLUGIN_BUNDLE_NAME;
+        packageNameGetter = () => ANDROID_PLUGIN_BUNDLE_NAME;
 
         base.init();
+
         // 编辑器中或者非热更版就强制从StreamingAssets中读取资源
         if (!isHotFixEnable() || isEditor())
         {

@@ -54,7 +54,7 @@ public class ComponentDrag : GameComponent
 		setObjectCenterAlignMouse(centerAlignMouse);
 		setMovable(movable);
 	}
-	public override void update(float elapsedTime)
+	public override void update(float dt)
 	{
 		// 有触点按下时,检查是否可以开始拖动
 		if (!mDraging && !mPreparingDrag && mInputSystem.getTouchDown(out mTouchPoint))
@@ -107,9 +107,9 @@ public class ComponentDrag : GameComponent
 		// 激活组件时,如果鼠标在当前物体上已经是按下状态,则开始拖动
 		if (active)
 		{
-			if (!mGlobalTouchSystem.isColliderRegisted(mComponentOwner as IMouseEventCollect))
+			if (!mGlobalTouchSystem.isColliderRegistered(owner as IMouseEventCollect))
 			{
-				logError("组件所属物体未注册碰撞体,无法进行拖拽. " + mComponentOwner.getName() + ", desc:" + (mComponentOwner as IMouseEventCollect).getDescription());
+				logError("组件所属物体未注册碰撞体,无法进行拖拽. " + owner.getName() + ", desc:" + (owner as IMouseEventCollect).getDescription());
 			}
 			if (mInputSystem.getTouchDown(out mTouchPoint))
 			{
@@ -162,7 +162,7 @@ public class ComponentDrag : GameComponent
 		mGlobalTouchSystem.getAllHoverObject(hoverList, touchPosition);
 		foreach (IMouseEventCollect item in hoverList)
 		{
-			if (item == mComponentOwner)
+			if (item == owner)
 			{
 				touchDown();
 				result = true;
@@ -231,7 +231,7 @@ public class ComponentDrag : GameComponent
 		if (mDragStartCallback != null)
 		{
 			bool allowDrag = true;
-			mDragStartCallback(mComponentOwner, touchPoint, ref allowDrag);
+			mDragStartCallback(owner, touchPoint, ref allowDrag);
 			return allowDrag;
 		}
 		return true;
@@ -239,16 +239,16 @@ public class ComponentDrag : GameComponent
 	// 当前物体拖动结束
 	protected virtual void onDragEnd(Vector3 mousePos, bool cancel)
 	{
-		mDragEndCallback?.Invoke(mComponentOwner, mousePos, cancel);
+		mDragEndCallback?.Invoke(owner, mousePos, cancel);
 	}
 	// 当前物体正在拖动
 	protected virtual void onDraging(Vector3 mousePos)
 	{
-		mDragingCallback?.Invoke(mComponentOwner, mousePos);
+		mDragingCallback?.Invoke(owner, mousePos);
 	}
 	// 由子类调用,在所有逻辑都处理完以后调用
 	protected void notifyDragEndTotally(Vector3 mousePos, bool cancel)
 	{
-		mDragEndTotallyCallback?.Invoke(mComponentOwner, mousePos, cancel);
+		mDragEndTotallyCallback?.Invoke(owner, mousePos, cancel);
 	}
 }

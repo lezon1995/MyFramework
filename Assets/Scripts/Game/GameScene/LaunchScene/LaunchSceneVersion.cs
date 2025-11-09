@@ -17,24 +17,24 @@ public class LaunchSceneVersion : SceneProcedure
         if (isEditor() || !enableHotFix)
         {
             mAssetVersionSystem.setStreamingAssetsVersion(null);
-            mGameSceneManager.getCurScene().changeProcedure<LaunchSceneDownload>();
+            mGameSceneManager.CurScene.changeProcedure<LaunchSceneDownload>();
             return;
         }
 
         // 正在检查版本号
         //mUIDownload.setDownloadInfo("正在检查版本号...");
         doGetRemoteVersion();
-        ObsSystem.downloadTxt( /*getRemoteFolder("") +*/ VERSION, (string version) =>
+        ObsSystem.downloadTxt( /*getRemoteFolder("") +*/ VERSION, version =>
         {
             mAssetVersionSystem.setRemoteVersion(version);
             mRemoteDone = true;
         });
-        openTxtFileAsync(F_ASSET_BUNDLE_PATH + VERSION, !isEditor(), (string version) =>
+        openTxtFileAsync(F_ASSET_BUNDLE_PATH + VERSION, !isEditor(), version =>
         {
             mAssetVersionSystem.setStreamingAssetsVersion(version);
             mStreamingDone = true;
         });
-        openTxtFileAsync(F_PERSISTENT_ASSETS_PATH + VERSION, false, (string version) =>
+        openTxtFileAsync(F_PERSISTENT_ASSETS_PATH + VERSION, false, version =>
         {
             mAssetVersionSystem.setPersistentDataVersion(version);
             mPersistDone = true;
@@ -51,14 +51,14 @@ public class LaunchSceneVersion : SceneProcedure
                     ", RemoteVersion:" + mAssetVersionSystem.getRemoteVersion());
             // 需要设置自己的远端下载路径
             //mResourceManager.setDownloadURL(OBS_URL + getRemoteFolder(mAssetVersionSystem.getRemoteVersion()));
-            FrameCrossParam.mDownloadURL = mResourceManager.getDownloadURL();
-            mGameSceneManager.getCurScene().changeProcedure<LaunchSceneFileList>();
+            FrameCrossParam.downloadURL = res.getDownloadURL();
+            mGameSceneManager.CurScene.changeProcedure<LaunchSceneFileList>();
         }
     }
 
     protected void doGetRemoteVersion()
     {
-        ObsSystem.downloadTxt( /*getRemoteFolder("") +*/ VERSION, (string version) =>
+        ObsSystem.downloadTxt( /*getRemoteFolder("") +*/ VERSION, version =>
         {
             if (version.isEmpty())
             {

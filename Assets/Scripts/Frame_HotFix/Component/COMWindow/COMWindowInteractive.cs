@@ -87,15 +87,15 @@ public class COMWindowInteractive : GameComponent
 		mAllowGenerateDepth = true;
 		mPassDragEvent = false;
 	}
-	public override void update(float elapsedTime)
+	public override void update(float dt)
 	{
-		base.update(elapsedTime);
+		base.update(dt);
 		// 长按检测,mPressedTime小于0表示长按计时无效
 		if (mPressing &&
 			(mLongPressLengthThreshold < 0.0f ||
 			lengthLess(mMouseDownPosition - mInputSystem.getTouchPoint(mDownTouchID).getCurPosition(), mLongPressLengthThreshold)))
 		{
-			mPressedTime += elapsedTime;
+			mPressedTime += dt;
 		}
 		else
 		{
@@ -192,7 +192,7 @@ public class COMWindowInteractive : GameComponent
 	}
 	public void onMouseEnter(Vector3 mousePos, int touchID)
 	{
-		var obj = mComponentOwner as myUGUIObject;
+		var obj = owner as myUGUIObject;
 		if (!mMouseHovered)
 		{
 			mMouseHovered = true;
@@ -204,7 +204,7 @@ public class COMWindowInteractive : GameComponent
 	}
 	public void onMouseLeave(Vector3 mousePos, int touchID)
 	{
-		var obj = mComponentOwner as myUGUIObject;
+		var obj = owner as myUGUIObject;
 		if (mMouseHovered)
 		{
 			mMouseHovered = false;
@@ -229,7 +229,7 @@ public class COMWindowInteractive : GameComponent
 		mMouseDownTime = DateTime.Now;
 		mDownTouchID = touchID;
 		mPressCallback?.Invoke(true);
-		var obj = mComponentOwner as myUGUIObject;
+		var obj = owner as myUGUIObject;
 		mPressDetailCallback?.Invoke(obj, mousePos, true);
 		mOnMouseDown?.Invoke(mousePos, touchID);
 		foreach (LongPressData data in mLongPressList)
@@ -253,7 +253,7 @@ public class COMWindowInteractive : GameComponent
 		mPressing = false;
 		mPressedTime = -1.0f;
 		mPressCallback?.Invoke(false);
-		var obj = mComponentOwner as myUGUIObject;
+		var obj = owner as myUGUIObject;
 		mPressDetailCallback?.Invoke(obj, mousePos, false);
 		if (lengthLess(mMouseDownPosition - mousePos, CLICK_LENGTH) &&
 		   (DateTime.Now - mMouseDownTime).TotalSeconds < CLICK_TIME)
@@ -303,7 +303,7 @@ public class COMWindowInteractive : GameComponent
 	{
 		mPressing = false;
 		mPressedTime = -1.0f;
-		mOnScreenMouseUp?.Invoke(mComponentOwner as myUGUIObject, mousePos, touchID);
+		mOnScreenMouseUp?.Invoke(owner as myUGUIObject, mousePos, touchID);
 	}
 	// 鼠标在屏幕上按下
 	public void onScreenMouseDown(Vector3 mousePos, int touchID) { }

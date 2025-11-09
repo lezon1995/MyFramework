@@ -1,11 +1,10 @@
-﻿
-public class GameEntryDerived : GameEntry
+﻿public class GameEntryDerived : GameEntry
 {
-	public override void Awake()
-	{
-		base.Awake();
-		Game framework = new();
-		framework.init();
-		setFrameworkAOT(framework);
-	}
+    public override void Awake()
+    {
+        base.Awake();
+        var framework = new Game();
+        framework.init();
+        setFrameworkAOT(framework);
+    }
 }

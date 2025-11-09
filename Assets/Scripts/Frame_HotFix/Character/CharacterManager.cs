@@ -28,9 +28,9 @@ public class CharacterManager : FrameSystem
 		mFixedUpdateList = null;
 		mMyself = null;
 	}
-	public override void update(float elapsedTime)
+	public override void update(float dt)
 	{
-		base.update(elapsedTime);
+		base.update(dt);
 		using var a = new SafeDictionaryReader<long, Character>(mCharacterUpdateList);
 		foreach (Character character in a.mReadList.Values)
 		{
@@ -38,12 +38,12 @@ public class CharacterManager : FrameSystem
 			{
 				continue;
 			}
-			character.update(!character.isIgnoreTimeScale() ? elapsedTime : Time.unscaledDeltaTime);
+			character.update(!character.isIgnoreTimeScale() ? dt : Time.unscaledDeltaTime);
 		}
 	}
-	public override void lateUpdate(float elapsedTime)
+	public override void lateUpdate(float dt)
 	{
-		base.lateUpdate(elapsedTime);
+		base.lateUpdate(dt);
 		using var a = new SafeDictionaryReader<long, Character>(mCharacterUpdateList);
 		foreach (Character character in a.mReadList.Values)
 		{
@@ -51,7 +51,7 @@ public class CharacterManager : FrameSystem
 			{
 				if (!character.isIgnoreTimeScale())
 				{
-					character.lateUpdate(elapsedTime);
+					character.lateUpdate(dt);
 				}
 				else
 				{
@@ -60,14 +60,14 @@ public class CharacterManager : FrameSystem
 			}
 		}
 	}
-	public override void fixedUpdate(float elapsedTime)
+	public override void fixedUpdate(float dt)
 	{
-		base.fixedUpdate(elapsedTime);
+		base.fixedUpdate(dt);
 		foreach (Character character in mFixedUpdateList.Values)
 		{
 			if (character != null && character.isActiveInHierarchy())
 			{
-				character.fixedUpdate(elapsedTime);
+				character.fixedUpdate(dt);
 			}
 		}
 	}

@@ -99,9 +99,9 @@ public class COMWindowDragView : GameComponent
 		mMaxPos = Vector3.zero;
 		mMinMaxPosDirty = true;
 	}
-	public override void update(float elapsedTime)
+	public override void update(float dt)
 	{
-		base.update(elapsedTime);
+		base.update(dt);
 		if (mDraging.mValue)
 		{
 			Vector3 curPosition = mWindow.getPosition();
@@ -186,7 +186,7 @@ public class COMWindowDragView : GameComponent
 				}
 				if (!isVectorEqual(curPosition, targetPosition))
 				{
-					setPosition(lerp(curPosition, targetPosition, elapsedTime * mMoveToEdgeSpeed));
+					setPosition(lerp(curPosition, targetPosition, dt * mMoveToEdgeSpeed));
 				}
 			}
 			else
@@ -196,7 +196,7 @@ public class COMWindowDragView : GameComponent
 				Vector3 validPos = curPosition;
 				if (!isValidPosition(ref curPosition, ref validPos, mAlignTopOrLeft))
 				{
-					Vector3 newPos = lerp(curPosition, validPos, elapsedTime * mAutoClampSpeed);
+					Vector3 newPos = lerp(curPosition, validPos, dt * mAutoClampSpeed);
 					if (!isVectorEqual(newPos, curPosition))
 					{
 						setPosition(newPos);
@@ -213,8 +213,8 @@ public class COMWindowDragView : GameComponent
 					{
 						// 只有鼠标未按下并且不自动停靠到最近的边时才衰减速度
 						Vector3 prePos = curPosition;
-						mMoveSpeed = lerp(mMoveSpeed, 0.0f, elapsedTime * mAttenuateFactor, 10.0f);
-						curPosition += mMoveSpeed * mMoveSpeedScale * elapsedTime * mMoveDirection;
+						mMoveSpeed = lerp(mMoveSpeed, 0.0f, dt * mAttenuateFactor, 10.0f);
+						curPosition += mMoveSpeed * mMoveSpeedScale * dt * mMoveDirection;
 						clampPosition(ref curPosition);
 						if (!isVectorEqual(prePos, curPosition))
 						{

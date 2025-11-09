@@ -9,24 +9,25 @@ using static FrameBaseDefine;
 // 游戏的入口
 public class GameEntry : MonoBehaviour
 {
-    protected static GameEntry mInstance;
-    public FramworkParam mFramworkParam;
-    protected IFramework mFrameworkAOT;
-    protected IFramework mFrameworkHotFix;
+    protected static GameEntry instance;
+    public FrameworkParam frameworkParam;
+    protected IFramework aot;
+    protected IFramework hotfix;
 
     public virtual void Awake()
     {
-        mInstance = this;
+        instance = this;
         ServicePointManager.DefaultConnectionLimit = 200;
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
-        // 每当Transform组件更改时是否自动将变换更改与物理系统同步
+
         Physics.simulationMode = SimulationMode.Script;
+        // 每当Transform组件更改时是否自动将变换更改与物理系统同步
         Physics.autoSyncTransforms = true;
         AppDomain.CurrentDomain.UnhandledException += unhandledException;
         setMainThreadID(Thread.CurrentThread.ManagedThreadId);
         dumpSystem();
 
-        WINDOW_MODE fullScreen = mFramworkParam.mWindowMode;
+        var fullScreen = frameworkParam.windowMode;
         if (isEditor())
         {
             // 编辑器下固定全屏
@@ -68,11 +69,11 @@ public class GameEntry : MonoBehaviour
         }
         else
         {
-            windowSize.x = mFramworkParam.mScreenWidth;
-            windowSize.y = mFramworkParam.mScreenHeight;
+            windowSize.x = frameworkParam.screenWidth;
+            windowSize.y = frameworkParam.screenHeight;
         }
 
-        bool fullMode = fullScreen == WINDOW_MODE.FULL_SCREEN || fullScreen == WINDOW_MODE.FULL_SCREEN_CUSTOM_RESOLUTION;
+        bool fullMode = fullScreen is WINDOW_MODE.FULL_SCREEN or WINDOW_MODE.FULL_SCREEN_CUSTOM_RESOLUTION;
         setScreenSizeBase(new((int)windowSize.x, (int)windowSize.y), fullMode);
     }
 
@@ -80,8 +81,9 @@ public class GameEntry : MonoBehaviour
     {
         try
         {
-            mFrameworkAOT?.update(Time.deltaTime);
-            mFrameworkHotFix?.update(Time.deltaTime);
+            var dt = Time.deltaTime;
+            aot?.update(dt);
+            hotfix?.update(dt);
         }
         catch (Exception e)
         {
@@ -93,8 +95,9 @@ public class GameEntry : MonoBehaviour
     {
         try
         {
-            mFrameworkAOT?.fixedUpdate(Time.fixedDeltaTime);
-            mFrameworkHotFix?.fixedUpdate(Time.fixedDeltaTime);
+            var dt = Time.fixedDeltaTime;
+            aot?.fixedUpdate(dt);
+            hotfix?.fixedUpdate(dt);
         }
         catch (Exception e)
         {
@@ -106,8 +109,9 @@ public class GameEntry : MonoBehaviour
     {
         try
         {
-            mFrameworkAOT?.lateUpdate(Time.deltaTime);
-            mFrameworkHotFix?.lateUpdate(Time.deltaTime);
+            var dt = Time.deltaTime;
+            aot?.lateUpdate(dt);
+            hotfix?.lateUpdate(dt);
         }
         catch (Exception e)
         {
@@ -119,8 +123,8 @@ public class GameEntry : MonoBehaviour
     {
         try
         {
-            mFrameworkAOT?.drawGizmos();
-            mFrameworkHotFix?.drawGizmos();
+            aot?.drawGizmos();
+            hotfix?.drawGizmos();
         }
         catch (Exception e)
         {
@@ -130,16 +134,16 @@ public class GameEntry : MonoBehaviour
 
     public void OnApplicationFocus(bool focus)
     {
-        mFrameworkAOT?.onApplicationFocus(focus);
-        mFrameworkHotFix?.onApplicationFocus(focus);
+        aot?.onApplicationFocus(focus);
+        hotfix?.onApplicationFocus(focus);
     }
 
     public void OnApplicationQuit()
     {
-        mFrameworkAOT?.onApplicationQuit();
-        mFrameworkHotFix?.onApplicationQuit();
-        mFrameworkAOT = null;
-        mFrameworkHotFix = null;
+        aot?.onApplicationQuit();
+        hotfix?.onApplicationQuit();
+        aot = null;
+        hotfix = null;
         logBase("程序退出完毕!");
     }
 
@@ -150,32 +154,32 @@ public class GameEntry : MonoBehaviour
 
     public static GameEntry getInstance()
     {
-        return mInstance;
+        return instance;
     }
 
     public static GameObject getInstanceObject()
     {
-        return mInstance.gameObject;
+        return instance.gameObject;
     }
 
     public void setFrameworkAOT(IFramework framework)
     {
-        mFrameworkAOT = framework;
+        aot = framework;
     }
 
     public void setFrameworkHotFix(IFramework framework)
     {
-        mFrameworkHotFix = framework;
+        hotfix = framework;
     }
 
     public IFramework getFrameworkAOT()
     {
-        return mFrameworkAOT;
+        return aot;
     }
 
     public IFramework getFrameworkHotFix()
     {
-        return mFrameworkHotFix;
+        return hotfix;
     }
 
     public static Coroutine startCoroutine(IEnumerator routine)

@@ -41,9 +41,9 @@ public class COMWindowUGUIInteractive : GameComponent
 		}
 		mMousePointer = null;
 	}
-	public override void update(float elapsedTime)
+	public override void update(float dt)
 	{
-		base.update(elapsedTime);
+		base.update(dt);
 		if (mMousePointer != null)
 		{
 			// 此处应该获取touchID的移动量
@@ -101,7 +101,7 @@ public class COMWindowUGUIInteractive : GameComponent
 		{
 			return;
 		}
-		mEventTriggerListener = (mComponentOwner as myUGUIObject).getOrAddUnityComponent<EventTriggerListener>();
+		mEventTriggerListener = (owner as myUGUIObject).getOrAddUnityComponent<EventTriggerListener>();
 		mEventTriggerListener.mOnClick += onUGUIClick;
 		mEventTriggerListener.mOnDown += onUGUIMouseDown;
 		mEventTriggerListener.mOnUp += onUGUIMouseUp;

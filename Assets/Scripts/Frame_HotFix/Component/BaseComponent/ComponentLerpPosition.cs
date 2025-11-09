@@ -16,10 +16,10 @@ public abstract class ComponentLerpPosition : ComponentLerp, IComponentModifyPos
 		mTargetPosition = Vector3.zero;
 		mMinRange = 0.001f;
 	}
-	public override void update(float elapsedTime)
+	public override void update(float dt)
 	{
-		base.update(elapsedTime);
-		Vector3 curPos = lerp(getPosition(), mTargetPosition, mLerpSpeed * elapsedTime, mMinRange);
+		base.update(dt);
+		Vector3 curPos = lerp(getPosition(), mTargetPosition, mLerpSpeed * dt, mMinRange);
 		applyPosition(curPos);
 		afterApplyLerp(isVectorEqual(curPos, mTargetPosition));
 	}

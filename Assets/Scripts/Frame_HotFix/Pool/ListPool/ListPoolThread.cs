@@ -21,7 +21,7 @@ public class ListPoolThread : FrameSystem
 		base.init();
 		if (isEditor())
 		{
-			mObject.AddComponent<ListPoolThreadDebug>();
+			go.AddComponent<ListPoolThreadDebug>();
 		}
 	}
 	public ThreadLock getLock() { return mListLock; }

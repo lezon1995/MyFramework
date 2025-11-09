@@ -6,6 +6,6 @@ public class COMTransformableRotateCurve : ComponentCurve, IComponentModifyRotat
 	//------------------------------------------------------------------------------------------------------------------------------
 	protected override void setValue(Vector3 value)
 	{
-		(mComponentOwner as Transformable).setRotation(value);
+		(owner as Transformable).setRotation(value);
 	}
 }

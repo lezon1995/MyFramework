@@ -11,12 +11,12 @@ public class COMWindowDrag : ComponentDrag
 	public override void init(ComponentOwner owner)
 	{
 		base.init(owner);
-		mWindow = mComponentOwner as myUGUIObject;
+		mWindow = owner as myUGUIObject;
 	}
 	public override void initDrag(Vector2 dragDirection, float dragStartAngleRadian, bool centerAlignMouse, bool movable)
 	{
 		base.initDrag(dragDirection, dragStartAngleRadian, centerAlignMouse, movable);
-		mWindow.registeCollider();
+		mWindow.registerCollider();
 	}
 	public override void resetProperty()
 	{
@@ -51,7 +51,7 @@ public class COMWindowDrag : ComponentDrag
 	protected override bool mouseInObject(Vector3 mousePosition)
 	{
 		// 使用当前鼠标位置判断是否悬停,忽略被其他窗口覆盖的情况
-		Collider collider = (mComponentOwner as myUGUIObject).getCollider();
+		Collider collider = (owner as myUGUIObject).getCollider();
 		if (collider == null)
 		{
 			logError("not find collider, can not drag!");

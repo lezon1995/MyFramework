@@ -6,9 +6,9 @@ public class WaitingManager : FrameSystem
 {
 	public static WaitingManager mWaitingManager;
 	protected SafeList<Waiting> mList = new();
-	public override void update(float elapsedTime)
+	public override void update(float dt)
 	{
-		base.update(elapsedTime);
+		base.update(dt);
 		using var a = new SafeListReader<Waiting>(mList);
 		int count = a.mReadList.Count;
 		for (int i = 0; i < count; ++i)

@@ -41,9 +41,9 @@ public class ComponentMultiTouch : GameComponent
 		mGesture = MULTI_TOUCH_GESTURE.NONE;
 		mTouchList.Clear();
 	}
-	public override void update(float elapsedTime)
+	public override void update(float dt)
 	{
-		base.update(elapsedTime);
+		base.update(dt);
 		if (mTouchList.Count == 2)
 		{
 			int touchID0 = 0;

@@ -25,7 +25,7 @@ public class PrefabPoolManager : FrameSystem
 		base.init();
 		if (isEditor())
 		{
-			mObject.AddComponent<ObjectPoolDebug>();
+			go.AddComponent<ObjectPoolDebug>();
 		}
 		mResourceManager.addUnloadPathCallback((string path)=>
 		{
@@ -77,11 +77,11 @@ public class PrefabPoolManager : FrameSystem
 		mPrefabPoolList.clear();
 		base.destroy();
 	}
-	public override void update(float elapsedTime)
+	public override void update(float dt)
 	{
-		base.update(elapsedTime);
+		base.update(dt);
 		// 每隔一定时间销毁不再使用的对象池
-		if (tickTimerLoop(ref mDestroyTimer, elapsedTime, mTimerInterval))
+		if (tickTimerLoop(ref mDestroyTimer, dt, mTimerInterval))
 		{
 			using var a = new SafeDictionaryReader<string, PrefabPool>(mPrefabPoolList);
 			foreach (PrefabPool pool in a.mReadList.Values)
@@ -153,7 +153,7 @@ public class PrefabPoolManager : FrameSystem
 			return null;
 		}
 		using var a = new ProfilerScope(0);
-		long assignID = relatedObj?.getAssignID() ?? 0;
+		long assignID = relatedObj?.id ?? 0;
 		return getPrefabPool(fileWithPath).getOneUnusedAsync(objectTag, (ObjectInfo objInfo, bool poolDestroy) =>
 		{
 			using var a = new ProfilerScope(0);
@@ -169,7 +169,7 @@ public class PrefabPoolManager : FrameSystem
 			}
 			PrefabPool pool = getPrefabPool(fileWithPath);
 			objInfo.setPool(pool);
-			if (assignID != 0 && assignID != relatedObj.getAssignID())
+			if (assignID != 0 && assignID != relatedObj.id)
 			{
 				pool.destroyObject(objInfo, false);
 				// 因为关联对象被销毁而失败
@@ -270,7 +270,7 @@ public class PrefabPoolManager : FrameSystem
 		// 返回前先确保物体是挂接到预设管理器下的
 		if (parent == null)
 		{
-			parent = mObject;
+			parent = base.go;
 		}
 		setNormalProperty(go, parent);
 		if (go.activeSelf != active)

@@ -16,7 +16,7 @@ public class COMWindowFill : ComponentKeyFrame
 	//------------------------------------------------------------------------------------------------------------------------------
 	protected override void applyTrembling(float value)
 	{
-		var window = mComponentOwner as myUGUIObject;
+		var window = owner as myUGUIObject;
 		window.setFillPercent(lerpSimple(mStart, mTarget, value));
 	}
 }

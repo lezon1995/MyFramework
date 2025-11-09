@@ -2,56 +2,67 @@ using System.Collections.Generic;
 using UnityEngine;
 using static StringUtility;
 
-// ÓÃÓÚ½«´íÎóÈÕÖ¾´òÓ¡µ½Õæ»úÆÁÄ»ÉÏ
+// ç”¨äºå°†é”™è¯¯æ—¥å¿—æ‰“å°åˆ°çœŸæœºå±å¹•ä¸Š
 public class ConsoleToScreen : MonoBehaviour
 {
-    protected string mLogStr = "";					// ×îÖÕÏÔÊ¾µÄÎÄ×Ö
-	protected GUIStyle mStyle = new();		        // ÏÔÊ¾ÎÄ×ÖµÄ·ç¸ñ¶ÔÏó
-	protected const int MAX_LINE = 5;				// ×î´óµÄĞĞÊı
-    protected const int MAX_LINE_LENGTH = 100;		// Ã¿ĞĞ×î´óµÄ×Ö·ûÊı
-    protected const int FONT_SIZE = 13;				// ×ÖÌå´óĞ¡
-	//------------------------------------------------------------------------------------------------------------------------------
-	protected void onLog(string logString, string stackTrace, LogType type)
-    {
-		if (type != LogType.Error || !mLogStr.isEmpty())
-		{
-			return;
-		}
+    protected string logStr = ""; // æœ€ç»ˆæ˜¾ç¤ºçš„æ–‡å­—
+    protected GUIStyle mStyle = new(); // æ˜¾ç¤ºæ–‡å­—çš„é£æ ¼å¯¹è±¡
+    protected const int MAX_LINE = 5; // æœ€å¤§çš„è¡Œæ•°
+    protected const int MAX_LINE_LENGTH = 100; // æ¯è¡Œæœ€å¤§çš„å­—ç¬¦æ•°
+    protected const int FONT_SIZE = 13; // å­—ä½“å¤§å°
 
-		List<string> lines = new();
-		foreach (string line in splitLine(logString))
+    //------------------------------------------------------------------------------------------------------------------------------
+    protected void onLog(string logString, string stackTrace, LogType type)
+    {
+        if (type != LogType.Error || !logStr.isEmpty())
+            return;
+
+        List<string> lines = new();
+        foreach (string line in splitLine(logString))
         {
             if (line.Length <= MAX_LINE_LENGTH)
             {
-				lines.Add(line);
+                lines.Add(line);
                 continue;
             }
+
             int lineCount = line.Length / MAX_LINE_LENGTH + 1;
             for (int i = 0; i < lineCount; ++i)
             {
                 if ((i + 1) * MAX_LINE_LENGTH <= line.Length)
                 {
-					lines.Add(line.substr(i * MAX_LINE_LENGTH, MAX_LINE_LENGTH));
+                    lines.Add(line.substr(i * MAX_LINE_LENGTH, MAX_LINE_LENGTH));
                 }
                 else
                 {
-					lines.Add(line.substr(i * MAX_LINE_LENGTH, line.Length - i * MAX_LINE_LENGTH));
+                    lines.Add(line.substr(i * MAX_LINE_LENGTH, line.Length - i * MAX_LINE_LENGTH));
                 }
-				if (lines.Count >= MAX_LINE)
-				{
-					break;
-				}
+
+                if (lines.Count >= MAX_LINE)
+                {
+                    break;
+                }
             }
         }
-        mLogStr = string.Join("\n", lines);
-	}
-	protected void OnEnable() { Application.logMessageReceived += onLog; }
-	protected void OnDisable() { Application.logMessageReceived -= onLog; }
-	protected void OnGUI()
+
+        logStr = string.Join("\n", lines);
+    }
+
+    protected void OnEnable()
+    {
+        Application.logMessageReceived += onLog;
+    }
+
+    protected void OnDisable()
+    {
+        Application.logMessageReceived -= onLog;
+    }
+
+    protected void OnGUI()
     {
         GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, new(Screen.width / 1500.0f, Screen.height / 800.0f, 1.0f));
-		mStyle.fontSize = FONT_SIZE;
-		mStyle.normal.textColor = Color.red;
-		GUI.Label(new(10, 10, 800, 370), mLogStr, mStyle);
+        mStyle.fontSize = FONT_SIZE;
+        mStyle.normal.textColor = Color.red;
+        GUI.Label(new(10, 10, 800, 370), logStr, mStyle);
     }
 }

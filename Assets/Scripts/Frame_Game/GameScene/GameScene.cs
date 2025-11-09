@@ -5,12 +5,11 @@ using static FrameBaseUtility;
 // 用于实现一个逻辑场景,一个逻辑场景会包含多个流程,进入一个场景时上一个场景会被销毁
 public abstract class GameScene
 {
-    protected static GameScene mCurScene;
-    protected Dictionary<Type, SceneProcedure> mSceneProcedureList = new(); // 场景的流程列表
-    protected SceneProcedure mCurProcedure; // 当前流程
-    protected Type mStartProcedure; // 起始流程类型,进入场景时会默认进入该流程
-
-    protected Type mExitProcedure; // 场景的退出流程,退出场景进入其他场景时会先进入该流程,一般用作资源卸载
+    protected static GameScene curScene;
+    protected Dictionary<Type, SceneProcedure> procedures = new(); // 场景的流程列表
+    protected SceneProcedure curProcedure; // 当前流程
+    protected Type startProcedure; // 起始流程类型,进入场景时会默认进入该流程
+    protected Type exitProcedure; // 场景的退出流程,退出场景进入其他场景时会先进入该流程,一般用作资源卸载
 
     // 进入场景时初始化
     public virtual void init()
@@ -25,37 +24,35 @@ public abstract class GameScene
 
     public void enterStartProcedure()
     {
-        changeProcedure(mStartProcedure);
+        changeProcedure(startProcedure);
     }
 
     public void destroy()
     {
         // 销毁所有流程
-        mSceneProcedureList.Clear();
+        procedures.Clear();
     }
 
-    public void update(float elapsedTime)
+    public void update(float dt)
     {
         // 更新当前流程
-        mCurProcedure?.update(elapsedTime);
+        curProcedure?.update(dt);
     }
 
     // 退出场景
     public virtual void exit()
     {
         // 首先进入退出流程,然后再退出最后的流程
-        changeProcedure(mExitProcedure);
-        mCurProcedure?.exit();
-        mCurProcedure = null;
+        changeProcedure(exitProcedure);
+        curProcedure?.exit();
+        curProcedure = null;
         GC.Collect();
     }
 
     public virtual void willDestroy()
     {
-        foreach (SceneProcedure item in mSceneProcedureList.Values)
-        {
-            item.willDestroy();
-        }
+        foreach (var procedure in procedures.Values)
+            procedure.willDestroy();
     }
 
     public abstract void assignStartExitProcedure();
@@ -72,23 +69,25 @@ public abstract class GameScene
     public bool changeProcedure(Type procedureType)
     {
         // 不能重复进入同一流程
-        if (mCurProcedure != null && mCurProcedure.GetType() == procedureType)
+        if (curProcedure != null && curProcedure.GetType() == procedureType)
+        {
             return false;
+        }
 
-        if (!mSceneProcedureList.TryGetValue(procedureType, out SceneProcedure targetProcedure))
+        if (!procedures.TryGetValue(procedureType, out SceneProcedure targetProcedure))
         {
             logErrorBase("can not find scene procedure : " + procedureType);
             return false;
         }
 
         logBase("enter procedure:" + procedureType);
-        if (mCurProcedure == null || mCurProcedure.GetType() != procedureType)
+        if (curProcedure == null || curProcedure.GetType() != procedureType)
         {
             // 如果当前已经在一个流程中了,则要先退出当前流程,但是不要销毁流程
             // 需要找到共同的父节点,退到该父节点时则不再退出
-            mCurProcedure?.exit();
-            mCurProcedure = targetProcedure;
-            mCurProcedure.init();
+            curProcedure?.exit();
+            curProcedure = targetProcedure;
+            curProcedure.init();
         }
 
         return true;
@@ -96,6 +95,6 @@ public abstract class GameScene
 
     public T addProcedure<T>() where T : SceneProcedure, new()
     {
-        return mSceneProcedureList.add(typeof(T), new T()) as T;
+        return procedures.add(typeof(T), new T()) as T;
     }
 }

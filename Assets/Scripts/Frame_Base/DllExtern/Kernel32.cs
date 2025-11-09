@@ -114,13 +114,13 @@ public class Kernel32
 	public const uint OPEN_EXISTING = 3;
 	public const string KERNEL32_DLL = "kernel32.dll";
 	[DllImport(KERNEL32_DLL)]
-	public extern static IntPtr LoadLibrary(string path);
+	public static extern IntPtr LoadLibrary(string path);
 
 	[DllImport(KERNEL32_DLL)]
-	public extern static IntPtr GetProcAddress(IntPtr lib, string funcName);
+	public static extern IntPtr GetProcAddress(IntPtr lib, string funcName);
 
 	[DllImport(KERNEL32_DLL)]
-	public extern static bool FreeLibrary(IntPtr lib);
+	public static extern bool FreeLibrary(IntPtr lib);
 
 	[DllImport(KERNEL32_DLL)]
 	public static extern void GlobalMemoryStatusEx(ref MEMORY_STATUS_EX meminfo);

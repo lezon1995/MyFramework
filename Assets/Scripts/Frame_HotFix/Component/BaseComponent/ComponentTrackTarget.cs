@@ -16,7 +16,7 @@ public class ComponentTrackTarget : GameComponent, IComponentModifyPosition, ICo
 	public override void init(ComponentOwner owner)
 	{
 		base.init(owner);
-		if (mComponentOwner is not Transformable)
+		if (base.owner is not Transformable)
 		{
 			logError("ComponentTrackTarget can only add to Transformable");
 		}
@@ -38,23 +38,23 @@ public class ComponentTrackTarget : GameComponent, IComponentModifyPosition, ICo
 		mSpeed = 0.0f;
 		mUpdateInFixedTick = false;
 	}
-	public override void update(float elapsedTime)
+	public override void update(float dt)
 	{
-		base.update(elapsedTime);
+		base.update(dt);
 		if (mUpdateInFixedTick)
 		{
 			return;
 		}
-		tick(elapsedTime);
+		tick(dt);
 	}
-	public override void fixedUpdate(float elapsedTime)
+	public override void fixedUpdate(float dt)
 	{
-		base.fixedUpdate(elapsedTime);
+		base.fixedUpdate(dt);
 		if (!mUpdateInFixedTick)
 		{
 			return;
 		}
-		tick(elapsedTime);
+		tick(dt);
 	}
 	public void setMoveDoneTrack(Transformable target, TrackCallback doneCallback, bool callLast = true)
 	{
@@ -67,7 +67,7 @@ public class ComponentTrackTarget : GameComponent, IComponentModifyPosition, ICo
 		}
 		mDoneCallback = doneCallback;
 		mTarget = target;
-		mTargetAssignID = mTarget?.getAssignID() ?? 0;
+		mTargetAssignID = mTarget?.id ?? 0;
 		if (mTarget == null)
 		{
 			setActive(false);
@@ -87,16 +87,16 @@ public class ComponentTrackTarget : GameComponent, IComponentModifyPosition, ICo
 	//------------------------------------------------------------------------------------------------------------------------------
 	protected virtual Vector3 getPosition()
 	{
-		return (mComponentOwner as Transformable).getPosition();
+		return (owner as Transformable).getPosition();
 	}
 	protected virtual void setPosition(Vector3 pos)
 	{
-		(mComponentOwner as Transformable).setPosition(pos);
+		(owner as Transformable).setPosition(pos);
 	}
 	protected virtual Vector3 getTargetPosition() { return mTarget.getWorldPosition() + mTarget.localToWorldDirection(mTargetOffset); }
 	protected virtual void tick(float elapsedTime)
 	{
-		if (mTarget != null && (mTarget.getAssignID() != mTargetAssignID || mTarget.isDestroy()))
+		if (mTarget != null && (mTarget.id != mTargetAssignID || mTarget.isDestroy()))
 		{
 			mTarget = null;
 			TrackCallback tempCallback = mDoneCallback;

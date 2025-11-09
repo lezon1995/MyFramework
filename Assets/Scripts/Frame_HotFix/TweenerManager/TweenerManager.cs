@@ -5,19 +5,19 @@ using static FrameUtility;
 public class TweenerManager : FrameSystem
 {
 	protected SafeDictionary<long, MyTweener> mTweenerList = new(); // 渐变类的列表
-	public override void update(float elapsedTime)
+	public override void update(float dt)
 	{
-		base.update(elapsedTime);
+		base.update(dt);
 		using var a = new SafeDictionaryReader<long, MyTweener>(mTweenerList);
 		foreach (MyTweener item in a.mReadList.Values)
 		{
-			item.update(item.isIgnoreTimeScale() ? Time.unscaledDeltaTime : elapsedTime);
+			item.update(item.isIgnoreTimeScale() ? Time.unscaledDeltaTime : dt);
 		}
 	}
 	public MyTweenerFloat createTweenerFloat()
 	{
 		CLASS(out MyTweenerFloat tweener).init();
-		mTweenerList.add(tweener.getAssignID(), tweener);
+		mTweenerList.add(tweener.id, tweener);
 		return tweener;
 	}
 	public void destroyTweener(MyTweener tweener)
@@ -26,7 +26,7 @@ public class TweenerManager : FrameSystem
 		{
 			return;
 		}
-		mTweenerList.remove(tweener.getAssignID());
+		mTweenerList.remove(tweener.id);
 		UN_CLASS(ref tweener);
 	}
 }

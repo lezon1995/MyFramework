@@ -22,7 +22,7 @@ public class ArrayPoolThread : FrameSystem
 		base.init();
 		if (isEditor())
 		{
-			mObject.AddComponent<ArrayPoolThreadDebug>();
+			go.AddComponent<ArrayPoolThreadDebug>();
 		}
 	}
 	public ThreadLock getLock() { return mListLock; }

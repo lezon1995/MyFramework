@@ -12,38 +12,34 @@ using static FrameBaseUtility;
 // 非热更部分的最顶层的节点,管理所有框架组件(管理器)
 public class GameFramework : IFramework
 {
-    protected List<FrameSystem> mFrameComponentList = new(128); // 存储框架组件,用于查找
-    protected Dictionary<string, Action<FrameSystem>> mFrameCallbackList = new(128); // 用于通知框架系统创建或者销毁的回调
-    public static Action mOnInitFrameSystem; // 用于通知注册所有的应用层框架组件
-    public static Action mOnRegisteStuff; // 用于通知注册应用层对象
-    public static Action mOnDestroy; // 用于通知应用层销毁
-    public static Func<string> mOnPackageName; // 用于获取安卓包名
-
-    public GameFramework()
-    {
-    }
+    protected List<FrameSystem> frames = new(); // 存储框架组件,用于查找
+    protected Dictionary<string, Action<FrameSystem>> framesCallback = new(); // 用于通知框架系统创建或者销毁的回调
+    public static event Action OnInitFrameSystem; // 用于通知注册所有的应用层框架组件
+    public static event Action OnRegisterStuff; // 用于通知注册应用层对象
+    public static event Action OnDestroy; // 用于通知应用层销毁
+    public static Func<string> packageNameGetter { get; set; } // 用于获取安卓包名
 
     public virtual void init()
     {
-        registeFrameSystem<AndroidPluginManager>(null);
-        registeFrameSystem<AndroidAssetLoader>(null);
-        registeFrameSystem<AndroidMainClass>(null);
-        AndroidPluginManager.initAnroidPlugin(mOnPackageName?.Invoke());
+        registerFrameSystem<AndroidPluginManager>(null);
+        registerFrameSystem<AndroidAssetLoader>(null);
+        registerFrameSystem<AndroidMainClass>(null);
+        AndroidPluginManager.initAndroidPlugin(packageNameGetter?.Invoke());
         AndroidAssetLoader.initJava(AndroidPluginManager.getPackageName() + ".AssetLoader");
         AndroidMainClass.initJava(AndroidPluginManager.getPackageName() + ".MainClass");
         logBase("start game!");
         try
         {
-            DateTime startTime = DateTime.Now;
+            var startTime = DateTime.Now;
             initFrameSystem();
             AndroidMainClass.gameStart();
             logBase("start消耗时间:" + (int)(DateTime.Now - startTime).TotalMilliseconds);
-            mOnRegisteStuff?.Invoke();
-            foreach (FrameSystem frame in mFrameComponentList)
+            OnRegisterStuff?.Invoke();
+            foreach (var frame in frames)
             {
                 try
                 {
-                    DateTime start = DateTime.Now;
+                    var start = DateTime.Now;
                     frame.init();
                     logBase(frame.getName() + "初始化消耗时间:" + (int)(DateTime.Now - start).TotalMilliseconds);
                 }
@@ -59,31 +55,27 @@ public class GameFramework : IFramework
         }
     }
 
-    public void update(float elapsedTime)
+    public void update(float dt)
     {
-        if (mFrameComponentList == null)
-        {
+        if (frames == null)
             return;
-        }
 
-        int count = mFrameComponentList.Count;
+        int count = frames.Count;
         for (int i = 0; i < count; ++i)
         {
             // 因为在更新过程中也可能销毁所有组件,所以需要每次循环都要判断
-            if (mFrameComponentList == null)
-            {
+            if (frames == null)
                 return;
-            }
 
-            mFrameComponentList[i]?.update(elapsedTime);
+            frames[i]?.update(dt);
         }
     }
 
-    public void fixedUpdate(float elapsedTime)
+    public void fixedUpdate(float dt)
     {
     }
 
-    public void lateUpdate(float elapsedTime)
+    public void lateUpdate(float dt)
     {
     }
 
@@ -103,48 +95,44 @@ public class GameFramework : IFramework
     public void destroy()
     {
         logBase("destroy GameFramework NoHotFix");
-        if (mFrameComponentList == null)
-        {
+        if (frames == null)
             return;
-        }
 
-        mOnDestroy?.Invoke();
-        foreach (FrameSystem frame in mFrameComponentList)
-        {
+        OnDestroy?.Invoke();
+        foreach (var frame in frames)
             frame?.willDestroy();
-        }
 
-        foreach (FrameSystem frame in mFrameComponentList)
+        foreach (var frame in frames)
         {
             if (frame != null)
             {
                 frame.destroy();
-                mFrameCallbackList.Remove(frame.getName(), out var callback);
+                framesCallback.Remove(frame.getName(), out var callback);
                 callback?.Invoke(null);
             }
         }
 
-        mFrameComponentList.Clear();
-        mFrameComponentList = null;
+        frames.Clear();
+        frames = null;
     }
 
     //------------------------------------------------------------------------------------------------------------------------------
     protected void initFrameSystem()
     {
-        registeFrameSystem<GameSceneManager>((com) => { mGameSceneManager = com; });
-        registeFrameSystem<LayoutManager>((com) => { mLayoutManager = com; });
-        registeFrameSystem<ResourceManager>((com) => { mResourceManager = com; });
-        registeFrameSystem<AssetVersionSystem>((com) => { mAssetVersionSystem = com; });
-        mOnInitFrameSystem?.Invoke();
+        registerFrameSystem<GameSceneManager>(com => mGameSceneManager = com);
+        registerFrameSystem<LayoutManager>(com => mLayoutManager = com);
+        registerFrameSystem<ResourceManager>(com => res = com);
+        registerFrameSystem<AssetVersionSystem>(com => mAssetVersionSystem = com);
+        OnInitFrameSystem?.Invoke();
     }
 
-    protected T registeFrameSystem<T>(Action<T> callback) where T : FrameSystem, new()
+    protected T registerFrameSystem<T>(Action<T> callback) where T : FrameSystem, new()
     {
         logBase("注册系统:" + typeof(T) + ", owner:" + GetType());
-        T com = new();
+        var com = new T();
         string name = typeof(T).ToString();
-        mFrameComponentList.Add(com);
-        mFrameCallbackList.Add(name, (com) => { callback?.Invoke(com as T); });
+        frames.Add(com);
+        framesCallback.Add(name, t => callback?.Invoke(t as T));
         callback?.Invoke(com);
         return com;
     }

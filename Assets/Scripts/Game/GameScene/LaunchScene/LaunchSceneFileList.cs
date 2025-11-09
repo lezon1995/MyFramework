@@ -22,7 +22,7 @@ public class LaunchSceneFileList : SceneProcedure
     //------------------------------------------------------------------------------------------------------------------------------
     protected void onSuccess()
     {
-        mGameSceneManager.getCurScene().changeProcedure<LaunchSceneDownload>();
+        mGameSceneManager.CurScene.changeProcedure<LaunchSceneDownload>();
     }
 
     protected void onFailed()
@@ -48,6 +48,9 @@ public class LaunchSceneFileList : SceneProcedure
     protected void checkNeedRequestRemoteFileList(BytesCallback callback)
     {
         // 这里需要自己构造一个远端路径
-        ObsSystem.downloadBytes( /*getRemoteFolder(mAssetVersionSystem.getRemoteVersion()) +*/ FILE_LIST, (byte[] content, int _) => { callback?.Invoke(content); });
+        ObsSystem.downloadBytes( /*getRemoteFolder(mAssetVersionSystem.getRemoteVersion()) +*/ FILE_LIST, (content, _) =>
+        {
+            callback?.Invoke(content);
+        });
     }
 }

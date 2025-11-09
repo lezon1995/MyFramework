@@ -33,11 +33,11 @@ public class NetStructBit : SerializableBit
 			for (byte i = 0; i < count; ++i)
 			{
 				SerializableBit field = mParams[i];
-				if (!field.mOptional)
+				if (!field.optional)
 				{
 					continue;
 				}
-				if (field.mValid)
+				if (field.valid)
 				{
 					setBitOne(ref fieldFlag, i);
 				}
@@ -68,7 +68,7 @@ public class NetStructBit : SerializableBit
 	protected void addParam(SerializableBit param, bool isOptional)
 	{
 		mHasOptionalParams |= isOptional;
-		param.mOptional = isOptional;
+		param.optional = isOptional;
 		mParams.Add(param);
 	}
 	protected virtual bool readInternal(ulong fieldFlag, SerializerBitRead reader) { return true; }

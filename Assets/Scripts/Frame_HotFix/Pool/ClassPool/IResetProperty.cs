@@ -1,5 +1,4 @@
-﻿
-public interface IResetProperty
+﻿public interface IResetProperty
 {
-	void resetProperty();
+    void resetProperty();
 }

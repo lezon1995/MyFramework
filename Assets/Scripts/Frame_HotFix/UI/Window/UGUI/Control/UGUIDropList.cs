@@ -42,8 +42,8 @@ public class UGUIDropList : WindowObjectUGUI, ICommonUI
 	{
 		base.init();
 		mItemPool.init();
-		mLabel.registeCollider(onClick);
-		mMask.registeCollider(onMaskClick);
+		mLabel.registerCollider(onClick);
+		mMask.registerCollider(onMaskClick);
 		mContent.initDragView(DRAG_DIRECTION.VERTICAL);
 		mOptions.setActive(false);
 		mMask.setActive(false);

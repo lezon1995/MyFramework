@@ -43,7 +43,7 @@ public class UGUIScroll : WindowObjectUGUI, ICommonUI
 		mRoot.setOnScreenMouseUp(onScreenMouseUp);
 		mRoot.setOnMouseMove(onMouseMove);
 		mRoot.setOnMouseStay(onMouseStay);
-		mRoot.registeCollider(true);
+		mRoot.registerCollider(true);
 		// 为了能拖拽,所以根节点的深度需要在所有子节点之上
 		mRoot.setDepthOverAllChild(true);
 	}

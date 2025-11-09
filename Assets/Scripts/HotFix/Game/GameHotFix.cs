@@ -22,9 +22,9 @@ public class GameHotFix : GameHotFixBase
 
     protected override void initFrameSystem()
     {
-        registeFrameSystem<NetManager>((com) => { mNetManager = com; });
-        registeFrameSystem<DemoSystem>((com) => { mDemoSystem = com; });
-        registeFrameSystem<BattleSystem>((com) => { mBattleSystem = com; });
+        registeFrameSystem<NetManager>(com => mNetManager = com);
+        registeFrameSystem<DemoSystem>(com => mDemoSystem = com);
+        registeFrameSystem<BattleSystem>(com => mBattleSystem = com);
     }
 
     protected override string getAndroidPluginBundleName()

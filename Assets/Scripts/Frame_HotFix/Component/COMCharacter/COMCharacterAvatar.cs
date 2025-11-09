@@ -77,27 +77,27 @@ public class COMCharacterAvatar : GameComponent
 	public override void init(ComponentOwner owner)
 	{
 		base.init(owner);
-		mCharacter = mComponentOwner as Character;
+		mCharacter = base.owner as Character;
 	}
-	public override void update(float elapsedTime)
+	public override void update(float dt)
 	{
-		base.update(elapsedTime);
+		base.update(dt);
 		if (mTransformSyncTime == TRANSFORM_SYNC_TIME.UPDATE)
 		{
 			syncTransform();
 		}
 	}
-	public override void lateUpdate(float elapsedTime)
+	public override void lateUpdate(float dt)
 	{
-		base.lateUpdate(elapsedTime);
+		base.lateUpdate(dt);
 		if (mTransformSyncTime == TRANSFORM_SYNC_TIME.LATE_UPDATE)
 		{
 			syncTransform();
 		}
 	}
-	public override void fixedUpdate(float elapsedTime)
+	public override void fixedUpdate(float dt)
 	{
-		base.fixedUpdate(elapsedTime);
+		base.fixedUpdate(dt);
 		if (mTransformSyncTime == TRANSFORM_SYNC_TIME.FIXED_UPDATE)
 		{
 			syncTransform();
@@ -383,9 +383,9 @@ public class COMCharacterAvatar : GameComponent
 		{
 			return;
 		}
-		if (mObject.activeSelf != mActive)
+		if (mObject.activeSelf != active)
 		{
-			mObject.SetActive(mActive);
+			mObject.SetActive(active);
 		}
 		mObject.TryGetComponent(out mController);
 		mObject.TryGetComponent(out mModelTransform);

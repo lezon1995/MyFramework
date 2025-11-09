@@ -15,15 +15,15 @@ public class LaunchSceneDownload : SceneProcedure
         "DynamicDownloading/",
     };
 
-    protected GameDownload mInstance;
+    protected GameDownload download;
     protected int mRemainRetryCount = 3; // 文件下载失败的剩余自动重试次数,没有剩余次数时将会提示玩家是否重试
 
     public LaunchSceneDownload()
     {
-        mInstance = new GameDownload();
+        download = new();
         // 设置动态下载的列表
-        mInstance.setDynamicDownloadList(DYNAMIC_DOWNLOAD_LIST);
-        mInstance.setShowTipCallback((DOWNLOAD_TIP tip) =>
+        download.setDynamicDownloadList(DYNAMIC_DOWNLOAD_LIST);
+        download.setShowTipCallback(tip =>
         {
             if (tip == DOWNLOAD_TIP.NONE)
             {
@@ -75,11 +75,11 @@ public class LaunchSceneDownload : SceneProcedure
         // 未启用热更时可以不进行下载,webgl上全部都是远程异步加载的,也不用下载
         if (isEditor() /*|| !isEnableHotFix()*/ || isWebGL())
         {
-            mInstance.skipDownload(onDownloadProgress);
+            download.skipDownload(onDownloadProgress);
         }
         else
         {
-            mInstance.startCheckVersion(onDownloadProgress);
+            download.startCheckVersion(onDownloadProgress);
         }
     }
 
@@ -91,13 +91,13 @@ public class LaunchSceneDownload : SceneProcedure
     public override void willDestroy()
     {
         base.willDestroy();
-        mInstance.willDestroy();
+        download.willDestroy();
     }
 
     //------------------------------------------------------------------------------------------------------------------------------
     // 在热更全部下载完成后,执行此函数,再启动热更.
-    // 这个函数的目的是确保最新的混淆密钥文件一定存在于PersistenPath中
-    // 因为在启动热更时GameHotFixBase会固定从PersistenPath中加载密钥文件
+    // 这个函数的目的是确保最新的混淆密钥文件一定存在于PersistantPath中
+    // 因为在启动热更时GameHotFixBase会固定从PersistantPath中加载密钥文件
     // 如果加载的密钥文件不是最新的,则无法启动游戏
     protected void checkNeedCopySecret(Action callback)
     {
@@ -123,9 +123,9 @@ public class LaunchSceneDownload : SceneProcedure
                         persistAssetsFiles.add(DYNAMIC_SECRET_FILE, persistInfo);
                     }
 
-                    persistInfo.mFileName = streamingInfo.mFileName;
-                    persistInfo.mFileSize = streamingInfo.mFileSize;
-                    persistInfo.mMD5 = streamingInfo.mMD5;
+                    persistInfo.name = streamingInfo.name;
+                    persistInfo.size = streamingInfo.size;
+                    persistInfo.md5 = streamingInfo.md5;
                     // 拷贝完以后更新FileList
                     writeFileList(F_PERSISTENT_ASSETS_PATH, mAssetVersionSystem.generatePersistentAssetFileList());
                 }
@@ -143,7 +143,7 @@ public class LaunchSceneDownload : SceneProcedure
     {
         if (yes)
         {
-            mInstance.startCheckVersion(onDownloadProgress);
+            download.startCheckVersion(onDownloadProgress);
         }
         else
         {
@@ -188,9 +188,9 @@ public class LaunchSceneDownload : SceneProcedure
 
     protected void launch()
     {
-        HybridCLRSystem.launchHotFix(getAESKeyBytes(), getAESIVBytes(),
+        HybridCLRSystem.launchHotfix(getAESKeyBytes(), getAESIVBytes(),
             // 下载或者加载程序集
-            (string fileName, BytesIntCallback callback) =>
+            (fileName, callback) =>
             {
                 // webgl下只能从远端下载资源
                 if (isWebGL())
@@ -200,7 +200,7 @@ public class LaunchSceneDownload : SceneProcedure
                 }
                 else
                 {
-                    openFileAsync(availableReadPath(fileName), true, (byte[] bytes) => { callback?.Invoke(bytes, bytes.Length); });
+                    openFileAsync(availableReadPath(fileName), true, bytes => callback?.Invoke(bytes, bytes.Length));
                 }
             },
             onLaunchError);

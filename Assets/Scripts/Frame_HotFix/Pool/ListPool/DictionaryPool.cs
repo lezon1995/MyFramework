@@ -22,12 +22,12 @@ public class DictionaryPool : FrameSystem
 		base.init();
 		if (isEditor())
 		{
-			mObject.AddComponent<DictionaryPoolDebug>();
+			go.AddComponent<DictionaryPoolDebug>();
 		}
 	}
-	public override void update(float elapsedTime)
+	public override void update(float dt)
 	{
-		base.update(elapsedTime);
+		base.update(dt);
 		if (isEditor())
 		{
 			foreach (var item in mInusedList.Values)

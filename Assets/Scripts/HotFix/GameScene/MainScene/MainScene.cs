@@ -2,8 +2,8 @@
 {
     public override void assignStartExitProcedure()
     {
-        mStartProcedure = typeof(MainSceneLoading);
-        mExitProcedure = typeof(MainSceneExit);
+        startProcedure = typeof(MainSceneLoading);
+        exitProcedure = typeof(MainSceneExit);
     }
 
     public override void createSceneProcedure()

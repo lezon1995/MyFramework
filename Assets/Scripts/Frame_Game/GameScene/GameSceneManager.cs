@@ -1,40 +1,35 @@
 ﻿// 逻辑场景管理器
-
 public class GameSceneManager : FrameSystem
 {
-    protected GameScene mCurScene; // 当前场景
-
-    public GameScene getCurScene()
-    {
-        return mCurScene;
-    }
+    protected GameScene curScene; // 当前场景
+    public GameScene CurScene => curScene;
 
     public void enterScene<T>() where T : GameScene, new()
     {
-        if (mCurScene != null)
+        if (curScene != null)
             return;
 
-        mCurScene = new T();
-        mCurScene.init();
+        curScene = new T();
+        curScene.init();
     }
 
-    public override void update(float elapsedTime)
+    public override void update(float dt)
     {
-        base.update(elapsedTime);
-        mCurScene?.update(elapsedTime);
+        base.update(dt);
+        curScene?.update(dt);
     }
 
     public override void destroy()
     {
-        mCurScene?.exit();
-        mCurScene?.destroy();
-        mCurScene = null;
+        curScene?.exit();
+        curScene?.destroy();
+        curScene = null;
         base.destroy();
     }
 
     public override void willDestroy()
     {
         base.willDestroy();
-        mCurScene?.willDestroy();
+        curScene?.willDestroy();
     }
 }

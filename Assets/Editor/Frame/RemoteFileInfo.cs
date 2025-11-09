@@ -14,8 +14,8 @@ public struct RemoteFileInfo
 	public GameFileInfo toGameFileInfo()
 	{
 		GameFileInfo info = new();
-		info.mFileName = mFileName;
-		info.mFileSize = mFileSize;
+		info.name = mFileName;
+		info.size = mFileSize;
 		return info;
 	}
 	public static RemoteFileInfo parse(string[] infos)

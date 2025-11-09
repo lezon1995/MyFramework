@@ -189,15 +189,32 @@ MonoBehaviour:
   mMemberList:
   - mObject: {fileID: 3579753064797783254}
     mType: myUGUIObject
-    mDefaultActive: 0
-    mIsArray: 0
+    mArrayType: 0
     mArrayLength: 0
+    mWindowType: 0
+    mViewportObject: {fileID: 0}
+    mPoolTemplate: {fileID: 0}
+    mTemplateWindowType: 
+    mParam0: 
+    mParam1: 
+    mCustomName: 
+    mHideError: 0
+    mUseCustomName: 0
   - mObject: {fileID: 4827924981184722614}
     mType: myUGUIText
-    mDefaultActive: 0
-    mIsArray: 0
+    mArrayType: 0
     mArrayLength: 0
-  mIsPersistent: 0
+    mWindowType: 0
+    mViewportObject: {fileID: 0}
+    mPoolTemplate: {fileID: 0}
+    mTemplateWindowType: 
+    mParam0: 
+    mParam1: 
+    mCustomName: 
+    mHideError: 0
+    mUseCustomName: 0
+  mParentType: LayoutScript
+  mIsPersistent: 1
 --- !u!1 &4581674099179751921
 GameObject:
   m_ObjectHideFlags: 0

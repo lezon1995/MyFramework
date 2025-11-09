@@ -34,13 +34,13 @@ public class CameraLinkerFree : CameraLinker
 		mEnableKeyboard = true;
 		mLookAtTarget = false;
 	}
-	public override void update(float elapsedTime)
+	public override void update(float dt)
 	{
-		base.update(elapsedTime);
+		base.update(dt);
 		// 键盘移动摄像机
 		if (mEnableKeyboard)
 		{
-			float moveLength = mMoveSpeed * elapsedTime;
+			float moveLength = mMoveSpeed * dt;
 			if (isKeyDown(KeyCode.LeftShift) || isKeyDown(KeyCode.RightShift))
 			{
 				moveLength *= 2.0f;

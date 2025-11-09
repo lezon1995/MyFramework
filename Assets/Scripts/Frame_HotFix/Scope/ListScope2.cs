@@ -8,28 +8,31 @@ using static StringUtility;
 // 需要搭配using来使用,比如using(new ListScope2<T>(out var list0, out var list1))
 public struct ListScope2<T> : IDisposable
 {
-	private List<T> mList0;      // 分配的对象
-	private List<T> mList1;      // 分配的对象
-	public ListScope2(out List<T> list0, out List<T> list1)
-	{
-		if (GameEntry.getInstance() == null || mListPool == null)
-		{
-			list0 = new();
-			list1 = new();
-			mList0 = null;
-			mList1 = null;
-			return;
-		}
-		string stackTrace = GameEntry.getInstance().mFramworkParam.mEnablePoolStackTrace ? getStackTrace() : EMPTY;
-		list0 = mListPool.newList(typeof(T), typeof(List<T>), stackTrace, true) as List<T>;
-		list1 = mListPool.newList(typeof(T), typeof(List<T>), stackTrace, true) as List<T>;
-		mList0 = list0;
-		mList1 = list1;
-	}
-	public void Dispose()
-	{
-		Type type = typeof(T);
-		mListPool?.destroyList(ref mList0, type);
-		mListPool?.destroyList(ref mList1, type);
-	}
+    List<T> mList0; // 分配的对象
+    List<T> mList1; // 分配的对象
+
+    public ListScope2(out List<T> list0, out List<T> list1)
+    {
+        if (GameEntry.getInstance() == null || mListPool == null)
+        {
+            list0 = new();
+            list1 = new();
+            mList0 = null;
+            mList1 = null;
+            return;
+        }
+
+        string stackTrace = GameEntry.getInstance().frameworkParam.enablePoolStackTrace ? getStackTrace() : EMPTY;
+        list0 = mListPool.newList(typeof(T), typeof(List<T>), stackTrace, true) as List<T>;
+        list1 = mListPool.newList(typeof(T), typeof(List<T>), stackTrace, true) as List<T>;
+        mList0 = list0;
+        mList1 = list1;
+    }
+
+    public void Dispose()
+    {
+        Type type = typeof(T);
+        mListPool?.destroyList(ref mList0, type);
+        mListPool?.destroyList(ref mList1, type);
+    }
 }
