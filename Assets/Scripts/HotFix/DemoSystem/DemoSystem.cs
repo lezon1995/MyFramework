@@ -1,3 +1,3 @@
-﻿
-public class DemoSystem : FrameSystem
-{}
+﻿public class DemoSystem : FrameSystem
+{
+}
