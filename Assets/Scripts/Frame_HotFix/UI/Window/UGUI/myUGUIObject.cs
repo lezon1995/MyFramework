@@ -12,52 +12,52 @@ using static FrameBaseUtility;
 // UGUI窗口的基类
 public class myUGUIObject : Transformable, IMouseEventCollect
 {
-    protected static Comparison<Transform> mCompareDescend = compareZDecending; // 避免GC的回调
-    private static Comparison<myUGUIObject> mCompareSiblingIndex = compareSiblingIndex; // 用于避免GC的委托
-    private static bool mAllowDestroyWindow; // 是否允许销毁窗口,仅此类内部使用
-    protected COMWindowInteractive mCOMWindowInteractive; // 鼠标键盘响应逻辑的组件
-    protected COMWindowCollider mCOMWindowCollider; // 碰撞逻辑组件
-    protected HashSet<myUGUIObject> mChildSet; // 子节点列表,用于查询是否有子节点
-    protected List<myUGUIObject> mChildList; // 子节点列表,与GameObject的子节点顺序保持一致(已排序情况下),用于获取最后一个子节点
-    protected GameLayout mLayout; // 所属布局
-    protected myUGUIObject mParent; // 父节点窗口
-    protected Vector3 mLastWorldScale; // 上一次设置的世界缩放值
-    protected int mID; // 每个窗口的唯一ID
-    protected bool mDestroyImmediately; // 销毁窗口时是否立即销毁
-    protected bool mReceiveLayoutHide; // 布局隐藏时是否会通知此窗口,默认不通知
-    protected bool mChildOrderSorted; // 子节点在列表中的顺序是否已经按照面板上的顺序排序了
-    protected bool mIsNewObject; // 是否是从空的GameObject创建的,一般都是会确认已经存在了对应组件,而不是要动态添加组件
-    protected COMWindowUGUIInteractive mCOMWindowUGUIInteractive; // UGUI的鼠标键盘响应逻辑的组件
-    protected RectTransform mRectTransform; // UGUI的Transform
+    protected static Comparison<Transform> _compareDescend = compareZDecending; // 避免GC的回调
+    private static Comparison<myUGUIObject> _compareSiblingIndex = compareSiblingIndex; // 用于避免GC的委托
+    private static bool allowDestroyWindow; // 是否允许销毁窗口,仅此类内部使用
+    protected COMWindowInteractive interactive; // 鼠标键盘响应逻辑的组件
+    protected COMWindowCollider collider; // 碰撞逻辑组件
+    protected HashSet<myUGUIObject> childrenSet; // 子节点列表,用于查询是否有子节点
+    protected List<myUGUIObject> childrenList; // 子节点列表,与GameObject的子节点顺序保持一致(已排序情况下),用于获取最后一个子节点
+    protected GameLayout layout; // 所属布局
+    protected myUGUIObject parent; // 父节点窗口
+    protected Vector3 lastWorldScale; // 上一次设置的世界缩放值
+    protected int uid; // 每个窗口的唯一ID
+    protected bool destroyImmediately; // 销毁窗口时是否立即销毁
+    protected bool receiveLayoutHide; // 布局隐藏时是否会通知此窗口,默认不通知
+    protected bool childOrderSorted; // 子节点在列表中的顺序是否已经按照面板上的顺序排序了
+    protected bool isNewObject; // 是否是从空的GameObject创建的,一般都是会确认已经存在了对应组件,而不是要动态添加组件
+    protected COMWindowUGUIInteractive uiInteractive; // UGUI的鼠标键盘响应逻辑的组件
+    protected RectTransform rectT; // UGUI的Transform
 
     public myUGUIObject()
     {
-        mID = makeID();
-        mNeedUpdate = false; // 出于效率考虑,窗口默认不启用更新,只有部分窗口和使用组件进行变化时才自动启用更新
+        uid = makeID();
+        needUpdate = false; // 出于效率考虑,窗口默认不启用更新,只有部分窗口和使用组件进行变化时才自动启用更新
         destroyed = false; // 由于一般myUGUIObject不会使用对象池来管理,所以构造时就设置当前对象为有效
     }
 
     public virtual void init()
     {
         initComponents();
-        mLayout?.registerUIObject(this);
-        if (mObject.TryGetComponent<BoxCollider>(out var boxCollider))
+        layout?.registerUIObject(this);
+        if (go.TryGetComponent<BoxCollider>(out var boxCollider))
         {
             getCOMCollider().setBoxCollider(boxCollider);
         }
 
         // 因为在使用UGUI时,原来的Transform会被替换为RectTransform,所以需要重新设置Transform组件
-        if (!mObject.TryGetComponent(out mRectTransform))
+        if (!go.TryGetComponent(out rectT))
         {
-            mRectTransform = mObject.AddComponent<RectTransform>();
+            rectT = go.AddComponent<RectTransform>();
         }
 
-        mTransform = mRectTransform;
-        if (mRectTransform == null)
+        t = rectT;
+        if (rectT == null)
         {
-            if (mTransform != null)
+            if (t)
             {
-                logError("Transform不是RectTransform,name:" + mTransform.name);
+                logError("Transform不是RectTransform,name:" + t.name);
             }
             else
             {
@@ -65,26 +65,26 @@ public class myUGUIObject : Transformable, IMouseEventCollect
             }
         }
 
-        mCOMWindowCollider?.setColliderSize(mRectTransform);
+        collider?.setColliderSize(rectT);
     }
 
     public override void resetProperty()
     {
         base.resetProperty();
-        mCOMWindowUGUIInteractive = null;
-        mRectTransform = null;
+        uiInteractive = null;
+        rectT = null;
     }
 
     public void onLayoutHide()
     {
         // 布局隐藏时需要将触点清除
-        mCOMWindowUGUIInteractive?.clearMousePointer();
+        uiInteractive?.clearMousePointer();
     }
 
     // 将当前窗口的顶部对齐父节点的顶部
     public void alignParentTop()
     {
-        if (mParent is not { } uiObj)
+        if (parent is not { } uiObj)
         {
             logError("父节点的类型不是myUGUIObject,无法获取其窗口大小");
             return;
@@ -96,7 +96,7 @@ public class myUGUIObject : Transformable, IMouseEventCollect
     // 将当前窗口的顶部中心对齐父节点的顶部中心
     public void alignParentTopCenter()
     {
-        if (mParent is not { } uiObj)
+        if (parent is not { } uiObj)
         {
             logError("父节点的类型不是myUGUIObject,无法获取其窗口大小");
             return;
@@ -109,7 +109,7 @@ public class myUGUIObject : Transformable, IMouseEventCollect
     // 将当前窗口的底部对齐父节点的底部
     public void alignParentBottom()
     {
-        if (mParent is not { } uiObj)
+        if (parent is not { } uiObj)
         {
             logError("父节点的类型不是myUGUIObject,无法获取其窗口大小");
             return;
@@ -121,7 +121,7 @@ public class myUGUIObject : Transformable, IMouseEventCollect
     // 将当前窗口的底部中心对齐父节点的底部中心
     public void alignParentBottomCenter()
     {
-        if (mParent is not { } uiObj)
+        if (parent is not { } uiObj)
         {
             logError("父节点的类型不是myUGUIObject,无法获取其窗口大小");
             return;
@@ -134,7 +134,7 @@ public class myUGUIObject : Transformable, IMouseEventCollect
     // 将当前窗口的左边界对齐父节点的左边界
     public void alignParentLeft()
     {
-        if (mParent is not { } uiObj)
+        if (parent is not { } uiObj)
         {
             logError("父节点的类型不是myUGUIObject,无法获取其窗口大小");
             return;
@@ -146,7 +146,7 @@ public class myUGUIObject : Transformable, IMouseEventCollect
     // 将当前窗口的左边界中心对齐父节点的左边界中心
     public void alignParentLeftCenter()
     {
-        if (mParent is not { } uiObj)
+        if (parent is not { } uiObj)
         {
             logError("父节点的类型不是myUGUIObject,无法获取其窗口大小");
             return;
@@ -159,7 +159,7 @@ public class myUGUIObject : Transformable, IMouseEventCollect
     // 将当前窗口的右边界对齐父节点的右边界
     public void alignParentRight()
     {
-        if (mParent is not { } uiObj)
+        if (parent is not { } uiObj)
         {
             logError("父节点的类型不是myUGUIObject,无法获取其窗口大小");
             return;
@@ -171,7 +171,7 @@ public class myUGUIObject : Transformable, IMouseEventCollect
     // 将当前窗口的右边界中心对齐父节点的右边界中心
     public void alignParentRightCenter()
     {
-        if (mParent is not { } uiObj)
+        if (parent is not { } uiObj)
         {
             logError("父节点的类型不是myUGUIObject,无法获取其窗口大小");
             return;
@@ -269,30 +269,28 @@ public class myUGUIObject : Transformable, IMouseEventCollect
     // 由于pivot的影响,Transform.localPosition获得的坐标并不一定等于窗口中心的坐标
     public Vector3 getPositionNoPivot()
     {
-        return WidgetUtility.getPositionNoPivot(mRectTransform);
+        return WidgetUtility.getPositionNoPivot(rectT);
     }
 
     public Vector2 getPivot()
     {
-        return mRectTransform.pivot;
+        return rectT.pivot;
     }
 
     public void setPivot(Vector2 pivot)
     {
-        mRectTransform.pivot = pivot;
+        rectT.pivot = pivot;
     }
 
     public RectTransform getRectTransform()
     {
-        return mRectTransform;
+        return rectT;
     }
 
     public void setWindowWidth(float width)
     {
-        if (isFloatEqual(mRectTransform.rect.size.x, width))
-        {
+        if (isFloatEqual(rectT.rect.size.x, width))
             return;
-        }
 
         // 还是需要调用setWindowSize,需要触发一些虚函数的调用
         setWindowSize(replaceX(getWindowSize(), width));
@@ -300,10 +298,8 @@ public class myUGUIObject : Transformable, IMouseEventCollect
 
     public void setWindowHeight(float height)
     {
-        if (isFloatEqual(mRectTransform.rect.size.y, height))
-        {
+        if (isFloatEqual(rectT.rect.size.y, height))
             return;
-        }
 
         // 还是需要调用setWindowSize,需要触发一些虚函数的调用
         setWindowSize(replaceY(getWindowSize(), height));
@@ -311,18 +307,16 @@ public class myUGUIObject : Transformable, IMouseEventCollect
 
     public virtual void setWindowSize(Vector2 size)
     {
-        if (isVectorEqual(mRectTransform.rect.size, size))
-        {
+        if (isVectorEqual(rectT.rect.size, size))
             return;
-        }
 
-        setRectSize(mRectTransform, size);
+        setRectSize(rectT, size);
         ensureColliderSize();
     }
 
     public virtual Vector2 getWindowSize(bool transformed = false)
     {
-        Vector2 windowSize = mRectTransform.rect.size;
+        Vector2 windowSize = rectT.rect.size;
         if (transformed)
         {
             windowSize = multiVector2(windowSize, getWorldScale());
@@ -335,7 +329,7 @@ public class myUGUIObject : Transformable, IMouseEventCollect
     {
         if (fadeChild)
         {
-            setUGUIChildAlpha(mObject, alpha);
+            setUGUIChildAlpha(go, alpha);
         }
     }
 
@@ -359,10 +353,10 @@ public class myUGUIObject : Transformable, IMouseEventCollect
         int childCount = getChildCount();
         for (int i = 0; i < childCount; ++i)
         {
-            tempList.Add(mTransform.GetChild(i));
+            tempList.Add(t.GetChild(i));
         }
 
-        quickSort(tempList, mCompareDescend);
+        quickSort(tempList, _compareDescend);
         int count = tempList.Count;
         for (int i = 0; i < count; ++i)
         {
@@ -379,14 +373,14 @@ public class myUGUIObject : Transformable, IMouseEventCollect
     {
         getCOMUGUIInteractive().setUGUIMouseDown(callback);
         // 因为点击事件会使用触点,为了确保触点的正确状态,所以需要在布局隐藏时清除触点
-        mReceiveLayoutHide = true;
+        receiveLayoutHide = true;
     }
 
     public void setUGUIMouseUp(Action<PointerEventData, GameObject> callback)
     {
         getCOMUGUIInteractive().setUGUIMouseUp(callback);
         // 因为点击事件会使用触点,为了确保触点的正确状态,所以需要在布局隐藏时清除触点
-        mReceiveLayoutHide = true;
+        receiveLayoutHide = true;
     }
 
     public void setUGUIMouseEnter(Action<PointerEventData, GameObject> callback)
@@ -403,21 +397,19 @@ public class myUGUIObject : Transformable, IMouseEventCollect
     {
         getCOMUGUIInteractive().setUGUIMouseMove(callback);
         // 如果设置了要监听鼠标移动,则需要激活当前窗口
-        mNeedUpdate = true;
+        needUpdate = true;
     }
 
     public void setUGUIMouseStay(Action<Vector3> callback)
     {
         getCOMUGUIInteractive().setUGUIMouseStay(callback);
-        mNeedUpdate = true;
+        needUpdate = true;
     }
 
     public override void destroy()
     {
-        if (!mAllowDestroyWindow)
-        {
+        if (!allowDestroyWindow)
             logError("can not call window's destroy()! use destroyWindow(myUGUIObject window, bool destroyReally) instead");
-        }
 
         base.destroy();
         destroyed = true;
@@ -426,9 +418,7 @@ public class myUGUIObject : Transformable, IMouseEventCollect
     public override void setActive(bool active)
     {
         if (active == isActive())
-        {
             return;
-        }
 
         base.setActive(active);
         mGlobalTouchSystem?.notifyWindowActiveChanged();
@@ -437,7 +427,7 @@ public class myUGUIObject : Transformable, IMouseEventCollect
     public static void collectChild<T>(myUGUIObject window, List<T> list) where T : myUGUIObject
     {
         list.addNotNull(window as T);
-        foreach (myUGUIObject item in window.mChildList.safe())
+        foreach (myUGUIObject item in window.childrenList.safe())
         {
             collectChild(item, list);
         }
@@ -446,14 +436,12 @@ public class myUGUIObject : Transformable, IMouseEventCollect
     public static void destroyWindow(myUGUIObject window, bool destroyReally)
     {
         if (window == null)
-        {
             return;
-        }
 
         // 先销毁所有子节点,因为遍历中会修改子节点列表,所以需要复制一个列表
-        if (!window.mChildList.isEmpty())
+        if (!window.childrenList.isEmpty())
         {
-            using var a = new ListScope<myUGUIObject>(out var childList, window.mChildList);
+            using var a = new ListScope<myUGUIObject>(out var childList, window.childrenList);
             foreach (myUGUIObject item in childList)
             {
                 destroyWindow(item, destroyReally);
@@ -473,23 +461,23 @@ public class myUGUIObject : Transformable, IMouseEventCollect
             mInputSystem?.unregisteInputField(inputField);
         }
 
-        window.mLayout?.unregisterUIObject(window);
+        window.layout?.unregisterUIObject(window);
         GameObject go = window.getObject();
-        mAllowDestroyWindow = true;
+        allowDestroyWindow = true;
         window.destroy();
-        mAllowDestroyWindow = false;
-        window.mLayout = null;
+        allowDestroyWindow = false;
+        window.layout = null;
         if (destroyReally)
         {
-            destroyUnityObject(go, window.mDestroyImmediately);
+            destroyUnityObject(go, window.destroyImmediately);
         }
     }
 
     public void removeChild(myUGUIObject child)
     {
-        if (mChildSet != null && mChildSet.Remove(child))
+        if (childrenSet != null && childrenSet.Remove(child))
         {
-            mChildList?.Remove(child);
+            childrenList?.Remove(child);
         }
     }
 
@@ -500,10 +488,10 @@ public class myUGUIObject : Transformable, IMouseEventCollect
         ensureColliderSize();
 
         // 检测世界缩放值是否有变化
-        if (!isVectorEqual(mLastWorldScale, getWorldScale()))
+        if (!isVectorEqual(lastWorldScale, getWorldScale()))
         {
-            onWorldScaleChanged(mLastWorldScale);
-            mLastWorldScale = getWorldScale();
+            onWorldScaleChanged(lastWorldScale);
+            lastWorldScale = getWorldScale();
         }
     }
 
@@ -524,41 +512,39 @@ public class myUGUIObject : Transformable, IMouseEventCollect
 
     public void setAsLastSibling(bool refreshUIDepth = true)
     {
-        mTransform.SetAsLastSibling();
-        mChildOrderSorted = false;
+        t.SetAsLastSibling();
+        childOrderSorted = false;
         if (refreshUIDepth)
         {
-            mLayout.refreshUIDepth(mParent, true);
+            layout.refreshUIDepth(parent, true);
         }
     }
 
     public void setAsFirstSibling(bool refreshUIDepth = true)
     {
-        mTransform.SetAsFirstSibling();
-        mChildOrderSorted = false;
+        t.SetAsFirstSibling();
+        childOrderSorted = false;
         if (refreshUIDepth)
         {
-            mLayout.refreshUIDepth(mParent, true);
+            layout.refreshUIDepth(parent, true);
         }
     }
 
     public int getSibling()
     {
-        return mTransform.GetSiblingIndex();
+        return t.GetSiblingIndex();
     }
 
     public bool setSibling(int index, bool refreshUIDepth = true)
     {
-        if (mTransform.GetSiblingIndex() == index)
-        {
+        if (t.GetSiblingIndex() == index)
             return false;
-        }
 
-        mTransform.SetSiblingIndex(index);
-        mChildOrderSorted = false;
+        t.SetSiblingIndex(index);
+        childOrderSorted = false;
         if (refreshUIDepth)
         {
-            mLayout.refreshUIDepth(mParent, true);
+            layout.refreshUIDepth(parent, true);
         }
 
         return true;
@@ -572,34 +558,34 @@ public class myUGUIObject : Transformable, IMouseEventCollect
     // 获取描述,UI则返回所处布局名
     public string getDescription()
     {
-        return mLayout?.getName();
+        return layout?.getName();
     }
 
     // get
     //------------------------------------------------------------------------------------------------------------------------------
     public int getID()
     {
-        return mID;
+        return uid;
     }
 
     public GameLayout getLayout()
     {
-        return mLayout;
+        return layout;
     }
 
     public List<myUGUIObject> getChildList()
     {
-        return mChildList;
+        return childrenList;
     }
 
     public virtual bool isReceiveScreenMouse()
     {
-        return mCOMWindowInteractive?.getOnScreenMouseUp() != null;
+        return interactive?.getOnScreenMouseUp() != null;
     }
 
     public myUGUIObject getParent()
     {
-        return mParent;
+        return parent;
     }
 
     public override float getAlpha()
@@ -619,17 +605,17 @@ public class myUGUIObject : Transformable, IMouseEventCollect
 
     public virtual bool isHandleInput()
     {
-        return mCOMWindowCollider != null && mCOMWindowCollider.isHandleInput();
+        return collider != null && collider.isHandleInput();
     }
 
     public virtual bool isPassRay()
     {
-        return mCOMWindowInteractive == null || mCOMWindowInteractive.isPassRay();
+        return interactive == null || interactive.isPassRay();
     }
 
     public virtual bool isPassDragEvent()
     {
-        return !isDragable() || (mCOMWindowInteractive != null && mCOMWindowInteractive.isPassDragEvent());
+        return !isDragable() || (interactive != null && interactive.isPassDragEvent());
     }
 
     public virtual bool isDragable()
@@ -639,37 +625,37 @@ public class myUGUIObject : Transformable, IMouseEventCollect
 
     public bool isMouseHovered()
     {
-        return mCOMWindowInteractive != null && mCOMWindowInteractive.isMouseHovered();
+        return interactive != null && interactive.isMouseHovered();
     }
 
     public int getClickSound()
     {
-        return mCOMWindowInteractive?.getClickSound() ?? 0;
+        return interactive?.getClickSound() ?? 0;
     }
 
     public bool isDepthOverAllChild()
     {
-        return mCOMWindowInteractive != null && mCOMWindowInteractive.isDepthOverAllChild();
+        return interactive != null && interactive.isDepthOverAllChild();
     }
 
     public float getLongPressLengthThreshold()
     {
-        return mCOMWindowInteractive?.getLongPressLengthThreshold() ?? -1.0f;
+        return interactive?.getLongPressLengthThreshold() ?? -1.0f;
     }
 
     public bool isReceiveLayoutHide()
     {
-        return mReceiveLayoutHide;
+        return receiveLayoutHide;
     }
 
     public bool isColliderForClick()
     {
-        return mCOMWindowInteractive != null && mCOMWindowInteractive.isColliderForClick();
+        return interactive != null && interactive.isColliderForClick();
     }
 
     public bool isAllowGenerateDepth()
     {
-        return mCOMWindowInteractive == null || mCOMWindowInteractive.isAllowGenerateDepth();
+        return interactive == null || interactive.isAllowGenerateDepth();
     }
 
     // 是否可以计算深度,与mAllowGenerateDepth类似,都是计算深度的其中一个条件,只不过这个可以由子类重写
@@ -685,13 +671,13 @@ public class myUGUIObject : Transformable, IMouseEventCollect
 
     public override bool raycastSelf(ref Ray ray, out RaycastHit hit, float maxDistance)
     {
-        if (mCOMWindowCollider == null)
+        if (collider == null)
         {
             hit = new();
             return false;
         }
 
-        return mCOMWindowCollider.raycast(ref ray, out hit, maxDistance);
+        return collider.raycast(ref ray, out hit, maxDistance);
     }
 
     public virtual float getFillPercent()
@@ -703,21 +689,17 @@ public class myUGUIObject : Transformable, IMouseEventCollect
     // 递归返回最后一个子节点,如果没有子节点,则返回空
     public myUGUIObject getLastChild()
     {
-        if (mChildList.isEmpty())
-        {
+        if (childrenList.isEmpty())
             return null;
-        }
 
-        if (mChildList.Count > 1 && !mChildOrderSorted)
+        if (childrenList.Count > 1 && !childOrderSorted)
         {
             logError("子节点没有被排序,无法获得正确的最后一个子节点");
         }
 
-        myUGUIObject lastChild = mChildList[^1];
-        if (lastChild.mChildList.Count == 0)
-        {
+        myUGUIObject lastChild = childrenList[^1];
+        if (lastChild.childrenList.Count == 0)
             return lastChild;
-        }
 
         return lastChild.getLastChild();
     }
@@ -731,7 +713,7 @@ public class myUGUIObject : Transformable, IMouseEventCollect
 
     public void setDestroyImmediately(bool immediately)
     {
-        mDestroyImmediately = immediately;
+        destroyImmediately = immediately;
     }
 
     public void setAllowGenerateDepth(bool allowGenerate)
@@ -864,14 +846,14 @@ public class myUGUIObject : Transformable, IMouseEventCollect
         getCOMInteractive().setOnScreenMouseUp(callback);
     }
 
-    public void setLayout(GameLayout layout)
+    public void setLayout(GameLayout l)
     {
-        mLayout = layout;
+        layout = l;
     }
 
     public void setReceiveLayoutHide(bool receive)
     {
-        mReceiveLayoutHide = receive;
+        receiveLayoutHide = receive;
     }
 
     public void setColliderForClick(bool forClick)
@@ -895,32 +877,30 @@ public class myUGUIObject : Transformable, IMouseEventCollect
         }
     }
 
-    public void setParent(myUGUIObject parent, bool refreshDepth)
+    public void setParent(myUGUIObject p, bool refreshDepth)
     {
-        if (mParent == parent)
-        {
+        if (parent == p)
             return;
-        }
 
         // 从原来的父节点上移除
-        mParent?.removeChild(this);
+        parent?.removeChild(this);
         // 设置新的父节点
-        mParent = parent;
-        if (mParent != null)
+        parent = p;
+        if (parent != null)
         {
             // 先设置Transform父节点,因为在addChild中会用到Transform的GetSiblingIndex
-            if (mTransform.parent != mParent.getTransform())
+            if (t.parent != parent.getTransform())
             {
-                mTransform.SetParent(mParent.getTransform());
+                t.SetParent(parent.getTransform());
             }
 
-            mParent.addChild(this, refreshDepth);
+            parent.addChild(this, refreshDepth);
         }
     }
 
     public virtual void setHandleInput(bool enable)
     {
-        mCOMWindowCollider?.enableCollider(enable);
+        collider?.enableCollider(enable);
     }
 
     public void addLongPress(Action callback, float pressTime, FloatCallback pressingCallback = null)
@@ -930,83 +910,81 @@ public class myUGUIObject : Transformable, IMouseEventCollect
 
     public void removeLongPress(Action callback)
     {
-        mCOMWindowInteractive?.removeLongPress(callback);
+        interactive?.removeLongPress(callback);
     }
 
     public void clearLongPress()
     {
-        mCOMWindowInteractive?.clearLongPress();
+        interactive?.clearLongPress();
     }
 
     // callback
     //------------------------------------------------------------------------------------------------------------------------------
     public virtual void onMouseEnter(Vector3 mousePos, int touchID)
     {
-        mCOMWindowInteractive?.onMouseEnter(mousePos, touchID);
+        interactive?.onMouseEnter(mousePos, touchID);
     }
 
     public virtual void onMouseLeave(Vector3 mousePos, int touchID)
     {
-        mCOMWindowInteractive?.onMouseLeave(mousePos, touchID);
+        interactive?.onMouseLeave(mousePos, touchID);
     }
 
     // 鼠标左键在窗口内按下
     public virtual void onMouseDown(Vector3 mousePos, int touchID)
     {
-        mCOMWindowInteractive?.onMouseDown(mousePos, touchID);
+        interactive?.onMouseDown(mousePos, touchID);
     }
 
     // 鼠标左键在窗口内放开
     public virtual void onMouseUp(Vector3 mousePos, int touchID)
     {
-        mCOMWindowInteractive?.onMouseUp(mousePos, touchID);
+        interactive?.onMouseUp(mousePos, touchID);
     }
 
     // 触点在移动,此时触点是按下状态,且按下瞬间在窗口范围内
     public virtual void onMouseMove(Vector3 mousePos, Vector3 moveDelta, float moveTime, int touchID)
     {
-        mCOMWindowInteractive?.onMouseMove(mousePos, moveDelta, moveTime, touchID);
+        interactive?.onMouseMove(mousePos, moveDelta, moveTime, touchID);
     }
 
     // 触点没有移动,此时触点是按下状态,且按下瞬间在窗口范围内
     public virtual void onMouseStay(Vector3 mousePos, int touchID)
     {
-        mCOMWindowInteractive?.onMouseStay(mousePos, touchID);
+        interactive?.onMouseStay(mousePos, touchID);
     }
 
     // 鼠标在屏幕上抬起
     public virtual void onScreenMouseUp(Vector3 mousePos, int touchID)
     {
-        mCOMWindowInteractive?.onScreenMouseUp(mousePos, touchID);
+        interactive?.onScreenMouseUp(mousePos, touchID);
     }
 
     // 鼠标在屏幕上按下
     public virtual void onScreenMouseDown(Vector3 mousePos, int touchID)
     {
-        mCOMWindowInteractive?.onScreenMouseDown(mousePos, touchID);
+        interactive?.onScreenMouseDown(mousePos, touchID);
     }
 
     // 有物体拖动到了当前窗口上
     public virtual void onReceiveDrag(IMouseEventCollect dragObj, Vector3 mousePos, ref bool continueEvent)
     {
-        mCOMWindowInteractive?.onReceiveDrag(dragObj, mousePos, ref continueEvent);
+        interactive?.onReceiveDrag(dragObj, mousePos, ref continueEvent);
     }
 
     // 有物体拖动到了当前窗口上
     public virtual void onDragHoverd(IMouseEventCollect dragObj, Vector3 mousePos, bool hover)
     {
-        mCOMWindowInteractive?.onDragHoverd(dragObj, mousePos, hover);
+        interactive?.onDragHoverd(dragObj, mousePos, hover);
     }
 
     public void sortChild()
     {
-        if (mChildList.count() <= 1)
-        {
+        if (childrenList.count() <= 1)
             return;
-        }
 
-        mChildOrderSorted = true;
-        quickSort(mChildList, mCompareSiblingIndex);
+        childOrderSorted = true;
+        quickSort(childrenList, _compareSiblingIndex);
     }
 
     // registerEvent,这些函数只是用于简化注册碰撞体的操作
@@ -1148,12 +1126,12 @@ public class myUGUIObject : Transformable, IMouseEventCollect
     protected virtual void ensureColliderSize()
     {
         // 确保RectTransform和BoxCollider一样大
-        mCOMWindowCollider?.setColliderSize(mRectTransform);
+        collider?.setColliderSize(rectT);
     }
 
     protected COMWindowUGUIInteractive getCOMUGUIInteractive()
     {
-        return mCOMWindowUGUIInteractive ??= addComponent<COMWindowUGUIInteractive>(true);
+        return uiInteractive ??= addComponent<COMWindowUGUIInteractive>(true);
     }
 
     protected virtual void onWorldScaleChanged(Vector2 lastWorldScale)
@@ -1162,16 +1140,16 @@ public class myUGUIObject : Transformable, IMouseEventCollect
 
     protected void addChild(myUGUIObject child, bool refreshDepth)
     {
-        mChildSet ??= new();
-        if (!mChildSet.Add(child))
+        childrenSet ??= new();
+        if (!childrenSet.Add(child))
             return;
 
-        mChildList ??= new();
-        mChildList.Add(child);
-        mChildOrderSorted = false;
+        childrenList ??= new();
+        childrenList.Add(child);
+        childOrderSorted = false;
         if (refreshDepth)
         {
-            mLayout.refreshUIDepth(this, false);
+            layout.refreshUIDepth(this, false);
         }
     }
 
@@ -1182,12 +1160,12 @@ public class myUGUIObject : Transformable, IMouseEventCollect
 
     protected COMWindowInteractive getCOMInteractive()
     {
-        return mCOMWindowInteractive ??= addComponent<COMWindowInteractive>(true);
+        return interactive ??= addComponent<COMWindowInteractive>(true);
     }
 
     protected COMWindowCollider getCOMCollider()
     {
-        return mCOMWindowCollider ??= addComponent<COMWindowCollider>(true);
+        return collider ??= addComponent<COMWindowCollider>(true);
     }
 
     protected void setObjectCallback(Action clickCallback, BoolCallback hoverCallback, BoolCallback pressCallback)

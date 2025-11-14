@@ -24,7 +24,7 @@ public class ExcelManager : FrameSystem
 			return;
 		}
 		// 提前加载资源包和其中的子资源
-		mResourceManager.preloadAssetBundleAsync(EXCEL, (AssetBundleInfo assetBundle) =>
+		res.preloadAssetBundleAsync(EXCEL, (AssetBundleInfo assetBundle) =>
 		{
 			assetBundle?.loadAllSubAssets();
 			// 然后再加载每个表格

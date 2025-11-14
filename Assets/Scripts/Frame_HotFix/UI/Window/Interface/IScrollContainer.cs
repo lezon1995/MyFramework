@@ -1,5 +1,4 @@
-﻿
-public interface IScrollContainer
+﻿public interface IScrollContainer
 {
-	myUGUIObject getContainerRoot();
+    myUGUIObject getContainerRoot();
 }

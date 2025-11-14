@@ -23,18 +23,18 @@ public class myUGUIInputField : myUGUIImageSimple, IInputField
 	public override void init()
 	{
 		base.init();
-		if (!mObject.TryGetComponent(out mInputField))
+		if (!go.TryGetComponent(out mInputField))
 		{
-			if (!mIsNewObject)
+			if (!isNewObject)
 			{
 				logError("需要添加一个InputField组件,name:" + getName() + ", layout:" + getLayout().getName());
 			}
-			mInputField = mObject.AddComponent<InputField>();
+			mInputField = go.AddComponent<InputField>();
 			// 添加UGUI组件后需要重新获取RectTransform
-			mObject.TryGetComponent(out mRectTransform);
-			mTransform = mRectTransform;
+			go.TryGetComponent(out rectT);
+			t = rectT;
 		}
-		mImage.raycastTarget = true;
+		image.raycastTarget = true;
 	}
 	public override void setAlpha(float alpha, bool fadeChild)
 	{

@@ -1253,7 +1253,7 @@ public class FrameUtility
 
     public static void recoverCrossParam()
     {
-        mResourceManager.setDownloadURL(FrameCrossParam.downloadURL);
+        res.setDownloadURL(FrameCrossParam.downloadURL);
         mLocalizationManager.setCurrentLanguage(FrameCrossParam.localizationName);
         mAssetVersionSystem.setStreamingAssetsVersion(FrameCrossParam.streamingAssetsVersion);
         mAssetVersionSystem.setPersistentAssetsVersion(FrameCrossParam.persistentDataVersion);

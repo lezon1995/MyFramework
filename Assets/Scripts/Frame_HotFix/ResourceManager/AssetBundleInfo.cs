@@ -52,10 +52,10 @@ public class AssetBundleInfo : ClassObject
         willUnloadTime = -1.0f;
     }
 
-    public void update(float elapsedTime)
+    public void update(float dt)
     {
         // 需要再次确认是否有引用
-        if (tickTimerOnce(ref willUnloadTime, elapsedTime) && canUnload())
+        if (tickTimerOnce(ref willUnloadTime, dt) && canUnload())
         {
             unload();
         }
@@ -64,10 +64,10 @@ public class AssetBundleInfo : ClassObject
     // 卸载整个资源包
     public void unload()
     {
-        if (mResourceManager.getAssetBundleLoader().isDontUnloadAssetBundle(bundleFileName))
+        if (res.getAssetBundleLoader().isDontUnloadAssetBundle(bundleFileName))
             return;
 
-        if (assetBundle != null)
+        if (assetBundle)
         {
             // 为true表示会卸载掉LoadAsset加载的资源,并不影响该资源实例化的物体
             // 只支持参数为true,如果是false,则是只卸载AssetBundle镜像,但是加载资源包中时会需要使用内存镜像
@@ -83,17 +83,13 @@ public class AssetBundleInfo : ClassObject
         }
 
         objectToAsset.Clear();
-        foreach (AssetInfo item in assetList.Values)
-        {
-            item.clear();
-        }
+        foreach (var assetInfo in assetList.Values)
+            assetInfo.clear();
 
         loadState = LOAD_STATE.NONE;
         // 通知依赖项,自己被卸载了
-        foreach (AssetBundleInfo item in parents.Values)
-        {
-            item.notifyChildUnload();
-        }
+        foreach (var bundleInfo in parents.Values)
+            bundleInfo.notifyChildUnload();
     }
 
     // 卸载包中单个资源
@@ -211,20 +207,20 @@ public class AssetBundleInfo : ClassObject
         using var a = new ListScope<string>(out var tempList, parents.Keys);
         foreach (string depName in tempList)
         {
-            AssetBundleInfo info = mResourceManager.getAssetBundleLoader().getAssetBundleInfo(depName);
+            var bundleInfo = res.getAssetBundleLoader().getAssetBundleInfo(depName);
             // 找到自己的父节点
-            parents.set(depName, info);
+            parents.set(depName, bundleInfo);
             // 并且通知父节点添加自己为子节点
-            info.addChild(this);
+            bundleInfo.addChild(this);
         }
     }
 
     // 所有依赖项是否都已经加载完成
     public bool isAllParentLoaded()
     {
-        foreach (AssetBundleInfo item in parents.Values)
+        foreach (var bundleInfo in parents.Values)
         {
-            if (item.loadState != LOAD_STATE.LOADED)
+            if (bundleInfo.loadState != LOAD_STATE.LOADED)
             {
                 return false;
             }
@@ -242,10 +238,8 @@ public class AssetBundleInfo : ClassObject
             return;
         }
 
-        if (assetBundle != null)
-        {
+        if (assetBundle)
             return;
-        }
 
         if (loadState != LOAD_STATE.NONE)
         {
@@ -254,10 +248,8 @@ public class AssetBundleInfo : ClassObject
         }
 
         // 先确保所有依赖项已经加载
-        foreach (AssetBundleInfo item in parents.Values)
-        {
-            item.loadAssetBundle();
-        }
+        foreach (var bundleInfo in parents.Values)
+            bundleInfo.loadAssetBundle();
 
         assetBundle = AssetBundle.LoadFromFile(availableReadPath(bundleFileName));
         if (assetBundle == null)
@@ -272,19 +264,15 @@ public class AssetBundleInfo : ClassObject
     // 异步加载所有依赖项,确认依赖项即将加载或者已加载
     public void loadParentAsync()
     {
-        foreach (AssetBundleInfo item in parents.Values)
-        {
-            item.loadAssetBundleAsync(null);
-        }
+        foreach (var bundleInfo in parents.Values)
+            bundleInfo.loadAssetBundleAsync(null);
     }
 
     public void checkAssetBundleDependenceLoaded()
     {
         // 先确保所有依赖项已经加载
-        foreach (AssetBundleInfo item in parents.Values)
-        {
-            item.checkAssetBundleDependenceLoaded();
-        }
+        foreach (var bundleInfo in parents.Values)
+            bundleInfo.checkAssetBundleDependenceLoaded();
 
         if (loadState == LOAD_STATE.NONE)
         {
@@ -312,7 +300,7 @@ public class AssetBundleInfo : ClassObject
             loadParentAsync();
             loadState = LOAD_STATE.WAIT_FOR_LOAD;
             // 通知AssetBundleLoader请求异步加载AssetBundle,只在真正开始异步加载时才标记为正在加载状态,此处只是加入等待列表
-            mResourceManager.getAssetBundleLoader().requestLoadAssetBundle(this);
+            res.getAssetBundleLoader().requestLoadAssetBundle(this);
         }
     }
 
@@ -331,7 +319,7 @@ public class AssetBundleInfo : ClassObject
         if (asset != null)
         {
             objectToAsset.TryAdd(asset, info);
-            mResourceManager.getAssetBundleLoader().notifyAssetLoaded(asset, this);
+            res.getAssetBundleLoader().notifyAssetLoaded(asset, this);
         }
 
         return asset;
@@ -354,7 +342,7 @@ public class AssetBundleInfo : ClassObject
         if (asset != null)
         {
             objectToAsset.TryAdd(asset, info);
-            mResourceManager.getAssetBundleLoader().notifyAssetLoaded(asset, this);
+            res.getAssetBundleLoader().notifyAssetLoaded(asset, this);
         }
 
         return objs;
@@ -373,7 +361,7 @@ public class AssetBundleInfo : ClassObject
                 if (asset != null)
                 {
                     objectToAsset.TryAdd(asset, assetInfo);
-                    mResourceManager.getAssetBundleLoader().notifyAssetLoaded(asset, this);
+                    res.getAssetBundleLoader().notifyAssetLoaded(asset, this);
                 }
             }
 
@@ -425,7 +413,7 @@ public class AssetBundleInfo : ClassObject
             if (asset != null)
             {
                 objectToAsset.TryAdd(asset, assetInfo);
-                mResourceManager.getAssetBundleLoader().notifyAssetLoaded(asset, this);
+                res.getAssetBundleLoader().notifyAssetLoaded(asset, this);
             }
         }
 

@@ -8,7 +8,7 @@ public class CmdLayoutManagerVisible
 	// visible显示或隐藏
 	// param显示隐藏时要传递的参数
 	// force是否强制执行,强制执行时将不会通知布局脚本,仅仅只是设置布局节点的Active
-	static public LayoutScript execute(Type layoutType, bool visible, bool force)
+	public static LayoutScript execute(Type layoutType, bool visible, bool force)
 	{
 		GameLayout layout = mLayoutManager.getLayout(layoutType);
 		if (layout == null)
@@ -19,7 +19,8 @@ public class CmdLayoutManagerVisible
 		LAYOUT_ORDER orderType = layout.getRenderOrderType();
 		if (visible && (orderType == LAYOUT_ORDER.ALWAYS_TOP_AUTO || orderType == LAYOUT_ORDER.AUTO))
 		{
-			CmdLayoutManagerRenderOrder.execute(layout, mLayoutManager.generateRenderOrder(layout, layout.getRenderOrder(), orderType));
+			var order = mLayoutManager.generateRenderOrder(layout, layout.getRenderOrder(), orderType);
+			CmdLayoutManagerRenderOrder.execute(layout, order);
 		}
 		if (!force)
 		{

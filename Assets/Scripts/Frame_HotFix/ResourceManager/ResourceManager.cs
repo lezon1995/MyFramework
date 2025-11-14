@@ -154,7 +154,7 @@ public class ResourceManager : FrameSystem
     }
 
     // 卸载从Resources中加载的资源
-    public bool unloadInResources<T>(ref T obj, bool showError = true) where T : UObject
+    public bool unloadFromResources<T>(ref T obj, bool showError = true) where T : UObject
     {
         return resourcesLoader.unloadResource(ref obj, showError);
     }
@@ -180,7 +180,7 @@ public class ResourceManager : FrameSystem
     }
 
     // 卸载Resources指定目录中的所有资源
-    public void unloadPathInResources(string path)
+    public void unloadPathFromResources(string path)
     {
         removeEndSlash(ref path);
         resourcesLoader.unloadPath(path);
@@ -211,7 +211,7 @@ public class ResourceManager : FrameSystem
     }
 
     // 在Resources中的指定资源是否已经加载,带后缀
-    public bool isInResourceLoaded<T>(string name) where T : UObject
+    public bool isFromResourcesLoaded<T>(string name) where T : UObject
     {
         checkRelativePath(name);
         return resourcesLoader.isResourceLoaded(removeSuffix(name));
@@ -237,7 +237,7 @@ public class ResourceManager : FrameSystem
     }
 
     // 强制在Resources中获得资源,如果未加载,则无法获取,name是Resources下的相对路径,带后缀
-    public T getInResource<T>(string name, bool errorIfNull = true) where T : UObject
+    public T getFromResources<T>(string name, bool errorIfNull = true) where T : UObject
     {
         checkRelativePath(name);
         T res = resourcesLoader.getResource(removeSuffix(name)) as T;
@@ -287,7 +287,7 @@ public class ResourceManager : FrameSystem
     // 同步加载资源,name是GameResources下的相对路径,带后缀名,errorIfNull表示当找不到资源时是否报错提示
     public T loadGameResource<T>(string name, bool errorIfNull = true) where T : UObject
     {
-        using var a = new ProfilerScope(0);
+        using var _ = new ProfilerScope(0);
         checkRelativePath(name);
         T res = loadSource switch
         {
@@ -305,7 +305,7 @@ public class ResourceManager : FrameSystem
     }
 
     // 强制从Resources中同步加载指定资源,name是Resources下的相对路径,带后缀名,errorIfNull表示当找不到资源时是否报错提示
-    public T loadInResource<T>(string name, bool errorIfNull = true) where T : UObject
+    public T loadFromResources<T>(string name, bool errorIfNull = true) where T : UObject
     {
         checkRelativePath(name);
         T res = resourcesLoader.loadResource<T>(removeSuffix(name));
@@ -320,7 +320,7 @@ public class ResourceManager : FrameSystem
     // 同步加载资源的子资源,一般是图集才会有子资源,或者是fbx
     public UObject[] loadSubGameResource<T>(string name, out UObject mainAsset, bool errorIfNull = true) where T : UObject
     {
-        using var a = new ProfilerScope(0);
+        using var _ = new ProfilerScope(0);
         checkRelativePath(name);
         mainAsset = null;
         UObject[] res = loadSource switch
@@ -339,7 +339,7 @@ public class ResourceManager : FrameSystem
     }
 
     // 强制从Resources中同步加载资源的子资源,一般是图集才会有子资源,或者是fbx
-    public UObject[] loadSubInResource<T>(string name, out UObject mainAsset, bool errorIfNull = true) where T : UObject
+    public UObject[] loadSubFromResources<T>(string name, out UObject mainAsset, bool errorIfNull = true) where T : UObject
     {
         checkRelativePath(name);
         UObject[] res = resourcesLoader.loadSubResource<T>(removeSuffix(name), out mainAsset);
@@ -354,7 +354,7 @@ public class ResourceManager : FrameSystem
     // 异步加载资源,name是GameResources下的相对路径,带后缀名,errorIfNull表示当找不到资源时是否报错提示
     public CustomAsyncOperation loadGameResourceAsync<T>(string name, AssetLoadDoneCallback doneCallback, bool errorIfNull = true) where T : UObject
     {
-        using var a = new ProfilerScope(0);
+        using var _ = new ProfilerScope(0);
         checkRelativePath(name);
         return loadSource switch
         {

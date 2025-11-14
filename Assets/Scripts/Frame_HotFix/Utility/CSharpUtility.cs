@@ -516,14 +516,12 @@ public class CSharpUtility
         return false;
     }
 
-    public static bool tickTimerOnce(ref float timer, float elapsedTime)
+    public static bool tickTimerOnce(ref float timer, float dt)
     {
         if (timer < 0.0f)
-        {
             return false;
-        }
 
-        timer -= elapsedTime;
+        timer -= dt;
         if (timer <= 0.0f)
         {
             timer = -1.0f;

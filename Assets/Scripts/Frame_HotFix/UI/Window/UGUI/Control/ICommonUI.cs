@@ -1,3 +1,3 @@
-﻿
-public interface ICommonUI 
-{}
+﻿public interface ICommonUI
+{
+}

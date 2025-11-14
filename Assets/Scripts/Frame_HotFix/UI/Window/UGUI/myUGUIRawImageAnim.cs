@@ -20,14 +20,14 @@ public class myUGUIRawImageAnim : myUGUIRawImage, IUIAnimation
 	protected bool mUseTextureSize;							// 是否使用图片的大小改变当前窗口大小
 	public myUGUIRawImageAnim()
 	{
-		mNeedUpdate = true;
+		needUpdate = true;
 		mThisPlayEnd = onPlayEnd;
 		mThisPlaying = onPlaying;
 	}
 	public override void init()
 	{
 		base.init();
-		if (!mObject.TryGetComponent<RawImageAnimPath>(out var animPath))
+		if (!go.TryGetComponent<RawImageAnimPath>(out var animPath))
 		{
 			logError("myUGUIRawImageAnim的节点必须带有RawImageAnimPath组件");
 			return;
@@ -43,7 +43,7 @@ public class myUGUIRawImageAnim : myUGUIRawImage, IUIAnimation
 		foreach (Texture tex in mTextureList)
 		{
 			Texture temp = tex;
-			mResourceManager.unload(ref temp);
+			res.unload(ref temp);
 		}
 		mTextureList.Clear();
 	}
@@ -75,7 +75,7 @@ public class myUGUIRawImageAnim : myUGUIRawImage, IUIAnimation
 		string preName = mTexturePath + mTexturePreName + "_";
 		for (int i = 0; i < textureCount; ++i)
 		{
-			mTextureList.Add(mResourceManager.loadGameResource<Texture>(preName + IToS(i) + ".png"));
+			mTextureList.Add(res.loadGameResource<Texture>(preName + IToS(i) + ".png"));
 		}
 		mControl.setFrameCount(getTextureFrameCount());
 		if (mTextureList.Count == 0)

@@ -13,7 +13,7 @@ public class GameFileInfo
         if (list is not { Length: 3 })
             return null;
 
-        GameFileInfo info = new()
+        var info = new GameFileInfo
         {
             name = list[0],
             size = int.Parse(list[1]),

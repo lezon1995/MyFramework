@@ -1,6 +1,5 @@
-﻿
-public interface ISlider
+﻿public interface ISlider
 {
-	void setValue(float value);
-	float getValue();
+    void setValue(float value);
+    float getValue();
 }

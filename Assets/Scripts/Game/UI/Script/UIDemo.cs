@@ -3,13 +3,13 @@ using UnityEngine.UI;
 
 public class UIDemo : GameLayout
 {
-    protected Transform mBackground;
-    protected Text mLabel;
+    protected Transform background;
+    protected Text label;
 
     public override void assignWindow()
     {
-        getUIComponent(out mBackground, "Background");
-        getUIComponent(out mLabel, "Label");
+        getUIComponent(out background, "Background");
+        getUIComponent(out label, "Label");
     }
 
     public override void init()
@@ -18,6 +18,6 @@ public class UIDemo : GameLayout
 
     public void setText(string text)
     {
-        mLabel.text = text;
+        label.text = text;
     }
 }

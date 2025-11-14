@@ -158,9 +158,7 @@ public abstract class ComponentOwner : CommandReceiver
 
         T com = CLASS<T>();
         if (com == null)
-        {
             return null;
-        }
 
         com.init(this);
         // 将组件加入列表

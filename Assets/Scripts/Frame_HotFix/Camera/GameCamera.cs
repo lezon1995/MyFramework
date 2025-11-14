@@ -18,7 +18,7 @@ public class GameCamera : MovableObject
     public override void setObject(GameObject obj)
     {
         base.setObject(obj);
-        mObject.TryGetComponent(out camera);
+        go.TryGetComponent(out camera);
         if (isEditor())
         {
             getOrAddUnityComponent<CameraDebug>().setCamera(this);
@@ -28,7 +28,7 @@ public class GameCamera : MovableObject
     public override void destroy()
     {
         base.destroy();
-        destroyComponent<CameraDebug>(mObject);
+        destroyComponent<CameraDebug>(go);
     }
 
     public override void resetProperty()

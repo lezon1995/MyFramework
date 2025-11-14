@@ -192,8 +192,9 @@ public class MenuAssets
 			findFiles(F_ASSETS_PATH, atlasFiles, SPRITE_ATLAS_SUFFIX);
 			foreach (string file in atlasFiles)
 			{
-				string path = fullPathToProjectPath(file);
-				atlasListCache.add(path, loadAssetAtPath<SpriteAtlas>(path));
+				var path = fullPathToProjectPath(file);
+				var atlas = loadAssetAtPath<SpriteAtlas>(path);
+				atlasListCache.add(path, atlas);
 			}
 			foreach (GameObject go in Selection.gameObjects.safe())
 			{

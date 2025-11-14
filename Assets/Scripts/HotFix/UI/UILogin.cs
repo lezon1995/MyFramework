@@ -9,7 +9,7 @@ public class UILogin : LayoutScript
     // auto generate member end
     public UILogin()
     {
-        mNeedUpdate = false;
+        needUpdate = false;
     }
 
     public override void assignWindow()

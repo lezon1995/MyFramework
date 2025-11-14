@@ -24,7 +24,7 @@ public class LayoutManager : FrameSystem
 
     public Vector2 getRootSize()
     {
-        return (root.transform as RectTransform).rect.size;
+        return ((RectTransform)root.transform).rect.size;
     }
 
     public Canvas getUIRoot()
@@ -73,9 +73,7 @@ public class LayoutManager : FrameSystem
     public GameLayout createLayout(LayoutInfo info)
     {
         if (layouts.TryGetValue(info.type, out GameLayout existLayout))
-        {
             return existLayout;
-        }
 
         if (isWebGL())
         {
@@ -83,7 +81,9 @@ public class LayoutManager : FrameSystem
             return null;
         }
 
-        return newLayout(info, res.loadInResource<GameObject>(R_UI_PREFAB_PATH + getLayoutPathByType(info.type) + ".prefab"));
+        var path = R_UI_PREFAB_PATH + getLayoutPathByType(info.type) + ".prefab";
+        var prefab = res.loadInResource<GameObject>(path);
+        return newLayout(info, prefab);
     }
 
     public void createLayoutAsync(LayoutInfo info, GameLayoutCallback callback)
@@ -95,16 +95,18 @@ public class LayoutManager : FrameSystem
         }
 
         asyncLayouts.Add(info.type.ToString(), info);
-        res.loadInResourceAsync(R_UI_PREFAB_PATH + getLayoutPathByType(info.type) + ".prefab", (GameObject asset) =>
+        var path = R_UI_PREFAB_PATH + getLayoutPathByType(info.type) + ".prefab";
+        res.loadInResourceAsync(path, (GameObject prefab) =>
         {
-            if (asyncLayouts.Remove(asset.name, out LayoutInfo layoutInfo))
+            if (asyncLayouts.Remove(prefab.name, out var layoutInfo))
             {
-                callback?.Invoke(newLayout(layoutInfo, asset));
+                var layout = newLayout(layoutInfo, prefab);
+                callback?.Invoke(layout);
             }
         });
     }
 
-    public void registeLayout(Type classType, string fileName, GameLayoutCallback callback)
+    public void registerLayout(Type type, string fileName, GameLayoutCallback callback)
     {
         // 编辑器下检查文件是否存在
         if (isEditor() && !isFileExist(P_RESOURCES_UI_PREFAB_PATH + fileName + ".prefab"))
@@ -113,17 +115,17 @@ public class LayoutManager : FrameSystem
             return;
         }
 
-        LayoutRegisterInfo info = new();
-        info.type = classType;
+        var info = new LayoutRegisterInfo();
+        info.type = type;
         info.callback = callback;
         info.fileNameNoSuffix = fileName;
-        layoutInfos.Add(classType, info);
+        layoutInfos.Add(type, info);
     }
 
     // 卸载所有非常驻的布局
     public void unloadAllLayout()
     {
-        foreach (GameLayout layout in layouts.Values)
+        foreach (var layout in layouts.Values)
         {
             layout.setVisible(false);
             layout.destroy();
@@ -134,19 +136,20 @@ public class LayoutManager : FrameSystem
 
     public void notifyLayoutChanged(GameLayout layout, bool createOrDestroy)
     {
-        layoutInfos.get(layout.getType()).callback?.Invoke(createOrDestroy ? layout : null);
+        var registerInfo = layoutInfos.get(layout.getType());
+        registerInfo.callback?.Invoke(createOrDestroy ? layout : null);
     }
 
     //------------------------------------------------------------------------------------------------------------------------------
     protected GameLayout newLayout(LayoutInfo info, GameObject prefab)
     {
-        GameObject layoutObj = instantiatePrefab(root.gameObject, prefab, info.type.ToString(), true);
+        var go = instantiatePrefab(root.gameObject, prefab, info.type.ToString(), true);
         var layout = Activator.CreateInstance(info.type) as GameLayout;
         layout.setPrefab(prefab);
         layout.setType(info.type);
         layout.setRenderOrder(info.renderOrder);
         layout.initLayout();
-        if (layout.getRoot().gameObject != layoutObj)
+        if (layout.getRoot().gameObject != go)
         {
             logErrorBase("布局的根节点不是实例化出来的节点,请确保运行前UI根节点下没有与布局同名的节点");
         }

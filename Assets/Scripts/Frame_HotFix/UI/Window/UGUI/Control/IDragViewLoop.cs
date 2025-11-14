@@ -1,6 +1,5 @@
-﻿
-public interface IDragViewLoop
+﻿public interface IDragViewLoop
 {
-	public void updateDragView();
-	public bool isActive();
+    public void updateDragView();
+    public bool isActive();
 }

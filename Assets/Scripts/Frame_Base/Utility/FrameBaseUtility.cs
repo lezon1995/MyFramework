@@ -268,14 +268,15 @@ public class FrameBaseUtility
         Screen.SetResolution(size.x, size.y, fullScreen);
 
         // UGUI
-        GameObject uguiRootObj = getRootGameObject(UGUI_ROOT);
-        uguiRootObj.TryGetComponent<RectTransform>(out var uguiRectTransform);
-        uguiRectTransform.offsetMin = -size / 2;
-        uguiRectTransform.offsetMax = size / 2;
-        uguiRectTransform.anchorMax = Vector2.one * 0.5f;
-        uguiRectTransform.anchorMin = Vector2.one * 0.5f;
-        Camera camera = getGameObject("UICamera", uguiRootObj).GetComponent<Camera>();
-        camera.transform.localPosition = new(0.0f, 0.0f, -size.y * 0.5f / Mathf.Tan(camera.fieldOfView * Mathf.Deg2Rad * 0.5f));
+        var root = getRootGameObject(UGUI_ROOT);
+        root.TryGetComponent<RectTransform>(out var t);
+        t.offsetMin = -size / 2;
+        t.offsetMax = size / 2;
+        t.anchorMax = Vector2.one * 0.5f;
+        t.anchorMin = Vector2.one * 0.5f;
+        Camera camera = getGameObject("UICamera", root).GetComponent<Camera>();
+        var z = -size.y * 0.5f / Mathf.Tan(camera.fieldOfView * Mathf.Deg2Rad * 0.5f);
+        camera.transform.localPosition = new(0F, 0F, z);
     }
 
     public static GameObject getRootGameObject(string name, bool errorIfNull = false)
@@ -283,7 +284,7 @@ public class FrameBaseUtility
         if (string.IsNullOrEmpty(name))
             return null;
 
-        GameObject go = GameObject.Find(name);
+        var go = GameObject.Find(name);
         if (go == null && errorIfNull)
         {
             logErrorBase("找不到物体,请确认物体存在且是已激活状态,parent为空时无法查找到未激活的物体:" + name);
@@ -306,7 +307,7 @@ public class FrameBaseUtility
         GameObject go = null;
         do
         {
-            Transform trans = parent.transform.Find(name);
+            var trans = parent.transform.Find(name);
             if (trans)
             {
                 go = trans.gameObject;
@@ -319,7 +320,7 @@ public class FrameBaseUtility
                 int childCount = parent.transform.childCount;
                 for (int i = 0; i < childCount; ++i)
                 {
-                    GameObject thisParent = parent.transform.GetChild(i).gameObject;
+                    var thisParent = parent.transform.GetChild(i).gameObject;
                     go = getGameObject(name, thisParent, false, true);
                     if (go)
                     {
@@ -342,11 +343,11 @@ public class FrameBaseUtility
         if (go == null)
             return "";
 
-        Transform transform = go.transform;
+        var transform = go.transform;
         string path = go.name;
         while (true)
         {
-            Transform parentTrans = transform ? transform.parent : null;
+            var parentTrans = transform ? transform.parent : null;
             if (parentTrans == null)
                 break;
 

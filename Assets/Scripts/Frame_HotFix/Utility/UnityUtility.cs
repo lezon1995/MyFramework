@@ -307,7 +307,7 @@ public class UnityUtility
     // 其他三个是实例化后本地的变换
     public static GameObject instantiatePrefab(GameObject parent, GameObject prefab, string name, bool active)
     {
-        GameObject obj = UObject.Instantiate(prefab);
+        var obj = UObject.Instantiate(prefab);
         setNormalProperty(obj, parent, name);
         if (obj.activeSelf != active)
         {

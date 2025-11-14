@@ -27,11 +27,11 @@ public class GameEffect : MovableObject
         mParticleSystems.Clear();
         mTrailRenderers.Clear();
         mEffectAnimators.Clear();
-        if (mTransform)
+        if (t)
         {
-            mTransform.GetComponentsInChildren(mParticleSystems);
-            mTransform.GetComponentsInChildren(mTrailRenderers);
-            mTransform.GetComponentsInChildren(mEffectAnimators);
+            t.GetComponentsInChildren(mParticleSystems);
+            t.GetComponentsInChildren(mTrailRenderers);
+            t.GetComponentsInChildren(mEffectAnimators);
             foreach (ParticleSystem item in mParticleSystems)
             {
                 var main = item.main;
@@ -57,7 +57,7 @@ public class GameEffect : MovableObject
         mEffectAnimators.Clear();
         if (!mExistedObject)
         {
-            mPrefabPoolManager?.destroyObject(ref mObject, false);
+            mPrefabPoolManager?.destroyObject(ref go, false);
         }
 
         base.destroy();
@@ -109,7 +109,7 @@ public class GameEffect : MovableObject
 
     public bool isValidEffect()
     {
-        return mObject != null;
+        return go != null;
     }
 
     public string getFilePath()
@@ -174,12 +174,12 @@ public class GameEffect : MovableObject
         // 这是引擎自己的特性,并不是通用操作,所以使用更严谨一些的判断
         if (isExistObject())
         {
-            return mObject != null;
+            return go != null;
         }
 
         bool effectValid = mPrefabPoolManager.isExistInPool(getObject());
         // 如果特效物体不是空的,可能是销毁物体时引擎不是立即销毁的,需要手动设置为空
-        if (!effectValid && mObject != null)
+        if (!effectValid && go != null)
         {
             setObject(null);
         }
@@ -189,7 +189,7 @@ public class GameEffect : MovableObject
 
     public override void setActive(bool active)
     {
-        if (active == mObject.activeSelf)
+        if (active == go.activeSelf)
         {
             return;
         }

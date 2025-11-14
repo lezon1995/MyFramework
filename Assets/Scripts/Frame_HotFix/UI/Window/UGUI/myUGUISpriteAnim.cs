@@ -20,7 +20,7 @@ public class myUGUISpriteAnim : myUGUISprite, IUIAnimation
 	{
 		mPlayEndCallback = onPlayEnd;
 		mPlayingCallback = onPlaying;
-		mNeedUpdate = true;
+		needUpdate = true;
 	}
 	public override void init()
 	{
@@ -80,13 +80,13 @@ public class myUGUISpriteAnim : myUGUISprite, IUIAnimation
 		}
 		mSpriteList.Clear();
 		mTextureSetName = textureSetName;
-		if (mAtlasPtr != null && mAtlasPtr.isValid() && !mTextureSetName.isEmpty())
+		if (atlasPtr != null && atlasPtr.isValid() && !mTextureSetName.isEmpty())
 		{
 			int index = 0;
-			while (mSpriteList.addNotNull(mAtlasPtr.getSprite(mTextureSetName + "_" + IToS(index++)))){}
+			while (mSpriteList.addNotNull(atlasPtr.getSprite(mTextureSetName + "_" + IToS(index++)))){}
 			if (getTextureFrameCount() == 0)
 			{
-				logError("invalid sprite anim! atlas : " + mAtlasPtr.getFilePath() + ", anim set : " + textureSetName);
+				logError("invalid sprite anim! atlas : " + atlasPtr.getFilePath() + ", anim set : " + textureSetName);
 			}
 		}
 		mControl.setFrameCount(getTextureFrameCount());

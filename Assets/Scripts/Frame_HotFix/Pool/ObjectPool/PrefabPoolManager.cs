@@ -27,7 +27,7 @@ public class PrefabPoolManager : FrameSystem
 		{
 			go.AddComponent<ObjectPoolDebug>();
 		}
-		mResourceManager.addUnloadPathCallback((string path)=>
+		res.addUnloadPathCallback((string path)=>
 		{
 			// 找到此路径中所有的Prefab,将PrefabPool销毁
 			using var a = new SafeDictionaryReader<string, PrefabPool>(mPrefabPoolList);
@@ -51,7 +51,7 @@ public class PrefabPoolManager : FrameSystem
 				UN_CLASS(ref pool);
 			}
 		});
-		mResourceManager.addUnloadObjectCallback((UObject obj) =>
+		res.addUnloadObjectCallback((UObject obj) =>
 		{
 			if (obj is not GameObject)
 			{

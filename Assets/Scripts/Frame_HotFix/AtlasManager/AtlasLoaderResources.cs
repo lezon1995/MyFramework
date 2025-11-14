@@ -10,33 +10,33 @@ public class AtlasLoaderResources : AtlasLoaderBase
 	{
 		if (atlas is UGUIAtlas uguiAtlas)
 		{
-			mResourceManager.unloadInResources(ref uguiAtlas.mSpriteAtlas, showError);
+			res.unloadFromResources(ref uguiAtlas.mSpriteAtlas, showError);
 		}
 		else if (atlas is TPAtlas tpAtlas)
 		{
-			mResourceManager.unloadInResources(ref tpAtlas.mTexture, showError);
+			res.unloadFromResources(ref tpAtlas.mTexture, showError);
 		}
 	}
 	protected override CustomAsyncOperation baseLoadAtlasAsync(string atlasName, AssetLoadDoneCallback doneCallback)
 	{
 		if (atlasName.endWith(".png"))
 		{
-			return mResourceManager.loadInResourceAsync<Sprite>(atlasName, doneCallback);
+			return res.loadInResourceAsync<Sprite>(atlasName, doneCallback);
 		}
 		else
 		{
-			return mResourceManager.loadInResourceAsync<SpriteAtlas>(atlasName, doneCallback);
+			return res.loadInResourceAsync<SpriteAtlas>(atlasName, doneCallback);
 		}
 	}
 	protected override UObject[] baseLoadSubResource(string atlasName, out UObject mainAsset, bool errorIfNull) 
 	{
 		if (atlasName.endWith(".png"))
 		{
-			return mResourceManager.loadSubInResource<Sprite>(atlasName, out mainAsset, errorIfNull);
+			return res.loadSubFromResources<Sprite>(atlasName, out mainAsset, errorIfNull);
 		}
 		else
 		{
-			return mResourceManager.loadSubInResource<SpriteAtlas>(atlasName, out mainAsset, errorIfNull);
+			return res.loadSubFromResources<SpriteAtlas>(atlasName, out mainAsset, errorIfNull);
 		}
 	}
 }

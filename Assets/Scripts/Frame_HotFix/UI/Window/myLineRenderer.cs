@@ -5,11 +5,11 @@ using static MathUtility;
 // 使用LineRenderer的方式进行画线,是对LineRenderer的封装,用于在3D场景中画线,不局限于界面中
 public class myLineRenderer
 {
-    protected LineRenderer renderer; // Unity的LineRenderer组件
+    protected LineRenderer line; // Unity的LineRenderer组件
 
     public void setLineRenderer(LineRenderer r)
     {
-        renderer = r;
+        line = r;
     }
 
     public void setPointList(Span<Vector3> pointList)
@@ -28,23 +28,23 @@ public class myLineRenderer
     {
         if (pointList == null)
         {
-            renderer.SetPositions(null);
+            line.SetPositions(null);
             return;
         }
 
-        if (pointList.Length > renderer.positionCount)
+        if (pointList.Length > line.positionCount)
         {
-            renderer.positionCount = pointList.Length;
+            line.positionCount = pointList.Length;
         }
 
-        renderer.SetPositions(pointList);
-        if (pointList.Length > 0 && pointList.Length < renderer.positionCount)
+        line.SetPositions(pointList);
+        if (pointList.Length > 0 && pointList.Length < line.positionCount)
         {
             // 将未使用的点坐标设置为最后一个点
-            int unuseCount = renderer.positionCount - pointList.Length;
+            int unuseCount = line.positionCount - pointList.Length;
             for (int i = 0; i < unuseCount; ++i)
             {
-                renderer.SetPosition(i + pointList.Length, pointList[^1]);
+                line.SetPosition(i + pointList.Length, pointList[^1]);
             }
         }
     }
@@ -55,7 +55,7 @@ public class myLineRenderer
             return;
 
         Span<Vector3> curveList = stackalloc Vector3[bezierDetail];
-        getBezierPoints(pointList, curveList, renderer.loop, bezierDetail);
+        getBezierPoints(pointList, curveList, line.loop, bezierDetail);
         setPointList(curveList);
     }
 
@@ -65,22 +65,22 @@ public class myLineRenderer
             return;
 
         Span<Vector3> curveList = stackalloc Vector3[bezierDetail];
-        getCurvePoints(pointList, curveList, renderer.loop, bezierDetail);
+        getCurvePoints(pointList, curveList, line.loop, bezierDetail);
         setPointList(curveList);
     }
 
     public LineRenderer getRenderer()
     {
-        return renderer;
+        return line;
     }
 
     public void setActive(bool active)
     {
-        renderer.gameObject.SetActive(active);
+        line.gameObject.SetActive(active);
     }
 
     public GameObject getGameObject()
     {
-        return renderer.gameObject;
+        return line.gameObject;
     }
 }

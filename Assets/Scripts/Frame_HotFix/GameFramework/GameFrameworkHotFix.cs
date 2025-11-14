@@ -413,7 +413,7 @@ public class GameFrameworkHotFix : IFramework
 
     protected void initFrameSystem()
     {
-        registerFrameSystem<ResourceManager>(com => mResourceManager = com, -1, 3000, 3000); // 资源管理器的需要最先初始化,并且是最后被销毁,作为最后的资源清理
+        registerFrameSystem<ResourceManager>(com => res = com, -1, 3000, 3000); // 资源管理器的需要最先初始化,并且是最后被销毁,作为最后的资源清理
         registerFrameSystem<TimeManager>(com => mTimeManager = com);
         registerFrameSystem<GlobalCmdReceiver>(com => mGlobalCmdReceiver = com);
         registerFrameSystem<SQLiteManager>(com => mSQLiteManager = com);

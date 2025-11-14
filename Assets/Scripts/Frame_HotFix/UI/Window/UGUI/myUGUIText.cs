@@ -10,32 +10,32 @@ using static UnityUtility;
 // 对UGUI的Text的封装
 public class myUGUIText : myUGUIObject, IUGUIText
 {
-    protected Text mText; // UGUI的Text组件
-    protected CanvasGroup mCanvasGroup; // 用于是否显示
+    protected Text text; // UGUI的Text组件
+    protected CanvasGroup canvasGroup; // 用于是否显示
 
     public override void init()
     {
         base.init();
-        if (!mObject.TryGetComponent(out mText))
+        if (!go.TryGetComponent(out text))
         {
-            if (!mIsNewObject)
+            if (!isNewObject)
             {
                 logError("需要添加一个Text组件,name:" + getName() + ", layout:" + getLayout().getName());
             }
 
-            mText = mObject.AddComponent<Text>();
+            text = go.AddComponent<Text>();
             // 添加UGUI组件后需要重新获取RectTransform
-            mObject.TryGetComponent(out mRectTransform);
-            mTransform = mRectTransform;
+            go.TryGetComponent(out rectT);
+            t = rectT;
         }
     }
 
     public override void destroy()
     {
-        if (mCanvasGroup != null)
+        if (canvasGroup)
         {
-            mCanvasGroup.alpha = 1.0f;
-            mCanvasGroup = null;
+            canvasGroup.alpha = 1.0f;
+            canvasGroup = null;
         }
 
         base.destroy();
@@ -44,17 +44,17 @@ public class myUGUIText : myUGUIObject, IUGUIText
     // 是否剔除渲染
     public void cull(bool isCull)
     {
-        if (mCanvasGroup == null)
+        if (canvasGroup == null)
         {
-            mCanvasGroup = getOrAddUnityComponent<CanvasGroup>();
+            canvasGroup = getOrAddUnityComponent<CanvasGroup>();
         }
 
-        mCanvasGroup.alpha = isCull ? 0.0f : 1.0f;
+        canvasGroup.alpha = isCull ? 0.0f : 1.0f;
     }
 
     public override bool isCulled()
     {
-        return mCanvasGroup != null && isFloatZero(mCanvasGroup.alpha);
+        return canvasGroup && isFloatZero(canvasGroup.alpha);
     }
 
     public override bool canUpdate()
@@ -67,25 +67,23 @@ public class myUGUIText : myUGUIObject, IUGUIText
         return !isCulled();
     }
 
-    public void setText(string text)
+    public void setText(string str)
     {
-        setText(text, false);
+        setText(str, false);
     }
 
-    public void setText(string text, bool preferredHeight)
+    public void setText(string str, bool preferredHeight)
     {
-        if (mText == null)
-        {
-            return;
-        }
-
         if (text == null)
+            return;
+
+        if (str == null)
         {
-            mText.text = EMPTY;
+            text.text = EMPTY;
         }
-        else if (mText.text != text)
+        else if (text.text != str)
         {
-            mText.text = text;
+            text.text = str;
         }
 
         if (preferredHeight)
@@ -111,7 +109,7 @@ public class myUGUIText : myUGUIObject, IUGUIText
             setWindowSize(new(getWindowSize().x, height));
         }
 
-        setWindowSize(new(mText.preferredWidth, height));
+        setWindowSize(new(text.preferredWidth, height));
     }
 
     public void applyPreferredHeight(float width = 0.0f)
@@ -126,77 +124,77 @@ public class myUGUIText : myUGUIObject, IUGUIText
             setWindowSize(new(width, getWindowSize().y));
         }
 
-        setWindowSize(new(width, mText.preferredHeight));
+        setWindowSize(new(width, text.preferredHeight));
     }
 
     public void applyPreferredHeightKeepTop()
     {
         float oldHeight = getWindowSize().y;
-        setWindowSize(new(getWindowSize().x, mText.preferredHeight));
+        setWindowSize(new(getWindowSize().x, text.preferredHeight));
         setPositionY(getPosition().y + (oldHeight - getWindowSize().y) * 0.5f);
     }
 
     public float getPreferredWidth()
     {
-        return mText.preferredWidth;
+        return text.preferredWidth;
     }
 
     public float getPreferredHeight()
     {
-        return mText.preferredHeight;
+        return text.preferredHeight;
     }
 
     public string getText()
     {
-        return mText.text;
+        return text.text;
     }
 
     public override float getAlpha()
     {
-        return mText.color.a;
+        return text.color.a;
     }
 
     public override void setAlpha(float alpha, bool fadeChild)
     {
         base.setAlpha(alpha, fadeChild);
-        Color color = mText.color;
+        Color color = text.color;
         color.a = alpha;
-        mText.color = color;
+        text.color = color;
     }
 
     public override void setColor(Color color)
     {
-        mText.color = color;
+        text.color = color;
     }
 
     public override Color getColor()
     {
-        return mText.color;
+        return text.color;
     }
 
     public int getFontSize()
     {
-        return mText.fontSize;
+        return text.fontSize;
     }
 
     public void setFontSize(int fontSize)
     {
-        mText.fontSize = fontSize;
+        text.fontSize = fontSize;
     }
 
     public Font getFont()
     {
-        return mText.font;
+        return text.font;
     }
 
     public void setAlignment(TextAnchor textAnchor)
     {
-        mText.alignment = textAnchor;
+        text.alignment = textAnchor;
     }
 
     public Text getTextComponent()
     {
-        return mText;
+        return text;
     }
 
     // 设置可自动本地化的文本内容,collection是myUGUIText对象所属的布局对象或者布局结构体对象,如LayoutScript或WindowObjectUGUI

@@ -97,7 +97,7 @@ public class AssetInfo : ClassObject
         else
         {
             loadState = LOAD_STATE.WAIT_FOR_LOAD;
-            mResourceManager.getAssetBundleLoader().requestLoadAsset(parentAssetBundle, assetName);
+            res.getAssetBundleLoader().requestLoadAsset(parentAssetBundle, assetName);
         }
     }
 

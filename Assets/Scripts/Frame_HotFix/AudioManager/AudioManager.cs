@@ -157,7 +157,7 @@ public class AudioManager : FrameSystem
             return false;
         }
 
-        bool ret = mResourceManager.unload(ref info.mClip);
+        bool ret = res.unload(ref info.mClip);
         if (ret)
         {
             info.mState = LOAD_STATE.NONE;
@@ -360,7 +360,7 @@ public class AudioManager : FrameSystem
         }
 
         string fullName = info.mAudioName;
-        audioLoaded(mResourceManager.loadGameResource<AudioClip>(fullName), fullName);
+        audioLoaded(res.loadGameResource<AudioClip>(fullName), fullName);
     }
 
     protected void loadAudioAsync(AudioInfo info, AudioInfoCallback callback)
@@ -374,7 +374,7 @@ public class AudioManager : FrameSystem
         info.mState = LOAD_STATE.LOADING;
         if (info.mIsLocal)
         {
-            mResourceManager.loadGameResourceAsync(info.mAudioName, (AudioClip assets, string fileName) =>
+            res.loadGameResourceAsync(info.mAudioName, (AudioClip assets, string fileName) =>
             {
                 audioLoaded(assets, fileName);
                 callback?.Invoke(info);

@@ -77,7 +77,7 @@ public class PathKeyframeManager : FrameSystem
 	//------------------------------------------------------------------------------------------------------------------------------
 	protected void readPathFile(string filePath, Dictionary<float, Vector3> path)
 	{
-		var file = mResourceManager.loadGameResource<TextAsset>(filePath);
+		var file = res.loadGameResource<TextAsset>(filePath);
 		string fileString = bytesToString(file.bytes);
 		splitLine(fileString, out string[] lines);
 		int lineCount = lines.Length;
@@ -91,11 +91,11 @@ public class PathKeyframeManager : FrameSystem
 			}
 			path.Add(SToF(elems[0]), SToV3(elems[1]));
 		}
-		mResourceManager.unload(ref file);
+		res.unload(ref file);
 	}
 	protected void readPathFile(string filePath, Dictionary<float, float> path)
 	{
-		var file = mResourceManager.loadGameResource<TextAsset>(filePath);
+		var file = res.loadGameResource<TextAsset>(filePath);
 		string fileString = bytesToString(file.bytes);
 		splitLine(fileString, out string[] lines);
 		int lineCount = lines.Length;
@@ -109,6 +109,6 @@ public class PathKeyframeManager : FrameSystem
 			}
 			path.Add(SToF(elems[0]), SToF(elems[1]));
 		}
-		mResourceManager.unload(ref file);
+		res.unload(ref file);
 	}
 }

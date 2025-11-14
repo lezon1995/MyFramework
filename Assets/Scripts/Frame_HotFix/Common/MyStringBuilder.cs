@@ -668,7 +668,7 @@ public class MyStringBuilder : ClassObject
 
     public void byteToHEXString(byte value, bool upperOrLower = true)
     {
-        char[] hexChar = upperOrLower ? mHexUpperChar : mHexLowerChar;
+        char[] hexChar = upperOrLower ? hexUpperChar : hexLowerChar;
         // 等效于int high = value / 16;
         // 等效于int low = value % 16;
         int high = value >> 4;

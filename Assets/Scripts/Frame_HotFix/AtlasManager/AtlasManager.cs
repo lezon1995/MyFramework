@@ -142,7 +142,7 @@ public class AtlasManager : FrameSystem
         if (mAtlasPathList == null)
         {
             mAtlasPathList = new();
-            var text = mResourceManager.loadGameResource<TextAsset>(R_MISC_PATH + ATLAS_PATH_CONFIG);
+            var text = res.loadGameResource<TextAsset>(R_MISC_PATH + ATLAS_PATH_CONFIG);
             foreach (string line in splitLine(text.text))
             {
                 mAtlasPathList.Add(getFileNameNoSuffixNoDir(line), line);
@@ -161,7 +161,7 @@ public class AtlasManager : FrameSystem
                 return;
             }
 
-            atlas = mResourceManager.loadGameResource<SpriteAtlas>(path);
+            atlas = res.loadGameResource<SpriteAtlas>(path);
             mAtlasList.Add(name, atlas);
         }
 

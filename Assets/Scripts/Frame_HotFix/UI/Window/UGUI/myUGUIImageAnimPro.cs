@@ -19,7 +19,7 @@ public class myUGUIImageAnimPro : myUGUIImagePro, IUIAnimation
 	protected EFFECT_ALIGN mEffectAlign;                        // 图片的位置对齐方式
 	public myUGUIImageAnimPro()
 	{
-		mNeedUpdate = true;
+		needUpdate = true;
 		mPlayEndCallback = onPlayEnd;
 		mPlayingCallback = onPlaying;
 	}

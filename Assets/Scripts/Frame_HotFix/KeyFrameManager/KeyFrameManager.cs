@@ -24,7 +24,7 @@ public class KeyFrameManager : FrameSystem
         mLoaded = false;
 
         // 在编辑器中编辑的曲线
-        mResourceManager.loadGameResourceAsync(KEY_FRAME_FILE, (GameObject asset) =>
+        res.loadGameResourceAsync(KEY_FRAME_FILE, (GameObject asset) =>
         {
             if (asset == null)
             {
@@ -68,7 +68,7 @@ public class KeyFrameManager : FrameSystem
             }
 
             destroyUnityObject(keyFrameObject);
-            mResourceManager.unload(ref asset);
+            res.unload(ref asset);
             mLoaded = true;
             callback?.Invoke();
         });

@@ -34,7 +34,7 @@ public class PrefabPool : ClassObject
     {
         base.destroy();
         destroyAllInstance();
-        mResourceManager?.unload(ref prefab);
+        res?.unload(ref prefab);
     }
 
     public void destroyAllInstance()
@@ -112,7 +112,7 @@ public class PrefabPool : ClassObject
         // 预设未加载,异步加载预设
         ++asyncLoading;
         long assignID = id;
-        return mResourceManager.loadGameResourceAsync(fileName, (GameObject asset) =>
+        return res.loadGameResourceAsync(fileName, (GameObject asset) =>
         {
             --asyncLoading;
             if (asset == null)
@@ -123,7 +123,7 @@ public class PrefabPool : ClassObject
 
             if (assignID != id)
             {
-                mResourceManager.unload(ref asset);
+                res.unload(ref asset);
                 callback?.Invoke();
                 return;
             }
@@ -140,7 +140,7 @@ public class PrefabPool : ClassObject
         if (prefab == null)
         {
             // 预设未加载,同步加载预设
-            var go = mResourceManager.loadGameResource<GameObject>(fileName);
+            var go = res.loadGameResource<GameObject>(fileName);
             if (go == null)
             {
                 return;
@@ -167,7 +167,7 @@ public class PrefabPool : ClassObject
         // 预设未加载,异步加载预设
         ++asyncLoading;
         long assignID = id;
-        return mResourceManager.loadGameResourceAsync(fileName, (GameObject asset) =>
+        return res.loadGameResourceAsync(fileName, (GameObject asset) =>
         {
             --asyncLoading;
             if (asset == null)
@@ -179,7 +179,7 @@ public class PrefabPool : ClassObject
             if (assignID != id)
             {
                 callback?.Invoke(null, true);
-                mResourceManager.unload(ref asset);
+                res.unload(ref asset);
                 return;
             }
 
@@ -196,7 +196,7 @@ public class PrefabPool : ClassObject
     {
         if (prefab == null)
         {
-            prefab = mResourceManager.loadGameResource<GameObject>(fileName);
+            prefab = res.loadGameResource<GameObject>(fileName);
         }
 
         ObjectInfo objInfo;

@@ -6,15 +6,15 @@ using static FrameBaseHotFix;
 public class CommandReceiver : ClassObject
 {
     protected string name; // 接收者名字
-    protected long mDelayCmdCountSubThread; // 子线程中此对象剩余未执行的延迟命令数量
-    protected long mDelayCmdCountMainThread; // 主线程中此对象剩余未执行的延迟命令数量
+    protected long delayCmdCountSubThread; // 子线程中此对象剩余未执行的延迟命令数量
+    protected long delayCmdCountMainThread; // 主线程中此对象剩余未执行的延迟命令数量
 
     public override void resetProperty()
     {
         base.resetProperty();
         name = null;
-        mDelayCmdCountSubThread = 0;
-        mDelayCmdCountMainThread = 0;
+        delayCmdCountSubThread = 0;
+        delayCmdCountMainThread = 0;
     }
 
     public string getName()
@@ -31,11 +31,11 @@ public class CommandReceiver : ClassObject
     {
         if (isMainThread())
         {
-            ++mDelayCmdCountMainThread;
+            ++delayCmdCountMainThread;
         }
         else
         {
-            Interlocked.Increment(ref mDelayCmdCountSubThread);
+            Interlocked.Increment(ref delayCmdCountSubThread);
         }
     }
 
@@ -43,11 +43,11 @@ public class CommandReceiver : ClassObject
     {
         if (isMainThread())
         {
-            --mDelayCmdCountMainThread;
+            --delayCmdCountMainThread;
         }
         else
         {
-            Interlocked.Decrement(ref mDelayCmdCountSubThread);
+            Interlocked.Decrement(ref delayCmdCountSubThread);
         }
     }
 
@@ -55,7 +55,7 @@ public class CommandReceiver : ClassObject
     {
         base.destroy();
         // 通知命令系统有一个命令接受者已经被销毁了,需要取消命令缓冲区中的即将发给该接受者的命令
-        if (Interlocked.Read(ref mDelayCmdCountSubThread) + mDelayCmdCountMainThread > 0)
+        if (Interlocked.Read(ref delayCmdCountSubThread) + delayCmdCountMainThread > 0)
         {
             mCommandSystem?.notifyReceiverDestroyed(this);
         }

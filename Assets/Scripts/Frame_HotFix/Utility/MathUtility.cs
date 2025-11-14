@@ -188,9 +188,7 @@ public class MathUtility
         for (int i = 0; i < 31; ++i)
         {
             if (powValue >= value)
-            {
                 break;
-            }
 
             powValue *= pow;
         }
@@ -640,9 +638,7 @@ public class MathUtility
         {
             // 先判断有没有括号，如果有括号就先算括号里的,如果没有就退出while循环
             if (str.IndexOf('(') == -1 && str.IndexOf(')') == -1)
-            {
                 break;
-            }
 
             int curPos = str.LastIndexOf('(');
             string strInBracket = str.removeStartCount(curPos + 1).rangeToFirst(')');
@@ -768,18 +764,14 @@ public class MathUtility
             }
 
             if (!hasMS)
-            {
                 break;
-            }
         }
 
         // 再计算加减法
         while (true)
         {
             if (factors.Count == 0)
-            {
                 break;
-            }
 
             if (factors[0] == '+' || factors[0] == '-')
             {
@@ -1040,14 +1032,10 @@ public class MathUtility
     public static bool randomHit(int probability, int scale)
     {
         if (probability == 0)
-        {
             return false;
-        }
 
         if (probability >= scale)
-        {
             return true;
-        }
 
         return randomInt(0, scale - 1) < probability;
     }
@@ -1057,15 +1045,11 @@ public class MathUtility
     {
         // 几率已经大于等于1,则直接返回true
         if (odds >= 1.0f)
-        {
             return true;
-        }
 
         // 几率小于等于0,则直接返回false
         if (odds <= 0.0f)
-        {
             return false;
-        }
 
         return randomFloat(0.0f, 1.0f) < odds;
     }
@@ -1260,9 +1244,7 @@ public class MathUtility
         Vector2 v1 = point - line.mEnd;
         // 交点与端点重合
         if (isVectorZero(v0) || isVectorZero(v1))
-        {
             return true;
-        }
 
         normalize(ref v0);
         normalize(ref v1);
@@ -1277,9 +1259,7 @@ public class MathUtility
         Vector2 v1 = point0 - point2;
         // 交点与端点重合
         if (isVectorZero(v0) || isVectorZero(v1))
-        {
             return true;
-        }
 
         normalize(ref v0);
         normalize(ref v1);
@@ -1294,9 +1274,7 @@ public class MathUtility
         Vector3 v1 = point0 - point2;
         // 交点与端点重合
         if (isVectorZero(v0) || isVectorZero(v1))
-        {
             return true;
-        }
 
         normalize(ref v0);
         normalize(ref v1);
@@ -1348,9 +1326,7 @@ public class MathUtility
     {
         int pointCount = points.Count;
         if (pointCount < 3)
-        {
             return false;
-        }
 
         Vector2 intersect;
         int intersectCount = 0;
@@ -1430,9 +1406,7 @@ public class MathUtility
     {
         int verticeCount = vertice.Count;
         if (verticeCount < 4)
-        {
             return true;
-        }
 
         Vector2 lastPoint = vertice[(index0 - 1 + vertice.Count) % vertice.Count];
         Vector2 nextPoint = vertice[(index0 + 1) % vertice.Count];
@@ -1448,9 +1422,7 @@ public class MathUtility
         bool validAngle = angle1 <= angle0;
         // 夹角需要在一定范围内
         if (!validAngle)
-        {
             return false;
-        }
 
         // 判断是否与其他边相交
         for (int i = 0; i < verticeCount; ++i)
@@ -1504,9 +1476,7 @@ public class MathUtility
         float cross = d1.x * d2.y - d1.y * d2.x;
         // 如果叉积为0，则平行或共线，无交点
         if (abs(cross) < precision)
-        {
             return false;
-        }
 
         // 计算 t 和 u 的值
         Vector2 pToQ = start1 - start0;
@@ -1651,9 +1621,7 @@ public class MathUtility
     {
         // 距离大于对角线的一半,则不与矩形相交
         if (getDistanceToLine(rect.center, line) > getLength(rect.max - rect.min) * 0.5f)
-        {
             return false;
-        }
 
         // 直线是否与任何一条边相交
         Vector2 leftTop = rect.min + new Vector2(0.0f, rect.height);
@@ -1815,14 +1783,10 @@ public class MathUtility
         Vector3 rightBottom = right - top + rect.mCenter;
         Vector3 leftBottom = -right - top + rect.mCenter;
         if (intersectRayTriangle(orig, dir, new(rightTop, rightBottom, leftBottom), out t, out _, out _))
-        {
             return true;
-        }
 
         if (intersectRayTriangle(orig, dir, new(rightBottom, leftBottom, leftTop), out t, out _, out _))
-        {
             return true;
-        }
 
         return false;
     }
@@ -1857,24 +1821,18 @@ public class MathUtility
 
         // If determinant is near zero, ray lies in plane of triangle
         if (determinant < 0.0001f)
-        {
             return false;
-        }
 
         // Calculate u and make sure u <= 1
         u = dot(T, P);
         if (u < 0.0f || u > determinant)
-        {
             return false;
-        }
 
         Vector3 Q = cross(T, E1);
         // Calculate v and make sure u + v <= 1
         v = dot(dir, Q);
         if (v < 0.0f || u + v > determinant)
-        {
             return false;
-        }
 
         // Calculate t, scale parameters, ray intersects triangle
         t = dot(E2, Q);
@@ -1907,9 +1865,7 @@ public class MathUtility
     {
         Vector3 relative = pos - center;
         if (lengthGreater(relative, radius))
-        {
             return false;
-        }
 
         return getAngleBetweenVector(Vector3.forward, relative) < radian * 0.5f;
     }
@@ -1931,9 +1887,7 @@ public class MathUtility
     {
         // 如果第一个圆的半径小于第二个圆,则第一个圆不可能包含第二个圆
         if (circle0.mRadius < circle1.mRadius)
-        {
             return false;
-        }
 
         if (ignoreY)
         {
@@ -1981,23 +1935,17 @@ public class MathUtility
         // 计算圆心到线段的距离
         float distance = getLength(projectPoint - circle.mCenter);
         if (distance > circle.mRadius)
-        {
             return false;
-        }
 
         // 如果投影在线段两个端点之间,则相交
         if (inRange(projectPoint, line.mStart, line.mEnd, false))
-        {
             return true;
-        }
 
         // 计算相交部分的长度的一半,如果线段任一端点到垂线的距离小于该长度,则线段与圆相交
         float halfSquaredLength = circle.mRadius * circle.mRadius - distance * distance;
         if (getSquaredLength(line.mStart - projectPoint) <= halfSquaredLength ||
             getSquaredLength(line.mEnd - projectPoint) <= halfSquaredLength)
-        {
             return true;
-        }
 
         return false;
     }
@@ -2024,9 +1972,7 @@ public class MathUtility
 
         // 圆心在多边形内,则相交
         if (isPointInPolygon(circle.mCenter, polygon))
-        {
             return true;
-        }
 
         return false;
     }
@@ -2962,9 +2908,7 @@ public class MathUtility
     {
         // 当前已经到达目标,则不需要计算
         if (isFloatEqual(curValue, target))
-        {
             return true;
-        }
 
         float newValue = curValue + delta;
         // 加上delta以后等于了target,或者超过了target,则是到达目标
@@ -3304,9 +3248,7 @@ public class MathUtility
     public static void clamp(ref int value, int min, int max)
     {
         if (min > max)
-        {
             return;
-        }
 
         if (min == max)
         {
@@ -3327,9 +3269,7 @@ public class MathUtility
     public static void clamp(ref long value, long min, long max)
     {
         if (min > max)
-        {
             return;
-        }
 
         if (min == max)
         {
@@ -3854,37 +3794,26 @@ public class MathUtility
     public static int findPointIndex(List<float> distanceListFromStart, float curDistance, int startIndex, int endIndex)
     {
         if (curDistance < distanceListFromStart[startIndex])
-        {
             return startIndex - 1;
-        }
 
         if (curDistance >= distanceListFromStart[endIndex])
-        {
             return endIndex;
-        }
 
         if (endIndex == startIndex || endIndex - startIndex == 1)
-        {
             return startIndex;
-        }
 
         int middleIndex = ((endIndex - startIndex) >> 1) + startIndex;
         float midDis = distanceListFromStart[middleIndex];
         // 当前距离比中间的距离小,则在列表前半部分查找
         if (curDistance < midDis)
-        {
             return findPointIndex(distanceListFromStart, curDistance, startIndex, middleIndex);
-        }
+
         // 当前距离比中间的距离小,则在列表后半部分查找
-        else if (curDistance > midDis)
-        {
+        if (curDistance > midDis)
             return findPointIndex(distanceListFromStart, curDistance, middleIndex, endIndex);
-        }
+
         // 距离刚好等于列表中间的值,则返回该下标
-        else
-        {
-            return middleIndex;
-        }
+        return middleIndex;
     }
 
     public static Vector2 multiVector2(Vector2 v1, Vector2 v2)
@@ -4219,9 +4148,7 @@ public class MathUtility
     {
         resultList.Clear();
         if (points.Count == 1 || bezierDetail <= 1)
-        {
             return;
-        }
 
         for (int i = 0; i < bezierDetail; ++i)
         {
@@ -4233,9 +4160,7 @@ public class MathUtility
     {
         resultList.Clear();
         if (points.Count == 1 || bezierDetail <= 1)
-        {
             return;
-        }
 
         if (resultList.Length < bezierDetail)
         {
@@ -4545,9 +4470,7 @@ public class MathUtility
     {
         foundPath?.Clear();
         if (!checkAStar(map, begin, end, width))
-        {
             return false;
-        }
 
         int beginIndex = begin.toIndex(width);
         int endIndex = end.toIndex(width);
@@ -4663,9 +4586,7 @@ public class MathUtility
 
             // 终点被添加进开启列表里，找到路了
             if (mTempNodeList[endIndex].mState == NODE_STATE.OPEN)
-            {
                 break;
-            }
         }
 
         postAStar(mTempNodeList, endIndex, foundPath);
@@ -4681,9 +4602,7 @@ public class MathUtility
     {
         foundPath?.Clear();
         if (!checkAStar(map, begin, end, width))
-        {
             return false;
-        }
 
         int beginIndex = begin.toIndex(width);
         int endIndex = end.toIndex(width);
@@ -4803,9 +4722,7 @@ public class MathUtility
 
             // 终点被添加进开启列表里，找到路了
             if (mTempNodeList[endIndex].mState == NODE_STATE.OPEN)
-            {
                 break;
-            }
         }
 
         postAStar(mTempNodeList, endIndex, foundPath);
@@ -4821,9 +4738,7 @@ public class MathUtility
     {
         foundPath?.Clear();
         if (!checkAStar(map, begin, end, width))
-        {
             return false;
-        }
 
         int beginIndex = begin.toIndex(width);
         int endIndex = end.toIndex(width);
@@ -4996,9 +4911,7 @@ public class MathUtility
 
             // 终点被添加进开启列表里，找到路了
             if (mTempNodeList[endIndex].mState == NODE_STATE.OPEN)
-            {
                 break;
-            }
         }
 
         postAStar(mTempNodeList, endIndex, foundPath);
@@ -5105,21 +5018,15 @@ public class MathUtility
     protected static bool isConvexVertice(List<Vector2> points, int index0, int index1, int index2, bool isClockwise)
     {
         if (index0 == index2)
-        {
             return true;
-        }
 
         // 计算叉积，判断该点是否为凹陷点
         float crossProduct = cross(points[index0], points[index1], points[index2]);
         // 根据整体方向判断凹陷点：如果多边形是顺时针，凹陷点的叉积应该是负的；如果是逆时针，应该是正的
         if (isClockwise)
-        {
             return crossProduct > 0; // 顺时针时，凹陷点应该是正叉积
-        }
-        else
-        {
-            return crossProduct < 0; // 逆时针时，凹陷点应该是负叉积
-        }
+
+        return crossProduct < 0; // 逆时针时，凹陷点应该是负叉积
     }
 
     // 计算叉积，返回值表示两个向量的旋转方向
@@ -5156,13 +5063,9 @@ public class MathUtility
         float crossProduct = cross(p0, p1, p2);
         // 根据整体方向判断凹陷点：如果多边形是顺时针，凹陷点的叉积应该是负的；如果是逆时针，应该是正的
         if (isClockwise)
-        {
             return crossProduct > 0; // 顺时针时，凹陷点应该是正叉积
-        }
-        else
-        {
-            return crossProduct < 0; // 逆时针时，凹陷点应该是负叉积
-        }
+
+        return crossProduct < 0; // 逆时针时，凹陷点应该是负叉积
     }
 
     protected static void cutOffPolygon(List<Vector2> origin, List<Vector2> dest, ref int start, ref int end)
@@ -5222,9 +5125,7 @@ public class MathUtility
     protected static void quickSort<T>(List<T> arr, int low, int high, Comparison<T> comparison)
     {
         if (high <= low)
-        {
             return;
-        }
 
         int i = low;
         int j = high + 1;
@@ -5242,9 +5143,7 @@ public class MathUtility
             }
 
             if (i >= j)
-            {
                 break;
-            }
 
             // 交换i,j对应的值
             swapIndex(arr, i, j);
@@ -5259,9 +5158,7 @@ public class MathUtility
     protected static void quickSort<T>(List<T> arr, int low, int high, bool ascend = true) where T : IComparable<T>
     {
         if (high <= low)
-        {
             return;
-        }
 
         int i = low;
         int j = high + 1;
@@ -5296,9 +5193,7 @@ public class MathUtility
             }
 
             if (i >= j)
-            {
                 break;
-            }
 
             // 交换i,j对应的值
             swapIndex(arr, i, j);
@@ -5459,9 +5354,7 @@ public class MathUtility
     protected static void ifft(Complex[] x, int count)
     {
         if (count == 0)
-        {
             return;
-        }
 
         for (int k = 0; k <= count - 1; ++k)
         {
@@ -5480,31 +5373,21 @@ public class MathUtility
     protected static float HueToRGB(float v1, float v2, float vH)
     {
         if (vH < 0.0f)
-        {
             vH += 1.0f;
-        }
 
         if (vH > 1.0f)
-        {
             vH -= 1.0f;
-        }
 
         if (6.0f * vH < 1.0f)
-        {
             return v1 + (v2 - v1) * 6.0f * vH;
-        }
-        else if (2.0f * vH < 1.0f)
-        {
+
+        if (2.0f * vH < 1.0f)
             return v2;
-        }
-        else if (3.0f * vH < 2.0f)
-        {
+
+        if (3.0f * vH < 2.0f)
             return v1 + (v2 - v1) * (0.667f - vH) * 6.0f;
-        }
-        else
-        {
-            return v1;
-        }
+
+        return v1;
     }
 
     protected static bool checkAStar(List<bool> map, Point begin, Point end, int width)
@@ -5513,9 +5396,7 @@ public class MathUtility
         int endIndex = end.toIndex(width);
         // 起点与终点在同一点,不需要寻路
         if (beginIndex == endIndex)
-        {
             return true;
-        }
 
         if (beginIndex < 0 || beginIndex >= map.Count)
         {
@@ -5531,9 +5412,7 @@ public class MathUtility
 
         // 起点或者终点不可行走,也不能找到路径
         if (!map[beginIndex] || !map[endIndex])
-        {
             return false;
-        }
 
         return true;
     }
@@ -5541,9 +5420,7 @@ public class MathUtility
     protected static void postAStar(AStarNode[] nodeList, int endIndex, List<int> foundPath)
     {
         if (foundPath == null)
-        {
             return;
-        }
 
         foundPath.Add(endIndex);
         AStarNode road = nodeList[endIndex];

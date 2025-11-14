@@ -52,7 +52,7 @@ public class AssetBundleLoader
                 {
                     // 写入到本地,并且更新资源列表
                     writeFile(F_PERSISTENT_ASSETS_PATH + STREAMING_ASSET_FILE, bytes, bytes.Length);
-                    GameFileInfo fileInfo = new()
+                    var fileInfo = new GameFileInfo
                     {
                         name = STREAMING_ASSET_FILE,
                         size = bytes.Length,
@@ -82,16 +82,14 @@ public class AssetBundleLoader
         this.autoLoad = autoLoad;
     }
 
-    public void update(float elapsedTime)
+    public void update(float dt)
     {
         if (!initialized)
             return;
 
         // 更新检查所有资源包是否需要卸载
-        foreach (AssetBundleInfo bundle in assetBundleInfos.Values)
-        {
-            bundle.update(elapsedTime);
-        }
+        foreach (var bundle in assetBundleInfos.Values)
+            bundle.update(dt);
     }
 
     public void destroy()
@@ -112,16 +110,16 @@ public class AssetBundleLoader
 
     public void unloadAll()
     {
-        foreach (Coroutine item in coroutines)
+        foreach (var item in coroutines)
         {
             GameEntry.getInstance().StopCoroutine(item);
         }
 
         coroutines.Clear();
         assetToAssetBundleInfos.Clear();
-        foreach (AssetBundleInfo item in assetBundleInfos.Values)
+        foreach (var bundleInfo in assetBundleInfos.Values)
         {
-            item.unload();
+            bundleInfo.unload();
         }
     }
 
@@ -129,12 +127,10 @@ public class AssetBundleLoader
     public bool unloadAsset<T>(ref T asset, bool showError) where T : UObject
     {
         if (asset == null)
-        {
             return false;
-        }
 
         // 查找对应的AssetBundle
-        if (!assetToAssetBundleInfos.Remove(asset, out AssetBundleInfo info))
+        if (!assetToAssetBundleInfos.Remove(asset, out var bundleInfo))
         {
             if (showError)
             {
@@ -144,7 +140,7 @@ public class AssetBundleLoader
             return false;
         }
 
-        if (!info.unloadAsset(asset))
+        if (!bundleInfo.unloadAsset(asset))
         {
             return false;
         }
@@ -181,17 +177,13 @@ public class AssetBundleLoader
 
     public void unloadAssetBundle(string bundleName)
     {
-        if (!assetBundleInfos.TryGetValue(bundleName.ToLower(), out AssetBundleInfo info))
-        {
+        if (!assetBundleInfos.TryGetValue(bundleName.ToLower(), out var bundleInfo))
             return;
-        }
 
-        foreach (AssetInfo item in info.getAssetList().Values)
-        {
-            assetToAssetBundleInfos.Remove(item.getAsset());
-        }
+        foreach (var assetInfo in bundleInfo.getAssetList().Values)
+            assetToAssetBundleInfos.Remove(assetInfo.getAsset());
 
-        info.unload();
+        bundleInfo.unload();
     }
 
     // 卸载指定路径中的所有资源包
@@ -246,13 +238,13 @@ public class AssetBundleLoader
 
         // 找不到资源则直接返回
         string fileNameLower = fileName.ToLower();
-        if (!assetToBundleInfo.TryGetValue(fileNameLower, out AssetInfo asset))
+        if (!assetToBundleInfo.TryGetValue(fileNameLower, out var assetInfo))
         {
             logError("can not find resource : " + fileName + ",请确认文件存在,且带后缀名,且不能使用反斜杠\\," + (fileName.Contains(' ') || fileName.Contains('　') ? "注意此文件名中带有空格" : ""));
             return false;
         }
 
-        AssetBundleInfo bundleInfo = asset.getAssetBundle();
+        var bundleInfo = assetInfo.getAssetBundle();
         return bundleInfo.getLoadState() == LOAD_STATE.LOADED && bundleInfo.getAssetInfo(fileNameLower).isLoaded();
     }
 
@@ -291,13 +283,13 @@ public class AssetBundleLoader
             return;
         }
 
-        if (!assetBundleInfos.TryGetValue(bundleName.ToLower(), out AssetBundleInfo info))
+        if (!assetBundleInfos.TryGetValue(bundleName.ToLower(), out var bundleInfo))
         {
             logError("can not find AssetBundle : " + bundleName);
             return;
         }
 
-        info.loadAssetBundleAsync(callback);
+        bundleInfo.loadAssetBundleAsync(callback);
     }
 
     // 同步加载资源包
@@ -309,7 +301,7 @@ public class AssetBundleLoader
             return;
         }
 
-        if (assetBundleInfos.TryGetValue(bundleName.ToLower(), out AssetBundleInfo bundleInfo))
+        if (assetBundleInfos.TryGetValue(bundleName.ToLower(), out var bundleInfo))
         {
             if (bundleInfo.getLoadState() == LOAD_STATE.DOWNLOADING ||
                 bundleInfo.getLoadState() == LOAD_STATE.LOADING ||
@@ -333,9 +325,9 @@ public class AssetBundleLoader
                     return;
                 }
 
-                foreach (AssetInfo item in bundleInfo.getAssetList().Values)
+                foreach (var assetInfo in bundleInfo.getAssetList().Values)
                 {
-                    assetList.addIf(item.getAsset(), item.isLoaded());
+                    assetList.addIf(assetInfo.getAsset(), assetInfo.isLoaded());
                 }
 
                 return;
@@ -384,7 +376,7 @@ public class AssetBundleLoader
         }
 
         string fileNameLower = fileName.ToLower();
-        if (!assetToBundleInfo.TryGetValue(fileNameLower, out AssetInfo asset))
+        if (!assetToBundleInfo.TryGetValue(fileNameLower, out var assetInfo))
         {
             if (errorIfNull)
             {
@@ -395,7 +387,7 @@ public class AssetBundleLoader
             return null;
         }
 
-        return asset.getAssetBundle().loadAssetAsync(fileNameLower, doneCallback, fileName);
+        return assetInfo.getAssetBundle().loadAssetAsync(fileNameLower, doneCallback, fileName);
     }
 
     // 请求异步加载资源包
@@ -441,13 +433,13 @@ public class AssetBundleLoader
         }
 
         string fileNameLower = fileName.ToLower();
-        if (!assetToBundleInfo.TryGetValue(fileNameLower, out AssetInfo asset))
+        if (!assetToBundleInfo.TryGetValue(fileNameLower, out var assetInfo))
         {
             logError("can not find resource : " + fileName + ",请确认文件存在,且带后缀名,且不能使用反斜杠\\," + (fileName.Contains(' ') || fileName.Contains('　') ? "注意此文件名中带有空格" : ""));
             return;
         }
 
-        coroutines.Add(GameEntry.startCoroutine(downloadAssetBundleCoroutine(asset.getAssetBundle(), callback)));
+        coroutines.Add(GameEntry.startCoroutine(downloadAssetBundleCoroutine(assetInfo.getAssetBundle(), callback)));
     }
 
     //------------------------------------------------------------------------------------------------------------------------------
@@ -464,7 +456,7 @@ public class AssetBundleLoader
         // 已经正在下载,则只是加入到回调列表
         if (bundleInfo.getLoadState() == LOAD_STATE.DOWNLOADING)
         {
-            CustomAsyncOperation op = new();
+            var op = new CustomAsyncOperation();
             bundleInfo.addDownloadCallback((info, bytes) =>
             {
                 op.setFinish();
@@ -484,7 +476,7 @@ public class AssetBundleLoader
                 {
                     // 写入到本地,并且更新资源列表
                     writeFile(F_PERSISTENT_ASSETS_PATH + bundleFileName, bytes, bytes.Length);
-                    GameFileInfo fileInfo = new()
+                    var fileInfo = new GameFileInfo
                     {
                         name = bundleFileName,
                         size = bytes.Length,
@@ -527,7 +519,7 @@ public class AssetBundleLoader
                 assetBundleBytes = bytes;
             });
             bundleInfo.setLoadState(LOAD_STATE.LOADING);
-            AssetBundleCreateRequest request = AssetBundle.LoadFromMemoryAsync(assetBundleBytes);
+            var request = AssetBundle.LoadFromMemoryAsync(assetBundleBytes);
             if (request != null)
             {
                 yield return request;
@@ -546,7 +538,7 @@ public class AssetBundleLoader
             }
             else
             {
-                AssetBundleCreateRequest request = AssetBundle.LoadFromFileAsync(fullPath);
+                var request = AssetBundle.LoadFromFileAsync(fullPath);
                 if (request != null)
                 {
                     yield return request;
@@ -631,7 +623,7 @@ public class AssetBundleLoader
             // AssetBundle名字
             serializer.readString(tempStringBuffer, tempStringBuffer.Length);
             string bundleName = removeSuffix(bytesToString(tempStringBuffer));
-            if (!assetBundleInfos.TryGetValue(bundleName, out AssetBundleInfo bundleInfo))
+            if (!assetBundleInfos.TryGetValue(bundleName, out var bundleInfo))
             {
                 bundleInfo = assetBundleInfos.add(bundleName, new(bundleName));
             }
@@ -656,9 +648,9 @@ public class AssetBundleLoader
         }
 
         // 配置清单解析完毕后,为每个AssetBundleInfo查找对应的依赖项
-        foreach (AssetBundleInfo info in assetBundleInfos.Values)
+        foreach (var bundleInfo in assetBundleInfos.Values)
         {
-            info.findAllDependence();
+            bundleInfo.findAllDependence();
         }
 
         initialized = true;

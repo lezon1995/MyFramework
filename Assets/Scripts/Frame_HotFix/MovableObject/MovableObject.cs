@@ -8,14 +8,14 @@ using static StringUtility;
 // 可移动物体,表示一个3D物体
 public class MovableObject : Transformable, IMouseEventCollect
 {
-    protected COMMovableObjectInteractive mCOMInteractive; // 交互组件
-    protected COMMovableObjectMoveInfo mCOMMoveInfo; // 移动信息组件
-    protected int mObjectID; // 物体的客户端ID
-    protected bool mSelfCreatedObject; // 是否已经由MovableObject自己创建一个GameObject作为节点
+    protected COMMovableObjectInteractive interactive; // 交互组件
+    protected COMMovableObjectMoveInfo moveInfo; // 移动信息组件
+    protected int objectId; // 物体的客户端ID
+    protected bool selfCreatedObject; // 是否已经由MovableObject自己创建一个GameObject作为节点
 
     public MovableObject()
     {
-        mObjectID = makeID();
+        objectId = makeID();
     }
 
     public override void destroy()
@@ -29,11 +29,11 @@ public class MovableObject : Transformable, IMouseEventCollect
     public override void resetProperty()
     {
         base.resetProperty();
-        mCOMInteractive = null;
-        mCOMMoveInfo = null;
-        mSelfCreatedObject = false;
-        // mObjectID不重置
-        // mObjectID = 0;
+        interactive = null;
+        moveInfo = null;
+        selfCreatedObject = false;
+        // objectId不重置
+        // objectId = 0;
     }
 
     // mObject需要外部自己创建以及销毁,内部只是引用,不会管理其生命周期
@@ -41,7 +41,7 @@ public class MovableObject : Transformable, IMouseEventCollect
     public override void setObject(GameObject obj)
     {
         // 如果是当前类自动创建的GameObject设置为空了,而且设置了一个不同的节点(无论是否为空),则取消此标记
-        if (mObject != obj)
+        if (go != obj)
         {
             destroySelfCreateObject();
         }
@@ -59,7 +59,7 @@ public class MovableObject : Transformable, IMouseEventCollect
     public virtual void init()
     {
         // 自动创建GameObject
-        if (mObject == null)
+        if (go == null)
         {
             selfCreateObject();
         }
@@ -76,85 +76,85 @@ public class MovableObject : Transformable, IMouseEventCollect
         }
 
         setObject(mGameObjectPool.newObject(name, parent));
-        mSelfCreatedObject = true;
+        selfCreatedObject = true;
     }
 
     // get
     //------------------------------------------------------------------------------------------------------------------------------
     public Vector3 getPhysicsSpeed()
     {
-        if (mCOMMoveInfo == null)
+        if (moveInfo == null)
         {
             logError("未启用移动信息组件,无法获取速度");
             return Vector3.zero;
         }
 
-        return mCOMMoveInfo.getPhysicsSpeed();
+        return moveInfo.getPhysicsSpeed();
     }
 
     public Vector3 getPhysicsAcceleration()
     {
-        if (mCOMMoveInfo == null)
+        if (moveInfo == null)
         {
             logError("未启用移动信息组件,无法获取加速度");
             return Vector3.zero;
         }
 
-        return mCOMMoveInfo.getPhysicsAcceleration();
+        return moveInfo.getPhysicsAcceleration();
     }
 
     public bool hasMovedDuringFrame()
     {
-        if (mCOMMoveInfo == null)
+        if (moveInfo == null)
         {
             logError("未启用移动信息组件,无法获取");
             return false;
         }
 
-        return mCOMMoveInfo.hasMovedDuringFrame();
+        return moveInfo.hasMovedDuringFrame();
     }
 
     public bool isEnableFixedUpdate()
     {
-        return mCOMMoveInfo != null && mCOMMoveInfo.isEnableFixedUpdate();
+        return moveInfo != null && moveInfo.isEnableFixedUpdate();
     }
 
     public Vector3 getMoveSpeedVector()
     {
-        if (mCOMMoveInfo == null)
+        if (moveInfo == null)
         {
             logError("未启用移动信息组件,无法获取");
             return Vector3.zero;
         }
 
-        return mCOMMoveInfo.getMoveSpeedVector();
+        return moveInfo.getMoveSpeedVector();
     }
 
     public Vector3 getLastSpeedVector()
     {
-        if (mCOMMoveInfo == null)
+        if (moveInfo == null)
         {
             logError("未启用移动信息组件,无法获取");
             return Vector3.zero;
         }
 
-        return mCOMMoveInfo.getLastSpeedVector();
+        return moveInfo.getLastSpeedVector();
     }
 
     public Vector3 getLastPosition()
     {
-        if (mCOMMoveInfo == null)
+        if (moveInfo == null)
         {
             logError("未启用移动信息组件,无法获取");
             return Vector3.zero;
         }
 
-        return mCOMMoveInfo.getLastPosition();
+        return moveInfo.getLastPosition();
     }
 
     public int getObjectID()
     {
-        return mObjectID;
+        return objectId;
     }
 
     // 可移动物体没有固定深度,只在实时检测时根据相交点来判断深度
@@ -165,27 +165,27 @@ public class MovableObject : Transformable, IMouseEventCollect
 
     public virtual bool isHandleInput()
     {
-        return mCOMInteractive != null && mCOMInteractive.isHandleInput();
+        return interactive != null && interactive.isHandleInput();
     }
 
     public virtual bool isReceiveScreenMouse()
     {
-        return mCOMInteractive != null && mCOMInteractive.isReceiveScreenMouse();
+        return interactive != null && interactive.isReceiveScreenMouse();
     }
 
     public virtual bool isPassRay()
     {
-        return mCOMInteractive == null || mCOMInteractive.isPassRay();
+        return interactive == null || interactive.isPassRay();
     }
 
     public virtual bool isPassDragEvent()
     {
-        return !isDragable() || (mCOMInteractive != null && mCOMInteractive.isPassDragEvent());
+        return !isDragable() || (interactive != null && interactive.isPassDragEvent());
     }
 
     public virtual bool isMouseHovered()
     {
-        return mCOMInteractive != null && mCOMInteractive.isMouseHovered();
+        return interactive != null && interactive.isMouseHovered();
     }
 
     public virtual bool isDragable()
@@ -195,7 +195,7 @@ public class MovableObject : Transformable, IMouseEventCollect
 
     public int getClickSound()
     {
-        return mCOMInteractive?.getClickSound() ?? 0;
+        return interactive?.getClickSound() ?? 0;
     }
 
     public string getDescription()
@@ -205,12 +205,12 @@ public class MovableObject : Transformable, IMouseEventCollect
 
     public bool hasLastPosition()
     {
-        return mCOMMoveInfo != null && mCOMMoveInfo.hasLastPosition();
+        return moveInfo != null && moveInfo.hasLastPosition();
     }
 
     public COMMovableObjectMoveInfo getCOMMoveInfo()
     {
-        return mCOMMoveInfo;
+        return moveInfo;
     }
 
     // set
@@ -359,9 +359,9 @@ public class MovableObject : Transformable, IMouseEventCollect
         getCOMInteractive().onReceiveDrag(dragObj, mousePos, ref continueEvent);
     }
 
-    public virtual void onDragHoverd(IMouseEventCollect dragObj, Vector3 mousePos, bool hover)
+    public virtual void onDragHovered(IMouseEventCollect dragObj, Vector3 mousePos, bool hover)
     {
-        getCOMInteractive().onDragHoverd(dragObj, mousePos, hover);
+        getCOMInteractive().onDragHovered(dragObj, mousePos, hover);
     }
 
     public virtual void onMultiTouchStart(Vector3 touch0, Vector3 touch1)
@@ -381,22 +381,22 @@ public class MovableObject : Transformable, IMouseEventCollect
 
     public void enableMoveInfo()
     {
-        mCOMMoveInfo ??= addComponent<COMMovableObjectMoveInfo>(true);
+        moveInfo ??= addComponent<COMMovableObjectMoveInfo>(true);
     }
 
     //------------------------------------------------------------------------------------------------------------------------------
     protected COMMovableObjectInteractive getCOMInteractive()
     {
-        return mCOMInteractive ??= addComponent<COMMovableObjectInteractive>(false);
+        return interactive ??= addComponent<COMMovableObjectInteractive>(false);
     }
 
     protected void destroySelfCreateObject()
     {
-        if (mObject != null && mSelfCreatedObject)
+        if (go != null && selfCreatedObject)
         {
-            mSelfCreatedObject = false;
-            mGameObjectPool?.destroyObject(mObject, true);
-            mObject = null;
+            selfCreatedObject = false;
+            mGameObjectPool?.destroyObject(go, true);
+            go = null;
         }
     }
 }

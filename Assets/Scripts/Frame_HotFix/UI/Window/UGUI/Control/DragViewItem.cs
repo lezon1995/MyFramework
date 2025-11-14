@@ -1,10 +1,25 @@
-﻿
-public abstract class DragViewItem<DataType> : WindowRecycleableUGUI where DataType : ClassObject
+﻿public abstract class DragViewItem<DataType> : WindowRecyclableUGUI where DataType : ClassObject
 {
-	protected int mIndex;
-	public DragViewItem(IWindowObjectOwner parent) : base(parent) { }
-	public abstract void setData(DataType data);
-	public void setIndex(int index) { mIndex = index; }
-	public int getIndex() { return mIndex; }
-	public override void update() { base.update(); }
+    protected int index;
+
+    protected DragViewItem(IWindowObjectOwner parent) : base(parent)
+    {
+    }
+
+    public abstract void setData(DataType data);
+
+    public void setIndex(int idx)
+    {
+        index = idx;
+    }
+
+    public int getIndex()
+    {
+        return index;
+    }
+
+    public override void update()
+    {
+        base.update();
+    }
 }

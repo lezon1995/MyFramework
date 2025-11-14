@@ -15,9 +15,9 @@ using static FrameBaseDefine;
 // 文件工具函数类
 public class FileUtility
 {
-    private static List<string> mTempPatternList = new(); // 用于避免GC
-    private static List<string> mTempFileList = new(); // 用于避免GC
-    private static List<string> mTempFileList1 = new(); // 用于避免GC
+    static List<string> tempPatternList = new(); // 用于避免GC
+    static List<string> tempFileList = new(); // 用于避免GC
+    static List<string> tempFileList1 = new(); // 用于避免GC
 
     public static void validPath(ref string path)
     {
@@ -213,9 +213,7 @@ public class FileUtility
     public static void writeFile(string fileName, byte[] buffer, int size, bool appendData = false)
     {
         if (fileName == null)
-        {
             return;
-        }
 
         // 检测路径是否存在,如果不存在就创建一个
         createDir(getFilePath(fileName));
@@ -306,30 +304,22 @@ public class FileUtility
         if (!isEditor() && isAndroid())
         {
             if (!AndroidAssetLoader.deleteDirectory(path))
-            {
                 logWarning("删除目录失败:" + path);
-            }
 
             return;
         }
 
         validPath(ref path);
         if (!isDirExist(path))
-        {
             return;
-        }
 
         // 先删除所有文件夹
         foreach (string dir in Directory.GetDirectories(path))
-        {
             deleteFolder(dir);
-        }
 
         // 再删除所有文件
         foreach (string file in Directory.GetFiles(path))
-        {
             deleteFile(file);
-        }
 
         // 再删除文件夹自身
         Directory.Delete(path);
@@ -366,9 +356,7 @@ public class FileUtility
     public static void moveFile(string source, string dest, bool overwrite = true)
     {
         if (!isFileExist(source))
-        {
             return;
-        }
 
         if (!isEditor() && isAndroid())
         {
@@ -380,9 +368,7 @@ public class FileUtility
         {
             // 先删除目标文件,因为File.Move不支持覆盖文件,目标文件存在时,File.Move会失败
             if (!overwrite)
-            {
                 return;
-            }
 
             deleteFile(dest);
         }
@@ -416,9 +402,7 @@ public class FileUtility
     {
         path = path.rightToLeft();
         if (!isFileExist(path))
-        {
             return false;
-        }
 
         try
         {
@@ -460,22 +444,18 @@ public class FileUtility
         try
         {
             if (isEditor())
-            {
                 return (int)new FileInfo(file).Length;
-            }
-            else if (isAndroid())
-            {
+
+            if (isAndroid())
                 return AndroidAssetLoader.getFileSize(file);
-            }
-            else if (isIOS())
-            {
+
+            if (isIOS())
                 return (int)new FileInfo(file).Length;
-            }
-            else if (isWindows())
-            {
+
+            if (isWindows())
                 return (int)new FileInfo(file).Length;
-            }
-            else if (isWebGL())
+
+            if (isWebGL())
             {
                 logError("webgl can not use getFileSize");
                 return 0;
@@ -494,16 +474,15 @@ public class FileUtility
     public static bool isDirExist(string dir)
     {
         if (dir.isEmpty() || dir == "./" || dir == "../")
-        {
             return true;
-        }
 
         validPath(ref dir);
         if (isEditor())
         {
             return Directory.Exists(dir);
         }
-        else if (isAndroid())
+
+        if (isAndroid())
         {
             // 安卓平台如果要读取StreamingAssets下的文件,只能使用AssetManager
             if (dir.startWith(F_STREAMING_ASSETS_PATH))
@@ -514,22 +493,19 @@ public class FileUtility
 
             // 安卓平台如果要读取persistentDataPath的文件,则可以使用File
             if (dir.startWith(F_PERSISTENT_DATA_PATH))
-            {
                 return AndroidAssetLoader.isDirExist(dir);
-            }
 
             logError("isDirExist invalid path : " + dir);
             return false;
         }
-        else if (isIOS())
-        {
+
+        if (isIOS())
             return Directory.Exists(dir);
-        }
-        else if (isWindows())
-        {
+
+        if (isWindows())
             return Directory.Exists(dir);
-        }
-        else if (isWebGL())
+
+        if (isWebGL())
         {
             logError("webgl can not use isDirExist");
             return false;
@@ -542,15 +518,12 @@ public class FileUtility
     public static bool isFileExist(string fileName)
     {
         if (fileName.isEmpty())
-        {
             return false;
-        }
 
         if (isEditor())
-        {
             return File.Exists(fileName);
-        }
-        else if (isAndroid())
+
+        if (isAndroid())
         {
             // 安卓平台如果要读取StreamingAssets下的文件,只能使用AssetManager
             if (fileName.startWith(F_STREAMING_ASSETS_PATH))
@@ -568,15 +541,14 @@ public class FileUtility
             logError("isFileExist invalid path : " + fileName);
             return false;
         }
-        else if (isIOS())
-        {
+
+        if (isIOS())
             return File.Exists(fileName);
-        }
-        else if (isWindows())
-        {
+
+        if (isWindows())
             return File.Exists(fileName);
-        }
-        else if (isWebGL())
+
+        if (isWebGL())
         {
             logError("webgl can not use isFileExist");
             return false;
@@ -589,21 +561,15 @@ public class FileUtility
     public static void createDir(string dir)
     {
         if (dir.isEmpty())
-        {
             return;
-        }
 
         if (isDirExist(dir))
-        {
             return;
-        }
 
         // 如果有上一级目录,并且上一级目录不存在,则先创建上一级目录
         string parentDir = getFilePath(dir);
         if (parentDir != dir)
-        {
             createDir(parentDir);
-        }
 
         if (isEditor())
         {
@@ -630,19 +596,19 @@ public class FileUtility
     // 查找指定目录下的所有文件,path为GameResources下的相对路径
     public static List<string> findResourcesFilesNonAlloc(string path, string pattern, bool recursive = true, bool keepAbsolutePath = false)
     {
-        mTempPatternList.Clear();
-        mTempPatternList.addNotEmpty(pattern);
-        mTempFileList.Clear();
-        findResourcesFiles(path, mTempFileList, mTempPatternList, recursive, keepAbsolutePath);
-        return mTempFileList;
+        tempPatternList.Clear();
+        tempPatternList.addNotEmpty(pattern);
+        tempFileList.Clear();
+        findResourcesFiles(path, tempFileList, tempPatternList, recursive, keepAbsolutePath);
+        return tempFileList;
     }
 
     // 查找指定目录下的所有文件,path为GameResources下的相对路径
     public static List<string> findResourcesFilesNonAlloc(string path, List<string> patterns = null, bool recursive = true, bool keepAbsolutePath = false)
     {
-        mTempFileList.Clear();
-        findResourcesFiles(path, mTempFileList, patterns, recursive, keepAbsolutePath);
-        return mTempFileList;
+        tempFileList.Clear();
+        findResourcesFiles(path, tempFileList, patterns, recursive, keepAbsolutePath);
+        return tempFileList;
     }
 
     // 查找指定目录下的所有文件,path为GameResources下的相对路径
@@ -654,9 +620,9 @@ public class FileUtility
             return;
         }
 
-        mTempPatternList.Clear();
-        mTempPatternList.addNotEmpty(pattern);
-        findResourcesFiles(path, fileList, mTempPatternList, recursive);
+        tempPatternList.Clear();
+        tempPatternList.addNotEmpty(pattern);
+        findResourcesFiles(path, fileList, tempPatternList, recursive);
     }
 
     // 查找指定目录下的所有文件,path为GameResources下的相对路径
@@ -685,27 +651,27 @@ public class FileUtility
     // 查找指定目录下的所有文件,path为StreamingAssets下的相对路径
     public static List<string> findStreamingAssetsFilesNonAlloc(string path, string pattern, bool recursive = true, bool keepAbsolutePath = false)
     {
-        mTempPatternList.Clear();
-        mTempPatternList.addNotEmpty(pattern);
-        mTempFileList.Clear();
-        findStreamingAssetsFiles(path, mTempFileList, mTempPatternList, recursive, keepAbsolutePath);
-        return mTempFileList;
+        tempPatternList.Clear();
+        tempPatternList.addNotEmpty(pattern);
+        tempFileList.Clear();
+        findStreamingAssetsFiles(path, tempFileList, tempPatternList, recursive, keepAbsolutePath);
+        return tempFileList;
     }
 
     // 查找指定目录下的所有文件,path为StreamingAssets下的相对路径
     public static List<string> findStreamingAssetsFilesNonAlloc(string path, List<string> patterns = null, bool recursive = true, bool keepAbsolutePath = false)
     {
-        mTempFileList.Clear();
-        findStreamingAssetsFiles(path, mTempFileList, patterns, recursive, keepAbsolutePath);
-        return mTempFileList;
+        tempFileList.Clear();
+        findStreamingAssetsFiles(path, tempFileList, patterns, recursive, keepAbsolutePath);
+        return tempFileList;
     }
 
     // 查找指定目录下的所有文件,path为StreamingAssets下的相对路径
     public static void findStreamingAssetsFiles(string path, List<string> fileList, string pattern, bool recursive = true, bool keepAbsolutePath = false)
     {
-        mTempPatternList.Clear();
-        mTempPatternList.addNotEmpty(pattern);
-        findStreamingAssetsFiles(path, fileList, mTempPatternList, recursive, keepAbsolutePath);
+        tempPatternList.Clear();
+        tempPatternList.addNotEmpty(pattern);
+        findStreamingAssetsFiles(path, fileList, tempPatternList, recursive, keepAbsolutePath);
     }
 
     // 查找指定目录下的所有文件,path为StreamingAssets下的相对路径,返回的路径列表为绝对路径
@@ -780,19 +746,19 @@ public class FileUtility
     // 查找指定目录下的所有文件,path为绝对路径
     public static List<string> findFilesNonAlloc(string path, string pattern, bool recursive = true)
     {
-        mTempPatternList.Clear();
-        mTempPatternList.addNotEmpty(pattern);
-        mTempFileList1.Clear();
-        findFilesInternal(path, mTempFileList1, mTempPatternList, recursive);
-        return mTempFileList1;
+        tempPatternList.Clear();
+        tempPatternList.addNotEmpty(pattern);
+        tempFileList1.Clear();
+        findFilesInternal(path, tempFileList1, tempPatternList, recursive);
+        return tempFileList1;
     }
 
     // 查找指定目录下的所有文件,path为绝对路径
     public static List<string> findFilesNonAlloc(string path, IList<string> patterns = null, bool recursive = true)
     {
-        mTempFileList1.Clear();
-        findFilesInternal(path, mTempFileList1, patterns, recursive);
-        return mTempFileList1;
+        tempFileList1.Clear();
+        findFilesInternal(path, tempFileList1, patterns, recursive);
+        return tempFileList1;
     }
 
     public static void findFiles(string path, List<string> fileList, List<string> patterns)
@@ -804,9 +770,9 @@ public class FileUtility
     {
         if (isMainThread())
         {
-            mTempPatternList.Clear();
-            mTempPatternList.addNotEmpty(pattern);
-            findFilesInternal(path, fileList, mTempPatternList, recursive);
+            tempPatternList.Clear();
+            tempPatternList.addNotEmpty(pattern);
+            findFilesInternal(path, fileList, tempPatternList, recursive);
         }
         else
         {
@@ -832,9 +798,7 @@ public class FileUtility
             {
                 validPath(ref path);
                 if (!isDirExist(path))
-                {
                     return;
-                }
 
                 DirectoryInfo folder = new(path);
                 int patternCount = patterns.count();
@@ -884,9 +848,7 @@ public class FileUtility
         {
             validPath(ref path);
             if (!isDirExist(path))
-            {
                 return false;
-            }
 
             if (!isEditor() && isAndroid())
             {
@@ -896,11 +858,8 @@ public class FileUtility
             {
                 foreach (string dir in Directory.GetDirectories(path))
                 {
-                    if (!excludeList.isEmpty() &&
-                        excludeList.Contains(getFileNameThread(dir)))
-                    {
+                    if (!excludeList.isEmpty() && excludeList.Contains(getFileNameThread(dir)))
                         continue;
-                    }
 
                     dirList.Add(dir);
                     if (recursive)
@@ -926,18 +885,14 @@ public class FileUtility
     public static void generateFileMD5(string fileName, StringCallback callback)
     {
         if (callback == null)
-        {
             return;
-        }
 
         // 安卓平台下容易oom,所以调用java的函数通过流的方式来计算md5
         if (!isEditor() && isAndroid())
         {
             string md5 = AndroidAssetLoader.generateMD5(fileName);
             if (md5 == null)
-            {
                 return;
-            }
 
             callback(md5.ToLower());
         }
@@ -962,9 +917,7 @@ public class FileUtility
             AndroidAssetLoader.generateMD5List(fileNameList, list);
             int count = list.Count;
             for (int i = 0; i < count; ++i)
-            {
                 list[i] = list[i].ToLower();
-            }
 
             callback(list);
         }
@@ -985,9 +938,7 @@ public class FileUtility
     public static string generateFileMD5(byte[] fileContent, int length = -1)
     {
         if (fileContent.count() == 0)
-        {
             return EMPTY;
-        }
 
         if (length < 0)
         {
@@ -1060,9 +1011,7 @@ public class FileUtility
         foreach (var item in list0)
         {
             GameFileInfo info0 = item.Value;
-            if (!list1.TryGetValue(item.Key, out GameFileInfo info1) ||
-                info0.size != info1.size ||
-                (checkMD5 && info0.md5 != info1.md5))
+            if (!list1.TryGetValue(item.Key, out GameFileInfo info1) || info0.size != info1.size || (checkMD5 && info0.md5 != info1.md5))
             {
                 if (info1.name == null)
                 {
@@ -1101,9 +1050,7 @@ public class FileUtility
     public static byte[] decryptAES(byte[] data, byte[] key, byte[] iv)
     {
         if (key.isEmpty() || iv.isEmpty())
-        {
             return data;
-        }
 
         using Aes aesAlg = Aes.Create();
         aesAlg.Key = key;
@@ -1131,8 +1078,7 @@ public class FileUtility
         {
             // 如果已经不在远端文件列表中,则是已删除的文件
             // 在本地,但是与远端文件不一致,也需要删除,因为动态下载的文件不会在启动时下载,所以为了避免加载到旧的文件,需要删除本地的旧文件,虽然在资源版本系统中已经判断了是否一致了
-            if (!remoteInfoList.TryGetValue(item.Key, out GameFileInfo remoteInfo) ||
-                remoteInfo.md5 != item.Value.md5)
+            if (!remoteInfoList.TryGetValue(item.Key, out GameFileInfo remoteInfo) || remoteInfo.md5 != item.Value.md5)
             {
                 deleteList.Add(item.Key);
             }

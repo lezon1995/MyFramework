@@ -165,7 +165,8 @@ public class ResourcesLoader
         {
             return info.getObject() as T;
         }
-        else if (info.getState() == LOAD_STATE.DOWNLOADING)
+
+        if (info.getState() == LOAD_STATE.DOWNLOADING)
         {
             logError("Resources资源无法下载,不能同步加载!" + name);
         }
@@ -184,7 +185,7 @@ public class ResourcesLoader
     // 异步加载资源,name为Resources下的相对路径,不带后缀
     public CustomAsyncOperation loadResourcesAsync<T>(string name, AssetLoadDoneCallback doneCallback) where T : UObject
     {
-        CustomAsyncOperation op = new();
+        var op = new CustomAsyncOperation();
         string path = getFilePath(name);
         // 如果文件夹还未加载,则添加文件夹
         var resList = loadedPaths.getOrAddNew(path);
@@ -199,7 +200,7 @@ public class ResourcesLoader
             // 资源正在下载,将回调添加到回调列表中,等待下载完毕
             if (info.getState() == LOAD_STATE.LOADING)
             {
-                info.addCallback((UObject asset, UObject[] assets, byte[] bytes, string loadPath) =>
+                info.addCallback((asset, assets, bytes, loadPath) =>
                 {
                     doneCallback?.Invoke(asset, assets, bytes, loadPath);
                     op.setFinish();
@@ -220,7 +221,7 @@ public class ResourcesLoader
             info.setPath(path);
             info.setResourceName(name);
             info.setState(LOAD_STATE.LOADING);
-            info.addCallback((UObject asset, UObject[] assets, byte[] bytes, string loadPath) =>
+            info.addCallback((asset, assets, bytes, loadPath) =>
             {
                 doneCallback?.Invoke(asset, assets, bytes, loadPath);
                 op.setFinish();

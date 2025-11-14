@@ -1,65 +1,95 @@
 ﻿using System;
 
 // 窗口对象池基类
-public class WindowStructPoolBase
+public abstract class WindowStructPoolBase
 {
-	protected WindowObjectBase mOwnerObject;	// 如果是WindowObject中创建的对象池,则会存储此WindowObject
-	protected LayoutScript mScript;				// 所属的布局脚本
-	protected myUGUIObject mItemParent;			// 创建节点时默认的父节点
-	protected myUGUIObject mTemplate;			// 创建节点时使用的模板
-	protected string mPreName;					// 创建物体的名字前缀
-	protected Type mObjectType;					// 物体类型
-	protected static long mAssignIDSeed;		// 分配ID种子,用于设置唯一分配ID,只会递增,不会减少
-	protected bool mNewItemMoveToLast;			// 新创建的物体是否需要放到父节点的最后,也就是是否在意其渲染顺序
-	protected bool mInited;						// 是否已经初始化
-	public WindowStructPoolBase(IWindowObjectOwner parent)
-	{
-		if (parent is WindowObjectBase objBase)
-		{
-			mScript = objBase.getScript();
-			mOwnerObject = objBase;
-		}
-		else if (parent is LayoutScript script)
-		{
-			mScript = script;
-			mOwnerObject = null;
-		}
-		mOwnerObject?.addWindowPool(this);
-		mScript.addWindowStructPool(this);
-		mNewItemMoveToLast = true;
-	}
-	public virtual void destroy() {}
-	public void init(myUGUIObject parent, Type objectType, bool newItemToLast = true)
-	{
-		mItemParent = parent;
-		mNewItemMoveToLast = newItemToLast;
-		mPreName = mTemplate?.getName();
-		mObjectType = objectType;
-		mTemplate.setActive(false);
-		mInited = true;
-	}
-	public void assignTemplate(myUGUIObject parent, string name)
-	{
-		mScript.newObject(out myUGUIObject obj, parent, name);
-		mTemplate = obj;
-	}
-	public void assignTemplate<T>(myUGUIObject parent, string name) where T : myUGUIObject, new()
-	{
-		mScript.newObject(out T obj, parent, name);
-		mTemplate = obj;
-	}
-	public void assignTemplate(string name)
-	{
-		mScript.newObject(out myUGUIObject obj, name);
-		mTemplate = obj;
-	}
-	public void assignTemplate(myUGUIObject template)
-	{
-		mTemplate = template;
-	}
-	public myUGUIObject getInUseParent() { return mItemParent; }
-	public myUGUIObject getTemplate() { return mTemplate; }
-	public void setItemPreName(string preName) { mPreName = preName; }
-	public virtual void unuseAll() { }
-	public bool isRootPool() { return mOwnerObject == null; }
+    protected WindowObjectBase ownerObject; // 如果是WindowObject中创建的对象池,则会存储此WindowObject
+    protected LayoutScript script; // 所属的布局脚本
+    protected myUGUIObject parent; // 创建节点时默认的父节点
+    protected myUGUIObject template; // 创建节点时使用的模板
+    protected string namePrefix; // 创建物体的名字前缀
+    protected Type objectType; // 物体类型
+    protected static long assignIDSeed; // 分配ID种子,用于设置唯一分配ID,只会递增,不会减少
+    protected bool newItemMoveToLast; // 新创建的物体是否需要放到父节点的最后,也就是是否在意其渲染顺序
+    protected bool initialized; // 是否已经初始化
+
+    protected WindowStructPoolBase(IWindowObjectOwner parent)
+    {
+        switch (parent)
+        {
+            case WindowObjectBase objBase:
+                script = objBase.getScript();
+                ownerObject = objBase;
+                break;
+            case LayoutScript _script:
+                script = _script;
+                ownerObject = null;
+                break;
+        }
+
+        ownerObject?.addWindowPool(this);
+        script.addWindowStructPool(this);
+        newItemMoveToLast = true;
+    }
+
+    public virtual void destroy()
+    {
+    }
+
+    public void init(myUGUIObject _parent, Type _objectType, bool newItemToLast = true)
+    {
+        parent = _parent;
+        newItemMoveToLast = newItemToLast;
+        namePrefix = template?.getName();
+        objectType = _objectType;
+        template?.setActive(false);
+        initialized = true;
+    }
+
+    public void assignTemplate(myUGUIObject parent, string name)
+    {
+        script.newObject(out myUGUIObject obj, parent, name);
+        template = obj;
+    }
+
+    public void assignTemplate<T>(myUGUIObject parent, string name) where T : myUGUIObject, new()
+    {
+        script.newObject(out T obj, parent, name);
+        template = obj;
+    }
+
+    public void assignTemplate(string name)
+    {
+        script.newObject(out myUGUIObject obj, name);
+        template = obj;
+    }
+
+    public void assignTemplate(myUGUIObject _template)
+    {
+        template = _template;
+    }
+
+    public myUGUIObject getInUseParent()
+    {
+        return parent;
+    }
+
+    public myUGUIObject getTemplate()
+    {
+        return template;
+    }
+
+    public void setItemPreName(string preName)
+    {
+        namePrefix = preName;
+    }
+
+    public virtual void unuseAll()
+    {
+    }
+
+    public bool isRootPool()
+    {
+        return ownerObject == null;
+    }
 }

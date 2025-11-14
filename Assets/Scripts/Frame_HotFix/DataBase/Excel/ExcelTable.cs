@@ -29,13 +29,13 @@ public class ExcelTable
 	public virtual void checkAllData() { checkAllDataDefault(); }
 	public void openFileAsync(Action callback)
 	{
-		if (mResourceManager == null)
+		if (res == null)
 		{
 			callback?.Invoke();
 			return;
 		}
 		string fileName = R_EXCEL_PATH + mTableName + ".bytes";
-		mResourceManager.loadGameResourceAsync(fileName, (TextAsset asset) =>
+		res.loadGameResourceAsync(fileName, (TextAsset asset) =>
 		{
 			if (asset == null)
 			{
@@ -55,7 +55,7 @@ public class ExcelTable
 			clearCache();
 			clear();
 			parseFileReload(mTableFileBytes ?? mTableFileData.bytes);
-			mResourceManager?.unload(ref mTableFileData);
+			res?.unload(ref mTableFileData);
 		}
 	}
 	public void parseFile(byte[] fileBuffer)
@@ -196,7 +196,7 @@ public class ExcelTable
 			parseFile(mTableFileBytes ?? mTableFileData.bytes);
 		}
 		// 解析以后就可以卸载文件数据
-		mResourceManager?.unload(ref mTableFileData);
+		res?.unload(ref mTableFileData);
 	}
 	// 热重载表格数据
 	protected void parseFileReload(byte[] fileBuffer)

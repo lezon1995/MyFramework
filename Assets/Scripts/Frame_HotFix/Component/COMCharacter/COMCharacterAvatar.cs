@@ -361,7 +361,7 @@ public class COMCharacterAvatar : GameComponent
 		setModel(go);
 		if (mAnimator != null && !mAnimatorControllerPath.isEmpty())
 		{
-			mAnimator.runtimeAnimatorController = mResourceManager.loadGameResource<RuntimeAnimatorController>(mAnimatorControllerPath);
+			mAnimator.runtimeAnimatorController = res.loadGameResource<RuntimeAnimatorController>(mAnimatorControllerPath);
 		}
 		// 回调顺序是先通知组件的子类,再通知所属角色,最后执行异步加载的回调
 		postModelLoaded();

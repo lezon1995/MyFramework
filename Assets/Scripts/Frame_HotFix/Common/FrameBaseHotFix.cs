@@ -16,7 +16,7 @@ public class FrameBaseHotFix
 	public static SQLiteManager mSQLiteManager;
 	public static DllImportSystem mDllImportSystem;
 	public static CameraManager mCameraManager;
-	public static ResourceManager mResourceManager;
+	public static ResourceManager res;
 	public static PrefabPoolManager mPrefabPoolManager;
 	public static InputSystem mInputSystem;
 	public static KeyMappingSystem mKeyMappingSystem;

@@ -170,7 +170,7 @@ public class SceneSystem : FrameSystem
             scene.setLoadingCallback(loadingCallback);
             scene.setLoadedCallback(loadedCallback);
             // scenePath + sceneName表示场景文件AssetBundle的路径,包含文件名
-            mResourceManager.preloadAssetBundleAsync(getScenePath(sceneName) + sceneName, (AssetBundleInfo bundle) =>
+            res.preloadAssetBundleAsync(getScenePath(sceneName) + sceneName, (AssetBundleInfo bundle) =>
             {
                 GameEntry.startCoroutine(loadSceneCoroutine(scene, op));
             });
@@ -187,7 +187,7 @@ public class SceneSystem : FrameSystem
         scenes.Remove(name);
         if (unloadPath)
         {
-            mResourceManager?.unloadPath(sceneRegisterInfos.get(name).path);
+            res?.unloadPath(sceneRegisterInfos.get(name).path);
         }
     }
 

@@ -15,7 +15,7 @@ public class ResourcesManagerDebug : MonoBehaviour
 
         loadedAssetBundleListKeys.Clear();
         loadedAssetBundleListValues.Clear();
-        var dict = mResourceManager.getAssetBundleLoader().getAssetBundleInfoList();
+        var dict = res.getAssetBundleLoader().getAssetBundleInfoList();
         foreach (var (key, info) in dict)
         {
             if (info.getLoadState() != LOAD_STATE.LOADED)

@@ -12,7 +12,7 @@ public class UIGaming : LayoutScript
     // auto generate member end
     public UIGaming()
     {
-        mNeedUpdate = false;
+        needUpdate = false;
     }
 
     public override void assignWindow()

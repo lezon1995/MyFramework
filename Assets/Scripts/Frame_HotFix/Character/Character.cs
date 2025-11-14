@@ -36,7 +36,7 @@ public class Character : MovableObject
 	{
 		mAvatar?.destroyModel();
 		// 如果销毁模型后角色节点为空了,则需要创建一个新的角色节点
-		if (mObject == null)
+		if (go == null)
 		{
 			selfCreateObject(getName(), mCharacterManager.getObject());
 		}

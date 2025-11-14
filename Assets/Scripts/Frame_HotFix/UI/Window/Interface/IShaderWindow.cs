@@ -1,6 +1,5 @@
-﻿
-public interface IShaderWindow
+﻿public interface IShaderWindow
 {
-	void setWindowShader(WindowShader shader);
-	WindowShader getWindowShader();
+    void setWindowShader(WindowShader shader);
+    WindowShader getWindowShader();
 }

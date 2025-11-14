@@ -8,7 +8,7 @@ public interface IUGUIObject
 
 public interface IUGUIText : IUGUIObject
 {
-	public void setText(string text);
+	public void setText(string str);
 	public void setText(int text);
 }
 

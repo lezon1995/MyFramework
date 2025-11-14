@@ -1,6 +1,6 @@
-﻿using UnityEngine;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using UnityEngine;
 using static UnityUtility;
 using static FrameBaseHotFix;
 using static MathUtility;
@@ -8,12 +8,12 @@ using static MathUtility;
 // 用于处理一些需要监听ESC键来关闭的布局
 public class COMLayoutManagerEscHide : GameComponent
 {
-    protected Comparison<GameLayout> mCompareLayoutRenderOrder; // 比较布局渲染顺序的函数,避免GC
-    protected List<GameLayout> mLayoutRenderOrderList = new(); // 按渲染顺序排序的布局列表,只有已显示的列表
+    protected Comparison<GameLayout> comparison; // 比较布局渲染顺序的函数,避免GC
+    protected List<GameLayout> layoutRenderOrderList = new(); // 按渲染顺序排序的布局列表,只有已显示的列表
 
     public COMLayoutManagerEscHide()
     {
-        mCompareLayoutRenderOrder = compareLayoutRenderOrder;
+        comparison = compareLayoutRenderOrder;
     }
 
     public override void init(ComponentOwner owner)
@@ -27,26 +27,26 @@ public class COMLayoutManagerEscHide : GameComponent
         base.resetProperty();
         // mCompareLayoutRenderOrder不重置
         // mCompareLayoutRenderOrder = null;
-        mLayoutRenderOrderList.Clear();
+        layoutRenderOrderList.Clear();
     }
 
     public void notifyLayoutRenderOrder()
     {
-        mLayoutRenderOrderList.Sort(mCompareLayoutRenderOrder);
+        layoutRenderOrderList.Sort(comparison);
     }
 
     public void notifyLayoutVisible(bool visible, GameLayout layout)
     {
         if (visible)
         {
-            if (mLayoutRenderOrderList.addUnique(layout))
+            if (layoutRenderOrderList.addUnique(layout))
             {
-                mLayoutRenderOrderList.Sort(mCompareLayoutRenderOrder);
+                layoutRenderOrderList.Sort(comparison);
             }
         }
         else
         {
-            mLayoutRenderOrderList.Remove(layout);
+            layoutRenderOrderList.Remove(layout);
         }
     }
 
@@ -58,21 +58,19 @@ public class COMLayoutManagerEscHide : GameComponent
 
     public void notifyLayoutDestroy(GameLayout layout)
     {
-        mLayoutRenderOrderList.Remove(layout);
+        layoutRenderOrderList.Remove(layout);
     }
 
     //------------------------------------------------------------------------------------------------------------------------------
     protected void onESCDown()
     {
         // 从上往下逐级发送ESC按下事件,有布局处理后就不再传递
-        int count = mLayoutRenderOrderList.Count;
+        int count = layoutRenderOrderList.Count;
         for (int i = count - 1; i >= 0; --i)
         {
-            GameLayout layout = mLayoutRenderOrderList[i];
+            var layout = layoutRenderOrderList[i];
             if (layout == null)
-            {
                 continue;
-            }
 
             if (layout.getScript() == null)
             {
@@ -83,9 +81,7 @@ public class COMLayoutManagerEscHide : GameComponent
             try
             {
                 if (layout.getScript().onESCDown())
-                {
                     break;
-                }
             }
             catch (Exception e)
             {

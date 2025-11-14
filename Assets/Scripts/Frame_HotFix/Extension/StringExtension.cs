@@ -1,4 +1,5 @@
-﻿using static StringUtility;
+﻿using System;
+using static StringUtility;
 using static CSharpUtility;
 using static FrameBaseUtility;
 
@@ -452,10 +453,8 @@ public static class StringExtension
         {
             return startString == pattern;
         }
-        else
-        {
-            return startString.ToLower() == pattern.ToLower();
-        }
+
+        return string.Equals(startString, pattern, StringComparison.CurrentCultureIgnoreCase);
     }
 
     // 判断是否以pattern结尾
@@ -471,10 +470,8 @@ public static class StringExtension
         {
             return endString == pattern;
         }
-        else
-        {
-            return endString.ToLower() == pattern.ToLower();
-        }
+
+        return string.Equals(endString, pattern, StringComparison.CurrentCultureIgnoreCase);
     }
 
     public static string removeAll(this string str, params string[] key)
@@ -532,16 +529,14 @@ public static class StringExtension
             builder.replace(begin, end, reStr);
             return builder.ToString();
         }
-        else
-        {
-            str = str.Remove(begin, end - begin);
-            if (reStr.Length > 0)
-            {
-                str = str.Insert(begin, reStr);
-            }
 
-            return str;
+        str = str.Remove(begin, end - begin);
+        if (reStr.Length > 0)
+        {
+            str = str.Insert(begin, reStr);
         }
+
+        return str;
     }
 
     public static string replace(this string str, string key, string newWords)
@@ -553,17 +548,15 @@ public static class StringExtension
             builder.replace(key, newWords);
             return builder.ToString();
         }
-        else
-        {
-            int startPos = 0;
-            int pos = findFirstSubstr(str, key, startPos);
-            if (pos < 0)
-            {
-                return str;
-            }
 
-            return replace(str, pos, pos + key.Length, newWords);
+        int startPos = 0;
+        int pos = findFirstSubstr(str, key, startPos);
+        if (pos < 0)
+        {
+            return str;
         }
+
+        return replace(str, pos, pos + key.Length, newWords);
     }
 
     public static string replaceAll(this string str, string key, string newWords)
@@ -575,23 +568,21 @@ public static class StringExtension
             builder.replaceAll(key, newWords);
             return builder.ToString();
         }
-        else
-        {
-            int startPos = 0;
-            while (true)
-            {
-                int pos = findFirstSubstr(str, key, startPos);
-                if (pos < 0)
-                {
-                    break;
-                }
 
-                str = replace(str, pos, pos + key.Length, newWords);
-                startPos = pos + newWords.Length;
+        int startPos = 0;
+        while (true)
+        {
+            int pos = findFirstSubstr(str, key, startPos);
+            if (pos < 0)
+            {
+                break;
             }
 
-            return str;
+            str = replace(str, pos, pos + key.Length, newWords);
+            startPos = pos + newWords.Length;
         }
+
+        return str;
     }
 
     public static string replaceAll(string str, char key, char newWords)
@@ -646,9 +637,7 @@ public static class StringExtension
     public static int findFirstSubstr(this string res, char pattern, int startPos = 0, bool sensitive = true)
     {
         if (res == null)
-        {
             return -1;
-        }
 
         if (!sensitive)
         {
@@ -659,8 +648,7 @@ public static class StringExtension
         int len = res.Length;
         for (int i = startPos; i < len; ++i)
         {
-            if ((sensitive && res[i] == pattern) ||
-                (!sensitive && toLower(res[i]) == pattern))
+            if ((sensitive && res[i] == pattern) || (!sensitive && toLower(res[i]) == pattern))
             {
                 posFind = i;
                 break;
@@ -674,9 +662,7 @@ public static class StringExtension
     public static int findFirstSubstr(this string res, string pattern, int startPos = 0, bool returnEndIndex = false, bool sensitive = true)
     {
         if (res == null)
-        {
             return -1;
-        }
 
         int posFind = -1;
         int subLen = pattern.Length;
@@ -684,9 +670,7 @@ public static class StringExtension
         for (int i = startPos; i < len; ++i)
         {
             if (len - i < subLen)
-            {
                 break;
-            }
 
             int j = 0;
             // 大小写敏感

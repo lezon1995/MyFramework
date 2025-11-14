@@ -1,14 +1,14 @@
-﻿using System;
-using System.Reflection;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
-#if USE_TMP
+﻿#if USE_TMP
 using TMPro;
 #endif
 #if USE_AVPRO_VIDEO
 using RenderHeads.Media.AVProVideo;
 #endif
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using UnityEngine;
+using UnityEngine.UI;
 using static UnityUtility;
 using static FileUtility;
 using static StringUtility;
@@ -289,7 +289,7 @@ public class UGUIGeneratorUtility
         if (mSubUIParentList.Count == 0)
         {
             mSubUIParentList.Add(typeof(WindowObjectUGUI).ToString());
-            mSubUIParentList.Add(typeof(WindowRecycleableUGUI).ToString());
+            mSubUIParentList.Add(typeof(WindowRecyclableUGUI).ToString());
             mSubUIParentList.Add("DragViewItem");
         }
 

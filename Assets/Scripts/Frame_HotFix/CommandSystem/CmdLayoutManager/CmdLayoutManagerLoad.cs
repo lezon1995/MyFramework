@@ -13,11 +13,11 @@ public class CmdLayoutManagerLoad
     // callback异步加载时的完成回调
     public static LayoutScript execute(Type layoutType, int renderOrder, LAYOUT_ORDER orderType, bool visible, bool isScene, bool async, GameLayoutCallback callback)
     {
-        LayoutInfo info = new()
+        var info = new LayoutInfo
         {
             type = layoutType,
             renderOrder = renderOrder,
-            layoutOrder = orderType,
+            orderType = orderType,
             isScene = isScene
         };
         if (async)
@@ -30,7 +30,7 @@ public class CmdLayoutManagerLoad
         }
         else
         {
-            GameLayout layout = mLayoutManager.createLayout(info);
+            var layout = mLayoutManager.createLayout(info);
             if (layout == null)
             {
                 return null;
@@ -55,14 +55,9 @@ public class CmdLayoutManagerLoad
             return;
 
         if (visible)
-        {
             layout.setVisible(true);
-        }
-        // 隐藏时需要设置强制隐藏,不通知脚本,因为通常这种情况只是想后台加载布局
         else
-        {
-            layout.setVisibleForce(false);
-        }
+            layout.setVisibleForce(false); // 隐藏时需要设置强制隐藏,不通知脚本,因为通常这种情况只是想后台加载布局
 
         // 通知布局管理器布局显示或隐藏
         mLayoutManager.notifyLayoutVisible(visible, layout);

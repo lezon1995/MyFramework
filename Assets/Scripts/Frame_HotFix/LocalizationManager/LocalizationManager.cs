@@ -401,7 +401,7 @@ public class LocalizationManager : FrameSystem
         invokeLocalizationCallback(localization);
     }
 
-    public void unregisteLocalization(ICollection<IUGUIObject> objList)
+    public void unregisterLocalization(ICollection<IUGUIObject> objList)
     {
         foreach (IUGUIObject obj in objList.safe())
         {
@@ -417,7 +417,7 @@ public class LocalizationManager : FrameSystem
     }
 
     // 注销需要切换多语言的文本对象
-    public void unregisteLocalization(myUGUIObject obj)
+    public void unregisterLocalization(myUGUIObject obj)
     {
         if (obj is IUGUIText text && mTextList.Remove(text, out TextObjectLocalization textLocalization))
         {

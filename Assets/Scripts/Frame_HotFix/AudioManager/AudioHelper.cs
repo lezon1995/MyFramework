@@ -15,7 +15,7 @@ public class AudioHelper : MovableObject
 
     public override void destroy()
     {
-        mPrefabPoolManager?.destroyObject(ref mObject, false);
+        mPrefabPoolManager?.destroyObject(ref go, false);
         base.destroy();
     }
 
