@@ -1,8 +1,13 @@
-﻿using System;
+﻿global using static FrameDefine;
+global using static FrameBaseDefine;
+global using static UnityUtility;
+global using static FrameBaseUtility;
+global using static FrameUtility;
+global using static GameDefine;
+global using static GBH;
+
+using System;
 using System.Reflection;
-using static FrameUtility;
-using static GameDefine;
-using static GBH;
 
 public class GameHotFix : GameHotFixBase
 {
