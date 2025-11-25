@@ -1,4 +1,4 @@
-﻿using static FrameUtility;
+using static FrameUtility;
 using static GBR;
 
 public class MainSceneLoading : SceneProcedure
