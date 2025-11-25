@@ -1,0 +1,3 @@
+-unsafe
+-analyzer:Assets/../Analyzers/AnalyzerUnity.dll
+-langversion:10
