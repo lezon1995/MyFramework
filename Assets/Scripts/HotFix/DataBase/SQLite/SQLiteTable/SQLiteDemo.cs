@@ -1,4 +1,5 @@
-﻿using Mono.Data.Sqlite;
+﻿#if USE_SQLITE
+using Mono.Data.Sqlite;
 using System;
 using System.Collections.Generic;
 
@@ -15,3 +16,4 @@ public class TDDemo : SQLiteData
 
 public class SQLiteDemo : SQLiteTable
 {}
+#endif

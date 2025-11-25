@@ -1,11 +1,22 @@
-﻿using static FrameBaseHotFix;
+﻿using UnityEngine;
 
 public class MainSceneExit : SceneProcedure
 {
-	protected override void onInit(SceneProcedure lastProcedure) { }
-	protected override void onExit(SceneProcedure nextProcedure)
-	{
-		// 一般在场景的Exit流程中,卸载该场景的所有布局,确保没有资源遗留
-		genericExit(0);
-	}
+    protected override void onInit(SceneProcedure lastProcedure)
+    {
+    }
+
+    protected override void onUpdate(float elapsedTime)
+    {
+        if (isKeyCurrentDown(KeyCode.I))
+        {
+            exit(null, null);
+        }
+    }
+
+    protected override void onExit(SceneProcedure nextProcedure)
+    {
+        // 一般在场景的Exit流程中,卸载该场景的所有布局,确保没有资源遗留
+        genericExit(0);
+    }
 }
