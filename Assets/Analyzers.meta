@@ -1,5 +1,9 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:Assets/Analyzers.meta
 guid: 0afbdfdb5730f314eae8de5948d11fe6
+========
+guid: 9780fd34c4ecbba4bb04f93d737415bf
+>>>>>>>> 3156a930 (更新Frame,添加bugly集成):Assets/Plugins/iOS_Frame.meta
 folderAsset: yes
 DefaultImporter:
   externalObjects: {}
