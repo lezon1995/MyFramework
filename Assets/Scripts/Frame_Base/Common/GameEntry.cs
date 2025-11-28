@@ -19,8 +19,8 @@ public class GameEntry : MonoBehaviour
 		ServicePointManager.DefaultConnectionLimit = 200;
 		Screen.sleepTimeout = SleepTimeout.NeverSleep;
 		// 每当Transform组件更改时是否自动将变换更改与物理系统同步
-		Physics.simulationMode = SimulationMode.Script;
-		Physics.autoSyncTransforms = true;
+		// Physics.simulationMode = SimulationMode.Script;
+		// Physics.autoSyncTransforms = true;
 		AppDomain.CurrentDomain.UnhandledException += unhandledException;
 		setMainThreadID(Thread.CurrentThread.ManagedThreadId);
 		dumpSystem();

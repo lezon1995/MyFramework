@@ -808,7 +808,7 @@ PlayerSettings:
   webGLPowerPreference: 2
   scriptingDefineSymbols:
     Android: USE_HYBRID_CLR;USE_SQLITE;USE_TMP;USE_OBFUSCATOR;USE_URP
-    Standalone: USE_ILRUNTIME
+    Standalone: USE_ILRUNTIME;USE_TMP
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend:

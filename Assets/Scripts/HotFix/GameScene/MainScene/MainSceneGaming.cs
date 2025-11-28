@@ -1,40 +1,35 @@
-﻿using UnityEngine;
-using static FrameBaseHotFix;
-using static LT;
+﻿using MarbleHero;
+using UnityEngine;
 
 public class MainSceneGaming : SceneProcedure
 {
-    protected CharacterGame mPlayer;
+    protected Ball mBall;
+
 
     protected override void onInit(SceneProcedure lastProcedure)
     {
-        mPlayer = mCharacterManager.createCharacter<CharacterGame>("test");
-        LOAD<UIGaming>();
+        mBall = ballManager.createBall<NormalBall>("normal");
+        // LT.LOAD<UIGaming>();
+
+        var go = getRootGameObject("Sphere");
+        mBall.setObject(go);
     }
 
     protected override void onUpdate(float elapsedTime)
     {
         base.onUpdate(elapsedTime);
 
-        // 攻击
         if (isKeyCurrentDown(KeyCode.I))
         {
-            if (mNetManager.isConnected())
-            {
-                CSAttack.send();
-            }
-            else
-            {
-                log("正在使用快捷键进行攻击,但是未连接服务器");
-            }
-
-            changeProcedure<MainSceneExit>();
+            var v = Random.insideUnitCircle;
+            mBall.setDirection(new(v.x, 0, v.y));
         }
     }
 
+
     protected override void onExit(SceneProcedure nextProcedure)
     {
-        HIDE<UIGaming>();
-        mCharacterManager?.destroyCharacter(mPlayer);
+        // LT.HIDE<UIGaming>();
+        ballManager?.destroyBall(mBall);
     }
 }

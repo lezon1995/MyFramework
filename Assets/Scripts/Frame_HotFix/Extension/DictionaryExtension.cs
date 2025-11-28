@@ -179,6 +179,15 @@ public static class DictionaryExtension
 		}
 		return value;
 	}
+	public static Value getOrAddDefault<Key, Value>(this IDictionary<Key, Value> map, Key key) where Value : struct
+	{
+		if (!map.TryGetValue(key, out Value value))
+		{
+			value = default;
+			map.Add(key, value);
+		}
+		return value;
+	}
 	public static List<T> getOrAddListPersist<Key, T>(this IDictionary<Key, List<T>> map, Key key)
 	{
 		if (!map.TryGetValue(key, out var value))

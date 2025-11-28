@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-public class MainSceneExit : SceneProcedure
+﻿public class MainSceneExit : SceneProcedure
 {
     protected override void onInit(SceneProcedure lastProcedure)
     {
@@ -8,10 +6,6 @@ public class MainSceneExit : SceneProcedure
 
     protected override void onUpdate(float elapsedTime)
     {
-        if (isKeyCurrentDown(KeyCode.I))
-        {
-            exit(null, null);
-        }
     }
 
     protected override void onExit(SceneProcedure nextProcedure)

@@ -2,11 +2,7 @@
 {
     protected override void onInit(SceneProcedure lastProcedure)
     {
-        // 连接服务器
-        mNetManager.connect((bool success) =>
-        {
-            changeProcedure<MainSceneLogin>();
-        });
+        changeProcedure<MainSceneGaming>();
     }
 
     protected override void onExit(SceneProcedure nextProcedure)
