@@ -14,10 +14,12 @@ public class Ball : MovableObject
     Vector3 prePos;
     Vector3 curPos;
     Vector3 targetPos;
-    float speed = 10F;
-    float radius => mTransform.localScale.x;
+    float speed = 6F;
+    float radius => mTransform.localScale.x / 2F;
     float movementDelta;
-    Vector3 direction = new(1F, 0F, 2F);
+    Vector3 direction;
+    Vector3 hitNormal;
+    Collider hitCollider;
 
     public void setOnObjectSet(Action<GameObject, Ball> action) => onObjectSet = action;
     public void setBallType(Type type) => mType = type;
@@ -33,6 +35,12 @@ public class Ball : MovableObject
     public void setDirection(Vector3 value)
     {
         direction = value;
+        if (Physics.SphereCast(curPos, radius, direction, out var hit, 20F, BORDER_LAYER_MASK | BRICK_LAYER_MASK))
+        {
+            targetPos = hit.point + hit.normal * radius;
+            hitNormal = hit.normal;
+            hitCollider = hit.collider;
+        }
     }
 
     public override void init()
@@ -48,6 +56,7 @@ public class Ball : MovableObject
         instanceId = obj.GetInstanceID();
         onObjectSet?.Invoke(obj, this);
         curPos = obj.transform.position;
+        setDirection(new(1F, 0F, 2F));
     }
 
     protected override void initComponents()
@@ -61,28 +70,27 @@ public class Ball : MovableObject
 
         float t = (Time.time - Time.fixedTime) / Time.fixedDeltaTime;
         var p = Vector3.Lerp(prePos, curPos, t);
-        var delta = (p - mPosition).magnitude;
-        var safePos = Vector3.MoveTowards(mPosition, targetPos, delta);
-        setPosition(safePos);
+        setPosition(p);
     }
 
     public override void fixedUpdate(float elapsedTime)
     {
         base.fixedUpdate(elapsedTime);
 
-        if (Physics.SphereCast(curPos, radius, direction, out var hit, 10F, BORDER_LAYER_MASK | BRICK_LAYER_MASK))
-        {
-            targetPos = hit.point;
-        }
-
         prePos = curPos;
         movementDelta = speed * elapsedTime;
-        curPos = Vector3.MoveTowards(mPosition, targetPos, movementDelta);
+        curPos = Vector3.MoveTowards(curPos, targetPos, movementDelta);
+        var mid = (prePos + curPos) / 2F;
+        Debug.DrawLine(prePos, mid, Color.red, 0.02F);
+        Debug.DrawLine(mid, curPos, Color.green, 0.02F);
+        Debug.DrawLine(curPos, targetPos, Color.white, 0.02F);
         if (curPos == targetPos)
         {
-            var reflectDir = Vector3.Reflect(direction, hit.normal);
+            hitCollider.GetComponent<MeshRenderer>().enabled = !hitCollider.GetComponent<MeshRenderer>().enabled;
+            
+            var reflectDir = Vector3.Reflect(direction, hitNormal);
             var newDir = reflectDir.normalized;
-            direction = newDir;
+            setDirection(newDir);
         }
     }
 }
