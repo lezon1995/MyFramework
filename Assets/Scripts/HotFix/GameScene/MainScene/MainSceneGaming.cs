@@ -5,14 +5,10 @@ public class MainSceneGaming : SceneProcedure
 {
     protected Ball mBall;
 
-
     protected override void onInit(SceneProcedure lastProcedure)
     {
-        mBall = ballManager.createBall<NormalBall>("normal");
+        mBall = ballManager.createBall<NormalBall>("Ball");
         // LT.LOAD<UIGaming>();
-
-        var go = getRootGameObject("Sphere");
-        mBall.setObject(go);
     }
 
     protected override void onUpdate(float elapsedTime)
@@ -22,7 +18,7 @@ public class MainSceneGaming : SceneProcedure
         if (isKeyCurrentDown(KeyCode.I))
         {
             var v = Random.insideUnitCircle;
-            mBall.setDirection(new(v.x, 0, v.y));
+            mBall.setDirection(v);
         }
     }
 

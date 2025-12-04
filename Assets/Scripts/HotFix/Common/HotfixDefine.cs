@@ -2,6 +2,9 @@
 
 public static class HotfixDefine
 {
+    public const string GAMEPLAY_PATH = "_Gameplay";
+    
+    
     public const int BALL_LAYER = 6;
     public const int BALL_LAYER_MASK = 1 << BALL_LAYER;
     public const int BRICK_LAYER = 7;

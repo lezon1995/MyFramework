@@ -22,6 +22,11 @@ public class BallManager : FrameSystem
         ballObjectSet = onBallObjectSet;
     }
 
+    public override void init()
+    {
+        base.init();
+    }
+
     public override void destroy()
     {
         base.destroy();
@@ -130,6 +135,11 @@ public class BallManager : FrameSystem
 
         // 将角色挂接到管理器下
         ball.setID(id);
+
+        var path = $"{GAMEPLAY_PATH}/{name}.prefab";
+        var o = mPrefabPoolManager.createObject(path, 0, false, true);
+        ball.setObject(o);
+        
         ball.init();
         addBallToList(ball, managed);
         return ball;

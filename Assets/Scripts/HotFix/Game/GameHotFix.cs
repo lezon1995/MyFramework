@@ -1,6 +1,7 @@
 ﻿global using static FrameDefine;
 global using static FrameBaseDefine;
 global using static UnityUtility;
+global using static FrameBaseHotFix;
 global using static FrameBaseUtility;
 global using static FrameUtility;
 global using static GameDefine;
