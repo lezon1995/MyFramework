@@ -11,4 +11,10 @@ public static class HotfixDefine
     public const int BRICK_LAYER_MASK = 1 << BRICK_LAYER;
     public const int BORDER_LAYER = 8;
     public const int BORDER_LAYER_MASK = 1 << BORDER_LAYER;
+    
+    public const string BORDER_TOP_TAG = "BorderTop";
+    public const string BORDER_BOT_TAG = "BorderBot";
+    public const string BORDER_LEFT_TAG = "BorderLeft";
+    public const string BORDER_RIGHT_TAG = "BorderRight";
+    
 }

@@ -7,6 +7,8 @@ TagManager:
   - NoClick
   - BorderTop
   - BorderBot
+  - BorderLeft
+  - BorderRight
   layers:
   - Default
   - TransparentFX

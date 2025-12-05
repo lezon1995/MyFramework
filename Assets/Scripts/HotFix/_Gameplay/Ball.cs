@@ -39,6 +39,27 @@ public class Ball : MovableObject
         enableMoveInfo();
     }
 
+    public override void resetProperty()
+    {
+        base.resetProperty();
+        instanceId = 0;
+        mType = null;
+        mGUID = 0;
+        onObjectSet = null;
+        prePos = default;
+        curPos = default;
+        targetPos = default;
+        speed = 0;
+        radius = 0;
+        movementDelta = 0;
+        direction = default;
+        hitNormal = default;
+        hitCollider = null;
+        ballRenderer = null;
+        lastRadius = 0;
+        lastDirection = default;
+    }
+
     public override void setObject(GameObject obj)
     {
         base.setObject(obj);
@@ -76,7 +97,7 @@ public class Ball : MovableObject
         base.fixedUpdate(elapsedTime);
 
         checkRadius();
-        
+
         prePos = curPos;
         movementDelta = speed * elapsedTime;
         curPos = Vector2.MoveTowards(curPos, targetPos, movementDelta);
@@ -86,10 +107,63 @@ public class Ball : MovableObject
         Debug.DrawLine(curPos, targetPos, Color.white, 0.02F);
         if (curPos == targetPos)
         {
-            var reflectDir = Vector2.Reflect(direction, hitNormal);
-            var newDir = reflectDir.normalized;
-            setDirection(newDir);
+            onHitEnter(hitCollider, hitNormal);
         }
+    }
+
+    void reflectBounce(Vector2 normal)
+    {
+        var reflectDir = Vector2.Reflect(direction, normal);
+        var newDir = reflectDir.normalized;
+        setDirection(newDir);
+    }
+
+    protected virtual void onHitEnter(Collider2D c, Vector2 normal)
+    {
+        if (c.gameObject.layer == BORDER_LAYER)
+        {
+            onHitEnterBorder(c, normal);
+        }
+    }
+
+    protected virtual void onHitEnterBorder(Collider2D c, Vector2 normal)
+    {
+        if (c.CompareTag(BORDER_TOP_TAG))
+        {
+            onHitEnterBorderTop(c, normal);
+        }
+        else if (c.CompareTag(BORDER_BOT_TAG))
+        {
+            onHitEnterBorderBot(c, normal);
+        }
+        else if (c.CompareTag(BORDER_LEFT_TAG))
+        {
+            onHitEnterBorderLeft(c, normal);
+        }
+        else if (c.CompareTag(BORDER_RIGHT_TAG))
+        {
+            onHitEnterBorderRight(c, normal);
+        }
+    }
+
+    protected virtual void onHitEnterBorderTop(Collider2D c, Vector2 normal)
+    {
+        reflectBounce(normal);
+    }
+
+    protected virtual void onHitEnterBorderBot(Collider2D c, Vector2 normal)
+    {
+        reflectBounce(normal);
+    }
+
+    protected virtual void onHitEnterBorderLeft(Collider2D c, Vector2 normal)
+    {
+        reflectBounce(normal);
+    }
+
+    protected virtual void onHitEnterBorderRight(Collider2D c, Vector2 normal)
+    {
+        reflectBounce(normal);
     }
 
     public Vector2 getDirection()
@@ -109,7 +183,7 @@ public class Ball : MovableObject
             hitCollider = hit.collider;
         }
     }
-    
+
     public void setSpeed(float value)
     {
         speed = value;

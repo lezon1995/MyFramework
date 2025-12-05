@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using MarbleHero;
+﻿using MarbleHero;
 using UnityEngine;
 
 public class MainSceneGaming : SceneProcedure
@@ -9,7 +8,7 @@ public class MainSceneGaming : SceneProcedure
     protected override void onInit(SceneProcedure lastProcedure)
     {
         balls = CLASS<SafeList<Ball>>();
-        var ball = ballManager.createBall<NormalBall>("Ball", new(3, 3), 1, new(1, 1), 6F);
+        var ball = ballManager.createBall<NormalBall>("Ball", new(3, 3), 0.1F, new(1, 1), 6F);
         balls.add(ball);
         // LT.LOAD<UIGaming>();
     }
@@ -39,8 +38,7 @@ public class MainSceneGaming : SceneProcedure
     protected override void onExit(SceneProcedure nextProcedure)
     {
         // LT.HIDE<UIGaming>();
-        using var a = new SafeListReader<Ball>(balls);
-        foreach (var ball in a.mReadList)
-            ballManager?.destroyBall(ball);
+        balls.clear();
+        ballManager?.destroyAllBall();
     }
 }

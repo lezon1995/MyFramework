@@ -12,7 +12,7 @@ public class BallManager : FrameSystem
     protected Dictionary<Type, Dictionary<long, Ball>> ballTypeList = new(); // 角色分类列表
     protected SafeDictionary<long, Ball> ballUpdateList = new(); // 用于更新角色的列表
     protected Dictionary<long, Ball> ballGUIDList = new(); // 角色ID索引表
-    protected Dictionary<long, Ball> ballFixedUpdateList = new(); // 需要在FixedUpdate中更新的列表,如果直接使用mBallGUIDList,会非常慢,而很多时候其实并不需要进行物理更新,所以单独使用一个列表存储
+    protected SafeDictionary<long, Ball> ballFixedUpdateList = new(); // 需要在FixedUpdate中更新的列表,如果直接使用mBallGUIDList,会非常慢,而很多时候其实并不需要进行物理更新,所以单独使用一个列表存储
 
     Action<GameObject, Ball> ballObjectSet;
 
@@ -67,7 +67,8 @@ public class BallManager : FrameSystem
     public override void fixedUpdate(float elapsedTime)
     {
         base.fixedUpdate(elapsedTime);
-        foreach (var ball in ballFixedUpdateList.Values)
+        using var a = new SafeDictionaryReader<long, Ball>(ballFixedUpdateList);
+        foreach (var ball in a.mReadList.Values)
         {
             if (ball && ball.isActiveInHierarchy())
             {
@@ -153,7 +154,7 @@ public class BallManager : FrameSystem
         UN_CLASS_LIST(ballGUIDList);
         ballTypeList.Clear();
         ballUpdateList.clear();
-        ballFixedUpdateList.Clear();
+        ballFixedUpdateList.clear();
     }
 
     public void destroyBall(long id)
@@ -166,13 +167,15 @@ public class BallManager : FrameSystem
         if (ball == null)
             return;
 
+        mPrefabPoolManager.destroyObject(ball.getObject(), false);
+
         long guid = ball.getGUID();
         // 从角色分类列表中移除
         ballTypeList.get(ball.getType())?.Remove(guid);
         // 从ID索引表中移除
         ballUpdateList.remove(guid);
         ballGUIDList.Remove(guid);
-        ballFixedUpdateList.Remove(guid);
+        ballFixedUpdateList.remove(guid);
 
         UN_CLASS(ref ball);
     }
@@ -187,7 +190,7 @@ public class BallManager : FrameSystem
             // 从ID索引表中移除
             ballUpdateList.remove(guid);
             ballGUIDList.Remove(guid);
-            ballFixedUpdateList.Remove(guid);
+            ballFixedUpdateList.remove(guid);
         }
 
         UN_CLASS_LIST(characterList);
@@ -203,7 +206,7 @@ public class BallManager : FrameSystem
             // 从ID索引表中移除
             ballUpdateList.remove(guid);
             ballGUIDList.Remove(guid);
-            ballFixedUpdateList.Remove(guid);
+            ballFixedUpdateList.remove(guid);
         }
 
         UN_CLASS_LIST(characterList);
@@ -227,7 +230,7 @@ public class BallManager : FrameSystem
         ballUpdateList.add(guid, ball);
         if (ball.isEnableFixedUpdate())
         {
-            ballFixedUpdateList.Add(guid, ball);
+            ballFixedUpdateList.add(guid, ball);
         }
     }
 }
