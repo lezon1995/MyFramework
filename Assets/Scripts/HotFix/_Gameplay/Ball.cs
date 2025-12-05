@@ -15,11 +15,12 @@ public class Ball : MovableObject
     public Vector2 curPos;
     public Vector2 targetPos;
     public float speed = 6F;
-    float radius => mTransform.localScale.x / 2F;
+    public float radius = 0.1F;
     public float movementDelta;
     public Vector2 direction;
     public Vector2 hitNormal;
     public Collider2D hitCollider;
+    public SpriteRenderer ballRenderer;
 
     public void setOnObjectSet(Action<GameObject, Ball> action) => onObjectSet = action;
     public void setBallType(Type type) => mType = type;
@@ -27,22 +28,9 @@ public class Ball : MovableObject
     public Type getType() => mType;
     public long getGUID() => mGUID;
 
-    public Vector2 getDirection()
-    {
-        return direction;
-    }
 
-    public void setDirection(Vector2 value)
-    {
-        direction = value;
-        var hit = Physics2D.CircleCast(curPos, radius, direction, 20F, BORDER_LAYER_MASK | BRICK_LAYER_MASK);
-        if (hit)
-        {
-            targetPos = hit.point + hit.normal * radius;
-            hitNormal = hit.normal;
-            hitCollider = hit.collider;
-        }
-    }
+    float lastRadius;
+    Vector2 lastDirection;
 
     public override void init()
     {
@@ -57,8 +45,11 @@ public class Ball : MovableObject
         instanceId = obj.GetInstanceID();
         onObjectSet?.Invoke(obj, this);
         curPos = obj.transform.position;
+        ballRenderer = getUnityComponentInChild<SpriteRenderer>(true);
+
+        setRadius(radius);
         setDirection(new(1F, 2F));
-        
+
         if (isEditor())
         {
             var debug = getOrAddUnityComponent<BallDebug>();
@@ -84,6 +75,8 @@ public class Ball : MovableObject
     {
         base.fixedUpdate(elapsedTime);
 
+        checkRadius();
+        
         prePos = curPos;
         movementDelta = speed * elapsedTime;
         curPos = Vector2.MoveTowards(curPos, targetPos, movementDelta);
@@ -97,5 +90,43 @@ public class Ball : MovableObject
             var newDir = reflectDir.normalized;
             setDirection(newDir);
         }
+    }
+
+    public Vector2 getDirection()
+    {
+        return direction;
+    }
+
+    public void setDirection(Vector2 value)
+    {
+        lastDirection = direction;
+        direction = value;
+        var hit = Physics2D.CircleCast(curPos, radius, direction, 20F, BORDER_LAYER_MASK | BRICK_LAYER_MASK);
+        if (hit)
+        {
+            targetPos = hit.point + hit.normal * radius;
+            hitNormal = hit.normal;
+            hitCollider = hit.collider;
+        }
+    }
+    
+    public void setSpeed(float value)
+    {
+        speed = value;
+    }
+
+    public void setRadius(float value)
+    {
+        lastRadius = radius;
+        radius = value;
+        var diameter = value * 2F;
+        ballRenderer.transform.localScale = new(diameter, diameter, 1);
+    }
+
+    void checkRadius()
+    {
+        if (isFloatEqual(lastRadius, radius))
+            return;
+        setRadius(radius);
     }
 }

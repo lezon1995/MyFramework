@@ -40,12 +40,13 @@ public class BallManager : FrameSystem
     {
         base.update(elapsedTime);
         using var a = new SafeDictionaryReader<long, Ball>(ballUpdateList);
-        foreach (Ball ball in a.mReadList.Values)
+        foreach (var ball in a.mReadList.Values)
         {
-            if (ball == null || !ball.isActiveInHierarchy())
-                continue;
-
-            ball.update(!ball.isIgnoreTimeScale() ? elapsedTime : Time.unscaledDeltaTime);
+            if (ball && ball.isActiveInHierarchy())
+            {
+                var dt = !ball.isIgnoreTimeScale() ? elapsedTime : Time.unscaledDeltaTime;
+                ball.update(dt);
+            }
         }
     }
 
@@ -53,18 +54,12 @@ public class BallManager : FrameSystem
     {
         base.lateUpdate(elapsedTime);
         using var a = new SafeDictionaryReader<long, Ball>(ballUpdateList);
-        foreach (Ball ball in a.mReadList.Values)
+        foreach (var ball in a.mReadList.Values)
         {
-            if (ball != null && ball.isActiveInHierarchy())
+            if (ball && ball.isActiveInHierarchy())
             {
-                if (!ball.isIgnoreTimeScale())
-                {
-                    ball.lateUpdate(elapsedTime);
-                }
-                else
-                {
-                    ball.lateUpdate(Time.unscaledDeltaTime);
-                }
+                var dt = !ball.isIgnoreTimeScale() ? elapsedTime : Time.unscaledDeltaTime;
+                ball.lateUpdate(dt);
             }
         }
     }
@@ -72,9 +67,9 @@ public class BallManager : FrameSystem
     public override void fixedUpdate(float elapsedTime)
     {
         base.fixedUpdate(elapsedTime);
-        foreach (Ball ball in ballFixedUpdateList.Values)
+        foreach (var ball in ballFixedUpdateList.Values)
         {
-            if (ball != null && ball.isActiveInHierarchy())
+            if (ball && ball.isActiveInHierarchy())
             {
                 ball.fixedUpdate(elapsedTime);
             }
@@ -112,15 +107,14 @@ public class BallManager : FrameSystem
         return ballTypeList.get(type);
     }
 
-    public T createBall<T>(string name, long id = 0, bool managed = true) where T : Ball
+    public T createBall<T>(string name, Vector2 pos, float radius, Vector2 direction, float speed) where T : Ball
     {
-        return createBall(name, typeof(T), id, managed) as T;
+        return createBall(name, typeof(T), pos, radius, direction, speed) as T;
     }
 
-    public Ball createBall(string name, Type type, long id = 0, bool managed = true)
+    public Ball createBall(string name, Type type, Vector2 pos, float radius, Vector2 direction, float speed)
     {
-        if (id == 0)
-            id = generateGUID();
+        var id = generateGUID();
 
         if (ballGUIDList.ContainsKey(id))
         {
@@ -139,9 +133,13 @@ public class BallManager : FrameSystem
         var path = $"{GAMEPLAY_PATH}/{name}.prefab";
         var o = mPrefabPoolManager.createObject(path, 0, false, true);
         ball.setObject(o);
-        
+        ball.setPosition(pos);
+        ball.setRadius(radius);
+        ball.setDirection(direction);
+        ball.setSpeed(speed);
+
         ball.init();
-        addBallToList(ball, managed);
+        addBallToList(ball);
         return ball;
     }
 
@@ -212,7 +210,7 @@ public class BallManager : FrameSystem
     }
 
     //------------------------------------------------------------------------------------------------------------------------------
-    protected void addBallToList(Ball ball, bool managed)
+    protected void addBallToList(Ball ball)
     {
         if (ball == null)
             return;
@@ -226,13 +224,10 @@ public class BallManager : FrameSystem
             logError("there is a ball id : " + guid + ", can not add again!");
         }
 
-        if (managed)
+        ballUpdateList.add(guid, ball);
+        if (ball.isEnableFixedUpdate())
         {
-            ballUpdateList.add(guid, ball);
-            if (ball.isEnableFixedUpdate())
-            {
-                ballFixedUpdateList.Add(guid, ball);
-            }
+            ballFixedUpdateList.Add(guid, ball);
         }
     }
 }

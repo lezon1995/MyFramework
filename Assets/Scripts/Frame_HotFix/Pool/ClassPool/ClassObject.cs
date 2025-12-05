@@ -32,4 +32,6 @@ public class ClassObject : IEquatable<ClassObject>, IEventListener, IResetProper
 	public long getObjectInstanceID()				{ return mObjectInstanceID; }
 	public bool Equals(ClassObject obj)				{ return mObjectInstanceID == obj.mObjectInstanceID; }
 	public bool isPendingDestroy()					{ return mPendingDestroy; }
+
+	public static implicit operator bool(ClassObject value) => value != null;
 }

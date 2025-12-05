@@ -1,13 +1,16 @@
-﻿using MarbleHero;
+﻿using System.Collections.Generic;
+using MarbleHero;
 using UnityEngine;
 
 public class MainSceneGaming : SceneProcedure
 {
-    protected Ball mBall;
+    protected SafeList<Ball> balls;
 
     protected override void onInit(SceneProcedure lastProcedure)
     {
-        mBall = ballManager.createBall<NormalBall>("Ball");
+        balls = CLASS<SafeList<Ball>>();
+        var ball = ballManager.createBall<NormalBall>("Ball", new(3, 3), 1, new(1, 1), 6F);
+        balls.add(ball);
         // LT.LOAD<UIGaming>();
     }
 
@@ -17,8 +20,18 @@ public class MainSceneGaming : SceneProcedure
 
         if (isKeyCurrentDown(KeyCode.I))
         {
-            var v = Random.insideUnitCircle;
-            mBall.setDirection(v);
+            using var a = new SafeListReader<Ball>(balls);
+            foreach (var ball in a.mReadList)
+            {
+                var v = Random.insideUnitCircle;
+                ball.setDirection(v);
+            }
+        }
+
+        if (isKeyCurrentDown(KeyCode.A))
+        {
+            var ball = ballManager.createBall<NormalBall>("Ball", new(3, 3), 0.1F, new(1, 1), 6F);
+            balls.add(ball);
         }
     }
 
@@ -26,6 +39,8 @@ public class MainSceneGaming : SceneProcedure
     protected override void onExit(SceneProcedure nextProcedure)
     {
         // LT.HIDE<UIGaming>();
-        ballManager?.destroyBall(mBall);
+        using var a = new SafeListReader<Ball>(balls);
+        foreach (var ball in a.mReadList)
+            ballManager?.destroyBall(ball);
     }
 }

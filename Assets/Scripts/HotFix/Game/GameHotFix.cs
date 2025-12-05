@@ -4,6 +4,7 @@ global using static UnityUtility;
 global using static FrameBaseHotFix;
 global using static FrameBaseUtility;
 global using static FrameUtility;
+global using static MathUtility;
 global using static GameDefine;
 global using static HotfixDefine;
 global using static GBH;
