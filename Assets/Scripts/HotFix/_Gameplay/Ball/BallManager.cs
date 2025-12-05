@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
-using static MathUtility;
 
 namespace MarbleHero;
 
@@ -10,8 +9,8 @@ public class BallManager : FrameSystem
 {
     protected Dictionary<int, Ball> balls = new();
     protected Dictionary<Type, Dictionary<long, Ball>> ballTypeList = new(); // 角色分类列表
-    protected SafeDictionary<long, Ball> ballUpdateList = new(); // 用于更新角色的列表
     protected Dictionary<long, Ball> ballGUIDList = new(); // 角色ID索引表
+    protected SafeDictionary<long, Ball> ballUpdateList = new(); // 用于更新角色的列表
     protected SafeDictionary<long, Ball> ballFixedUpdateList = new(); // 需要在FixedUpdate中更新的列表,如果直接使用mBallGUIDList,会非常慢,而很多时候其实并不需要进行物理更新,所以单独使用一个列表存储
 
     Action<GameObject, Ball> ballObjectSet;
@@ -72,7 +71,8 @@ public class BallManager : FrameSystem
         {
             if (ball && ball.isActiveInHierarchy())
             {
-                ball.fixedUpdate(elapsedTime);
+                var dt = !ball.isIgnoreTimeScale() ? elapsedTime : Time.fixedUnscaledDeltaTime;
+                ball.fixedUpdate(dt);
             }
         }
     }

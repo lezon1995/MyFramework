@@ -12,6 +12,7 @@ public partial class GBH
 	public static DemoSystem mDemoSystem;
 	public static BattleSystem mBattleSystem;
 	public static BallManager ballManager;
+	public static BrickManager brickManager;
 	public static LevelManager levelManager;
 	// 需要添加auto generate LayoutScript start和auto generate LayoutScript end才会自动生成代码
 	// auto generate LayoutScript start
