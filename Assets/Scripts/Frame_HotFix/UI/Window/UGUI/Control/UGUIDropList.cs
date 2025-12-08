@@ -23,10 +23,10 @@ public class UGUIDropList : WindowObjectUGUI, ICommonUI
 	public UGUIDropList(IWindowObjectOwner parent) : base(parent)
 	{
 		mItemPool = new(this);
+		mUnuseAllWhenHide = false;
 	}
 	protected override void assignWindowInternal()
 	{
-		base.assignWindowInternal();
 		newObject(out mLabel, "Label");
 		newObject(out mOptions, "Options");
 		newObject(out mMask, mOptions, "Mask");
