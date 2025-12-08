@@ -11,6 +11,7 @@ public partial class GBH
 	public static NetManager mNetManager;
 	public static DemoSystem mDemoSystem;
 	public static BattleSystem mBattleSystem;
+	public static GameplayManager gameplayManager;
 	public static BallManager ballManager;
 	public static BrickManager brickManager;
 	public static LevelManager levelManager;

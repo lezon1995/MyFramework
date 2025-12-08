@@ -4,33 +4,55 @@ using UnityEngine;
 namespace MarbleHero;
 
 [Serializable]
-public class Ball : MovableObject
+public partial class Ball : MovableObject, IDamageable<Brick>, IEventRouter
 {
-    public int instanceId;
-    protected Type mType; // 角色类型
-    public long mGUID; // 角色的唯一ID
-    protected Action<GameObject, Ball> onObjectSet;
+    public int instanceID;
+    protected Type type; // 角色类型
+    public long guid; // 角色的唯一ID
+    public IEventRouter eventRouter => this;
 
-    public Vector2 prePos;
-    public Vector2 curPos;
-    public Vector2 targetPos;
+    #region Stats
+
+    public float maxHealth;
+    public float minPhysicDamage, maxPhysicDamage;
+    public float minMagicDamage, maxMagicDamage;
     public float speed = 6F;
     public float radius = 0.1F;
-    public float movementDelta;
-    public Vector2 direction;
-    public Vector2 hitNormal;
-    public Collider2D hitCollider;
-    public SpriteRenderer ballRenderer;
+    public float dmgRate = 1F;
+
+
+    public float curHealth;
+    public bool immuneToDamage;
+    public bool invulnerable;
+
+    public void setHealth(float value)
+    {
+        curHealth = value;
+    }
+
+    #endregion
+
+    Action<GameObject, Ball> onObjectSet;
+    Action<Ball> onDead;
+
+    Vector2 prePos, curPos, targetPos;
+    Vector2 lastDirection;
+    Vector2 direction;
+    Vector2 hitNormal;
+
+    float movementDelta;
+    float lastRadius;
+
+    Collider2D hitCollider;
+    SpriteRenderer ballRenderer;
 
     public void setOnObjectSet(Action<GameObject, Ball> action) => onObjectSet = action;
-    public void setBallType(Type type) => mType = type;
-    public void setID(long id) => mGUID = id;
-    public Type getType() => mType;
-    public long getGUID() => mGUID;
+    public void setOnDead(Action<Ball> action) => onDead = action;
+    public void setBallType(Type t) => type = t;
+    public void setID(long id) => guid = id;
+    public Type getType() => type;
+    public long getGUID() => guid;
 
-
-    float lastRadius;
-    Vector2 lastDirection;
 
     public override void init()
     {
@@ -42,34 +64,40 @@ public class Ball : MovableObject
     public override void resetProperty()
     {
         base.resetProperty();
-        instanceId = 0;
-        mType = null;
-        mGUID = 0;
+        instanceID = 0;
+        type = null;
+        guid = 0;
         onObjectSet = null;
-        prePos = default;
-        curPos = default;
-        targetPos = default;
-        speed = 0;
-        radius = 0;
+        onDead = null;
+        prePos = curPos = targetPos = Vector2.zero;
+
         movementDelta = 0;
-        direction = default;
-        hitNormal = default;
+        direction = Vector2.zero;
+        hitNormal = Vector2.zero;
         hitCollider = null;
         ballRenderer = null;
         lastRadius = 0;
         lastDirection = default;
+
+        maxHealth = 0F;
+        minPhysicDamage = maxPhysicDamage = 0F;
+        minMagicDamage = maxMagicDamage = 0F;
+        speed = 0F;
+        radius = 0F;
+        dmgRate = 1F;
+
+        curHealth = 0F;
+        immuneToDamage = false;
+        invulnerable = false;
     }
 
     public override void setObject(GameObject obj)
     {
         base.setObject(obj);
-        instanceId = obj.GetInstanceID();
+        instanceID = obj.GetInstanceID();
         onObjectSet?.Invoke(obj, this);
         curPos = obj.transform.position;
         ballRenderer = getUnityComponentInChild<SpriteRenderer>(true);
-
-        setRadius(radius);
-        setDirection(new(1F, 2F));
 
         if (isEditor())
         {
@@ -118,54 +146,6 @@ public class Ball : MovableObject
         setDirection(newDir);
     }
 
-    protected virtual void onHitEnter(Collider2D c, Vector2 normal)
-    {
-        if (c.gameObject.layer == BORDER_LAYER)
-        {
-            onHitEnterBorder(c, normal);
-        }
-    }
-
-    protected virtual void onHitEnterBorder(Collider2D c, Vector2 normal)
-    {
-        if (c.CompareTag(BORDER_TOP_TAG))
-        {
-            onHitEnterBorderTop(c, normal);
-        }
-        else if (c.CompareTag(BORDER_BOT_TAG))
-        {
-            onHitEnterBorderBot(c, normal);
-        }
-        else if (c.CompareTag(BORDER_LEFT_TAG))
-        {
-            onHitEnterBorderLeft(c, normal);
-        }
-        else if (c.CompareTag(BORDER_RIGHT_TAG))
-        {
-            onHitEnterBorderRight(c, normal);
-        }
-    }
-
-    protected virtual void onHitEnterBorderTop(Collider2D c, Vector2 normal)
-    {
-        reflectBounce(normal);
-    }
-
-    protected virtual void onHitEnterBorderBot(Collider2D c, Vector2 normal)
-    {
-        reflectBounce(normal);
-    }
-
-    protected virtual void onHitEnterBorderLeft(Collider2D c, Vector2 normal)
-    {
-        reflectBounce(normal);
-    }
-
-    protected virtual void onHitEnterBorderRight(Collider2D c, Vector2 normal)
-    {
-        reflectBounce(normal);
-    }
-
     public Vector2 getDirection()
     {
         return direction;
@@ -182,6 +162,13 @@ public class Ball : MovableObject
             hitNormal = hit.normal;
             hitCollider = hit.collider;
         }
+    }
+
+    public void setTeleportPosition(Vector2 pos)
+    {
+        prePos = curPos = pos;
+        setPosition(pos);
+        setDirection(direction);
     }
 
     public void setSpeed(float value)
@@ -203,4 +190,154 @@ public class Ball : MovableObject
             return;
         setRadius(radius);
     }
+
+    public void setPhysicDamage(float min, float max)
+    {
+        minPhysicDamage = min;
+        maxPhysicDamage = max;
+    }
+
+    public void setMagicDamage(float min, float max)
+    {
+        minMagicDamage = min;
+        maxMagicDamage = max;
+    }
+
+    public float getPhysicDamage()
+    {
+        var damage = randomFloat(minPhysicDamage, maxPhysicDamage);
+        return damage;
+    }
+
+    public float getMagicDamage()
+    {
+        var damage = randomFloat(minMagicDamage, maxMagicDamage);
+        return damage;
+    }
+
+    public virtual float getSelfDamage(Brick brick) => 0F;
+    
+    public virtual Dmg getDmg(Brick brick)
+    {
+        var d = getPhysicDamage();
+        var dmg = Dmg.physicDmg(d);
+        return dmg;
+    }
+
+    public bool canTakeDamageThisFrame(out ResistDamageType resistType)
+    {
+        if (!isActive())
+        {
+            resistType = ResistDamageType.Disabled;
+            return false;
+        }
+
+        // if the object is invulnerable, we do nothing and exit
+        if (invulnerable)
+        {
+            resistType = ResistDamageType.Invulnerable;
+            return false;
+        }
+
+        if (immuneToDamage)
+        {
+            resistType = ResistDamageType.ImmuneToDamage;
+            return false;
+        }
+
+        // if we're already below zero, we do nothing and exit
+        if (curHealth <= 0 && maxHealth > 0)
+        {
+            resistType = ResistDamageType.Dead;
+            return false;
+        }
+
+        resistType = ResistDamageType.None;
+        return true;
+    }
+
+    public virtual bool computeDamageOutput(ref Dmg dmg, out float actualDamage, out float rawFinalDamage, IDmgCalculator calculator = null)
+    {
+        calculator ??= DmgCalculator.Default;
+
+        actualDamage = 0F;
+        rawFinalDamage = 0F;
+        if (invulnerable)
+            return false;
+
+        if (immuneToDamage)
+            return false;
+
+        float damage = dmg.value;
+        var totalDamage = damage;
+
+        float rawBaseDamage = calculator.computeDamageAlgo(dmg.algo, totalDamage, curHealth, maxHealth);
+        float rawCritDamage = calculator.computeDamageCrit(dmg, rawBaseDamage);
+        rawFinalDamage = calculator.computeDamageRate(dmg, rawCritDamage);
+
+        return actualDamage > 0;
+    }
+
+    public void damage(Dmg dmg, GameObject instigator, Brick source, float invincibleTime = 0, Vector3 direction = default, IDmgCalculator calculator = null)
+    {
+        if (!canTakeDamageThisFrame(out _))
+            return;
+
+        computeDamageOutput(ref dmg, out var damageDealt, out var damageRaw, calculator);
+
+        //设置此次dmg实际造成的伤害，并通知伤害飘字显示
+        {
+            dmg.setDamageRaw(damageRaw);
+            dmg.setDamageDealt(damageDealt);
+            dmg.setDirection(direction);
+        }
+
+        // we decrease the character's health by the damage
+        float preHealth = curHealth;
+        setHealth(curHealth - damageDealt);
+        // lastDamage = damageDealt;
+        // lastDamageType = dmg.actualType;
+        // lastDamageDirection = direction;
+
+        eventRouter.trigger(new OnHit());
+
+        //造成伤害后处理Source吸血，触发DoDmg
+        {
+            if (source && !dmg.isSelf)
+            {
+                source.eventRouter.trigger(new DoDmgBall(this, dmg));
+            }
+        }
+
+        //检测是否死亡
+        {
+            if (curHealth <= 0)
+            {
+                curHealth = 0;
+                var isLethal = kill();
+                if (source && isLethal && !dmg.isSelf)
+                    source.eventRouter.trigger(new DoKillBall(this, instigator));
+            }
+        }
+    }
+
+    public bool kill()
+    {
+        if (immuneToDamage)
+            return false;
+
+        setHealth(0);
+
+        eventRouter.trigger(new OnDeath());
+
+        onDead?.Invoke(this);
+
+        return true;
+    }
+
+    public bool isDead()
+    {
+        return curHealth <= 0 && maxHealth > 0;
+    }
+
 }

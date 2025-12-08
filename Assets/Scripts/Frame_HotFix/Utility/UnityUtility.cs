@@ -486,6 +486,26 @@ public class UnityUtility
 	{
 		return worldToScreen(worldPos, getUICamera(), screenCenterAsZero);
 	}
+	
+	public static Vector3 screenToWorld(Vector3 screenPos, Camera camera, bool screenCenterAsZero = true)
+	{
+		if (screenCenterAsZero)
+		{
+			screenPos -= getHalfScreenSize().toVec3();
+		}
+		Vector3 worldPos = camera.ScreenToWorldPoint(screenPos);
+		worldPos.z = screenPos.z;
+		return worldPos;
+	}
+	public static Vector3 screenToWorld(Vector3 screenPos, bool screenCenterAsZero = true)
+	{
+		return screenToWorld(screenPos, getMainCamera().getCamera(), screenCenterAsZero);
+	}
+	public static Vector3 screenToWorldUI(Vector3 screenPos, bool screenCenterAsZero = true)
+	{
+		return worldToScreen(screenPos, getUICamera(), screenCenterAsZero);
+	}
+	
 	public static bool isGameObjectInScreen(Vector3 worldPos)
 	{
 		Vector3 screenPos = worldToScreen(worldPos, false);

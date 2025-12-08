@@ -62,34 +62,16 @@ public class Border : MovableObject
 
 public class BorderTop : Border
 {
-    public BorderTop()
-    {
-    }
-
-    public override void setObject(GameObject obj)
-    {
-        base.setObject(obj);
-    }
-
-    protected override void initComponents()
-    {
-        base.initComponents();
-    }
 }
 
 public class BorderBot : Border
 {
-    public BorderBot()
-    {
-    }
+}
 
-    public override void setObject(GameObject obj)
-    {
-        base.setObject(obj);
-    }
+public class BorderLeft : Border
+{
+}
 
-    protected override void initComponents()
-    {
-        base.initComponents();
-    }
+public class BorderRight : Border
+{
 }

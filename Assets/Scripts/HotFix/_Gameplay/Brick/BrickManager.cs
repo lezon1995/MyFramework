@@ -7,6 +7,7 @@ namespace MarbleHero;
 // 角色管理器
 public class BrickManager : FrameSystem
 {
+    //key: gameObject.GetInstanceID()
     protected Dictionary<int, Brick> bricks = new();
     protected Dictionary<Type, Dictionary<long, Brick>> brickTypeList = new(); // 角色分类列表
     protected Dictionary<long, Brick> brickGUIDList = new(); // 角色ID索引表
@@ -14,11 +15,13 @@ public class BrickManager : FrameSystem
     protected SafeDictionary<long, Brick> brickFixedUpdateList = new(); // 需要在FixedUpdate中更新的列表,如果直接使用mBrickGUIDList,会非常慢,而很多时候其实并不需要进行物理更新,所以单独使用一个列表存储
 
     Action<GameObject, Brick> brickObjectSet;
+    Action<Brick> brickDead;
 
     public BrickManager()
     {
         mCreateObject = true;
         brickObjectSet = onBrickObjectSet;
+        brickDead = onBrickDead;
     }
 
     public override void init()
@@ -127,6 +130,7 @@ public class BrickManager : FrameSystem
         brick.setName(name);
         brick.setBrickType(type);
         brick.setOnObjectSet(brickObjectSet);
+        brick.setOnDead(brickDead);
 
         // 将角色挂接到管理器下
         brick.setID(id);
@@ -135,6 +139,8 @@ public class BrickManager : FrameSystem
         var o = mPrefabPoolManager.createObject(path, 0, false, true);
         brick.setObject(o);
         brick.setPosition(pos);
+        brick.setHealth(20);
+        brick.setMaxHealth(20);
 
         brick.init();
         addBrickToList(brick);
@@ -143,7 +149,12 @@ public class BrickManager : FrameSystem
 
     void onBrickObjectSet(GameObject obj, Brick brick)
     {
-        bricks[obj.GetInstanceID()] = brick;
+        bricks[brick.instanceID] = brick;
+    }
+
+    void onBrickDead(Brick brick)
+    {
+        destroyBrick(brick);
     }
 
     public void destroyAllBrick()

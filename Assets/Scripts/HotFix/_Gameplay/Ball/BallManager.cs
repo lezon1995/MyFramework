@@ -7,6 +7,7 @@ namespace MarbleHero;
 // 角色管理器
 public class BallManager : FrameSystem
 {
+    //key: gameObject.GetInstanceID()
     protected Dictionary<int, Ball> balls = new();
     protected Dictionary<Type, Dictionary<long, Ball>> ballTypeList = new(); // 角色分类列表
     protected Dictionary<long, Ball> ballGUIDList = new(); // 角色ID索引表
@@ -14,11 +15,13 @@ public class BallManager : FrameSystem
     protected SafeDictionary<long, Ball> ballFixedUpdateList = new(); // 需要在FixedUpdate中更新的列表,如果直接使用mBallGUIDList,会非常慢,而很多时候其实并不需要进行物理更新,所以单独使用一个列表存储
 
     Action<GameObject, Ball> ballObjectSet;
+    Action<Ball> ballDead;
 
     public BallManager()
     {
         mCreateObject = true;
         ballObjectSet = onBallObjectSet;
+        ballDead = onBallDead;
     }
 
     public override void init()
@@ -127,6 +130,7 @@ public class BallManager : FrameSystem
         ball.setName(name);
         ball.setBallType(type);
         ball.setOnObjectSet(ballObjectSet);
+        ball.setOnDead(ballDead);
 
         // 将角色挂接到管理器下
         ball.setID(id);
@@ -134,10 +138,12 @@ public class BallManager : FrameSystem
         var path = $"{GAMEPLAY_PATH}/{name}.prefab";
         var o = mPrefabPoolManager.createObject(path, 0, false, true);
         ball.setObject(o);
-        ball.setPosition(pos);
+        ball.setTeleportPosition(pos);
         ball.setRadius(radius);
         ball.setDirection(direction);
         ball.setSpeed(speed);
+        ball.setPhysicDamage(1F, 1F);
+        ball.setMagicDamage(1F, 1F);
 
         ball.init();
         addBallToList(ball);
@@ -146,7 +152,12 @@ public class BallManager : FrameSystem
 
     void onBallObjectSet(GameObject obj, Ball ball)
     {
-        balls[obj.GetInstanceID()] = ball;
+        balls[ball.instanceID] = ball;
+    }
+
+    void onBallDead(Ball ball)
+    {
+        destroyBall(ball);
     }
 
     public void destroyAllBall()

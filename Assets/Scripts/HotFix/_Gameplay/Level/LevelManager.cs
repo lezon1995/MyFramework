@@ -4,9 +4,10 @@ namespace MarbleHero;
 
 public class LevelManager : FrameSystem
 {
-    protected Border borderLeft, borderRight;
-    protected BorderTop borderTop;
-    protected BorderBot borderBot;
+    public BorderLeft borderLeft;
+    public BorderRight borderRight;
+    public BorderTop borderTop;
+    public BorderBot borderBot;
 
     public override void init()
     {
@@ -16,8 +17,8 @@ public class LevelManager : FrameSystem
         var right = getGameObject("BorderRight", go);
         var top = getGameObject("BorderTop", go);
         var bot = getGameObject("BorderBot", go);
-        borderLeft = createBorder<Border>(left);
-        borderRight = createBorder<Border>(right);
+        borderLeft = createBorder<BorderLeft>(left);
+        borderRight = createBorder<BorderRight>(right);
         borderTop = createBorder<BorderTop>(top);
         borderBot = createBorder<BorderBot>(bot);
     }

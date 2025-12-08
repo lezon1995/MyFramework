@@ -29,11 +29,19 @@ public class MainSceneGaming : SceneProcedure
 
         if (isKeyCurrentDown(KeyCode.A))
         {
-            var ball = ballManager.createBall<NormalBall>("Ball", new(3, 3), 0.1F, new(1, 1), 6F);
+            var mousePosition = getMousePosition();
+            var worldPos = screenToWorld(mousePosition, false);
+            var ball = ballManager.createBall<NormalBall>("Ball", worldPos, 0.1F, Random.insideUnitCircle, 6F);
             balls.add(ball);
         }
+        if (isKeyCurrentDown(KeyCode.B))
+        {
+            var mousePosition = getMousePosition();
+            var worldPos = screenToWorld(mousePosition, false);
+            var brick = brickManager.createBrick<NormalBrick>("Brick", worldPos);
+            // balls.add(ball);
+        }
     }
-
 
     protected override void onExit(SceneProcedure nextProcedure)
     {
