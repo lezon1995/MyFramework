@@ -15,6 +15,7 @@ public partial class GBH
 	public static BallManager ballManager;
 	public static BrickManager brickManager;
 	public static LevelManager levelManager;
+	public static FTextManager textManager;
 	// 需要添加auto generate LayoutScript start和auto generate LayoutScript end才会自动生成代码
 	// auto generate LayoutScript start
 	public static UIGaming mUIGaming;

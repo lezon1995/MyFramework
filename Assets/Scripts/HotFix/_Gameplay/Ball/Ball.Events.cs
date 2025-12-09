@@ -6,11 +6,6 @@ public partial class Ball : IEventRouter
 {
     public IEventRouter eventRouter => this;
 
-    public void trigger<T>(T e)
-    {
-        eventRouter.trigger(e);
-    }
-
     protected virtual bool onHitEnter(Collider2D c, Vector2 normal)
     {
         var layer = c.gameObject.layer;

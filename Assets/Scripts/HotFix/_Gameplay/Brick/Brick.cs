@@ -256,10 +256,10 @@ public partial class Brick : MovableObject, IDamageable<Ball>
             switch (dmg.effect)
             {
                 case Dmg.Effects.Attack:
-                    source.trigger(new DoAttackEffect(this));
+                    source.eventRouter.trigger(new DoAttackEffect(this));
                     break;
                 case Dmg.Effects.Ability:
-                    source.trigger(new DoAbilityEffect(this));
+                    source.eventRouter.trigger(new DoAbilityEffect(this));
                     break;
             }
         }
@@ -272,7 +272,7 @@ public partial class Brick : MovableObject, IDamageable<Ball>
         // lastDamageType = dmg.actualType;
         // lastDamageDirection = direction;
 
-        trigger(new OnHit());
+        eventRouter.trigger(new OnHit());
 
         // we prevent the character from colliding with Projectiles, Player and Enemies
         if (invincibleTime > 0)
@@ -290,14 +290,14 @@ public partial class Brick : MovableObject, IDamageable<Ball>
         {
             if (!dmg.isSelf)
             {
-                source.trigger(new DoDmgBrick(this, dmg));
+                source.eventRouter.trigger(new DoDmgBrick(this, dmg));
             }
         }
 
         //造成伤害后，触发OnDmg
         {
             if (!dmg.isSelf)
-                trigger(new OnDmg(source, dmg));
+                eventRouter.trigger(new OnDmg(source, dmg));
         }
 
         // we play our feedback
@@ -316,7 +316,7 @@ public partial class Brick : MovableObject, IDamageable<Ball>
                 curHealth = 0;
                 var isLethal = kill();
                 if (isLethal && !dmg.isSelf)
-                    source.trigger(new DoKillBrick(this, instigator));
+                    source.eventRouter.trigger(new DoKillBrick(this, instigator));
             }
         }
 
@@ -333,7 +333,7 @@ public partial class Brick : MovableObject, IDamageable<Ball>
         // we prevent further damage
         setDamageDisabled();
 
-        trigger(new OnDeath());
+        eventRouter.trigger(new OnDeath());
 
         onDead?.Invoke(this);
 

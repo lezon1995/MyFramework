@@ -323,5 +323,23 @@ public static class ListExtension
 	public static int count<T>(this ICollection<T> list)							{ return list?.Count ?? 0; }
 	public static bool isEmptySpan<T>(this Span<T> list)							{ return list == null || list.Length == 0; }
 	public static bool isEmpty<T>(this ICollection<T> list)							{ return list == null || list.Count == 0; }
+	public static bool any<T>(this ICollection<T> list)							{ return list is { Count: > 0 }; }
+	public static bool tryGet<T>(this T[] array, int index, out T result)
+	{
+		if (array == null)
+		{
+			result = default;
+			return false;
+		}
+
+		if (index < 0 || index >= array.Length)
+		{
+			result = default;
+			return false;
+		}
+
+		result = array[index];
+		return true;
+	}
 	public static IEnumerable<T> safe<T>(this IEnumerable<T> original)				{ return original ?? Empty<T>(); }
 }

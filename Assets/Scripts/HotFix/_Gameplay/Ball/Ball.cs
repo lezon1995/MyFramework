@@ -123,6 +123,9 @@ public partial class Ball : MovableObject, IDamageable<Brick>
     {
         base.fixedUpdate(elapsedTime);
 
+        if (isVectorEqual(hitNormal, Vector2.zero))
+            return;
+        
         checkRadius();
 
         prePos = curPos;
@@ -302,13 +305,13 @@ public partial class Ball : MovableObject, IDamageable<Brick>
         // lastDamageType = dmg.actualType;
         // lastDamageDirection = direction;
 
-        trigger(new OnHit());
+        eventRouter.trigger(new OnHit());
 
         //造成伤害后处理Source吸血，触发DoDmg
         {
             if (!dmg.isSelf)
             {
-                source.trigger(new DoDmgBall(this, dmg));
+                source.eventRouter.trigger(new DoDmgBall(this, dmg));
             }
         }
 
@@ -319,7 +322,7 @@ public partial class Ball : MovableObject, IDamageable<Brick>
                 curHealth = 0;
                 var isLethal = kill();
                 if (isLethal && !dmg.isSelf)
-                    source.trigger(new DoKillBall(this, instigator));
+                    source.eventRouter.trigger(new DoKillBall(this, instigator));
             }
         }
     }
@@ -331,7 +334,7 @@ public partial class Ball : MovableObject, IDamageable<Brick>
 
         setHealth(0);
 
-        trigger(new OnDeath());
+        eventRouter.trigger(new OnDeath());
 
         onDead?.Invoke(this);
 
