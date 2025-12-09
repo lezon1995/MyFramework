@@ -42,8 +42,7 @@ public class GameplayManager : FrameSystem
             }
         }
 
-        var selfDamage = ball.getSelfDamage(brick);
-        if (selfDamage > 0)
+        if (ball.getSelfDamage(brick, out var selfDamage))
         {
             var dmg = Dmg.trueDmg(selfDamage).setSelf();
             ball.damage(dmg, ball.getObject(), brick);

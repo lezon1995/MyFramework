@@ -5,12 +5,11 @@ using UnityEngine;
 namespace MarbleHero;
 
 [Serializable]
-public partial class Brick : MovableObject, IDamageable<Ball>, IEventRouter
+public partial class Brick : MovableObject, IDamageable<Ball>
 {
     public int instanceID;
     protected Type type; // 角色类型
     public long guid; // 角色的唯一ID
-    public IEventRouter eventRouter => this;
 
     #region Stats
 
@@ -252,15 +251,15 @@ public partial class Brick : MovableObject, IDamageable<Ball>, IEventRouter
         }
 
         //触发本次伤害所造成的攻击特效/技能特效
-        if (source && !dmg.isSelf)
+        if (!dmg.isSelf)
         {
             switch (dmg.effect)
             {
                 case Dmg.Effects.Attack:
-                    source.eventRouter.trigger(new DoAttackEffect(this));
+                    source.trigger(new DoAttackEffect(this));
                     break;
                 case Dmg.Effects.Ability:
-                    source.eventRouter.trigger(new DoAbilityEffect(this));
+                    source.trigger(new DoAbilityEffect(this));
                     break;
             }
         }
@@ -273,7 +272,7 @@ public partial class Brick : MovableObject, IDamageable<Ball>, IEventRouter
         // lastDamageType = dmg.actualType;
         // lastDamageDirection = direction;
 
-        eventRouter.trigger(new OnHit());
+        trigger(new OnHit());
 
         // we prevent the character from colliding with Projectiles, Player and Enemies
         if (invincibleTime > 0)
@@ -289,16 +288,16 @@ public partial class Brick : MovableObject, IDamageable<Ball>, IEventRouter
 
         //造成伤害后处理Source吸血，触发DoDmg
         {
-            if (source && !dmg.isSelf)
+            if (!dmg.isSelf)
             {
-                source.eventRouter.trigger(new DoDmgBrick(this, dmg));
+                source.trigger(new DoDmgBrick(this, dmg));
             }
         }
 
         //造成伤害后，触发OnDmg
         {
             if (!dmg.isSelf)
-                eventRouter.trigger(new OnDmg(source, dmg));
+                trigger(new OnDmg(source, dmg));
         }
 
         // we play our feedback
@@ -316,8 +315,8 @@ public partial class Brick : MovableObject, IDamageable<Ball>, IEventRouter
             {
                 curHealth = 0;
                 var isLethal = kill();
-                if (source && isLethal && !dmg.isSelf)
-                    source.eventRouter.trigger(new DoKillBrick(this, instigator));
+                if (isLethal && !dmg.isSelf)
+                    source.trigger(new DoKillBrick(this, instigator));
             }
         }
 
@@ -334,7 +333,7 @@ public partial class Brick : MovableObject, IDamageable<Ball>, IEventRouter
         // we prevent further damage
         setDamageDisabled();
 
-        eventRouter.trigger(new OnDeath());
+        trigger(new OnDeath());
 
         onDead?.Invoke(this);
 

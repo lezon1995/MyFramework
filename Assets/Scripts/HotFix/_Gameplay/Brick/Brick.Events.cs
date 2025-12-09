@@ -26,8 +26,15 @@ public struct DmgTextEvent
 //     }
 // }
 
-public partial class Brick
+public partial class Brick : IEventRouter
 {
+    public IEventRouter eventRouter => this;
+
+    public void trigger<T>(T e)
+    {
+        eventRouter.trigger(e);
+    }
+
     public virtual void onHitEnter(Ball ball, Vector2 normal)
     {
     }

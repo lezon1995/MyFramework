@@ -4,12 +4,11 @@ using UnityEngine;
 namespace MarbleHero;
 
 [Serializable]
-public partial class Ball : MovableObject, IDamageable<Brick>, IEventRouter
+public partial class Ball : MovableObject, IDamageable<Brick>
 {
     public int instanceID;
     protected Type type; // 角色类型
     public long guid; // 角色的唯一ID
-    public IEventRouter eventRouter => this;
 
     #region Stats
 
@@ -215,8 +214,12 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IEventRouter
         return damage;
     }
 
-    public virtual float getSelfDamage(Brick brick) => 0F;
-    
+    public virtual bool getSelfDamage(Brick brick, out float selfDamage)
+    {
+        selfDamage = 0F;
+        return false;
+    }
+
     public virtual Dmg getDmg(Brick brick)
     {
         var d = getPhysicDamage();
@@ -299,13 +302,13 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IEventRouter
         // lastDamageType = dmg.actualType;
         // lastDamageDirection = direction;
 
-        eventRouter.trigger(new OnHit());
+        trigger(new OnHit());
 
         //造成伤害后处理Source吸血，触发DoDmg
         {
-            if (source && !dmg.isSelf)
+            if (!dmg.isSelf)
             {
-                source.eventRouter.trigger(new DoDmgBall(this, dmg));
+                source.trigger(new DoDmgBall(this, dmg));
             }
         }
 
@@ -315,8 +318,8 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IEventRouter
             {
                 curHealth = 0;
                 var isLethal = kill();
-                if (source && isLethal && !dmg.isSelf)
-                    source.eventRouter.trigger(new DoKillBall(this, instigator));
+                if (isLethal && !dmg.isSelf)
+                    source.trigger(new DoKillBall(this, instigator));
             }
         }
     }
@@ -328,7 +331,7 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IEventRouter
 
         setHealth(0);
 
-        eventRouter.trigger(new OnDeath());
+        trigger(new OnDeath());
 
         onDead?.Invoke(this);
 
@@ -339,5 +342,4 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IEventRouter
     {
         return curHealth <= 0 && maxHealth > 0;
     }
-
 }
