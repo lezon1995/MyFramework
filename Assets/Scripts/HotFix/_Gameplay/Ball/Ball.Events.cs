@@ -2,7 +2,7 @@
 
 namespace MarbleHero;
 
-public partial class Ball : IEventRouter
+public partial class Ball : IEventRouter, IEvent<OnBrickColliderChanged>
 {
     public IEventRouter eventRouter => this;
 
@@ -75,5 +75,10 @@ public partial class Ball : IEventRouter
     {
         reflectBounce(normal);
         return true;
+    }
+
+    public void onEvent(OnBrickColliderChanged e)
+    {
+        refreshHitInfo();
     }
 }

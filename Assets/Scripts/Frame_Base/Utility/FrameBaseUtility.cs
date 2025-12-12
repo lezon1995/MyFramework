@@ -398,6 +398,23 @@ public class FrameBaseUtility
 		}
 		return path;
 	}
+	public static bool findComponent<T>(GameObject go, out T component) where T : Component
+	{
+		if (go)
+			return go.TryGetComponent(out component);
+
+		component = null;
+		return false;
+	}
+	public static bool findComponent<T>(GameObject go, string name, out T component) where T : Component
+	{
+		var o = getGameObject(name, go);
+		if (o)
+			return o.TryGetComponent(out component);
+
+		component = null;
+		return false;
+	}
 	public static Vector2 getScreenScale(Vector2 rootSize)
 	{
 		return new(rootSize.x * (1.0f / STANDARD_WIDTH), rootSize.y * (1.0f / STANDARD_HEIGHT));

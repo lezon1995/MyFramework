@@ -56,7 +56,7 @@ public class FText : Transformable
 
         _text.text = data.text;
 
-        ApplyContentScale(setting.ContentScale, data.extraContentSize);
+        setContentScale(setting.ContentScale, data.extraContentSize);
 
         if (data.fontColor != null)
             _text.color = data.fontColor.Value;
@@ -190,14 +190,14 @@ public class FText : Transformable
                 if (_pct < 1)
                 {
                     _pct += elapsedTime / startDuration;
-                    SetAlpha(conf.FadeInCurve.Evaluate(_pct));
-                    SetGlobalScale(conf.StartScaleCurve.Evaluate(_pct));
+                    setAlpha(conf.FadeInCurve.Evaluate(_pct));
+                    setScale(conf.StartScaleCurve.Evaluate(_pct));
 
                     if (conf.CalculateTotalPct)
                         _totalPct = _acuPct * _pct;
 
                     if (staticDuration <= 0)
-                        SetPosition(data, _totalPct);
+                        setPosition(data, _totalPct);
                     else
                     {
                         _screenPos = worldToScreen(data.getPosition(), false);
@@ -208,7 +208,7 @@ public class FText : Transformable
                 }
             }
 
-            ToStaticState();
+            toStaticState();
         }
 
         if (_state == State.Static)
@@ -221,7 +221,7 @@ public class FText : Transformable
                     if (_timeElapsed < staticDuration)
                         return;
 
-                    ToFloatingState();
+                    toFloatingState();
                 }
                 else
                 {
@@ -233,12 +233,12 @@ public class FText : Transformable
                         return;
                     }
 
-                    ToFloatingState();
+                    toFloatingState();
                 }
             }
             else
             {
-                ToFloatingState();
+                toFloatingState();
             }
         }
 
@@ -250,17 +250,17 @@ public class FText : Transformable
                 {
                     _pct += elapsedTime / floatingDuration;
 
-                    SetAlpha(conf.FadeOverLifeTime.Evaluate(_pct));
+                    setAlpha(conf.FadeOverLifeTime.Evaluate(_pct));
 
                     if (conf.CalculateTotalPct)
                         _totalPct = _acuPct + _tempAcu * _pct;
 
-                    SetPosition(data, _totalPct);
+                    setPosition(data, _totalPct);
                     return;
                 }
             }
 
-            ToFinishingState();
+            toFinishingState();
         }
 
         if (_state == State.Finishing)
@@ -270,18 +270,18 @@ public class FText : Transformable
                 if (_pct < 1)
                 {
                     _pct += elapsedTime / finishDuration;
-                    SetAlpha(conf.FadeOutCurve.Evaluate(_pct) * _baseAlpha);
-                    SetGlobalScale(conf.FinishScaleCurve.Evaluate(_pct));
+                    setAlpha(conf.FadeOutCurve.Evaluate(_pct) * _baseAlpha);
+                    setScale(conf.FinishScaleCurve.Evaluate(_pct));
 
                     if (conf.CalculateTotalPct)
                         _totalPct = _acuPct + _tempAcu * _pct;
 
-                    SetPosition(data, _totalPct);
+                    setPosition(data, _totalPct);
                     return;
                 }
             }
 
-            ToFinishedState();
+            toFinishedState();
         }
 
         if (_state == State.Finished)
@@ -291,18 +291,18 @@ public class FText : Transformable
             setActive(false);
 
             textManager.release(this);
-            ToNoneState();
+            toNoneState();
         }
 
         return;
 
-        void ToStaticState()
+        void toStaticState()
         {
             _pct = 0F;
             _state = State.Static;
         }
 
-        void ToFloatingState()
+        void toFloatingState()
         {
             _pct = 0F;
             _tempAcu = floatingDuration / totalDuration;
@@ -315,7 +315,7 @@ public class FText : Transformable
             _state = State.Floating;
         }
 
-        void ToFinishingState()
+        void toFinishingState()
         {
             _acuPct += _tempAcu;
             _pct = 0F;
@@ -327,19 +327,19 @@ public class FText : Transformable
             _state = State.Finishing;
         }
 
-        void ToFinishedState()
+        void toFinishedState()
         {
             _state = State.Finished;
         }
 
-        void ToNoneState()
+        void toNoneState()
         {
             _state = State.None;
             _data = null;
         }
     }
 
-    void SetPosition(Data data, float pct)
+    void setPosition(Data data, float pct)
     {
         if (!data.hasFlag(Data.Flags.FollowScreen))
         {
@@ -355,17 +355,12 @@ public class FText : Transformable
         setWorldPosition(pos);
     }
 
-    void SetAlpha(float alpha)
+    public override void setAlpha(float alpha)
     {
         _canvas.alpha = alpha;
     }
 
-    void SetGlobalScale(float scale)
-    {
-        setScale(scale);
-    }
-
-    void ApplyContentScale(float scale, float deltaScale)
+    void setContentScale(float scale, float deltaScale)
     {
         if (_content)
         {
@@ -405,8 +400,8 @@ public class FText : Transformable
         public Vector2 floatDirection { get; set; }
         public bool invertHorizontalDirection { get; set; }
         public Vector3 direction { get; private set; }
-        public Vector3 position { get; private set; }
 
+        Vector3 position { get; set; }
         Vector3 offset { get; set; }
         Flags flag { get; set; }
 

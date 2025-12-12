@@ -2,6 +2,8 @@
 {
     protected override void onInit(SceneProcedure lastProcedure)
     {
+        brickManager.load();
+        
         changeProcedure<MainSceneGaming>();
     }
 

@@ -12,9 +12,9 @@ public partial class Ball : MovableObject, IDamageable<Brick>
 
     #region Stats
 
-    public float maxHealth;
-    public float minPhysicDamage, maxPhysicDamage;
-    public float minMagicDamage, maxMagicDamage;
+    public int maxHealth;
+    public int minPhysicDamage, maxPhysicDamage;
+    public int minMagicDamage, maxMagicDamage;
     public float speed = 6F;
     public float radius = 0.1F;
     public float dmgRate = 1F;
@@ -43,7 +43,7 @@ public partial class Ball : MovableObject, IDamageable<Brick>
     float lastRadius;
 
     Collider2D hitCollider;
-    SpriteRenderer ballRenderer;
+    GameObject ballRenderer;
 
     public void setOnObjectSet(Action<GameObject, Ball> action) => onObjectSet = action;
     public void setOnDead(Action<Ball> action) => onDead = action;
@@ -56,8 +56,15 @@ public partial class Ball : MovableObject, IDamageable<Brick>
     public override void init()
     {
         base.init();
-
         enableMoveInfo();
+        
+        this.addListener<OnBrickColliderChanged>();
+    }
+
+    public override void destroy()
+    {
+        base.destroy();
+        this.removeListener<OnBrickColliderChanged>();
     }
 
     public override void resetProperty()
@@ -78,9 +85,9 @@ public partial class Ball : MovableObject, IDamageable<Brick>
         lastRadius = 0;
         lastDirection = default;
 
-        maxHealth = 0F;
-        minPhysicDamage = maxPhysicDamage = 0F;
-        minMagicDamage = maxMagicDamage = 0F;
+        maxHealth = 0;
+        minPhysicDamage = maxPhysicDamage = 0;
+        minMagicDamage = maxMagicDamage = 0;
         speed = 0F;
         radius = 0F;
         dmgRate = 1F;
@@ -96,7 +103,8 @@ public partial class Ball : MovableObject, IDamageable<Brick>
         instanceID = obj.GetInstanceID();
         onObjectSet?.Invoke(obj, this);
         curPos = obj.transform.position;
-        ballRenderer = getUnityComponentInChild<SpriteRenderer>(true);
+        
+        ballRenderer = getGameObject("Renderer", obj);
 
         if (isEditor())
         {
@@ -157,6 +165,11 @@ public partial class Ball : MovableObject, IDamageable<Brick>
     {
         lastDirection = direction;
         direction = value;
+        refreshHitInfo();
+    }
+
+    protected void refreshHitInfo()
+    {
         var hit = Physics2D.CircleCast(curPos, radius, direction, 20F, BORDER_LAYER_MASK | BRICK_LAYER_MASK);
         if (hit)
         {
@@ -193,13 +206,13 @@ public partial class Ball : MovableObject, IDamageable<Brick>
         setRadius(radius);
     }
 
-    public void setPhysicDamage(float min, float max)
+    public void setPhysicDamage(int min, int max)
     {
         minPhysicDamage = min;
         maxPhysicDamage = max;
     }
 
-    public void setMagicDamage(float min, float max)
+    public void setMagicDamage(int min, int max)
     {
         minMagicDamage = min;
         maxMagicDamage = max;

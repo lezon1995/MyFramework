@@ -135,15 +135,15 @@ public class BallManager : FrameSystem
         // 将角色挂接到管理器下
         ball.setID(id);
 
-        var path = $"{GAMEPLAY_PATH}/{name}.prefab";
+        var path = $"{GAMEPLAY_PATH}/Prefabs/Play/{name}.prefab";
         var o = mPrefabPoolManager.createObject(path, 0, false, true);
         ball.setObject(o);
         ball.setTeleportPosition(pos);
         ball.setRadius(radius);
         ball.setDirection(direction);
         ball.setSpeed(speed);
-        ball.setPhysicDamage(1F, 1F);
-        ball.setMagicDamage(1F, 1F);
+        ball.setPhysicDamage(1, 1);
+        ball.setMagicDamage(1, 1);
 
         ball.init();
         addBallToList(ball);

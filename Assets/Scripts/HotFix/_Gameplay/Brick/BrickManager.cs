@@ -14,6 +14,9 @@ public class BrickManager : FrameSystem
     protected SafeDictionary<long, Brick> brickUpdateList = new(); // 用于更新角色的列表
     protected SafeDictionary<long, Brick> brickFixedUpdateList = new(); // 需要在FixedUpdate中更新的列表,如果直接使用mBrickGUIDList,会非常慢,而很多时候其实并不需要进行物理更新,所以单独使用一个列表存储
 
+    protected Sprite[] brickSprites;
+    BrickGridLayout brickGrid;
+
     Action<GameObject, Brick> brickObjectSet;
     Action<Brick> brickDead;
 
@@ -80,6 +83,20 @@ public class BrickManager : FrameSystem
         }
     }
 
+    public void load()
+    {
+        brickSprites = new Sprite[25];
+
+        for (int i = 0; i < brickSprites.Length; i++)
+        {
+            var path = $"{GAMEPLAY_PATH}/Sprites/Play/_Blocks/box_{i}.png";
+            var sprite = mResourceManager.loadGameResource<Sprite>(path);
+            brickSprites[i] = sprite;
+        }
+
+        brickGrid = new(levelManager.getBorderSize(), 6, 10);
+    }
+
     public Brick getBrick(long id)
     {
         return brickGUIDList.get(id);
@@ -111,6 +128,35 @@ public class BrickManager : FrameSystem
         return brickTypeList.get(type);
     }
 
+    public Sprite getBrickSprite(int index)
+    {
+        if (brickSprites.tryGet(index, out var sprite))
+            return sprite;
+
+        return null;
+    }
+
+    public Sprite getBrickSpriteByHealth(int health)
+    {
+        int value = health;
+        int count = brickSprites.Length;
+        int index;
+        int v = clampMin(value - 1) / count;
+        if (v == 0)
+        {
+            index = clampMin(value - 1) % count;
+        }
+        else
+        {
+            index = (value + 1) % count;
+        }
+
+        if (brickSprites.tryGet(index, out var sprite))
+            return sprite;
+
+        return null;
+    }
+
     public T createBrick<T>(string name, Vector2 pos) where T : Brick
     {
         return createBrick(name, typeof(T), pos) as T;
@@ -130,19 +176,22 @@ public class BrickManager : FrameSystem
         brick.setName(name);
         brick.setBrickType(type);
         brick.setOnObjectSet(brickObjectSet);
-        brick.setOnDead(brickDead);
+        brick.setOnDestroyed(brickDead);
 
         // 将角色挂接到管理器下
         brick.setID(id);
 
-        var path = $"{GAMEPLAY_PATH}/{name}.prefab";
+        var path = $"{GAMEPLAY_PATH}/Prefabs/Play/{name}.prefab";
         var o = mPrefabPoolManager.createObject(path, 0, false, true);
+        brick.setManager(this);
         brick.setObject(o);
+        brick.init();
+
         brick.setPosition(pos);
         brick.setHealth(20);
         brick.setMaxHealth(20);
+        brick.setSize(1.14F, 0.82F);
 
-        brick.init();
         addBrickToList(brick);
         return brick;
     }

@@ -38,4 +38,19 @@ public class LevelManager : FrameSystem
         border.init();
         return (T)border;
     }
+
+    public Vector2 getBorderSize()
+    {
+        return new(getBorderWidth(), getBorderHeight());
+    }
+
+    public float getBorderWidth()
+    {
+        return abs(borderRight.getTransform().localPosition.x - borderLeft.getTransform().localPosition.x);
+    }
+
+    public float getBorderHeight()
+    {
+        return abs(borderTop.getTransform().localPosition.y - borderBot.getTransform().localPosition.y);
+    }
 }

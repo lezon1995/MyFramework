@@ -15,7 +15,6 @@ public abstract class FTextSetting : ScriptableObject
 
     public AnimationCurve StartScaleCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
     public AnimationCurve FinishScaleCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
-
     public AnimationCurve FadeInCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
     public AnimationCurve FadeOverLifeTime = AnimationCurve.EaseInOut(0, 1, 1, 1);
     public AnimationCurve FadeOutCurve = AnimationCurve.EaseInOut(0, 1, 1, 0);

@@ -1,5 +1,4 @@
 ﻿using System;
-using TMPro;
 using UnityEngine;
 
 namespace MarbleHero;
@@ -7,13 +6,15 @@ namespace MarbleHero;
 [Serializable]
 public partial class Brick : MovableObject, IDamageable<Ball>
 {
+    protected BrickManager manager;
     public int instanceID;
     protected Type type; // 角色类型
     public long guid; // 角色的唯一ID
 
     #region Stats
 
-    public float maxHealth = 10F;
+    public float width, height;
+    public int maxHealth = 10;
     public int maxHealthStack = 1;
     public float physicResist;
     public float magicResist;
@@ -26,13 +27,13 @@ public partial class Brick : MovableObject, IDamageable<Ball>
 
     #endregion
 
+    BrickRenderer brickRenderer;
+    BrickCollider brickCollider;
 
     Action<GameObject, Brick> onObjectSet;
-    Action<Brick> onDead;
-    SpriteRenderer brickRenderer;
-    TextMeshPro textHealth;
+    Action<Brick> onDestroyed;
 
-    public float curHealth;
+    public int curHealth;
     public int curHealthStack;
     public bool immuneToDamage;
     public bool invulnerable;
@@ -46,9 +47,10 @@ public partial class Brick : MovableObject, IDamageable<Ball>
     CoroutineState _coroutineState;
     float _coroutineTimeElapsed;
     float _invincibleTime;
+    float killTimer;
 
     public void setOnObjectSet(Action<GameObject, Brick> action) => onObjectSet = action;
-    public void setOnDead(Action<Brick> action) => onDead = action;
+    public void setOnDestroyed(Action<Brick> action) => onDestroyed = action;
     public void setBrickType(Type t) => type = t;
     public void setID(long id) => guid = id;
     public Type getType() => type;
@@ -59,26 +61,40 @@ public partial class Brick : MovableObject, IDamageable<Ball>
         base.init();
 
         enableMoveInfo();
+
+        brickCollider.setColliderEnabled(true);
+        brickRenderer.setRendererActive(true);
+        brickRenderer.playFadeIn();
+    }
+
+    protected override void initComponents()
+    {
+        base.initComponents();
+        addInitComponent(out brickRenderer, true);
+        addInitComponent(out brickCollider, true);
     }
 
     public override void resetProperty()
     {
         base.resetProperty();
+        manager = null;
         instanceID = 0;
         type = null;
         guid = 0;
         onObjectSet = null;
-        onDead = null;
+        onDestroyed = null;
         brickRenderer = null;
-        textHealth = null;
+        brickCollider = null;
 
-        maxHealth = 0F;
+        width = 0F;
+        height = 0F;
+        maxHealth = 0;
         maxHealthStack = 0;
         physicResist = 0F;
         magicResist = 0F;
         dodgeChance = 0F;
 
-        curHealth = 0F;
+        curHealth = 0;
         curHealthStack = 0;
         immuneToDamage = false;
         invulnerable = false;
@@ -86,6 +102,7 @@ public partial class Brick : MovableObject, IDamageable<Ball>
         _coroutineState = default;
         _coroutineTimeElapsed = 0F;
         _invincibleTime = 0F;
+        killTimer = 0F;
     }
 
     public override void setObject(GameObject obj)
@@ -93,8 +110,6 @@ public partial class Brick : MovableObject, IDamageable<Ball>
         base.setObject(obj);
         instanceID = obj.GetInstanceID();
         onObjectSet?.Invoke(obj, this);
-        brickRenderer = getUnityComponentInChild<SpriteRenderer>(true);
-        textHealth = getUnityComponentInChild<TextMeshPro>(true);
 
         if (isEditor())
         {
@@ -103,14 +118,19 @@ public partial class Brick : MovableObject, IDamageable<Ball>
         }
     }
 
-    protected override void initComponents()
-    {
-        base.initComponents();
-    }
 
     public override void update(float elapsedTime)
     {
         base.update(elapsedTime);
+
+        if (killTimer > 0)
+        {
+            killTimer -= elapsedTime;
+            if (killTimer <= 0)
+            {
+                onDestroyed?.Invoke(this);
+            }
+        }
     }
 
     public override void fixedUpdate(float elapsedTime)
@@ -132,13 +152,20 @@ public partial class Brick : MovableObject, IDamageable<Ball>
         }
     }
 
-    public void setHealth(float value)
+    public void setManager(BrickManager m)
     {
-        curHealth = value;
-        textHealth.text = curHealth.ToString("F0");
+        manager = m;
     }
 
-    public void setMaxHealth(float value)
+    public void setHealth(int value)
+    {
+        curHealth = value;
+        brickRenderer.refreshHealth(curHealth);
+        var sprite = manager.getBrickSpriteByHealth(value);
+        brickRenderer.setBrickSprite(sprite);
+    }
+
+    public void setMaxHealth(int value)
     {
         maxHealth = value;
     }
@@ -265,8 +292,8 @@ public partial class Brick : MovableObject, IDamageable<Ball>
         }
 
         // we decrease the character's health by the damage
-        float preHealth = curHealth;
-        var health = clampMin(curHealth - damageDealt, 0F);
+        int preHealth = curHealth;
+        int health = clampMin((int)(curHealth - damageDealt), 0);
         setHealth(health);
         // lastDamage = damageDealt;
         // lastDamageType = dmg.actualType;
@@ -309,25 +336,21 @@ public partial class Brick : MovableObject, IDamageable<Ball>
         // we update the health bar
         // UpdateHealthBar(true);
 
-        //检测是否死亡
-        {
-            if (curHealth <= 0)
-            {
-                curHealth = 0;
-                var isLethal = kill();
-                if (isLethal && !dmg.isSelf)
-                    source.eventRouter.trigger(new DoKillBrick(this, instigator));
-            }
-        }
+        brickRenderer.playHitFx();
 
-        textHealth.text = curHealth.ToString("F0");
+        //检测是否死亡
+        if (curHealth <= 0)
+        {
+            curHealth = 0;
+            if (!dmg.isSelf)
+                source.eventRouter.trigger(new DoKillBrick(this, instigator));
+
+            kill();
+        }
     }
 
     public virtual bool kill()
     {
-        if (immuneToDamage)
-            return false;
-
         setHealth(0);
 
         // we prevent further damage
@@ -335,13 +358,23 @@ public partial class Brick : MovableObject, IDamageable<Ball>
 
         eventRouter.trigger(new OnDeath());
 
-        onDead?.Invoke(this);
+        brickCollider.setColliderEnabled(false);
+        brickRenderer.setRendererActive(false);
 
+        killTimer = 1F;
         return true;
     }
 
     public bool isDead()
     {
         return curHealth <= 0 && maxHealth > 0;
+    }
+
+    public void setSize(float w, float h)
+    {
+        width = w;
+        height = h;
+        brickRenderer.setSize(w, h);
+        brickCollider.setSize(w, h);
     }
 }
