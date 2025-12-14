@@ -85,7 +85,7 @@ public class BrickManager : FrameSystem
 
     public void load()
     {
-        brickSprites = new Sprite[25];
+        brickSprites = new Sprite[26];
 
         for (int i = 0; i < brickSprites.Length; i++)
         {
@@ -95,6 +95,13 @@ public class BrickManager : FrameSystem
         }
 
         brickGrid = new(levelManager.getBorderSize(), 6, 10);
+        using var _ = new ListScope<Rect>(out var grids);
+        brickGrid.getGrids(ref grids);
+        for (var i = 0; i < grids.Count; i++)
+        {
+            var grid = grids[i];
+            createBrick<NormalBrick>("Brick", grid.center, grid.size, 60);
+        }
     }
 
     public Brick getBrick(long id)
@@ -148,7 +155,7 @@ public class BrickManager : FrameSystem
         }
         else
         {
-            index = (value + 1) % count;
+            index = (value - 2) % (count - 1) + 1;
         }
 
         if (brickSprites.tryGet(index, out var sprite))
@@ -157,12 +164,12 @@ public class BrickManager : FrameSystem
         return null;
     }
 
-    public T createBrick<T>(string name, Vector2 pos) where T : Brick
+    public T createBrick<T>(string name, Vector2 pos, Vector2 size, int health) where T : Brick
     {
-        return createBrick(name, typeof(T), pos) as T;
+        return createBrick(name, typeof(T), pos, size, health) as T;
     }
 
-    public Brick createBrick(string name, Type type, Vector2 pos)
+    public Brick createBrick(string name, Type type, Vector2 pos, Vector2 size, int health)
     {
         var id = generateGUID();
 
@@ -188,9 +195,10 @@ public class BrickManager : FrameSystem
         brick.init();
 
         brick.setPosition(pos);
-        brick.setHealth(20);
-        brick.setMaxHealth(20);
-        brick.setSize(1.14F, 0.82F);
+        brick.setHealth(health);
+        brick.setMaxHealth(health);
+        // brick.setSize(1.14F, 0.82F);
+        brick.setSize(size);
 
         addBrickToList(brick);
         return brick;

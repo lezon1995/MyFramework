@@ -8,7 +8,7 @@ public class MainSceneGaming : SceneProcedure
     protected override void onInit(SceneProcedure lastProcedure)
     {
         balls = CLASS<SafeList<Ball>>();
-        var ball = ballManager.createBall<NormalBall>("Ball_0", new(3, 3), 0.07F, new(1, 1), 6F);
+        var ball = ballManager.createBall<NormalBall>("Ball_0", new(3, 3), 0.14F, new(1, 1), 6F);
         balls.add(ball);
         // LT.LOAD<UIGaming>();
     }
@@ -31,14 +31,15 @@ public class MainSceneGaming : SceneProcedure
         {
             var mousePosition = getMousePosition();
             var worldPos = screenToWorld(mousePosition, false);
-            var ball = ballManager.createBall<NormalBall>("Ball_0", worldPos, 0.07F, Random.insideUnitCircle, 6F);
+            var ball = ballManager.createBall<NormalBall>("Ball_0", worldPos, 0.14F, Random.insideUnitCircle, 6F);
             balls.add(ball);
         }
+
         if (isKeyCurrentDown(KeyCode.B))
         {
             var mousePosition = getMousePosition();
             var worldPos = screenToWorld(mousePosition, false);
-            var brick = brickManager.createBrick<NormalBrick>("Brick", worldPos);
+            var brick = brickManager.createBrick<NormalBrick>("Brick", worldPos, new(1.14F, 0.82F), 20);
             // balls.add(ball);
         }
     }

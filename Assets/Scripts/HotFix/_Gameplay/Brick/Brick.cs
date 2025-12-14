@@ -370,6 +370,11 @@ public partial class Brick : MovableObject, IDamageable<Ball>
         return curHealth <= 0 && maxHealth > 0;
     }
 
+    public void setSize(Vector2 size)
+    {
+        setSize(size.x, size.y);
+    }
+    
     public void setSize(float w, float h)
     {
         width = w;

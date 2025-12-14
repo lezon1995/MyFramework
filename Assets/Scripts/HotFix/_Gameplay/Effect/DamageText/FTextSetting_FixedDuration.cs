@@ -1,6 +1,5 @@
+using MarbleHero;
 using UnityEngine;
-
-namespace MarbleHero;
 
 [CreateAssetMenu(fileName = "FTextSetting", menuName = "MarbleHero/FText Setting/FixedDuration")]
 public class FTextSetting_FixedDuration : FTextSetting

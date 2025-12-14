@@ -1,8 +1,10 @@
+using MarbleHero;
 using UnityEngine;
 
-namespace MarbleHero;
+// namespace MarbleHero;
 
-public abstract class FTextSetting : ScriptableObject
+[CreateAssetMenu(fileName = "FTextSetting", menuName = "MarbleHero/FText Setting/FTextSetting")]
+public class FTextSetting : ScriptableObject
 {
     public virtual bool CalculateTotalPct => false;
     public Color[] FontColors;
@@ -19,7 +21,9 @@ public abstract class FTextSetting : ScriptableObject
     public AnimationCurve FadeOverLifeTime = AnimationCurve.EaseInOut(0, 1, 1, 1);
     public AnimationCurve FadeOutCurve = AnimationCurve.EaseInOut(0, 1, 1, 0);
 
-    public abstract void ModifyPosition(ref Vector2 rectPos, in FText.Data data, float pct);
+    public virtual void ModifyPosition(ref Vector2 rectPos, in FText.Data data, float pct)
+    {
+    }
 
     public virtual void ModifyFloatDirection(ref FText.Data data)
     {

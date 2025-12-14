@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace MarbleHero;
@@ -71,14 +72,44 @@ public class BrickGridLayout
             gridSize = new(Mathf.Max(0f, usableWidth / cols), Mathf.Max(0f, usableHeight / rows));
     }
 
-    public Span<Rect> getGrids()
+    public void getGrids(ref List<Rect> grids)
     {
-        Span<Rect> grids = stackalloc Rect[cols * rows];
-        for (var i = 0; i < grids.Length; i++)
-        {
-            grids[i] = new Rect();
-        }
+        grids.Clear();
+        // 计算每个 Cell 的 size
+        getCellSize(out Vector2 cellSize);
 
-        return grids;
+        int total = cols * rows;
+        float gridWidth = size.x;
+        float gridHeight = size.y;
+
+        // 整个 Grid 的左下角相对于中心点的位置 (中心为 0,0)
+        float halfW = gridWidth * 0.5f;
+        float halfH = gridHeight * 0.5f;
+
+        // padding
+        float padX = padding.x;
+        float padY = padding.y;
+
+        // 左上角 Cell 的中心位置（因为要按行列往下排）
+        float startX = -halfW + padX + cellSize.x * 0.5f;
+        float startY =  halfH - padY - cellSize.y * 0.5f;
+
+        int index = 0;
+
+        for (int r = 0; r < rows; r++)
+        {
+            float cy = startY - r * (cellSize.y + spacing.y);
+
+            for (int c = 0; c < cols; c++)
+            {
+                float cx = startX + c * (cellSize.x + spacing.x);
+
+                // 创建以 Cell 中心为原点的 Rect
+                Rect rect = new(0, 0, cellSize.x, cellSize.y);
+                rect.center = new(cx, cy);
+
+                grids.Add(rect);
+            }
+        }
     }
 }

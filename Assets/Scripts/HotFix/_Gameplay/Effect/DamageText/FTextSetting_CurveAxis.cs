@@ -1,6 +1,5 @@
+using MarbleHero;
 using UnityEngine;
-
-namespace MarbleHero;
 
 [CreateAssetMenu(fileName = "FTextSetting", menuName = "MarbleHero/FText Setting/CurveAxis")]
 public class FTextSetting_CurveAxis : FTextSetting
