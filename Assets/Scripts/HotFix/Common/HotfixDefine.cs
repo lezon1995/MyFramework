@@ -3,18 +3,19 @@
 public static class HotfixDefine
 {
     public const string GAMEPLAY_PATH = "_Gameplay";
-    
-    
+
+
     public const int BALL_LAYER = 6;
     public const int BALL_LAYER_MASK = 1 << BALL_LAYER;
     public const int BRICK_LAYER = 7;
     public const int BRICK_LAYER_MASK = 1 << BRICK_LAYER;
-    public const int BORDER_LAYER = 8;
-    public const int BORDER_LAYER_MASK = 1 << BORDER_LAYER;
-    
-    public const string BORDER_TOP_TAG = "BorderTop";
-    public const string BORDER_BOT_TAG = "BorderBot";
-    public const string BORDER_LEFT_TAG = "BorderLeft";
-    public const string BORDER_RIGHT_TAG = "BorderRight";
-    
+    public const int BORDER_LEFT_LAYER = 8;
+    public const int BORDER_RIGHT_LAYER = 9;
+    public const int BORDER_TOP_LAYER = 10;
+    public const int BORDER_BOT_LAYER = 11;
+    public const int BORDER_LEFT_LAYER_MASK = 1 << BORDER_LEFT_LAYER;
+    public const int BORDER_RIGHT_LAYER_MASK = 1 << BORDER_RIGHT_LAYER;
+    public const int BORDER_TOP_LAYER_MASK = 1 << BORDER_TOP_LAYER;
+    public const int BORDER_BOT_LAYER_MASK = 1 << BORDER_BOT_LAYER;
+    public const int BORDER_LAYER_MASK = BORDER_LEFT_LAYER_MASK | BORDER_RIGHT_LAYER_MASK | BORDER_TOP_LAYER_MASK | BORDER_BOT_LAYER_MASK;
 }

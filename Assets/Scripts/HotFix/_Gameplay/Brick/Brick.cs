@@ -356,7 +356,7 @@ public partial class Brick : MovableObject, IDamageable<Ball>
         // we prevent further damage
         setDamageDisabled();
 
-        eventRouter.trigger(new OnDeath());
+        eventRouter.trigger(new OnBrickDeath(this));
 
         brickCollider.setColliderEnabled(false);
         brickRenderer.setRendererActive(false);
@@ -374,7 +374,7 @@ public partial class Brick : MovableObject, IDamageable<Ball>
     {
         setSize(size.x, size.y);
     }
-    
+
     public void setSize(float w, float h)
     {
         width = w;

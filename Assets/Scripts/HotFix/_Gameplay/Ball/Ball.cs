@@ -347,7 +347,7 @@ public partial class Ball : MovableObject, IDamageable<Brick>
 
         setHealth(0);
 
-        eventRouter.trigger(new OnDeath());
+        eventRouter.trigger(new OnBallDeath());
 
         onDead?.Invoke(this);
 

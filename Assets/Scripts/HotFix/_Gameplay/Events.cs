@@ -11,6 +11,7 @@ public struct DoAttackEffect
         brick = b;
     }
 }
+
 public struct DoAbilityEffect
 {
     public Brick brick;
@@ -20,15 +21,21 @@ public struct DoAbilityEffect
         brick = b;
     }
 }
+
 public struct OnHit
 {
 }
-public struct OnDeath
+
+public struct OnBallDeath
 {
-    public OnDeath()
-    {
-    }
 }
+
+public struct OnBrickDeath
+{
+    public Brick brick;
+    public OnBrickDeath(Brick b) => brick = b;
+}
+
 public struct DoDmgBrick
 {
     public Brick brick;
@@ -40,6 +47,7 @@ public struct DoDmgBrick
         dmg = d;
     }
 }
+
 public struct DoDmgBall
 {
     public Ball ball;
@@ -51,6 +59,7 @@ public struct DoDmgBall
         dmg = d;
     }
 }
+
 public struct OnDmg
 {
     public Ball ball;
@@ -62,6 +71,7 @@ public struct OnDmg
         dmg = d;
     }
 }
+
 public struct DoKillBrick
 {
     public Brick brick;
@@ -73,6 +83,7 @@ public struct DoKillBrick
         instigator = i;
     }
 }
+
 public struct DoKillBall
 {
     public Ball ball;
@@ -84,6 +95,7 @@ public struct DoKillBall
         instigator = i;
     }
 }
+
 public struct OnBrickColliderChanged
 {
 }

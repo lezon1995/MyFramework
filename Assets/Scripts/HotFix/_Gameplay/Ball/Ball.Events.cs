@@ -11,27 +11,13 @@ public partial class Ball : IEventRouter, IEvent<OnBrickColliderChanged>
         var layer = c.gameObject.layer;
         return layer switch
         {
-            BORDER_LAYER => onHitEnterBorder(c, normal),
+            BORDER_LEFT_LAYER => onHitEnter(levelManager.borderLeft, normal),
+            BORDER_RIGHT_LAYER => onHitEnter(levelManager.borderRight, normal),
+            BORDER_TOP_LAYER => onHitEnter(levelManager.borderTop, normal),
+            BORDER_BOT_LAYER => onHitEnter(levelManager.borderBot, normal),
             BRICK_LAYER => onHitEnterBrick(c, normal),
             _ => false
         };
-    }
-
-    protected virtual bool onHitEnterBorder(Collider2D c, Vector2 normal)
-    {
-        if (c.CompareTag(BORDER_TOP_TAG))
-            return onHitEnter(levelManager.borderTop, normal);
-
-        if (c.CompareTag(BORDER_BOT_TAG))
-            return onHitEnter(levelManager.borderBot, normal);
-
-        if (c.CompareTag(BORDER_LEFT_TAG))
-            return onHitEnter(levelManager.borderLeft, normal);
-
-        if (c.CompareTag(BORDER_RIGHT_TAG))
-            return onHitEnter(levelManager.borderRight, normal);
-
-        return false;
     }
 
     protected virtual bool onHitEnterBrick(Collider2D c, Vector2 normal)

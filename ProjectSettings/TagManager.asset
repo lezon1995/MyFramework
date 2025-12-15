@@ -5,10 +5,6 @@ TagManager:
   serializedVersion: 3
   tags:
   - NoClick
-  - BorderTop
-  - BorderBot
-  - BorderLeft
-  - BorderRight
   layers:
   - Default
   - TransparentFX
@@ -18,10 +14,10 @@ TagManager:
   - UI
   - Ball
   - Brick
-  - Border
-  - 
-  - 
-  - 
+  - BorderLeft
+  - BorderRight
+  - BorderTop
+  - BorderBot
   - 
   - 
   - 

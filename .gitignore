@@ -79,16 +79,12 @@ crashlytics-build.properties
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
 
-#TopDownEngine Demos
-/Assets/TopDownEngine/Demos
-/Assets/TopDownEngine/Demos.meta
-
-/Assets/TopDownEngine/ThirdParty/MoreMountains/MMTools/Demos
-/Assets/TopDownEngine/ThirdParty/MoreMountains/MMTools/Demos.meta
+/Assets/MobileDependencyResolver
+/Assets/MobileDependencyResolver.meta
 
 #TMP
-/Assets/TopDownEngine/ThirdParty/TextMesh Pro
-/Assets/TopDownEngine/ThirdParty/TextMesh Pro.meta
+/Assets/TextMesh Pro
+/Assets/TextMesh Pro.meta
 
 #Sub Module
 /Assets/TopDownEngine/ThirdParty/MoreMountains/InventoryEngine.meta

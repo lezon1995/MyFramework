@@ -5,7 +5,7 @@ using UnityEngine;
 namespace MarbleHero;
 
 // 角色管理器
-public class BrickManager : FrameSystem
+public class BrickManager : FrameSystem, IEvent<OnBrickDeath>
 {
     //key: gameObject.GetInstanceID()
     protected Dictionary<int, Brick> bricks = new();
@@ -15,16 +15,16 @@ public class BrickManager : FrameSystem
     protected SafeDictionary<long, Brick> brickFixedUpdateList = new(); // 需要在FixedUpdate中更新的列表,如果直接使用mBrickGUIDList,会非常慢,而很多时候其实并不需要进行物理更新,所以单独使用一个列表存储
 
     protected Sprite[] brickSprites;
-    BrickGridLayout brickGrid;
+    public BrickGridLayout brickGrid;
 
     Action<GameObject, Brick> brickObjectSet;
-    Action<Brick> brickDead;
+    Action<Brick> brickDestroyed;
 
     public BrickManager()
     {
         mCreateObject = true;
         brickObjectSet = onBrickObjectSet;
-        brickDead = onBrickDead;
+        brickDestroyed = onBrickDestroyed;
     }
 
     public override void init()
@@ -95,12 +95,12 @@ public class BrickManager : FrameSystem
         }
 
         brickGrid = new(levelManager.getBorderSize(), 6, 10);
-        var grids = brickGrid.getGrids();
-        for (var i = 0; i < grids.Count; i++)
-        {
-            var grid = grids[i];
-            createBrick<NormalBrick>("Brick", grid.center, grid.size, 60);
-        }
+        // var grids = brickGrid.getGrids();
+        // for (var i = 0; i < grids.Count; i++)
+        // {
+        //     var grid = grids[i];
+        //     createBrick<NormalBrick>("Brick", grid.center, grid.size, 60);
+        // }
     }
 
     public Brick getBrick(long id)
@@ -117,6 +117,11 @@ public class BrickManager : FrameSystem
     {
         brick = bricks.get(instanceID);
         return brick != null;
+    }
+
+    public Dictionary<int, Brick> getBricks()
+    {
+        return bricks;
     }
 
     public Dictionary<long, Brick> getBrickList()
@@ -182,7 +187,7 @@ public class BrickManager : FrameSystem
         brick.setName(name);
         brick.setBrickType(type);
         brick.setOnObjectSet(brickObjectSet);
-        brick.setOnDestroyed(brickDead);
+        brick.setOnDestroyed(brickDestroyed);
 
         // 将角色挂接到管理器下
         brick.setID(id);
@@ -199,6 +204,8 @@ public class BrickManager : FrameSystem
         // brick.setSize(1.14F, 0.82F);
         brick.setSize(size);
 
+        brick.eventRouter.addListener(this);
+
         addBrickToList(brick);
         return brick;
     }
@@ -208,7 +215,13 @@ public class BrickManager : FrameSystem
         bricks[brick.instanceID] = brick;
     }
 
-    void onBrickDead(Brick brick)
+    public void onEvent(OnBrickDeath e)
+    {
+        e.brick.eventRouter.removeListener(this);
+        bricks.Remove(e.brick.instanceID);
+    }
+
+    void onBrickDestroyed(Brick brick)
     {
         destroyBrick(brick);
     }
