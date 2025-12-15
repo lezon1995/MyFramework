@@ -95,8 +95,7 @@ public class BrickManager : FrameSystem
         }
 
         brickGrid = new(levelManager.getBorderSize(), 6, 10);
-        using var _ = new ListScope<Rect>(out var grids);
-        brickGrid.getGrids(ref grids);
+        var grids = brickGrid.getGrids();
         for (var i = 0; i < grids.Count; i++)
         {
             var grid = grids[i];

@@ -1,11 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace MarbleHero;
 
 public class BrickGridLayout
 {
+    List<Rect> firstRowGrids = new();
+    List<Rect> firstColGrids = new();
+    List<Rect> grids = new();
+
     Vector2 size, spacing, padding;
     int cols, rows;
 
@@ -15,42 +18,7 @@ public class BrickGridLayout
         cols = col;
         rows = row;
         spacing = new(0.05F, 0.05F);
-    }
-
-    public void refreshSize(float w, float h)
-    {
-        size.x = w;
-        size.y = h;
-    }
-
-    public void refreshWidth(float w)
-    {
-        size.x = w;
-    }
-
-    public void refreshHeight(float h)
-    {
-        size.y = h;
-    }
-
-    public void refreshRows(int row)
-    {
-        rows = row;
-    }
-
-    public void refreshCols(int col)
-    {
-        cols = col;
-    }
-
-    public void refreshSpacingX(float x)
-    {
-        spacing.x = x;
-    }
-
-    public void refreshSpacingY(float y)
-    {
-        spacing.y = y;
+        getGrids();
     }
 
     public void getCellSize(out Vector2 gridSize)
@@ -72,7 +40,7 @@ public class BrickGridLayout
             gridSize = new(Mathf.Max(0f, usableWidth / cols), Mathf.Max(0f, usableHeight / rows));
     }
 
-    public void getGrids(ref List<Rect> grids)
+    public List<Rect> getGrids()
     {
         grids.Clear();
         // 计算每个 Cell 的 size
@@ -92,24 +60,71 @@ public class BrickGridLayout
 
         // 左上角 Cell 的中心位置（因为要按行列往下排）
         float startX = -halfW + padX + cellSize.x * 0.5f;
-        float startY =  halfH - padY - cellSize.y * 0.5f;
+        float startY = halfH - padY - cellSize.y * 0.5f;
 
-        int index = 0;
-
-        for (int r = 0; r < rows; r++)
+        firstRowGrids.Clear();
+        firstColGrids.Clear();
+        for (int row = 0; row < rows; row++)
         {
-            float cy = startY - r * (cellSize.y + spacing.y);
+            float cy = startY - row * (cellSize.y + spacing.y);
 
-            for (int c = 0; c < cols; c++)
+            for (int col = 0; col < cols; col++)
             {
-                float cx = startX + c * (cellSize.x + spacing.x);
+                float cx = startX + col * (cellSize.x + spacing.x);
 
                 // 创建以 Cell 中心为原点的 Rect
                 Rect rect = new(0, 0, cellSize.x, cellSize.y);
                 rect.center = new(cx, cy);
 
                 grids.Add(rect);
+
+                if (row == 0)
+                    firstRowGrids.add(rect);
+
+                if (col == 0)
+                    firstColGrids.add(rect);
             }
         }
+
+        return grids;
     }
+
+    public float getPosXAtCol(int col)
+    {
+        var rect = firstRowGrids.get(col);
+        return rect.center.x;
+    }
+
+    public float getPosYAtRow(int row)
+    {
+        var rect = firstColGrids.get(row);
+        return rect.center.y;
+    }
+
+    public Vector2 getPos(int col, int row)
+    {
+        return new(getPosXAtCol(col), getPosYAtRow(row));
+    }
+
+    public int getRowAtPosY(float y)
+    {
+        for (var row = 0; row < firstColGrids.Count; row++)
+        {
+            var rect = firstColGrids[row];
+            if (rect.yMin <= y && y <= rect.yMax)
+            {
+                return row;
+            }
+        }
+
+        return -1;
+    }
+
+    public void setSize(float w, float h) => (size.x, size.y) = (w, h);
+    public void setWidth(float w) => size.x = w;
+    public void setHeight(float h) => size.y = h;
+    public void setRows(int row) => rows = row;
+    public void setCols(int col) => cols = col;
+    public void setSpacingX(float x) => spacing.x = x;
+    public void setSpacingY(float y) => spacing.y = y;
 }
