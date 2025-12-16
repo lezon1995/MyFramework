@@ -52,6 +52,11 @@ public class MainSceneGaming : SceneProcedure
         {
             gameplayManager.nextTurn();
         }
+
+        if (isKeyCurrentDown(KeyCode.R))
+        {
+            playerManager.getPlayer().returnBall();
+        }
     }
 
     protected override void onExit(SceneProcedure nextProcedure)

@@ -80,7 +80,7 @@ public class Player : MovableObject
             //SoundManager.Instance.PlayEffect(Sound.sound_play_sfx_ball_launch);
             // CtrGame.instance.ShotSound();
 
-            var ball = ballManager.createBall<NormalBall>("Ball_0", shootPosition, 0.14F, shootDirection, 6F);
+            var ball = ballManager.createBall<NormalBall>("Ball_0", shootPosition, 0.14F, shootDirection, 8F);
             ballCount -= 1;
             // CtrUI.instance.SetBallCount(ballCount);
 
@@ -90,13 +90,13 @@ public class Player : MovableObject
             }
 
             activeBalls.Add(ball);
-            yield return new WaitForSeconds(0.035f);
+            yield return new WaitForSeconds(0.05f);
 
             if (ballCount < 0)
                 ballCount = 0;
         }
 
-        yield return new WaitForSeconds(0.035f);
+        yield return new WaitForSeconds(0.05f);
         // CtrUI.instance.textBallCount.DOFade(0f, 0.1f).SetEase(Ease.OutCubic);
         GameEntry.startCoroutine(checkTurnCo());
     }
@@ -150,6 +150,10 @@ public class Player : MovableObject
 
         //Existing Ball += Added Ball
         // ballMaxCount += addBallBlock.Count;
+
+        if (randomHit(0.5F))
+            ballMaxCount++;
+
         ballCount = ballMaxCount;
         // CtrUI.instance.SetBallCount(ballMaxCount);
 
@@ -172,7 +176,7 @@ public class Player : MovableObject
     {
         for (int i = 0; i < activeBalls.Count; i++)
         {
-            // activeBalls[i].returnBall();
+            activeBalls[i].returnBall(nextPosition);
         }
 
         yield return new WaitForSeconds(0.25f);

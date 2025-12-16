@@ -3,6 +3,8 @@
     protected override void onInit(SceneProcedure lastProcedure)
     {
         brickManager.load();
+        comboManager.load();
+        mPrefabPoolManager.setTimerInterval(60);
         
         changeProcedure<MainSceneGaming>();
     }

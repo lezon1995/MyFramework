@@ -1,4 +1,5 @@
 ﻿using System;
+using PrimeTween;
 using UnityEngine;
 
 namespace MarbleHero;
@@ -390,5 +391,16 @@ public partial class Ball : MovableObject, IDamageable<Brick>
     public bool isDead()
     {
         return curHealth <= 0 && maxHealth > 0;
+    }
+
+    public void returnBall(Vector3 nextPosition)
+    {
+        setEnabled(false);
+        Tween
+            .Position(getTransform(), endValue: nextPosition, duration: 0.25f, ease: Ease.OutCubic)
+            .OnComplete(this, ball =>
+            {
+                ballManager.destroyBall(ball);
+            });
     }
 }

@@ -18,6 +18,7 @@ public class ThreadTimeLock
 	public DateTime getFrameStartTime() { return mLastTime; }
 	public double update()
 	{
+#if !UNITY_EDITOR
 		DateTime endTime = DateTime.Now;
 		long remainMS = mFrameTimeMS - (long)(endTime - mLastTime).TotalMilliseconds;
 		if (remainMS > 0)
@@ -28,6 +29,7 @@ public class ThreadTimeLock
 		{
 			Thread.Sleep(mForceSleep);
 		}
+#endif
 		double frameTime = (DateTime.Now - mLastTime).TotalMilliseconds;
 		mLastTime = DateTime.Now;
 		return frameTime;

@@ -2,10 +2,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace MarbleHero;
 
-public class GameplayManager : FrameSystem
+public class GameplayManager : FrameSystem, IEvent<OnBrickDeath>
 {
     IDmgCalculator dmgCalculator;
 
@@ -16,6 +17,11 @@ public class GameplayManager : FrameSystem
     public bool isContinue;
     public int comboCount;
     public bool isAllClear;
+
+    Camera mainCamera;
+    Vector3 cameraInitialPosition;
+    float cameraShakeTimer;
+    float cameraShakePower;
 
     bool _isLock;
 
@@ -51,6 +57,35 @@ public class GameplayManager : FrameSystem
     {
         base.init();
         dmgCalculator = DmgCalculator.Default;
+
+        mainCamera = mCameraManager.getMainCamera().getCamera();
+        cameraInitialPosition = mainCamera.transform.localPosition;
+        this.addListener<OnBrickDeath>();
+    }
+
+    public override void update(float elapsedTime)
+    {
+        base.update(elapsedTime);
+
+        if (cameraShakeTimer > 0)
+        {
+            cameraShakeTimer = clampMin(cameraShakeTimer - elapsedTime, 0);
+            Vector3 pos = cameraInitialPosition + Random.insideUnitSphere * cameraShakePower;
+            pos.z = cameraInitialPosition.z;
+            mainCamera.transform.localPosition = pos;
+
+            if (cameraShakeTimer <= 0)
+            {
+                mainCamera.transform.localPosition = cameraInitialPosition;
+            }
+        }
+    }
+
+    public override void destroy()
+    {
+        base.destroy();
+
+        this.removeListener<OnBrickDeath>();
     }
 
     public void handleHitDamage(Ball ball, Brick brick)
@@ -101,8 +136,8 @@ public class GameplayManager : FrameSystem
 
     public void createBricksAtTopRow(int turnNum)
     {
-        // var brickGroup = CLASS<BrickGroup>(typeof(RandomTopRowBrickGroup));
-        var brickGroup = CLASS<BrickGroup>(typeof(RandomAnyEmptyBrickGroup));
+        var brickGroup = CLASS<RandomTopRowBrickGroup>();
+        // var brickGroup = CLASS<RandomAnyEmptyBrickGroup>();
         brickGroup.setOnBricksClear(onBrickGroupClear);
         brickGroup.createBricks(turnNum);
         blockGroups.add(brickGroup);
@@ -164,5 +199,22 @@ public class GameplayManager : FrameSystem
         comboCount = 0;
         isLock = false;
         playerManager.getPlayer().getGuideLine().guidelineOn();
+    }
+
+    public void onEvent(OnBrickDeath e)
+    {
+        var combo = ++comboCount;
+        comboManager.createComboEffect(combo, e.brick.getWorldPosition());
+
+        //Camera shaking
+        shakeCamera(combo * 0.02f);
+
+        turnScore += combo * 10;
+    }
+
+    void shakeCamera(float power, float time = 0.2F)
+    {
+        cameraShakePower = power;
+        cameraShakeTimer = time;
     }
 }

@@ -308,6 +308,7 @@ public static class EventRegister
     public static void removeListener<T>(this IEvent<T> listener, EventRouter router) where T : struct => router.removeListener(listener);
 
     public static void trigger<T>(this T e) where T : struct => EventManager.trigger(e);
+    public static void trigger<T>(this T e, IEventRouter router) where T : struct => router.trigger(e);
 }
 
 public interface IEvent

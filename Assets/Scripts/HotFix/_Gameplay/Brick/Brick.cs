@@ -336,7 +336,7 @@ public partial class Brick : MovableObject, IDamageable<Ball>
         // we update the health bar
         // UpdateHealthBar(true);
 
-        brickRenderer.playHitFx();
+        brickRenderer.playFxHit();
 
         //检测是否死亡
         if (curHealth <= 0)
@@ -356,9 +356,13 @@ public partial class Brick : MovableObject, IDamageable<Ball>
         // we prevent further damage
         setDamageDisabled();
 
-        eventRouter.trigger(new OnBrickDeath(this));
+        var e = new OnBrickDeath(this);
+        e.trigger(this);
+        e.trigger();
 
         brickCollider.setColliderEnabled(false);
+
+        brickRenderer.playFxDead();
         brickRenderer.setRendererActive(false);
 
         killTimer = 1F;

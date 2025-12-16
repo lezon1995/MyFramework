@@ -12,7 +12,8 @@ public class BrickRenderer : GameComponent
     TextMeshPro health;
     SpriteRenderer sprite;
     SpriteRenderer shadow;
-    ParticleSystem hitFx;
+    ParticleSystem fxHit;
+    ParticleSystem fxDead;
 
     public override void init(ComponentOwner owner)
     {
@@ -25,7 +26,8 @@ public class BrickRenderer : GameComponent
             findComponent(obj, "Health", out health);
             findComponent(obj, "Sprite", out sprite);
             findComponent(obj, "Shadow", out shadow);
-            findComponent(obj, "HitFx", out hitFx);
+            findComponent(obj, "FxHit", out fxHit);
+            findComponent(obj, "FxDead", out fxDead);
         }
     }
 
@@ -42,7 +44,8 @@ public class BrickRenderer : GameComponent
         health = null;
         sprite = null;
         shadow = null;
-        hitFx = null;
+        fxHit = null;
+        fxDead = null;
     }
 
 
@@ -97,17 +100,22 @@ public class BrickRenderer : GameComponent
         Tween.LocalPositionY(renderer, endValue: 0F, duration: 0.2F, ease: Ease.OutCubic);
     }
 
-    public void playHitFx()
+    public void playFxHit()
     {
         health.transform.localScale = Vector3.one * 1F;
         Sequence
             .Create(Tween.Scale(health.transform, endValue: Vector3.one * 1.25F, duration: 0.05F, ease: Ease.OutCubic))
             .Chain(Tween.Scale(health.transform, endValue: Vector3.one * 1F, duration: 0.05F, ease: Ease.OutCubic));
 
-        hitFx.Play();
+        fxHit.Play();
 
         Sequence
             .Create(Tween.Scale(sprite.transform, endValue: Vector3.one * 0.95F, duration: 0.1F, ease: Ease.OutCubic))
             .Chain(Tween.Scale(sprite.transform, endValue: Vector3.one * 1F, duration: 0.1F, ease: Ease.OutCubic));
+    }
+
+    public void playFxDead()
+    {
+        fxDead.Play();
     }
 }
