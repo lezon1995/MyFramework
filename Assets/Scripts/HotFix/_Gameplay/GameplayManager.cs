@@ -163,6 +163,6 @@ public class GameplayManager : FrameSystem
         turnScore = 0;
         comboCount = 0;
         isLock = false;
-        // Player.instance.guideLine.GuidelineOn();
+        playerManager.getPlayer().getGuideLine().guidelineOn();
     }
 }

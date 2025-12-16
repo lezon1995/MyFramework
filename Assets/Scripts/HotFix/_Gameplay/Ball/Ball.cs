@@ -31,6 +31,10 @@ public partial class Ball : MovableObject, IDamageable<Brick>
 
     #endregion
 
+    GameObject ballRenderer;
+    Collider2D hitCollider;
+    Player player;
+
     Action<GameObject, Ball> onObjectSet;
     Action<Ball> onDead;
 
@@ -41,9 +45,8 @@ public partial class Ball : MovableObject, IDamageable<Brick>
 
     float movementDelta;
     float lastRadius;
-
-    Collider2D hitCollider;
-    GameObject ballRenderer;
+    bool enabled;
+    bool hasBeenCollided;
 
     public void setOnObjectSet(Action<GameObject, Ball> action) => onObjectSet = action;
     public void setOnDead(Action<Ball> action) => onDead = action;
@@ -57,7 +60,7 @@ public partial class Ball : MovableObject, IDamageable<Brick>
     {
         base.init();
         enableMoveInfo();
-        
+
         this.addListener<OnBrickColliderChanged>();
     }
 
@@ -80,10 +83,13 @@ public partial class Ball : MovableObject, IDamageable<Brick>
         movementDelta = 0;
         direction = Vector2.zero;
         hitNormal = Vector2.zero;
+        player = null;
         hitCollider = null;
         ballRenderer = null;
         lastRadius = 0;
         lastDirection = default;
+        enabled = false;
+        hasBeenCollided = false;
 
         maxHealth = 0;
         minPhysicDamage = maxPhysicDamage = 0;
@@ -97,13 +103,15 @@ public partial class Ball : MovableObject, IDamageable<Brick>
         invulnerable = false;
     }
 
+    public void setPlayer(Player p) => player = p;
+
     public override void setObject(GameObject obj)
     {
         base.setObject(obj);
         instanceID = obj.GetInstanceID();
         onObjectSet?.Invoke(obj, this);
         curPos = obj.transform.position;
-        
+
         ballRenderer = getGameObject("Renderer", obj);
 
         if (isEditor())
@@ -122,6 +130,9 @@ public partial class Ball : MovableObject, IDamageable<Brick>
     {
         base.update(elapsedTime);
 
+        if (!enabled)
+            return;
+
         float t = (Time.time - Time.fixedTime) / Time.fixedDeltaTime;
         var p = Vector3.Lerp(prePos, curPos, t);
         setPosition(p);
@@ -131,9 +142,12 @@ public partial class Ball : MovableObject, IDamageable<Brick>
     {
         base.fixedUpdate(elapsedTime);
 
+        if (!enabled)
+            return;
+
         if (isVectorEqual(hitNormal, Vector2.zero))
             return;
-        
+
         checkRadius();
 
         prePos = curPos;
@@ -165,12 +179,31 @@ public partial class Ball : MovableObject, IDamageable<Brick>
     {
         lastDirection = direction;
         direction = value;
-        refreshHitInfo();
+        refreshHitInfo(true);
     }
 
-    protected void refreshHitInfo()
+    public void setShootDirection(Vector2 value)
     {
-        var hit = Physics2D.CircleCast(curPos, radius, direction, 20F, BORDER_LAYER_MASK | BRICK_LAYER_MASK);
+        lastDirection = direction;
+        direction = value;
+        refreshHitInfo(false);
+    }
+
+    public void setEnabled(bool b)
+    {
+        enabled = b;
+    }
+
+    protected void refreshHitInfo(bool checkBorderBot)
+    {
+        int mask;
+        if (checkBorderBot)
+            mask = ALL_BORDER_LAYER_MASK;
+        else
+            mask = NON_BOT_BORDER_LAYER_MASK;
+
+        mask |= BRICK_LAYER_MASK;
+        var hit = Physics2D.CircleCast(curPos, radius, direction, 20F, mask);
         if (hit)
         {
             targetPos = hit.point + hit.normal * radius;

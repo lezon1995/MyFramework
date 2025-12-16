@@ -191,7 +191,7 @@ GameObject:
   - component: {fileID: 656984662934116525}
   - component: {fileID: 2156510699605898708}
   m_Layer: 0
-  m_Name: Center
+  m_Name: IndicatorBall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

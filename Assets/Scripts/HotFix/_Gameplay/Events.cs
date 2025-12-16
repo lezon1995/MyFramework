@@ -29,6 +29,11 @@ public struct OnHit
 public struct OnBallDeath
 {
 }
+public struct OnBallHitBorderBot
+{
+    public Ball ball;
+    public OnBallHitBorderBot(Ball b) => ball = b;
+}
 
 public struct OnBrickDeath
 {

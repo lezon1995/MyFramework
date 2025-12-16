@@ -10,13 +10,16 @@ public class GuideLine : MovableObject
     Transform linesGroup;
     LineRenderer[] lines;
     Transform[] dots;
+    Transform indicatorBall;
 
     LayerMask _mask0, _mask1, _mask2, _mask3, _hit2Mask;
 
-    float distance = 30f;
+    float distance = 10f;
     bool isLine;
     bool isOff;
     bool isInteractable;
+    Vector3 shootPosition;
+    Vector3 shootDirection;
 
     public override void init()
     {
@@ -29,6 +32,7 @@ public class GuideLine : MovableObject
         var top = BORDER_TOP_LAYER_MASK;
         var right = BORDER_RIGHT_LAYER_MASK;
         var brick = BRICK_LAYER_MASK;
+        // var brick = 0;
         _mask0 = left | top | right | brick;
         _mask1 = top | left | brick;
         _mask2 = top | right | brick;
@@ -54,11 +58,11 @@ public class GuideLine : MovableObject
             if (gameplayManager.isLock)
                 return;
 
-            var diff = screenToWorld(pos, false) - getWorldPosition();
+            var diff = screenToWorld(pos, false) - shootPosition;
             diff.Normalize();
             var rotZ = Mathf.Atan2(diff.y, diff.x) * Mathf.Rad2Deg;
             var rotation = Quaternion.Euler(0f, 0f, Mathf.Clamp((rotZ - 90), -83, 83));
-            setWorldRotation(rotation);
+            shootDirection = rotation * Vector3.up;
         });
 
         movableDrag.setDragEndCallback((owner, pos, cancel) =>
@@ -69,9 +73,9 @@ public class GuideLine : MovableObject
             //if (CtrGame.instance.isGameOver || !CtrGame.instance.isGameStart) return;
             if (!isInteractable)
                 return;
-            isInteractable = false;
 
-            playerManager.getPlayer().shotBall();
+            isInteractable = false;
+            playerManager.getPlayer().shotBall(shootPosition, shootDirection);
         });
     }
 
@@ -92,6 +96,7 @@ public class GuideLine : MovableObject
     {
         base.setObject(obj);
         lines = new LineRenderer[4];
+        findComponent(obj, "IndicatorBall", out indicatorBall);
         findComponent(obj, "Group", out linesGroup);
         findComponent(obj, "Line0", out lines[0]);
         findComponent(obj, "Line1", out lines[1]);
@@ -102,15 +107,15 @@ public class GuideLine : MovableObject
         findComponent(obj, "Dot0", out dots[0]);
         findComponent(obj, "Dot1", out dots[1]);
 
-        lines[2].enabled = false;
-        lines[3].enabled = false;
+        // lines[2].enabled = false;
+        // lines[3].enabled = false;
 
         lines[0].positionCount = 4;
         lines[1].positionCount = 2;
         lines[2].positionCount = 2;
         lines[3].positionCount = 2;
 
-        lineMat = lines[0].material;
+        lineMat = lines[0].sharedMaterial;
     }
 
 
@@ -120,7 +125,7 @@ public class GuideLine : MovableObject
 
         if (isOff)
             return;
-        
+
         if (!isInteractable)
             return;
 
@@ -129,9 +134,13 @@ public class GuideLine : MovableObject
         lineMat.mainTextureScale = new(1, 1);
         lineMat.SetTextureOffset(MainTex, new(offset, 0f));
 
-        var t = getTransform();
-        var origin = t.position;
-        var up = t.up;
+        refreshGuideLine();
+    }
+
+    void refreshGuideLine()
+    {
+        Vector2 origin = shootPosition;
+        Vector2 up = shootDirection;
         Vector2 dir = origin - (up * -distance);
 
         var radius = 0.14F;
@@ -140,24 +149,35 @@ public class GuideLine : MovableObject
         {
             hit.point = hit.point + hit.normal * radius;
 
-            var position = (Vector2)getWorldPosition();
-            Vector2 reflectFirstPos = Vector2.Reflect(hit.point - position, hit.normal);
+            Vector2 reflectFirstPos = Vector2.Reflect(hit.point - origin, hit.normal);
             Vector2 firstPosition = hit.point;
 
-            float rayDistance = (position - hit.point).magnitude;
+            float rayDistance = (origin - hit.point).magnitude;
             float resultRay = distance - rayDistance;
 
             firstPosition += reflectFirstPos.normalized * resultRay;
 
-            if (hit.point.x > 0)
+            var hitObj = hit.transform.gameObject;
+            if (isBorder(hitObj))
             {
-                //第一次射线检测到屏幕右侧
-                _hit2Mask = _mask1;
+                if (hit.point.x > 0)
+                {
+                    //第一次射线检测到屏幕右侧
+                    _hit2Mask = _mask1;
+                }
+                else
+                {
+                    //第一次射线检测到屏幕左侧
+                    _hit2Mask = _mask2;
+                }
+            }
+            else if (isBrick(hitObj))
+            {
+                _hit2Mask = _mask0;
             }
             else
             {
-                //第一次射线检测到屏幕左侧
-                _hit2Mask = _mask2;
+                _hit2Mask = _mask0;
             }
 
             var hit2 = Physics2D.CircleCast(hit.point, radius, reflectFirstPos, resultRay, _hit2Mask);
@@ -170,28 +190,38 @@ public class GuideLine : MovableObject
                 float distanceRay2 = resultRay - rayDistance2;
                 secondPosition += reflectSecondPos.normalized * distanceRay2;
 
-                //LineMode2(hit.point, hit2.point, secondPosition);
-                LineMode1(hit.point, hit2.point);
+                lineMode2(hit.point, hit2.point, secondPosition);
+                // lineMode1(hit.point, hit2.point);
             }
             else
             {
-                LineMode1(hit.point, firstPosition);
+                lineMode1(hit.point, firstPosition);
             }
         }
         else
         {
-            LineMode0(dir);
+            lineMode0(dir);
         }
     }
 
-    void LineMode0(Vector3 dir)
+    static bool isBorder(GameObject o)
+    {
+        return (ALL_BORDER_LAYER_MASK & (1 << o.layer)) != 0;
+    }
+
+    static bool isBrick(GameObject o)
+    {
+        return (BRICK_LAYER_MASK & (1 << o.layer)) != 0;
+    }
+
+    void lineMode0(Vector3 dir)
     {
         if (_modeCount != 0)
         {
             _modeCount = 0;
 
             if (!isLine)
-                LineColor(0);
+                lineColor(0);
 
             lines[0].positionCount = 4;
             lines[1].positionCount = 2;
@@ -205,7 +235,7 @@ public class GuideLine : MovableObject
         if (dots[1].gameObject.activeSelf)
             dots[1].gameObject.SetActive(false);
 
-        var position = getWorldPosition();
+        var position = shootPosition;
         lines[0].SetPosition(0, position);
         lines[0].SetPosition(1, dir);
         lines[0].SetPosition(2, dir);
@@ -216,13 +246,13 @@ public class GuideLine : MovableObject
     }
 
     //hit + forward
-    void LineMode1(Vector3 hit, Vector3 dir)
+    void lineMode1(Vector3 hit, Vector3 dir)
     {
         if (_modeCount != 1)
         {
             _modeCount = 1;
             if (!isLine)
-                LineColor(1);
+                lineColor(1);
 
             lines[0].positionCount = 3;
             lines[1].positionCount = 2;
@@ -230,7 +260,7 @@ public class GuideLine : MovableObject
             lines[3].positionCount = 0;
         }
 
-        lines[0].SetPosition(0, getWorldPosition());
+        lines[0].SetPosition(0, shootPosition);
         lines[0].SetPosition(1, hit);
         lines[0].SetPosition(2, dir);
 
@@ -242,7 +272,7 @@ public class GuideLine : MovableObject
 
         dots[0].transform.position = hit;
 
-        lines[1].SetPosition(0, getWorldPosition());
+        lines[1].SetPosition(0, shootPosition);
         lines[1].SetPosition(1, hit);
         lines[2].SetPosition(0, hit);
         lines[2].SetPosition(1, dir);
@@ -251,7 +281,7 @@ public class GuideLine : MovableObject
     //hit + hit + forward
     int _modeCount = -1;
 
-    void LineMode2(Vector3 hit1, Vector3 hit2, Vector3 dir)
+    void lineMode2(Vector3 hit1, Vector3 hit2, Vector3 dir)
     {
         if (_modeCount != 2)
         {
@@ -263,9 +293,9 @@ public class GuideLine : MovableObject
         }
 
         if (!isLine)
-            LineColor(2);
+            lineColor(2);
 
-        lines[0].SetPosition(0, getWorldPosition());
+        lines[0].SetPosition(0, shootPosition);
         lines[0].SetPosition(1, hit1);
         lines[0].SetPosition(2, hit2);
         lines[0].SetPosition(3, dir);
@@ -279,7 +309,7 @@ public class GuideLine : MovableObject
         dots[0].transform.position = hit1;
         dots[1].transform.position = hit2;
 
-        lines[1].SetPosition(0, getWorldPosition());
+        lines[1].SetPosition(0, shootPosition);
         lines[1].SetPosition(1, hit1);
         lines[2].SetPosition(0, hit1);
         lines[2].SetPosition(1, hit2);
@@ -292,7 +322,7 @@ public class GuideLine : MovableObject
 
     int _lineType = -1;
 
-    void LineColor(int type = 0)
+    void lineColor(int type = 0)
     {
         if (_lineType == type)
             return;
@@ -398,13 +428,31 @@ public class GuideLine : MovableObject
     #endregion
 
 
-    public void GuidelineOff()
+    public void guidelineOff()
     {
         linesGroup.gameObject.SetActive(false);
     }
 
-    public void GuidelineOn()
+    public void guidelineOn()
     {
         linesGroup.gameObject.SetActive(true);
+
+        refreshGuideLine();
+    }
+
+    public void setShootPosition(Vector3 pos)
+    {
+        shootPosition = pos;
+        shootDirection = Vector3.up;
+    }
+
+    public void setIndicatorBallPosition(Vector3 pos)
+    {
+        indicatorBall.position = pos;
+    }
+
+    public void setIndicatorBallActive(bool active)
+    {
+        indicatorBall.gameObject.SetActive(active);
     }
 }

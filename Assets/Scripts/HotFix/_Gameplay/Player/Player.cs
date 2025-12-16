@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using PrimeTween;
 using UnityEngine;
 
 namespace MarbleHero;
@@ -13,38 +14,44 @@ public class Player : MovableObject
     protected GuideLine guideLine;
     protected List<Ball> activeBalls = new();
     public Vector3 nextPosition;
-    public bool isFirstBallReturn;
+    protected bool isFirstBallReturn;
 
     public override void init()
     {
         base.init();
         guideLine = CLASS<GuideLine>();
         guideLine.setObject(getGameObject("GuideLine", getObject()));
+        guideLine.setName("GuideLine");
         guideLine.init();
+
+        nextPosition = getWorldPosition();
+        setNextPositionX(nextPosition.x);
     }
 
     public override void update(float elapsedTime)
     {
         base.update(elapsedTime);
-        
-        guideLine.update(elapsedTime);
+
+        guideLine?.update(elapsedTime);
     }
 
     public override void fixedUpdate(float elapsedTime)
     {
         base.fixedUpdate(elapsedTime);
-        
-        guideLine.fixedUpdate(elapsedTime);
+
+        guideLine?.fixedUpdate(elapsedTime);
     }
 
     public override void destroy()
     {
         base.destroy();
-        
+
         UN_CLASS(ref guideLine);
     }
 
-    public void shotBall()
+    public GuideLine getGuideLine() => guideLine;
+
+    public void shotBall(Vector3 shootPosition, Vector3 shootDirection)
     {
         // CtrUI.instance.SetReturnBallButton(true);
 
@@ -55,8 +62,8 @@ public class Player : MovableObject
         //
         gameplayManager.isLock = true;
         //
-        GameEntry.startCoroutine(shotBallCo());
-        guideLine.GuidelineOff();
+        GameEntry.startCoroutine(shotBallCo(shootPosition, shootDirection));
+        guideLine?.guidelineOff();
     }
 
     public bool anyActiveBall()
@@ -64,19 +71,16 @@ public class Player : MovableObject
         return activeBalls.any();
     }
 
-    IEnumerator shotBallCo()
+    IEnumerator shotBallCo(Vector3 shootPosition, Vector3 shootDirection)
     {
-        // center.SetActive(false);
-
-        Vector3 shotPos = guideLine.getWorldPosition();
-        var direction = guideLine.getTransform().up.normalized;
+        guideLine.setIndicatorBallActive(false);
 
         for (int i = 0; i < ballMaxCount; i++)
         {
             //SoundManager.Instance.PlayEffect(Sound.sound_play_sfx_ball_launch);
             // CtrGame.instance.ShotSound();
 
-            var ball = ballManager.createBall<NormalBall>("Ball_0", shotPos, 0.14F, direction, 6F);
+            var ball = ballManager.createBall<NormalBall>("Ball_0", shootPosition, 0.14F, shootDirection, 6F);
             ballCount -= 1;
             // CtrUI.instance.SetBallCount(ballCount);
 
@@ -96,7 +100,7 @@ public class Player : MovableObject
         // CtrUI.instance.textBallCount.DOFade(0f, 0.1f).SetEase(Ease.OutCubic);
         GameEntry.startCoroutine(checkTurnCo());
     }
-    
+
     IEnumerator checkTurnCo()
     {
         while (activeBalls.Count > 0)
@@ -156,7 +160,7 @@ public class Player : MovableObject
         isFirstBallReturn = false;
         gameplayManager.nextTurn();
     }
-    
+
     public void returnBall()
     {
         // StopAllCoroutines();
@@ -177,14 +181,37 @@ public class Player : MovableObject
 
         GameEntry.startCoroutine(readyPlayerCo());
     }
-    
+
     public void setNextPositionX(float posX)
     {
         nextPosition.x = posX;
-        guideLine.setPositionX(posX);
-        guideLine.setWorldRotation(Quaternion.identity);
-        // center.gameObject.SetActive(true);
+        guideLine.setShootPosition(nextPosition);
+        guideLine.setIndicatorBallPosition(nextPosition);
+        guideLine.setIndicatorBallActive(true);
 
         // SoundManager.Instance.PlayEffect(SoundList.sound_play_sfx_ball_comback);
+    }
+
+    public void setBallReturn(Ball ball)
+    {
+        if (!isFirstBallReturn)
+        {
+            isFirstBallReturn = true;
+            setNextPositionX(ball.getWorldPosition().x);
+            activeBalls.Remove(ball);
+            ballManager.destroyBall(ball);
+            return;
+        }
+
+        ball.setEnabled(false);
+        activeBalls.Remove(ball);
+        Tween
+            .Position(ball.getTransform(), endValue: nextPosition, duration: 0.15F, ease: Ease.OutCubic)
+            .OnComplete(ball, b =>
+            {
+                ballManager.destroyBall(b);
+            });
+
+        return;
     }
 }

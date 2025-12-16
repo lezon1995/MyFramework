@@ -22,6 +22,7 @@ public partial class Ball : IEventRouter, IEvent<OnBrickColliderChanged>
 
     protected virtual bool onHitEnterBrick(Collider2D c, Vector2 normal)
     {
+        hasBeenCollided = true;
         if (brickManager.getBrick(c.gameObject.GetInstanceID(), out var brick))
         {
             var ball = this;
@@ -41,30 +42,37 @@ public partial class Ball : IEventRouter, IEvent<OnBrickColliderChanged>
 
     protected virtual bool onHitEnter(BorderTop border, Vector2 normal)
     {
+        hasBeenCollided = true;
         reflectBounce(normal);
         return true;
     }
 
     protected virtual bool onHitEnter(BorderBot border, Vector2 normal)
     {
-        reflectBounce(normal);
+        if (hasBeenCollided)
+        {
+            player.setBallReturn(this);
+        }
+
         return true;
     }
 
     protected virtual bool onHitEnter(BorderLeft border, Vector2 normal)
     {
+        hasBeenCollided = true;
         reflectBounce(normal);
         return true;
     }
 
     protected virtual bool onHitEnter(BorderRight border, Vector2 normal)
     {
+        hasBeenCollided = true;
         reflectBounce(normal);
         return true;
     }
 
     public void onEvent(OnBrickColliderChanged e)
     {
-        refreshHitInfo();
+        refreshHitInfo(true);
     }
 }

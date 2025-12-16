@@ -140,10 +140,12 @@ public class BallManager : FrameSystem
         ball.setObject(o);
         ball.setTeleportPosition(pos);
         ball.setRadius(radius);
-        ball.setDirection(direction);
+        ball.setShootDirection(direction);
         ball.setSpeed(speed);
         ball.setPhysicDamage(1, 1);
         ball.setMagicDamage(1, 1);
+        ball.setPlayer(playerManager.getPlayer());
+        ball.setEnabled(true);
 
         ball.init();
         addBallToList(ball);
