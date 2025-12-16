@@ -17,10 +17,10 @@ public class GameplayManager : FrameSystem
     public int comboCount;
     public bool isAllClear;
 
-    bool isLock;
+    bool _isLock;
 
     //Screen Drag Lock
-    public bool IsLock
+    public bool isLock
     {
         get
         {
@@ -33,9 +33,9 @@ public class GameplayManager : FrameSystem
             if (isGameOver)
                 return true;
 
-            return isLock;
+            return _isLock;
         }
-        set => isLock = value;
+        set => _isLock = value;
     }
 
     List<BrickGroup> blockGroups = new();
@@ -96,7 +96,7 @@ public class GameplayManager : FrameSystem
         createBricksAtTopRow(turnCount);
         yield return new WaitForSeconds(0.5F);
         isStart = true;
-        IsLock = false;
+        isLock = false;
     }
 
     public void createBricksAtTopRow(int turnNum)
@@ -113,10 +113,20 @@ public class GameplayManager : FrameSystem
         UN_CLASS(group);
     }
 
-    public IEnumerator nextTurn(float time = 0.2F)
+    public void nextTurn()
     {
-        IsLock = true;
+        isLock = true;
         turnCount += 1;
+        // CtrUI.instance.SetTurn(turnCount);
+
+        GameEntry.startCoroutine(nextTurnCo());
+    }
+
+    public IEnumerator nextTurnCo(float time = 0.2F)
+    {
+        // CtrUI.instance.AddScore(turnScore);
+
+        yield return new WaitForSeconds(0.2f);
 
         for (int i = 0; i < blockGroups.Count; i++)
         {
@@ -152,7 +162,7 @@ public class GameplayManager : FrameSystem
 
         turnScore = 0;
         comboCount = 0;
-        IsLock = false;
+        isLock = false;
         // Player.instance.guideLine.GuidelineOn();
     }
 }

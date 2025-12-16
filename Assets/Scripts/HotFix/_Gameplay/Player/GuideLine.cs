@@ -13,9 +13,10 @@ public class GuideLine : MovableObject
 
     LayerMask _mask0, _mask1, _mask2, _mask3, _hit2Mask;
 
-    float distance = 10f;
+    float distance = 30f;
     bool isLine;
-    bool isOff = false;
+    bool isOff;
+    bool isInteractable;
 
     public override void init()
     {
@@ -33,11 +34,44 @@ public class GuideLine : MovableObject
         _mask2 = top | right | brick;
         _mask3 = left | right | brick;
 
-        mGlobalTouchSystem.registeCollider(this, null, true);
+        mGlobalTouchSystem.registeCollider(this);
+
+        movableDrag.setDragStartCallback((ComponentOwner owner, TouchPoint point, ref bool drag) =>
+        {
+            if (gameplayManager.isLock)
+                return;
+
+            //if (CtrGame.instance.isGameOver || !CtrGame.instance.isGameStart) return;
+            //if (!CtrGame.instance.PlayerReady) return;
+            isInteractable = true;
+        });
 
         movableDrag.setDraggingCallback((owner, pos) =>
         {
-            logBase($"dragging pos = {pos}");
+            if (!isInteractable)
+                return;
+
+            if (gameplayManager.isLock)
+                return;
+
+            var diff = screenToWorld(pos, false) - getWorldPosition();
+            diff.Normalize();
+            var rotZ = Mathf.Atan2(diff.y, diff.x) * Mathf.Rad2Deg;
+            var rotation = Quaternion.Euler(0f, 0f, Mathf.Clamp((rotZ - 90), -83, 83));
+            setWorldRotation(rotation);
+        });
+
+        movableDrag.setDragEndCallback((owner, pos, cancel) =>
+        {
+            if (gameplayManager.isLock)
+                return;
+
+            //if (CtrGame.instance.isGameOver || !CtrGame.instance.isGameStart) return;
+            if (!isInteractable)
+                return;
+            isInteractable = false;
+
+            playerManager.getPlayer().shotBall();
         });
     }
 
@@ -85,6 +119,9 @@ public class GuideLine : MovableObject
         base.fixedUpdate(elapsedTime);
 
         if (isOff)
+            return;
+        
+        if (!isInteractable)
             return;
 
         //Material Anim

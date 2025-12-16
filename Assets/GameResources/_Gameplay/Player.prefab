@@ -43,12 +43,12 @@ PrefabInstance:
     - target: {fileID: 668682573481636783, guid: a41fd2d3cb935554f911092f92459cf3,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -25.81738
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 668682573481636783, guid: a41fd2d3cb935554f911092f92459cf3,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.03958
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 668682573481636783, guid: a41fd2d3cb935554f911092f92459cf3,
         type: 3}
@@ -63,17 +63,17 @@ PrefabInstance:
     - target: {fileID: 668682573481636783, guid: a41fd2d3cb935554f911092f92459cf3,
         type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 668682573481636783, guid: a41fd2d3cb935554f911092f92459cf3,
         type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 668682573481636783, guid: a41fd2d3cb935554f911092f92459cf3,
         type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 668682573481636783, guid: a41fd2d3cb935554f911092f92459cf3,
         type: 3}
@@ -94,6 +94,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: GuideLine
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100868774438776142, guid: a41fd2d3cb935554f911092f92459cf3,
+        type: 3}
+      propertyPath: m_Center.y
+      value: 4
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

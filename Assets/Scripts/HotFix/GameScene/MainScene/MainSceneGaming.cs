@@ -50,7 +50,7 @@ public class MainSceneGaming : SceneProcedure
 
         if (isKeyCurrentDown(KeyCode.N))
         {
-            GameEntry.startCoroutine(gameplayManager.nextTurn());
+            gameplayManager.nextTurn();
         }
     }
 
