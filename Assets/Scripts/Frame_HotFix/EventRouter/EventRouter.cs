@@ -32,7 +32,9 @@ public interface IEventRouter
 {
     IEventRouter eventRouter { get; }
     void trigger<T>(T e) => EventRouter.get(this).trigger(e);
+    void addAllListener(IEvent o) => EventRouter.get(this).addAllListener(o);
     void addListener<T>(IEvent<T> listener) where T : struct => EventRouter.get(this).addListener(listener);
+    void removeAllListener(IEvent o) => EventRouter.get(this).removeAllListener(o);
     void removeListener<T>(IEvent<T> listener) where T : struct => EventRouter.get(this).removeListener(listener);
 
     void addListener<T>(Action<T> listener) where T : struct => EventRouter.get(this).addListener(listener);
@@ -75,6 +77,7 @@ public class EventRouter
     Dictionary<Type, List<IEvent>> _subscribersList = new();
 
     static Dictionary<IEventRouter, EventRouter> _dict = new();
+    static List<Type> tempList = new();
 
     public static EventRouter get(IEventRouter router)
     {
@@ -160,6 +163,38 @@ public class EventRouter
         }
     }
 
+
+    public void addAllListener(IEvent listener)
+    {
+        tempList.Clear();
+        if (!EventManager.tryFillListeners(listener, ref tempList))
+            return;
+
+        for (var i = 0; i < tempList.Count; i++)
+        {
+            var typeT = tempList[i].GetGenericArguments()[0];
+            addListener(listener, typeT);
+        }
+
+        tempList.Clear();
+    }
+
+    public void removeAllListener(IEvent listener)
+    {
+        tempList.Clear();
+        if (!EventManager.tryFillListeners(listener, ref tempList))
+            return;
+
+        for (var i = 0; i < tempList.Count; i++)
+        {
+            var typeT = tempList[i].GetGenericArguments()[0];
+            removeListener(listener, typeT);
+        }
+
+        tempList.Clear();
+    }
+
+
     public void addListener<T>(Action<T> action) where T : struct
     {
         // var listener = ActionListener<T>.Get(action);
@@ -230,47 +265,41 @@ public static class EventManager
     public static void addListener<T>(Action<T> listener) where T : struct => _router.addListener(listener);
     public static void removeListener<T>(Action<T> listener) where T : struct => _router.removeListener(listener);
 
-    static List<Type> list = new();
+    static List<Type> tempList = new();
 
-    public static void addAllListener(object o)
+    public static void addAllListener(IEvent listener)
     {
-        list.Clear();
-        if (!tryFillListeners(o))
+        tempList.Clear();
+        if (!tryFillListeners(listener, ref tempList))
             return;
 
-        if (o is IEvent listener)
+        for (var i = 0; i < tempList.Count; i++)
         {
-            for (var i = 0; i < list.Count; i++)
-            {
-                var typeT = list[i].GetGenericArguments()[0];
-                listener.addListener(typeT);
-            }
+            var typeT = tempList[i].GetGenericArguments()[0];
+            listener.addListener(typeT);
         }
 
-        list.Clear();
+        tempList.Clear();
     }
 
-    public static void removeAllListener(object o)
+    public static void removeAllListener(IEvent listener)
     {
-        list.Clear();
-        if (!tryFillListeners(o))
+        tempList.Clear();
+        if (!tryFillListeners(listener, ref tempList))
             return;
 
-        if (o is IEvent listener)
+        for (var i = 0; i < tempList.Count; i++)
         {
-            for (var i = 0; i < list.Count; i++)
-            {
-                var typeT = list[i].GetGenericArguments()[0];
-                listener.removeListener(typeT);
-            }
+            var typeT = tempList[i].GetGenericArguments()[0];
+            listener.removeListener(typeT);
         }
 
-        list.Clear();
+        tempList.Clear();
     }
 
-    static bool tryFillListeners(object o)
+    public static bool tryFillListeners(IEvent listener, ref List<Type> types)
     {
-        var interfaces = o.GetType().GetInterfaces();
+        var interfaces = listener.GetType().GetInterfaces();
         if (interfaces.Length == 0)
             return false;
 
@@ -279,11 +308,11 @@ public static class EventManager
             var type = interfaces[i];
             if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IEvent<>))
             {
-                list.Add(type);
+                types.Add(type);
             }
         }
 
-        if (list.Count == 0)
+        if (types.Count == 0)
             return false;
 
         return true;
@@ -295,13 +324,13 @@ public static class EventManager
 /// </summary>
 public static class EventRegister
 {
-    public static void addAllListener(this object o) => EventManager.addAllListener(o);
+    public static void addAllListener(this IEvent o) => EventManager.addAllListener(o);
     public static void addListener(this IEvent listener, Type type) => EventManager.addListener(listener, type);
     public static void addListener(this IEvent listener, Type type, EventRouter router) => router.addListener(listener, type);
     public static void addListener<T>(this IEvent<T> listener) where T : struct => EventManager.addListener(listener);
     public static void addListener<T>(this IEvent<T> listener, EventRouter router) where T : struct => router.addListener(listener);
 
-    public static void removeAllListener(this object o) => EventManager.removeAllListener(o);
+    public static void removeAllListener(this IEvent o) => EventManager.removeAllListener(o);
     public static void removeListener(this IEvent listener, Type type) => EventManager.removeListener(listener, type);
     public static void removeListener(this IEvent listener, Type type, EventRouter router) => router.removeListener(listener, type);
     public static void removeListener<T>(this IEvent<T> listener) where T : struct => EventManager.removeListener(listener);

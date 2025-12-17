@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace MarbleHero;
 
-public partial class Player : MovableObject, IEventRouter
+public partial class Player : MovableObject
 {
     public bool isReturnBall;
     public int ballMaxCount = 1;
@@ -238,6 +238,4 @@ public partial class Player : MovableObject, IEventRouter
     {
         exp.addXp(turnScore);
     }
-
-    public IEventRouter eventRouter => this;
 }
