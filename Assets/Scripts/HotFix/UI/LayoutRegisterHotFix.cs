@@ -7,6 +7,7 @@ public class LayoutRegisterHotFix
 	{
 		// 需要添加auto generate start和auto generate end才会自动生成代码
 		// auto generate start
+		registeLayout<GameplayPanel>((script) =>					{ mGameplayPanel = script; });
 		registeLayout<UIGaming>((script) =>							{ mUIGaming = script; });
 		registeLayout<UILogin>((script) =>							{ mUILogin = script; });
 		// auto generate end

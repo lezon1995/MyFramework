@@ -20,6 +20,7 @@ public partial class GBH
 	public static ComboManager comboManager;
 	// 需要添加auto generate LayoutScript start和auto generate LayoutScript end才会自动生成代码
 	// auto generate LayoutScript start
+	public static GameplayPanel mGameplayPanel;
 	public static UIGaming mUIGaming;
 	public static UILogin mUILogin;
 	// auto generate LayoutScript end

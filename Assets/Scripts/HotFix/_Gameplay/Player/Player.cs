@@ -12,6 +12,7 @@ public class Player : MovableObject
     public int ballCount = 1;
 
     protected GuideLine guideLine;
+    protected Exp exp;
     protected List<Ball> activeBalls = new();
     public Vector3 nextPosition;
     protected bool isFirstBallReturn;
@@ -23,6 +24,12 @@ public class Player : MovableObject
         guideLine.setObject(getGameObject("GuideLine", getObject()));
         guideLine.setName("GuideLine");
         guideLine.init();
+        
+        exp = CLASS<Exp>();
+        var path = $"{GAMEPLAY_PATH}/ExpData.asset";
+        var data = mResourceManager.loadGameResource<ExpData>(path);
+        exp.setData(data);
+        exp.resetLevel();
 
         nextPosition = getWorldPosition();
         setNextPositionX(nextPosition.x);
@@ -217,5 +224,10 @@ public class Player : MovableObject
             });
 
         return;
+    }
+
+    public void addExp(int turnScore)
+    {
+        exp.addXp(turnScore);
     }
 }

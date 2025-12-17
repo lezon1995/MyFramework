@@ -127,6 +127,7 @@ public class GameplayManager : FrameSystem, IEvent<OnBrickDeath>
 
     public IEnumerator startGame()
     {
+        new OnTurnChanged(turnCount).trigger();
         yield return new WaitForSeconds(0.01F);
         createBricksAtTopRow(turnCount);
         yield return new WaitForSeconds(0.5F);
@@ -151,7 +152,7 @@ public class GameplayManager : FrameSystem, IEvent<OnBrickDeath>
     public void nextTurn()
     {
         isLock = true;
-        turnCount += 1;
+        ++turnCount;
         // CtrUI.instance.SetTurn(turnCount);
 
         GameEntry.startCoroutine(nextTurnCo());
@@ -160,7 +161,6 @@ public class GameplayManager : FrameSystem, IEvent<OnBrickDeath>
     public IEnumerator nextTurnCo(float time = 0.2F)
     {
         // CtrUI.instance.AddScore(turnScore);
-
         yield return new WaitForSeconds(0.2f);
 
         for (int i = 0; i < blockGroups.Count; i++)
@@ -171,6 +171,10 @@ public class GameplayManager : FrameSystem, IEvent<OnBrickDeath>
         yield return new WaitForSeconds(time + 0.1F);
         //Create a single block
         createBricksAtTopRow(turnCount);
+        
+        playerManager.getPlayer().addExp(turnScore);
+        new OnTurnChanged(turnCount).trigger();
+        
         //End of turn movement
         nextTurnMoveEnd();
     }

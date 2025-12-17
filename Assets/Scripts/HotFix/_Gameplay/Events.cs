@@ -104,3 +104,11 @@ public struct DoKillBall
 public struct OnBrickColliderChanged
 {
 }
+
+
+public struct OnTurnChanged
+{
+    public int turn;
+    public OnTurnChanged(int v) => turn = v;
+}
+

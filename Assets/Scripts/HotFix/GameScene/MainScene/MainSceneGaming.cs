@@ -7,11 +7,10 @@ public class MainSceneGaming : SceneProcedure
 
     protected override void onInit(SceneProcedure lastProcedure)
     {
+        LT.LOAD<GameplayPanel>();
+
         balls = CLASS<SafeList<Ball>>();
         playerManager.createPlayer<Player>("Player");
-        // var ball = ballManager.createBall<NormalBall>("Ball_0", new(3, 3), 0.14F, new(1, 1), 6F);
-        // balls.add(ball);
-        // LT.LOAD<UIGaming>();
 
         GameEntry.startCoroutine(gameplayManager.startGame());
     }
@@ -61,7 +60,7 @@ public class MainSceneGaming : SceneProcedure
 
     protected override void onExit(SceneProcedure nextProcedure)
     {
-        // LT.HIDE<UIGaming>();
+        LT.HIDE<GameplayPanel>();
         balls.clear();
         ballManager?.destroyAllBall();
     }
