@@ -68,8 +68,11 @@ public class GameplayPanel : LayoutScript
         Queue<OnLevelUp> levelUpQueue = new();
         OnAddXp? addXp;
         OnXpChange? xpChange;
-        int lastXpValue;
+        int lastXpValue, toXpValue;
         bool addXpTweenFinished;
+
+        float tweenExpTimer;
+        const float tweenExpTime = 0.5F;
 
         public PlayerInfo(myUGUIObject t) : base(t)
         {
@@ -125,11 +128,28 @@ public class GameplayPanel : LayoutScript
                 addXpTweenFinished = false;
                 if (levelUpQueue.TryDequeue(out var e))
                 {
-                    lastXpValue = 0;
                     expBar.fillAmount = 0;
                     refreshLevel(e.Level);
                     refreshCurXp(e.Xp);
                     refreshExpBar(e.Ratio);
+                    lastXpValue = 0;
+                }
+            }
+
+            if (tweenExpTimer > 0)
+            {
+                tweenExpTimer = clampMin(tweenExpTimer - elapsedTime);
+                var t = (tweenExpTime - tweenExpTimer) / tweenExpTime;
+                var curve = mKeyFrameManager.getKeyFrame(KEY_CURVE.CUBIC_OUT);
+                var f = curve.evaluate(t);
+                var curXpValue = (int)lerpSimple(lastXpValue, toXpValue, f);
+                curXp.text = curXpValue.ToString();
+
+                if (tweenExpTimer <= 0)
+                {
+                    curXp.transform.localScale = Vector3.one * 2F;
+                    Tween.Scale(curXp.transform, endValue: 1, duration: 0.5F, ease: Ease.OutCubic);
+                    curXp.text = toXpValue.ToString();
                 }
             }
         }
@@ -160,12 +180,14 @@ public class GameplayPanel : LayoutScript
 
         void refreshCurXp(int v)
         {
-            Tween.Custom(startValue: lastXpValue, endValue: v, duration: 0.5F, ease: Ease.OutCubic, onValueChange: f =>
-            {
-                curXp.text = f.ToString("F0");
-            });
-
-            lastXpValue = v;
+            tweenExpTimer = tweenExpTime;
+            lastXpValue = toXpValue;
+            toXpValue = v;
+            // Tween.Custom(startValue: lastXpValue, endValue: v, duration: 0.5F, ease: Ease.OutCubic, onValueChange: f =>
+            // {
+            //     curXp.text = f.ToString("F0");
+            // });
+            // lastXpValue = v;
         }
 
         public void onEvent(OnAddXp e)

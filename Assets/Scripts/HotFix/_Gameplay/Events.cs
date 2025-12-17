@@ -4,21 +4,25 @@ namespace MarbleHero;
 
 public struct DoAttackEffect
 {
+    public Ball ball;
     public Brick brick;
 
-    public DoAttackEffect(Brick b)
+    public DoAttackEffect(Ball b1, Brick b2)
     {
-        brick = b;
+        ball = b1;
+        brick = b2;
     }
 }
 
 public struct DoAbilityEffect
 {
+    public Ball ball;
     public Brick brick;
 
-    public DoAbilityEffect(Brick b)
+    public DoAbilityEffect(Ball b1, Brick b2)
     {
-        brick = b;
+        ball = b1;
+        brick = b2;
     }
 }
 
@@ -29,6 +33,7 @@ public struct OnHit
 public struct OnBallDeath
 {
 }
+
 public struct OnBallHitBorderBot
 {
     public Ball ball;
@@ -105,10 +110,8 @@ public struct OnBrickColliderChanged
 {
 }
 
-
 public struct OnTurnChanged
 {
     public int turn;
     public OnTurnChanged(int v) => turn = v;
 }
-

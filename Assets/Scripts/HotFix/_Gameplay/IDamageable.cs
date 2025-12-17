@@ -163,10 +163,11 @@ public struct Dmg
         ALL_PCT,
     }
 
+    [Flags]
     public enum Effects
     {
-        Attack,
-        Ability,
+        Attack = 1 << 0,
+        Ability = 1 << 1,
     }
 
     [Serializable]

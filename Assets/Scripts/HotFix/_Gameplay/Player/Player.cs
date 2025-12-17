@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace MarbleHero;
 
-public class Player : MovableObject
+public partial class Player : MovableObject, IEventRouter
 {
     public bool isReturnBall;
     public int ballMaxCount = 1;
@@ -33,6 +33,12 @@ public class Player : MovableObject
 
         nextPosition = getWorldPosition();
         setNextPositionX(nextPosition.x);
+
+        var buff = CLASS<LightingStrike>();
+        buff.setBrickManager(brickManager);
+        buffs.add(buff);
+
+        addListeners();
     }
 
     public override void update(float elapsedTime)
@@ -54,6 +60,8 @@ public class Player : MovableObject
         base.destroy();
 
         UN_CLASS(ref guideLine);
+
+        removeListeners();
     }
 
     public GuideLine getGuideLine() => guideLine;
@@ -230,4 +238,6 @@ public class Player : MovableObject
     {
         exp.addXp(turnScore);
     }
+
+    public IEventRouter eventRouter => this;
 }

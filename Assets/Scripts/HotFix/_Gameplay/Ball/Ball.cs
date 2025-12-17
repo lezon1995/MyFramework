@@ -105,6 +105,7 @@ public partial class Ball : MovableObject, IDamageable<Brick>
     }
 
     public void setPlayer(Player p) => player = p;
+    public Player getPlayer() => player;
 
     public override void setObject(GameObject obj)
     {

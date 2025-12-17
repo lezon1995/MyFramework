@@ -280,14 +280,18 @@ public partial class Brick : MovableObject, IDamageable<Ball>
         //触发本次伤害所造成的攻击特效/技能特效
         if (!dmg.isSelf)
         {
-            switch (dmg.effect)
+            if ((dmg.effect & Dmg.Effects.Attack) != 0)
             {
-                case Dmg.Effects.Attack:
-                    source.eventRouter.trigger(new DoAttackEffect(this));
-                    break;
-                case Dmg.Effects.Ability:
-                    source.eventRouter.trigger(new DoAbilityEffect(this));
-                    break;
+                var e = new DoAttackEffect(source, this);
+                source.eventRouter.trigger(e);
+                source.getPlayer().eventRouter.trigger(e);
+            }
+
+            if ((dmg.effect & Dmg.Effects.Ability) != 0)
+            {
+                var e = new DoAbilityEffect(source, this);
+                source.eventRouter.trigger(e);
+                source.getPlayer().eventRouter.trigger(e);
             }
         }
 
@@ -314,18 +318,16 @@ public partial class Brick : MovableObject, IDamageable<Ball>
         // MMDamageTakenEvent.Trigger(this, instigator, curHealth, damageDealt, preHealth);
 
         //造成伤害后处理Source吸血，触发DoDmg
+        if (!dmg.isSelf)
         {
-            if (!dmg.isSelf)
-            {
-                source.eventRouter.trigger(new DoDmgBrick(this, dmg));
-            }
+            var e = new DoDmgBrick(this, dmg);
+            source.eventRouter.trigger(e);
+            source.getPlayer().eventRouter.trigger(e);
         }
 
         //造成伤害后，触发OnDmg
-        {
-            if (!dmg.isSelf)
-                eventRouter.trigger(new OnDmg(source, dmg));
-        }
+        if (!dmg.isSelf)
+            eventRouter.trigger(new OnDmg(source, dmg));
 
         // we play our feedback
         // if (FeedbackIsProportionalToDamage)
@@ -343,7 +345,11 @@ public partial class Brick : MovableObject, IDamageable<Ball>
         {
             curHealth = 0;
             if (!dmg.isSelf)
-                source.eventRouter.trigger(new DoKillBrick(this, instigator));
+            {
+                var e = new DoKillBrick(this, instigator);
+                source.eventRouter.trigger(e);
+                source.getPlayer().eventRouter.trigger(e);
+            }
 
             kill();
         }

@@ -9,6 +9,7 @@ public class BrickManager : FrameSystem, IEvent<OnBrickDeath>
 {
     //key: gameObject.GetInstanceID()
     protected Dictionary<int, Brick> bricks = new();
+    protected List<Brick> brickList = new();
     protected Dictionary<Type, Dictionary<long, Brick>> brickTypeList = new(); // 角色分类列表
     protected Dictionary<long, Brick> brickGUIDList = new(); // 角色ID索引表
     protected SafeDictionary<long, Brick> brickUpdateList = new(); // 用于更新角色的列表
@@ -119,6 +120,18 @@ public class BrickManager : FrameSystem, IEvent<OnBrickDeath>
         return brick != null;
     }
 
+    public Brick getRandomBrick(Brick except = null)
+    {
+        using var _ = new ListScope<Brick>(out var list);
+        list.addRange(bricks.Values);
+        if (except)
+            list.Remove(except);
+
+        var randomIndex = randomInt(0, list.Count - 1);
+        var randomBrick = list.get(randomIndex);
+        return randomBrick;
+    }
+
     public Dictionary<int, Brick> getBricks()
     {
         return bricks;
@@ -213,12 +226,14 @@ public class BrickManager : FrameSystem, IEvent<OnBrickDeath>
     void onBrickObjectSet(GameObject obj, Brick brick)
     {
         bricks[brick.instanceID] = brick;
+        brickList.addUnique(brick);
     }
 
     public void onEvent(OnBrickDeath e)
     {
         e.brick.eventRouter.removeListener(this);
         bricks.Remove(e.brick.instanceID);
+        brickList.Remove(e.brick);
     }
 
     void onBrickDestroyed(Brick brick)
