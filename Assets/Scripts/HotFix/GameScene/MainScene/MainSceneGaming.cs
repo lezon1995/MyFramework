@@ -56,6 +56,12 @@ public class MainSceneGaming : SceneProcedure
         {
             playerManager.getPlayer().returnBall();
         }
+
+        if (isKeyCurrentDown(KeyCode.P))
+        {
+            var phase = gameplayManager.curPhase;
+            gameplayManager.refreshPhase((phase % 4) + 1);
+        }
     }
 
     protected override void onExit(SceneProcedure nextProcedure)

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using PrimeTween;
+using UnityEngine;
 
 namespace MarbleHero;
 
@@ -8,6 +9,9 @@ public class LevelManager : FrameSystem
     public BorderRight borderRight;
     public BorderTop borderTop;
     public BorderBot borderBot;
+
+    protected float defaultBorderLeftX;
+    protected float defaultBorderRightX;
 
     public override void init()
     {
@@ -21,6 +25,8 @@ public class LevelManager : FrameSystem
         borderRight = createBorder<BorderRight>(right);
         borderTop = createBorder<BorderTop>(top);
         borderBot = createBorder<BorderBot>(bot);
+        defaultBorderLeftX = borderLeft.getWorldPosition().x;
+        defaultBorderRightX = borderRight.getWorldPosition().x;
     }
 
     protected override void initComponents()
@@ -46,11 +52,41 @@ public class LevelManager : FrameSystem
 
     public float getBorderWidth()
     {
-        return abs(borderRight.getTransform().localPosition.x - borderLeft.getTransform().localPosition.x);
+        return abs(borderRight.getWorldPosition().x - borderLeft.getWorldPosition().x);
     }
 
     public float getBorderHeight()
     {
-        return abs(borderTop.getTransform().localPosition.y - borderBot.getTransform().localPosition.y);
+        return abs(borderTop.getWorldPosition().y - borderBot.getWorldPosition().y);
+    }
+
+    public void moveBorderLeftBy(float offset)
+    {
+        Tween
+            .PositionX(borderLeft.getTransform(), endValue: defaultBorderLeftX + offset, duration: 1F, ease: Ease.OutCubic)
+            .OnComplete(borderLeft, border =>
+            {
+                border.setWorldPosition(new(defaultBorderLeftX + offset, 0, 0));
+            });
+    }
+
+    public void moveBorderRightBy(float offset)
+    {
+        Tween
+            .PositionX(borderRight.getTransform(), endValue: defaultBorderRightX + offset, duration: 1F, ease: Ease.OutCubic)
+            .OnComplete(borderRight, border =>
+            {
+                border.setWorldPosition(new(defaultBorderRightX + offset, 0, 0));
+            });
+    }
+
+    public float getDefaultBorderLeftX()
+    {
+        return defaultBorderLeftX;
+    }
+
+    public float getDefaultBorderRightX()
+    {
+        return defaultBorderRightX;
     }
 }
