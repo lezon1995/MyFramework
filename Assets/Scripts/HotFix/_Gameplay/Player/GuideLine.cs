@@ -75,7 +75,7 @@ public class GuideLine : MovableObject
                 return;
 
             isInteractable = false;
-            playerManager.getPlayer().shotBall(shootPosition, shootDirection);
+            playerManager.getPlayer().shootBall(shootPosition, shootDirection);
         });
     }
 

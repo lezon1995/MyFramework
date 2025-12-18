@@ -43,7 +43,14 @@ public struct OnBallHitBorderBot
 public struct OnBrickDeath
 {
     public Brick brick;
-    public OnBrickDeath(Brick b) => brick = b;
+    public Vector3 deathPosition;
+    public int combo;
+    public OnBrickDeath(Brick b)
+    {
+        brick = b;
+        deathPosition = b.getWorldPosition();
+        combo = 0;
+    }
 }
 
 public struct DoDmgBrick
@@ -82,14 +89,31 @@ public struct OnDmg
     }
 }
 
-public struct DoKillBrick
+
+public struct DoAttackKillEffect
 {
+    public Ball ball;
     public Brick brick;
     public GameObject instigator;
 
-    public DoKillBrick(Brick b, GameObject i)
+    public DoAttackKillEffect(Ball b1, Brick b2, GameObject i)
     {
-        brick = b;
+        ball = b1;
+        brick = b2;
+        instigator = i;
+    }
+}
+
+public struct DoKillBrick
+{
+    public Ball ball;
+    public Brick brick;
+    public GameObject instigator;
+
+    public DoKillBrick(Ball b1, Brick b2, GameObject i)
+    {
+        ball = b1;
+        brick = b2;
         instigator = i;
     }
 }

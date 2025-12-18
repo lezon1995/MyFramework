@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using PrimeTween;
 using UnityEngine;
 
@@ -7,6 +8,8 @@ namespace MarbleHero;
 [Serializable]
 public partial class Ball : MovableObject, IDamageable<Brick>
 {
+    protected Comparison<RaycastHit2D> comparison;
+
     public int instanceID;
     protected Type type; // 角色类型
     public long guid; // 角色的唯一ID
@@ -25,15 +28,31 @@ public partial class Ball : MovableObject, IDamageable<Brick>
     public bool immuneToDamage;
     public bool invulnerable;
 
+    public bool isPenetrable; //是否可穿透砖块
+    public bool horizontalBorderTeleportable; //是否可在左右边界来回传送
+
     public void setHealth(float value)
     {
         curHealth = value;
     }
 
+    public void setPenetrable(bool value)
+    {
+        isPenetrable = value;
+    }
+
+    public void setHorizontalBorderTeleportable(bool value)
+    {
+        horizontalBorderTeleportable = value;
+    }
+
     #endregion
 
+    protected List<Buff> buffs = new();
+    
     GameObject ballRenderer;
     Collider2D hitCollider;
+    TrailRenderer trailRenderer;
     Player player;
 
     Action<GameObject, Ball> onObjectSet;
@@ -56,6 +75,10 @@ public partial class Ball : MovableObject, IDamageable<Brick>
     public Type getType() => type;
     public long getGUID() => guid;
 
+    public Ball()
+    {
+        comparison = Comparison;
+    }
 
     public override void init()
     {
@@ -63,12 +86,16 @@ public partial class Ball : MovableObject, IDamageable<Brick>
         enableMoveInfo();
 
         this.addListener<OnBrickColliderChanged>();
+        eventRouter.addListener<DoAttackEffect>(this);
     }
 
     public override void destroy()
     {
         base.destroy();
         this.removeListener<OnBrickColliderChanged>();
+        eventRouter.removeListener<DoAttackEffect>(this);
+        
+        UN_CLASS_LIST(buffs);
     }
 
     public override void resetProperty()
@@ -79,6 +106,8 @@ public partial class Ball : MovableObject, IDamageable<Brick>
         guid = 0;
         onObjectSet = null;
         onDead = null;
+        // comparison = null; 不重置
+        // buffs = null; 不重置
         prePos = curPos = targetPos = Vector2.zero;
 
         movementDelta = 0;
@@ -87,6 +116,7 @@ public partial class Ball : MovableObject, IDamageable<Brick>
         player = null;
         hitCollider = null;
         ballRenderer = null;
+        trailRenderer = null;
         lastRadius = 0;
         lastDirection = default;
         enabled = false;
@@ -102,6 +132,8 @@ public partial class Ball : MovableObject, IDamageable<Brick>
         curHealth = 0F;
         immuneToDamage = false;
         invulnerable = false;
+        isPenetrable = false;
+        horizontalBorderTeleportable = false;
     }
 
     public void setPlayer(Player p) => player = p;
@@ -115,6 +147,7 @@ public partial class Ball : MovableObject, IDamageable<Brick>
         curPos = obj.transform.position;
 
         ballRenderer = getGameObject("Renderer", obj);
+        findComponent(obj, out trailRenderer);
 
         if (isEditor())
         {
@@ -165,11 +198,10 @@ public partial class Ball : MovableObject, IDamageable<Brick>
         }
     }
 
-    void reflectBounce(Vector2 normal)
+    protected void reflectBounce(Vector2 normal)
     {
         var reflectDir = Vector2.Reflect(direction, normal);
-        var newDir = reflectDir.normalized;
-        setDirection(newDir);
+        setDirection(reflectDir);
     }
 
     public Vector2 getDirection()
@@ -177,18 +209,18 @@ public partial class Ball : MovableObject, IDamageable<Brick>
         return direction;
     }
 
-    public void setDirection(Vector2 value)
+    public void setDirection(Vector2 dir, int exceptMask = 0)
     {
         lastDirection = direction;
-        direction = value;
-        refreshHitInfo(true);
+        direction = dir.normalized;
+        refreshHitInfo(true, exceptMask);
     }
 
-    public void setShootDirection(Vector2 value)
+    public void setShootDirection(Vector2 dir, int exceptMask = 0)
     {
         lastDirection = direction;
-        direction = value;
-        refreshHitInfo(false);
+        direction = dir.normalized;
+        refreshHitInfo(false, exceptMask);
     }
 
     public void setEnabled(bool b)
@@ -196,8 +228,10 @@ public partial class Ball : MovableObject, IDamageable<Brick>
         enabled = b;
     }
 
-    protected void refreshHitInfo(bool checkBorderBot)
+    protected void refreshHitInfo(bool checkBorderBot, int exceptMask = 0)
     {
+        RaycastHit2D hit = default;
+
         int mask;
         if (checkBorderBot)
             mask = ALL_BORDER_LAYER_MASK;
@@ -205,20 +239,78 @@ public partial class Ball : MovableObject, IDamageable<Brick>
             mask = NON_BOT_BORDER_LAYER_MASK;
 
         mask |= BRICK_LAYER_MASK;
-        var hit = Physics2D.CircleCast(curPos, radius, direction, 20F, mask);
+        mask &= ~exceptMask;
+        if (isPenetrable)
+        {
+            var filter = new ContactFilter2D();
+            filter.useTriggers = true;
+            filter.SetLayerMask(BRICK_LAYER_MASK);
+
+            using var a = new ListScope<Collider2D>(out var overlapColliders);
+            var overlapCount = Physics2D.OverlapCircle(curPos, radius, filter, overlapColliders);
+            if (overlapCount > 0)
+            {
+                filter.SetLayerMask(mask);
+                using var _ = new ListScope<RaycastHit2D>(out var hits);
+                var nowPos = (Vector2)getWorldPosition();
+                var count = Physics2D.CircleCast(nowPos, radius, direction, filter, hits, 20F);
+                if (count > 0)
+                {
+                    hits.Sort(comparison);
+                    for (var i = 0; i < count; i++)
+                    {
+                        hit = hits[i];
+                        if (overlapColliders.Contains(hit.collider))
+                            continue;
+
+                        var hitDir = hit.point - nowPos;
+                        if (Vector2.Dot(direction, hitDir) < 0)
+                            continue;
+
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                hit = Physics2D.CircleCast(curPos, radius, direction, 20F, mask);
+            }
+        }
+        else
+        {
+            hit = Physics2D.CircleCast(curPos, radius, direction, 20F, mask);
+        }
+
         if (hit)
         {
             targetPos = hit.point + hit.normal * radius;
             hitNormal = hit.normal;
             hitCollider = hit.collider;
         }
+        else
+        {
+            hitCollider = null;
+        }
     }
 
-    public void setTeleportPosition(Vector2 pos)
+    int Comparison(RaycastHit2D h1, RaycastHit2D h2)
+    {
+        var d1 = Vector2.Distance(curPos, h1.point);
+        var d2 = Vector2.Distance(curPos, h2.point);
+        return d1.CompareTo(d2);
+    }
+
+    public void setTeleportPosition(Vector2 pos, int exceptMask = 0)
     {
         prePos = curPos = pos;
         setPosition(pos);
-        setDirection(direction);
+        setDirection(direction, exceptMask);
+        clearTrail();
+    }
+
+    void clearTrail()
+    {
+        trailRenderer.Clear();
     }
 
     public void setSpeed(float value)
@@ -275,6 +367,15 @@ public partial class Ball : MovableObject, IDamageable<Brick>
     {
         var d = getPhysicDamage();
         var dmg = Dmg.physicDmg(d);
+        dmg.setAttackEffect();
+        return dmg;
+    }
+
+    public virtual Dmg getAbilityDmg(Brick brick)
+    {
+        var d = getMagicDamage();
+        var dmg = Dmg.magicDmg(d);
+        dmg.setAbilityEffect();
         return dmg;
     }
 
@@ -403,5 +504,10 @@ public partial class Ball : MovableObject, IDamageable<Brick>
             {
                 ballManager.destroyBall(ball);
             });
+    }
+
+    public void addBuff(Buff buff)
+    {
+        buffs.add(buff);
     }
 }

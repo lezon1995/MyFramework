@@ -106,9 +106,37 @@ public struct Dmg
         return this;
     }
 
-    public Dmg setEffect(Effects e)
+    public bool hasAttackEffect()
     {
-        effect = e;
+        return (effect & Effects.Attack) != 0;
+    }
+
+    public Dmg setAttackEffect()
+    {
+        effect = Effects.Attack;
+        return this;
+    }
+    
+    public bool hasAbilityEffect()
+    {
+        return (effect & Effects.Ability) != 0;
+    }
+
+    public Dmg setAbilityEffect()
+    {
+        effect = Effects.Ability;
+        return this;
+    }
+
+    public Dmg addAttackEffect()
+    {
+        effect |= Effects.Attack;
+        return this;
+    }
+
+    public Dmg addAbilityEffect()
+    {
+        effect |= Effects.Ability;
         return this;
     }
 

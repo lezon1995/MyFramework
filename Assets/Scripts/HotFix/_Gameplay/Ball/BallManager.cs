@@ -127,7 +127,7 @@ public class BallManager : FrameSystem
         }
 
         var ball = CLASS<Ball>(type);
-        ball.setName(name);
+        ball.setName($"{name}_{balls.Count + 1}");
         ball.setBallType(type);
         ball.setOnObjectSet(ballObjectSet);
         ball.setOnDead(ballDead);

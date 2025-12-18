@@ -2,12 +2,20 @@
 
 namespace MarbleHero;
 
-public partial class Ball : IEventRouter, IEvent<OnBrickColliderChanged>
+public partial class Ball : IEventRouter
+    , IEvent<OnBrickColliderChanged>
+    , IEvent<DoAttackEffect>
 {
     public IEventRouter eventRouter => this;
 
     protected virtual bool onHitEnter(Collider2D c, Vector2 normal)
     {
+        if (hitCollider == null)
+        {
+            Debug.LogError("onHitEnter collider == null");
+            return false;
+        }
+
         var layer = c.gameObject.layer;
         return layer switch
         {
@@ -26,12 +34,20 @@ public partial class Ball : IEventRouter, IEvent<OnBrickColliderChanged>
         if (brickManager.getBrick(c.gameObject.GetInstanceID(), out var brick))
         {
             var ball = this;
-            gameplayManager.handleHitDamage(ball, brick);
+            gameplayManager.handleAttackDamage(ball, brick);
             brick.onHitEnter(ball, normal);
             ball.onHitEnter(brick, normal);
         }
 
-        reflectBounce(normal);
+        if (isPenetrable)
+        {
+            setDirection(getDirection());
+        }
+        else
+        {
+            reflectBounce(normal);
+        }
+
         return true;
     }
 
@@ -60,19 +76,51 @@ public partial class Ball : IEventRouter, IEvent<OnBrickColliderChanged>
     protected virtual bool onHitEnter(BorderLeft border, Vector2 normal)
     {
         hasBeenCollided = true;
-        reflectBounce(normal);
+        if (horizontalBorderTeleportable)
+        {
+            var dist = abs(curPos.x - border.getWorldPosition().x);
+            var teleportedX = levelManager.borderRight.getWorldPosition().x + dist;
+            setTeleportPosition(new(teleportedX, curPos.y), BORDER_RIGHT_LAYER_MASK);
+        }
+        else
+        {
+            reflectBounce(normal);
+        }
+
         return true;
     }
 
     protected virtual bool onHitEnter(BorderRight border, Vector2 normal)
     {
         hasBeenCollided = true;
-        reflectBounce(normal);
+        if (horizontalBorderTeleportable)
+        {
+            var dist = abs(curPos.x - border.getWorldPosition().x);
+            var teleportedX = levelManager.borderLeft.getWorldPosition().x - dist;
+            setTeleportPosition(new(teleportedX, curPos.y), BORDER_LEFT_LAYER_MASK);
+        }
+        else
+        {
+            reflectBounce(normal);
+        }
+
         return true;
     }
 
     public void onEvent(OnBrickColliderChanged e)
     {
         refreshHitInfo(true);
+    }
+
+    public void onEvent(DoAttackEffect e)
+    {
+        for (var i = 0; i < buffs.Count; i++)
+        {
+            var b = buffs[i];
+            if (b is IDoAttackEffect effect)
+            {
+                effect.onDoAttack(player, e.ball, e.brick);
+            }
+        }
     }
 }

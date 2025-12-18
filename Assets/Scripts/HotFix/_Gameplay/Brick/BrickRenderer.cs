@@ -6,6 +6,8 @@ namespace MarbleHero;
 
 public class BrickRenderer : GameComponent
 {
+    static int StrongTintFade = Shader.PropertyToID("_StrongTintFade");
+
     GameObject gameObject;
 
     Transform renderer;
@@ -14,6 +16,9 @@ public class BrickRenderer : GameComponent
     SpriteRenderer shadow;
     ParticleSystem fxHit;
     ParticleSystem fxDead;
+
+    Material brickMat;
+    int brickFlashFrames;
 
     public override void init(ComponentOwner owner)
     {
@@ -24,10 +29,28 @@ public class BrickRenderer : GameComponent
             gameObject = obj;
             findComponent(obj, "Renderer", out renderer);
             findComponent(obj, "Health", out health);
-            findComponent(obj, "Sprite", out sprite);
             findComponent(obj, "Shadow", out shadow);
             findComponent(obj, "FxHit", out fxHit);
             findComponent(obj, "FxDead", out fxDead);
+
+            if (findComponent(obj, "Sprite", out sprite))
+            {
+                brickMat = sprite.material;
+            }
+        }
+    }
+
+    public override void fixedUpdate(float elapsedTime)
+    {
+        base.fixedUpdate(elapsedTime);
+
+        if (brickFlashFrames > 0)
+        {
+            brickFlashFrames = clampMin(brickFlashFrames - 1);
+            if (brickFlashFrames <= 0)
+            {
+                brickMat.SetFloat(StrongTintFade, 0);
+            }
         }
     }
 
@@ -46,6 +69,8 @@ public class BrickRenderer : GameComponent
         shadow = null;
         fxHit = null;
         fxDead = null;
+        brickMat = null;
+        brickFlashFrames = 0;
     }
 
 
@@ -112,6 +137,9 @@ public class BrickRenderer : GameComponent
         Sequence
             .Create(Tween.Scale(sprite.transform, endValue: Vector3.one * 0.95F, duration: 0.1F, ease: Ease.OutCubic))
             .Chain(Tween.Scale(sprite.transform, endValue: Vector3.one * 1F, duration: 0.1F, ease: Ease.OutCubic));
+
+        brickFlashFrames = 2;
+        brickMat.SetFloat(StrongTintFade, 1);
     }
 
     public void playFxDead()

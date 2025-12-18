@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using PrimeTween;
 using UnityEngine;
@@ -17,6 +18,10 @@ public partial class Player : MovableObject
     public Vector3 nextPosition;
     protected bool isFirstBallReturn;
 
+    protected List<Buff> buffs = new();
+    protected List<Type> ballBuffs = new();
+
+
     public override void init()
     {
         base.init();
@@ -24,7 +29,7 @@ public partial class Player : MovableObject
         guideLine.setObject(getGameObject("GuideLine", getObject()));
         guideLine.setName("GuideLine");
         guideLine.init();
-        
+
         exp = CLASS<Exp>();
         var path = $"{GAMEPLAY_PATH}/ExpData.asset";
         var data = mResourceManager.loadGameResource<ExpData>(path);
@@ -34,9 +39,13 @@ public partial class Player : MovableObject
         nextPosition = getWorldPosition();
         setNextPositionX(nextPosition.x);
 
-        var buff = CLASS<LightingStrike>();
-        buff.setBrickManager(brickManager);
-        buffs.add(buff);
+        // buffs.add(CLASS<LightingStrike>()).setBrickManager(brickManager);
+        // buffs.add(CLASS<LightingStrike3>()).setBrickManager(brickManager);
+        // buffs.add(CLASS<LaserHorizontal>()).setBrickManager(brickManager);
+        // buffs.add(CLASS<LaserVertical>()).setBrickManager(brickManager);
+
+        ballBuffs.add(typeof(LaserHorizontal));
+        ballBuffs.add(typeof(LaserVertical));
 
         addListeners();
     }
@@ -66,7 +75,7 @@ public partial class Player : MovableObject
 
     public GuideLine getGuideLine() => guideLine;
 
-    public void shotBall(Vector3 shootPosition, Vector3 shootDirection)
+    public void shootBall(Vector3 shootPosition, Vector3 shootDirection)
     {
         // CtrUI.instance.SetReturnBallButton(true);
 
@@ -77,7 +86,7 @@ public partial class Player : MovableObject
         //
         gameplayManager.isLock = true;
         //
-        GameEntry.startCoroutine(shotBallCo(shootPosition, shootDirection));
+        GameEntry.startCoroutine(shootBallCo(shootPosition, shootDirection));
         guideLine?.guidelineOff();
     }
 
@@ -86,7 +95,7 @@ public partial class Player : MovableObject
         return activeBalls.any();
     }
 
-    IEnumerator shotBallCo(Vector3 shootPosition, Vector3 shootDirection)
+    IEnumerator shootBallCo(Vector3 shootPosition, Vector3 shootDirection)
     {
         guideLine.setIndicatorBallActive(false);
 
@@ -96,6 +105,15 @@ public partial class Player : MovableObject
             // CtrGame.instance.ShotSound();
 
             var ball = ballManager.createBall<NormalBall>("Ball_0", shootPosition, 0.14F, shootDirection, 8F);
+            foreach (var ballBuff in ballBuffs)
+            {
+                var buff = CLASS<Buff>(ballBuff);
+                buff.setBrickManager(brickManager);
+                ball.addBuff(buff);
+            }
+            // ball.setPenetrable(true);
+            // ball.setHorizontalBorderTeleportable(true);
+
             ballCount -= 1;
             // CtrUI.instance.SetBallCount(ballCount);
 
@@ -166,8 +184,8 @@ public partial class Player : MovableObject
         //Existing Ball += Added Ball
         // ballMaxCount += addBallBlock.Count;
 
-        if (randomHit(0.5F))
-            ballMaxCount++;
+        // if (randomHit(0.5F))
+        // ballMaxCount++;
 
         ballCount = ballMaxCount;
         // CtrUI.instance.SetBallCount(ballMaxCount);

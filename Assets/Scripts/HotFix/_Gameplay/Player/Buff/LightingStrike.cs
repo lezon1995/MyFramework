@@ -1,15 +1,32 @@
 ﻿namespace MarbleHero;
 
+/// <summary>
+/// 造成撞击伤害时，有X概率对随机1个其他砖块造成连锁闪电攻击。
+/// </summary>
 public class LightingStrike : Buff, IDoAttackEffect
 {
-    public void onTrigger(Player player, Ball ball, Brick brick)
+    protected float getChance()
     {
-        if (randomHit(0.5F))
+        return level switch
         {
-            Brick randomBrick = brickManager.getRandomBrick(brick);
-            if (randomBrick)
+            1 => 0.5F,
+            2 => 0.5F,
+            3 => 0.5F,
+            4 => 0.5F,
+            5 => 0.5F,
+            _ => 0,
+        };
+    }
+
+    public void onDoAttack(Player player, Ball ball, Brick brick)
+    {
+        var chance = getChance();
+        if (randomHit(chance))
+        {
+            if (brickManager.getRandomBrick(out var randomBrick, brick))
             {
-                gameplayManager.handleHitDamage(ball, randomBrick);
+                var dmg = ball.getAbilityDmg(randomBrick);
+                gameplayManager.handleAbilityDamage(ball, randomBrick, dmg);
             }
         }
     }

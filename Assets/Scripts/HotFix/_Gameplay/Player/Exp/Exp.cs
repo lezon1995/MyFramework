@@ -24,6 +24,13 @@ public class Exp : ClassObject
     public void setData(ExpData d)
     {
         data = d;
+
+        for (int i = 0; i < d.Trait.MaxLevel; i++)
+        {
+            var curLevel = i;
+            var nextLevel = i + 1;
+            Debug.LogError($"从{curLevel}级升到{nextLevel}级需要 {calculateXpRequiredToNextLevel(curLevel)}经验");
+        }
     }
 
     public void setLevel(int value)
@@ -158,11 +165,11 @@ public class Exp : ClassObject
         updateAll(newLevel, newXpRequired, newXp, newXpTotal);
     }
 
-    float calculateXpRequiredToNextLevel(int level)
+    float calculateXpRequiredToNextLevel(int curLevel)
     {
         (int maxLevel, float startXpRequired, float maxLevelXpRequired, AnimationCurve xpCurve) = data.Trait;
 
-        float t = (float)level / (maxLevel - 1);
+        float t = (float)curLevel / (maxLevel - 1);
         float curveValue = xpCurve.Evaluate(t);
         float xpRequired = Mathf.Lerp(startXpRequired, maxLevelXpRequired, curveValue);
         return xpRequired;
@@ -189,6 +196,6 @@ public class Exp : ClassObject
     public void resetLevel()
     {
         var startXpRequired = data.Trait.StartXpRequired;
-        updateAll(1, startXpRequired, 0, 0);
+        updateAll(0, startXpRequired, 0, 0);
     }
 }

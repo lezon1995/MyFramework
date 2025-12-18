@@ -120,7 +120,7 @@ public class BrickManager : FrameSystem, IEvent<OnBrickDeath>
         return brick != null;
     }
 
-    public Brick getRandomBrick(Brick except = null)
+    public bool getRandomBrick(out Brick randomBrick, Brick except = null)
     {
         using var _ = new ListScope<Brick>(out var list);
         list.addRange(bricks.Values);
@@ -128,8 +128,23 @@ public class BrickManager : FrameSystem, IEvent<OnBrickDeath>
             list.Remove(except);
 
         var randomIndex = randomInt(0, list.Count - 1);
-        var randomBrick = list.get(randomIndex);
-        return randomBrick;
+        randomBrick = list.get(randomIndex);
+        return randomBrick != null;
+    }
+
+    public bool getRandomBricks(ref List<Brick> randomBricks, int count, Brick except = null)
+    {
+        using var _ = new ListScope<Brick>(out var list);
+        list.addRange(bricks.Values);
+        if (except)
+            list.Remove(except);
+
+        using var __ = new ListScope<int>(out var selectedIndexes);
+        randomSelect(list.Count, count, selectedIndexes);
+        foreach (var index in selectedIndexes)
+            randomBricks.addUnique(list.get(index));
+
+        return randomBricks.any();
     }
 
     public Dictionary<int, Brick> getBricks()
@@ -197,7 +212,7 @@ public class BrickManager : FrameSystem, IEvent<OnBrickDeath>
         }
 
         var brick = CLASS<Brick>(type);
-        brick.setName(name);
+        brick.setName($"{name}_{bricks.Count + 1}");
         brick.setBrickType(type);
         brick.setOnObjectSet(brickObjectSet);
         brick.setOnDestroyed(brickDestroyed);
@@ -212,7 +227,7 @@ public class BrickManager : FrameSystem, IEvent<OnBrickDeath>
         brick.init();
 
         brick.setPosition(pos);
-        brick.setHealth(health);
+        brick.setInitialHealth(health);
         brick.setMaxHealth(health);
         // brick.setSize(1.14F, 0.82F);
         brick.setSize(size);

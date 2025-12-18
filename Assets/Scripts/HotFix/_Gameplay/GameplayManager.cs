@@ -48,6 +48,9 @@ public class GameplayManager : FrameSystem, IEvent<OnBrickDeath>
 
     Action<BrickGroup> onBrickGroupClear;
 
+    Queue<OnBrickDeath> brickDeathQueue = new();
+    float brickDeathTimer;
+
     public GameplayManager()
     {
         onBrickGroupClear = releaseBrickGroup;
@@ -67,6 +70,12 @@ public class GameplayManager : FrameSystem, IEvent<OnBrickDeath>
     {
         base.update(elapsedTime);
 
+        handleCameraShake(elapsedTime);
+        handleBrickDeathEvent(elapsedTime);
+    }
+
+    void handleCameraShake(float elapsedTime)
+    {
         if (cameraShakeTimer > 0)
         {
             cameraShakeTimer = clampMin(cameraShakeTimer - elapsedTime, 0);
@@ -88,7 +97,7 @@ public class GameplayManager : FrameSystem, IEvent<OnBrickDeath>
         this.removeListener<OnBrickDeath>();
     }
 
-    public void handleHitDamage(Ball ball, Brick brick)
+    public void handleAttackDamage(Ball ball, Brick brick)
     {
         if (brick.canTakeDamageThisFrame(out var resistType))
         {
@@ -120,8 +129,44 @@ public class GameplayManager : FrameSystem, IEvent<OnBrickDeath>
 
         if (ball.getSelfDamage(brick, out var selfDamage))
         {
-            var dmg = Dmg.trueDmg(selfDamage).setSelf();
-            ball.damage(dmg, ball.getObject(), brick);
+            var selfDmg = Dmg.trueDmg(selfDamage).setSelf();
+            ball.damage(selfDmg, ball.getObject(), brick);
+        }
+    }
+
+    public void handleAbilityDamage(Ball ball, Brick brick, Dmg dmg)
+    {
+        if (brick.canTakeDamageThisFrame(out var resistType))
+        {
+            brick.damage(dmg, ball.getObject(), ball, 0F, ball.getDirection(), dmgCalculator);
+        }
+        else
+        {
+            switch (resistType)
+            {
+                case ResistDamageType.None:
+                    break;
+                case ResistDamageType.Invulnerable:
+                    break;
+                case ResistDamageType.DashInvincible:
+                    break;
+                case ResistDamageType.ImmuneToDamage:
+                    break;
+                case ResistDamageType.Dead:
+                    break;
+                case ResistDamageType.Disabled:
+                    break;
+                case ResistDamageType.Dodged:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        if (ball.getSelfDamage(brick, out var selfDamage))
+        {
+            var selfDmg = Dmg.trueDmg(selfDamage).setSelf();
+            ball.damage(selfDmg, ball.getObject(), brick);
         }
     }
 
@@ -171,10 +216,10 @@ public class GameplayManager : FrameSystem, IEvent<OnBrickDeath>
         yield return new WaitForSeconds(time + 0.1F);
         //Create a single block
         createBricksAtTopRow(turnCount);
-        
+
         playerManager.getPlayer().addExp(turnScore);
         new OnTurnChanged(turnCount).trigger();
-        
+
         //End of turn movement
         nextTurnMoveEnd();
     }
@@ -205,15 +250,30 @@ public class GameplayManager : FrameSystem, IEvent<OnBrickDeath>
         playerManager.getPlayer().getGuideLine().guidelineOn();
     }
 
+    void handleBrickDeathEvent(float elapsedTime)
+    {
+        brickDeathTimer = clampMin(brickDeathTimer - elapsedTime);
+        if (brickDeathTimer <= 0)
+        {
+            if (brickDeathQueue.TryDequeue(out var e))
+            {
+                brickDeathTimer = 0.15F;
+                comboManager.createComboEffect(e.combo, e.deathPosition);
+
+                //Camera shaking
+                shakeCamera(e.combo * 0.02f);
+            }
+        }
+    }
+
     public void onEvent(OnBrickDeath e)
     {
         var combo = ++comboCount;
-        comboManager.createComboEffect(combo, e.brick.getWorldPosition());
-
-        //Camera shaking
-        shakeCamera(combo * 0.02f);
-
         turnScore += combo * 10;
+        e.combo = combo;
+
+        brickDeathTimer = 0.15F;
+        brickDeathQueue.Enqueue(e);
     }
 
     void shakeCamera(float power, float time = 0.2F)

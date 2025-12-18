@@ -16,8 +16,11 @@ MonoBehaviour:
   - {r: 1, g: 0.4226309, b: 0, a: 1}
   - {r: 0, g: 0.7294118, b: 1, a: 1}
   - {r: 1, g: 1, b: 1, a: 1}
-  Icons: []
-  ContentScale: 0.75
+  Icons:
+  - {fileID: 21300000, guid: 774e20dacd0072548960c051d831f211, type: 3}
+  - {fileID: 21300000, guid: 73798ad0418dcf64e96ea2d52554d348, type: 3}
+  - {fileID: 21300000, guid: d8ae7331a7e89464d8a01bb75d58e8bc, type: 3}
+  ContentScale: 2
   StartSequenceDuration: 0.12
   StaticDuration: 0.2
   FloatingDuration: 0.3

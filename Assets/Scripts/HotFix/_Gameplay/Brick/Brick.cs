@@ -161,6 +161,14 @@ public partial class Brick : MovableObject, IDamageable<Ball>
     {
         curHealth = value;
         brickRenderer.refreshHealth(curHealth);
+        // var sprite = manager.getBrickSpriteByHealth(value);
+        // brickRenderer.setBrickSprite(sprite);
+    }
+
+    public void setInitialHealth(int value)
+    {
+        curHealth = value;
+        brickRenderer.refreshHealth(curHealth);
         var sprite = manager.getBrickSpriteByHealth(value);
         brickRenderer.setBrickSprite(sprite);
     }
@@ -262,7 +270,6 @@ public partial class Brick : MovableObject, IDamageable<Ball>
             return;
 
         dmg.setDmgRate(source.dmgRate);
-
         computeDamageOutput(ref dmg, out var damageDealt, out var damageRaw, calculator);
 
         //设置此次dmg实际造成的伤害，并通知伤害飘字显示
@@ -280,14 +287,14 @@ public partial class Brick : MovableObject, IDamageable<Ball>
         //触发本次伤害所造成的攻击特效/技能特效
         if (!dmg.isSelf)
         {
-            if ((dmg.effect & Dmg.Effects.Attack) != 0)
+            if (dmg.hasAttackEffect())
             {
                 var e = new DoAttackEffect(source, this);
                 source.eventRouter.trigger(e);
                 source.getPlayer().eventRouter.trigger(e);
             }
 
-            if ((dmg.effect & Dmg.Effects.Ability) != 0)
+            if (dmg.hasAbilityEffect())
             {
                 var e = new DoAbilityEffect(source, this);
                 source.eventRouter.trigger(e);
@@ -346,9 +353,18 @@ public partial class Brick : MovableObject, IDamageable<Ball>
             curHealth = 0;
             if (!dmg.isSelf)
             {
-                var e = new DoKillBrick(this, instigator);
-                source.eventRouter.trigger(e);
-                source.getPlayer().eventRouter.trigger(e);
+                if (dmg.hasAttackEffect())
+                {
+                    var e = new DoAttackKillEffect(source, this, instigator);
+                    source.eventRouter.trigger(e);
+                    source.getPlayer().eventRouter.trigger(e);
+                }
+
+                {
+                    var e = new DoKillBrick(source, this, instigator);
+                    source.eventRouter.trigger(e);
+                    source.getPlayer().eventRouter.trigger(e);
+                }
             }
 
             kill();

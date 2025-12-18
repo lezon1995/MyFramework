@@ -5,13 +5,12 @@ namespace MarbleHero;
 public partial class Player : IEventRouter
     , IEvent<DoAttackEffect>
     , IEvent<DoAbilityEffect>
+    , IEvent<DoAttackKillEffect>
 {
     public IEventRouter eventRouter => this;
 
     protected void addListeners() => eventRouter.addAllListener(this);
     protected void removeListeners() => eventRouter.removeAllListener(this);
-
-    List<Buff> buffs = new();
 
     public void onEvent(DoAttackEffect e)
     {
@@ -20,7 +19,7 @@ public partial class Player : IEventRouter
             var b = buffs[i];
             if (b is IDoAttackEffect effect)
             {
-                effect.onTrigger(this, e.ball, e.brick);
+                effect.onDoAttack(this, e.ball, e.brick);
             }
         }
     }
@@ -32,7 +31,19 @@ public partial class Player : IEventRouter
             var b = buffs[i];
             if (b is IDoAttackEffect effect)
             {
-                effect.onTrigger(this, e.ball, e.brick);
+                effect.onDoAttack(this, e.ball, e.brick);
+            }
+        }
+    }
+
+    public void onEvent(DoAttackKillEffect e)
+    {
+        for (var i = 0; i < buffs.Count; i++)
+        {
+            var b = buffs[i];
+            if (b is IDoAttackKillEffect effect)
+            {
+                effect.onDoAttackKill(this, e.ball, e.brick);
             }
         }
     }
