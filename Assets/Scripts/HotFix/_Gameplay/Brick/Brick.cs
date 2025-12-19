@@ -4,7 +4,7 @@ using UnityEngine;
 namespace MarbleHero;
 
 [Serializable]
-public partial class Brick : MovableObject, IDamageable<Ball> , IReleasable
+public partial class Brick : MovableObject, IDamageable<Ball> , IReusable
 {
     protected BrickManager manager;
     public int instanceID;
@@ -31,8 +31,6 @@ public partial class Brick : MovableObject, IDamageable<Ball> , IReleasable
     BrickRenderer brickRenderer;
     BrickCollider brickCollider;
 
-    Action<Brick> onDestroyed;
-
     public int curHealth;
     public int curHealthStack;
     public bool immuneToDamage;
@@ -49,7 +47,6 @@ public partial class Brick : MovableObject, IDamageable<Ball> , IReleasable
     float _invincibleTime;
     float killTimer;
 
-    public void setOnDestroyed(Action<Brick> action) => onDestroyed = action;
     public void setBrickType(Type t) => type = t;
     public void setID(long id) => guid = id;
     public Type getType() => type;
@@ -60,10 +57,6 @@ public partial class Brick : MovableObject, IDamageable<Ball> , IReleasable
         base.init();
 
         enableMoveInfo();
-
-        brickCollider.setColliderEnabled(true);
-        brickRenderer.setRendererActive(true);
-        brickRenderer.playFadeIn();
     }
 
     protected override void initComponents()
@@ -81,7 +74,6 @@ public partial class Brick : MovableObject, IDamageable<Ball> , IReleasable
         type = null;
         rect = default;
         guid = 0;
-        onDestroyed = null;
         brickRenderer = null;
         brickCollider = null;
 
@@ -103,8 +95,15 @@ public partial class Brick : MovableObject, IDamageable<Ball> , IReleasable
         _invincibleTime = 0F;
         killTimer = 0F;
     }
-    
-    public void release()
+
+    public void onAcquire()
+    {
+        brickCollider.setColliderEnabled(true);
+        brickRenderer.setRendererActive(true);
+        brickRenderer.playFadeIn();
+    }
+
+    public void onRelease()
     {
         width = 0F;
         height = 0F;
@@ -146,7 +145,8 @@ public partial class Brick : MovableObject, IDamageable<Ball> , IReleasable
             killTimer -= elapsedTime;
             if (killTimer <= 0)
             {
-                onDestroyed?.Invoke(this);
+                var e = new OnBrickDeathTotally(this);
+                e.trigger(this);
             }
         }
     }

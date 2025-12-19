@@ -5,8 +5,13 @@ namespace MarbleHero;
 public partial class Ball : IEventRouter
     , IEvent<OnBrickColliderChanged>
     , IEvent<DoAttackEffect>
+    , IEvent<DoAbilityEffect>
+    , IEvent<DoAttackKillEffect>
 {
     public IEventRouter eventRouter => this;
+    
+    protected void addListeners() => eventRouter.addAllListener(this);
+    protected void removeListeners() => eventRouter.removeAllListener(this);
 
     protected virtual bool onHitEnter(Collider2D c, Vector2 normal)
     {
@@ -31,7 +36,7 @@ public partial class Ball : IEventRouter
     protected virtual bool onHitEnterBrick(Collider2D c, Vector2 normal)
     {
         hasBeenCollided = true;
-        if (brickManager.getBrick(c.gameObject.GetInstanceID(), out var brick))
+        if (brickManager.getActiveBrick(c.gameObject.GetInstanceID(), out var brick))
         {
             var ball = this;
             gameplayManager.handleAttackDamage(ball, brick);
@@ -120,6 +125,31 @@ public partial class Ball : IEventRouter
             if (b is IDoAttackEffect effect)
             {
                 effect.onDoAttack(player, e.ball, e.brick);
+            }
+        }
+    }
+    
+    
+    public void onEvent(DoAbilityEffect e)
+    {
+        for (var i = 0; i < buffs.Count; i++)
+        {
+            var b = buffs[i];
+            if (b is IDoAbilityEffect effect)
+            {
+                effect.onDoAbility(player, e.ball, e.brick);
+            }
+        }
+    }
+
+    public void onEvent(DoAttackKillEffect e)
+    {
+        for (var i = 0; i < buffs.Count; i++)
+        {
+            var b = buffs[i];
+            if (b is IDoAttackKillEffect effect)
+            {
+                effect.onDoAttackKill(player, e.ball, e.brick);
             }
         }
     }

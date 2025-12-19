@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace MarbleHero;
+﻿namespace MarbleHero;
 
 public partial class Player : IEventRouter
     , IEvent<DoAttackEffect>
@@ -29,9 +27,9 @@ public partial class Player : IEventRouter
         for (var i = 0; i < buffs.Count; i++)
         {
             var b = buffs[i];
-            if (b is IDoAttackEffect effect)
+            if (b is IDoAbilityEffect effect)
             {
-                effect.onDoAttack(this, e.ball, e.brick);
+                effect.onDoAbility(this, e.ball, e.brick);
             }
         }
     }

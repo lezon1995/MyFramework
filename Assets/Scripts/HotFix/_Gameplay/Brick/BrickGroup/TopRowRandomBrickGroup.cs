@@ -2,6 +2,13 @@
 
 public class TopRowRandomBrickGroup : BrickGroup
 {
+    protected override int getBrickAverageCount(int turnCount)
+    {
+        var cols = brickManager.brickLayout.getCols();
+        var avg = cols / 2;
+        return avg;
+    }
+
     public override void createBricks(int turnCount)
     {
         var health = turnCount;

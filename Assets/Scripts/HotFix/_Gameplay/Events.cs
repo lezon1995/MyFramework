@@ -53,6 +53,15 @@ public struct OnBrickDeath
     }
 }
 
+public struct OnBrickDeathTotally
+{
+    public Brick brick;
+    public OnBrickDeathTotally(Brick b)
+    {
+        brick = b;
+    }
+}
+
 public struct DoDmgBrick
 {
     public Brick brick;

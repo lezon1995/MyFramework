@@ -60,7 +60,7 @@ public class LaserVertical : Buff, IDoAttackEffect
             for (var i = 0; i < listTop.Count; i++)
             {
                 var instanceID = listTop[i].collider.gameObject.GetInstanceID();
-                if (brickManager.getBrick(instanceID, out var b) && brick != b)
+                if (brickManager.getActiveBrick(instanceID, out var b) && brick != b)
                     topBricks.Add(b);
             }
 
@@ -68,7 +68,7 @@ public class LaserVertical : Buff, IDoAttackEffect
             for (var i = 0; i < listBot.Count; i++)
             {
                 var instanceID = listBot[i].collider.gameObject.GetInstanceID();
-                if (brickManager.getBrick(instanceID, out var b) && brick != b)
+                if (brickManager.getActiveBrick(instanceID, out var b) && brick != b)
                     botBricks.Add(b);
             }
             

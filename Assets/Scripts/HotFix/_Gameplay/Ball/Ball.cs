@@ -6,13 +6,13 @@ using UnityEngine;
 namespace MarbleHero;
 
 [Serializable]
-public partial class Ball : MovableObject, IDamageable<Brick>, IReleasable
+public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
 {
     protected Comparison<RaycastHit2D> comparison;
 
-    public int instanceID;
-    protected Type type; // 角色类型
-    public long guid; // 角色的唯一ID
+    public int instanceID;//GameObject的instanceID，可以根据不同GameObject而变化
+    protected Type type;
+    public long guid; // Ball这个对象的guid，
 
     #region Stats
 
@@ -83,17 +83,14 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReleasable
         base.init();
         enableMoveInfo();
 
-        this.addListener<OnBrickColliderChanged>();
-        eventRouter.addListener<DoAttackEffect>(this);
+        addListeners();
     }
 
     public override void destroy()
     {
         base.destroy();
-        this.removeListener<OnBrickColliderChanged>();
-        eventRouter.removeListener<DoAttackEffect>(this);
 
-        UN_CLASS_LIST(buffs);
+        removeListeners();
     }
 
     public override void resetProperty()
@@ -133,7 +130,12 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReleasable
         horizontalBorderTeleportable = false;
     }
 
-    public void release()
+    public void onAcquire()
+    {
+        this.addListener<OnBrickColliderChanged>();
+    }
+
+    public void onRelease()
     {
         prePos = curPos = targetPos = Vector2.zero;
         movementDelta = 0;
@@ -157,6 +159,8 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReleasable
         isPenetrable = false;
         horizontalBorderTeleportable = false;
         
+        this.removeListener<OnBrickColliderChanged>();
+
         UN_CLASS_LIST(buffs);
     }
 

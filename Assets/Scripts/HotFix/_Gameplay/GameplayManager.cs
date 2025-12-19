@@ -183,10 +183,16 @@ public class GameplayManager : FrameSystem, IEvent<OnBrickDeath>
 
     public void createBricksAtTopRow(int turnNum)
     {
-        // var brickGroup = CLASS<TopRowRandomBrickGroup>();
-        // var brickGroup = CLASS<RandomRowRandomBrickGroup>();
-        var brickGroup = CLASS<RandomColRandomBrickGroup>();
-        // var brickGroup = CLASS<RandomAnyEmptyBrickGroup>();
+        var num = turnNum % 4;
+        BrickGroup brickGroup = num switch
+        {
+            0 => CLASS<TopRowRandomBrickGroup>(),
+            1 => CLASS<RandomRowRandomBrickGroup>(),
+            2 => CLASS<RandomColRandomBrickGroup>(),
+            3 => CLASS<RandomAnyEmptyBrickGroup>(),
+            _ => CLASS<TopRowRandomBrickGroup>()
+        };
+
         brickGroup.setBrickManager(brickManager);
         brickGroup.setLevelManager(levelManager);
         brickGroup.setOnBricksClear(onBrickGroupClear);
@@ -222,7 +228,7 @@ public class GameplayManager : FrameSystem, IEvent<OnBrickDeath>
         yield return new WaitForSeconds(time + 0.1F);
 
         brickManager.refreshAllBrickGrid();
-        
+
         //Create a single block
         createBricksAtTopRow(turnCount);
 
@@ -270,7 +276,7 @@ public class GameplayManager : FrameSystem, IEvent<OnBrickDeath>
                 comboManager.createComboEffect(e.combo, e.deathPosition);
 
                 //Camera shaking
-                shakeCamera(e.combo * 0.02f);
+                shakeCamera(e.combo * 0.01f, 0.15F);
             }
         }
     }

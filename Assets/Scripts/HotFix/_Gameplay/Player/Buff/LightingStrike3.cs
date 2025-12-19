@@ -25,7 +25,7 @@ public class LightingStrike3 : Buff, IDoAttackKillEffect
     {
         var count = getCount();
         UnityEngine.Pool.ListPool<Brick>.Get(out var list);
-        if (brickManager.getRandomBricks(ref list, count, brick))
+        if (brickManager.getRandomActiveBricks(ref list, count, brick))
         {
             startTask(list, ball).Forget();
         }

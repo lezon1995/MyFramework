@@ -4,6 +4,10 @@ public interface IDoAttackEffect
 {
     void onDoAttack(Player player, Ball ball, Brick brick);
 }
+public interface IDoAbilityEffect
+{
+    void onDoAbility(Player player, Ball ball, Brick brick);
+}
 public interface IDoAttackKillEffect
 {
     void onDoAttackKill(Player player, Ball ball, Brick brick);

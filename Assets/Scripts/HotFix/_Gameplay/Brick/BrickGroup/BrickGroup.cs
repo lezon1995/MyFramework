@@ -89,6 +89,8 @@ public abstract class BrickGroup : ClassObject, IEvent<OnBrickDeath>
 
     int per1, per2, per3, per4, per5;
 
+    protected abstract int getBrickAverageCount(int turnCount);
+
     /// <summary>
     /// Difficulty adjustment for each block according to the number of turns
     /// </summary>
@@ -97,8 +99,7 @@ public abstract class BrickGroup : ClassObject, IEvent<OnBrickDeath>
         int n = randomInt(0, 99);
         int count = 0;
 
-        var col = brickManager.brickLayout.getCols();
-        var mid = col / 2;
+        var mid = getBrickAverageCount(turnCount);
 
         switch (turnCount)
         {

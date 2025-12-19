@@ -60,7 +60,7 @@ public class LaserHorizontal : Buff, IDoAttackEffect
             for (var i = 0; i < listLeft.Count; i++)
             {
                 var instanceID = listLeft[i].collider.gameObject.GetInstanceID();
-                if (brickManager.getBrick(instanceID, out var b) && brick != b)
+                if (brickManager.getActiveBrick(instanceID, out var b) && brick != b)
                     leftBricks.Add(b);
             }
 
@@ -68,7 +68,7 @@ public class LaserHorizontal : Buff, IDoAttackEffect
             for (var i = 0; i < listRight.Count; i++)
             {
                 var instanceID = listRight[i].collider.gameObject.GetInstanceID();
-                if (brickManager.getBrick(instanceID, out var b) && brick != b)
+                if (brickManager.getActiveBrick(instanceID, out var b) && brick != b)
                     rightBricks.Add(b);
             }
 

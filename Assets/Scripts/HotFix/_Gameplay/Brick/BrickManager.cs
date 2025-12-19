@@ -6,28 +6,27 @@ using UnityEngine.Pool;
 namespace MarbleHero;
 
 // 角色管理器
-public class BrickManager : FrameSystem, IEvent<OnBrickDeath>
+public class BrickManager : FrameSystem
+    , IEvent<OnBrickDeath>
+    , IEvent<OnBrickDeathTotally>
 {
     //key: gameObject.GetInstanceID()
-    protected Dictionary<int, Brick> bricks = new();
-    protected List<Brick> brickList = new();
+    protected Dictionary<int, Brick> activeBricks = new();
+    protected List<Brick> activeBrickList = new();
     protected Dictionary<Type, Dictionary<long, Brick>> brickTypeList = new(); // 角色分类列表
     protected Dictionary<long, Brick> brickGUIDList = new(); // 角色ID索引表
     protected SafeList<Brick> brickUpdateList = new(); // 用于更新角色的列表
     protected SafeList<Brick> brickFixedUpdateList = new(); // 需要在FixedUpdate中更新的列表,如果直接使用mBrickGUIDList,会非常慢,而很多时候其实并不需要进行物理更新,所以单独使用一个列表存储
-    protected Dictionary<Rect, Brick> brickGrids = new();
+    protected Dictionary<Rect, Brick> activeBrickGrids = new();
 
     protected Dictionary<Type, ObjectPool<Brick>> brickPools = new();
 
     protected Sprite[] brickSprites;
     public BrickGridLayout brickLayout;
 
-    Action<Brick> brickDestroyed;
-
     public BrickManager()
     {
         mCreateObject = true;
-        brickDestroyed = onBrickDestroyed;
     }
 
     public override void init()
@@ -111,21 +110,21 @@ public class BrickManager : FrameSystem, IEvent<OnBrickDeath>
         return brickGUIDList.get(id);
     }
 
-    public Brick getBrick(int instanceID)
+    public Brick getActiveBrick(int instanceID)
     {
-        return bricks.get(instanceID);
+        return activeBricks.get(instanceID);
     }
 
-    public bool getBrick(int instanceID, out Brick brick)
+    public bool getActiveBrick(int instanceID, out Brick brick)
     {
-        brick = bricks.get(instanceID);
+        brick = activeBricks.get(instanceID);
         return brick != null;
     }
 
-    public bool getRandomBrick(out Brick randomBrick, Brick except = null)
+    public bool getRandomActiveBrick(out Brick randomBrick, Brick except = null)
     {
         using var _ = new ListScope<Brick>(out var list);
-        list.addRange(bricks.Values);
+        list.addRange(activeBricks.Values);
         if (except)
             list.Remove(except);
 
@@ -134,10 +133,10 @@ public class BrickManager : FrameSystem, IEvent<OnBrickDeath>
         return randomBrick != null;
     }
 
-    public bool getRandomBricks(ref List<Brick> randomBricks, int count, Brick except = null)
+    public bool getRandomActiveBricks(ref List<Brick> randomBricks, int count, Brick except = null)
     {
         using var _ = new ListScope<Brick>(out var list);
-        list.addRange(bricks.Values);
+        list.addRange(activeBricks.Values);
         if (except)
             list.Remove(except);
 
@@ -149,9 +148,9 @@ public class BrickManager : FrameSystem, IEvent<OnBrickDeath>
         return randomBricks.any();
     }
 
-    public Dictionary<int, Brick> getBricks()
+    public Dictionary<int, Brick> getActiveBricks()
     {
-        return bricks;
+        return activeBricks;
     }
 
     public Dictionary<long, Brick> getBrickList()
@@ -219,9 +218,7 @@ public class BrickManager : FrameSystem, IEvent<OnBrickDeath>
 
                     brickUpdateList.add(brick);
                     brickFixedUpdateList.add(brick);
-                    brickGrids[brick.getRect()] = brick;
-                    bricks[brick.instanceID] = brick;
-                    brickList.addUnique(brick);
+                    activeBricks[brick.instanceID] = brick;
                 },
                 actionOnRelease: brick =>
                 {
@@ -230,8 +227,8 @@ public class BrickManager : FrameSystem, IEvent<OnBrickDeath>
 
                     brickUpdateList.remove(brick);
                     brickFixedUpdateList.remove(brick);
+                    activeBricks.Remove(brick.instanceID);
                     removeBrickFromGrids(brick);
-                    brick.release();
                 },
                 actionOnDestroy: brick =>
                 {
@@ -251,22 +248,24 @@ public class BrickManager : FrameSystem, IEvent<OnBrickDeath>
         // brick.setSize(1.14F, 0.82F);
         brick.setSize(size);
         brick.refreshRect();
+        brick.onAcquire();
 
-        brick.eventRouter.addListener(this);
+        activeBrickGrids[brick.getRect()] = brick;
+        activeBrickList.add(brick);
         return brick;
     }
 
-    public Brick createBrick(Vector2 pos, Vector2 size, int health)
+    Brick createBrick(Vector2 pos, Vector2 size, int health)
     {
         return createBrick(typeof(Brick), pos, size, health);
     }
 
-    public T createBrick<T>(Vector2 pos, Vector2 size, int health) where T : Brick
+    T createBrick<T>(Vector2 pos, Vector2 size, int health) where T : Brick
     {
         return createBrick(typeof(T), pos, size, health) as T;
     }
 
-    public Brick createBrick(Type type, Vector2 pos, Vector2 size, int health)
+    Brick createBrick(Type type, Vector2 pos, Vector2 size, int health)
     {
         var id = generateGUID();
 
@@ -277,9 +276,8 @@ public class BrickManager : FrameSystem, IEvent<OnBrickDeath>
         }
 
         var brick = CLASS<Brick>(type);
-        brick.setName($"Brick_{bricks.Count + 1}");
+        brick.setName($"Brick_{activeBricks.Count + 1}");
         brick.setBrickType(type);
-        brick.setOnDestroyed(brickDestroyed);
 
         // 将角色挂接到管理器下
         brick.setID(id);
@@ -297,26 +295,29 @@ public class BrickManager : FrameSystem, IEvent<OnBrickDeath>
         brick.setSize(size);
         brick.refreshRect();
 
+        brick.eventRouter.addListener<OnBrickDeath>(this);
+        brick.eventRouter.addListener<OnBrickDeathTotally>(this);
+        
         addBrickToList(brick);
         return brick;
     }
 
     public void onEvent(OnBrickDeath e)
     {
-        e.brick.eventRouter.removeListener(this);
-        bricks.Remove(e.brick.instanceID);
-        brickList.Remove(e.brick);
+        activeBricks.Remove(e.brick.instanceID);
+        activeBrickList.Remove(e.brick);
     }
 
-    void onBrickDestroyed(Brick brick)
+    public void onEvent(OnBrickDeathTotally e)
     {
-        releaseBrick(brick);
+        releaseBrick(e.brick);
     }
 
     public void releaseBrick(Brick brick)
     {
         if (brickPools.TryGetValue(brick.getType(), out var pool))
         {
+            brick.onRelease();
             pool.Release(brick);
         }
     }
@@ -329,7 +330,7 @@ public class BrickManager : FrameSystem, IEvent<OnBrickDeath>
         brickFixedUpdateList.clear();
     }
 
-    public void destroyBrick(Brick brick)
+    void destroyBrick(Brick brick)
     {
         if (brick == null)
             return;
@@ -346,13 +347,16 @@ public class BrickManager : FrameSystem, IEvent<OnBrickDeath>
 
         removeBrickFromGrids(brick);
 
+        brick.eventRouter.removeListener<OnBrickDeath>(this);
+        brick.eventRouter.removeListener<OnBrickDeathTotally>(this);
+
         UN_CLASS(ref brick);
     }
 
     void removeBrickFromGrids(Brick brick)
     {
         Rect keyRect = default;
-        foreach (var (rect, b) in brickGrids)
+        foreach (var (rect, b) in activeBrickGrids)
         {
             if (b == brick)
             {
@@ -361,7 +365,7 @@ public class BrickManager : FrameSystem, IEvent<OnBrickDeath>
             }
         }
 
-        brickGrids.Remove(keyRect);
+        activeBrickGrids.Remove(keyRect);
     }
 
     public void destroyBrickList<T>(IList<T> characterList) where T : Brick
@@ -414,20 +418,21 @@ public class BrickManager : FrameSystem, IEvent<OnBrickDeath>
 
     public bool containsBrickAt(Rect rect)
     {
-        return brickGrids.ContainsKey(rect);
+        return activeBrickGrids.ContainsKey(rect);
     }
 
     public bool tryGetBrickAt(Rect rect, out Brick brick)
     {
-        return brickGrids.TryGetValue(rect, out brick);
+        return activeBrickGrids.TryGetValue(rect, out brick);
     }
 
     public void refreshAllBrickGrid()
     {
-        brickGrids.Clear();
-        foreach (var brick in brickList)
+        activeBrickGrids.Clear();
+        foreach (var brick in activeBrickList)
         {
-            brickGrids[brick.getRect()] = brick;
+            brick.refreshRect();
+            activeBrickGrids[brick.getRect()] = brick;
         }
     }
 }

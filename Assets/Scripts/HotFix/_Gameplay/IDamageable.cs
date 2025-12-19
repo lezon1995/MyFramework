@@ -218,9 +218,10 @@ public struct Dmg
     }
 }
 
-public interface IReleasable
+public interface IReusable
 {
-    void release();
+    void onAcquire();
+    void onRelease();
 }
 
 public interface IDamageable<in Attacker>

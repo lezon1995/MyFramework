@@ -4,6 +4,13 @@ namespace MarbleHero;
 
 public class RandomColRandomBrickGroup : BrickGroup
 {
+    protected override int getBrickAverageCount(int turnCount)
+    {
+        var rows = brickManager.brickLayout.getRows();
+        var avg = rows / 2;
+        return avg;
+    }
+    
     public override void createBricks(int turnCount)
     {
         var health = turnCount;

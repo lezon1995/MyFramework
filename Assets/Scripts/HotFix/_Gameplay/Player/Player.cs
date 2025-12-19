@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using PrimeTween;
 using UnityEngine;
+using UnityEngine.Pool;
 
 namespace MarbleHero;
 
@@ -46,6 +47,8 @@ public partial class Player : MovableObject
 
         ballBuffs.add(typeof(LaserHorizontal));
         ballBuffs.add(typeof(LaserVertical));
+        ballBuffs.add(typeof(LightingStrike));
+        ballBuffs.add(typeof(LightingStrike3));
 
         addListeners();
     }
@@ -98,6 +101,7 @@ public partial class Player : MovableObject
     IEnumerator shootBallCo(Vector3 shootPosition, Vector3 shootDirection)
     {
         guideLine.setIndicatorBallActive(false);
+        var selectIndexes = ListPool<int>.Get();
 
         for (int i = 0; i < ballMaxCount; i++)
         {
@@ -105,12 +109,16 @@ public partial class Player : MovableObject
             // CtrGame.instance.ShotSound();
 
             var ball = ballManager.acquireBall(shootPosition, 0.14F, shootDirection, 8F);
-            foreach (var ballBuff in ballBuffs)
+            selectIndexes.Clear();
+            randomSelect(ballBuffs.count(), 1, selectIndexes);
+            foreach (var index in selectIndexes)
             {
-                var buff = CLASS<Buff>(ballBuff);
+                var buffType = ballBuffs.get(index);
+                var buff = CLASS<Buff>(buffType);
                 buff.setBrickManager(brickManager);
                 ball.addBuff(buff);
             }
+
             // ball.setPenetrable(true);
             // ball.setHorizontalBorderTeleportable(true);
 
@@ -132,6 +140,8 @@ public partial class Player : MovableObject
         yield return new WaitForSeconds(0.05f);
         // CtrUI.instance.textBallCount.DOFade(0f, 0.1f).SetEase(Ease.OutCubic);
         GameEntry.startCoroutine(checkTurnCo());
+        
+        ListPool<int>.Release(selectIndexes);
     }
 
     IEnumerator checkTurnCo()
@@ -184,8 +194,8 @@ public partial class Player : MovableObject
         //Existing Ball += Added Ball
         // ballMaxCount += addBallBlock.Count;
 
-        // if (randomHit(0.5F))
-        // ballMaxCount++;
+        if (randomHit(0.5F))
+            ballMaxCount++;
 
         ballCount = ballMaxCount;
         // CtrUI.instance.SetBallCount(ballMaxCount);

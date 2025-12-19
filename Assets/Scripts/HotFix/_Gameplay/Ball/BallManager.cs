@@ -9,7 +9,8 @@ namespace MarbleHero;
 public class BallManager : FrameSystem
 {
     //key: gameObject.GetInstanceID()
-    protected Dictionary<int, Ball> balls = new();
+    protected Dictionary<int, Ball> activeBalls = new();//发射后运动中的Ball
+    protected Dictionary<int, Ball> inactiveBalls = new();//回到底板后待发射的Ball
     protected Dictionary<Type, Dictionary<long, Ball>> ballTypeList = new(); // 角色分类列表
     protected Dictionary<long, Ball> ballGUIDList = new(); // 角色ID索引表
     protected SafeList<Ball> ballUpdateList = new(); // 用于更新角色的列表
@@ -86,14 +87,14 @@ public class BallManager : FrameSystem
         return ballGUIDList.get(id);
     }
 
-    public Ball getBall(int instanceID)
+    public Ball getActiveBall(int instanceID)
     {
-        return balls.get(instanceID);
+        return activeBalls.get(instanceID);
     }
 
-    public bool getBall(int instanceID, out Ball ball)
+    public bool getActiveBall(int instanceID, out Ball ball)
     {
-        ball = balls.get(instanceID);
+        ball = activeBalls.get(instanceID);
         return ball != null;
     }
 
@@ -133,7 +134,8 @@ public class BallManager : FrameSystem
 
                     ballUpdateList.add(ball);
                     ballFixedUpdateList.add(ball);
-                    balls[ball.instanceID] = ball;
+                    activeBalls[ball.instanceID] = ball;
+                    inactiveBalls.Remove(ball.instanceID);
                 },
                 actionOnRelease: ball =>
                 {
@@ -142,7 +144,8 @@ public class BallManager : FrameSystem
 
                     ballUpdateList.remove(ball);
                     ballFixedUpdateList.remove(ball);
-                    ball.release();
+                    activeBalls.Remove(ball.instanceID);
+                    inactiveBalls[ball.instanceID] = ball;
                 },
                 actionOnDestroy: ball =>
                 {
@@ -160,16 +163,19 @@ public class BallManager : FrameSystem
         ball.setRadius(radius);
         ball.setShootDirection(direction);
         ball.setSpeed(speed);
+        ball.setPhysicDamage(1, 1);
+        ball.setMagicDamage(1, 1);
+        ball.onAcquire();
         return ball;
     }
 
 
-    public Ball createBall(Vector2 pos, float radius, Vector2 direction, float speed)
+    Ball createBall(Vector2 pos, float radius, Vector2 direction, float speed)
     {
         return createBall(typeof(Ball), pos, radius, direction, speed);
     }
 
-    public T createBall<T>(Vector2 pos, float radius, Vector2 direction, float speed) where T : Ball
+    T createBall<T>(Vector2 pos, float radius, Vector2 direction, float speed) where T : Ball
     {
         return createBall(typeof(T), pos, radius, direction, speed) as T;
     }
@@ -185,7 +191,7 @@ public class BallManager : FrameSystem
         }
 
         var ball = CLASS<Ball>(type);
-        ball.setName($"Ball_{balls.Count + 1}");
+        ball.setName($"Ball_{activeBalls.Count + 1}");
         ball.setBallType(type);
         ball.setOnDead(ballDead);
 
@@ -216,13 +222,12 @@ public class BallManager : FrameSystem
 
     public void releaseBall(Ball ball)
     {
-        balls.Remove(ball.instanceID);
         if (ballPools.TryGetValue(ball.getType(), out var pool))
         {
+            ball.onRelease();
             pool.Release(ball);
         }
     }
-
 
     public void destroyAllBall()
     {
@@ -232,7 +237,7 @@ public class BallManager : FrameSystem
         ballFixedUpdateList.clear();
     }
 
-    public void destroyBall(Ball ball)
+    void destroyBall(Ball ball)
     {
         if (ball == null)
             return;
