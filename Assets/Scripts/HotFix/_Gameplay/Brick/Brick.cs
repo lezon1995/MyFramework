@@ -4,11 +4,12 @@ using UnityEngine;
 namespace MarbleHero;
 
 [Serializable]
-public partial class Brick : MovableObject, IDamageable<Ball>
+public partial class Brick : MovableObject, IDamageable<Ball> , IReleasable
 {
     protected BrickManager manager;
     public int instanceID;
     protected Type type; // 角色类型
+    protected Rect rect;
     public long guid; // 角色的唯一ID
 
     #region Stats
@@ -30,7 +31,6 @@ public partial class Brick : MovableObject, IDamageable<Ball>
     BrickRenderer brickRenderer;
     BrickCollider brickCollider;
 
-    Action<GameObject, Brick> onObjectSet;
     Action<Brick> onDestroyed;
 
     public int curHealth;
@@ -49,7 +49,6 @@ public partial class Brick : MovableObject, IDamageable<Ball>
     float _invincibleTime;
     float killTimer;
 
-    public void setOnObjectSet(Action<GameObject, Brick> action) => onObjectSet = action;
     public void setOnDestroyed(Action<Brick> action) => onDestroyed = action;
     public void setBrickType(Type t) => type = t;
     public void setID(long id) => guid = id;
@@ -80,12 +79,33 @@ public partial class Brick : MovableObject, IDamageable<Ball>
         manager = null;
         instanceID = 0;
         type = null;
+        rect = default;
         guid = 0;
-        onObjectSet = null;
         onDestroyed = null;
         brickRenderer = null;
         brickCollider = null;
 
+        width = 0F;
+        height = 0F;
+        maxHealth = 0;
+        maxHealthStack = 0;
+        physicResist = 0F;
+        magicResist = 0F;
+        dodgeChance = 0F;
+
+        curHealth = 0;
+        curHealthStack = 0;
+        immuneToDamage = false;
+        invulnerable = false;
+
+        _coroutineState = default;
+        _coroutineTimeElapsed = 0F;
+        _invincibleTime = 0F;
+        killTimer = 0F;
+    }
+    
+    public void release()
+    {
         width = 0F;
         height = 0F;
         maxHealth = 0;
@@ -109,7 +129,6 @@ public partial class Brick : MovableObject, IDamageable<Ball>
     {
         base.setObject(obj);
         instanceID = obj.GetInstanceID();
-        onObjectSet?.Invoke(obj, this);
 
         if (isEditor())
         {
@@ -117,7 +136,6 @@ public partial class Brick : MovableObject, IDamageable<Ball>
             debug.brick = this;
         }
     }
-
 
     public override void update(float elapsedTime)
     {
@@ -408,4 +426,13 @@ public partial class Brick : MovableObject, IDamageable<Ball>
         brickRenderer.setSize(w, h);
         brickCollider.setSize(w, h);
     }
+
+    public Rect getRect() => rect;
+
+    public void refreshRect()
+    {
+        rect = new(0, 0, width, height);
+        rect.center = getWorldPosition();
+    }
+
 }

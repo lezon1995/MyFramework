@@ -24,6 +24,12 @@ public struct ListScope<T> : IDisposable
 			mList.AddRange(initList);
 		}
 	}
+
+	public static ListScope<T> get(out List<T> list, IEnumerable<T> initList = null)
+	{
+		return new(out list, initList);
+	}
+	
 	public void Dispose()
 	{
 		mListPool?.destroyList(ref mList, typeof(T));

@@ -23,6 +23,9 @@ public class BrickGridLayout
         getGrids();
     }
 
+    public int getCols() => cols;
+    public int getRows() => rows;
+
     public void getCellSize(out Vector2 gridSize)
     {
         //左右各 padding.x，上下各 padding.y
@@ -100,6 +103,27 @@ public class BrickGridLayout
     public List<Rect> getTopRowGrids()
     {
         return topRowGrids;
+    }
+
+    public void getGridsAtRow(ref List<Rect> list, int row)
+    {
+        foreach (var ((_col, _row), rect) in gridDict)
+        {
+            if (_row == row)
+            {
+                list.add(rect);
+            }
+        }
+    }
+    public void getGridsAtCol(ref List<Rect> list, int col)
+    {
+        foreach (var ((_col, _row), rect) in gridDict)
+        {
+            if (_col == col)
+            {
+                list.add(rect);
+            }
+        }
     }
 
     public List<Rect> getAllGrids()

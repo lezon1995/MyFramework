@@ -104,7 +104,7 @@ public partial class Player : MovableObject
             //SoundManager.Instance.PlayEffect(Sound.sound_play_sfx_ball_launch);
             // CtrGame.instance.ShotSound();
 
-            var ball = ballManager.createBall<NormalBall>("Ball_0", shootPosition, 0.14F, shootDirection, 8F);
+            var ball = ballManager.acquireBall(shootPosition, 0.14F, shootDirection, 8F);
             foreach (var ballBuff in ballBuffs)
             {
                 var buff = CLASS<Buff>(ballBuff);
@@ -236,7 +236,7 @@ public partial class Player : MovableObject
             isFirstBallReturn = true;
             setNextPositionX(ball.getWorldPosition().x);
             activeBalls.Remove(ball);
-            ballManager.destroyBall(ball);
+            ballManager.releaseBall(ball);
             return;
         }
 
@@ -246,7 +246,7 @@ public partial class Player : MovableObject
             .Position(ball.getTransform(), endValue: nextPosition, duration: 0.15F, ease: Ease.OutCubic)
             .OnComplete(ball, b =>
             {
-                ballManager.destroyBall(b);
+                ballManager.releaseBall(b);
             });
 
         return;

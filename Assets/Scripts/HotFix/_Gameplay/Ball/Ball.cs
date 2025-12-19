@@ -6,7 +6,7 @@ using UnityEngine;
 namespace MarbleHero;
 
 [Serializable]
-public partial class Ball : MovableObject, IDamageable<Brick>
+public partial class Ball : MovableObject, IDamageable<Brick>, IReleasable
 {
     protected Comparison<RaycastHit2D> comparison;
 
@@ -49,13 +49,12 @@ public partial class Ball : MovableObject, IDamageable<Brick>
     #endregion
 
     protected List<Buff> buffs = new();
-    
+
     GameObject ballRenderer;
     Collider2D hitCollider;
     TrailRenderer trailRenderer;
     Player player;
 
-    Action<GameObject, Ball> onObjectSet;
     Action<Ball> onDead;
 
     Vector2 prePos, curPos, targetPos;
@@ -68,7 +67,6 @@ public partial class Ball : MovableObject, IDamageable<Brick>
     bool enabled;
     bool hasBeenCollided;
 
-    public void setOnObjectSet(Action<GameObject, Ball> action) => onObjectSet = action;
     public void setOnDead(Action<Ball> action) => onDead = action;
     public void setBallType(Type t) => type = t;
     public void setID(long id) => guid = id;
@@ -94,7 +92,7 @@ public partial class Ball : MovableObject, IDamageable<Brick>
         base.destroy();
         this.removeListener<OnBrickColliderChanged>();
         eventRouter.removeListener<DoAttackEffect>(this);
-        
+
         UN_CLASS_LIST(buffs);
     }
 
@@ -104,7 +102,6 @@ public partial class Ball : MovableObject, IDamageable<Brick>
         instanceID = 0;
         type = null;
         guid = 0;
-        onObjectSet = null;
         onDead = null;
         // comparison = null; 不重置
         // buffs = null; 不重置
@@ -136,6 +133,33 @@ public partial class Ball : MovableObject, IDamageable<Brick>
         horizontalBorderTeleportable = false;
     }
 
+    public void release()
+    {
+        prePos = curPos = targetPos = Vector2.zero;
+        movementDelta = 0;
+        direction = Vector2.zero;
+        hitNormal = Vector2.zero;
+        lastRadius = 0;
+        lastDirection = default;
+        enabled = false;
+        hasBeenCollided = false;
+
+        maxHealth = 0;
+        minPhysicDamage = maxPhysicDamage = 0;
+        minMagicDamage = maxMagicDamage = 0;
+        speed = 0F;
+        radius = 0F;
+        dmgRate = 1F;
+
+        curHealth = 0F;
+        immuneToDamage = false;
+        invulnerable = false;
+        isPenetrable = false;
+        horizontalBorderTeleportable = false;
+        
+        UN_CLASS_LIST(buffs);
+    }
+
     public void setPlayer(Player p) => player = p;
     public Player getPlayer() => player;
 
@@ -143,7 +167,6 @@ public partial class Ball : MovableObject, IDamageable<Brick>
     {
         base.setObject(obj);
         instanceID = obj.GetInstanceID();
-        onObjectSet?.Invoke(obj, this);
         curPos = obj.transform.position;
 
         ballRenderer = getGameObject("Renderer", obj);
@@ -502,7 +525,7 @@ public partial class Ball : MovableObject, IDamageable<Brick>
             .Position(getTransform(), endValue: nextPosition, duration: 0.25f, ease: Ease.OutCubic)
             .OnComplete(this, ball =>
             {
-                ballManager.destroyBall(ball);
+                ballManager.releaseBall(ball);
             });
     }
 

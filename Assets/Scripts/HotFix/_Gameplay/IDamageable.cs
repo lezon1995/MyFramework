@@ -116,7 +116,7 @@ public struct Dmg
         effect = Effects.Attack;
         return this;
     }
-    
+
     public bool hasAbilityEffect()
     {
         return (effect & Effects.Ability) != 0;
@@ -216,6 +216,11 @@ public struct Dmg
             return physicDamageDealt + magicDamageDealt + trueDamageDealt;
         }
     }
+}
+
+public interface IReleasable
+{
+    void release();
 }
 
 public interface IDamageable<in Attacker>

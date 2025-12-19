@@ -183,8 +183,12 @@ public class GameplayManager : FrameSystem, IEvent<OnBrickDeath>
 
     public void createBricksAtTopRow(int turnNum)
     {
-        var brickGroup = CLASS<RandomTopRowBrickGroup>();
+        // var brickGroup = CLASS<TopRowRandomBrickGroup>();
+        // var brickGroup = CLASS<RandomRowRandomBrickGroup>();
+        var brickGroup = CLASS<RandomColRandomBrickGroup>();
         // var brickGroup = CLASS<RandomAnyEmptyBrickGroup>();
+        brickGroup.setBrickManager(brickManager);
+        brickGroup.setLevelManager(levelManager);
         brickGroup.setOnBricksClear(onBrickGroupClear);
         brickGroup.createBricks(turnNum);
         blockGroups.add(brickGroup);
@@ -192,6 +196,7 @@ public class GameplayManager : FrameSystem, IEvent<OnBrickDeath>
 
     void releaseBrickGroup(BrickGroup group)
     {
+        blockGroups.Remove(group);
         UN_CLASS(group);
     }
 
@@ -215,6 +220,9 @@ public class GameplayManager : FrameSystem, IEvent<OnBrickDeath>
         }
 
         yield return new WaitForSeconds(time + 0.1F);
+
+        brickManager.refreshAllBrickGrid();
+        
         //Create a single block
         createBricksAtTopRow(turnCount);
 
@@ -286,7 +294,7 @@ public class GameplayManager : FrameSystem, IEvent<OnBrickDeath>
     public void refreshPhase(int phase)
     {
         curPhase = phase;
-        var brickGrid = brickManager.brickGrid;
+        var brickGrid = brickManager.brickLayout;
         brickGrid.getCellSize(out var cellSize);
 
         var borderLeftX = levelManager.getDefaultBorderLeftX();

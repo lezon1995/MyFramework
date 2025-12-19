@@ -347,6 +347,9 @@ public class Transformable : ComponentOwner, ITransformable
 	public void setPositionX(float x) { setPosition(replaceX(getPosition(), x)); }
 	public void setPositionY(float y) { setPosition(replaceY(getPosition(), y)); }
 	public void setPositionZ(float z) { setPosition(replaceZ(getPosition(), z)); }
+	public void setWorldPositionX(float x) { setWorldPosition(replaceX(getWorldPosition(), x)); }
+	public void setWorldPositionY(float y) { setWorldPosition(replaceY(getWorldPosition(), y)); }
+	public void setWorldPositionZ(float z) { setWorldPosition(replaceZ(getWorldPosition(), z)); }
 	public void setRotationX(float rotX) { setRotation(replaceX(mTransform.localEulerAngles, rotX)); }
 	public void setRotationY(float rotY) { setRotation(replaceY(mTransform.localEulerAngles, rotY)); }
 	public void setRotationZ(float rotZ) { setRotation(replaceZ(mTransform.localEulerAngles, rotZ)); }

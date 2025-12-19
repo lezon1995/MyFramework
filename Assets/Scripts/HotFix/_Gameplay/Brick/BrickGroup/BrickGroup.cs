@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using PrimeTween;
-using UnityEngine;
 
 namespace MarbleHero;
 
@@ -10,11 +9,17 @@ public abstract class BrickGroup : ClassObject, IEvent<OnBrickDeath>
     protected List<Brick> bricks = new();
     protected Action<BrickGroup> onBricksClear;
 
+    protected BrickManager brickManager;
+    protected LevelManager levelManager;
+
     public override void resetProperty()
     {
         base.resetProperty();
         bricks.Clear();
         onBricksClear = null;
+        brickManager = null;
+        levelManager = null;
+        per1 = per2 = per3 = per4 = per5 = 0;
     }
 
     public override void onCreate()
@@ -41,14 +46,16 @@ public abstract class BrickGroup : ClassObject, IEvent<OnBrickDeath>
 
     public virtual void doNextTurnMove(float duration)
     {
-        var brickGrid = brickManager.brickGrid;
+        var brickGrid = brickManager.brickLayout;
         for (var i = 0; i < bricks.Count; i++)
         {
             var brick = bricks[i];
             var curRow = brickGrid.getRowAtPosY(brick.getWorldPosition().y);
             var nextRow = curRow - 1;
             var nextPosY = brickGrid.getPosYAtRow(nextRow);
-            var tween = Tween.PositionY(brick.getTransform(), endValue: nextPosY, duration: duration, ease: Ease.InOutSine);
+            var tween = Tween
+                .PositionY(brick.getTransform(), endValue: nextPosY, duration: duration, ease: Ease.InOutSine);
+
             if (nextRow < 0)
             {
                 tween.OnComplete(brick, b =>
@@ -56,13 +63,19 @@ public abstract class BrickGroup : ClassObject, IEvent<OnBrickDeath>
                     b.kill();
                 });
             }
+            else
+            {
+                tween.OnComplete(brick, b =>
+                {
+                    b.refreshRect();
+                });
+            }
         }
     }
 
-    public void setOnBricksClear(Action<BrickGroup> action)
-    {
-        onBricksClear = action;
-    }
+    public void setOnBricksClear(Action<BrickGroup> action) => onBricksClear = action;
+    public void setBrickManager(BrickManager manager) => brickManager = manager;
+    public void setLevelManager(LevelManager manager) => levelManager = manager;
 
     public void onEvent(OnBrickDeath e)
     {
@@ -73,37 +86,19 @@ public abstract class BrickGroup : ClassObject, IEvent<OnBrickDeath>
             onBricksClear?.Invoke(this);
         }
     }
-}
-
-public class RandomTopRowBrickGroup : BrickGroup
-{
-    List<int> selectIndexes = new();
-
-    public override void createBricks(int turnCount)
-    {
-        var health = turnCount;
-        int count = getBrickCount(turnCount);
-        var topRowGrids = brickManager.brickGrid.getTopRowGrids();
-        randomSelect(topRowGrids.count(), count, selectIndexes);
-        foreach (var index in selectIndexes)
-        {
-            var rect = topRowGrids.get(index);
-            var brick = brickManager.createBrick<NormalBrick>("Brick", rect.center, rect.size, health);
-            brick.eventRouter.addListener(this);
-            addBrick(brick);
-        }
-    }
-
 
     int per1, per2, per3, per4, per5;
 
     /// <summary>
     /// Difficulty adjustment for each block according to the number of turns
     /// </summary>
-    int getBrickCount(int turnCount)
+    protected virtual int getBrickCount(int turnCount)
     {
         int n = randomInt(0, 99);
         int count = 0;
+
+        var col = brickManager.brickLayout.getCols();
+        var mid = col / 2;
 
         switch (turnCount)
         {
@@ -114,11 +109,11 @@ public class RandomTopRowBrickGroup : BrickGroup
                 per3 = 100;
 
                 if (n <= per1)
-                    count = 2;
+                    count = mid - 1;
                 else if (n > per1 && n <= per2)
-                    count = 3;
+                    count = mid;
                 else if (n > per2 && n <= per3)
-                    count = 4;
+                    count = mid + 1;
 
                 break;
             }
@@ -130,13 +125,13 @@ public class RandomTopRowBrickGroup : BrickGroup
                 per4 = 100;
 
                 if (n <= per1)
-                    count = 2;
+                    count = mid - 1;
                 else if (n > per1 && n <= per2)
-                    count = 3;
+                    count = mid;
                 else if (n > per2 && n <= per3)
-                    count = 4;
+                    count = mid + 1;
                 else if (n > per3 && n <= per4)
-                    count = 5;
+                    count = mid + 2;
 
                 break;
             }
@@ -148,13 +143,13 @@ public class RandomTopRowBrickGroup : BrickGroup
                 per4 = 100;
 
                 if (n <= per1)
-                    count = 3;
+                    count = mid;
                 else if (n > per1 && n <= per2)
-                    count = 4;
+                    count = mid + 1;
                 else if (n > per2 && n <= per3)
-                    count = 5;
+                    count = mid + 2;
                 else if (n > per3 && n <= per4)
-                    count = 6;
+                    count = mid + 3;
 
                 break;
             }
@@ -166,13 +161,13 @@ public class RandomTopRowBrickGroup : BrickGroup
                 per4 = 100;
 
                 if (n <= per1)
-                    count = 3;
+                    count = mid;
                 else if (n > per1 && n <= per2)
-                    count = 4;
+                    count = mid + 1;
                 else if (n > per2 && n <= per3)
-                    count = 5;
+                    count = mid + 2;
                 else if (n > per3 && n <= per4)
-                    count = 6;
+                    count = mid + 3;
 
                 break;
             }
@@ -184,13 +179,13 @@ public class RandomTopRowBrickGroup : BrickGroup
                 per4 = 100;
 
                 if (n <= per1)
-                    count = 3;
+                    count = mid;
                 else if (n > per1 && n <= per2)
-                    count = 4;
+                    count = mid + 1;
                 else if (n > per2 && n <= per3)
-                    count = 5;
+                    count = mid + 2;
                 else if (n > per3 && n <= per4)
-                    count = 6;
+                    count = mid + 3;
 
                 break;
             }
@@ -201,11 +196,11 @@ public class RandomTopRowBrickGroup : BrickGroup
                 per3 = 100;
 
                 if (n <= per1)
-                    count = 4;
+                    count = mid + 1;
                 else if (n > per1 && n <= per2)
-                    count = 5;
+                    count = mid + 2;
                 else if (n > per2 && n <= per3)
-                    count = 6;
+                    count = mid + 3;
 
                 break;
             }
@@ -216,11 +211,11 @@ public class RandomTopRowBrickGroup : BrickGroup
                 per3 = 100;
 
                 if (n <= per1)
-                    count = 4;
+                    count = mid + 1;
                 else if (n > per1 && n <= per2)
-                    count = 5;
+                    count = mid + 2;
                 else if (n > per2 && n <= per3)
-                    count = 6;
+                    count = mid + 3;
 
                 break;
             }
@@ -231,11 +226,11 @@ public class RandomTopRowBrickGroup : BrickGroup
                 per3 = 100;
 
                 if (n <= per1)
-                    count = 4;
+                    count = mid + 1;
                 else if (n > per1 && n <= per2)
-                    count = 5;
+                    count = mid + 2;
                 else if (n > per2 && n <= per3)
-                    count = 6;
+                    count = mid + 3;
 
                 break;
             }
@@ -246,11 +241,11 @@ public class RandomTopRowBrickGroup : BrickGroup
                 per3 = 100;
 
                 if (n <= per1)
-                    count = 4;
+                    count = mid + 1;
                 else if (n > per1 && n <= per2)
-                    count = 5;
+                    count = mid + 2;
                 else if (n > per2 && n <= per3)
-                    count = 6;
+                    count = mid + 3;
 
                 break;
             }
@@ -261,11 +256,11 @@ public class RandomTopRowBrickGroup : BrickGroup
                 per3 = 100;
 
                 if (n <= per1)
-                    count = 4;
+                    count = mid + 1;
                 else if (n > per1 && n <= per2)
-                    count = 5;
+                    count = mid + 2;
                 else if (n > per2 && n <= per3)
-                    count = 6;
+                    count = mid + 3;
 
                 break;
             }
@@ -274,9 +269,9 @@ public class RandomTopRowBrickGroup : BrickGroup
                 per1 = 40;
 
                 if (n <= per1)
-                    count = 5;
+                    count = mid + 2;
                 else
-                    count = 6;
+                    count = mid + 3;
 
                 break;
             }
@@ -285,53 +280,17 @@ public class RandomTopRowBrickGroup : BrickGroup
                 per1 = 30;
 
                 if (n <= per1)
-                    count = 5;
+                    count = mid + 2;
                 else
-                    count = 6;
+                    count = mid + 3;
 
                 break;
             }
             default:
-                count = 6;
+                count = mid + 3;
                 break;
         }
 
         return count;
-    }
-}
-
-public class RandomAnyEmptyBrickGroup : BrickGroup
-{
-    List<int> selectIndexes = new();
-
-    public override void createBricks(int turnCount)
-    {
-        var health = turnCount;
-        int count = 2;
-        using var _ = new ListScope<Rect>(out var emptyGrids);
-        var allGrids = brickManager.brickGrid.getAllGrids();
-        emptyGrids.setRange(allGrids);
-        var allBricks = brickManager.getBricks();
-
-        foreach (var brick in allBricks.Values)
-        {
-            for (var i = emptyGrids.Count - 1; i >= 0; i--)
-            {
-                if (emptyGrids[i].Contains(brick.getWorldPosition()))
-                {
-                    emptyGrids.removeAt(i);
-                    break;
-                }
-            }
-        }
-
-        randomSelect(emptyGrids.count(), count, selectIndexes);
-        foreach (var index in selectIndexes)
-        {
-            var rect = allGrids.get(index);
-            var brick = brickManager.createBrick<NormalBrick>("Brick", rect.center, rect.size, health);
-            brick.eventRouter.addListener(this);
-            addBrick(brick);
-        }
     }
 }
