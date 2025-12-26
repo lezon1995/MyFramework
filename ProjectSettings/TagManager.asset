@@ -42,5 +42,17 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Level
+    uniqueID: 307179551
+    locked: 0
+  - name: Brick
+    uniqueID: 3589461771
+    locked: 0
+  - name: Ball
+    uniqueID: 1541850065
+    locked: 0
+  - name: Fx
+    uniqueID: 3627435115
+    locked: 0
   m_RenderingLayers:
   - Default

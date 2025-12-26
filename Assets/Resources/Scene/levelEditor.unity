@@ -281,7 +281,7 @@ Canvas:
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
-  m_VertexColorAlwaysGammaSpace: 1
+  m_VertexColorAlwaysGammaSpace: 0
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
@@ -376,7 +376,7 @@ MonoBehaviour:
   m_FirstSelected: {fileID: 0}
   m_sendNavigationEvents: 1
   m_DragThreshold: 10
---- !u!1 &733988003
+--- !u!1 &803577838
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -384,22 +384,22 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 733988006}
-  - component: {fileID: 733988007}
+  - component: {fileID: 803577839}
+  - component: {fileID: 803577840}
   m_Layer: 0
-  m_Name: GameEntry
+  m_Name: LevelEditor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &733988006
+--- !u!4 &803577839
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 733988003}
+  m_GameObject: {fileID: 803577838}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -408,26 +408,23 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &733988007
+--- !u!114 &803577840
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 733988003}
+  m_GameObject: {fileID: 803577838}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e8ba37cd44f9bf347821c531d55fdf3c, type: 3}
+  m_Script: {fileID: 11500000, guid: 4e3edc4d8d024cec8a97a77df77bc155, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: 
-  mFramworkParam:
-    mScreenHeight: 0
-    mScreenWidth: 0
-    mDefaultFrameRate: 240
-    mEnablePoolStackTrace: 0
-    mEnableScriptDebug: 0
-    mLoadSource: 0
-    mWindowMode: 1
+  m_EditorClassIdentifier: HotFix::MarbleHero.LevelEditorManager
+  rows: 10
+  cols: 6
+  size: {x: 6, y: 8}
+  spacing: {x: 0.05, y: 0.05}
+  padding: {x: 0.05, y: 0.05}
 --- !u!1 &1137042466
 GameObject:
   m_ObjectHideFlags: 0
@@ -455,8 +452,8 @@ Camera:
   m_GameObject: {fileID: 1137042466}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 4
-  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 1}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -478,7 +475,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 100
+  far clip plane: 1000
   field of view: 90
   orthographic: 1
   orthographic size: 5.4
@@ -491,7 +488,7 @@ Camera:
   m_TargetDisplay: 0
   m_TargetEye: 3
   m_HDR: 0
-  m_AllowMSAA: 1
+  m_AllowMSAA: 0
   m_AllowDynamicResolution: 0
   m_ForceIntoRT: 0
   m_OcclusionCulling: 1
@@ -505,7 +502,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1137042466}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -5}
+  m_LocalPosition: {x: 0, y: 0, z: -540}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -531,7 +528,7 @@ MonoBehaviour:
   m_RenderShadows: 1
   m_RequiresDepthTextureOption: 2
   m_RequiresOpaqueTextureOption: 2
-  m_CameraType: 1
+  m_CameraType: 0
   m_Cameras: []
   m_RendererIndex: -1
   m_VolumeLayerMask:
@@ -637,7 +634,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
+  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 1}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -658,15 +655,15 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 0.01
-  far clip plane: 100
+  near clip plane: 0.3
+  far clip plane: 10
   field of view: 90
   orthographic: 1
   orthographic size: 5.4
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 4294966783
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
@@ -687,7 +684,7 @@ Transform:
   m_GameObject: {fileID: 2042163565}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -5}
+  m_LocalPosition: {x: 0, y: 0, z: -1}
   m_LocalScale: {x: 0, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -709,8 +706,7 @@ MonoBehaviour:
   m_RequiresDepthTextureOption: 2
   m_RequiresOpaqueTextureOption: 2
   m_CameraType: 0
-  m_Cameras:
-  - {fileID: 1137042467}
+  m_Cameras: []
   m_RendererIndex: -1
   m_VolumeLayerMask:
     serializedVersion: 2
@@ -751,6 +747,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 1021828978608432949, guid: a15fe4141c9508f4daa566b7b31873f9,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3800539474262464379, guid: a15fe4141c9508f4daa566b7b31873f9,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -759,7 +760,7 @@ PrefabInstance:
     - target: {fileID: 3800539474262464379, guid: a15fe4141c9508f4daa566b7b31873f9,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: -4.59
+      value: -4
       objectReference: {fileID: 0}
     - target: {fileID: 3800539474262464379, guid: a15fe4141c9508f4daa566b7b31873f9,
         type: 3}
@@ -814,6 +815,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1359808175387987891, guid: 0091dfc71dc225c40883b23e025be31c,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4080774271730212107, guid: 0091dfc71dc225c40883b23e025be31c,
         type: 3}
       propertyPath: m_Name
@@ -885,8 +891,8 @@ SceneRoots:
   m_Roots:
   - {fileID: 2042163570}
   - {fileID: 314300111}
-  - {fileID: 733988006}
   - {fileID: 319766361}
   - {fileID: 1746353226}
   - {fileID: 6380399670178711041}
   - {fileID: 6319986751744967692}
+  - {fileID: 803577839}

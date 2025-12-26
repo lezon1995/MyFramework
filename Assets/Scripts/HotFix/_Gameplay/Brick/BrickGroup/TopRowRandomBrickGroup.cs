@@ -1,5 +1,8 @@
 ﻿namespace MarbleHero;
 
+/// <summary>
+/// 在最顶行的空位置生成砖块
+/// </summary>
 public class TopRowRandomBrickGroup : BrickGroup
 {
     protected override int getBrickAverageCount(int turnCount)

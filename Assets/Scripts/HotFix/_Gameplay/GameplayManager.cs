@@ -175,13 +175,13 @@ public class GameplayManager : FrameSystem, IEvent<OnBrickDeath>
     {
         new OnTurnChanged(turnCount).trigger();
         yield return new WaitForSeconds(0.01F);
-        createBricksAtTopRow(turnCount);
+        createBrickGroup(turnCount);
         yield return new WaitForSeconds(0.5F);
         isStart = true;
         isLock = false;
     }
 
-    public void createBricksAtTopRow(int turnNum)
+    public void createBrickGroup(int turnNum)
     {
         var num = turnNum % 4;
         BrickGroup brickGroup = num switch
@@ -230,7 +230,7 @@ public class GameplayManager : FrameSystem, IEvent<OnBrickDeath>
         brickManager.refreshAllBrickGrid();
 
         //Create a single block
-        createBricksAtTopRow(turnCount);
+        createBrickGroup(turnCount);
 
         playerManager.getPlayer().addExp(turnScore);
         new OnTurnChanged(turnCount).trigger();

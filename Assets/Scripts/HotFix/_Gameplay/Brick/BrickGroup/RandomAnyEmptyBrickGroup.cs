@@ -2,6 +2,9 @@
 
 namespace MarbleHero;
 
+/// <summary>
+/// 在随机空的位置生成砖块
+/// </summary>
 public class RandomAnyEmptyBrickGroup : BrickGroup
 {
     protected override int getBrickAverageCount(int turnCount)

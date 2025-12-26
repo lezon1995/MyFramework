@@ -11,20 +11,32 @@ public class BrickGridLayout
     List<Rect> grids = new();
     Dictionary<(int col, int row), Rect> gridDict = new();
 
-    Vector2 size, spacing, padding;
+    Vector2 size, spacing, padding, offset;
     int cols, rows;
 
-    public BrickGridLayout(Vector2 _size, int col, int row)
+    public BrickGridLayout(Vector2 _size, int _col, int _row)
     {
         size = _size;
-        cols = col;
-        rows = row;
+        cols = _col;
+        rows = _row;
         spacing = new(0.05F, 0.05F);
+        padding = new(0.05F, 0.05F);
+        getGrids();
+    }
+
+    public BrickGridLayout(Vector2 _size, int _col, int _row, Vector2 _spacing, Vector2 _padding)
+    {
+        size = _size;
+        cols = _col;
+        rows = _row;
+        spacing = _spacing;
+        padding = _padding;
         getGrids();
     }
 
     public int getCols() => cols;
     public int getRows() => rows;
+    public Vector2 getSize() => size;
 
     public void getCellSize(out Vector2 gridSize)
     {
@@ -83,7 +95,7 @@ public class BrickGridLayout
 
                 // 创建以 Cell 中心为原点的 Rect
                 Rect rect = new(0, 0, cellSize.x, cellSize.y);
-                rect.center = new(cx, cy);
+                rect.center = new Vector2(cx, cy) + offset;
 
                 grids.Add(rect);
                 gridDict[(col, row)] = rect;
@@ -115,6 +127,7 @@ public class BrickGridLayout
             }
         }
     }
+
     public void getGridsAtCol(ref List<Rect> list, int col)
     {
         foreach (var ((_col, _row), rect) in gridDict)
@@ -202,4 +215,7 @@ public class BrickGridLayout
     public void setCols(int col) => cols = col;
     public void setSpacingX(float x) => spacing.x = x;
     public void setSpacingY(float y) => spacing.y = y;
+    public void setSpacing(Vector2 s) => spacing = s;
+    public void setPadding(Vector2 p) => padding = p;
+    public void setOffset(Vector2 o) => offset = o;
 }

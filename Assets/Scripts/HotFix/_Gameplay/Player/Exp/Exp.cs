@@ -29,7 +29,7 @@ public class Exp : ClassObject
         {
             var curLevel = i;
             var nextLevel = i + 1;
-            Debug.LogError($"从{curLevel}级升到{nextLevel}级需要 {calculateXpRequiredToNextLevel(curLevel)}经验");
+            // Debug.LogError($"从{curLevel}级升到{nextLevel}级需要 {calculateXpRequiredToNextLevel(curLevel)}经验");
         }
     }
 
