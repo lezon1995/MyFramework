@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using static UnityUtility;
+using static MathUtility;
 using static FrameDefine;
 
 // 用于固定数量类,不能用于回收复用窗口
@@ -46,19 +47,28 @@ public abstract class WindowObjectT<T> : WindowObjectBase where T : myUGUIObject
 	}
 	public bool isValid() { return mRoot != null; }
 	public override bool isActive() { return mRoot?.isActiveInHierarchy() ?? false; }
-	public override void setActive(bool visible) 
+	public override void setActive(bool active) 
 	{
-		base.setActive(visible);
+		bool curActive = isActive();
+		if (curActive && mChangePositionAsInvisible && isVectorEqual(mRoot.getPosition(), FAR_POSITION))
+		{
+			curActive = false;
+		}
+		if (active == curActive)
+		{
+			return;
+		}
+		base.setActive(active);
 		if (mChangePositionAsInvisible)
 		{
-			if (!visible)
+			if (!active)
 			{
 				mRoot.setPosition(FAR_POSITION);
 			}
 		}
 		else
 		{
-			mRoot.setActive(visible);
+			mRoot.setActive(active);
 		}
 	}
 	public virtual void setPosition(Vector3 pos) { mRoot.setPosition(pos); }
@@ -100,7 +110,7 @@ public abstract class WindowObjectT<T> : WindowObjectBase where T : myUGUIObject
 	{
 		if (mRoot == null)
 		{
-			logError("可复用窗口的mRoot为空,请确保在assignWindow中已经给mRoot赋值了");
+			logError("mRoot为空,请确保在assignWindow中已经给mRoot赋值了");
 		}
 	}
 	protected T0 newObject<T0>(out T0 obj, string name) where T0 : myUGUIObject, new()
