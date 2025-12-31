@@ -4,6 +4,8 @@ namespace MarbleHero;
 
 public class Border : MovableObject
 {
+    protected SpriteRenderer renderer;
+
     public Border()
     {
     }
@@ -16,6 +18,8 @@ public class Border : MovableObject
     public override void setObject(GameObject obj)
     {
         base.setObject(obj);
+
+        findComponent(obj, "Renderer", out renderer);
     }
 
     protected override void initComponents()
@@ -60,18 +64,38 @@ public class Border : MovableObject
     }
 }
 
-public class BorderTop : Border
+public class HBorder : Border
+{
+    public void setWidth(float width)
+    {
+        var size = renderer.size;
+        size.x = width;
+        renderer.size = size;
+    }
+}
+
+public class VBorder : Border
+{
+    public void setHeight(float height)
+    {
+        var size = renderer.size;
+        size.y = height;
+        renderer.size = size;
+    }
+}
+
+public class BorderTop : HBorder
 {
 }
 
-public class BorderBot : Border
+public class BorderBot : HBorder
 {
 }
 
-public class BorderLeft : Border
+public class BorderLeft : VBorder
 {
 }
 
-public class BorderRight : Border
+public class BorderRight : VBorder
 {
 }

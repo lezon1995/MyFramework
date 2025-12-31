@@ -12,6 +12,8 @@ public class LevelManager : FrameSystem
 
     protected float defaultBorderLeftX;
     protected float defaultBorderRightX;
+    protected float curBorderWidth;
+    protected float curBorderHeight;
 
     public override void init()
     {
@@ -27,6 +29,11 @@ public class LevelManager : FrameSystem
         borderBot = createBorder<BorderBot>(bot);
         defaultBorderLeftX = borderLeft.getWorldPosition().x;
         defaultBorderRightX = borderRight.getWorldPosition().x;
+
+        var width = abs(defaultBorderLeftX - defaultBorderRightX);
+        setBorderWidth(width);
+        var height = getBorderHeight();
+        setBorderHeight(height);
     }
 
     protected override void initComponents()
@@ -34,6 +41,23 @@ public class LevelManager : FrameSystem
         base.initComponents();
 
         // addInitComponent(out mAvatar, true);
+    }
+
+    public override void update(float elapsedTime)
+    {
+        base.update(elapsedTime);
+
+        var width = getBorderWidth();
+        if (!isFloatEqual(curBorderWidth, width))
+        {
+            setBorderWidth(width);
+        }
+
+        var height = getBorderHeight();
+        if (!isFloatEqual(curBorderHeight, height))
+        {
+            setBorderHeight(height);
+        }
     }
 
     protected T createBorder<T>(GameObject obj) where T : Border
@@ -78,6 +102,20 @@ public class LevelManager : FrameSystem
             {
                 border.setWorldPosition(new(defaultBorderRightX + offset, 0, 0));
             });
+    }
+
+    public void setBorderWidth(float width)
+    {
+        borderTop.setWidth(width);
+        borderBot.setWidth(width);
+        curBorderWidth = width;
+    }
+
+    public void setBorderHeight(float height)
+    {
+        borderLeft.setHeight(height);
+        borderRight.setHeight(height);
+        curBorderHeight = height;
     }
 
     public float getDefaultBorderLeftX()

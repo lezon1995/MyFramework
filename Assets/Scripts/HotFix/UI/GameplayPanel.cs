@@ -23,9 +23,9 @@ public class GameplayPanel : LayoutScript
     public override void assignWindow()
     {
         // auto generate assignWindow start
-        newObject(out myUGUIObject content, "Content", false);
-        newObject(out myUGUIObject top, content, "Top", false);
-        newObject(out mPlayerInfo, top, "PlayerInfo");
+        // newObject(out myUGUIObject content, "Content", false);
+        // newObject(out myUGUIObject top, content, "Top", false);
+        // newObject(out mPlayerInfo, top, "PlayerInfo");
         // auto generate assignWindow end
     }
 
@@ -33,7 +33,7 @@ public class GameplayPanel : LayoutScript
     {
         base.init();
 
-        playerInfo = new(mPlayerInfo);
+        // playerInfo = new(mPlayerInfo);
     }
 
     public override void onGameState()
