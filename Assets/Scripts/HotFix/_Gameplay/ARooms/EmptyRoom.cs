@@ -1,0 +1,11 @@
+﻿namespace MarbleHero
+{
+    public class EmptyRoom : ARoom
+    {
+        public override RoomType Type => RoomType.EMPTY;
+        
+        public override void onPlayerEntry()
+        {
+        }
+    }
+}

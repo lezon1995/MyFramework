@@ -24,4 +24,21 @@ public partial class GBH
 	public static UIGaming mUIGaming;
 	public static UILogin mUILogin;
 	// auto generate LayoutScript end
+	
+	
+	
+	public static ADungeon _dungeon { get; set; }
+	public static GameActionManager actionManager { get; set; }
+	public static APlayer player { get; set; }
+	// public static SoundMaster sound { get; set; }
+	// public static MusicMaster music { get; set; }
+	public static ARoom room
+	{
+		get => ADungeon.currMapNode?.room;
+		set => ADungeon.currMapNode.room = value;
+	}
+
+	public static MapRoomNode mapNode => ADungeon.getCurrMapNode();
+	public static MonsterGroup monsters => room.monsters;
+	public static AMonster enemy => room.monsters.main;
 }
