@@ -40,17 +40,17 @@
             }
 
             waitTimer = COMBAT_WAIT_TIME;
-            new OnPlayerEnterBattleRoom().Trigger();
+            new OnPlayerEnterBattleRoom().trigger();
         }
 
         public override void dropReward()
         {
             RelicTier tier = returnRandomRelicTier();
-            if (Settings.isEndless && player.hasBlight("MimicInfestation"))
-            {
-                // player.getBlight("MimicInfestation").flash();
-            }
-            else
+            // if (Settings.isEndless && player.hasBlight("MimicInfestation"))
+            // {
+            //     player.getBlight("MimicInfestation").flash();
+            // }
+            // else
             {
                 addRelicToRewards(tier);
                 if (player.hasRelic("Black Star"))
@@ -62,8 +62,8 @@
 
         private void addEmeraldKey()
         {
-            if (Settings.isFinalActAvailable && !Settings.hasEmeraldKey && rewards.Count > 0 && mapNode.hasEmeraldKey)
-                rewards.Add(new RewardItem(rewards[^1], RewardType.EMERALD_KEY));
+            // if (Settings.isFinalActAvailable && !Settings.hasEmeraldKey && rewards.Count > 0 && mapNode.hasEmeraldKey)
+                // rewards.Add(new RewardItem(rewards[^1], RewardType.EMERALD_KEY));
         }
 
         private RelicTier returnRandomRelicTier()

@@ -5,6 +5,7 @@ using UnityEngine;
 namespace MarbleHero
 {
     public record struct OnMyPlayerHealthChanged;
+
     public abstract partial class APlayer : ACreature
     {
         public PlayerClass chosenClass;
@@ -26,7 +27,7 @@ namespace MarbleHero
         bool passedHesitationLine;
         public ACard cardInUse { get; set; }
         public bool endTurnQueued { get; set; }
-        
+
         public override int currentHealth
         {
             get => _health;
@@ -35,11 +36,10 @@ namespace MarbleHero
                 if (_health == value)
                     return;
                 _health = value;
-                new OnMyPlayerHealthChanged().Trigger();
+                new OnMyPlayerHealthChanged().trigger();
             }
         }
 
-        public override Team team => Team.Player;
         public static List<string> customMods;
 
         protected APlayer(string playerName)
@@ -66,12 +66,12 @@ namespace MarbleHero
 
         public virtual List<string> getStartingDeck()
         {
-            return null;
+            return new List<string>();
         }
 
-        public List<string> getStartingRelics()
+        public virtual List<string> getStartingRelics()
         {
-            return null;
+            return new List<string>();
         }
 
         public abstract CharSelectInfo getLoadout();
@@ -110,7 +110,6 @@ namespace MarbleHero
         public abstract string getSpireHeartText();
 
         // public abstract Color getSlashAttackColor();
-        public abstract AttackEffect[] getSpireHeartSlashEffect();
         public abstract string getVampireText();
 
         public string getSaveFilePath() => SaveAndContinue.getPlayerSavePath(chosenClass.ToString());
@@ -119,29 +118,18 @@ namespace MarbleHero
         {
         }
 
-        protected void initializeClass(string imgUrl, string shoulder2ImgUrl, string shouldImgUrl, string corpseImgUrl, CharSelectInfo info, EnergyManager energy)
+        protected void initializeClass(CharSelectInfo info)
         {
-            // if (imgUrl != null)
-            //     img = ImageMaster.loadImage(imgUrl);
-            // if (img != null)
-            //     atlas = null;
-            // shoulderImg = ImageMaster.loadImage(shouldImgUrl);
-            // shoulder2Img = ImageMaster.loadImage(shoulder2ImgUrl);
-            // corpseImg = ImageMaster.loadImage(corpseImgUrl);
-
-            // if (Settings.isMobile)
-                // hb_w *= 1.17F;
             _healthMax = info.maxHp;
             startingMaxHP = maxHealth;
             _health = info.currentHp;
-            // masterMaxOrbs = info.maxOrbs;
             gold = info.gold;
             displayGold = gold;
         }
 
         public void initializeStarterDeck()
         {
-            List<string> cards = Data.StartingDeck;
+            List<string> cards = new();
             bool addBaseCards = !ModHelper.isModEnabled("Draft") && !ModHelper.isModEnabled("Chimera") && !ModHelper.isModEnabled("SealedDeck") && !ModHelper.isModEnabled("Shiny") && !ModHelper.isModEnabled("Insanity");
 
             if (ModHelper.isModEnabled("Chimera"))
@@ -160,28 +148,28 @@ namespace MarbleHero
 
             if (ModHelper.isModEnabled("Insanity"))
             {
-                for (int i = 0; i < 50; i++)
-                    masterDeck.addToTop(ADungeon.returnRandomCard().makeCopy());
+                // for (int i = 0; i < 50; i++)
+                // masterDeck.addToTop(ADungeon.returnRandomCard().makeCopy());
             }
 
             if (ModHelper.isModEnabled("Shiny"))
             {
                 CardGroup group = ADungeon.getEachRare();
-                foreach (var c in group.group)
-                    masterDeck.addToTop(c);
+                // foreach (var c in group.group)
+                //     masterDeck.addToTop(c);
             }
 
             if (addBaseCards)
             {
                 foreach (string cardId in cards)
                 {
-                    if (CardLibrary.getCard(chosenClass, cardId, out var card))
-                        masterDeck.addToTop(card.makeCopy());
+                    // if (CardLibrary.getCard(chosenClass, cardId, out var card))
+                    //     masterDeck.addToTop(card.makeCopy());
                 }
             }
 
-            foreach (var c in masterDeck.group)
-                UnlockTracker.markCardAsSeen(c.cardID);
+            // foreach (var c in masterDeck.group)
+            //     UnlockTracker.markCardAsSeen(c.cardID);
         }
 
         protected void initializeStarterRelics(PlayerClass chosenClass)
@@ -215,8 +203,6 @@ namespace MarbleHero
 
         public void combatUpdate(float dt)
         {
-            cardInUse?.update(dt);
-
             foreach (var power in powers)
                 power.updateParticles();
         }
@@ -275,7 +261,7 @@ namespace MarbleHero
             }
             else
             {
-                Game.goldGained += amount;
+                // Game.goldGained += amount;
                 gold += amount;
 
                 foreach (var relic in relics)
@@ -287,8 +273,8 @@ namespace MarbleHero
 
         void playCard()
         {
-            InputHelper.justClickedLeft = false;
-            isUsingClickDragControl = false;
+            // InputHelper.justClickedLeft = false;
+            // isUsingClickDragControl = false;
         }
 
         public void playCard(ACard card, CardQueueItem item)
@@ -382,7 +368,7 @@ namespace MarbleHero
 
                 if (dmg > 0 && room.inCombat())
                 {
-                    updateCardsOnDamage();
+                    // updateCardsOnDamage();
                     damagedThisCombat++;
                 }
 
@@ -403,21 +389,21 @@ namespace MarbleHero
                 {
                     if (!hasRelic("Mark of the Bloom"))
                     {
-                        if (hasPotion("FairyPotion"))
+                        /*if (hasPotion("FairyPotion"))
                         {
-                            // foreach (var p in potions)
-                            // {
-                            //     if (p.ID == ("FairyPotion"))
-                            //     {
-                            //         p.flash();
-                            //         currentHealth = 0;
-                            //         p.use(this);
-                            //         ADungeon.topPanel.destroyPotion(p.slot);
-                            //         return;
-                            //     }
-                            // }
+                            foreach (var p in potions)
+                            {
+                                if (p.ID == ("FairyPotion"))
+                                {
+                                    p.flash();
+                                    currentHealth = 0;
+                                    p.use(this);
+                                    ADungeon.topPanel.destroyPotion(p.slot);
+                                    return;
+                                }
+                            }
                         }
-                        else if (tryGetRelic("Lizard Tail", out var relic))
+                        else */if (tryGetRelic("Lizard Tail", out var relic))
                         {
                             if (relic.counter == -1)
                             {
@@ -457,12 +443,12 @@ namespace MarbleHero
 
         public override void heal(ref int healAmount, bool showEffect)
         {
-            if (Settings.isEndless && player.hasBlight("FullBelly"))
-            {
-                healAmount /= 2;
-                if (healAmount < 1)
-                    healAmount = 1;
-            }
+            // if (Settings.isEndless && player.hasBlight("FullBelly"))
+            // {
+            //     healAmount /= 2;
+            //     if (healAmount < 1)
+            //         healAmount = 1;
+            // }
 
             base.heal(ref healAmount, showEffect);
         }
@@ -491,7 +477,7 @@ namespace MarbleHero
             cardInUse = null;
 
             //初始化抽牌堆
-            drawPile.initializeDeck(masterDeck);
+            // drawPile.initializeDeck(masterDeck);
 
             powers.Clear();
             isEndingTurn = false;

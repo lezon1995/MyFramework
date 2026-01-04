@@ -17,7 +17,7 @@
             ADungeon.bossList.RemoveAt(0);
             monsters?.init();
             waitTimer = COMBAT_WAIT_TIME;
-            new OnPlayerEnterBattleRoom().Trigger();
+            new OnPlayerEnterBattleRoom().trigger();
         }
 
         public override CardRarity getCardRarity(int roll)

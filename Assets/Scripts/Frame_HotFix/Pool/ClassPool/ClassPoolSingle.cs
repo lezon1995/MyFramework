@@ -58,6 +58,7 @@ public class ClassPoolSingle : ClassObject
 					obj = createInstance<ClassObject>(mType);
 					// 创建实例时重置是为了与后续复用的实例状态保持一致
 					obj.resetProperty();
+					obj.onCtor();
 					isNew = true;
 				}
 				obj.setAssignID(++mAssignIDSeed);

@@ -1,11 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using MoreMountains.AutoBattleEngine.Gameplay.Cards;
-using MoreMountains.AutoBattleEngine.Gameplay.Helpers;
-using MoreMountains.AutoBattleEngine.Gameplay.Helpers.Input;
-using MoreMountains.AutoBattleEngine.Gameplay.Rooms;
-using MoreMountains.AutoBattleEngine.Gameplay.Saves;
 using UnityEngine;
 
 namespace MarbleHero
@@ -41,10 +36,6 @@ namespace MarbleHero
 
     public abstract partial class ADungeon
     {
-        static ILogger logger = Log.GetLogger<ADungeon>();
-
-        public readonly DungeonData Data;
-
         public static string name { get; set; }
         public static string levelNum;
         public static string id;
@@ -60,7 +51,7 @@ namespace MarbleHero
         public static bool is_victory;
 
         public static bool isScreenUp;
-        public static OverlayMenu overlayMenu { get; set; }
+        // public static OverlayMenu overlayMenu { get; set; }
         public static CurrentScreen screen { get; set; }
         public static CurrentScreen previousScreen;
 
@@ -68,19 +59,18 @@ namespace MarbleHero
         public static int ascensionLevel = 0; //进阶等级
         public static bool ascensionCheck;
 
-        protected ADungeon(DungeonData data, APlayer p, List<string> newSpecialOneTimeEventList)
+        protected ADungeon(string _name, string levelId, APlayer p, List<string> newSpecialOneTimeEventList)
         {
             _dungeon = this;
-            Data = data;
-            id = data.Id;
-            name = data.Name;
+            id = levelId;
+            name = _name;
             player = p;
             ascensionCheck = UnlockTracker.isAscensionUnlocked(p);
             _dungeon = this;
             long startTime = TimeUtility.getNowTimeStampMS();
             // topPanel.setPlayerName();
-            // actionManager = new GameActionManager();
-            overlayMenu = new OverlayMenu(p);
+            actionManager = new GameActionManager();
+            // overlayMenu = new OverlayMenu(p);
             // dynamicBanner = new DynamicBanner();
             unlocks.Clear();
             specialOneTimeEventList = newSpecialOneTimeEventList;
@@ -94,15 +84,14 @@ namespace MarbleHero
             isScreenUp = false;
             dungeonTransitionSetup();
 
-            Data.generateMonsters();
-            Data.initializeBoss();
+            generateMonsters();
+            initializeBoss();
             if (bossList.Count > 0)
                 setBoss(bossList[0]);
 
-            Data.initializeEventList();
-            Data.initializeEventImg();
-
-            Data.initializeShrineList();
+            initializeEventList();
+            initializeEventImg();
+            initializeShrineList();
 
             initializeCardPools();
             if (floorNum == 0)
@@ -125,18 +114,17 @@ namespace MarbleHero
             log("Content generation time: " + (TimeUtility.getNowTimeStampMS() - startTime) + "ms");
         }
 
-        protected ADungeon(DungeonData data, APlayer p, SaveFile saveFile)
+        protected ADungeon(string _name, APlayer p, SaveFile saveFile)
         {
-            Data = data;
             id = saveFile.level_name;
-            name = data.Name;
+            name = _name;
             player = p;
             ascensionCheck = UnlockTracker.isAscensionUnlocked(p);
             _dungeon = this;
             long startTime = TimeUtility.getNowTimeStampMS();
             // topPanel.setPlayerName();
-            // actionManager = new GameActionManager();
-            overlayMenu = new OverlayMenu(p);
+            actionManager = new GameActionManager();
+            // overlayMenu = new OverlayMenu(p);
             // dynamicBanner = new DynamicBanner();
             // isFadingIn = false;
             // isFadingOut = false;
@@ -155,12 +143,12 @@ namespace MarbleHero
                 log("Exception occurred while loading save!");
                 log("Deleting save due to crash!");
                 SaveAndContinue.deleteSave(player.getSaveFilePath());
-                ExceptionHandler.handleException(e, logger);
+                logException(e);
                 Application.Quit();
             }
 
-            Data.initializeEventImg();
-            Data.initializeShrineList();
+            // Data.initializeEventImg();
+            // Data.initializeShrineList();
             initializeCardPools();
             initializePotions();
             // BlightHelper.initialize();
@@ -187,7 +175,6 @@ namespace MarbleHero
                 cardRng.setCounter(counter);
 
             log("CardRng Counter: " + cardRng.counter);
-            // topPanel.unhoverHitboxes();
             path.Clear();
             EventHelper.resetProbabilities();
             eventList.Clear();
@@ -268,7 +255,7 @@ namespace MarbleHero
                     // dungeonMapScreen.update();
                     room.update(dt);
                     // scene.update();
-                    room.eventControllerInput();
+                    // room.eventControllerInput();
                     break;
                 case CurrentScreen.FTUE:
                     // ftue.update();
@@ -374,7 +361,7 @@ namespace MarbleHero
             topLevelEffects.AddRange(topLevelEffectsQueue);
             topLevelEffectsQueue.Clear();
 
-            overlayMenu.update(dt);
+            // overlayMenu.update(dt);
             cardInstanceIdGenerator = 0;
         }
 
@@ -387,7 +374,7 @@ namespace MarbleHero
                     // dungeonMapScreen.update();
                     room.fixedUpdate(dt);
                     // scene.update();
-                    room.eventControllerInput();
+                    // room.eventControllerInput();
                     break;
                 case CurrentScreen.FTUE:
                     // ftue.update();
@@ -493,22 +480,12 @@ namespace MarbleHero
                 ModHelper.setMods(saveFile.daily_mods);
         }
 
-        public void checkForPactAchievement()
-        {
-            if (player != null)
-                if (player.exhaustPile.size() >= 20)
-                    UnlockTracker.unlockAchievement("THE_PACT");
-        }
-
         public static void onModifyPower()
         {
-            if (player != null)
-            {
-                player.hand.applyPowers();
-                // if (player.hasPower("Focus"))
-                // foreach (var o in player.orbs)
-                // o.updateDescription();
-            }
+            // if (player != null)
+            // {
+            //     player.hand.applyPowers();
+            // }
 
             if (room.monsters != null)
                 foreach (var m in room.monsters.monsters)

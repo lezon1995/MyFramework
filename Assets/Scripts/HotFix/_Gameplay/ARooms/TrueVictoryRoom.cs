@@ -17,7 +17,7 @@
         {
             ADungeon.isScreenUp = true;
             // ADungeon.overlayMenu.proceedButton.hide();
-            GameCursor.hidden = true;
+            // GameCursor.hidden = true;
             ADungeon.screen = CurrentScreen.NO_INTERACT;
         }
 

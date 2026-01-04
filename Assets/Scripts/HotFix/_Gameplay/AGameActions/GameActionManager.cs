@@ -313,12 +313,12 @@ public class GameActionManager : FrameSystem
         }
 
         bool canPlay = false;
-        var monster = item.monster;
+        var monster = monsters.main;
         if (toPlay != null)
         {
             canPlay = true;
             foreach (var power in player.powers)
-                power.onPlayCard(toPlay, monsters.main);
+                power.onPlayCard(toPlay, monster);
 
             foreach (var power in monsters.main.powers)
                 power.onPlayCard(toPlay, monster);
@@ -333,8 +333,8 @@ public class GameActionManager : FrameSystem
             if (cardsPlayedThisTurn.Count == 25)
                 UnlockTracker.unlockAchievement("INFINITY");
 
-            if (cardsPlayedThisTurn.Count >= 20 && !Game.combo)
-                Game.combo = true;
+            // if (cardsPlayedThisTurn.Count >= 20 && !Game.combo)
+                // Game.combo = true;
 
             player.useCard(toPlay);
         }

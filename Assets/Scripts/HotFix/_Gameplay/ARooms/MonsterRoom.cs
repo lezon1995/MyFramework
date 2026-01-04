@@ -31,7 +31,7 @@
             }
 
             waitTimer = COMBAT_WAIT_TIME;
-            new OnPlayerEnterBattleRoom().Trigger();
+            new OnPlayerEnterBattleRoom().trigger();
         }
 
         public override void onCombatFightStart()

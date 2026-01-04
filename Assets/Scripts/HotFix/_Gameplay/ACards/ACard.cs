@@ -6,10 +6,6 @@ namespace MarbleHero
     [Serializable]
     public partial class ACard : IComparable<ACard>
     {
-        const int COMMON_CARD_PRICE = 50;
-        const int UNCOMMON_CARD_PRICE = 75;
-        const int RARE_CARD_PRICE = 150;
-
         public int instanceId;
         public string cardID;
         public string uuid;
@@ -20,61 +16,24 @@ namespace MarbleHero
         public CardRarity rarity;
         public CardColor color;
 
-        public int price;
         public int misc;
 
         public string assetUrl;
-        public string cantUseMessage;
-
-        public List<string> keywords = new();
-
         public bool isLocked;
-        public bool isUsed;
         public bool isSeen = true;
-        public bool isSelected;
-        public bool inBottleFlame;
-        public bool inBottleLightning;
-        public bool inBottleTornado;
-
-        public ACard cardsToPreview;
 
         public int CompareTo(ACard other) => string.Compare(cardID, other.cardID, StringComparison.Ordinal);
 
         protected ACard(string id, string imgUrl, CardType _type, CardRarity _rarity)
         {
-            Data = CardData.Get(id);
-            var strings = languagePack.getCardStrings(id);
-            cardStrings = strings;
-            
             cardID = id;
-            originalName = name = strings.NAME;
-            rawDescription = strings.DESCRIPTION;
+            originalName = name = "";
+            rawDescription = "";
             assetUrl = imgUrl;
             type = _type;
             rarity = _rarity;
-            createCardImage();
-            if (name == null || rawDescription == null)
-                logger.Info("Card initialized incorrectly");
-            initializeTitle();
-            initializeDescription();
-            updateTransparency(0);
-            uuid = Ulid.NewUlid().ToString();
+            // uuid = Ulid.NewUlid().ToString();
             instanceId = ++ADungeon.cardInstanceIdGenerator;
-        }
-
-        protected ACard(CardData data)
-        {
-            Data = data;
-            instanceId = ++ADungeon.cardInstanceIdGenerator;
-            var cardId = data.Id;
-            var strings = languagePack.getCardStrings(cardId);
-            cardStrings = strings;
-            cardID = cardId;
-            originalName = name = strings.NAME;
-            rawDescription = strings.DESCRIPTION;
-            type = data.CardType;
-            rarity = data.CardRarity;
-            uuid = Ulid.NewUlid().ToString();
         }
 
         public ACard makeSameInstanceOf()
@@ -88,11 +47,6 @@ namespace MarbleHero
         {
             ACard card = makeCopy();
             card.name = name;
-            card.isCostModified = isCostModified;
-            card.isCostModifiedForTurn = isCostModifiedForTurn;
-            card.inBottleLightning = inBottleLightning;
-            card.inBottleFlame = inBottleFlame;
-            card.inBottleTornado = inBottleTornado;
             card.isSeen = isSeen;
             card.isLocked = isLocked;
             card.misc = misc;
@@ -114,7 +68,6 @@ namespace MarbleHero
 
         public void resetAttributes()
         {
-            isCostModifiedForTurn = false;
         }
 
 
@@ -159,6 +112,14 @@ namespace MarbleHero
         protected void addToTop(AGameAction action) => actionManager.addToTop(action);
 
         public override string ToString() => name;
+        
+        public void unlock()
+        {
+            isLocked = false;
+            // portrait = cardAtlas.findRegion(assetUrl);
+            // if (portrait == null)
+            // portrait = oldCardAtlas.findRegion(assetUrl);
+        }
 
         public Dictionary<string, object> getLocStrings()
         {

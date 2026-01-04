@@ -342,4 +342,13 @@ public static class ListExtension
 		return true;
 	}
 	public static IEnumerable<T> safe<T>(this IEnumerable<T> original)				{ return original ?? Empty<T>(); }
+	
+	public static void shuffle<T>(this IList<T> list, Random rnd)
+	{
+		for (int i = list.Count; i > 1; i--)
+		{
+			var next = rnd.Next(i);
+			(list[i - 1], list[next]) = (list[next], list[i - 1]);
+		}
+	}
 }

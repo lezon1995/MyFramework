@@ -62,6 +62,7 @@ namespace MarbleHero
         const float ESCAPE_TIME = 3.0F;
 
         public Timer deathTimer;
+        public Timer escapeTimer;
         public bool tintFadeOutCalled;
         public bool escaped;
         public bool isEscapeNext;
@@ -97,11 +98,9 @@ namespace MarbleHero
                 if (_health == value)
                     return;
                 _health = value;
-                new OnOpPlayerHealthChanged().Trigger();
+                new OnOpPlayerHealthChanged().trigger();
             }
         }
-
-        public override Team team => Team.Enemy;
 
         public AMonster(string _name, string _id, int _maxHealth, bool ignoreBlights = false)
         {
@@ -109,12 +108,6 @@ namespace MarbleHero
             name = _name;
             id = _id;
             _healthMax = _maxHealth;
-            if (!ignoreBlights && Settings.isEndless && player.hasBlight("ToughEnemies"))
-            {
-                // float mod = player.getBlight("ToughEnemies").effectFloat();
-                // _healthMax = (int)(_maxHealth * mod);
-            }
-
             if (ModHelper.isModEnabled("MonsterHunter"))
                 _health = (int)(_health * 1.5F);
 
@@ -136,7 +129,7 @@ namespace MarbleHero
 
             updateDeathAnimation(dt);
             updateEscapeAnimation(dt);
-            updateIntent(dt);
+            // updateIntent(dt);
             // tint.update();
         }
 
@@ -212,15 +205,15 @@ namespace MarbleHero
             bool probablyInstantKill = (currentHealth == 0);
             if (damageAmount > 0)
             {
-                if (damageAmount >= 99 && !Game.overkill)
-                    Game.overkill = true;
+                // if (damageAmount >= 99 && !Game.overkill)
+                    // Game.overkill = true;
 
                 currentHealth = clamp(currentHealth - damageAmount, 0, maxHealth);
 
                 // if (!probablyInstantKill)
                 // ADungeon.effectList.Add(new StrikeEffect(this, hb.cX, hb.cY, damageAmount));
 
-                healthBarUpdatedEvent();
+                // healthBarUpdatedEvent();
             }
             else if (!probablyInstantKill)
             {
@@ -263,18 +256,12 @@ namespace MarbleHero
         public void init()
         {
             rollMove();
-            healthBarUpdatedEvent();
+            // healthBarUpdatedEvent();
         }
 
         protected void setHp(int minHp, int maxHp)
         {
             _health = ADungeon.monsterHpRng.random(minHp, maxHp);
-            if (Settings.isEndless && player.hasBlight("ToughEnemies"))
-            {
-                // float mod = player.getBlight("ToughEnemies").effectFloat();
-                // _health = (int)(_health * mod);
-            }
-
             if (ModHelper.isModEnabled("MonsterHunter"))
                 _health = (int)(_health * 1.5F);
             _healthMax = _health;
@@ -308,14 +295,13 @@ namespace MarbleHero
 
         void updateEscapeAnimation(float dt)
         {
-            if (escapeTimer != 0.0F)
+            bool finished = false;
+            if (escapeTimer)
             {
-                // flipHorizontal = true;
-                escapeTimer -= dt;
-                drawX += dt * 400.0F * Settings.scale;
+                finished = escapeTimer.update(dt);
             }
 
-            if (escapeTimer < 0.0F)
+            if (finished)
             {
                 escaped = true;
                 if (monsters is { areMonstersDead: true } && !room.isBattleOver && !room.cannotLose)
@@ -357,9 +343,9 @@ namespace MarbleHero
 
         public void escape()
         {
-            hideHealthBar();
+            // hideHealthBar();
             isEscaping = true;
-            escapeTimer = ESCAPE_TIME;
+            // escapeTimer = ESCAPE_TIME;
         }
 
         public void die() => die(true);
@@ -429,11 +415,6 @@ namespace MarbleHero
             foreach (var p in target.powers)
                 tmp = p.atDamageReceive(tmp, DamageInfo.DamageType.NORMAL);
 
-            // tmp = player.stance.atDamageReceive(tmp, DamageInfo.DamageType.NORMAL);
-
-            if (applyBackAttack())
-                tmp = (int)(tmp * 1.5F);
-
             foreach (var p in powers)
                 tmp = p.atDamageFinalGive(tmp, DamageInfo.DamageType.NORMAL);
 
@@ -449,22 +430,19 @@ namespace MarbleHero
 
         public void applyPowers()
         {
-            bool canApplyBackAttack = applyBackAttack();
             // if (canApplyBackAttack && !hasPower("BackAttack"))
             // actionManager.addToTop(new ApplyPowerAction(this, null, new BackAttackPower(this)));
 
             foreach (DamageInfo dmg in damageList)
             {
                 dmg.applyPowers(this, player);
-                if (canApplyBackAttack)
-                    dmg.output = (int)(dmg.output * 1.5F);
             }
 
             if (move.baseDamage > -1)
                 calculateDamage(move.baseDamage);
 
-            intentImg = getIntentImg();
-            updateIntentTip();
+            // intentImg = getIntentImg();
+            // updateIntentTip();
         }
 
         public void removeSurroundedPower()
@@ -499,7 +477,7 @@ namespace MarbleHero
                 if (GameActionManager.damageReceivedThisCombat - GameActionManager.hpLossThisCombat <= 0)
                 {
                     UnlockTracker.unlockAchievement("PERFECT");
-                    Game.perfect++;
+                    // Game.perfect++;
                 }
             }
 
@@ -518,24 +496,24 @@ namespace MarbleHero
 
             if (!Settings.isEndless)
             {
-                if (!Settings.isFinalActAvailable || !Settings.hasRubyKey || !Settings.hasEmeraldKey || !Settings.hasSapphireKey)
-                    Game.stopClock = true;
+                // if (!Settings.isFinalActAvailable || !Settings.hasRubyKey || !Settings.hasEmeraldKey || !Settings.hasSapphireKey)
+                    // Game.stopClock = true;
 
-                if (Game.playtime <= 1200.0F)
-                    UnlockTracker.unlockAchievement("SPEED_CLIMBER");
+                // if (Game.playtime <= 1200.0F)
+                    // UnlockTracker.unlockAchievement("SPEED_CLIMBER");
 
-                if (player.masterDeck.Count <= 5)
-                    UnlockTracker.unlockAchievement("MINIMALIST");
+                // if (player.masterDeck.Count <= 5)
+                    // UnlockTracker.unlockAchievement("MINIMALIST");
 
                 bool commonSenseUnlocked = true;
-                foreach (var c in player.masterDeck.group)
-                {
-                    if (c.rarity is CardRarity.Uncommon or CardRarity.Rare)
-                    {
-                        commonSenseUnlocked = false;
-                        break;
-                    }
-                }
+                // foreach (var c in player.masterDeck.group)
+                // {
+                //     if (c.rarity is CardRarity.Uncommon or CardRarity.Rare)
+                //     {
+                //         commonSenseUnlocked = false;
+                //         break;
+                //     }
+                // }
 
                 if (commonSenseUnlocked)
                     UnlockTracker.unlockAchievement("COMMON_SENSE");
@@ -622,25 +600,29 @@ namespace MarbleHero
                 }
             }
 
-            intentImg = getIntentImg();
-            intentBg = getIntentBg();
+            // intentImg = getIntentImg();
+            // intentBg = getIntentBg();
             tipIntent = intent;
-            intentAlpha = 0.0F;
-            intentAlphaTarget = 1.0F;
-            intentParticleTimer = 0.5F;
-            updateIntentTip();
+            // intentAlpha = 0.0F;
+            // intentAlphaTarget = 1.0F;
+            // intentParticleTimer = 0.5F;
+            // updateIntentTip();
 
-            new OnOpPlayerIntentCreated().Trigger();
+            new OnOpPlayerIntentCreated().trigger();
             onIntentCreated(move);
         }
 
+        protected virtual void onIntentCreated(EnemyMoveInfo m)
+        {
+            
+        }
+        
         public void setMove(string moveName, int nextMove, Intent intent, int baseDamage, int multiplier, bool isMultiDamage)
         {
             this.moveName = moveName;
             if (nextMove != -1)
                 moveHistory.Add(nextMove);
             move = new(nextMove, intent, baseDamage, multiplier, isMultiDamage);
-            intentPawns = pawnInfos;
         }
 
         public void setMove(int nextMove, Intent intent, int baseDamage, int multiplier, bool isMultiDamage)

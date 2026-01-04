@@ -436,7 +436,7 @@ namespace MarbleHero
             log("RELIC UNLOCKS: " + unlockedRelicCount + "/" + lockedRelicCount);
             log("CARDS SEEN:    " + seenPref.get().Count + "/" + CardLibrary.totalCardCount);
             log("RELICS SEEN:   " + relicSeenPref.get().Count + "/" + RelicLibrary.totalRelicCount);
-            log("Pawns SEEN:   " + pawnSeenPref.get().Count + "/" + PawnLibrary.totalPawnCount);
+            // log("Pawns SEEN:   " + pawnSeenPref.get().Count + "/" + PawnLibrary.totalPawnCount);
         }
 
         public static string getCardsSeenString()
@@ -503,7 +503,7 @@ namespace MarbleHero
         {
             if (Settings.isModded || Settings.isShowBuild || !Settings.isStandardRun())
                 return;
-            Game.publisherIntegration?.unlockAchievement(key);
+            // Game.publisherIntegration?.unlockAchievement(key);
             if (!achievementPref.getBoolean(key, false))
             {
                 achievementPref.putBoolean(key, true);
@@ -512,7 +512,7 @@ namespace MarbleHero
 
             if (allAchievementsExceptPlatinumUnlocked() && !isAchievementUnlocked("ETERNAL_ONE"))
             {
-                Game.publisherIntegration?.unlockAchievement("ETERNAL_ONE");
+                // Game.publisherIntegration?.unlockAchievement("ETERNAL_ONE");
                 achievementPref.putBoolean("ETERNAL_ONE", true);
                 log("Achievement Unlocked: ETERNAL_ONE");
             }
@@ -535,7 +535,7 @@ namespace MarbleHero
             if (Settings.isModded)
                 return;
             string key = "LUCKY_DAY";
-            Game.publisherIntegration?.unlockAchievement(key);
+            // Game.publisherIntegration?.unlockAchievement(key);
             if (!achievementPref.getBoolean(key, false))
             {
                 achievementPref.putBoolean(key, true);
@@ -668,17 +668,17 @@ namespace MarbleHero
 
         public static void markPawnAsSeen(string key)
         {
-            var pawn = PawnLibrary.getPawn(key);
-            if (pawn is { isSeen: false })
-            {
-                pawn.isSeen = true;
-                pawnSeenPref.putInteger(key, 1);
-                pawnSeenPref.flush();
-            }
-            else if (Settings.isDebug)
-            {
-                log("Already seen: " + key);
-            }
+            // var pawn = PawnLibrary.getPawn(key);
+            // if (pawn is { isSeen: false })
+            // {
+            //     pawn.isSeen = true;
+            //     pawnSeenPref.putInteger(key, 1);
+            //     pawnSeenPref.flush();
+            // }
+            // else if (Settings.isDebug)
+            // {
+            //     log("Already seen: " + key);
+            // }
         }
 
         public static bool isPawnSeen(string key)

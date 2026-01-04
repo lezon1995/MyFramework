@@ -23,6 +23,7 @@ public class GameFrameworkHotFix : IFramework
 	protected DateTime mCurTime;													// 记录当前时间
 	protected Action mOnApplicationQuitCallBack;									// 程序退出的回调
 	protected BoolCallback mOnApplicationFocusCallBack;								// 程序切换到前台或者切换到后台的回调
+	protected BoolCallback mOnApplicationPauseCallBack;								// 程序暂停或恢复暂停的回调
 	protected float mThisFrameTime;													// 当前这一帧的消耗时间
 	protected long mFrameIndex;														// 当前帧下标
 	protected int mCurFrameCount;													// 当前已执行的帧数量
@@ -145,6 +146,10 @@ public class GameFrameworkHotFix : IFramework
 	{
 		mOnApplicationFocusCallBack?.Invoke(focus);
 	}
+	public void onApplicationPause(bool pause)
+	{
+		mOnApplicationPauseCallBack?.Invoke(pause);
+	}
 	public void onApplicationQuit()
 	{
 		mOnApplicationQuitCallBack?.Invoke();
@@ -154,6 +159,8 @@ public class GameFrameworkHotFix : IFramework
 	public void unregisteOnApplicationQuit(Action action) { mOnApplicationQuitCallBack -= action; }
 	public void registeOnApplicationFocus(BoolCallback action) { mOnApplicationFocusCallBack += action; }
 	public void unregisteOnApplicationFocus(BoolCallback action) { mOnApplicationFocusCallBack -= action; }
+	public void registeOnApplicationPause(BoolCallback action) { mOnApplicationPauseCallBack += action; }
+	public void unregisteOnApplicationPause(BoolCallback action) { mOnApplicationPauseCallBack -= action; }
 	// 当资源更新完毕后,由外部进行调用
 	public void resourceAvailable()
 	{

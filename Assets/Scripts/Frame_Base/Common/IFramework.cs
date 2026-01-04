@@ -6,6 +6,7 @@ public interface IFramework
 	public void lateUpdate(float elapsedTime);
 	public void drawGizmos();
 	public void onApplicationFocus(bool focus);
+	public void onApplicationPause(bool pause);
 	public void onApplicationQuit();
 	public void destroy();
 }

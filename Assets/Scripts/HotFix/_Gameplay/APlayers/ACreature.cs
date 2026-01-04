@@ -37,8 +37,6 @@ namespace MarbleHero
             set => _healthMax = value;
         }
 
-        public virtual Team team { get; }
-
         public int currentBlock;
 
         public List<APower> powers = new();
@@ -48,15 +46,12 @@ namespace MarbleHero
 
         public void increaseMaxHp(int amount, bool showEffect)
         {
-            if (!Settings.isEndless || !player.hasBlight("FullBelly"))
-            {
-                if (amount < 0)
-                    log("Why are we decreasing health with increaseMaxHealth()?");
-                maxHealth += amount;
-                // ADungeon.effectsQueue.add(new TextAboveCreatureEffect(hb.cX - animX, hb.cY, TEXT[2] + amount, Settings.GREEN_TEXT_COLOR));
-                heal(ref amount, true);
-                healthBarUpdatedEvent();
-            }
+            if (amount < 0)
+                log("Why are we decreasing health with increaseMaxHealth()?");
+            maxHealth += amount;
+            // ADungeon.effectsQueue.add(new TextAboveCreatureEffect(hb.cX - animX, hb.cY, TEXT[2] + amount, Settings.GREEN_TEXT_COLOR));
+            heal(ref amount, true);
+            // healthBarUpdatedEvent();
         }
 
         public void decreaseMaxHealth(int amount)
@@ -71,7 +66,7 @@ namespace MarbleHero
             if (currentHealth > maxHealth)
                 currentHealth = maxHealth;
 
-            healthBarUpdatedEvent();
+            // healthBarUpdatedEvent();
         }
 
         #endregion
@@ -115,7 +110,7 @@ namespace MarbleHero
                     // ADungeon.effectsQueue.add(new HealEffect(hb.cX - animX, hb.cY, healAmount));
                 }
 
-                healthBarUpdatedEvent();
+                // healthBarUpdatedEvent();
             }
         }
 
@@ -157,14 +152,14 @@ namespace MarbleHero
 
             if (effect && currentBlock > 0)
             {
-                gainBlockAnimation();
+                // gainBlockAnimation();
             }
             else if (blockAmount > 0)
             {
                 // Color tmpCol = Settings.GOLD_COLOR.cpy();
                 // tmpCol.a = blockTextColor.a;
                 // blockTextColor = tmpCol;
-                blockScale = 5.0F;
+                // blockScale = 5.0F;
             }
         }
 
@@ -183,9 +178,9 @@ namespace MarbleHero
             else if (currentBlock > 0 && amount > 0)
             {
                 Color tmp = Color.white;
-                tmp.a = blockTextColor.a;
-                blockTextColor = tmp;
-                blockScale = 5.0F;
+                // tmp.a = blockTextColor.a;
+                // blockTextColor = tmp;
+                // blockScale = 5.0F;
             }
         }
 
@@ -383,7 +378,7 @@ namespace MarbleHero
         }
 
         public virtual bool isDeadOrEscaped() => isDying || halfDead;
-        
+
         public static implicit operator bool(ACreature self) => self != null;
     }
 }

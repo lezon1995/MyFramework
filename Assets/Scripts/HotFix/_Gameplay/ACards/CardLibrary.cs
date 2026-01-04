@@ -712,9 +712,6 @@ namespace MarbleHero
                 if (components.Length > 1)
                 {
                     card = card.makeCopy();
-                    int upgrades = int.Parse(components[1]);
-                    for (int i = 0; i < upgrades; i++)
-                        card.upgrade();
                 }
             }
             catch (Exception)
@@ -815,7 +812,7 @@ namespace MarbleHero
             var anyCard = new TempCards();
             foreach (var (id, card) in cards)
             {
-                if (card.rarity == rarity && !card.hasTag(CardTags.HEALING) && card.type != CardType.Curse && card.type != CardType.Status && card.type == type && (!UnlockTracker.isCardLocked(id) || Settings.treatEverythingAsUnlocked()))
+                // if (card.rarity == rarity && !card.hasTag(CardTags.HEALING) && card.type != CardType.Curse && card.type != CardType.Status && card.type == type && (!UnlockTracker.isCardLocked(id) || Settings.treatEverythingAsUnlocked()))
                     anyCard.addToBottom(card);
             }
 
@@ -841,7 +838,7 @@ namespace MarbleHero
             var everyRareCard = new TempCards();
             foreach (var (id, card) in cards)
             {
-                if (card.color == p.getCardColor() && card.rarity == CardRarity.Rare)
+                // if (card.color == p.getCardColor() && card.rarity == CardRarity.Rare)
                     everyRareCard.addToBottom(card.makeCopy());
             }
 

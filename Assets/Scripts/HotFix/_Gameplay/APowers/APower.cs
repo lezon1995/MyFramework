@@ -212,10 +212,6 @@ namespace MarbleHero
         {
         }
 
-        public virtual void onAfterUseCard(ACard card, UseCardAction action)
-        {
-        }
-
         public virtual void wasHPLost(DamageInfo Info, int damageAmount)
         {
         }

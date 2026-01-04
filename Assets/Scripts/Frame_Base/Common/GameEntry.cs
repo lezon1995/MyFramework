@@ -121,6 +121,12 @@ public class GameEntry : MonoBehaviour
 			logExceptionBase(e);
 		}
 	}
+
+	public void OnApplicationPause(bool pause)
+	{
+		mFrameworkAOT?.onApplicationPause(pause);
+		mFrameworkHotFix?.onApplicationPause(pause);
+	}
 	public void OnApplicationFocus(bool focus)
 	{
 		mFrameworkAOT?.onApplicationFocus(focus);

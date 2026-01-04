@@ -43,38 +43,38 @@ namespace MarbleHero
                 case 3:
                 case 4:
                 case 5:
-                    if (intentPawns != null)
-                    {
-                        actionManager.addToBot(new InstantiatePawnsAction(this, intentPawns));
-                    }
+                    // if (intentPawns != null)
+                    // {
+                    //     actionManager.addToBot(new InstantiatePawnsAction(this, intentPawns));
+                    // }
 
                     break;
             }
 
             actionManager.addToBot(new RollMoveAction(this));
             Debug.Log($"Enemy Execute move[{nextMove}] ");
-            new OnOpPlayerTakeTurn().Trigger();
+            new OnOpPlayerTakeTurn().trigger();
         }
 
         protected override void getMove(int num)
         {
-            var flag = rollCounter % pawnsInfos.Count + 1;
+            var flag = rollCounter % 5 + 1;
             switch (flag)
             {
                 case 1:
-                    setMove(1, Intent.ATTACK, pawnsInfos[1]);
+                    setMove(1, Intent.ATTACK);
                     break;
                 case 2:
-                    setMove(2, Intent.ATTACK, pawnsInfos[2]);
+                    setMove(2, Intent.ATTACK);
                     break;
                 case 3:
-                    setMove(3, Intent.ATTACK, pawnsInfos[3]);
+                    setMove(3, Intent.ATTACK);
                     break;
                 case 4:
-                    setMove(4, Intent.ATTACK, pawnsInfos[4]);
+                    setMove(4, Intent.ATTACK);
                     break;
                 case 5:
-                    setMove(5, Intent.ATTACK, pawnsInfos[5]);
+                    setMove(5, Intent.ATTACK);
                     break;
             }
 

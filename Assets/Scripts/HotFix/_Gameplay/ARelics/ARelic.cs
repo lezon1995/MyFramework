@@ -285,10 +285,6 @@ namespace MarbleHero
         {
         }
 
-        public void onUseCard(ACard card, UseCardAction action)
-        {
-        }
-
         public void onVictory()
         {
         }

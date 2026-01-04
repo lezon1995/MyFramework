@@ -41,4 +41,8 @@ public partial class GBH
 	public static MapRoomNode mapNode => ADungeon.getCurrMapNode();
 	public static MonsterGroup monsters => room.monsters;
 	public static AMonster enemy => room.monsters.main;
+	public static MetricData metricData { get; set; }
+	
+	public static SoundMaster sound { get; set; }
+	public static MusicMaster music { get; set; }
 }

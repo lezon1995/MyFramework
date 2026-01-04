@@ -89,7 +89,7 @@ namespace MarbleHero
         public static bool isLetterbox;
         public static int HORIZ_LETTERBOX_AMT;
         public static int VERT_LETTERBOX_AMT;
-        public static List<DisplayOption> displayOptions;
+        // public static List<DisplayOption> displayOptions;
         public static int displayIndex;
         public static float scale { get; private set; }
         public static float renderScale { get; private set; }
@@ -227,13 +227,13 @@ namespace MarbleHero
 
         public static void initialize(bool reloaded)
         {
-            if (!reloaded)
-                initializeDisplay();
+            // if (!reloaded)
+            //     initializeDisplay();
             initializeSoundPref();
             initializeGamePref(reloaded);
         }
 
-        static void initializeDisplay()
+        /*static void initializeDisplay()
         {
             log("Initializing display settings...");
             DisplayConfig config = DisplayConfig.readConfig();
@@ -332,7 +332,7 @@ namespace MarbleHero
             CARD_SNAP_THRESHOLD = scale;
             UI_SNAP_THRESHOLD = scale;
             FOUR_BY_THREE_OFFSET_Y = 140F * yScale;
-        }
+        }*/
 
         static void setXOffset()
         {

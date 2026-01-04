@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using MoreMountains.AutoBattleEngine.Gameplay.Helpers;
-using MoreMountains.AutoBattleEngine.Gameplay.Relics;
-using MoreMountains.Tools;
 
 namespace MarbleHero
 {
@@ -23,7 +20,7 @@ namespace MarbleHero
             rareRelicPool.Clear();
             shopRelicPool.Clear();
             bossRelicPool.Clear();
-            
+
             RelicLibrary.populateRelicPool(ref commonRelicPool, RelicTier.COMMON, player.chosenClass);
             RelicLibrary.populateRelicPool(ref uncommonRelicPool, RelicTier.UNCOMMON, player.chosenClass);
             RelicLibrary.populateRelicPool(ref rareRelicPool, RelicTier.RARE, player.chosenClass);
@@ -36,11 +33,11 @@ namespace MarbleHero
                     relicsToRemoveOnStart.Add(r.relicId);
             }
 
-            commonRelicPool.Shuffle(new Random(relicRng.randomInt()));
-            uncommonRelicPool.Shuffle(new Random(relicRng.randomInt()));
-            rareRelicPool.Shuffle(new Random(relicRng.randomInt()));
-            shopRelicPool.Shuffle(new Random(relicRng.randomInt()));
-            bossRelicPool.Shuffle(new Random(relicRng.randomInt()));
+            commonRelicPool.shuffle(new Random(relicRng.randomInt()));
+            uncommonRelicPool.shuffle(new Random(relicRng.randomInt()));
+            rareRelicPool.shuffle(new Random(relicRng.randomInt()));
+            shopRelicPool.shuffle(new Random(relicRng.randomInt()));
+            bossRelicPool.shuffle(new Random(relicRng.randomInt()));
 
             if (ModHelper.isModEnabled("Flight") || ModHelper.isModEnabled("Uncertain Future"))
                 relicsToRemoveOnStart.Add("WingedGreaves");

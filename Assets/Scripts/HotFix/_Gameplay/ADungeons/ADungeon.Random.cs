@@ -36,7 +36,7 @@
                 miscRng = new(seed);
             }
         }
-        
+
         public static void LoadSeeds(SaveFile save)
         {
             if (save.is_daily || save.is_trial)

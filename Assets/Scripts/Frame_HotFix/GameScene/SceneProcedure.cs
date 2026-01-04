@@ -70,6 +70,11 @@ public class SceneProcedure : DelayCmdWatcher
 		mParentProcedure?.lateUpdate(elapsedTime);
 		onLateUpdate(elapsedTime);
 	}
+	public void fixedUpdate(float elapsedTime)
+	{
+		mParentProcedure?.fixedUpdate(elapsedTime);
+		onFixedUpdate(elapsedTime);
+	}
 	// 退出流程
 	public void exit(SceneProcedure exitTo, SceneProcedure nextPro)
 	{
@@ -205,6 +210,7 @@ public class SceneProcedure : DelayCmdWatcher
 	// 更新流程时调用
 	protected virtual void onUpdate(float elapsedTime) { }
 	protected virtual void onLateUpdate(float elapsedTime) { }
+	protected virtual void onFixedUpdate(float elapsedTime) { }
 	// 更新流程时调用
 	protected virtual void onKeyProcess(float elapsedTime) { }
 	// 退出当前流程,进入的不是自己的子流程时调用

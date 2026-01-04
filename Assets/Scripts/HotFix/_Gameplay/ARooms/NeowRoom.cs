@@ -1,6 +1,4 @@
-﻿using MoreMountains.AutoBattleEngine.Gameplay.Events;
-
-namespace MarbleHero
+﻿namespace MarbleHero
 {
     public class NeowRoom : ARoom
     {

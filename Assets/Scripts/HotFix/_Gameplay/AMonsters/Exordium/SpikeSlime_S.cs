@@ -31,7 +31,7 @@
             // if (poisonAmount >= 1)
             // powers.Add(new PoisonPower(this, this, poisonAmount));
 
-            loadAnimation("images/monsters/theBottom/slimeAltS/skeleton.atlas", "images/monsters/theBottom/slimeAltS/skeleton.json", 1.0F);
+            // loadAnimation("images/monsters/theBottom/slimeAltS/skeleton.atlas", "images/monsters/theBottom/slimeAltS/skeleton.json", 1.0F);
             // AnimationState.TrackEntry e = state.setAnimation(0, "idle", true);
             // e.setTime(e.getEndTime() * MathUtils.random());
             // state.addListener(new SlimeAnimListener());
@@ -43,7 +43,7 @@
             {
                 case 1:
                     // actionManager.addToBot(new AnimateFastAttackAction(this));
-                    actionManager.addToBot(new DamageAction(player, damageList[0], AttackEffect.BLUNT_HEAVY));
+                    actionManager.addToBot(new DamageAction(player, damageList[0]));
                     actionManager.addToBot(new RollMoveAction(this));
                     break;
             }

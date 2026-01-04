@@ -3,16 +3,35 @@ using UnityEngine;
 
 public class MainSceneGaming : SceneProcedure
 {
+    MarbleHero.Game gameInstance;
+    
     protected SafeList<Ball> balls;
 
     protected override void onInit(SceneProcedure lastProcedure)
     {
+        gameInstance = new MarbleHero.Game();
+        gameInstance.create();
+
+        SeedHelper.setSeed("3Q350M8RNTUM4");
+        MarbleHero.Game.mode = MarbleHero.Game.GameMode.MainMenu;
+        MarbleHero.Game.chosenCharacter = APlayer.PlayerClass.IRONCLAD;
+
         LT.LOAD<GameplayPanel>();
 
         balls = CLASS<SafeList<Ball>>();
         playerManager.createPlayer<Player>("Player");
 
         GameEntry.startCoroutine(gameplayManager.startGame());
+        
+        mGameFrameworkHotFix.registeOnApplicationPause(onApplicationPause);
+    }
+
+    void onApplicationPause(bool pause)
+    {
+        if (pause)
+            gameInstance.pause();
+        else
+            gameInstance.resume();
     }
 
     protected override void onUpdate(float elapsedTime)
@@ -62,10 +81,22 @@ public class MainSceneGaming : SceneProcedure
             var phase = gameplayManager.curPhase;
             gameplayManager.refreshPhase((phase % 4) + 1);
         }
+        
+        gameInstance.update(elapsedTime);
+    }
+
+    protected override void onFixedUpdate(float elapsedTime)
+    {
+        base.onFixedUpdate(elapsedTime);
+        
+        gameInstance.fixedUpdate(elapsedTime);
     }
 
     protected override void onExit(SceneProcedure nextProcedure)
     {
+        mGameFrameworkHotFix.unregisteOnApplicationPause(onApplicationPause);
+        gameInstance.dispose();
+        gameInstance = null;
         LT.HIDE<GameplayPanel>();
         balls.clear();
         ballManager?.destroyAllBall();

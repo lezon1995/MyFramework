@@ -1,7 +1,4 @@
 ﻿using System.Collections.Generic;
-using MoreMountains.AutoBattleEngine.Gameplay.Cards;
-using MoreMountains.AutoBattleEngine.Gameplay.Helpers;
-using MoreMountains.AutoBattleEngine.Gameplay.Relics;
 
 namespace MarbleHero
 {
@@ -299,12 +296,6 @@ namespace MarbleHero
                 retVal2.Add(c.makeCopy());
             foreach (ACard c in retVal2)
             {
-                if (c.rarity != CardRarity.Rare && cardRng.randomBool(cardUpgradedChance) && c.canUpgrade())
-                {
-                    c.upgrade();
-                    continue;
-                }
-
                 foreach (ARelic r in player.relics)
                     r.onPreviewObtainCard(c);
             }

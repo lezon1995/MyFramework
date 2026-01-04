@@ -8,13 +8,19 @@ namespace MarbleHero
         public static List<string> monsterList = new();
         public static List<string> eliteMonsterList = new();
         public static List<string> bossList = new();
+        
+        protected abstract void generateMonsters();
+        protected abstract void generateWeakEnemies(int paramInt);
+        protected abstract void generateStrongEnemies(int paramInt);
+        protected abstract void generateElites(int paramInt);
+        protected abstract void initializeBoss();
 
         public static MonsterGroup getMonsters() => room.monsters;
 
         public MonsterGroup getMonsterForRoomCreation()
         {
             if (monsterList.Count == 0)
-                Data.generateStrongEnemies(12);
+                generateStrongEnemies(12);
 
             log("Monster: " + monsterList[0]);
             lastCombatMetricKey = monsterList[0];
@@ -24,7 +30,7 @@ namespace MarbleHero
         public MonsterGroup getEliteMonsterForRoomCreation()
         {
             if (eliteMonsterList.Count == 0)
-                Data.generateElites(10);
+                generateElites(10);
 
             log("Elite: " + eliteMonsterList[0]);
             lastCombatMetricKey = eliteMonsterList[0];

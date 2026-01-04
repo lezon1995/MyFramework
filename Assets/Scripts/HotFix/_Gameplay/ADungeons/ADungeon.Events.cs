@@ -5,11 +5,11 @@ namespace MarbleHero
     public struct OnDungeonMapGenerated
     {
     }
-    
+
     public struct OpenMapPanel
     {
     }
-    
+
     public abstract partial class ADungeon
     {
         public static List<string> eventList = new();
@@ -29,6 +29,27 @@ namespace MarbleHero
         public static int uncommonRelicChance;
         public static int rareRelicChance;
         public static float cardUpgradedChance;
+        
+        protected abstract void initializeEventList();
+        protected abstract void initializeEventImg();
+        protected abstract void initializeShrineList();
+
+        public virtual void initializeLevelSpecificChances()
+        {
+            shopRoomChance =  0.05F;
+            restRoomChance =  0.12F;
+            treasureRoomChance =  0.0F;
+            eventRoomChance =  0.22F;
+            eliteRoomChance =  0.08F;
+            smallChestChance =  50;
+            mediumChestChance =  33;
+            largeChestChance =  17;
+            commonRelicChance =  50;
+            uncommonRelicChance =  33;
+            rareRelicChance =  17;
+            colorlessRareChance =  0.3F;
+            cardUpgradedChance =  0.0F;
+        }
 
         protected void initializeSpecialOneTimeEventList()
         {

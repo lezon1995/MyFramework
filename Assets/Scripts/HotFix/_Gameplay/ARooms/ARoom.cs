@@ -45,8 +45,8 @@ namespace MarbleHero
 
         // public List<AbstractPotion> potions = new();
         public List<ARelic> relics = new();
-        public List<RewardItem> rewards = new();
-        public SoulGroup souls = new();
+        // public List<RewardItem> rewards = new();
+        // public SoulGroup souls = new();
         public RoomPhase phase = RoomPhase.COMBAT;
         public AEvent evt;
         public MonsterGroup monsters { get; set; }
@@ -162,7 +162,7 @@ namespace MarbleHero
 
         public void updateObjects(float dt)
         {
-            souls.update(dt);
+            // souls.update(dt);
 
             // for (Iterator<AbstractPotion> iterator = potions.iterator(); iterator.hasNext();)
             // {
@@ -225,15 +225,15 @@ namespace MarbleHero
                     }
                     else
                     {
-                        if (Settings.isDebug && DevInputActionSet.drawCard.isJustPressed())
-                            actionManager.addToTop(new DrawCardAction(player, 1));
+                        // if (Settings.isDebug && DevInputActionSet.drawCard.isJustPressed())
+                            // actionManager.addToTop(new DrawCardAction(player, 1));
 
                         if (!ADungeon.isScreenUp)
                         {
                             actionManager.update(dt);
 
-                            if (monsters is {anyAlive: true} && player.currentHealth > 0)
-                                player.updateInput(dt);
+                            // if (monsters is {anyAlive: true} && player.currentHealth > 0)
+                                // player.updateInput(dt);
                         }
 
                         if (ADungeon.screen != CurrentScreen.HAND_SELECT)
@@ -384,13 +384,13 @@ namespace MarbleHero
             if (!ADungeon.isScreenUp)
                 ADungeon.topLevelEffects.Add(new BattleStartEffect());
 
-            actionManager.addToBot(new GainEnergyAndEnableControlsAction(player.energy.energyMaster));
+            actionManager.addToBot(new GainEnergyAndEnableControlsAction(1));
             player.applyStartOfCombatPreDrawLogic();
             player.applyStartOfCombatLogic();
             // ADungeon.overlayMenu.showCombatPanels();
 
             startTurn();
-            new OnBattleStart().Trigger();
+            new OnBattleStart().trigger();
         }
 
         public void startTurn()
@@ -427,7 +427,7 @@ namespace MarbleHero
             if (!isBattleOver)
             {
                 actionManager.addToBot(new PlayerStartTurnAction());
-                actionManager.addToBot(new DrawCardAction(player, player.gameHandSize));
+                // actionManager.addToBot(new DrawCardAction(player, player.gameHandSize));
                 player.applyStartOfTurnPostDrawRelics();
                 player.applyStartOfTurnPostDrawPowers();
                 actionManager.addToBot(new EnableEndTurnButtonAction());
@@ -439,7 +439,7 @@ namespace MarbleHero
             isTurnEnd = true;
             player.applyEndOfTurnTriggers();
             actionManager.addToBot(new ClearCardQueueAction());
-            actionManager.addToBot(new DiscardAtEndOfTurnAction());
+            // actionManager.addToBot(new DiscardAtEndOfTurnAction());
             actionManager.addToBot(new EndAction(this));
             player.isEndingTurn = false;
 
@@ -493,7 +493,7 @@ namespace MarbleHero
 
             metricData.addEncounterData();
             actionManager.clear();
-            player.inSingleTargetMode = false;
+            // player.inSingleTargetMode = false;
             player.resetControllerValues();
             // ADungeon.overlayMenu.hideCombatPanels();
         }
@@ -543,10 +543,10 @@ namespace MarbleHero
             // rewards.Add(new RewardItem(ADungeon.returnRandomRelic(tier)));
         }
 
-        public void addSapphireKey(RewardItem item)
+        /*public void addSapphireKey(RewardItem item)
         {
             rewards.Add(new RewardItem(item, RewardType.SAPPHIRE_KEY));
-        }
+        }*/
 
         /*
         public void removeOneRelicFromRewards()
@@ -572,7 +572,7 @@ namespace MarbleHero
 
         public void addRelicToRewards(ARelic relic)
         {
-            rewards.Add(new RewardItem(relic));
+            // rewards.Add(new RewardItem(relic));
         }
 
         // public void addPotionToRewards(AbstractPotion potion)
@@ -582,9 +582,9 @@ namespace MarbleHero
 
         public void addCardToRewards()
         {
-            RewardItem cardReward = new RewardItem();
-            if (cardReward.cards.Count > 0)
-                rewards.Add(cardReward);
+            // RewardItem cardReward = new RewardItem();
+            // if (cardReward.cards.Count > 0)
+                // rewards.Add(cardReward);
         }
 
         void addPotionToRewards()
@@ -594,8 +594,8 @@ namespace MarbleHero
             if (player.hasRelic("White Beast Statue"))
                 chance = 100;
 
-            if (rewards.Count >= 4)
-                chance = 0;
+            // if (rewards.Count >= 4)
+            //     chance = 0;
 
             if (ADungeon.potionRng.random(0, 99) < chance || Settings.isDebug)
             {
@@ -611,30 +611,30 @@ namespace MarbleHero
 
         public void addGoldToRewards(int gold)
         {
-            foreach (var i in rewards)
+            // foreach (var i in rewards)
             {
-                if (i.type == RewardType.GOLD)
-                {
-                    i.incrementGold(gold);
-                    return;
-                }
+                // if (i.type == RewardType.GOLD)
+                // {
+                //     i.incrementGold(gold);
+                //     return;
+                // }
             }
 
-            rewards.Add(new RewardItem(gold));
+            // rewards.Add(new RewardItem(gold));
         }
 
         public void addStolenGoldToRewards(int gold)
         {
-            foreach (var i in rewards)
+            // foreach (var i in rewards)
             {
-                if (i.type == RewardType.STOLEN_GOLD)
-                {
-                    i.incrementGold(gold);
-                    return;
-                }
+                // if (i.type == RewardType.STOLEN_GOLD)
+                // {
+                //     i.incrementGold(gold);
+                //     return;
+                // }
             }
 
-            rewards.Add(new RewardItem(gold, true));
+            // rewards.Add(new RewardItem(gold, true));
         }
 
         public bool isCompleted() => phase == RoomPhase.COMPLETE;
@@ -660,11 +660,11 @@ namespace MarbleHero
             }
         }
 
-        public void addCardReward(RewardItem rewardItem)
+        /*public void addCardReward(RewardItem rewardItem)
         {
             if (rewardItem.cards.Count > 0)
                 rewards.Add(rewardItem);
-        }
+        }*/
 
         public virtual void Dispose()
         {

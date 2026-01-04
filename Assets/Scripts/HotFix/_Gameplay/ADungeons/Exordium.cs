@@ -3,9 +3,9 @@ using UnityEngine;
 
 namespace MarbleHero
 {
-    public class Exordium : ADungeon
+    public partial class Exordium : ADungeon
     {
-        public Exordium(APlayer p, List<string> emptyList) : base(DungeonData.Get("Exordium"), p, emptyList)
+        public Exordium(APlayer p, List<string> emptyList) : base("Exordium", "Exordium", p, emptyList)
         {
             initializeRelicList();
             // if (Settings.isEndless)
@@ -28,7 +28,7 @@ namespace MarbleHero
             fadeColor = new Color32(30, 15, 15, 255);
             sourceFadeColor = new Color32(30, 15, 15, 255);
             initializeSpecialOneTimeEventList();
-            Data.initializeLevelSpecificChances();
+            initializeLevelSpecificChances();
 
             if (Settings.seed != null)
                 mapRng = new Rand(Settings.seed.Value + actNum);
@@ -51,15 +51,15 @@ namespace MarbleHero
             }
         }
 
-        public Exordium(APlayer p, SaveFile saveFile) : base(DungeonData.Get("Exordium"), p, saveFile)
+        public Exordium(APlayer p, SaveFile saveFile) : base("Exordium", p, saveFile)
         {
             // scene?.dispose();
             // scene = new TheBottomScene();
             fadeColor = new Color32(30, 15, 15, 255);
             sourceFadeColor = new Color32(30, 15, 15, 255);
-            // music.changeBGM(id);
+            music.changeBGM(id);
 
-            Data.initializeLevelSpecificChances();
+            initializeLevelSpecificChances();
 
             if (Settings.seed != null)
             {

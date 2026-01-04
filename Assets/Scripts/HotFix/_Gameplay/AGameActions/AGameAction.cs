@@ -3,14 +3,20 @@
 public abstract class AGameAction : ClassObject
 {
     protected const float DEFAULT_DURATION = 0.5F;
+
+    public bool isDone;
+
+    protected ACreature target;
+    protected ACreature source;
     protected float duration;
     protected float startDuration;
-    public bool isDone;
 
     public override void resetProperty()
     {
         base.resetProperty();
         startDuration = duration = DEFAULT_DURATION;
+        source = null;
+        target = null;
         isDone = false;
     }
 

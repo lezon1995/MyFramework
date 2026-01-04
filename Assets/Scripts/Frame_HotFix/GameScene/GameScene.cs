@@ -81,6 +81,13 @@ public abstract class GameScene : ComponentOwner
 		base.lateUpdate(elapsedTime);
 		mCurProcedure?.lateUpdate(elapsedTime);
 	}
+
+	public override void fixedUpdate(float elapsedTime)
+	{
+		base.fixedUpdate(elapsedTime);
+		mCurProcedure?.fixedUpdate(elapsedTime);
+	}
+
 	public virtual void keyProcess(float elapsedTime)
 	{
 		// 在准备退出当前流程时,不响应任何按键操作

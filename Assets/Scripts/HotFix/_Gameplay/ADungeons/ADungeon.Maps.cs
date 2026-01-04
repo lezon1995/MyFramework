@@ -4,6 +4,7 @@ using UnityEngine;
 namespace MarbleHero
 {
     public record struct OnNextRoomTransition;
+
     public partial class ADungeon
     {
         public static MapRoomNode nextRoom { get; set; }
@@ -34,13 +35,13 @@ namespace MarbleHero
 
         public static void setCurrMapNode(MapRoomNode curNode)
         {
-            var souls = room.souls;
+            // var souls = room.souls;
             room?.Dispose();
             currMapNode = curNode;
 
             if (room == null)
             {
-                logger.Warn("This player loaded into a room that no longer exists (due to a new map gen?)");
+                logWarning("This player loaded into a room that no longer exists (due to a new map gen?)");
                 for (int i = 0; i < 5; i++)
                 {
                     var node = map[curNode.y][i];
@@ -55,7 +56,7 @@ namespace MarbleHero
             }
             else
             {
-                room.souls = souls;
+                // room.souls = souls;
             }
         }
 
@@ -91,9 +92,9 @@ namespace MarbleHero
             GenerateRoomTypes(ref roomList, count);
             RoomTypeAssigner.AssignRowAsRoomType<RestRoom>(map[^1]);
             RoomTypeAssigner.AssignRowAsRoomType<MonsterRoom>(map[0]);
-            if (Settings.isEndless && player.hasBlight("MimicInfestation"))
-                RoomTypeAssigner.AssignRowAsRoomType<MonsterRoomElite>(map[8]);
-            else
+            // if (Settings.isEndless && player.hasBlight("MimicInfestation"))
+            //     RoomTypeAssigner.AssignRowAsRoomType<MonsterRoomElite>(map[8]);
+            // else
                 RoomTypeAssigner.AssignRowAsRoomType<TreasureRoom>(map[8]);
 
             RoomTypeAssigner.DistributeRoomsAcrossMap(mapRng, ref map, ref roomList);
@@ -105,7 +106,7 @@ namespace MarbleHero
             firstRoomChosen = false;
             fadeIn();
             setEmeraldElite();
-            new OnDungeonMapGenerated().Trigger();
+            new OnDungeonMapGenerated().trigger();
         }
 
         static void GenerateRoomTypes(ref List<ARoom> roomList, int availableRoomCount)
@@ -477,8 +478,8 @@ namespace MarbleHero
             // overlayMenu.proceedButton.setLabel(TEXT[0]);
             // combatRewardScreen.clear();
 
-            if (nextRoom is { room: not null })
-                nextRoom.room.rewards.Clear();
+            // if (nextRoom is { room: not null })
+                // nextRoom.room.rewards.Clear();
 
             switch (room)
             {
@@ -487,14 +488,14 @@ namespace MarbleHero
                     eliteMonsterList.RemoveAt(0);
                     break;
                 case MonsterRoomElite:
-                    Data.generateElites(10);
+                    generateElites(10);
                     break;
                 case MonsterRoom when monsterList.Count > 0:
                     log("Removing monster: " + monsterList[0] + " from monster list.");
                     monsterList.RemoveAt(0);
                     break;
                 case MonsterRoom:
-                    Data.generateStrongEnemies(12);
+                    generateStrongEnemies(12);
                     break;
                 // case EventRoom when room.evt is NoteForYourself noteForYourself:
                 //     var tmpCard = noteForYourself.saveCard;
@@ -517,7 +518,7 @@ namespace MarbleHero
             // gridSelectScreen.upgradePreviewCard = null;
             previousScreen = default;
             // dynamicBanner.hide();
-            new OnNextRoomTransition().Trigger();
+            new OnNextRoomTransition().trigger();
             // dungeonMapScreen.closeInstantly();
             closeCurrentScreen();
             // topPanel.unhoverHitboxes();
@@ -565,7 +566,7 @@ namespace MarbleHero
 
             if (actionManager.actions.Count > 0)
             {
-                logger.Warn("[WARNING] Action Manager was NOT clear! Clearing");
+                logWarning("[WARNING] Action Manager was NOT clear! Clearing");
                 actionManager.clear();
             }
 
@@ -644,16 +645,12 @@ namespace MarbleHero
 
         public static void resetPlayer()
         {
-            // player.orbs.Clear();
-            player.animX = 0.0F;
-            player.animY = 0.0F;
-            player.hideHealthBar();
-            player.hand.clear();
+            // player.hand.clear();
             player.powers.Clear();
-            player.drawPile.clear();
-            player.discardPile.clear();
-            player.exhaustPile.clear();
-            player.limbo.clear();
+            // player.drawPile.clear();
+            // player.discardPile.clear();
+            // player.exhaustPile.clear();
+            // player.limbo.clear();
             player.loseBlock(true);
             player.damagedThisCombat = 0;
 
