@@ -16,11 +16,11 @@
         public static Rand cardRandomRng;
         public static Rand miscRng;
 
-        public static void GenSeeds()
+        public static void generateSeeds()
         {
-            if (Settings.seed != null)
+            if (Settings.seed != 0)
             {
-                var seed = Settings.seed.Value;
+                var seed = Settings.seed;
                 log("Generating seeds: " + seed);
                 monsterRng = new(seed);
                 eventRng = new(seed);
@@ -37,7 +37,7 @@
             }
         }
 
-        public static void LoadSeeds(SaveFile save)
+        public static void loadSeeds(SaveFile save)
         {
             if (save.is_daily || save.is_trial)
             {
@@ -49,9 +49,9 @@
             }
 
 
-            if (Settings.seed != null)
+            if (Settings.seed != 0)
             {
-                var seed = Settings.seed.Value;
+                var seed = Settings.seed;
                 monsterRng = new(seed, save.monster_seed_count);
                 eventRng = new(seed, save.event_seed_count);
                 merchantRng = new(seed, save.merchant_seed_count);

@@ -30,8 +30,8 @@ namespace MarbleHero
             initializeSpecialOneTimeEventList();
             initializeLevelSpecificChances();
 
-            if (Settings.seed != null)
-                mapRng = new Rand(Settings.seed.Value + actNum);
+            if (Settings.seed != 0)
+                mapRng = new Rand(Settings.seed + actNum);
 
             generateMap();
             // music.changeBGM(id);
@@ -61,10 +61,10 @@ namespace MarbleHero
 
             initializeLevelSpecificChances();
 
-            if (Settings.seed != null)
+            if (Settings.seed != 0)
             {
-                miscRng = new Rand(Settings.seed.Value + saveFile.floor_num);
-                mapRng = new Rand(Settings.seed.Value + saveFile.act_num);
+                miscRng = new Rand(Settings.seed + saveFile.floor_num);
+                mapRng = new Rand(Settings.seed + saveFile.act_num);
             }
 
             generateMap();

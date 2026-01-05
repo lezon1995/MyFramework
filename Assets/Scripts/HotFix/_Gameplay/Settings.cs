@@ -73,7 +73,7 @@ namespace MarbleHero
         public static bool hasSapphireKey;
         public static bool isEndless;
         public static bool isTrial;
-        public static long? specialSeed;
+        public static long specialSeed;
         public static string trialName;
         public static bool IS_FULLSCREEN { get; private set; }
         public static bool IS_WINDOWS_FULLSCREEN { get; private set; }
@@ -97,7 +97,7 @@ namespace MarbleHero
         public static float yScale { get; private set; }
         public static float FOUR_BY_THREE_OFFSET_Y;
         public static float LETTERBOX_OFFSET_Y;
-        public static long? seed;
+        public static long seed;
         public static bool seedSet;
         public static long seedSourceTimestamp;
         public static bool isBackgrounded;

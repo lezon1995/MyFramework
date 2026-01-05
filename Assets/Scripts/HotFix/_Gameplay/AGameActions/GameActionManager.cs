@@ -4,7 +4,9 @@ namespace MarbleHero;
 
 public class GameActionManager : FrameSystem
 {
-    public GameActionManager() => actionManager = this;
+    public GameActionManager()
+    {
+    }
 
     public List<AGameAction> nextCombatActions = new();
     public List<AGameAction> actions = new();

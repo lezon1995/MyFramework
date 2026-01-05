@@ -47,12 +47,6 @@ namespace MarbleHero
         void setBoss(string key)
         {
             bossKey = key;
-            if (DungeonMap.boss != null && DungeonMap.bossOutline != null)
-            {
-                //DungeonMap.boss.dispose();
-                //DungeonMap.bossOutline.dispose();
-            }
-
             switch (key)
             {
                 case "The Guardian":
@@ -108,10 +102,10 @@ namespace MarbleHero
         {
             while (true)
             {
-                string m = MonsterInfo.roll(monsters, monsterRng.random());
-                if (!exclusions.Contains(m))
+                string monster = MonsterInfo.roll(monsters, monsterRng.random());
+                if (!exclusions.Contains(monster))
                 {
-                    monsterList.Add(m);
+                    monsterList.Add(monster);
                     return;
                 }
             }
@@ -121,19 +115,19 @@ namespace MarbleHero
         {
             for (int i = 0; i < numMonsters; i++)
             {
+                var monster = MonsterInfo.roll(monsters, monsterRng.random());
                 if (monsterList.Count == 0)
                 {
-                    monsterList.Add(MonsterInfo.roll(monsters, monsterRng.random()));
+                    monsterList.Add(monster);
                 }
                 else
                 {
-                    string toAdd = MonsterInfo.roll(monsters, monsterRng.random());
-                    if (toAdd != monsterList[^1])
+                    if (monster != monsterList[^1])
                     {
-                        if (monsterList.Count > 1 && toAdd == monsterList[^2])
+                        if (monsterList.Count > 1 && monster == monsterList[^2])
                             i--;
                         else
-                            monsterList.Add(toAdd);
+                            monsterList.Add(monster);
                     }
                     else
                     {
@@ -147,15 +141,15 @@ namespace MarbleHero
         {
             for (int i = 0; i < numMonsters; i++)
             {
+                var monster = MonsterInfo.roll(monsters, monsterRng.random());
                 if (eliteMonsterList.Count == 0)
                 {
-                    eliteMonsterList.Add(MonsterInfo.roll(monsters, monsterRng.random()));
+                    eliteMonsterList.Add(monster);
                 }
                 else
                 {
-                    string toAdd = MonsterInfo.roll(monsters, monsterRng.random());
-                    if (toAdd != eliteMonsterList[^1])
-                        eliteMonsterList.Add(toAdd);
+                    if (monster != eliteMonsterList[^1])
+                        eliteMonsterList.Add(monster);
                     else
                         i--;
                 }

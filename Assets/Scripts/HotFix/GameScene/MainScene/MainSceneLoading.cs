@@ -6,7 +6,7 @@
         comboManager.load();
         mPrefabPoolManager.setTimerInterval(60);
         
-        changeProcedure<MainSceneMenu>();
+        changeProcedure<MainSceneGaming>();
     }
 
     protected override void onExit(SceneProcedure nextProcedure)

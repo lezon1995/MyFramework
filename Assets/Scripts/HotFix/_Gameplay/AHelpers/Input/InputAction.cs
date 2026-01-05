@@ -8,14 +8,14 @@ namespace MarbleHero
         // public static Dictionary<string, string> TEXT_CONVERSIONS = uiStrings.TEXT_DICT;
         KeyCode keycode;
 
-        public InputAction(KeyCode keycode)
+        public InputAction(KeyCode code)
         {
-            this.keycode = keycode;
+            keycode = code;
         }
 
-        public InputAction(int keycode)
+        public InputAction(int code)
         {
-            this.keycode = (KeyCode)keycode;
+            keycode = (KeyCode)code;
         }
 
         public int getKey()

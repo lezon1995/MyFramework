@@ -2,19 +2,22 @@
 {
     public class BattleStartEffect : AGameEffect
     {
-        public BattleStartEffect()
+        const float maxDuration = 4.0F;
+
+        public override void onCreate()
         {
-            Duration = 4.0F;
+            base.onCreate();
+            duration = maxDuration;
         }
 
-        public override void update(float dt)
+        public override bool update(float dt)
         {
-            if (Duration == 4.0F)
+            if (isFloatEqual(duration, maxDuration))
             {
                 Toast.Show("Battle Start");
             }
 
-            base.update(dt);
+            return base.update(dt);
         }
     }
 }

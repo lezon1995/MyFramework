@@ -2,12 +2,12 @@
 {
     public class PlayerTurnEffect : AGameEffect
     {
-        static float DUR = 2.0F;
+        const float DUR = 2.0F;
         string turnMessage;
 
-        public PlayerTurnEffect()
+        public override void onCreate()
         {
-            Duration = DUR;
+            duration = DUR;
             startingDuration = DUR;
             if (Settings.usesOrdinal)
             {
@@ -22,20 +22,20 @@
                 // turnMessage = GameActionManager.turn + BattleStartEffect.TURN_TXT;
             }
 
-            // sound.play("TURN_EFFECT");
+            sound.play("TURN_EFFECT");
             monsters.showIntent();
 
             scale = 1.0F;
         }
 
-        public override void update(float dt)
+        public override bool update(float dt)
         {
-            if (Duration == DUR)
+            if (isFloatEqual(duration, DUR))
             {
                 Toast.Show("Player Turn Start");
             }
 
-            base.update(dt);
+            return base.update(dt);
         }
     }
 }

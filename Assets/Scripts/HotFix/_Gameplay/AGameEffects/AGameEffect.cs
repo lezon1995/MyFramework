@@ -1,37 +1,52 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace MarbleHero
 {
-    public abstract class AGameEffect : IDisposable
+    public abstract class AGameEffect : ClassObject
     {
-        public float Duration;
+        public float duration;
         public float startingDuration;
         protected Color color;
         public bool isDone;
         protected float scale = Settings.scale;
-        protected float rotation = 0.0F;
-        public bool renderBehind = false;
-        public Action onFinished { get; set; }
+        protected float rotation;
+        public bool renderBehind;
 
-        public virtual void update(float dt)
+        public override void resetProperty()
         {
-            Duration -= dt;
+            base.resetProperty();
+            duration = 0;
+            startingDuration = 0;
+            color = default;
+            isDone = false;
+            scale = 0;
+            rotation = 0;
+            renderBehind = false;
+        }
 
-            if (Duration < startingDuration / 2.0F)
-                color.a = Duration / startingDuration / 2.0F;
+        public override void onCreate()
+        {
+            base.onCreate();
+        }
 
-            if (Duration < 0.0F)
+        public virtual bool update(float dt)
+        {
+            duration -= dt;
+
+            if (duration < startingDuration / 2.0F)
+                color.a = duration / startingDuration / 2.0F;
+
+            if (duration < 0.0F)
             {
                 color.a = 0.0F;
                 isDone = true;
             }
+
+            return isDone;
         }
 
         public virtual void Dispose()
         {
         }
-        
-        public static implicit operator bool(AGameEffect self) => self != null;
     }
 }

@@ -4,12 +4,6 @@ namespace MarbleHero
 {
     public class DungeonMap
     {
-        static Texture top;
-        static Texture mid;
-        static Texture bot;
-        static Texture blend;
-        public static Texture boss;
-        public static Texture bossOutline;
         public float targetAlpha;
         static Color NOT_TAKEN_COLOR = new Color(0.34F, 0.34F, 0.34F, 1.0F);
         Color bossNodeColor = NOT_TAKEN_COLOR;
@@ -29,15 +23,6 @@ namespace MarbleHero
 
         public DungeonMap()
         {
-            if (top == null)
-            {
-                // top = ImageMaster.loadImage("images/ui/map/mapTop.png");
-                // mid = ImageMaster.loadImage("images/ui/map/mapMid.png");
-                // bot = ImageMaster.loadImage("images/ui/map/mapBot.png");
-                // blend = ImageMaster.loadImage("images/ui/map/mapBlend.png");
-            }
-
-            // bossHb = new Hitbox(400.0F * Settings.scale, 360.0F * Settings.scale);
         }
 
         public void update(float dt)

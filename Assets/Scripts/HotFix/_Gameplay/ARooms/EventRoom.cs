@@ -7,7 +7,7 @@
         public override void onPlayerEntry()
         {
             // ADungeon.overlayMenu.proceedButton.hide();
-            // var eventRngDuplicate = new Rand(Settings.seed.Value, ADungeon.eventRng.counter);
+            // var eventRngDuplicate = new Rand(Settings.seed, ADungeon.eventRng.counter);
             // evt = ADungeon.generateEvent(eventRngDuplicate);
             // evt.onEnterRoom();
         }

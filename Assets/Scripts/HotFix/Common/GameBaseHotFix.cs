@@ -20,7 +20,10 @@ public partial class GBH
 	public static ComboManager comboManager;
 	// 需要添加auto generate LayoutScript start和auto generate LayoutScript end才会自动生成代码
 	// auto generate LayoutScript start
+	public static DebugPanel mDebugPanel;
 	public static GameplayPanel mGameplayPanel;
+	public static MainMenuPanel mMainMenuPanel;
+	public static SplashPanel mSplashPanel;
 	public static UIGaming mUIGaming;
 	public static UILogin mUILogin;
 	// auto generate LayoutScript end
@@ -30,8 +33,8 @@ public partial class GBH
 	public static ADungeon _dungeon { get; set; }
 	public static GameActionManager actionManager { get; set; }
 	public static APlayer player { get; set; }
-	// public static SoundMaster sound { get; set; }
-	// public static MusicMaster music { get; set; }
+	public static SoundMaster sound { get; set; }
+	public static MusicMaster music { get; set; }
 	public static ARoom room
 	{
 		get => ADungeon.currMapNode?.room;
@@ -42,7 +45,4 @@ public partial class GBH
 	public static MonsterGroup monsters => room.monsters;
 	public static AMonster enemy => room.monsters.main;
 	public static MetricData metricData { get; set; }
-	
-	public static SoundMaster sound { get; set; }
-	public static MusicMaster music { get; set; }
 }

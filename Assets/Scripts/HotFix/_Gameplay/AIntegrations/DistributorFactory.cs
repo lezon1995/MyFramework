@@ -40,7 +40,7 @@ namespace MarbleHero
             switch (distributor)
             {
                 case "steam":
-                    // return new SteamIntegration();
+                    return new SteamIntegration();
                 case "discord":
                     // return new DiscordIntegration();
                 case "wegame":

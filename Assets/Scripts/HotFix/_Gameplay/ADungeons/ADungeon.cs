@@ -51,6 +51,7 @@ namespace MarbleHero
         public static bool is_victory;
 
         public static bool isScreenUp;
+
         // public static OverlayMenu overlayMenu { get; set; }
         public static CurrentScreen screen { get; set; }
         public static CurrentScreen previousScreen;
@@ -69,7 +70,7 @@ namespace MarbleHero
             _dungeon = this;
             long startTime = TimeUtility.getNowTimeStampMS();
             // topPanel.setPlayerName();
-            actionManager = new GameActionManager();
+            actionManager = new();
             // overlayMenu = new OverlayMenu(p);
             // dynamicBanner = new DynamicBanner();
             unlocks.Clear();
@@ -123,7 +124,7 @@ namespace MarbleHero
             _dungeon = this;
             long startTime = TimeUtility.getNowTimeStampMS();
             // topPanel.setPlayerName();
-            actionManager = new GameActionManager();
+            actionManager = new();
             // overlayMenu = new OverlayMenu(p);
             // dynamicBanner = new DynamicBanner();
             // isFadingIn = false;
@@ -335,25 +336,8 @@ namespace MarbleHero
 
             turnPhaseEffectActive = false;
 
-            for (var i = 0; i < topLevelEffects.Count;)
-            {
-                var e = topLevelEffects[i];
-                e.update(dt);
-                if (e.isDone)
-                    topLevelEffects.RemoveAt(i);
-                else
-                    i++;
-            }
-
-            for (var i = 0; i < effectList.Count;)
-            {
-                var e = effectList[i];
-                e.update(dt);
-                if (e.isDone)
-                    effectList.RemoveAt(i);
-                else
-                    i++;
-            }
+            updateTopLevelEffects(dt);
+            updateEffects(dt);
 
             effectList.AddRange(effectsQueue);
             effectsQueue.Clear();
@@ -458,7 +442,7 @@ namespace MarbleHero
             floorNum = saveFile.floor_num;
             actNum = saveFile.act_num;
             Settings.seed = saveFile.seed;
-            LoadSeeds(saveFile);
+            loadSeeds(saveFile);
             monsterList = saveFile.monster_list;
             eliteMonsterList = saveFile.elite_monster_list;
             bossList = saveFile.boss_list;

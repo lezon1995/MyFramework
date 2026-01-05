@@ -270,11 +270,11 @@ namespace MarbleHero
             event_chances = type == SaveType.POST_COMBAT ? EventHelper.getChancesPreRoll() : EventHelper.getChances();
             save_date = TimeUtility.getNowTimeStampMS();
 
-            if (Settings.seed != null)
-                seed = Settings.seed.Value;
+            if (Settings.seed != 0)
+                seed = Settings.seed;
 
-            if (Settings.specialSeed != null)
-                special_seed = Settings.specialSeed.Value;
+            if (Settings.specialSeed != 0)
+                special_seed = Settings.specialSeed;
 
             seed_set = Settings.seedSet;
             is_daily = Settings.isDailyRun;

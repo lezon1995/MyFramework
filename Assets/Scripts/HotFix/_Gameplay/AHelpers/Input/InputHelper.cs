@@ -2,13 +2,6 @@
 
 namespace MarbleHero
 {
-    public enum InputState
-    {
-        Idle,
-        InteractingCard,
-        InteractingCharacter,
-    }
-
     public class InputHelper
     {
         public static float mX;
@@ -29,8 +22,6 @@ namespace MarbleHero
         // static ScrollInputProcessor processor;
         public static int scrollY = 0;
         static bool ignoreOneCycle;
-
-        public static InputState inputState { get; set; }
 
         public static void initialize()
         {

@@ -6,7 +6,7 @@
         {
             actionManager.endTurn();
             if (!room.skipMonsterTurn)
-                ADungeon.topLevelEffects.Add(new EnemyTurnEffect());
+                ADungeon.topLevelEffects.Add(CLASS<EnemyTurnEffect>());
             isDone = true;
         }
     }
@@ -15,7 +15,7 @@
     {
         public override void update(float dt)
         {
-            ADungeon.topLevelEffects.Add(new PlayerTurnEffect());
+            ADungeon.topLevelEffects.Add(CLASS<PlayerTurnEffect>());
             isDone = true;
         }
     }

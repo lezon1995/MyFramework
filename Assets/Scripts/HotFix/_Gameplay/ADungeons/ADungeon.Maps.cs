@@ -521,14 +521,10 @@ namespace MarbleHero
             new OnNextRoomTransition().trigger();
             // dungeonMapScreen.closeInstantly();
             closeCurrentScreen();
-            // topPanel.unhoverHitboxes();
             fadeIn();
             player.resetControllerValues();
-            effectList.Clear();
-            // topLevelEffects.removeIf(e->e is not ObtainKeyEffect);
-            topLevelEffects.Clear();
-            topLevelEffectsQueue.Clear();
-            effectsQueue.Clear();
+            clearEffects();
+            clearTopLevelEffects();
             cardInstanceIdGenerator = 0;
             // dungeonMapScreen.dismissable = true;
             // dungeonMapScreen.map.legend.isLegendHighlighted = false;
@@ -547,9 +543,9 @@ namespace MarbleHero
                 SaveHelper.saveIfAppropriate(SaveType.ENTER_ROOM);
             }
 
-            if (Settings.seed != null)
+            if (Settings.seed != 0)
             {
-                var seed = Settings.seed.Value + floorNum;
+                var seed = Settings.seed + floorNum;
                 monsterHpRng = new(seed);
                 aiRng = new(seed);
                 shuffleRng = new(seed);
@@ -576,7 +572,7 @@ namespace MarbleHero
                 var roomMetricKey = nextRoom.room.getMapSymbol();
                 if (nextRoom.room is EventRoom)
                 {
-                    var eventRngDuplicate = new Rand(Settings.seed.Value, eventRng.counter);
+                    var eventRngDuplicate = new Rand(Settings.seed, eventRng.counter);
                     var roomResult = EventHelper.roll(eventRngDuplicate);
                     isLoadingCompletedEvent = isLoadingPostCombatSave && roomResult == EventHelper.RoomResult.EVENT;
                     if (!isLoadingCompletedEvent)
@@ -621,26 +617,8 @@ namespace MarbleHero
                 room.onPlayerEntry();
             }
 
-            // if (room is MonsterRoom && lastCombatMetricKey == "Shield and Spear")
-            // {
-            //     player.movePosition(Settings.WIDTH / 2.0F, floorY);
-            // }
-            // else
-            // {
-            //     player.movePosition(Settings.WIDTH * 0.25F, floorY);
-            //     player.flipHorizontal = false;
-            // }
-
             if (room is MonsterRoom && !isLoadingPostCombatSave)
                 player.preBattlePrep();
-
-            // scene.nextRoom(room);
-            // if (room is RestRoom)
-            //     rs = RenderScene.CAMPFIRE;
-            // else if (room.evt is AbstractImageEvent)
-            //     rs = RenderScene.EVENT;
-            // else
-            //     rs = RenderScene.NORMAL;
         }
 
         public static void resetPlayer()
@@ -653,12 +631,6 @@ namespace MarbleHero
             // player.limbo.clear();
             player.loseBlock(true);
             player.damagedThisCombat = 0;
-
-            // if (player.stance.ID != "Neutral")
-            // {
-            //     player.stance = new NeutralStance();
-            //     player.onStanceChange("Neutral");
-            // }
 
             GameActionManager.turn = 0;
         }
@@ -711,10 +683,8 @@ namespace MarbleHero
             // combatRewardScreen.clear();
             // cardRewardScreen.reset();
             // dungeonMapScreen?.closeInstantly();
-            effectList.Clear();
-            effectsQueue.Clear();
-            topLevelEffectsQueue.Clear();
-            topLevelEffects.Clear();
+            clearEffects();
+            clearTopLevelEffects();
             // cardBlizzRandomizer = cardBlizzStartOffset;
             player?.relics.Clear();
             // rs = RenderScene.NORMAL;

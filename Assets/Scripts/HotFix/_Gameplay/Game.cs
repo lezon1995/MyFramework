@@ -1,22 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using UnityEngine;
 
 namespace MarbleHero
 {
-    public interface IApplicationListener
-    {
-        void create();
-        void update(float dt);
-        void fixedUpdate(float dt);
-        void pause();
-        void resume();
-        void dispose();
-    }
-
-    public class Game : IApplicationListener
+    public class Game
     {
         public Game()
         {
@@ -24,29 +13,31 @@ namespace MarbleHero
 
         public enum GameMode
         {
-            Splash,
-            MainMenu,
-            Gameplay,
-            DungeonTransition,
+            SPLASH,
+            MAIN_MENU,
+            GAMEPLAY,
+            DUNGEON_TRANSITION,
         }
 
         public static string VERSION_NUM = "[V2.3.4] (12-18-2022)";
         public static string TRUE_VERSION_NUM = "2022-12-18";
 
         //
-        public ADungeon dungeon;
+        public static ADungeon dungeon;
+        public static SplashScreen splashScreen;
+        public static MainMenuScreen mainMenuScreen;
+        public static DungeonTransitionScreen transitionScreen;
+        public static DebugPanel debugPanel;
 
-
-        public bool prevDebugKeyDown = false;
+        public bool prevDebugKeyDown;
         public static string nextDungeon;
-        public static GameMode mode = GameMode.MainMenu;
-        public static bool startOver;
+        public static GameMode mode;
+        public static bool isStartingOver;
         static bool queueCredits;
-        public static bool playCreditsBgm = false;
+        public static bool playCreditsBgm;
+        public static bool MUTE_IF_BG;
 
-        public static bool MUTE_IF_BG = false;
-
-        public static APlayer.PlayerClass chosenCharacter;
+        public static APlayer.PlayerClass chosenCharacter = APlayer.PlayerClass.IRONCLAD;
         public static bool loadingSave;
 
         public static SaveFile saveFile;
@@ -67,7 +58,7 @@ namespace MarbleHero
         public static int perfect;
         public static bool overkill;
         public static bool combo;
-        public static bool cheater = false;
+        public static bool cheater;
         public static int goldGained;
         public static int cardsPurged;
         public static int potionsBought;
@@ -76,28 +67,24 @@ namespace MarbleHero
 
         public static bool stopClock;
 
-        // public static ATrial trial;
+        public static ATrial trial;
 
-        // static SteamInputHelper steamInputHelper = null;
+        // static SteamInputHelper steamInputHelper;
         // public static SteamUtils clientUtils;
-        public static Thread sInputDetectThread = null;
+        public static Thread sInputDetectThread;
         static Color screenColor = Color.black;
-        public static float screenTimer = 2.0F;
-        public static float screenTime = 2.0F;
-        static bool fadeIn = true;
+        static Timer screenTimer = 2.0F;
+        static bool isFadingIn = true;
 
         public static IPublisherIntegration publisherIntegration;
 
         // public static SteelSeries steelSeries;
         bool displayCursor = true;
-        public static bool displayVersion = true;
+        static bool displayVersion = true;
 
-        public static string preferenceDir = null;
+        public static string preferenceDir;
 
         // SteamUtilsCallback clUtilsCallback;
-        public static bool isPopupOpen = false;
-        public static int popupMX;
-        public static int popupMY;
 
         public void create()
         {
@@ -109,6 +96,11 @@ namespace MarbleHero
             else if (Settings.isBeta)
             {
                 VERSION_NUM += " BETA";
+            }
+
+            if (Settings.isDebug)
+            {
+                mDebugPanel = debugPanel = LT.LOAD<DebugPanel>();
             }
 
             try
@@ -165,9 +157,10 @@ namespace MarbleHero
                 // clientUtils = new SteamUtils(clUtilsCallback);
                 // steamInputHelper = new SteamInputHelper();
                 // steelSeries = new SteelSeries();
-                metricData = new MetricData();
-                characterManager = new CharacterManager();
-                mode = GameMode.Splash;
+                metricData = new();
+                characterManager = new();
+                splashScreen = new();
+                mode = GameMode.SPLASH;
             }
             catch (Exception e)
             {
@@ -186,8 +179,8 @@ namespace MarbleHero
                 playerPref.putString("alias", alias);
             }
 
-            // music.fadeOutBGM();
-            // mainMenuScreen.fadeOutMusic();
+            music.fadeOutBGM();
+            mainMenuScreen.fadeOutMusic();
             InputActionSet.prefs = SaveHelper.getPrefs("InputSettings");
             InputActionSet.load();
 
@@ -197,7 +190,7 @@ namespace MarbleHero
             // if (SteamInputHelper.numControllers == 1)
             // SteamInputHelper.initActions(SteamInputHelper.controllerHandles[0]);
 
-            characterManager = new CharacterManager();
+            characterManager = new();
             Settings.initialize(true);
             UnlockTracker.initialize();
 
@@ -210,49 +203,32 @@ namespace MarbleHero
             TipTracker.initialize();
             // log("TEXTURE COUNT: " + Texture.getNumManagedTextures());
             screenColor.a = 0.0F;
-            screenTime = 0.01F;
             screenTimer = 0.01F;
-            fadeIn = false;
-            startOver = true;
+            isFadingIn = false;
+            isStartingOver = true;
         }
 
         public void update(float dt)
         {
+            if (Settings.isDebug)
+            {
+                using var _ = new MyStringBuilderScope(out var sb);
+                sb.appendLine($"mode={mode.ToString()}");
+                sb.appendLine($"screenTimer={screenTimer.remain:F2}");
+                sb.appendLine($"room={room?.GetType().Name}");
+                mDebugPanel.setDebugText(sb.ToString());
+            }
+
             try
             {
                 // if (!SteamInputHelper.alive)
                 // CInputHelper.initializeIfAble();
 
                 onUpdate(dt);
-
-                switch (mode)
-                {
-                    case GameMode.Splash:
-                        // splashScreen.render(sb);
-                        break;
-                    case GameMode.MainMenu:
-                        // mainMenuScreen.render(sb);
-                        break;
-                    case GameMode.DungeonTransition:
-                        // if (dungeonTransitionScreen != null)
-                        // {
-                        //     dungeonTransitionScreen.render(sb);
-                        //     break;
-                        // }
-                        //
-                        // if (dungeon != null)
-                        //     dungeon.render(sb);
-                        break;
-                    case GameMode.Gameplay:
-                        break;
-                    default:
-                        log("Unknown Game Mode: " + mode);
-                        break;
-                }
             }
             catch (Exception e)
             {
-                logError(e.StackTrace);
+                logException(e);
                 Application.Quit();
             }
         }
@@ -261,15 +237,17 @@ namespace MarbleHero
         {
             switch (mode)
             {
-                case GameMode.Splash:
+                case GameMode.SPLASH:
                     break;
-                case GameMode.MainMenu:
+                case GameMode.MAIN_MENU:
                     break;
-                case GameMode.Gameplay:
+                case GameMode.GAMEPLAY:
                     dungeon?.fixedUpdate(dt);
                     break;
-                case GameMode.DungeonTransition:
+                case GameMode.DUNGEON_TRANSITION:
                     break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
         }
 
@@ -287,7 +265,7 @@ namespace MarbleHero
 
         void onUpdate(float dt)
         {
-            if (mode != GameMode.Splash)
+            if (mode != GameMode.SPLASH)
                 updateFade(dt);
 
             music.update(dt);
@@ -317,127 +295,121 @@ namespace MarbleHero
             //     CInputHelper.initializeIfAble();
             // }
 
-            // InputHelper.updateFirst();
+            InputHelper.updateFirst();
 
             switch (mode)
             {
-                case GameMode.Splash:
-                    // SceneManager.LoadScene("Splash");
-
-                    // splashScreen.update();
-                    // if (splashScreen.isDone)
-                    // {
-                    // splashScreen = null;
-                    // mainMenuScreen = new MainMenuScreen();
-                    // mode = GameMode.MainMenu;
-                    // }
+                case GameMode.SPLASH:
+                    splashScreen.update(dt);
+                    if (splashScreen.isDone)
+                    {
+                        splashScreen.Dispose();
+                        splashScreen = null;
+                        mainMenuScreen = new();
+                        mode = GameMode.MAIN_MENU;
+                    }
 
                     break;
-                case GameMode.MainMenu:
-                    // mainMenuScreen.update();
-                    // if (mainMenuScreen.fadedOut)
-                {
-                    ADungeon.path.Clear();
-
-                    // if (trial == null && Settings.specialSeed != null)
-                    // trial = TrialHelper.getTrialForSeed(SeedHelper.getString(Settings.specialSeed.Value));
-
-                    if (loadingSave)
+                case GameMode.MAIN_MENU:
+                    mainMenuScreen.update(dt);
+                    if (mainMenuScreen.fadedOut)
                     {
-                        ModHelper.setModsFalse();
-                        player = createCharacter(chosenCharacter);
-                        loadPlayerSave(player);
-                    }
-                    else
-                    {
-                        Settings.setFinalActAvailability();
-                        log("Final Act Available: " + Settings.isFinalActAvailable);
+                        ADungeon.path.Clear();
 
-                        // if (trial == null)
+                        if (trial == null && Settings.specialSeed != 0)
+                            trial = TrialHelper.getTrialForSeed(SeedHelper.getString(Settings.specialSeed));
+
+                        if (loadingSave)
                         {
-                            if (Settings.isDailyRun)
-                            {
-                                ADungeon.ascensionLevel = 0;
-                                ADungeon.isAscensionMode = false;
-                            }
-
+                            ModHelper.setModsFalse();
                             player = createCharacter(chosenCharacter);
-                            foreach (var relic in player.relics)
-                            {
-                                relic.updateDescription(player.chosenClass);
-                                relic.onEquip();
-                            }
-
-                            // foreach (var card in player.masterDeck.group)
-                            // {
-                            //     if (card.rarity != CardRarity.Basic)
-                            //         CardHelper.obtain(card.cardID, card.rarity, card.color);
-                            // }
+                            loadPlayerSave(player);
                         }
-                        // else
-                        // {
-                        //     Settings.isTrial = true;
-                        //     Settings.isDailyRun = false;
-                        //     setupTrialMods(trial, chosenCharacter);
-                        //     setupTrialPlayer(trial);
-                        // }
+                        else
+                        {
+                            Settings.setFinalActAvailability();
+                            log("Final Act Available: " + Settings.isFinalActAvailable);
+
+                            if (trial == null)
+                            {
+                                if (Settings.isDailyRun)
+                                {
+                                    ADungeon.ascensionLevel = 0;
+                                    ADungeon.isAscensionMode = false;
+                                }
+
+                                player = createCharacter(chosenCharacter);
+                                foreach (var relic in player.relics)
+                                {
+                                    relic.updateDescription(player.chosenClass);
+                                    relic.onEquip();
+                                }
+
+                                // foreach (var card in player.masterDeck.group)
+                                // {
+                                //     if (card.rarity != CardRarity.Basic)
+                                //         CardHelper.obtain(card.cardID, card.rarity, card.color);
+                                // }
+                            }
+                            else
+                            {
+                                Settings.isTrial = true;
+                                Settings.isDailyRun = false;
+                                setupTrialMods(trial, chosenCharacter);
+                                setupTrialPlayer(trial);
+                            }
+                        }
+
+                        mode = GameMode.GAMEPLAY;
+                        nextDungeon = "Exordium";
+                        transitionScreen = new("Exordium");
+
+                        if (loadingSave)
+                        {
+                            transitionScreen.isComplete = true;
+                            break;
+                        }
+
+                        monstersSlain = 0;
+                        elites1Slain = 0;
+                        elites2Slain = 0;
+                        elites3Slain = 0;
                     }
-
-                    mode = GameMode.Gameplay;
-                    nextDungeon = "Exordium";
-                    // dungeonTransitionScreen = new DungeonTransitionScreen("Exordium");
-
-                    if (loadingSave)
-                    {
-                        // dungeonTransitionScreen.isComplete = true;
-                        break;
-                    }
-
-                    monstersSlain = 0;
-                    elites1Slain = 0;
-                    elites2Slain = 0;
-                    elites3Slain = 0;
-                }
 
                     break;
-                case GameMode.Gameplay:
-                    // if (dungeonTransitionScreen != null)
-                    // {
-                    //     dungeonTransitionScreen.update();
-                    //     
-                    //     if (dungeonTransitionScreen.isComplete)
-                    //     {
-                    //         dungeonTransitionScreen = null;
-                    //         loadDungeon();
-                    //     }
-                    // }
-                    // else 
-
-                    if (dungeon == null)
+                case GameMode.GAMEPLAY:
+                    if (transitionScreen != null)
                     {
-                        ADungeon.GenSeeds();
-                        loadDungeon();
+                        if (transitionScreen.update(dt))
+                        {
+                            transitionScreen = null;
+                            dungeon = loadDungeon();
+                        }
+                    }
+                    else if (dungeon == null)
+                    {
+                        ADungeon.generateSeeds();
+                        dungeon = loadDungeon();
                         dungeon.nextRoomTransition();
                         // ADungeon.nextRoom = ADungeon.map[0][1];
                         // dungeon.nextRoomTransition();
                     }
                     else
                     {
-                        dungeon?.update(dt);
+                        dungeon.update(dt);
                     }
 
                     if (dungeon != null && ADungeon.isDungeonBeaten && ADungeon.fadeColor.a == 1.0F)
                     {
                         dungeon = null;
                         // ADungeon.scene.fadeOutAmbiance();
-                        // dungeonTransitionScreen = new DungeonTransitionScreen(nextDungeon);
+                        transitionScreen = new(nextDungeon);
                     }
 
                     break;
-                case GameMode.DungeonTransition:
+                case GameMode.DUNGEON_TRANSITION:
                     break;
                 default:
-                    log("Unknown Game Mode: " + mode);
                     break;
             }
 
@@ -451,24 +423,27 @@ namespace MarbleHero
             //     fpsLogger.log();
         }
 
-        public void loadDungeon()
+        public ADungeon loadDungeon()
         {
+            ADungeon d;
             if (loadingSave)
             {
-                dungeon = getDungeon(saveFile.level_name, player, saveFile);
+                d = getDungeon(saveFile.level_name, player, saveFile);
                 loadPostCombat(saveFile);
                 if (!saveFile.post_combat)
                     loadingSave = false;
             }
             else
             {
-                dungeon = getDungeon(nextDungeon, player);
+                d = getDungeon(nextDungeon, player);
                 if (nextDungeon != "Exordium" || Settings.isShowBuild || !TipTracker.tips["NEOW_SKIP"])
                 {
                     // ADungeon.dungeonMapScreen.open(true);
                     TipTracker.neverShowAgain("NEOW_SKIP");
                 }
             }
+
+            return d;
         }
 
         public ADungeon getDungeon(string key, APlayer p)
@@ -495,23 +470,23 @@ namespace MarbleHero
             };
         }
 
-        /*void setupTrialMods(ATrial trial, APlayer.PlayerClass chosenClass)
+        void setupTrialMods(ATrial trial, APlayer.PlayerClass chosenClass)
         {
             if (trial.useRandomDailyMods())
             {
                 long sourceTime = DateTime.UtcNow.Ticks;
                 var rng = new Rand(sourceTime);
                 Settings.seed = SeedHelper.generateUnoffensiveSeed(rng);
-                ModHelper.setTodaysMods(Settings.seed.Value, chosenClass);
+                ModHelper.setTodaysMods(Settings.seed, chosenClass);
             }
             else if (trial.dailyModIDs() != null)
             {
                 ModHelper.setMods(trial.dailyModIDs());
                 ModHelper.clearNulls();
             }
-        }*/
+        }
 
-        /*void setupTrialPlayer(ATrial trial)
+        void setupTrialPlayer(ATrial trial)
         {
             player = trial.setupPlayer(createCharacter(chosenCharacter));
             if (!trial.keepStarterRelic())
@@ -530,17 +505,17 @@ namespace MarbleHero
                 r.onEquip();
             }
 
-            if (!trial.keepsStarterCards())
-                player.masterDeck.clear();
+            // if (!trial.keepsStarterCards())
+            // player.masterDeck.clear();
 
-            foreach (string cardID in trial.extraStartingCardIDs())
-            {
-                if (CardLibrary.getCard(cardID, out var card))
-                {
-                    player.masterDeck.addToTop(card.makeCopy());
-                }
-            }
-        }*/
+            // foreach (string cardID in trial.extraStartingCardIDs())
+            // {
+            //     if (CardLibrary.getCard(cardID, out var card))
+            //     {
+            //         player.masterDeck.addToTop(card.makeCopy());
+            //     }
+            // }
+        }
 
         static void loadPostCombat(SaveFile saveFile)
         {
@@ -612,13 +587,17 @@ namespace MarbleHero
         public static string generateRandomAlias()
         {
             var alphabet = "abcdefghijklmnopqrstuvwxyz0123456789";
-            var retVal = new StringBuilder();
+            using var _ = new MyStringBuilderScope(out var sb);
             for (int i = 0; i < 16; i++)
-                retVal.Append(alphabet[MathUtils.random(0, alphabet.Length - 1)]);
-            return retVal.ToString();
+            {
+                var index = MathUtils.random(0, alphabet.Length - 1);
+                sb.append(alphabet[index]);
+            }
+
+            return sb.ToString();
         }
 
-        public void saveMigration()
+        public static void saveMigration()
         {
             if (!SaveHelper.saveExists())
             {
@@ -664,7 +643,7 @@ namespace MarbleHero
             }
         }
 
-        void loadPlayerSave(APlayer p)
+        static void loadPlayerSave(APlayer p)
         {
             saveFile = SaveAndContinue.loadSaveFile(p.chosenClass);
             ADungeon.loading_post_combat = false;
@@ -682,12 +661,12 @@ namespace MarbleHero
             Settings.isTrial = saveFile.is_trial;
             if (Settings.isTrial)
             {
-                ModHelper.setTodaysMods(Settings.seed.Value, player.chosenClass);
+                ModHelper.setTodaysMods(Settings.seed, player.chosenClass);
                 APlayer.customMods = saveFile.custom_mods;
             }
             else if (Settings.isDailyRun)
             {
-                ModHelper.setTodaysMods(Settings.specialSeed.Value, player.chosenClass);
+                ModHelper.setTodaysMods(Settings.specialSeed, player.chosenClass);
             }
 
             APlayer.customMods = saveFile.custom_mods ?? new();
@@ -840,8 +819,8 @@ namespace MarbleHero
             //     }
             // }
 
-            // if (saveFile.daily_mods is { Count: > 0 })
-            // ModHelper.setMods(saveFile.daily_mods);
+            if (saveFile.daily_mods is { Count: > 0 })
+                ModHelper.setMods(saveFile.daily_mods);
 
             metricData.clearData();
             metricData.campfire_rested = saveFile.metric_campfire_rested;
@@ -970,23 +949,23 @@ namespace MarbleHero
         }
 
 
-        public void updateFade(float dt)
+        public static void updateFade(float dt)
         {
-            if (screenTimer == 0.0F)
+            if (!screenTimer)
                 return;
 
-            screenTimer -= dt;
-            if (screenTimer < 0.0F)
-                screenTimer = 0.0F;
+            var finished = screenTimer.update(dt);
+            if (finished)
+                screenTimer.kill();
 
-            if (fadeIn)
+            if (isFadingIn)
             {
-                screenColor.a = MMLerp.fade.apply(1.0F, 0.0F, 1.0F - screenTimer / screenTime);
+                screenColor.a = MMLerp.fade.apply(1.0F, 0.0F, screenTimer.pct);
             }
             else
             {
-                screenColor.a = MMLerp.fade.apply(0.0F, 1.0F, 1.0F - screenTimer / screenTime);
-                if (startOver && screenTimer == 0.0F)
+                screenColor.a = MMLerp.fade.apply(0.0F, 1.0F, screenTimer.pct);
+                if (isStartingOver && finished)
                 {
                     // if (ADungeon.scene != null)
                     // ADungeon.scene.fadeOutAmbiance();
@@ -998,9 +977,9 @@ namespace MarbleHero
                     ARelic.relicPage = 0;
                     ModHelper.setModsFalse();
                     SeedHelper.cachedSeed = null;
-                    Settings.seed = null;
+                    Settings.seed = 0;
                     Settings.seedSet = false;
-                    Settings.specialSeed = null;
+                    Settings.specialSeed = 0;
                     Settings.isTrial = false;
                     Settings.isDailyRun = false;
                     Settings.isEndless = false;
@@ -1009,7 +988,7 @@ namespace MarbleHero
                     Settings.hasEmeraldKey = false;
                     Settings.hasSapphireKey = false;
                     // CustomModeScreen.finalActAvailable = false;
-                    // trial = null;
+                    trial = null;
                     log("Dungeon Reset: " + (TimeUtility.getNowTimeStampMS() - startTime) + "ms");
                     startTime = TimeUtility.getNowTimeStampMS();
                     // ShopScreen.resetPurgeCost();
@@ -1020,7 +999,7 @@ namespace MarbleHero
                     UnlockTracker.refresh();
                     log("Unlock Tracker Refresh:  " + (TimeUtility.getNowTimeStampMS() - startTime) + "ms");
                     startTime = TimeUtility.getNowTimeStampMS();
-                    // mainMenuScreen = new MainMenuScreen();
+                    mainMenuScreen = new();
                     // mainMenuScreen.bg.slideDownInstantly();
                     saveSlotPref.putFloat(SaveHelper.slotName("COMPLETION", saveSlot), UnlockTracker.getCompletionPercentage());
                     saveSlotPref.putLong(SaveHelper.slotName("PLAYTIME", saveSlot), UnlockTracker.getTotalPlaytime());
@@ -1028,42 +1007,53 @@ namespace MarbleHero
                     log("New Main Menu Screen: " + (TimeUtility.getNowTimeStampMS() - startTime) + "ms");
                     startTime = TimeUtility.getNowTimeStampMS();
                     CardHelper.clear();
-                    mode = GameMode.MainMenu;
+                    mode = GameMode.MAIN_MENU;
                     nextDungeon = "Exordium";
-                    // dungeonTransitionScreen = new DungeonTransitionScreen("Exordium");
+                    transitionScreen = new("Exordium");
                     TipTracker.refresh();
                     // log("[GC] BEFORE: " + SystemStats.getUsedMemory());
-                    // System.GC.Collect();
+                    GC.Collect();
                     // log("[GC] AFTER: " + SystemStats.getUsedMemory());
                     log("New Transition Screen, Tip Tracker Refresh: " + (TimeUtility.getNowTimeStampMS() - startTime) + "ms");
                     startTime = TimeUtility.getNowTimeStampMS();
-                    FadeIn(2.0F);
+                    fadeIn(2.0F);
                     if (queueCredits)
                     {
                         queueCredits = false;
                         // mainMenuScreen.creditsScreen.open(playCreditsBgm);
-                        // mainMenuScreen.hideMenuButtons();
+                        mainMenuScreen.hideMenuButtons();
                     }
                 }
             }
         }
 
-        public static void FadeIn(float duration)
+        public static void fadeIn(float duration)
         {
             screenColor.a = 1.0F;
-            screenTime = duration;
             screenTimer = duration;
-            fadeIn = true;
+            isFadingIn = true;
         }
 
-        public static void FadeToBlack(float duration)
+        public static void fadeToBlack(float duration)
         {
             screenColor.a = 0.0F;
-            screenTime = duration;
             screenTimer = duration;
-            fadeIn = false;
+            isFadingIn = false;
         }
 
+        public static void startOver()
+        {
+            isStartingOver = true;
+            fadeToBlack(2.0F);
+        }
+
+        public static void startOverButShowCredits()
+        {
+            isStartingOver = true;
+            queueCredits = true;
+            // doorUnlockScreenCheck();
+            fadeToBlack(2.0F);
+        }
 
         public static void resetScoreVars()
         {

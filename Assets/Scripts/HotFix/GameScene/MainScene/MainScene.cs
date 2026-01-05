@@ -9,7 +9,6 @@
     public override void createSceneProcedure()
     {
         addProcedure(typeof(MainSceneLoading));
-        addProcedure(typeof(MainSceneMenu));
         addProcedure(typeof(MainSceneGaming));
         addProcedure(typeof(MainSceneExit));
     }

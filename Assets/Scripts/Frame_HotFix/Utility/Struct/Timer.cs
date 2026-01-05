@@ -2,7 +2,7 @@
 {
     public float duration;
     public float elapsed;
-    bool finished;
+    public bool finished;
     public float remain => duration - elapsed;
     public float pct => MathUtils.isEqual(duration, 0F) ? 0F : elapsed / duration;
 

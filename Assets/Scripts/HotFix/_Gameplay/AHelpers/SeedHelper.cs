@@ -17,15 +17,15 @@ namespace MarbleHero
             if (string.IsNullOrEmpty(seedStr))
             {
                 Settings.seedSet = false;
-                Settings.seed = null;
-                Settings.specialSeed = null;
+                Settings.seed = 0;
+                Settings.specialSeed = 0;
             }
             else
             {
                 long seed = getLong(seedStr);
                 Settings.seedSet = true;
                 Settings.seed = seed;
-                Settings.specialSeed = null;
+                Settings.specialSeed = 0;
                 Settings.isDailyRun = false;
                 cachedSeed = null;
             }
@@ -33,8 +33,8 @@ namespace MarbleHero
 
         public static string getUserFacingSeedString()
         {
-            if (Settings.seed != null)
-                return cachedSeed ??= getString(Settings.seed.Value);
+            if (Settings.seed != 0)
+                return cachedSeed ??= getString(Settings.seed);
 
             return "";
         }

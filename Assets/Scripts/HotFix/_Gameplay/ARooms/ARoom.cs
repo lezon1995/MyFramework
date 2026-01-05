@@ -289,7 +289,7 @@ namespace MarbleHero
             {
                 case RoomPhase.COMBAT:
                     onCombatFixedUpdate(dt);
-                    // monsters?.update(dt);
+                    monsters?.update(dt);
                     if (waitTimer)
                     {
                         if (actionManager.currentAction || !actionManager.isEmpty())
@@ -382,7 +382,7 @@ namespace MarbleHero
         {
             actionManager.turnHasEnded = true;
             if (!ADungeon.isScreenUp)
-                ADungeon.topLevelEffects.Add(new BattleStartEffect());
+                ADungeon.topLevelEffects.Add(CLASS<BattleStartEffect>());
 
             actionManager.addToBot(new GainEnergyAndEnableControlsAction(1));
             player.applyStartOfCombatPreDrawLogic();

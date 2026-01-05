@@ -138,7 +138,9 @@ public class SafeList<T> : ClassObject
 		{
 			return;
 		}
-		mModifyList.Add(new(mMainList.removeAt(index), false, index));
+
+		var value = mMainList.removeAt(index);
+		mModifyList.Add(new(value, false, index));
 	}
 	// 清空所有数据
 	public void clear()
