@@ -12,8 +12,27 @@ public class NeowEvent : AEvent
         buttonEffect(0);
     }
 
+    public override void update(float dt)
+    {
+        base.update(dt);
+
+        if (Settings.isDebug)
+        {
+            if (InputActionSet.confirm.isJustPressed())
+            {
+                var node = ADungeon.map[0][1];
+                ADungeon.enterTargetRoom(node);
+            }
+        }
+    }
+
     protected override void buttonEffect(int paramInt)
     {
-        openMap();
+        switch (paramInt)
+        {
+            case 0:
+                openMap();
+                break;
+        }
     }
 }

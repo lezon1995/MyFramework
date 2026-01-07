@@ -33,6 +33,26 @@ namespace MarbleHero
         public static ARoom getCurrRoom() => currMapNode.room;
         public static MapRoomNode getCurrMapNode() => currMapNode;
 
+        public static void enterTargetRoom(MapRoomNode node)
+        {
+            var curNode = currMapNode;
+            if (firstRoomChosen)
+                curNode.markAsTaken();
+            else
+                setCurrMapNode(node);
+
+            var connectedEdge = curNode.getEdgeConnectedTo(node);
+            connectedEdge?.markAsTaken();
+            nextRoom = node;
+            path.Add((node.x, node.y));
+            metricData.path_taken.Add(nextRoom.room.getMapSymbol());
+            if (!isDungeonBeaten)
+            {
+                nextRoomTransitionStart();
+                music.fadeOutTempBGM();
+            }
+        }
+
         public static void setCurrMapNode(MapRoomNode curNode)
         {
             // var souls = room.souls;
@@ -512,9 +532,6 @@ namespace MarbleHero
             if (RestRoom.lastFireSoundId != 0L)
                 sound.fadeOut("REST_FIRE_WET", RestRoom.lastFireSoundId);
 
-            // if (player.stance.ID != "Neutral")
-            // player.stance.stopIdleSfx();
-
             // gridSelectScreen.upgradePreviewCard = null;
             previousScreen = default;
             // dynamicBanner.hide();
@@ -523,8 +540,7 @@ namespace MarbleHero
             closeCurrentScreen();
             fadeIn();
             player.resetControllerValues();
-            clearEffects();
-            clearTopLevelEffects();
+            effectManager.clear();
             cardInstanceIdGenerator = 0;
             // dungeonMapScreen.dismissable = true;
             // dungeonMapScreen.map.legend.isLegendHighlighted = false;
@@ -683,8 +699,8 @@ namespace MarbleHero
             // combatRewardScreen.clear();
             // cardRewardScreen.reset();
             // dungeonMapScreen?.closeInstantly();
-            clearEffects();
-            clearTopLevelEffects();
+            effectManager.clear();
+
             // cardBlizzRandomizer = cardBlizzStartOffset;
             player?.relics.Clear();
             // rs = RenderScene.NORMAL;

@@ -1,4 +1,7 @@
-﻿namespace MarbleHero
+﻿using Drawing;
+using UnityEngine;
+
+namespace MarbleHero
 {
     public class EnemyTurnEffect : AGameEffect
     {
@@ -11,11 +14,7 @@
 
         public override bool update(float dt)
         {
-            if (isFloatEqual(duration, maxDuration))
-            {
-                Toast.Show("Enemy Turn Start");
-            }
-
+            Draw.xy.Label2D(new Vector2(0, 0), "Enemy Turn Start", 20, LabelAlignment.Center, color);
             return base.update(dt);
         }
     }

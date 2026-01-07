@@ -6,7 +6,7 @@ namespace MarbleHero
     {
         public float duration;
         public float startingDuration;
-        protected Color color;
+        protected Color color = new(1, 1, 1, 1);
         public bool isDone;
         protected float scale = Settings.scale;
         protected float rotation;
@@ -17,7 +17,7 @@ namespace MarbleHero
             base.resetProperty();
             duration = 0;
             startingDuration = 0;
-            color = default;
+            color =  new(1, 1, 1, 1);
             isDone = false;
             scale = 0;
             rotation = 0;

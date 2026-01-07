@@ -229,8 +229,8 @@ namespace MarbleHero
                     relic.onSpendGold();
             }
 
-            // if (room is not ShopRoom && (room).phase != RoomPhase.COMBAT)
-            // Game.sound.play("EVENT_PURCHASE");
+            if (room is not ShopRoom && (room).phase != RoomPhase.COMBAT)
+                sound.play("EVENT_PURCHASE");
 
             if (amount > 0)
             {
@@ -261,7 +261,7 @@ namespace MarbleHero
             }
             else
             {
-                // Game.goldGained += amount;
+                Game.goldGained += amount;
                 gold += amount;
 
                 foreach (var relic in relics)
@@ -403,7 +403,8 @@ namespace MarbleHero
                                 }
                             }
                         }
-                        else */if (tryGetRelic("Lizard Tail", out var relic))
+                        else */
+                        if (tryGetRelic("Lizard Tail", out var relic))
                         {
                             if (relic.counter == -1)
                             {

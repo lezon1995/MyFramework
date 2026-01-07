@@ -2,7 +2,7 @@
 
 namespace MarbleHero
 {
-    public class MainMenuScreen
+    public class MainMenuScreen : ClassObject
     {
         // static UIStrings uiStrings = Game.languagePack.getUIString("MainMenuScreen");
         // public static string[] TEXT = uiStrings.TEXT;
@@ -76,60 +76,69 @@ namespace MarbleHero
             DOOR_UNLOCK
         }
 
-        public MainMenuScreen() : this(true)
+        public override void onCtor()
         {
+            base.onCtor();
+            mainMenuPanel = LT.LOAD<MainMenuPanel>();
+            setMainMenuButtons();
         }
 
-        public MainMenuScreen(bool playBgm)
+        public override void onCreate()
         {
-            mainMenuPanel = LT.LOAD<MainMenuPanel>();
+            base.onCreate();
+            LT.SHOW<MainMenuPanel>();
             Game.publisherIntegration.setRichPresenceDisplayInMenu();
             ADungeon.player = null;
             if (Settings.isDemo && Settings.isShowBuild)
                 TipTracker.reset();
 
-            if (playBgm)
-            {
-                music.changeBGM("MENU");
-                if (Settings.AMBIANCE_ON)
-                    windId = sound.playAndLoop("WIND");
-                else
-                    windId = sound.playAndLoop("WIND", 0.0F);
-            }
+            music.changeBGM("MENU");
+            if (Settings.AMBIANCE_ON)
+                windId = sound.playAndLoop("WIND");
+            else
+                windId = sound.playAndLoop("WIND", 0.0F);
 
             UnlockTracker.refresh();
             // cardLibraryScreen.initialize();
             // charSelectScreen.initialize();
             // confirmButton.hide();
             updateAmbienceVolume();
-            setMainMenuButtons();
             // runHistoryScreen = new RunHistoryScreen();
+        }
+
+        public override void destroy()
+        {
+            newName = null;
+            isDarken = false;
+            superDarken = false;
+            screenColor = default;
+            overlayColor = default;
+            fadedOut = false;
+            isFadingOut = false;
+            windId = 0;
+            charInfo = null;
+            screen = default;
+            abandonedRun = false;
+            LT.HIDE<MainMenuPanel>();
+            
+            base.destroy();
         }
 
         void setMainMenuButtons()
         {
-            if (!Settings.isMobile && !Settings.isConsoleBuild)
-            {
-                mainMenuPanel.addButton(new QUIT());
-                mainMenuPanel.addButton(new PATCH_NOTES());
-            }
+            var p = mainMenuPanel;
+            p.addButton(new ABANDON_RUN());
+            p.addButton(new RESUME_GAME());
+            p.addButton(new PLAY());
+            p.addButton(new STAT());
+            p.addButton(new INFO());
+            p.addButton(new SETTINGS());
+            p.addButton(new QUIT());
+            p.addButton(new PATCH_NOTES());
 
-            mainMenuPanel.addButton(new SETTINGS());
-            if (!Settings.isShowBuild/* && statsScreen.statScreenUnlocked()*/)
-            {
-                mainMenuPanel.addButton(new STAT());
-                mainMenuPanel.addButton(new INFO());
-            }
-
-            if (Game.characterManager.anySaveFileExists())
-            {
-                mainMenuPanel.addButton(new ABANDON_RUN());
-                mainMenuPanel.addButton(new RESUME_GAME());
-            }
-            else
-            {
-                mainMenuPanel.addButton(new PLAY());
-            }
+            p.setShowPlayButton(!Game.characterManager.anySaveFileExists());
+            p.setShowStatAndInfoButton(!Settings.isShowBuild /* && statsScreen.statScreenUnlocked()*/);
+            p.setShowQuitAndPatchButton(!Settings.isMobile && !Settings.isConsoleBuild);
         }
 
         public void update(float dt)
@@ -146,9 +155,7 @@ namespace MarbleHero
             if (abandonedRun)
             {
                 abandonedRun = false;
-                // buttons.remove(buttons.size() - 1);
-                // buttons.remove(buttons.size() - 1);
-                // buttons.add(new MenuButton(MenuButton.ClickResult.PLAY, buttons.size()));
+                mainMenuPanel.setShowPlayButton(true);
             }
 
             if (Settings.isInfo && DevInputActionSet.deleteSteamCloud.isJustPressed())
@@ -242,7 +249,8 @@ namespace MarbleHero
 
             if (!isFadingOut)
                 handleInput();
-            fadeOut(dt);
+
+            fadingOut(dt);
         }
 
         /*
@@ -479,7 +487,7 @@ namespace MarbleHero
                 sound.fadeOut("WIND", windId);
         }
 
-        void fadeOut(float dt)
+        void fadingOut(float dt)
         {
             if (isFadingOut && !fadedOut)
             {
@@ -494,8 +502,13 @@ namespace MarbleHero
             {
                 overlayColor.a -= dt * 2.0F;
                 if (overlayColor.a < 0.0F)
+                {
                     overlayColor.a = 0.0F;
+                    mainMenuPanel.setOverlapRaycastTarget(false);
+                }
             }
+
+            mainMenuPanel.setOverlapColor(overlayColor);
         }
 
         public void updateAmbienceVolume()
@@ -531,9 +544,10 @@ namespace MarbleHero
             isDarken = false;
         }
 
-        public void fadingOut()
+        public void fadeOut()
         {
             isFadingOut = true;
+            mainMenuPanel.setOverlapRaycastTarget(true);
         }
 
         public void hideMenuButtons()

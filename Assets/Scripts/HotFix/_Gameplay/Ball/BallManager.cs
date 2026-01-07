@@ -305,4 +305,9 @@ public class BallManager : FrameSystem
             logError("there is a ball id : " + guid + ", can not add again!");
         }
     }
+
+    public bool anyActiveBall()
+    {
+        return activeBalls.Count > 0;
+    }
 }

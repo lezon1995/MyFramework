@@ -27,7 +27,6 @@ namespace MarbleHero
         static float JITTER_Y = Settings.isMobile ? (18.0F * Settings.xScale) : (37.0F * Settings.xScale);
 
         public float offsetX { get; } = (int)MathUtils.random(-JITTER_X, JITTER_X);
-
         public float offsetY { get; } = (int)MathUtils.random(-JITTER_Y, JITTER_Y);
         // public float offsetX { get; }
         // public float offsetY { get; }

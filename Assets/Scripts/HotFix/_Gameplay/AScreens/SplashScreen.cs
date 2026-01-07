@@ -8,10 +8,14 @@ public class SplashScreen : IDisposable
     SplashPanel panel;
 
     Timer timer;
-    static float BOUNCE_DUR = 1.2F;
-    static float FADE_DUR = 3.0F;
-    static float WAIT_DUR = 1.5F;
-    static float FADE_OUT_DUR = 1.0F;
+    // static float BOUNCE_DUR = 1.2F;
+    // static float FADE_DUR = 3.0F;
+    // static float WAIT_DUR = 1.5F;
+    // static float FADE_OUT_DUR = 1.0F;
+    static float BOUNCE_DUR = 0F;
+    static float FADE_DUR = 0F;
+    static float WAIT_DUR = 0F;
+    static float FADE_OUT_DUR = 0F;
     Color color = new Color(1.0F, 1.0F, 1.0F, 0.0F);
     Color bgColor = new Color(0.0F, 0.0F, 0.0F, 1.0F);
     Color shadowColor = new Color(0.0F, 0.0F, 0.0F, 0.0F);
@@ -45,7 +49,7 @@ public class SplashScreen : IDisposable
         panel = LT.LOAD<SplashPanel>();
     }
 
-    public void update(float dt)
+    public bool update(float dt)
     {
         if ((InputHelper.justClickedLeft /*|| CInputActionSet.select.isJustPressed()*/) && phase != Phase.FADE_OUT)
         {
@@ -126,6 +130,7 @@ public class SplashScreen : IDisposable
         sb.appendLine($"phase={phase.ToString()}");
         sb.appendLine($"timer={timer.remain:F2}");
         panel.setDebugText(sb.ToString());
+        return isDone;
     }
 
     public void Dispose()

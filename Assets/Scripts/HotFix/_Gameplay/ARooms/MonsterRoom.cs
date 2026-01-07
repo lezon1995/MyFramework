@@ -36,24 +36,22 @@
 
         public override void onCombatFightStart()
         {
-            fightResult = RoundResult.None;
-            nextPhase(PhaseType.Fighting);
+            nextPhase(RoomPhaseType.FIGHTING);
         }
 
         protected override void onPlayerTurnStart(int turn)
         {
-            nextPhase(PhaseType.PlayerTurn);
+            nextPhase(RoomPhaseType.PLAYER_TURN);
         }
 
         protected override void onPlayerTurnEnd()
         {
-            nextPhase(PhaseType.EnemyTurn);
+            nextPhase(RoomPhaseType.ENEMY_TURN);
         }
 
-        protected override void onPlayerFightEnd(RoundResult result)
+        protected override void onPlayerFightEnd()
         {
-            fightResult = result;
-            nextPhase(PhaseType.Settlement);
+            nextPhase(RoomPhaseType.SETTLEMENT);
         }
 
 

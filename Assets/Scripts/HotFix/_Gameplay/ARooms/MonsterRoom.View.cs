@@ -2,27 +2,14 @@
 {
     public partial class MonsterRoom
     {
-        protected enum PhaseType
-        {
-            PlayerTurn,
-            EnemyTurn,
-            Fighting,
-            Settlement,
-        }
-
         public APhase curPhase;
-
         protected APhase[] _phases;
 
-        protected int myCount;
-        protected int opCount;
-
-        void nextPhase(PhaseType type)
+        void nextPhase(RoomPhaseType type)
         {
-            if (type == PhaseType.PlayerTurn)
+            RoomPhaseType = type;
+            if (type == RoomPhaseType.PLAYER_TURN)
             {
-                myCount = 0;
-                opCount = 0;
             }
 
             curPhase?.onEnd();

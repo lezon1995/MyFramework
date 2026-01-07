@@ -32,6 +32,7 @@ namespace MarbleHero
         VIE,
         WWW
     }
+
     /// Framework options. Helps editor methods to put references in the Inspector automatically.
     // Uncomment this option in case of unintentional deletion from the options file.
     public static class Settings
@@ -88,7 +89,9 @@ namespace MarbleHero
         public static bool is16x10, is4x3, isTwoSixteen;
         public static bool isLetterbox;
         public static int HORIZ_LETTERBOX_AMT;
+
         public static int VERT_LETTERBOX_AMT;
+
         // public static List<DisplayOption> displayOptions;
         public static int displayIndex;
         public static float scale { get; private set; }
@@ -140,7 +143,9 @@ namespace MarbleHero
         public static bool PLAYTESTER_ART_MODE;
         public static bool SHOW_CARD_HOTKEYS;
         public static bool USE_LONG_PRESS;
+
         public static bool BIG_TEXT_MODE;
+
         //public static Color CREAM_COLOR = new Color(-597249);
         //public static Color LIGHT_YELLOW_COLOR = new Color(-1202177);
         //public static Color RED_TEXT_COLOR = new Color(-10132481);
@@ -153,7 +158,9 @@ namespace MarbleHero
         public static Color QUARTER_TRANSPARENT_WHITE_COLOR = new Color(1F, 1F, 1F, 0.25F);
         public static Color TWO_THIRDS_TRANSPARENT_BLACK_COLOR = new Color(0F, 0F, 0F, 0.66F);
         public static Color HALF_TRANSPARENT_BLACK_COLOR = new Color(0F, 0F, 0F, 0.5F);
+
         public static Color QUARTER_TRANSPARENT_BLACK_COLOR = new Color(0F, 0F, 0F, 0.25F);
+
         //public static Color RED_RELIC_COLOR = new Color(-10132545);
         //public static Color GREEN_RELIC_COLOR = new Color(2147418303);
         //public static Color BLUE_RELIC_COLOR = new Color(-2016482369);
@@ -176,7 +183,9 @@ namespace MarbleHero
         public static float CLICK_SPEED_THRESHOLD = 0.4F;
         public static float CLICK_DIST_THRESHOLD;
         public static float POTION_W;
+
         public static float POTION_Y;
+
         // public static Color DISCARD_COLOR = Color.valueOf("8a769bff");
         // public static Color DISCARD_GLOW_COLOR = Color.valueOf("553a66ff");
         public static Color SHADOW_COLOR = new Color(0F, 0F, 0F, 0.5F);
@@ -227,26 +236,25 @@ namespace MarbleHero
 
         public static void initialize(bool reloaded)
         {
-            // if (!reloaded)
-            //     initializeDisplay();
+            if (!reloaded)
+                initializeDisplay();
+
             initializeSoundPref();
             initializeGamePref(reloaded);
         }
 
-        /*static void initializeDisplay()
+        static void initializeDisplay()
         {
             log("Initializing display settings...");
-            DisplayConfig config = DisplayConfig.readConfig();
-            M_W = Screen.width;
-            M_H = Screen.height;
-            WIDTH = config.getWidth();
-            HEIGHT = config.getHeight();
-            MAX_FPS = config.getMaxFPS();
-            SAVED_WIDTH = WIDTH;
-            SAVED_HEIGHT = HEIGHT;
-            IS_FULLSCREEN = config.getIsFullscreen();
-            IS_WINDOWS_FULLSCREEN = config.getWFS();
-            IS_V_SYNC = config.getIsVsync();
+            var config = GameEntry.getInstance().mFramworkParam;
+            // DisplayConfig config = DisplayConfig.readConfig();
+            (M_W, M_H) = (Screen.width, Screen.height);
+            (WIDTH, HEIGHT) = (Screen.width, Screen.height);
+            (SAVED_WIDTH, SAVED_HEIGHT) = (WIDTH, HEIGHT);
+            MAX_FPS = config.mDefaultFrameRate;
+            IS_FULLSCREEN = config.mWindowMode == WINDOW_MODE.FULL_SCREEN;
+            IS_WINDOWS_FULLSCREEN = config.mWindowMode == WINDOW_MODE.FULL_SCREEN_CUSTOM_RESOLUTION;
+            IS_V_SYNC = false;
             float aspectRatio = (float)WIDTH / HEIGHT;
             bool isUltraWide = false;
             isLetterbox = aspectRatio is > 2.34F or < 1.3332F;
@@ -332,7 +340,7 @@ namespace MarbleHero
             CARD_SNAP_THRESHOLD = scale;
             UI_SNAP_THRESHOLD = scale;
             FOUR_BY_THREE_OFFSET_Y = 140F * yScale;
-        }*/
+        }
 
         static void setXOffset()
         {

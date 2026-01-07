@@ -1,4 +1,7 @@
-﻿namespace MarbleHero
+﻿using Drawing;
+using UnityEngine;
+
+namespace MarbleHero
 {
     public class BattleStartEffect : AGameEffect
     {
@@ -12,10 +15,7 @@
 
         public override bool update(float dt)
         {
-            if (isFloatEqual(duration, maxDuration))
-            {
-                Toast.Show("Battle Start");
-            }
+            Draw.xy.Label2D(new Vector2(0, 0), "Battle Start", 20, LabelAlignment.Center, color);
 
             return base.update(dt);
         }

@@ -11,14 +11,6 @@ namespace MarbleHero
         INCOMPLETE
     }
 
-    public enum RoundResult
-    {
-        None,
-        Lose,
-        Win,
-        Draw,
-    }
-
     public enum RoomType
     {
         EMPTY,
@@ -33,6 +25,15 @@ namespace MarbleHero
         VICTORY,
         TRUE_VICTORY,
     }
+    
+    public enum RoomPhaseType
+    {
+        NONE,
+        PLAYER_TURN,
+        ENEMY_TURN,
+        FIGHTING,
+        SETTLEMENT,
+    }
 
     public record struct OnBattleStart;
 
@@ -42,22 +43,24 @@ namespace MarbleHero
         const int BLIZZARD_POTION_MOD_AMT = 10;
 
         public abstract RoomType Type { get; }
+        public RoomPhaseType RoomPhaseType { get; set; }
+        public bool inPlayerTurn => RoomPhaseType == RoomPhaseType.PLAYER_TURN;
 
         // public List<AbstractPotion> potions = new();
         public List<ARelic> relics = new();
+
         // public List<RewardItem> rewards = new();
         // public SoulGroup souls = new();
         public RoomPhase phase = RoomPhase.COMBAT;
         public AEvent evt;
         public MonsterGroup monsters { get; set; }
-        Timer endBattleTimer;
-        Timer rewardPopOutTimer = 1.0F;
+        protected Timer endBattleTimer;
+        protected Timer rewardPopOutTimer = 1.0F;
         public Timer waitTimer;
         protected string mapSymbol;
 
         public bool isFightStarted;
         public bool isFightEnded;
-        public RoundResult fightResult;
         public bool isTurnEnd;
         public bool isBattleOver;
         public bool cannotLose;
@@ -95,7 +98,7 @@ namespace MarbleHero
         {
         }
 
-        protected virtual void onPlayerFightEnd(RoundResult result)
+        protected virtual void onPlayerFightEnd()
         {
         }
 
@@ -196,10 +199,7 @@ namespace MarbleHero
                 //     player.obtainPotion(new BlessingOfTheForge());
                 //     ADungeon.scene.randomizeScene();
                 // }
-                //
-                // if (Gdx.input.isKeyJustPressed(49))
-                //     player.increaseMaxOrbSlots(1, true);
-                //
+
                 if (DevInputActionSet.gainGold.isJustPressed())
                     player.gainGold(100);
             }
@@ -226,21 +226,21 @@ namespace MarbleHero
                     else
                     {
                         // if (Settings.isDebug && DevInputActionSet.drawCard.isJustPressed())
-                            // actionManager.addToTop(new DrawCardAction(player, 1));
+                        // actionManager.addToTop(new DrawCardAction(player, 1));
 
                         if (!ADungeon.isScreenUp)
                         {
                             actionManager.update(dt);
 
                             // if (monsters is {anyAlive: true} && player.currentHealth > 0)
-                                // player.updateInput(dt);
+                            // player.updateInput(dt);
                         }
 
                         if (ADungeon.screen != CurrentScreen.HAND_SELECT)
                             player.combatUpdate(dt);
 
                         if (player.isEndingTurn)
-                            endTurn();
+                            endPlayerTurn();
                     }
 
                     if (isBattleOver && actionManager.isEmpty())
@@ -380,25 +380,33 @@ namespace MarbleHero
 
         void startBattle()
         {
+            playerManager.createPlayer<Player>("Player");
+
             actionManager.turnHasEnded = true;
             if (!ADungeon.isScreenUp)
-                ADungeon.topLevelEffects.Add(CLASS<BattleStartEffect>());
+                effectManager.addToTop<BattleStartEffect>();
 
             actionManager.addToBot(new GainEnergyAndEnableControlsAction(1));
             player.applyStartOfCombatPreDrawLogic();
             player.applyStartOfCombatLogic();
-            // ADungeon.overlayMenu.showCombatPanels();
+            ADungeon.overlayMenu.showCombatPanels();
 
-            startTurn();
+            startGameTurn();
             new OnBattleStart().trigger();
         }
 
-        public void startTurn()
+        public void startGameTurn()
+        {
+            GameActionManager.turn++;
+
+            // startPlayerTurn();
+            startEnemyTurn();
+        }
+
+        public void startPlayerTurn()
         {
             isTurnEnd = false;
             isFightEnded = false;
-
-            GameActionManager.turn++;
 
             player.cardsPlayedThisTurn = 0;
 
@@ -434,46 +442,46 @@ namespace MarbleHero
             }
         }
 
-        void endTurn()
+        void endPlayerTurn()
         {
             isTurnEnd = true;
             player.applyEndOfTurnTriggers();
             actionManager.addToBot(new ClearCardQueueAction());
             // actionManager.addToBot(new DiscardAtEndOfTurnAction());
-            actionManager.addToBot(new EndAction(this));
+            actionManager.addToBot(new EndPlayerTurnAction(this));
             player.isEndingTurn = false;
 
             onPlayerTurnEnd();
         }
 
+        public void startEnemyTurn()
+        {
+            monsters.showIntent();
+            actionManager.addToBot(new StartEnemyTurnAction(room));
+        }
+
+        public void endEnemyTurn()
+        {
+        }
+
         public void startFight()
         {
-            actionManager.addToBot(new WaitAction(1F));
             actionManager.addToBot(new FightStartAction());
         }
 
-        public void checkFightingResult()
+        public void checkFightingOver()
         {
-            int myAlive = 0;
-            int opAlive = 0;
-
-            var result = RoundResult.None;
-            if (myAlive == 0)
-                result = RoundResult.Lose;
-            else if (opAlive == 0)
-                result = RoundResult.Win;
-
-            if (result == RoundResult.None)
+            if (ballManager.anyActiveBall())
                 return;
 
-            endFight(result);
+            endFight();
         }
 
-        public void endFight(RoundResult result)
+        public void endFight()
         {
             isFightStarted = false;
             isFightEnded = true;
-            onPlayerFightEnd(result);
+            onPlayerFightEnd();
         }
 
         public void endBattle()
@@ -495,7 +503,7 @@ namespace MarbleHero
             actionManager.clear();
             // player.inSingleTargetMode = false;
             player.resetControllerValues();
-            // ADungeon.overlayMenu.hideCombatPanels();
+            ADungeon.overlayMenu.hideCombatPanels();
         }
 
         public virtual void dropReward()
@@ -584,7 +592,7 @@ namespace MarbleHero
         {
             // RewardItem cardReward = new RewardItem();
             // if (cardReward.cards.Count > 0)
-                // rewards.Add(cardReward);
+            // rewards.Add(cardReward);
         }
 
         void addPotionToRewards()
@@ -675,14 +683,30 @@ namespace MarbleHero
                     m.dispose();
         }
 
-        class EndAction : AGameAction
+        class EndPlayerTurnAction : AGameAction
         {
             ARoom room;
-            public EndAction(ARoom r) => room = r;
+            public EndPlayerTurnAction(ARoom r) => room = r;
 
             public override void update(float dt)
             {
                 addToBot(new EndTurnAction());
+                // addToBot(new WaitAction(END_TURN_WAIT_DURATION));
+                // if (!room.skipMonsterTurn)
+                //     addToBot(new MonsterStartTurnAction());
+                // actionManager.monsterAttacksQueued = false;
+                isDone = true;
+            }
+        }
+
+        class StartEnemyTurnAction : AGameAction
+        {
+            ARoom room;
+            public StartEnemyTurnAction(ARoom r) => room = r;
+
+            public override void update(float dt)
+            {
+                addToBot(new EnemyStartTurnAction());
                 addToBot(new WaitAction(END_TURN_WAIT_DURATION));
                 if (!room.skipMonsterTurn)
                     addToBot(new MonsterStartTurnAction());

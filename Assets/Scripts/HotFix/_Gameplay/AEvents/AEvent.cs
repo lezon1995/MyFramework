@@ -19,7 +19,7 @@ namespace MarbleHero
         public bool hideAlpha = false;
         public bool hasFocus;
         protected string body = null;
-        public float waitTimer = 1.5F;
+        public Timer waitTimer = 1.5F;
         protected bool waitForInput = false;
         public bool hasDialog = false;
         protected int screenNum;
@@ -38,7 +38,7 @@ namespace MarbleHero
             ROOM
         }
 
-        public AEvent()
+        protected AEvent()
         {
             type = EventType.ROOM;
             if (Settings.FAST_MODE)
@@ -77,15 +77,14 @@ namespace MarbleHero
             // roomEventText.update();
         }
 
-        public void update(float dt)
+        public virtual void update(float dt)
         {
-            if (waitTimer > 0.0F)
+            if (waitTimer)
             {
-                waitTimer -= dt;
-                if (waitTimer < 0.0F && hasDialog)
+                if (waitTimer.update(dt) && hasDialog)
                 {
                     // roomEventText.show(body);
-                    waitTimer = 0.0F;
+                    waitTimer.kill();
                 }
             }
             else if (room.phase != RoomPhase.COMBAT && !hideAlpha)

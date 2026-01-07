@@ -8,19 +8,16 @@ namespace MarbleHero
         public static float mY;
         public static bool isMouseDown;
         public static bool isMouseDown_R;
-        static bool isPrevMouseDown;
-        static bool isPrevMouseDown_R;
+        public static bool isPrevMouseDown;
+        public static bool isPrevMouseDown_R;
         public static bool justClickedLeft;
         public static bool justClickedRight;
         public static bool touchDown;
         public static bool touchUp;
         public static bool justReleasedClickLeft, justReleasedClickRight;
         public static bool scrolledUp, scrolledDown;
-
         public static bool pressedEscape;
 
-        // static ScrollInputProcessor processor;
-        public static int scrollY = 0;
         static bool ignoreOneCycle;
 
         public static void initialize()
@@ -45,7 +42,7 @@ namespace MarbleHero
                 return;
             }
 
-            var p = GetMousePosition();
+            var p = getMousePosition();
             if (!Settings.isTouchScreen)
             {
                 mX = p.x;
@@ -71,12 +68,12 @@ namespace MarbleHero
             }
 
 
-            isMouseDown = UnityEngine.Input.GetMouseButton(0);
-            isMouseDown_R = UnityEngine.Input.GetMouseButton(1);
+            isMouseDown = Input.GetMouseButton(0);
+            isMouseDown_R = Input.GetMouseButton(1);
 
-            var delta = GetMouseDelta();
+            var delta = getMouseDelta();
             // if (delta.x != 0 && player != null && player.isInKeyboardMode)
-                // GameCursor.hidden = false;
+            // GameCursor.hidden = false;
 
             if ((!isPrevMouseDown && isMouseDown) || touchDown)
             {
@@ -166,7 +163,7 @@ namespace MarbleHero
         {
             foreach (var keycode in SHORTCUT_MODIFIER_KEYS)
             {
-                if (UnityEngine.Input.GetKey(keycode))
+                if (Input.GetKey(keycode))
                     return true;
             }
 
@@ -175,12 +172,12 @@ namespace MarbleHero
 
         public static bool isPasteJustPressed()
         {
-            return (isShortcutModifierKeyPressed() && UnityEngine.Input.GetKeyDown(KeyCode.V));
+            return (isShortcutModifierKeyPressed() && Input.GetKeyDown(KeyCode.V));
         }
 
         public static bool didMoveMouse()
         {
-            var delta = GetMouseDelta();
+            var delta = getMouseDelta();
             return delta.x != 0 || delta.y != 0;
         }
 
@@ -193,39 +190,39 @@ namespace MarbleHero
             }
         }
 
-        public static Vector2 GetMousePosition()
+        public static Vector2 getMousePosition()
         {
             if (Application.isMobilePlatform)
             {
                 Vector3 touchPos = Vector2.zero;
 
-                for (int i = 0; i < UnityEngine.Input.touchCount; i++)
+                for (int i = 0; i < Input.touchCount; i++)
                 {
-                    var touch = UnityEngine.Input.GetTouch(i);
+                    var touch = Input.GetTouch(i);
                     touchPos = touch.position;
                 }
 
                 return touchPos;
             }
 
-            return UnityEngine.Input.mousePosition;
+            return Input.mousePosition;
         }
 
-        public static Vector2 GetMouseDelta()
+        public static Vector2 getMouseDelta()
         {
             if (Application.isMobilePlatform)
             {
                 Vector3 delta = Vector2.zero;
-                for (int i = 0; i < UnityEngine.Input.touchCount; i++)
+                for (int i = 0; i < Input.touchCount; i++)
                 {
-                    var touch = UnityEngine.Input.GetTouch(i);
+                    var touch = Input.GetTouch(i);
                     delta = touch.deltaPosition;
                 }
 
                 return delta;
             }
 
-            return UnityEngine.Input.mouseScrollDelta;
+            return Input.mouseScrollDelta;
         }
     }
 }

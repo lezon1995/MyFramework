@@ -79,7 +79,7 @@ namespace MarbleHero
         public static IPublisherIntegration publisherIntegration;
 
         // public static SteelSeries steelSeries;
-        bool displayCursor = true;
+        static bool displayCursor = true;
         static bool displayVersion = true;
 
         public static string preferenceDir;
@@ -300,12 +300,11 @@ namespace MarbleHero
             switch (mode)
             {
                 case GameMode.SPLASH:
-                    splashScreen.update(dt);
-                    if (splashScreen.isDone)
+                    if (splashScreen.update(dt))
                     {
                         splashScreen.Dispose();
                         splashScreen = null;
-                        mainMenuScreen = new();
+                        CLASS(out mainMenuScreen);
                         mode = GameMode.MAIN_MENU;
                     }
 
@@ -314,6 +313,7 @@ namespace MarbleHero
                     mainMenuScreen.update(dt);
                     if (mainMenuScreen.fadedOut)
                     {
+                        UN_CLASS(ref mainMenuScreen);
                         ADungeon.path.Clear();
 
                         if (trial == null && Settings.specialSeed != 0)
@@ -385,14 +385,6 @@ namespace MarbleHero
                             transitionScreen = null;
                             dungeon = loadDungeon();
                         }
-                    }
-                    else if (dungeon == null)
-                    {
-                        ADungeon.generateSeeds();
-                        dungeon = loadDungeon();
-                        dungeon.nextRoomTransition();
-                        // ADungeon.nextRoom = ADungeon.map[0][1];
-                        // dungeon.nextRoomTransition();
                     }
                     else
                     {
@@ -999,7 +991,7 @@ namespace MarbleHero
                     UnlockTracker.refresh();
                     log("Unlock Tracker Refresh:  " + (TimeUtility.getNowTimeStampMS() - startTime) + "ms");
                     startTime = TimeUtility.getNowTimeStampMS();
-                    mainMenuScreen = new();
+                    CLASS(out mainMenuScreen);
                     // mainMenuScreen.bg.slideDownInstantly();
                     saveSlotPref.putFloat(SaveHelper.slotName("COMPLETION", saveSlot), UnlockTracker.getCompletionPercentage());
                     saveSlotPref.putLong(SaveHelper.slotName("PLAYTIME", saveSlot), UnlockTracker.getTotalPlaytime());

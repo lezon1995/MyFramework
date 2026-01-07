@@ -52,7 +52,15 @@ namespace MarbleHero
 
         public static bool isScreenUp;
 
-        // public static OverlayMenu overlayMenu { get; set; }
+
+        #region --------------------------------------------------------------------------------------------
+
+        //爬塔地图页面
+        public static DungeonMapScreen dungeonMapScreen = new DungeonMapScreen();
+
+        #endregion
+
+        public static OverlayMenu overlayMenu { get; set; }
         public static CurrentScreen screen { get; set; }
         public static CurrentScreen previousScreen;
 
@@ -71,7 +79,8 @@ namespace MarbleHero
             long startTime = TimeUtility.getNowTimeStampMS();
             // topPanel.setPlayerName();
             actionManager = new();
-            // overlayMenu = new OverlayMenu(p);
+            effectManager = new();
+            overlayMenu = CLASS<OverlayMenu>();
             // dynamicBanner = new DynamicBanner();
             unlocks.Clear();
             specialOneTimeEventList = newSpecialOneTimeEventList;
@@ -125,7 +134,8 @@ namespace MarbleHero
             long startTime = TimeUtility.getNowTimeStampMS();
             // topPanel.setPlayerName();
             actionManager = new();
-            // overlayMenu = new OverlayMenu(p);
+            effectManager = new();
+            overlayMenu = CLASS<OverlayMenu>();
             // dynamicBanner = new DynamicBanner();
             // isFadingIn = false;
             // isFadingOut = false;
@@ -335,17 +345,8 @@ namespace MarbleHero
             }
 
             turnPhaseEffectActive = false;
-
-            updateTopLevelEffects(dt);
-            updateEffects(dt);
-
-            effectList.AddRange(effectsQueue);
-            effectsQueue.Clear();
-
-            topLevelEffects.AddRange(topLevelEffectsQueue);
-            topLevelEffectsQueue.Clear();
-
-            // overlayMenu.update(dt);
+            effectManager.update(dt);
+            overlayMenu.update(dt);
             cardInstanceIdGenerator = 0;
         }
 
@@ -355,79 +356,54 @@ namespace MarbleHero
             {
                 case CurrentScreen.NONE:
                 case CurrentScreen.MAP:
-                    // dungeonMapScreen.update();
                     room.fixedUpdate(dt);
-                    // scene.update();
-                    // room.eventControllerInput();
                     break;
                 case CurrentScreen.FTUE:
-                    // ftue.update();
-                    InputHelper.justClickedRight = false;
-                    InputHelper.justClickedLeft = false;
                     room.fixedUpdate(dt);
                     break;
                 case CurrentScreen.MASTER_DECK_VIEW:
-                    // deckViewScreen.update();
                     break;
                 case CurrentScreen.GAME_DECK_VIEW:
-                    // gameDeckViewScreen.update();
                     break;
                 case CurrentScreen.DISCARD_VIEW:
-                    // discardPileViewScreen.update();
                     break;
                 case CurrentScreen.EXHAUST_VIEW:
-                    // exhaustPileViewScreen.update();
                     break;
                 case CurrentScreen.SETTINGS:
-                    // settingsScreen.update();
                     break;
                 case CurrentScreen.INPUT_SETTINGS:
-                    // inputSettingsScreen.update();
                     break;
                 case CurrentScreen.GRID:
-                    // dungeonMapScreen.update();
                     break;
                 case CurrentScreen.CHOOSE_ONE:
-                    // gridSelectScreen.update();
                     // if (PeekButton.isPeeking)
                     // room.update(dt);
                     break;
                 case CurrentScreen.CARD_REWARD:
-                    // cardRewardScreen.update();
                     // if (PeekButton.isPeeking)
                     // room.update(dt);
                     break;
                 case CurrentScreen.COMBAT_REWARD:
-                    // combatRewardScreen.update();
                     break;
                 case CurrentScreen.BOSS_REWARD:
-                    // bossRelicScreen.update();
                     room.fixedUpdate(dt);
                     break;
                 case CurrentScreen.HAND_SELECT:
-                    // handCardSelectScreen.update();
                     room.fixedUpdate(dt);
                     break;
                 case CurrentScreen.SHOP:
-                    // shopScreen.update();
                     break;
                 case CurrentScreen.DEATH:
-                    // deathScreen.update();
                     break;
                 case CurrentScreen.VICTORY:
-                    // victoryScreen.update();
                     break;
                 case CurrentScreen.UNLOCK:
-                    // unlockScreen.update();
                     break;
                 case CurrentScreen.NEOW_UNLOCK:
-                    // gUnlockScreen.update();
                     break;
                 case CurrentScreen.CREDITS:
-                    // creditsScreen.update();
                     break;
                 case CurrentScreen.DOOR_UNLOCK:
-                    // Game.mainMenuScreen.doorUnlockScreen.update();
                     break;
                 case CurrentScreen.TRANSFORM:
                 case CurrentScreen.NO_INTERACT:

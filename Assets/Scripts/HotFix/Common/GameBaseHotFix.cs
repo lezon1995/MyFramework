@@ -32,6 +32,7 @@ public partial class GBH
 	
 	public static ADungeon _dungeon { get; set; }
 	public static GameActionManager actionManager { get; set; }
+	public static GameEffectManager effectManager { get; set; }
 	public static APlayer player { get; set; }
 	public static SoundMaster sound { get; set; }
 	public static MusicMaster music { get; set; }

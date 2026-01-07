@@ -42,7 +42,7 @@ namespace MarbleHero
                         e?.markAsTaken();
 
                     // InputHelper.justClickedLeft = false;
-                    // music.fadeOutTempBGM();
+                    music.fadeOutTempBGM();
                     MapRoomNode node = new MapRoomNode(-1, 15, new MonsterRoomBoss());
                     ADungeon.nextRoom = node;
                     if (ADungeon.path.Count > 1)

@@ -42,7 +42,7 @@ public class GuideLine : MovableObject
 
         movableDrag.setDragStartCallback((ComponentOwner owner, TouchPoint point, ref bool drag) =>
         {
-            if (gameplayManager.isLock)
+            if (!room.inPlayerTurn)
                 return;
 
             //if (CtrGame.instance.isGameOver || !CtrGame.instance.isGameStart) return;
@@ -55,7 +55,7 @@ public class GuideLine : MovableObject
             if (!isInteractable)
                 return;
 
-            if (gameplayManager.isLock)
+            if (!room.inPlayerTurn)
                 return;
 
             var diff = screenToWorld(pos, false) - shootPosition;
@@ -67,7 +67,7 @@ public class GuideLine : MovableObject
 
         movableDrag.setDragEndCallback((owner, pos, cancel) =>
         {
-            if (gameplayManager.isLock)
+            if (!room.inPlayerTurn)
                 return;
 
             //if (CtrGame.instance.isGameOver || !CtrGame.instance.isGameStart) return;

@@ -1,4 +1,7 @@
-﻿namespace MarbleHero
+﻿using Drawing;
+using UnityEngine;
+
+namespace MarbleHero
 {
     public class PlayerTurnEffect : AGameEffect
     {
@@ -30,11 +33,7 @@
 
         public override bool update(float dt)
         {
-            if (isFloatEqual(duration, DUR))
-            {
-                Toast.Show("Player Turn Start");
-            }
-
+            Draw.xy.Label2D(new Vector2(0, 0), "Player Turn Start", 20, LabelAlignment.Center, color);
             return base.update(dt);
         }
     }

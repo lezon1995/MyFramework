@@ -2,7 +2,7 @@
 
 namespace MarbleHero;
 
-public class GameActionManager : FrameSystem
+public class GameActionManager
 {
     public GameActionManager()
     {
@@ -137,9 +137,8 @@ public class GameActionManager : FrameSystem
         nextCombatActions.Add(action);
     }
 
-    public override void update(float dt)
+    public void update(float dt)
     {
-        base.update(dt);
         switch (phase)
         {
             case Phase.WAITING_ON_USER:
@@ -168,9 +167,8 @@ public class GameActionManager : FrameSystem
         }
     }
 
-    public override void fixedUpdate(float dt)
+    public void fixedUpdate(float dt)
     {
-        base.fixedUpdate(dt);
         switch (phase)
         {
             case Phase.WAITING_ON_USER:
@@ -206,7 +204,7 @@ public class GameActionManager : FrameSystem
         if (checkMonsterQueue())
             return;
 
-        if (checkPawnsFighting())
+        if (checkFighting())
             return;
 
         if (checkStartNextTurn())
@@ -224,11 +222,11 @@ public class GameActionManager : FrameSystem
         if (!room.skipMonsterTurn)
             room.monsters.applyEndOfTurnPowers();
 
-        room.startTurn();
+        room.startGameTurn();
         return true;
     }
 
-    bool checkPawnsFighting()
+    bool checkFighting()
     {
         if (room is not MonsterRoom)
             return false;
@@ -242,7 +240,7 @@ public class GameActionManager : FrameSystem
         if (!room.isFightStarted)
             room.startFight();
         else
-            room.checkFightingResult();
+            room.checkFightingOver();
 
         return true;
     }
@@ -261,9 +259,7 @@ public class GameActionManager : FrameSystem
                 // addToBot(new IntentFlashAction(m));
             }
 
-            if (!TipTracker.tips["INTENT_TIP"] && player.currentBlock == 0 &&
-                m.intent is Intent.ATTACK or Intent.ATTACK_DEBUFF
-                    or Intent.ATTACK_BUFF or Intent.ATTACK_DEFEND)
+            if (!TipTracker.tips["INTENT_TIP"] && player.currentBlock == 0 && m.intent is Intent.ATTACK or Intent.ATTACK_DEBUFF or Intent.ATTACK_BUFF or Intent.ATTACK_DEFEND)
             {
                 if (ADungeon.floorNum <= 5)
                     TipTracker.blockCounter++;
@@ -277,7 +273,10 @@ public class GameActionManager : FrameSystem
 
         monsterQueue.RemoveAt(0);
         if (monsterQueue.Count == 0)
+        {
             addToBot(new WaitAction(1.5F));
+            addToBot(new StartPlayerTurnAction(room));
+        }
 
         return true;
     }

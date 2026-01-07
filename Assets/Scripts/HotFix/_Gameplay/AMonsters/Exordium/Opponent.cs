@@ -43,11 +43,7 @@ namespace MarbleHero
                 case 3:
                 case 4:
                 case 5:
-                    // if (intentPawns != null)
-                    // {
-                    //     actionManager.addToBot(new InstantiatePawnsAction(this, intentPawns));
-                    // }
-
+                    actionManager.addToBot(new CreateBreakGroupAction(this));
                     break;
             }
 

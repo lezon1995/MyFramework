@@ -1,4 +1,7 @@
-﻿namespace MarbleHero
+﻿using Drawing;
+using UnityEngine;
+
+namespace MarbleHero
 {
     public class PlayerTurnPhase : APhase
     {
@@ -10,7 +13,6 @@
         {
             base.Dispose();
         }
-
 
         protected override void onBindListeners()
         {
@@ -37,6 +39,7 @@
 
         public override void update(float dt)
         {
+            Draw.xy.Label2D(new Vector2(Screen.width / 2F, Screen.height / 2F), "PlayerTurnPhase", 20, LabelAlignment.Center, Color.white);
         }
     }
 }

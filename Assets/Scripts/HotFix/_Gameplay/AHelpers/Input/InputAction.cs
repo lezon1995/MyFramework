@@ -32,12 +32,12 @@ namespace MarbleHero
 
         public bool isJustPressed()
         {
-            return UnityEngine.Input.GetKeyDown(keycode);
+            return Input.GetKeyDown(keycode);
         }
 
         public bool isPressed()
         {
-            return UnityEngine.Input.GetKey(keycode);
+            return Input.GetKey(keycode);
         }
 
         public void remap(KeyCode newKeycode)
