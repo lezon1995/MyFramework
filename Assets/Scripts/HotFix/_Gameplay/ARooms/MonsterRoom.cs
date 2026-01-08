@@ -1,27 +1,29 @@
-﻿namespace MarbleHero
+﻿using System.Collections.Generic;
+
+namespace MarbleHero
 {
     public record struct OnPlayerEnterBattleRoom;
 
-    public partial class MonsterRoom : ARoom
+    public partial class MonsterRoom : ARoom, IEvent<OnBrickDeath>
     {
         public override RoomType Type => RoomType.MONSTER;
 
         // public DiscardPileViewScreen discardPileViewScreen = new DiscardPileViewScreen();
         public const float COMBAT_WAIT_TIME = 0.1F;
+        Timer brickDeathTimer;
+        protected static Queue<OnBrickDeath> brickDeathQueue = new();
 
         public MonsterRoom()
         {
-            _phases = new APhase[]
-            {
-                new PlayerTurnPhase(this),
-                new EnemyTurnPhase(this),
-                new FightingPhase(this),
-                new SettlementPhase(this),
-            };
+            _phases[RoomPhaseType.PLAYER_TURN] = new PlayerTurnPhase(this);
+            _phases[RoomPhaseType.ENEMY_TURN] = new EnemyTurnPhase(this);
+            _phases[RoomPhaseType.FIGHTING] = new FightingPhase(this);
+            _phases[RoomPhaseType.SETTLEMENT] = new SettlementPhase(this);
         }
 
         public override void onPlayerEntry()
         {
+            base.onPlayerEntry();
             playBGM(null);
 
             if (monsters == null)
@@ -32,6 +34,35 @@
 
             waitTimer = COMBAT_WAIT_TIME;
             new OnPlayerEnterBattleRoom().trigger();
+            this.addListener();
+        }
+
+        public override void onPlayerExit()
+        {
+            this.removeListener();
+            base.onPlayerExit();
+        }
+
+        protected override void onEnemyTurnStart(int turn)
+        {
+            base.onEnemyTurnStart(turn);
+            nextPhase(RoomPhaseType.ENEMY_TURN);
+        }
+
+        protected override void onEnemyTurnEnd()
+        {
+            base.onEnemyTurnEnd();
+        }
+
+        protected override void onPlayerTurnStart(int turn)
+        {
+            base.onPlayerTurnStart(turn);
+            nextPhase(RoomPhaseType.PLAYER_TURN);
+        }
+
+        protected override void onPlayerTurnEnd()
+        {
+            base.onPlayerTurnEnd();
         }
 
         public override void onCombatFightStart()
@@ -39,21 +70,20 @@
             nextPhase(RoomPhaseType.FIGHTING);
         }
 
-        protected override void onPlayerTurnStart(int turn)
+        public void onEvent(OnBrickDeath e)
         {
-            nextPhase(RoomPhaseType.PLAYER_TURN);
+            var combo = ++GameActionManager.comboCount;
+            GameActionManager.turnScore += combo * 10;
+            e.combo = combo;
+
+            brickDeathTimer = 0.15F;
+            brickDeathQueue.Enqueue(e);
         }
 
-        protected override void onPlayerTurnEnd()
-        {
-            nextPhase(RoomPhaseType.ENEMY_TURN);
-        }
-
-        protected override void onPlayerFightEnd()
+        protected override void onFightPhaseEnd()
         {
             nextPhase(RoomPhaseType.SETTLEMENT);
         }
-
 
         public override void dropReward()
         {
@@ -98,6 +128,30 @@
                 return 40 + blizzardPotionMod;
 
             return 0;
+        }
+
+        public override void update(float dt)
+        {
+            base.update(dt);
+
+            handleBrickDeathEvent(dt);
+        }
+
+        void handleBrickDeathEvent(float elapsedTime)
+        {
+            if (brickDeathTimer.update(elapsedTime))
+            {
+                if (brickDeathQueue.TryDequeue(out var e))
+                {
+                    brickDeathTimer = 0.15F;
+                    comboManager.createComboEffect(e.combo, e.deathPosition);
+
+                    //Camera shaking
+                    Game.screenShake.shakeCamera(e.combo * 0.01f, 0.15F);
+                }
+            }
+
+            return;
         }
     }
 }

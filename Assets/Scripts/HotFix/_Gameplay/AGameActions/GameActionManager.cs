@@ -2,7 +2,7 @@
 
 namespace MarbleHero;
 
-public class GameActionManager
+public partial class GameActionManager
 {
     public GameActionManager()
     {
@@ -12,14 +12,12 @@ public class GameActionManager
     public List<AGameAction> actions = new();
     public List<AGameAction> preTurnActions = new();
     public List<CardQueueItem> cardQueue = new();
-    public List<MonsterQueueItem> monsterQueue = new();
+    public Queue<MonsterQueueItem> monsterQueue = new();
     public List<ACard> cardsPlayedThisTurn = new();
     public List<ACard> cardsPlayedThisCombat = new();
 
     public int mantraGained;
     public AGameAction currentAction;
-    public AGameAction previousAction;
-    public AGameAction turnStartCurrentAction;
     public ACard lastCard;
     public Phase phase = Phase.WAITING_ON_USER;
     public bool hasControl = true;
@@ -32,7 +30,10 @@ public class GameActionManager
     public static int hpLossThisCombat { get; set; }
     public static int playerHpLastTurn { get; set; }
     public static int energyGainedThisCombat { get; set; }
-    public static int turn { get; set; }
+    public static Turn turn;
+    public static int turnScore { get; set; }
+    public static int comboCount { get; set; }
+    public static bool isAllClear { get; set; }
 
     public enum Phase
     {
@@ -93,7 +94,10 @@ public class GameActionManager
             cardQueue.RemoveAt(index);
     }
 
-    public void addMonsterQueueItem(MonsterQueueItem item) => monsterQueue.Add(item);
+    public void addMonsterQueueItem(MonsterQueueItem item)
+    {
+        monsterQueue.Enqueue(item);
+    }
 
     public void clearPostCombatActions()
     {
@@ -110,6 +114,7 @@ public class GameActionManager
             // if (e.actionType == ActionType.DAMAGE)
             // continue;
 
+            UN_CLASS(e);
             actions.RemoveAt(i);
         }
     }
@@ -151,8 +156,8 @@ public class GameActionManager
                 }
                 else
                 {
-                    previousAction = currentAction;
-                    currentAction = null;
+                    UN_CLASS(ref currentAction);
+
                     getNextAction();
                     if (currentAction == null && room.inCombat() && !usingCard)
                     {
@@ -231,7 +236,7 @@ public class GameActionManager
         if (room is not MonsterRoom)
             return false;
 
-        if (!room.isTurnEnd)
+        if (!room.isPlayerTurnEnd)
             return false;
 
         if (room.isFightEnded)
@@ -247,10 +252,10 @@ public class GameActionManager
 
     bool checkMonsterQueue()
     {
-        if (monsterQueue.Count == 0)
+        if (!monsterQueue.TryDequeue(out var item))
             return false;
 
-        AMonster m = monsterQueue[0].monster;
+        AMonster m = item.monster;
         if (!m.isDeadOrEscaped() || m.halfDead)
         {
             if (m.intent != Intent.NONE)
@@ -271,11 +276,11 @@ public class GameActionManager
             m.applyTurnPowers();
         }
 
-        monsterQueue.RemoveAt(0);
         if (monsterQueue.Count == 0)
         {
-            addToBot(new WaitAction(1.5F));
-            addToBot(new StartPlayerTurnAction(room));
+            m.isEndingTurn = true;
+            addToBot<WaitAction, float>(1.5F);
+            addToBot<StartPlayerTurnAction, ARoom>(room);
         }
 
         return true;
@@ -335,7 +340,7 @@ public class GameActionManager
                 UnlockTracker.unlockAchievement("INFINITY");
 
             // if (cardsPlayedThisTurn.Count >= 20 && !Game.combo)
-                // Game.combo = true;
+            // Game.combo = true;
 
             player.useCard(toPlay);
         }
@@ -387,15 +392,34 @@ public class GameActionManager
     }
 
     public bool isEmpty() => actions.Count == 0;
-    public void clearNextRoomCombatActions() => nextCombatActions.Clear();
+
+    public void clearNextRoomCombatActions()
+    {
+        for (var i = nextCombatActions.Count - 1; i >= 0; i--)
+        {
+            var action = nextCombatActions[i];
+            UN_CLASS(action);
+            nextCombatActions.RemoveAt(i);
+        }
+    }
 
     public void clear()
     {
-        actions.Clear();
-        preTurnActions.Clear();
-        currentAction = null;
-        previousAction = null;
-        turnStartCurrentAction = null;
+        for (var i = actions.Count - 1; i >= 0; i--)
+        {
+            var action = actions[i];
+            UN_CLASS(action);
+            actions.RemoveAt(i);
+        }
+
+        for (var i = preTurnActions.Count - 1; i >= 0; i--)
+        {
+            var action = preTurnActions[i];
+            UN_CLASS(action);
+            preTurnActions.RemoveAt(i);
+        }
+
+        UN_CLASS(ref currentAction);
         cardsPlayedThisCombat.Clear();
         cardsPlayedThisTurn.Clear();
         cardQueue.Clear();
@@ -405,7 +429,7 @@ public class GameActionManager
         damageReceivedThisTurn = 0;
         hpLossThisCombat = 0;
         turnHasEnded = false;
-        turn = 0;
+        turn.reset();
         phase = Phase.WAITING_ON_USER;
         totalDiscardedThisTurn = 0;
     }

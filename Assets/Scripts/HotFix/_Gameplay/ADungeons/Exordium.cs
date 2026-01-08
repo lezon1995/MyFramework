@@ -35,6 +35,7 @@ namespace MarbleHero
 
             generateMap();
             music.changeBGM(id);
+            prevMapNode = null;
             currMapNode = new MapRoomNode(0, -1);
             if (Settings.isShowBuild || !TipTracker.tips["NEOW_SKIP"])
             {

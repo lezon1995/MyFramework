@@ -31,7 +31,34 @@ namespace MarbleHero
                 damageList.Add(new DamageInfo(this, A_2_TACKLE_DAMAGE));
             else
                 damageList.Add(new DamageInfo(this, TACKLE_DAMAGE));
+        }
+        
+        
+        public override void moveBrickGroup(int turnNum)
+        {
+            for (int i = 0; i < blockGroups.Count; i++)
+            {
+                blockGroups[i].doNextTurnMove(0.2F);
+            }
+        }
 
+        public override void createBrickGroup(int turnNum)
+        {
+            var num = turnNum % 4;
+            BrickGroup brickGroup = num switch
+            {
+                0 => CLASS<TopRowRandomBrickGroup>(),
+                1 => CLASS<RandomRowRandomBrickGroup>(),
+                2 => CLASS<RandomColRandomBrickGroup>(),
+                3 => CLASS<RandomAnyEmptyBrickGroup>(),
+                _ => CLASS<TopRowRandomBrickGroup>()
+            };
+
+            brickGroup.setBrickManager(brickManager);
+            brickGroup.setLevelManager(levelManager);
+            brickGroup.setOnBricksClear(onBrickGroupClear);
+            brickGroup.createBricks(turnNum);
+            blockGroups.add(brickGroup);
         }
 
         public override void takeTurn()
@@ -39,15 +66,23 @@ namespace MarbleHero
             switch (nextMove)
             {
                 case 1:
+                    actionManager.addToBot<MoveBreakGroupAction, AMonster>(this);
+                    break;
                 case 2:
+                    actionManager.addToBot<CreateBreakGroupAction, AMonster>(this);
+                    break;
                 case 3:
+                    actionManager.addToBot<CreateBreakGroupAction, AMonster>(this);
+                    break;
                 case 4:
+                    actionManager.addToBot<MoveBreakGroupAction, AMonster>(this);
+                    break;
                 case 5:
-                    actionManager.addToBot(new CreateBreakGroupAction(this));
+                    actionManager.addToBot<CreateBreakGroupAction, AMonster>(this);
                     break;
             }
 
-            actionManager.addToBot(new RollMoveAction(this));
+            actionManager.addToBot<RollMoveAction, AMonster>(this);
             Debug.Log($"Enemy Execute move[{nextMove}] ");
             new OnOpPlayerTakeTurn().trigger();
         }

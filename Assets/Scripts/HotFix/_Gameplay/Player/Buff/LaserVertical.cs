@@ -29,7 +29,7 @@ public class LaserVertical : Buff, IDoAttackEffect
 
     Vector2 triggerPos;
 
-    public void onDoAttack(Player player, Ball ball, Brick brick)
+    public void onDoAttack(APlayer player, Ball ball, Brick brick)
     {
         var chance = getChance();
         if (randomHit(chance))

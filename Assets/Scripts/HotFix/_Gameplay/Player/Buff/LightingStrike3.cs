@@ -21,7 +21,7 @@ public class LightingStrike3 : Buff, IDoAttackKillEffect
         };
     }
 
-    public void onDoAttackKill(Player player, Ball ball, Brick brick)
+    public void onDoAttackKill(APlayer player, Ball ball, Brick brick)
     {
         var count = getCount();
         UnityEngine.Pool.ListPool<Brick>.Get(out var list);

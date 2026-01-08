@@ -1,15 +1,15 @@
-﻿namespace MarbleHero;
+﻿using Drawing;
+using UnityEngine;
+
+namespace MarbleHero;
 
 public abstract class AGameAction : ClassObject
 {
     protected const float DEFAULT_DURATION = 0.5F;
 
+    protected ACreature source, target;
+    protected float duration, startDuration;
     public bool isDone;
-
-    protected ACreature target;
-    protected ACreature source;
-    protected float duration;
-    protected float startDuration;
 
     public override void resetProperty()
     {
@@ -20,9 +20,6 @@ public abstract class AGameAction : ClassObject
         isDone = false;
     }
 
-    protected static void addToBot(AGameAction action) => actionManager.addToBot(action);
-    protected static void addToTop(AGameAction action) => actionManager.addToTop(action);
-
     public abstract void update(float dt);
 
     public virtual void fixedUpdate(float dt)
@@ -31,6 +28,7 @@ public abstract class AGameAction : ClassObject
 
     protected void tickDuration(float dt)
     {
+        Draw.ingame.xy.Label2D(new Vector2(0F, Screen.height / 4F), $"({duration:F2}) {GetType().Name}", 20, LabelAlignment.Center, Color.green);
         duration = clampMin(duration - dt);
         if (duration <= 0.0F)
             isDone = true;

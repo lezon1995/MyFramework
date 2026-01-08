@@ -10,7 +10,7 @@ namespace MarbleHero
         {
             if (masterCharacterList.Count == 0)
             {
-                masterCharacterList.Add(new Ironclad(Game.playerName));
+                masterCharacterList.Add(CLASS<Ironclad>());
                 // masterCharacterList.Add(new TheSilent(Game.playerName));
                 // masterCharacterList.Add(new Defect(Game.playerName));
                 // masterCharacterList.Add(new Watcher(Game.playerName));
@@ -97,15 +97,31 @@ namespace MarbleHero
             {
                 if (old.chosenClass == p)
                 {
-                    APlayer newChar = old.newInstance();
-                    masterCharacterList[masterCharacterList.IndexOf(old)] = newChar;
-                    old.dispose();
-                    log("Successfully recreated " + newChar.chosenClass);
-                    return newChar;
+                    APlayer newPlayer = old.newInstance();
+                    var idx = masterCharacterList.IndexOf(old);
+                    masterCharacterList[idx] = newPlayer;
+                    destroyPlayer(old);
+                    
+                    newPlayer.setName(Game.playerName);
+                    var path = $"{GAMEPLAY_PATH}/Player.prefab";
+                    var o = mPrefabPoolManager.createObject(path, 0, false, true);
+                    newPlayer.setObject(o);
+                    newPlayer.init();
+                    log("Successfully recreated " + newPlayer.chosenClass);
+                    return newPlayer;
                 }
             }
 
             return null;
+        }
+        
+        public void destroyPlayer(APlayer p)
+        {
+            if (p == null)
+                return;
+
+            mPrefabPoolManager.destroyObject(p.getObject(), false);
+            UN_CLASS(ref p);
         }
 
         public APlayer getCharacter(APlayer.PlayerClass c)

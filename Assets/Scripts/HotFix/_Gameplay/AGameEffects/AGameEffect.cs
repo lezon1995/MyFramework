@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Drawing;
+using UnityEngine;
 
 namespace MarbleHero
 {
@@ -31,6 +32,8 @@ namespace MarbleHero
 
         public virtual bool update(float dt)
         {
+            Draw.ingame.xy.Label2D(new Vector2(0F, -Screen.height / 4F), $"({duration:F2}) {GetType().Name}", 20, LabelAlignment.Center, color);
+            
             duration -= dt;
 
             if (duration < startingDuration / 2.0F)

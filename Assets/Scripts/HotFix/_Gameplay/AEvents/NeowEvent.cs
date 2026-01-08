@@ -10,6 +10,12 @@ public class NeowEvent : AEvent
     {
         base.onEnterRoom();
         buttonEffect(0);
+
+        if (Settings.isDebug)
+        {
+            var node = ADungeon.getRoomNodeAt(1, 0);
+            ADungeon.enterTargetRoom(node);
+        }
     }
 
     public override void update(float dt)
@@ -20,7 +26,7 @@ public class NeowEvent : AEvent
         {
             if (InputActionSet.confirm.isJustPressed())
             {
-                var node = ADungeon.map[0][1];
+                var node = ADungeon.getRoomNodeAt(1, 0);
                 ADungeon.enterTargetRoom(node);
             }
         }

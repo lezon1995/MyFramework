@@ -1,7 +1,4 @@
-﻿using Drawing;
-using UnityEngine;
-
-namespace MarbleHero
+﻿namespace MarbleHero
 {
     public class PlayerTurnPhase : APhase
     {
@@ -25,21 +22,29 @@ namespace MarbleHero
         public override void onBegin(APhase last)
         {
             base.onBegin(last);
+
+            brickManager.refreshAllBrickGrid();
+
+            player.getGuideLine().guidelineOn();
+            player.getGuideLine().enableDragCallback();
         }
 
+        public override void update(float dt)
+        {
+            base.update(dt);
+        }
 
         public override void fixedUpdate(float dt)
         {
+            base.fixedUpdate(dt);
         }
 
         public override void onEnd()
         {
             base.onEnd();
-        }
 
-        public override void update(float dt)
-        {
-            Draw.xy.Label2D(new Vector2(Screen.width / 2F, Screen.height / 2F), "PlayerTurnPhase", 20, LabelAlignment.Center, Color.white);
+            player.getGuideLine().guidelineOff();
+            player.getGuideLine().disableDragCallback();
         }
     }
 }

@@ -63,14 +63,9 @@ public class MainSceneGaming : SceneProcedure
             // balls.add(ball);
         }
 
-        if (isKeyCurrentDown(KeyCode.N))
-        {
-            gameplayManager.nextTurn();
-        }
-
         if (isKeyCurrentDown(KeyCode.R))
         {
-            playerManager.getPlayer().returnBall();
+            player.returnBall();
         }
 
         if (isKeyCurrentDown(KeyCode.P))

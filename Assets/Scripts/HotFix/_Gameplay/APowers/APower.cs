@@ -81,9 +81,6 @@ namespace MarbleHero
             updateColor();
         }
 
-        protected void addToBot(AGameAction action) => actionManager.addToBot(action);
-        protected void addToTop(AGameAction action) => actionManager.addToTop(action);
-
         void updateFlash(float dt)
         {
             for (var i = 0; i < effect.Count;)

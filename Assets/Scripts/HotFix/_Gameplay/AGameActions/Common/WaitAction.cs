@@ -1,8 +1,8 @@
 ﻿namespace MarbleHero
 {
-    public class WaitAction : AGameAction
+    public class WaitAction : AGameAction, IGameActionArgs<float>
     {
-        public WaitAction(float time)
+        public void onCreate(float time)
         {
             if (Settings.FAST_MODE && time > 0.1F)
                 duration = 0.1F;

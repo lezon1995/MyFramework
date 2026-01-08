@@ -1,6 +1,6 @@
 ﻿namespace MarbleHero;
 
-public partial class Player : IEventRouter
+public partial class APlayer : IEventRouter
     , IEvent<DoAttackEffect>
     , IEvent<DoAbilityEffect>
     , IEvent<DoAttackKillEffect>

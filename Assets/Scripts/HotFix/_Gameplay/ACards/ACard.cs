@@ -108,9 +108,6 @@ namespace MarbleHero
             resetAttributes();
         }
 
-        protected void addToBot(AGameAction action) => actionManager.addToBot(action);
-        protected void addToTop(AGameAction action) => actionManager.addToTop(action);
-
         public override string ToString() => name;
         
         public void unlock()

@@ -45,6 +45,7 @@ public struct OnBrickDeath
     public Brick brick;
     public Vector3 deathPosition;
     public int combo;
+
     public OnBrickDeath(Brick b)
     {
         brick = b;
@@ -56,6 +57,7 @@ public struct OnBrickDeath
 public struct OnBrickDeathTotally
 {
     public Brick brick;
+
     public OnBrickDeathTotally(Brick b)
     {
         brick = b;
@@ -97,7 +99,6 @@ public struct OnDmg
         dmg = d;
     }
 }
-
 
 public struct DoAttackKillEffect
 {
@@ -141,6 +142,29 @@ public struct DoKillBall
 
 public struct OnBrickColliderChanged
 {
+}
+
+public struct Turn
+{
+    public int value;
+
+    public int increment()
+    {
+        var v = ++value;
+        new OnTurnChanged(v).trigger();
+        return v;
+    }
+
+    public void reset()
+    {
+        value = 0;
+        new OnTurnChanged(value).trigger();
+    }
+    
+    public static implicit operator int(Turn turn)
+    {
+        return turn.value;
+    }
 }
 
 public struct OnTurnChanged

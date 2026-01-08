@@ -2,24 +2,24 @@
 
 public interface IDoAttackEffect
 {
-    void onDoAttack(Player player, Ball ball, Brick brick);
+    void onDoAttack(APlayer player, Ball ball, Brick brick);
 }
 public interface IDoAbilityEffect
 {
-    void onDoAbility(Player player, Ball ball, Brick brick);
+    void onDoAbility(APlayer player, Ball ball, Brick brick);
 }
 public interface IDoAttackKillEffect
 {
-    void onDoAttackKill(Player player, Ball ball, Brick brick);
+    void onDoAttackKill(APlayer player, Ball ball, Brick brick);
 }
 public interface IDoKillEffect
 {
-    void onDoKill(Player player, Ball ball, Brick brick);
+    void onDoKill(APlayer player, Ball ball, Brick brick);
 }
 
 public interface IHitEnterBrick
 {
-    void onDoAttack(Player player, Ball ball, Brick brick);
+    void onDoAttack(APlayer player, Ball ball, Brick brick);
 }
 
 public class Buff : ClassObject

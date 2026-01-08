@@ -8,18 +8,15 @@ namespace MarbleHero
 
     public abstract partial class APlayer : ACreature
     {
-        public PlayerClass chosenClass;
+        public abstract PlayerClass chosenClass { get; }
         public int startingMaxHP;
 
         public bool isEndingTurn { get; set; }
         public bool viewingRelics;
-
         public bool inspectMode;
-
         public static int poisonKillCount;
         public int damagedThisCombat;
         public string title;
-
         public int cardsPlayedThisTurn;
         bool isHoveringCard;
         public bool isHoveringDropZone;
@@ -42,15 +39,18 @@ namespace MarbleHero
 
         public static List<string> customMods;
 
-        protected APlayer(string playerName)
+        protected APlayer()
         {
-            player = this;
-            name = playerName;
-            var setClass = PlayerClass.IRONCLAD;
-            title = getTitle(setClass);
-            chosenClass = setClass;
+        }
+
+        public override void onCtor()
+        {
+            base.onCtor();
+            
+            name = Game.playerName;
+            title = getTitle(chosenClass);
             isPlayer = true;
-            initializeStarterRelics(setClass);
+            initializeStarterRelics(chosenClass);
             loadPrefs();
 
             // if (ADungeon.ascensionLevel >= 11)
@@ -114,8 +114,9 @@ namespace MarbleHero
 
         public string getSaveFilePath() => SaveAndContinue.getPlayerSavePath(chosenClass.ToString());
 
-        public void dispose()
+        public override void dispose()
         {
+            base.dispose();
         }
 
         protected void initializeClass(CharSelectInfo info)
@@ -211,15 +212,20 @@ namespace MarbleHero
         {
         }
 
-        public void update(float dt)
+        public override void doUpdate(float dt)
         {
+            base.doUpdate(dt);
+
             updatePowers(dt);
+            guideLine?.update(dt);
         }
 
-        public void fixedUpdate(float dt)
+        public override void doFixedUpdate(float dt)
         {
-        }
+            base.doFixedUpdate(dt);
 
+            guideLine?.fixedUpdate(dt);
+        }
 
         public override void loseGold(int amount)
         {
@@ -490,7 +496,7 @@ namespace MarbleHero
 
             room.monsters?.usePreBattleAction();
 
-            actionManager.addToTop(new WaitAction(1.0F));
+            actionManager.addToTop<WaitAction, float>(1F);
             applyPreCombatLogic();
         }
 

@@ -23,6 +23,7 @@ namespace MarbleHero
         public static string TRUE_VERSION_NUM = "2022-12-18";
 
         //
+        public static ScreenShake screenShake;
         public static ADungeon dungeon;
         public static SplashScreen splashScreen;
         public static MainMenuScreen mainMenuScreen;
@@ -139,6 +140,7 @@ namespace MarbleHero
                 // Gdx.graphics.setCursor(Gdx.graphics.newCursor(new Pixmap(Gdx.files. internal ("images/blank.png")), 0, 0));
                 music = new();
                 sound = new();
+                screenShake = new(getMainCamera());
 
                 // GameDictionary.initialize();
                 // ImageMaster.initialize();
@@ -265,6 +267,8 @@ namespace MarbleHero
 
         void onUpdate(float dt)
         {
+            screenShake.update(dt);
+            
             if (mode != GameMode.SPLASH)
                 updateFade(dt);
 
@@ -462,7 +466,7 @@ namespace MarbleHero
             };
         }
 
-        void setupTrialMods(ATrial trial, APlayer.PlayerClass chosenClass)
+        static void setupTrialMods(ATrial trial, APlayer.PlayerClass chosenClass)
         {
             if (trial.useRandomDailyMods())
             {
@@ -478,7 +482,7 @@ namespace MarbleHero
             }
         }
 
-        void setupTrialPlayer(ATrial trial)
+        static void setupTrialPlayer(ATrial trial)
         {
             player = trial.setupPlayer(createCharacter(chosenCharacter));
             if (!trial.keepStarterRelic())

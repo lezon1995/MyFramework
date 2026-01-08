@@ -33,7 +33,6 @@ namespace MarbleHero
 
         public override bool update(float dt)
         {
-            Draw.xy.Label2D(new Vector2(0, 0), "Player Turn Start", 20, LabelAlignment.Center, color);
             return base.update(dt);
         }
     }

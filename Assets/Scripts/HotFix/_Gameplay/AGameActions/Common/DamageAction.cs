@@ -2,24 +2,24 @@
 
 namespace MarbleHero
 {
-    public class DamageAction : AGameAction
+    public class DamageAction : AGameAction, IGameActionArgs<ACreature, DamageInfo>
     {
-        DamageInfo info;
+        DamageInfo damage;
         int damageAmount;
         static float DURATION = 0.1F;
         static float POST_ATTACK_WAIT_DUR = 0.1F;
         bool skipWait;
         bool muteSfx;
-
-        public DamageAction(ACreature target, DamageInfo info)
+        
+        public void onCreate(ACreature target, DamageInfo info)
         {
-            this.info = info;
+            damage = info;
             duration = DURATION;
         }
 
         public override void update(float dt)
         {
-            if (shouldCancelAction() && info.type != DamageInfo.DamageType.THORNS)
+            if (shouldCancelAction() && damage.type != DamageInfo.DamageType.THORNS)
             {
                 isDone = true;
                 return;
@@ -29,7 +29,7 @@ namespace MarbleHero
             {
                 Debug.Log($"{source.name} Cause {damageAmount} dmg to {target.name}");
 
-                if (info.type != DamageInfo.DamageType.THORNS && (info.owner.isDying || info.owner.halfDead))
+                if (damage.type != DamageInfo.DamageType.THORNS && (damage.owner.isDying || damage.owner.halfDead))
                 {
                     isDone = true;
                     return;
@@ -41,12 +41,12 @@ namespace MarbleHero
             tickDuration(dt);
             if (isDone)
             {
-                target.damage(info);
+                target.damage(damage);
                 if (room.monsters.areMonstersBasicallyDead)
                     actionManager.clearPostCombatActions();
 
                 if (!skipWait && !Settings.FAST_MODE)
-                    addToTop(new WaitAction(POST_ATTACK_WAIT_DUR));
+                    actionManager.addToTop<WaitAction, float>(POST_ATTACK_WAIT_DUR);
             }
         }
     }

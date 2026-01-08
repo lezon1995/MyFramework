@@ -3,25 +3,6 @@ using System.Collections.Generic;
 
 namespace MarbleHero
 {
-    [Serializable]
-    public struct EnemyMoveInfo
-    {
-        public int nextMove;
-        public Intent intent;
-        public int baseDamage;
-        public int multiplier;
-        public bool isMultiDamage;
-
-        public EnemyMoveInfo(int _nextMove, Intent _intent, int _intentBaseDmg, int _multiplier, bool _isMultiDamage)
-        {
-            nextMove = _nextMove;
-            intent = _intent;
-            baseDamage = _intentBaseDmg;
-            multiplier = _multiplier;
-            isMultiDamage = _isMultiDamage;
-        }
-    }
-
     public enum Intent
     {
         ATTACK,
@@ -79,15 +60,15 @@ namespace MarbleHero
 
         bool isMultiDmg;
 
-        public EnemyMoveInfo move;
+        public EnemyMoveInfoGroup moveInfoGroup;
+
+        // public List<EnemyMoveInfo> moveInfo = new();
         public List<int> moveHistory = new();
         protected Dictionary<int, string> moveSet = new();
         public int nextMove = -1;
         public string moveName;
 
-        protected List<IDisposable> disposables = new();
         public static string[] MOVES;
-
         public static string[] DIALOG;
 
         public override int currentHealth
@@ -100,6 +81,31 @@ namespace MarbleHero
                 _health = value;
                 new OnOpPlayerHealthChanged().trigger();
             }
+        }
+
+        public bool isEndingTurn { get; set; }
+
+        protected List<BrickGroup> blockGroups = new();
+        protected Action<BrickGroup> onBrickGroupClear;
+
+        public override void onCtor()
+        {
+            base.onCtor();
+            onBrickGroupClear = releaseBrickGroup;
+        }
+
+        public override void onCreate()
+        {
+            base.onCreate();
+
+            moveInfoGroup = CLASS<EnemyMoveInfoGroup>();
+        }
+
+        public override void destroy()
+        {
+            base.destroy();
+
+            UN_CLASS(ref moveInfoGroup);
         }
 
         public AMonster(string _name, string _id, int _maxHealth, bool ignoreBlights = false)
@@ -116,14 +122,21 @@ namespace MarbleHero
             refreshIntentHbLocation();
         }
 
+        void releaseBrickGroup(BrickGroup group)
+        {
+            blockGroups.Remove(group);
+            UN_CLASS(group);
+        }
+
 
         public void refreshIntentHbLocation()
         {
             // intentHb.move(hb.cX + intentOffsetX, hb.cY + hb_h / 2.0F + INTENT_HB_W / 2.0F);
         }
 
-        public void update(float dt)
+        public override void doUpdate(float dt)
         {
+            base.doUpdate(dt);
             foreach (var p in powers)
                 p.updateParticles();
 
@@ -205,8 +218,8 @@ namespace MarbleHero
             bool probablyInstantKill = (currentHealth == 0);
             if (damageAmount > 0)
             {
-                // if (damageAmount >= 99 && !Game.overkill)
-                    // Game.overkill = true;
+                if (damageAmount >= 99 && !Game.overkill)
+                    Game.overkill = true;
 
                 currentHealth = clamp(currentHealth - damageAmount, 0, maxHealth);
 
@@ -253,7 +266,7 @@ namespace MarbleHero
             }
         }
 
-        public void init()
+        public void initMoves()
         {
             rollMove();
             // healthBarUpdatedEvent();
@@ -267,7 +280,10 @@ namespace MarbleHero
             _healthMax = _health;
         }
 
-        protected void setHp(int hp) => setHp(hp, hp);
+        protected void setHp(int hp)
+        {
+            setHp(hp, hp);
+        }
 
         void updateDeathAnimation(float dt)
         {
@@ -309,27 +325,9 @@ namespace MarbleHero
             }
         }
 
-        public void dispose()
+        public override void dispose()
         {
-            // if (img != null)
-            // {
-            //     logger.Info("Disposed monster img asset");
-            //     img.dispose();
-            //     img = null;
-            // }
-            //
-            // foreach (var d in disposables)
-            // {
-            //     logger.Info("Disposed extra monster assets");
-            //     d.dispose();
-            // }
-            //
-            // if (atlas != null)
-            // {
-            //     atlas.dispose();
-            //     atlas = null;
-            //     logger.Info("Disposed Texture: " + name);
-            // }
+            base.dispose();
         }
 
         public void escapeNext()
@@ -345,14 +343,14 @@ namespace MarbleHero
         {
             // hideHealthBar();
             isEscaping = true;
-            // escapeTimer = ESCAPE_TIME;
+            escapeTimer = ESCAPE_TIME;
         }
 
         public void die() => die(true);
 
         public void die(bool triggerRelics)
         {
-            if (isDying) 
+            if (isDying)
                 return;
 
             isDying = true;
@@ -399,7 +397,7 @@ namespace MarbleHero
             // actionManager.addToBot(new ApplyPowerAction(this, this, new SlowPower(this, 0)));
         }
 
-        void calculateDamage(int dmg)
+        void calculateDamage(out int realIntentDmg, int dmg)
         {
             var target = player;
             float tmp = dmg;
@@ -425,21 +423,19 @@ namespace MarbleHero
             if (dmg < 0)
                 dmg = 0;
 
-            intentDmg = dmg;
+            realIntentDmg = dmg;
         }
 
         public void applyPowers()
         {
-            // if (canApplyBackAttack && !hasPower("BackAttack"))
-            // actionManager.addToTop(new ApplyPowerAction(this, null, new BackAttackPower(this)));
-
             foreach (DamageInfo dmg in damageList)
-            {
                 dmg.applyPowers(this, player);
-            }
 
-            if (move.baseDamage > -1)
-                calculateDamage(move.baseDamage);
+            foreach (var info in moveInfoGroup.getMoveInfos())
+            {
+                if (info.baseDamage > -1)
+                    calculateDamage(out info.intentDmg, info.baseDamage);
+            }
 
             // intentImg = getIntentImg();
             // updateIntentTip();
@@ -454,10 +450,6 @@ namespace MarbleHero
         public void changeState(string stateName)
         {
         }
-
-        public void addToBot(AGameAction action) => actionManager.addToBot(action);
-
-        public void addToTop(AGameAction action) => actionManager.addToTop(action);
 
         protected void onBossVictoryLogic()
         {
@@ -477,12 +469,12 @@ namespace MarbleHero
                 if (GameActionManager.damageReceivedThisCombat - GameActionManager.hpLossThisCombat <= 0)
                 {
                     UnlockTracker.unlockAchievement("PERFECT");
-                    // Game.perfect++;
+                    Game.perfect++;
                 }
             }
 
-            // music.silenceTempBgmInstantly();
-            // music.silenceBGMInstantly();
+            music.silenceTempBgmInstantly();
+            music.silenceBGMInstantly();
             playBossStinger();
 
             // foreach (AbstractBlight b in player.blights)
@@ -497,13 +489,13 @@ namespace MarbleHero
             if (!Settings.isEndless)
             {
                 // if (!Settings.isFinalActAvailable || !Settings.hasRubyKey || !Settings.hasEmeraldKey || !Settings.hasSapphireKey)
-                    // Game.stopClock = true;
+                // Game.stopClock = true;
 
-                // if (Game.playtime <= 1200.0F)
-                    // UnlockTracker.unlockAchievement("SPEED_CLIMBER");
+                if (Game.playtime <= 1200.0F)
+                    UnlockTracker.unlockAchievement("SPEED_CLIMBER");
 
                 // if (player.masterDeck.Count <= 5)
-                    // UnlockTracker.unlockAchievement("MINIMALIST");
+                // UnlockTracker.unlockAchievement("MINIMALIST");
 
                 bool commonSenseUnlocked = true;
                 // foreach (var c in player.masterDeck.group)
@@ -528,31 +520,31 @@ namespace MarbleHero
 
         public static void playBossStinger()
         {
-            // Game.sound.play("BOSS_VICTORY_STINGER");
-            // if (ADungeon.id.equals("TheEnding"))
-            // {
-            //     music.playTempBgmInstantly("STS_EndingStinger_v1.ogg", false);
-            // }
-            // else
-            // {
-            //     switch (MathUtils.random(0, 3))
-            //     {
-            //         case 0:
-            //             music.playTempBgmInstantly("STS_BossVictoryStinger_1_v3_MUSIC.ogg", false);
-            //             return;
-            //         case 1:
-            //             music.playTempBgmInstantly("STS_BossVictoryStinger_2_v3_MUSIC.ogg", false);
-            //             return;
-            //         case 2:
-            //             music.playTempBgmInstantly("STS_BossVictoryStinger_3_v3_MUSIC.ogg", false);
-            //             return;
-            //         case 3:
-            //             music.playTempBgmInstantly("STS_BossVictoryStinger_4_v3_MUSIC.ogg", false);
-            //             return;
-            //     }
-            //
-            //     logger.Info("[ERROR] Attempted to play boss stinger but failed.");
-            // }
+            sound.play("BOSS_VICTORY_STINGER");
+            if (ADungeon.id == "TheEnding")
+            {
+                music.playTempBgmInstantly("STS_EndingStinger_v1.ogg", false);
+            }
+            else
+            {
+                switch (MathUtils.random(0, 3))
+                {
+                    case 0:
+                        music.playTempBgmInstantly("STS_BossVictoryStinger_1_v3_MUSIC.ogg", false);
+                        return;
+                    case 1:
+                        music.playTempBgmInstantly("STS_BossVictoryStinger_2_v3_MUSIC.ogg", false);
+                        return;
+                    case 2:
+                        music.playTempBgmInstantly("STS_BossVictoryStinger_3_v3_MUSIC.ogg", false);
+                        return;
+                    case 3:
+                        music.playTempBgmInstantly("STS_BossVictoryStinger_4_v3_MUSIC.ogg", false);
+                        return;
+                }
+
+                logError("[ERROR] Attempted to play boss stinger but failed.");
+            }
         }
 
         public Dictionary<string, object> getLocStrings()
@@ -582,15 +574,16 @@ namespace MarbleHero
 
         public void createIntent()
         {
-            intent = move.intent;
-            nextMove = move.nextMove;
-            intentBaseDmg = move.baseDamage;
-            if (move.baseDamage > -1)
+            var moveInfo = moveInfoGroup.getMoveInfos()[0];
+            intent = moveInfo.intent;
+            nextMove = moveInfo.nextMove;
+            intentBaseDmg = moveInfo.baseDamage;
+            if (moveInfo.baseDamage > -1)
             {
-                calculateDamage(intentBaseDmg);
-                if (move.isMultiDamage)
+                calculateDamage(out moveInfo.intentDmg, intentBaseDmg);
+                if (moveInfo.isMultiDamage)
                 {
-                    intentMultiAmt = move.multiplier;
+                    intentMultiAmt = moveInfo.multiplier;
                     isMultiDmg = true;
                 }
                 else
@@ -609,40 +602,40 @@ namespace MarbleHero
             // updateIntentTip();
 
             new OnOpPlayerIntentCreated().trigger();
-            onIntentCreated(move);
+            onIntentCreated(moveInfoGroup);
         }
 
-        protected virtual void onIntentCreated(EnemyMoveInfo m)
+        protected virtual void onIntentCreated(EnemyMoveInfoGroup group)
         {
-            
-        }
-        
-        public void setMove(string moveName, int nextMove, Intent intent, int baseDamage, int multiplier, bool isMultiDamage)
-        {
-            this.moveName = moveName;
-            if (nextMove != -1)
-                moveHistory.Add(nextMove);
-            move = new(nextMove, intent, baseDamage, multiplier, isMultiDamage);
         }
 
-        public void setMove(int nextMove, Intent intent, int baseDamage, int multiplier, bool isMultiDamage)
+        public void setMove(string _moveName, int _nextMove, Intent _intent, int _baseDamage, int _multiplier, bool _isMultiDamage)
         {
-            setMove(null, nextMove, intent, baseDamage, multiplier, isMultiDamage);
+            moveName = _moveName;
+            if (_nextMove != -1)
+                moveHistory.Add(_nextMove);
+
+            moveInfoGroup.addMove(_nextMove, _intent, _baseDamage, _multiplier, _isMultiDamage);
         }
 
-        public void setMove(int nextMove, Intent intent, int baseDamage)
+        public void setMove(int _nextMove, Intent _intent, int _baseDamage, int _multiplier, bool _isMultiDamage)
         {
-            setMove(null, nextMove, intent, baseDamage, 0, false);
+            setMove(null, _nextMove, _intent, _baseDamage, _multiplier, _isMultiDamage);
         }
 
-        public void setMove(string moveName, int nextMove, Intent intent, int baseDamage)
+        public void setMove(int _nextMove, Intent _intent, int _baseDamage)
         {
-            setMove(moveName, nextMove, intent, baseDamage, 0, false);
+            setMove(null, _nextMove, _intent, _baseDamage, 0, false);
         }
 
-        public void setMove(string moveName, int nextMove, Intent intent)
+        public void setMove(string _moveName, int _nextMove, Intent _intent, int _baseDamage)
         {
-            switch (intent)
+            setMove(_moveName, _nextMove, _intent, _baseDamage, 0, false);
+        }
+
+        public void setMove(string _moveName, int _nextMove, Intent _intent)
+        {
+            switch (_intent)
             {
                 case Intent.ATTACK:
                 case Intent.ATTACK_BUFF:
@@ -655,16 +648,16 @@ namespace MarbleHero
                     //         MathUtils.random(Settings.HEIGHT * 0.25F, Settings.HEIGHT * 0.75F), "ENEMY MOVE " + moveName + " IS SET INCORRECTLY! REPORT TO DEV", Color.red));
                     // }
 
-                    log("ENEMY MOVE " + moveName + " IS SET INCORRECTLY! REPORT TO DEV");
+                    log("ENEMY MOVE " + _moveName + " IS SET INCORRECTLY! REPORT TO DEV");
                     break;
             }
 
-            setMove(moveName, nextMove, intent, -1, 0, false);
+            setMove(_moveName, _nextMove, _intent, -1, 0, false);
         }
 
-        public void setMove(int nextMove, Intent intent)
+        public void setMove(int _nextMove, Intent _intent)
         {
-            setMove(null, nextMove, intent, -1, 0, false);
+            setMove(null, _nextMove, _intent, -1, 0, false);
         }
 
         public void rollMove()
@@ -672,30 +665,30 @@ namespace MarbleHero
             getMove(ADungeon.aiRng.random(99));
         }
 
-        protected bool lastMove(int move)
+        protected bool lastMove(int _move)
         {
             return moveHistory.Count switch
             {
                 0 => false,
-                _ => moveHistory[^1] == move
+                _ => moveHistory[^1] == _move
             };
         }
 
-        protected bool lastMoveBefore(int move)
+        protected bool lastMoveBefore(int _move)
         {
             return moveHistory.Count switch
             {
                 0 or < 2 => false,
-                _ => moveHistory[^2] == move
+                _ => moveHistory[^2] == _move
             };
         }
 
-        protected bool lastTwoMoves(int move)
+        protected bool lastTwoMoves(int _move)
         {
             if (moveHistory.Count < 2)
                 return false;
 
-            return moveHistory[^1] == move && moveHistory[^2] == move;
+            return moveHistory[^1] == _move && moveHistory[^2] == _move;
         }
 
         public override void applyEndOfTurnTriggers()

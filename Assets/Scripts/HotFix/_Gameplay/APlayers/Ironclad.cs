@@ -5,19 +5,20 @@ namespace MarbleHero
 {
     public class Ironclad : APlayer
     {
+        public override PlayerClass chosenClass => PlayerClass.IRONCLAD;
+        
         // static CharacterStrings characterStrings = Game.languagePack.getCharacterString("Ironclad");
         // public static string[] NAMES = characterStrings.NAMES;
         // public static string[] TEXT = characterStrings.TEXT;
         Prefs prefs;
         CharStat charStat;
 
-        internal Ironclad(string playerName) : base(playerName)
+        public override void onCtor()
         {
+            base.onCtor();
+            
             charStat = new CharStat(this);
             initializeClass(getLoadout());
-
-            // if (ModHelper.enabledMods.Count > 0 && (ModHelper.isModEnabled("Diverse") || ModHelper.isModEnabled("Chimera") || ModHelper.isModEnabled("Blue Cards")))
-                // masterMaxOrbs = 1;
         }
 
         public override string getPortraitImageName()
@@ -169,7 +170,7 @@ namespace MarbleHero
 
         public override APlayer newInstance()
         {
-            return new Ironclad(name);
+            return CLASS<Ironclad>();
         }
 
         // public override TextureAtlas.AtlasRegion getOrb()

@@ -5,7 +5,6 @@ namespace MarbleHero
     public class MonsterGroup
     {
         public List<AMonster> monsters = new();
-        public AMonster hoveredMonster;
         public AMonster main => monsters[0];
 
         public MonsterGroup(AMonster[] input)
@@ -38,7 +37,7 @@ namespace MarbleHero
         public void init()
         {
             foreach (var m in monsters)
-                m.init();
+                m.initMoves();
         }
 
         public void usePreBattleAction()
@@ -120,7 +119,7 @@ namespace MarbleHero
                 if (m.isDeadOrEscaped() && !m.halfDead)
                     continue;
 
-                actionManager.addMonsterQueueItem(new MonsterQueueItem(m));
+                actionManager.addMonsterQueueItem(new(m));
             }
         }
 
@@ -274,33 +273,7 @@ namespace MarbleHero
         public void update(float dt)
         {
             foreach (var m in monsters)
-                m.update(dt);
-
-            // if (ADungeon.screen != ADungeon.CurrentScreen.DEATH)
-            // {
-            //     hoveredMonster = null;
-            //     foreach (var m in monsters)
-            //     {
-            //         if (!m.isDying && !m.isEscaping)
-            //         {
-            //             m.hb.update();
-            //             m.intentHb.update();
-            //             m.healthHb.update();
-            //             if ((m.hb.hovered || m.intentHb.hovered || m.healthHb.hovered) && !player.isDraggingCard)
-            //             {
-            //                 hoveredMonster = m;
-            //                 break;
-            //             }
-            //         }
-            //     }
-            //
-            //     if (hoveredMonster == null)
-            //         player.hoverEnemyWaitTimer = -1.0F;
-            // }
-            // else
-            // {
-            //     hoveredMonster = null;
-            // }
+                m.doUpdate(dt);
         }
 
         public void updateAnimations(float dt)
@@ -342,27 +315,6 @@ namespace MarbleHero
                     p.atEndOfRound();
             }
         }
-
-        // public void render(SpriteBatch sb)
-        // {
-        //     if (hoveredMonster is { isDead: false, escaped: false } && player.hoverEnemyWaitTimer < 0.0F)
-        //     {
-        //         if (!ADungeon.isScreenUp || PeekButton.isPeeking)
-        //             hoveredMonster.renderTip(sb);
-        //     }
-        //
-        //     foreach (var m in monsters)
-        //         m.render(sb);
-        // }
-
-        // public void renderReticle(SpriteBatch sb)
-        // {
-        //     foreach (var m in monsters)
-        //     {
-        //         if (!m.isDying && !m.isEscaping)
-        //             m.renderReticle(sb);
-        //     }
-        // }
 
         public List<string> getMonsterNames()
         {

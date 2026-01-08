@@ -25,7 +25,7 @@ namespace MarbleHero
         VICTORY,
         TRUE_VICTORY,
     }
-    
+
     public enum RoomPhaseType
     {
         NONE,
@@ -39,7 +39,6 @@ namespace MarbleHero
 
     public abstract partial class ARoom : IDisposable
     {
-        const float END_TURN_WAIT_DURATION = 1.2F;
         const int BLIZZARD_POTION_MOD_AMT = 10;
 
         public abstract RoomType Type { get; }
@@ -61,7 +60,8 @@ namespace MarbleHero
 
         public bool isFightStarted;
         public bool isFightEnded;
-        public bool isTurnEnd;
+        public bool isPlayerTurnEnd;
+        public bool isEnemyTurnEnd;
         public bool isBattleOver;
         public bool cannotLose;
         public bool eliteTrigger;
@@ -76,14 +76,34 @@ namespace MarbleHero
         public int rareCardChance = 3;
         public int uncommonCardChance = 37;
 
-        public abstract void onPlayerEntry();
+        public virtual void onPlayerEntry()
+        {
+            log($"onPlayerEntry Room {GetType().Name}");
+        }
+
+        public virtual void onPlayerExit()
+        {
+            log($"onPlayerExit Room {GetType().Name}");
+        }
 
         protected virtual void onPlayerTurnStart(int turn)
         {
+            log($"onPlayerTurnStart {GetType().Name}");
         }
 
         protected virtual void onPlayerTurnEnd()
         {
+            log($"onPlayerTurnEnd {GetType().Name}");
+        }
+
+        protected virtual void onEnemyTurnStart(int turn)
+        {
+            log($"onEnemyTurnStart {GetType().Name}");
+        }
+
+        protected virtual void onEnemyTurnEnd()
+        {
+            log($"onEnemyTurnEnd {GetType().Name}");
         }
 
         protected virtual void onCombatUpdate(float dt)
@@ -98,7 +118,7 @@ namespace MarbleHero
         {
         }
 
-        protected virtual void onPlayerFightEnd()
+        protected virtual void onFightPhaseEnd()
         {
         }
 
@@ -241,6 +261,9 @@ namespace MarbleHero
 
                         if (player.isEndingTurn)
                             endPlayerTurn();
+
+                        if (enemy && enemy.isEndingTurn)
+                            endEnemyTurn();
                     }
 
                     if (isBattleOver && actionManager.isEmpty())
@@ -280,7 +303,7 @@ namespace MarbleHero
                     break;
             }
 
-            player.update(dt);
+            player.doUpdate(dt);
         }
 
         public virtual void fixedUpdate(float dt)
@@ -313,7 +336,7 @@ namespace MarbleHero
                     break;
             }
 
-            player.fixedUpdate(dt);
+            player.doFixedUpdate(dt);
         }
 
         public void completeRoom()
@@ -380,13 +403,11 @@ namespace MarbleHero
 
         void startBattle()
         {
-            playerManager.createPlayer<Player>("Player");
-
             actionManager.turnHasEnded = true;
             if (!ADungeon.isScreenUp)
                 effectManager.addToTop<BattleStartEffect>();
 
-            actionManager.addToBot(new GainEnergyAndEnableControlsAction(1));
+            actionManager.addToBot<GainEnergyAndEnableControlsAction, int>(1);
             player.applyStartOfCombatPreDrawLogic();
             player.applyStartOfCombatLogic();
             ADungeon.overlayMenu.showCombatPanels();
@@ -397,7 +418,23 @@ namespace MarbleHero
 
         public void startGameTurn()
         {
-            GameActionManager.turn++;
+            GameActionManager.turn.increment();
+            //All clear check
+            // if (CtrUI.instance._ComboEffectText.isAllClear)
+            {
+                GameActionManager.isAllClear = true;
+                // CtrUI.instance._ComboEffectText.isAllClear = false;
+            }
+            // else
+            {
+                // CtrUI.instance._ComboEffectText.allClearCount = 0;
+                GameActionManager.isAllClear = false;
+            }
+
+            // CtrUI.instance.NextTurnReady();
+
+            GameActionManager.turnScore = 0;
+            GameActionManager.comboCount = 0;
 
             // startPlayerTurn();
             startEnemyTurn();
@@ -405,11 +442,11 @@ namespace MarbleHero
 
         public void startPlayerTurn()
         {
-            isTurnEnd = false;
+            isPlayerTurnEnd = false;
             isFightEnded = false;
 
             player.cardsPlayedThisTurn = 0;
-
+            player.getGuideLine().guidelineOn();
             player.applyStartOfTurnRelics();
             player.applyStartOfTurnPowers();
 
@@ -434,21 +471,21 @@ namespace MarbleHero
 
             if (!isBattleOver)
             {
-                actionManager.addToBot(new PlayerStartTurnAction());
+                actionManager.addToBot<PlayerStartTurnAction>();
                 // actionManager.addToBot(new DrawCardAction(player, player.gameHandSize));
                 player.applyStartOfTurnPostDrawRelics();
                 player.applyStartOfTurnPostDrawPowers();
-                actionManager.addToBot(new EnableEndTurnButtonAction());
+                actionManager.addToBot<EnableEndTurnButtonAction>();
             }
         }
 
         void endPlayerTurn()
         {
-            isTurnEnd = true;
+            isPlayerTurnEnd = true;
             player.applyEndOfTurnTriggers();
-            actionManager.addToBot(new ClearCardQueueAction());
+            actionManager.addToBot<ClearCardQueueAction>();
             // actionManager.addToBot(new DiscardAtEndOfTurnAction());
-            actionManager.addToBot(new EndPlayerTurnAction(this));
+            actionManager.addToBot<EndPlayerTurnAction, ARoom>(this);
             player.isEndingTurn = false;
 
             onPlayerTurnEnd();
@@ -456,17 +493,22 @@ namespace MarbleHero
 
         public void startEnemyTurn()
         {
+            isEnemyTurnEnd = false;
+            onEnemyTurnStart(GameActionManager.turn);
             monsters.showIntent();
-            actionManager.addToBot(new StartEnemyTurnAction(room));
+            actionManager.addToBot<StartEnemyTurnAction, ARoom>(room);
         }
 
         public void endEnemyTurn()
         {
+            isEnemyTurnEnd = true;
+            enemy.isEndingTurn = false;
+            onEnemyTurnEnd();
         }
 
         public void startFight()
         {
-            actionManager.addToBot(new FightStartAction());
+            actionManager.addToBot<FightStartAction>();
         }
 
         public void checkFightingOver()
@@ -481,7 +523,7 @@ namespace MarbleHero
         {
             isFightStarted = false;
             isFightEnded = true;
-            onPlayerFightEnd();
+            onFightPhaseEnd();
         }
 
         public void endBattle()
@@ -681,38 +723,6 @@ namespace MarbleHero
             if (monsters != null)
                 foreach (var m in monsters.monsters)
                     m.dispose();
-        }
-
-        class EndPlayerTurnAction : AGameAction
-        {
-            ARoom room;
-            public EndPlayerTurnAction(ARoom r) => room = r;
-
-            public override void update(float dt)
-            {
-                addToBot(new EndTurnAction());
-                // addToBot(new WaitAction(END_TURN_WAIT_DURATION));
-                // if (!room.skipMonsterTurn)
-                //     addToBot(new MonsterStartTurnAction());
-                // actionManager.monsterAttacksQueued = false;
-                isDone = true;
-            }
-        }
-
-        class StartEnemyTurnAction : AGameAction
-        {
-            ARoom room;
-            public StartEnemyTurnAction(ARoom r) => room = r;
-
-            public override void update(float dt)
-            {
-                addToBot(new EnemyStartTurnAction());
-                addToBot(new WaitAction(END_TURN_WAIT_DURATION));
-                if (!room.skipMonsterTurn)
-                    addToBot(new MonsterStartTurnAction());
-                actionManager.monsterAttacksQueued = false;
-                isDone = true;
-            }
         }
     }
 }

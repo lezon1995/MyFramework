@@ -35,7 +35,6 @@ public class GameHotFix : GameHotFixBase
         registeFrameSystem<BallManager>(com => ballManager = com);
         registeFrameSystem<BrickManager>(com => brickManager = com);
         registeFrameSystem<MarbleHero.LevelManager>(com => levelManager = com);
-        registeFrameSystem<PlayerManager>(com => playerManager = com);
         registeFrameSystem<ComboManager>(com => comboManager = com);
         registeFrameSystem<FTextManager>(com => textManager = com);
         registeFrameSystem<GameplayManager>(com => gameplayManager = com);

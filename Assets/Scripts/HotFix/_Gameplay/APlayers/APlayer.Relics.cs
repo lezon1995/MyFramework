@@ -6,7 +6,6 @@ namespace MarbleHero
     {
         public void applyStartOfTurnRelics()
         {
-            // stance.atStartOfTurn();
             foreach (var relic in relics)
                 relic.atTurnStart();
 
@@ -20,22 +19,22 @@ namespace MarbleHero
                 relic.atTurnStartPostDraw();
         }
 
-        public bool hasRelic(string targetID)
+        public bool hasRelic(string relicId)
         {
             foreach (var relic in relics)
             {
-                if (relic.relicId == targetID)
+                if (relic.relicId == relicId)
                     return true;
             }
 
             return false;
         }
 
-        public bool tryGetRelic(string targetID, out ARelic result)
+        public bool tryGetRelic(string relicId, out ARelic result)
         {
             foreach (var relic in relics)
             {
-                if (relic.relicId == targetID)
+                if (relic.relicId == relicId)
                 {
                     result = relic;
                     return true;
@@ -66,14 +65,14 @@ namespace MarbleHero
             reorganizeRelics();
         }
 
-        public bool loseRelic(string targetID)
+        public bool loseRelic(string relicId)
         {
-            if (!hasRelic(targetID))
+            if (!hasRelic(relicId))
                 return false;
             ARelic toRemove = null;
             foreach (var relic in relics)
             {
-                if (relic.relicId == targetID)
+                if (relic.relicId == relicId)
                 {
                     relic.onUnequip();
                     toRemove = relic;
@@ -101,11 +100,11 @@ namespace MarbleHero
                 tmpRelics[i].reorganizeObtain(this, i, false, tmpRelics.Count);
         }
 
-        public ARelic getRelic(string targetID)
+        public ARelic getRelic(string relicId)
         {
             foreach (var r in relics)
             {
-                if (r.relicId == targetID)
+                if (r.relicId == relicId)
                     return r;
             }
 

@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace MarbleHero
 {
-    [Serializable]
-    public abstract partial class ACreature
+    public abstract partial class ACreature : MovableObject
     {
         public string name;
         public string id;
@@ -41,6 +39,20 @@ namespace MarbleHero
 
         public List<APower> powers = new();
         public List<ARelic> relics = new();
+
+        public override void setName(string name)
+        {
+            this.name = name;
+            base.setName(name);
+        }
+
+        public virtual void createBrickGroup(int turnNum)
+        {
+        }
+
+        public virtual void moveBrickGroup(int turnNum)
+        {
+        }
 
         #region MaxHp
 
@@ -364,6 +376,20 @@ namespace MarbleHero
         }
 
         #endregion
+
+        public sealed override void update(float elapsedTime)
+        {
+            base.update(elapsedTime);
+        }
+
+        public sealed override void fixedUpdate(float elapsedTime)
+        {
+            base.fixedUpdate(elapsedTime);
+        }
+
+        public virtual void doUpdate(float dt) => update(dt);
+
+        public virtual void doFixedUpdate(float dt) => fixedUpdate(dt);
 
         public void addRelic(ARelic relic)
         {

@@ -53,7 +53,7 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
     GameObject ballRenderer;
     Collider2D hitCollider;
     TrailRenderer trailRenderer;
-    Player player;
+    APlayer player;
 
     Action<Ball> onDead;
 
@@ -164,8 +164,8 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
         UN_CLASS_LIST(buffs);
     }
 
-    public void setPlayer(Player p) => player = p;
-    public Player getPlayer() => player;
+    public void setPlayer(APlayer p) => player = p;
+    public APlayer getPlayer() => player;
 
     public override void setObject(GameObject obj)
     {
@@ -522,7 +522,7 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
         return curHealth <= 0 && maxHealth > 0;
     }
 
-    public void returnBall(Vector3 nextPosition)
+    /*public void returnBall(Vector3 nextPosition)
     {
         setEnabled(false);
         Tween
@@ -531,7 +531,7 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
             {
                 ballManager.releaseBall(ball);
             });
-    }
+    }*/
 
     public void addBuff(Buff buff)
     {

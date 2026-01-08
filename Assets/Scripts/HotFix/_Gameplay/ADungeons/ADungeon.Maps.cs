@@ -9,9 +9,17 @@ namespace MarbleHero
     {
         public static MapRoomNode nextRoom { get; set; }
 
+        public static MapRoomNode prevMapNode { get; protected set; }
         public static MapRoomNode currMapNode { get; protected set; }
 
-        public static List<List<MapRoomNode>> map;
+        static List<List<MapRoomNode>> map;
+
+        public static MapRoomNode getRoomNodeAt(int x, int y)
+        {
+            var rowNodes = map[y];
+            var node = rowNodes[x];
+            return node;
+        }
         public static bool leftRoomAvailable;
         public static bool centerRoomAvailable;
         public static bool rightRoomAvailable;
@@ -55,7 +63,13 @@ namespace MarbleHero
 
         public static void setCurrMapNode(MapRoomNode curNode)
         {
+            if (currMapNode == curNode)
+                return;
+            
             // var souls = room.souls;
+            prevMapNode = currMapNode;
+            prevMapNode?.room?.onPlayerExit();
+
             room?.Dispose();
             currMapNode = curNode;
 
@@ -252,6 +266,7 @@ namespace MarbleHero
                 }
             }
 
+            prevMapNode = null;
             currMapNode = new MapRoomNode(0, -1, new EmptyRoom());
 
             if (isLoadingIntoNeow(saveFile))
@@ -648,7 +663,7 @@ namespace MarbleHero
             player.loseBlock(true);
             player.damagedThisCombat = 0;
 
-            GameActionManager.turn = 0;
+            GameActionManager.turn.reset();
         }
 
         static void incrementFloorBasedMetrics()
@@ -690,6 +705,7 @@ namespace MarbleHero
                         monster.dispose();
             }
 
+            prevMapNode = null;
             currMapNode = null;
             shrineList.Clear();
             relicsToRemoveOnStart.Clear();

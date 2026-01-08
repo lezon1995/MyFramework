@@ -4,14 +4,14 @@
     {
         static float DURATION = Settings.ACTION_DUR_FAST;
 
-        public MonsterStartTurnAction()
+        public override void onCreate()
         {
             duration = DURATION;
         }
 
         public override void update(float dt)
         {
-            if (duration == DURATION)
+            if (isFloatEqual(duration, DURATION))
             {
                 monsters.applyPreTurnLogic();
                 isDone = true;

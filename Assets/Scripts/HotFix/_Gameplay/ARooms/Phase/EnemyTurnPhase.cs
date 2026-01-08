@@ -1,7 +1,4 @@
-﻿using Drawing;
-using UnityEngine;
-
-namespace MarbleHero
+﻿namespace MarbleHero
 {
     public class EnemyTurnPhase : APhase
     {
@@ -21,11 +18,12 @@ namespace MarbleHero
 
         public override void update(float dt)
         {
-            Draw.xy.Label2D(new Vector2(Screen.width / 2F, Screen.height / 2F), "EnemyTurnPhase", 20, LabelAlignment.Center, Color.white);
+            base.update(dt);
         }
 
         public override void fixedUpdate(float dt)
         {
+            base.fixedUpdate(dt);
         }
 
         protected override void onBindListeners()

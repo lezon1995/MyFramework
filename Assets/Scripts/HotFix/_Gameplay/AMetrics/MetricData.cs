@@ -63,7 +63,7 @@ namespace MarbleHero
                 ["floor"] = ADungeon.floorNum,
                 ["enemies"] = ADungeon.lastCombatMetricKey,
                 ["damage"] = GameActionManager.damageReceivedThisCombat,
-                ["turns"] = GameActionManager.turn
+                ["turns"] = GameActionManager.turn.value
             };
             damage_taken.Add(combat);
         }

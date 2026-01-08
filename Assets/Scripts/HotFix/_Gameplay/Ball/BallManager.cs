@@ -207,7 +207,7 @@ public class BallManager : FrameSystem
         ball.setSpeed(speed);
         ball.setPhysicDamage(1, 1);
         ball.setMagicDamage(1, 1);
-        ball.setPlayer(playerManager.getPlayer());
+        ball.setPlayer(player);
         ball.setEnabled(true);
 
         ball.init();

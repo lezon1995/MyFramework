@@ -41,6 +41,7 @@ public class GameSceneManager : FrameSystem
 		}
 		return mCurScene.getCurProcedure();
 	}
+
 	public override void update(float elapsedTime)
 	{
 		base.update(elapsedTime);
@@ -53,11 +54,19 @@ public class GameSceneManager : FrameSystem
 		mLastSceneList.Clear();
 		mCurScene?.update(elapsedTime);
 	}
+
 	public override void lateUpdate(float elapsedTime)
 	{
 		base.lateUpdate(elapsedTime);
 		mCurScene?.lateUpdate(elapsedTime);
 	}
+
+	public override void fixedUpdate(float elapsedTime)
+	{
+		base.fixedUpdate(elapsedTime);
+		mCurScene?.fixedUpdate(elapsedTime);
+	}
+
 	public override void destroy()
 	{
 		foreach (GameScene scene in mLastSceneList)

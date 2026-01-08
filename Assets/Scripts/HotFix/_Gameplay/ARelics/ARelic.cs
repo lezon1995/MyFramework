@@ -459,10 +459,6 @@ namespace MarbleHero
         {
         }
 
-        protected void addToBot(AGameAction action) => actionManager.addToBot(action);
-
-        protected void addToTop(AGameAction action) => actionManager.addToTop(action);
-
         public int onLoseHpLast(int damageAmount) => damageAmount;
 
         public void wasHPLost(int damageAmount)

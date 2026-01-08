@@ -1,5 +1,4 @@
-﻿using Drawing;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace MarbleHero
 {
@@ -22,11 +21,12 @@ namespace MarbleHero
 
         public override void update(float dt)
         {
-            Draw.xy.Label2D(new Vector2(Screen.width / 2F, Screen.height / 2F), "SettlementPhase", 20, LabelAlignment.Center, Color.white);
+            base.update(dt);
         }
 
         public override void fixedUpdate(float dt)
         {
+            base.fixedUpdate(dt);
         }
 
         public override void onEnd()
@@ -45,9 +45,10 @@ namespace MarbleHero
         {
             Debug.Log($"Settle Fight Win Start");
             var monster = enemy;
-            // actionManager.addToBot(new WaitAction(1F));
-            // actionManager.addToBot(new DamageAction(monster, new DamageInfo(player, 10), AttackEffect.BLUNT_HEAVY));
-            // actionManager.addToBot(new WaitAction(3F));
+            actionManager.addToBot<WaitAction, float>(1F);
+            actionManager.addToBot<DamageAction, ACreature, DamageInfo>(monster, new DamageInfo(player, 10));
+            actionManager.addToBot<WaitAction, float>(2F);
+            actionManager.addToBot<AddScoreAction>();
         }
     }
 }

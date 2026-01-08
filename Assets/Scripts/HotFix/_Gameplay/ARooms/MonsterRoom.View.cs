@@ -1,9 +1,11 @@
-﻿namespace MarbleHero
+﻿using System.Collections.Generic;
+
+namespace MarbleHero
 {
     public partial class MonsterRoom
     {
         public APhase curPhase;
-        protected APhase[] _phases;
+        protected Dictionary<RoomPhaseType, APhase> _phases = new();
 
         void nextPhase(RoomPhaseType type)
         {
@@ -14,7 +16,7 @@
 
             curPhase?.onEnd();
             var last = curPhase;
-            curPhase = _phases[(int)type];
+            curPhase = _phases[type];
             curPhase.onBegin(last);
         }
 

@@ -1,12 +1,18 @@
 ﻿namespace MarbleHero
 {
-    public class GainEnergyAndEnableControlsAction : AGameAction
+    public class GainEnergyAndEnableControlsAction : AGameAction, IGameActionArgs<int>
     {
         int energyGain;
-
-        public GainEnergyAndEnableControlsAction(int amount)
+        
+        public void onCreate(int amount)
         {
             energyGain = amount;
+        }
+
+        public override void resetProperty()
+        {
+            base.resetProperty();
+            energyGain = 0;
         }
 
         public override void update(float dt)

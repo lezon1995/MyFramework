@@ -1,16 +1,22 @@
 ﻿using UnityEngine;
 
+namespace MarbleHero;
+
 public class GuideLine : MovableObject
 {
     static int MainTex = Shader.PropertyToID("_MainTex");
 
     COMMovableObjectDrag movableDrag;
+    APlayer player;
 
     Material lineMat;
     Transform linesGroup;
     LineRenderer[] lines;
     Transform[] dots;
     Transform indicatorBall;
+    DragStartCallback dragStartCallback;
+    DragEndCallback dragEndCallback;
+    DragCallback dragCallback;
 
     LayerMask _mask0, _mask1, _mask2, _mask3, _hit2Mask;
 
@@ -20,6 +26,14 @@ public class GuideLine : MovableObject
     bool isInteractable;
     Vector3 shootPosition;
     Vector3 shootDirection;
+
+    public override void onCtor()
+    {
+        base.onCtor();
+        dragStartCallback = DragStartCallback;
+        dragEndCallback = DragEndCallback;
+        dragCallback = DragCallback;
+    }
 
     public override void init()
     {
@@ -39,44 +53,58 @@ public class GuideLine : MovableObject
         _mask3 = left | right | brick;
 
         mGlobalTouchSystem.registeCollider(this);
+    }
 
-        movableDrag.setDragStartCallback((ComponentOwner owner, TouchPoint point, ref bool drag) =>
-        {
-            if (!room.inPlayerTurn)
-                return;
+    public void enableDragCallback()
+    {
+        movableDrag.setDragStartCallback(dragStartCallback);
+        movableDrag.setDraggingCallback(dragCallback);
+        movableDrag.setDragEndCallback(dragEndCallback);
+    }
 
-            //if (CtrGame.instance.isGameOver || !CtrGame.instance.isGameStart) return;
-            //if (!CtrGame.instance.PlayerReady) return;
-            isInteractable = true;
-        });
+    public void disableDragCallback()
+    {
+        movableDrag.setDragStartCallback(null);
+        movableDrag.setDraggingCallback(null);
+        movableDrag.setDragEndCallback(null);
+    }
 
-        movableDrag.setDraggingCallback((owner, pos) =>
-        {
-            if (!isInteractable)
-                return;
+    void DragEndCallback(ComponentOwner owner, Vector3 pos, bool cancel)
+    {
+        if (!room.inPlayerTurn)
+            return;
 
-            if (!room.inPlayerTurn)
-                return;
+        //if (CtrGame.instance.isGameOver || !CtrGame.instance.isGameStart) return;
+        if (!isInteractable)
+            return;
 
-            var diff = screenToWorld(pos, false) - shootPosition;
-            diff.Normalize();
-            var rotZ = Mathf.Atan2(diff.y, diff.x) * Mathf.Rad2Deg;
-            var rotation = Quaternion.Euler(0f, 0f, Mathf.Clamp((rotZ - 90), -83, 83));
-            shootDirection = rotation * Vector3.up;
-        });
+        isInteractable = false;
+        player.shootBall(shootPosition, shootDirection);
+    }
 
-        movableDrag.setDragEndCallback((owner, pos, cancel) =>
-        {
-            if (!room.inPlayerTurn)
-                return;
+    void DragCallback(ComponentOwner owner, Vector3 pos)
+    {
+        if (!isInteractable)
+            return;
 
-            //if (CtrGame.instance.isGameOver || !CtrGame.instance.isGameStart) return;
-            if (!isInteractable)
-                return;
+        if (!room.inPlayerTurn)
+            return;
 
-            isInteractable = false;
-            playerManager.getPlayer().shootBall(shootPosition, shootDirection);
-        });
+        var diff = screenToWorld(pos, false) - shootPosition;
+        diff.Normalize();
+        var rotZ = Mathf.Atan2(diff.y, diff.x) * Mathf.Rad2Deg;
+        var rotation = Quaternion.Euler(0f, 0f, Mathf.Clamp((rotZ - 90), -83, 83));
+        shootDirection = rotation * Vector3.up;
+    }
+
+    void DragStartCallback(ComponentOwner owner, TouchPoint point, ref bool drag)
+    {
+        if (!room.inPlayerTurn)
+            return;
+
+        //if (CtrGame.instance.isGameOver || !CtrGame.instance.isGameStart) return;
+        //if (!CtrGame.instance.PlayerReady) return;
+        isInteractable = true;
     }
 
     protected override void initComponents()
@@ -118,11 +146,10 @@ public class GuideLine : MovableObject
         lineMat = lines[0].sharedMaterial;
     }
 
-
-    public override void fixedUpdate(float elapsedTime)
+    public override void update(float elapsedTime)
     {
-        base.fixedUpdate(elapsedTime);
-
+        base.update(elapsedTime);
+        
         if (isOff)
             return;
 
@@ -438,6 +465,11 @@ public class GuideLine : MovableObject
         linesGroup.gameObject.SetActive(true);
 
         refreshGuideLine();
+    }
+
+    public void setPlayer(APlayer p)
+    {
+        player = p;
     }
 
     public void setShootPosition(Vector3 pos)
