@@ -175,7 +175,7 @@ namespace MarbleHero
 
         public static MonsterGroup getEncounter(string key)
         {
-            return new MonsterGroup(new Opponent());
+            return new MonsterGroup(CLASS<Opponent>());
 
             /*
             switch (key)

@@ -99,7 +99,7 @@
         public override void update(float dt)
         {
             actionManager.addToBot<EnemyStartTurnAction>();
-            actionManager.addToBot<WaitAction, float>(END_TURN_WAIT_DURATION);
+            actionManager.addToBot<WaitAction>().with(END_TURN_WAIT_DURATION);
             if (!room.skipMonsterTurn)
                 actionManager.addToBot<MonsterStartTurnAction>();
             actionManager.monsterAttacksQueued = false;

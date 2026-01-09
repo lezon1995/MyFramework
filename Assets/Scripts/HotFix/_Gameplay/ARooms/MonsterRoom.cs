@@ -137,6 +137,17 @@ namespace MarbleHero
             handleBrickDeathEvent(dt);
         }
 
+        public override void getAllBricks(ref List<Brick> list)
+        {
+            foreach (var m in monsters.monsters)
+            {
+                foreach (var group in m.brickGroups)
+                {
+                    list.addRange(group.bricks);
+                }
+            }
+        }
+
         void handleBrickDeathEvent(float elapsedTime)
         {
             if (brickDeathTimer.update(elapsedTime))

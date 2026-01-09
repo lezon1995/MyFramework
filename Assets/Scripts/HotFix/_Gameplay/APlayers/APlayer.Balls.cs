@@ -189,7 +189,7 @@ namespace MarbleHero
         public void returnBall()
         {
             // CtrUI.instance.SetReturnBallButton(false);
-            actionManager.addToTop<ReturnBallsAction, Vector3>(nextPosition);
+            actionManager.addToTop<ReturnBallsAction>().with(nextPosition);
         }
 
         public void setNextPositionX(float posX)

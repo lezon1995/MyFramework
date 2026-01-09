@@ -255,32 +255,28 @@ public partial class GameActionManager
         if (!monsterQueue.TryDequeue(out var item))
             return false;
 
-        AMonster m = item.monster;
+        var m = item.monster;
+        var moveInfo = item.moveInfo;
         if (!m.isDeadOrEscaped() || m.halfDead)
         {
-            if (m.intent != Intent.NONE)
+            if (moveInfo.intent != Intent.NONE)
             {
-                // addToBot(new ShowMoveNameAction(m));
-                // addToBot(new IntentFlashAction(m));
+                addToBot<ShowMoveNameAction>().with(m, moveInfo);
+                addToBot<IntentFlashAction>().with(m, moveInfo);
             }
 
-            if (!TipTracker.tips["INTENT_TIP"] && player.currentBlock == 0 && m.intent is Intent.ATTACK or Intent.ATTACK_DEBUFF or Intent.ATTACK_BUFF or Intent.ATTACK_DEFEND)
-            {
-                if (ADungeon.floorNum <= 5)
-                    TipTracker.blockCounter++;
-                else
-                    TipTracker.neverShowAgain("INTENT_TIP");
-            }
-
-            m.takeTurn();
-            m.applyTurnPowers();
+            m.setCurMoveInfo(moveInfo);
+            m.takeMove(moveInfo);
         }
 
         if (monsterQueue.Count == 0)
         {
+            m.takeTurn();
+            m.applyTurnPowers();
             m.isEndingTurn = true;
-            addToBot<WaitAction, float>(1.5F);
-            addToBot<StartPlayerTurnAction, ARoom>(room);
+
+            addToBot<WaitAction>().with(1.5F);
+            addToBot<StartPlayerTurnAction>().with(room);
         }
 
         return true;

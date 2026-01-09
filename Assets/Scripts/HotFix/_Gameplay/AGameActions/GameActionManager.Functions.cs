@@ -1,4 +1,6 @@
-﻿namespace MarbleHero;
+﻿using System;
+
+namespace MarbleHero;
 
 public interface IGameActionArgs
 {
@@ -33,19 +35,20 @@ public partial class GameActionManager
 {
     #region AddTop
 
-    public void addToTop<T>() where T : AGameAction
+    public AGameAction addToTop<T>() where T : AGameAction
     {
         var gameAction = CLASS<AGameAction>(typeof(T));
         if (room.inCombat())
         {
             actions.Insert(0, gameAction);
-            return;
+            return gameAction;
         }
 
         UN_CLASS(gameAction);
+        return null;
     }
 
-    public void addToTop<T, P1>(P1 p1) where T : AGameAction
+    /*public void addToTop<T, P1>(P1 p1) where T : AGameAction
     {
         var gameAction = CLASS<AGameAction>(typeof(T));
         if (gameAction is IGameActionArgs<P1> action)
@@ -123,24 +126,26 @@ public partial class GameActionManager
         }
 
         UN_CLASS(gameAction);
-    }
+    }*/
 
     #endregion
 
     #region AddBot
 
-    public void addToBot<T>() where T : AGameAction
+    public AGameAction addToBot<T>() where T : AGameAction
     {
         var gameAction = CLASS<AGameAction>(typeof(T));
         if (room.inCombat())
         {
             actions.Add(gameAction);
-            return;
+            return gameAction;
         }
 
         UN_CLASS(gameAction);
+        return null;
     }
 
+    /*
     public void addToBot<T, P1>(P1 p1) where T : AGameAction
     {
         var gameAction = CLASS<AGameAction>(typeof(T));
@@ -220,6 +225,7 @@ public partial class GameActionManager
 
         UN_CLASS(gameAction);
     }
+    */
 
     #endregion
 }

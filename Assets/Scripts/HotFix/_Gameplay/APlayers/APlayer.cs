@@ -496,7 +496,7 @@ namespace MarbleHero
 
             room.monsters?.usePreBattleAction();
 
-            actionManager.addToTop<WaitAction, float>(1F);
+            actionManager.addToTop<WaitAction>().with(1F);
             applyPreCombatLogic();
         }
 

@@ -5,6 +5,7 @@ namespace MarbleHero
 {
     public enum Intent
     {
+        NONE,
         ATTACK,
         ATTACK_BUFF,
         ATTACK_DEBUFF,
@@ -18,10 +19,28 @@ namespace MarbleHero
         DEFEND_BUFF,
         ESCAPE,
         MAGIC,
-        NONE,
         SLEEP,
         STUN,
-        UNKNOWN
+        UNKNOWN,
+
+        ENEMY_HEAL, //敌人获得治疗
+        ENEMY_SHIELD, //敌人获得护盾
+        ENEMY_ATTACK, //敌人直接攻击玩家
+
+        BRICK_GENERATE_X, //生成砖块
+        BRICK_MOVE_DOWN_X, //向下方移动砖块X格
+        BRICK_MOVE_CENTER_X, //向中心移动砖块X格
+        BRICK_EMPOWER_ATTACK_X, //赋能-进攻
+        BRICK_EMPOWER_SHIELD_X, //赋能-护盾
+        BRICK_EMPOWER_INVINCIBLE_X, //赋能-无敌
+        BRICK_ENHANCE_HIT_EVASION_X, //强化-撞击闪避率
+        BRICK_ENHANCE_SKILL_EVASION_X, //强化-技能闪避率
+        BRICK_ENHANCE_HEALTH_X, //强化-生命
+
+        BALL_DISARMED_BY_X, //缴械X个球
+        BALL_DISARMED_TO_1, //缴械到1个球
+        BALL_WEAKEN_HIT_ACCURACY, //弱化-撞击命中率
+        BALL_WEAKEN_SKILL_ACCURACY, //弱化-技能命中率
     }
 
     public enum EnemyType
@@ -37,39 +56,34 @@ namespace MarbleHero
 
     public record struct OnOpPlayerTakeTurn;
 
-    public partial class AMonster : ACreature
+    public abstract partial class AMonster : ACreature
     {
         const float DEATH_TIME = 1.8F;
         const float ESCAPE_TIME = 3.0F;
 
-        public Timer deathTimer;
-        public Timer escapeTimer;
-        public bool tintFadeOutCalled;
-        public bool escaped;
-        public bool isEscapeNext;
-        public EnemyType type;
-        float hoverTimer;
-        public List<DamageInfo> damageList = new();
+        public static string[] MOVES;
+        public static string[] DIALOG;
 
-        public Intent intent = Intent.DEBUG;
-        public Intent tipIntent = Intent.DEBUG;
+        public List<int> moveHistory = new();
+        public List<DamageInfo> damageList = new();
+        public List<BrickGroup> brickGroups = new();
+        public EnemyMoveInfoGroup moveInfoGroup;
+        protected Action<BrickGroup> onBrickGroupClear;
+
+        public bool isEndingTurn { get; set; }
+
+        public bool isEscapeNext, escaped;
+        public EnemyType type;
+        public Intent intent;
+        public int nextMove;
+        public string moveName;
 
         int intentDmg = -1;
         int intentBaseDmg = -1;
         int intentMultiAmt;
-
         bool isMultiDmg;
-
-        public EnemyMoveInfoGroup moveInfoGroup;
-
-        // public List<EnemyMoveInfo> moveInfo = new();
-        public List<int> moveHistory = new();
-        protected Dictionary<int, string> moveSet = new();
-        public int nextMove = -1;
-        public string moveName;
-
-        public static string[] MOVES;
-        public static string[] DIALOG;
+        Timer deathTimer, escapeTimer;
+        bool tintFadeOutCalled;
 
         public override int currentHealth
         {
@@ -83,10 +97,6 @@ namespace MarbleHero
             }
         }
 
-        public bool isEndingTurn { get; set; }
-
-        protected List<BrickGroup> blockGroups = new();
-        protected Action<BrickGroup> onBrickGroupClear;
 
         public override void onCtor()
         {
@@ -124,10 +134,9 @@ namespace MarbleHero
 
         void releaseBrickGroup(BrickGroup group)
         {
-            blockGroups.Remove(group);
+            brickGroups.Remove(group);
             UN_CLASS(group);
         }
-
 
         public void refreshIntentHbLocation()
         {
@@ -431,10 +440,10 @@ namespace MarbleHero
             foreach (DamageInfo dmg in damageList)
                 dmg.applyPowers(this, player);
 
-            foreach (var info in moveInfoGroup.getMoveInfos())
+            foreach (var info in moveInfoGroup.moveInfos)
             {
                 if (info.baseDamage > -1)
-                    calculateDamage(out info.intentDmg, info.baseDamage);
+                    calculateDamage(out intentDmg, info.baseDamage);
             }
 
             // intentImg = getIntentImg();
@@ -568,19 +577,38 @@ namespace MarbleHero
         {
         }
 
+        public virtual void takeMove(EnemyMoveInfo moveInfo)
+        {
+        }
+
         protected virtual void getMove(int paramInt)
         {
         }
 
         public void createIntent()
         {
-            var moveInfo = moveInfoGroup.getMoveInfos()[0];
+            var moveInfo = moveInfoGroup.moveInfos[0];
+            setCurMoveInfo(moveInfo);
+
+            // intentImg = getIntentImg();
+            // intentBg = getIntentBg();
+            // intentAlpha = 0.0F;
+            // intentAlphaTarget = 1.0F;
+            // intentParticleTimer = 0.5F;
+            // updateIntentTip();
+
+            new OnOpPlayerIntentCreated().trigger();
+            onIntentCreated(moveInfoGroup);
+        }
+
+        public void setCurMoveInfo(EnemyMoveInfo moveInfo)
+        {
             intent = moveInfo.intent;
             nextMove = moveInfo.nextMove;
             intentBaseDmg = moveInfo.baseDamage;
             if (moveInfo.baseDamage > -1)
             {
-                calculateDamage(out moveInfo.intentDmg, intentBaseDmg);
+                calculateDamage(out intentDmg, intentBaseDmg);
                 if (moveInfo.isMultiDamage)
                 {
                     intentMultiAmt = moveInfo.multiplier;
@@ -592,17 +620,6 @@ namespace MarbleHero
                     isMultiDmg = false;
                 }
             }
-
-            // intentImg = getIntentImg();
-            // intentBg = getIntentBg();
-            tipIntent = intent;
-            // intentAlpha = 0.0F;
-            // intentAlphaTarget = 1.0F;
-            // intentParticleTimer = 0.5F;
-            // updateIntentTip();
-
-            new OnOpPlayerIntentCreated().trigger();
-            onIntentCreated(moveInfoGroup);
         }
 
         protected virtual void onIntentCreated(EnemyMoveInfoGroup group)
@@ -660,7 +677,7 @@ namespace MarbleHero
             setMove(null, _nextMove, _intent, -1, 0, false);
         }
 
-        public void rollMove()
+        public virtual void rollMove()
         {
             getMove(ADungeon.aiRng.random(99));
         }

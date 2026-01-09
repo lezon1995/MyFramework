@@ -12,8 +12,9 @@ public class TopRowRandomBrickGroup : BrickGroup
         return avg;
     }
 
-    public override void createBricks(int turnCount)
+    public override void buildBrickTemplates(int turnCount)
     {
+        templates.Clear();
         var health = turnCount;
         int count = getBrickCount(turnCount);
         var topRowGrids = brickManager.brickLayout.getTopRowGrids();
@@ -23,9 +24,14 @@ public class TopRowRandomBrickGroup : BrickGroup
         foreach (var index in selectIndexes)
         {
             var rect = topRowGrids.get(index);
-            var brick = brickManager.acquireBrick(rect.center, rect.size, health);
-            brick.eventRouter.addListener(this);
-            addBrick(brick);
+            templates.add(new(rect, health));
         }
+    }
+
+    public override void createBricks(int turnCount)
+    {
+        buildBrickTemplates(turnCount);
+        foreach (var t in templates)
+            createOne(t);
     }
 }

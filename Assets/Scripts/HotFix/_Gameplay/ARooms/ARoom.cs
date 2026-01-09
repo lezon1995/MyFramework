@@ -407,7 +407,7 @@ namespace MarbleHero
             if (!ADungeon.isScreenUp)
                 effectManager.addToTop<BattleStartEffect>();
 
-            actionManager.addToBot<GainEnergyAndEnableControlsAction, int>(1);
+            actionManager.addToBot<GainEnergyAndEnableControlsAction>().with(1);
             player.applyStartOfCombatPreDrawLogic();
             player.applyStartOfCombatLogic();
             ADungeon.overlayMenu.showCombatPanels();
@@ -485,7 +485,7 @@ namespace MarbleHero
             player.applyEndOfTurnTriggers();
             actionManager.addToBot<ClearCardQueueAction>();
             // actionManager.addToBot(new DiscardAtEndOfTurnAction());
-            actionManager.addToBot<EndPlayerTurnAction, ARoom>(this);
+            actionManager.addToBot<EndPlayerTurnAction>().with(this);
             player.isEndingTurn = false;
 
             onPlayerTurnEnd();
@@ -496,7 +496,7 @@ namespace MarbleHero
             isEnemyTurnEnd = false;
             onEnemyTurnStart(GameActionManager.turn);
             monsters.showIntent();
-            actionManager.addToBot<StartEnemyTurnAction, ARoom>(room);
+            actionManager.addToBot<StartEnemyTurnAction>().with(room);
         }
 
         public void endEnemyTurn()
@@ -723,6 +723,10 @@ namespace MarbleHero
             if (monsters != null)
                 foreach (var m in monsters.monsters)
                     m.dispose();
+        }
+
+        public virtual void getAllBricks(ref List<Brick> list)
+        {
         }
     }
 }

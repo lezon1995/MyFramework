@@ -119,7 +119,13 @@ namespace MarbleHero
                 if (m.isDeadOrEscaped() && !m.halfDead)
                     continue;
 
-                actionManager.addMonsterQueueItem(new(m));
+                for (var i = 0; i < m.moveInfoGroup.moveInfos.Count; i++)
+                {
+                    var info = m.moveInfoGroup.moveInfos[i];
+                    actionManager.addMonsterQueueItem(new(m, info));
+                }
+
+                m.moveInfoGroup.moveInfos.Clear();
             }
         }
 

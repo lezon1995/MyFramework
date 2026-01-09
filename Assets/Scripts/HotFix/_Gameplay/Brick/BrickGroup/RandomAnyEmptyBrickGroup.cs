@@ -15,8 +15,9 @@ public class RandomAnyEmptyBrickGroup : BrickGroup
         return avg;
     }
 
-    public override void createBricks(int turnCount)
+    public override void buildBrickTemplates(int turnCount)
     {
+        templates.Clear();
         var health = turnCount;
         int count = getBrickCount(turnCount);
         using var _ = new ListScope2T<Rect, int>(out var emptyGrids, out var selectIndexes);
@@ -36,9 +37,14 @@ public class RandomAnyEmptyBrickGroup : BrickGroup
         foreach (var index in selectIndexes)
         {
             var rect = allGrids.get(index);
-            var brick = brickManager.acquireBrick(rect.center, rect.size, health);
-            brick.eventRouter.addListener(this);
-            addBrick(brick);
+            templates.add(new(rect, health));
         }
+    }
+
+    public override void createBricks(int turnCount)
+    {
+        buildBrickTemplates(turnCount);
+        foreach (var t in templates)
+            createOne(t);
     }
 }

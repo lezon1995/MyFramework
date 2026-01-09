@@ -1,13 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
-using PrimeTween;
+using UnityEngine;
 
 namespace MarbleHero;
 
 public abstract class BrickGroup : ClassObject, IEvent<OnBrickDeath>
 {
-    protected List<Brick> bricks = new();
+    public struct Template
+    {
+        public Rect rect;
+        public int health;
+
+        public Template(Rect _rect, int _health)
+        {
+            rect = _rect;
+            health = _health;
+        }
+    }
+
+    public List<Brick> bricks = new();
     protected Action<BrickGroup> onBricksClear;
+    protected List<Template> templates = new();
 
     protected BrickManager brickManager;
     protected LevelManager levelManager;
@@ -16,6 +29,7 @@ public abstract class BrickGroup : ClassObject, IEvent<OnBrickDeath>
     {
         base.resetProperty();
         bricks.Clear();
+        templates.Clear();
         onBricksClear = null;
         brickManager = null;
         levelManager = null;
@@ -42,35 +56,28 @@ public abstract class BrickGroup : ClassObject, IEvent<OnBrickDeath>
         bricks.Remove(brick);
     }
 
+    public abstract void buildBrickTemplates(int turnCount);
     public abstract void createBricks(int turnCount);
 
-    public virtual void doNextTurnMove(float duration)
+    public bool tryTakeOne(out Template t, out int remain)
     {
-        var brickGrid = brickManager.brickLayout;
-        for (var i = 0; i < bricks.Count; i++)
+        if (templates.Count > 0)
         {
-            var brick = bricks[i];
-            var curRow = brickGrid.getRowAtPosY(brick.getWorldPosition().y);
-            var nextRow = curRow - 1;
-            var nextPosY = brickGrid.getPosYAtRow(nextRow);
-            var tween = Tween
-                .PositionY(brick.getTransform(), endValue: nextPosY, duration: duration, ease: Ease.InOutSine);
-
-            if (nextRow < 0)
-            {
-                tween.OnComplete(brick, b =>
-                {
-                    b.kill();
-                });
-            }
-            else
-            {
-                tween.OnComplete(brick, b =>
-                {
-                    b.refreshRect();
-                });
-            }
+            t = templates.removeAt(0);
+            remain = templates.Count;
+            return true;
         }
+
+        t = default;
+        remain = 0;
+        return false;
+    }
+
+    public void createOne(Template t)
+    {
+        var brick = brickManager.acquireBrick(t.rect.center, t.rect.size, t.health);
+        brick.eventRouter.addListener(this);
+        addBrick(brick);
     }
 
     public void setOnBricksClear(Action<BrickGroup> action) => onBricksClear = action;
@@ -96,6 +103,7 @@ public abstract class BrickGroup : ClassObject, IEvent<OnBrickDeath>
     /// </summary>
     protected virtual int getBrickCount(int turnCount)
     {
+        return 6;
         int n = randomInt(0, 99);
         int count = 0;
 

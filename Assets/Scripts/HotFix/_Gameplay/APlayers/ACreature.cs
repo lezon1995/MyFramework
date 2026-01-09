@@ -46,14 +46,6 @@ namespace MarbleHero
             base.setName(name);
         }
 
-        public virtual void createBrickGroup(int turnNum)
-        {
-        }
-
-        public virtual void moveBrickGroup(int turnNum)
-        {
-        }
-
         #region MaxHp
 
         public void increaseMaxHp(int amount, bool showEffect)

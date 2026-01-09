@@ -46,7 +46,7 @@ namespace MarbleHero
                     actionManager.clearPostCombatActions();
 
                 if (!skipWait && !Settings.FAST_MODE)
-                    actionManager.addToTop<WaitAction, float>(POST_ATTACK_WAIT_DUR);
+                    actionManager.addToTop<WaitAction>().with(POST_ATTACK_WAIT_DUR);
             }
         }
     }
