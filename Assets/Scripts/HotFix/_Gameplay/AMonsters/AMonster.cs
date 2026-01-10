@@ -396,6 +396,8 @@ namespace MarbleHero
 
         public void useUniversalPreBattleAction()
         {
+            actionManager.addToBot<DisplayMovesAction>().with(this);
+            
             // if (ModHelper.isModEnabled("Lethality"))
             // actionManager.addToBot(new ApplyPowerAction(this, this, new StrengthPower(this, 3), 3));
 
@@ -679,6 +681,7 @@ namespace MarbleHero
 
         public virtual void rollMove()
         {
+            moveInfoGroup.resetMoveIndexCounter();
             getMove(ADungeon.aiRng.random(99));
         }
 

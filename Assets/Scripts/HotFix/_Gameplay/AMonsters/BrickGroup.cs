@@ -10,6 +10,8 @@ public struct EnemyMoveInfo
     public int multiplier;
     public bool isMultiDamage;
 
+    public int index;
+
     public EnemyMoveInfo(int _nextMove, Intent _intent, int _intentBaseDmg, int _multiplier, bool _isMultiDamage)
     {
         nextMove = _nextMove;
@@ -17,17 +19,20 @@ public struct EnemyMoveInfo
         baseDamage = _intentBaseDmg;
         multiplier = _multiplier;
         isMultiDamage = _isMultiDamage;
+        index = -1;
     }
 }
 
 public class EnemyMoveInfoGroup : ClassObject
 {
     public List<EnemyMoveInfo> moveInfos = new();
+    public int indexCounter;
 
     public override void resetProperty()
     {
         base.resetProperty();
         moveInfos.Clear();
+        indexCounter = 0;
     }
 
     public override void onCreate()
@@ -38,14 +43,18 @@ public class EnemyMoveInfoGroup : ClassObject
     public override void destroy()
     {
         base.destroy();
-
-
         moveInfos.Clear();
     }
 
     public void addMove(int nextMove, Intent intent, int baseDamage, int multiplier, bool isMultiDamage)
     {
         var info = new EnemyMoveInfo(nextMove, intent, baseDamage, multiplier, isMultiDamage);
+        info.index = indexCounter++;
         moveInfos.Add(info);
+    }
+
+    public void resetMoveIndexCounter()
+    {
+        indexCounter = 0;
     }
 }

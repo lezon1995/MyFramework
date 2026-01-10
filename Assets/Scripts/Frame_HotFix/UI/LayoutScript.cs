@@ -401,6 +401,10 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 		obj = newUIObject<T>(parent, mLayout, go);
 		return obj;
 	}
+	public static T newUIObject<T>(GameObject go) where T : myUGUIObject, new()
+	{
+		return newUIObject<T>(null, null, go);
+	}
 	public static T newUIObject<T>(myUGUIObject parent, GameLayout layout, GameObject go) where T : myUGUIObject, new()
 	{
 		T obj = new();

@@ -163,7 +163,7 @@ GameObject:
   - component: {fileID: 1146774495981351441}
   - component: {fileID: 3275463949008853656}
   m_Layer: 5
-  m_Name: SplashPanel
+  m_Name: SplashScreen
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -60,7 +60,7 @@ namespace MarbleHero
 
         #endregion
 
-        public static OverlayMenu overlayMenu { get; set; }
+        public static OverlayMenu overlayMenu;
         public static CurrentScreen screen { get; set; }
         public static CurrentScreen previousScreen;
 
@@ -80,7 +80,7 @@ namespace MarbleHero
             // topPanel.setPlayerName();
             actionManager = new();
             effectManager = new();
-            overlayMenu = CLASS<OverlayMenu>();
+            LT.SHOW(out overlayMenu);
             // dynamicBanner = new DynamicBanner();
             unlocks.Clear();
             specialOneTimeEventList = newSpecialOneTimeEventList;
@@ -135,7 +135,7 @@ namespace MarbleHero
             // topPanel.setPlayerName();
             actionManager = new();
             effectManager = new();
-            overlayMenu = CLASS<OverlayMenu>();
+            LT.SHOW(out overlayMenu);
             // dynamicBanner = new DynamicBanner();
             // isFadingIn = false;
             // isFadingOut = false;

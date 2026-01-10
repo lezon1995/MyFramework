@@ -23,7 +23,7 @@ namespace MarbleHero
         public virtual void update(float dt)
         {
             timeElapsed += dt;
-            Draw.ingame.xy.Label2D(new Vector2(0F, 0F), $"({timeElapsed:F2}) {GetType().Name}", 20, LabelAlignment.Center, Color.darkOrange);
+            Draw.ingame.xy.Label2D(new Vector2(Screen.width / 4F, 0F), $"({timeElapsed:F2}) {GetType().Name}", 20, LabelAlignment.Center, Color.darkOrange);
         }
 
         public virtual void fixedUpdate(float dt)

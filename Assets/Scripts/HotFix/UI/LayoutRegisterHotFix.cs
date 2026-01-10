@@ -1,5 +1,6 @@
 ﻿using static GBH;
 using static LayoutManager;
+using MarbleHero;
 
 public class LayoutRegisterHotFix
 {
@@ -8,9 +9,9 @@ public class LayoutRegisterHotFix
 		// 需要添加auto generate start和auto generate end才会自动生成代码
 		// auto generate start
 		registeLayout<DebugPanel>((script) =>						{ mDebugPanel = script; });
-		registeLayout<GameplayPanel>((script) =>					{ mGameplayPanel = script; });
-		registeLayout<MainMenuPanel>((script) =>					{ mMainMenuPanel = script; });
-		registeLayout<SplashPanel>((script) =>						{ mSplashPanel = script; });
+		registeLayout<MainMenuScreen>((script) =>					{ mMainMenuScreen = script; });
+		registeLayout<OverlayMenu>((script) =>						{ mOverlayMenu = script; });
+		registeLayout<SplashScreen>((script) =>						{ mSplashScreen = script; });
 		registeLayout<UIGaming>((script) =>							{ mUIGaming = script; });
 		registeLayout<UILogin>((script) =>							{ mUILogin = script; });
 		// auto generate end

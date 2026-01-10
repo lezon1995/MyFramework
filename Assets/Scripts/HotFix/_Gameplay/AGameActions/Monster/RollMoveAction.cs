@@ -18,6 +18,7 @@
         public override void update(float dt)
         {
             monster.rollMove();
+            actionManager.addToBot<DisplayMovesAction>().with(monster);
             isDone = true;
         }
     }

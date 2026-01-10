@@ -11,7 +11,7 @@
 
         public override void update(float dt)
         {
-            if (isFloatEqual(duration, DURATION))
+            if (duration.unstarted)
             {
                 monsters.applyPreTurnLogic();
                 isDone = true;

@@ -161,7 +161,7 @@ namespace MarbleHero
                 // steelSeries = new SteelSeries();
                 metricData = new();
                 characterManager = new();
-                splashScreen = new();
+                LT.LOAD(out splashScreen);
                 mode = GameMode.SPLASH;
             }
             catch (Exception e)
@@ -304,11 +304,11 @@ namespace MarbleHero
             switch (mode)
             {
                 case GameMode.SPLASH:
-                    if (splashScreen.update(dt))
+                    splashScreen.update(dt);
+                    if (splashScreen.isDone)
                     {
-                        splashScreen.Dispose();
-                        splashScreen = null;
-                        CLASS(out mainMenuScreen);
+                        LT.UNLOAD(ref splashScreen);
+                        LT.SHOW(out mainMenuScreen);
                         mode = GameMode.MAIN_MENU;
                     }
 
@@ -317,7 +317,7 @@ namespace MarbleHero
                     mainMenuScreen.update(dt);
                     if (mainMenuScreen.fadedOut)
                     {
-                        UN_CLASS(ref mainMenuScreen);
+                        LT.HIDE(ref mainMenuScreen);
                         ADungeon.path.Clear();
 
                         if (trial == null && Settings.specialSeed != 0)
@@ -995,7 +995,7 @@ namespace MarbleHero
                     UnlockTracker.refresh();
                     log("Unlock Tracker Refresh:  " + (TimeUtility.getNowTimeStampMS() - startTime) + "ms");
                     startTime = TimeUtility.getNowTimeStampMS();
-                    CLASS(out mainMenuScreen);
+                    LT.SHOW(out mainMenuScreen);
                     // mainMenuScreen.bg.slideDownInstantly();
                     saveSlotPref.putFloat(SaveHelper.slotName("COMPLETION", saveSlot), UnlockTracker.getCompletionPercentage());
                     saveSlotPref.putLong(SaveHelper.slotName("PLAYTIME", saveSlot), UnlockTracker.getTotalPlaytime());

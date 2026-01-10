@@ -17,7 +17,7 @@
 
         public override void update(float dt)
         {
-            if (isFloatEqual(duration, DEFAULT_DURATION))
+            if (duration.unstarted)
             {
                 // player.gainEnergy(energyGain);
                 actionManager.updateEnergyGain(energyGain);

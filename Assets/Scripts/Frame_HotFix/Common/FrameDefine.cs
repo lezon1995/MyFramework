@@ -76,6 +76,7 @@ public class FrameDefine
 	public static string F_SCRIPTS_PATH = F_ASSETS_PATH + SCRIPTS + "/";
 	public static string F_SCRIPTS_HOTFIX_PATH = F_SCRIPTS_PATH + HOTFIX + "/";
 	public static string F_SCRIPTS_HOTFIX_UI_PATH = F_SCRIPTS_HOTFIX_PATH + UI + "/";
+	public static string F_SCRIPTS_HOTFIX_UI_NAMESPACE = "MarbleHero";
 	public static string F_PLUGINS_PATH = F_ASSETS_PATH + PLUGINS + "/";
 	public static string F_GAME_RESOURCES_PATH = F_ASSETS_PATH + GAME_RESOURCES + "/";
 	public static string F_RESOURCES_PATH = F_ASSETS_PATH + RESOURCES + "/";

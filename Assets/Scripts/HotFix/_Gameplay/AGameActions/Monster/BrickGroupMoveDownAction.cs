@@ -55,7 +55,7 @@ public class BrickGroupMoveDownAction : AGameAction, IGameActionArgs<AMonster>
         {
             var brick = bricks[i];
             var (startY, endY) = bricksY[i];
-            var f = curve.evaluate(duration / DURATION);
+            var f = curve.evaluate(duration.pct);
             var curY = lerp(startY, endY, f);
             brick.setWorldPositionY(curY);
         }
@@ -66,6 +66,8 @@ public class BrickGroupMoveDownAction : AGameAction, IGameActionArgs<AMonster>
             {
                 var brick = bricks[i];
                 var endRow = bricksRow[i];
+                var (startY, endY) = bricksY[i];
+                brick.setWorldPositionY(endY);
                 if (endRow < 0)
                     brick.kill();
                 else

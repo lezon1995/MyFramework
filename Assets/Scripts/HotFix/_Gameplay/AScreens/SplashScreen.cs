@@ -1,21 +1,18 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace MarbleHero;
 
-public class SplashScreen : IDisposable
+public partial class SplashScreen
 {
-    SplashPanel panel;
-
     Timer timer;
     // static float BOUNCE_DUR = 1.2F;
     // static float FADE_DUR = 3.0F;
     // static float WAIT_DUR = 1.5F;
     // static float FADE_OUT_DUR = 1.0F;
-    static float BOUNCE_DUR = 0F;
-    static float FADE_DUR = 0F;
-    static float WAIT_DUR = 0F;
-    static float FADE_OUT_DUR = 0F;
+    static float BOUNCE_DUR = 0.25F;
+    static float FADE_DUR = 0.25F;
+    static float WAIT_DUR = 0.25F;
+    static float FADE_OUT_DUR = 0.25F;
     Color color = new Color(1.0F, 1.0F, 1.0F, 0.0F);
     Color bgColor = new Color(0.0F, 0.0F, 0.0F, 1.0F);
     Color shadowColor = new Color(0.0F, 0.0F, 0.0F, 0.0F);
@@ -41,16 +38,15 @@ public class SplashScreen : IDisposable
         FADE_OUT
     }
 
-    public SplashScreen()
+    public override void onCtor()
     {
         ColorUtility.TryParseHtmlString("#ffffdbff", out cream);
         ColorUtility.TryParseHtmlString("#074254ff", out bgBlue);
-
-        panel = LT.LOAD<SplashPanel>();
     }
 
-    public bool update(float dt)
+    public override void update(float dt)
     {
+        base.update(dt);
         if ((InputHelper.justClickedLeft /*|| CInputActionSet.select.isJustPressed()*/) && phase != Phase.FADE_OUT)
         {
             phase = Phase.FADE_OUT;
@@ -124,18 +120,11 @@ public class SplashScreen : IDisposable
                 break;
         }
         
-        panel.setBgColor(bgColor);
-        panel.setLogoColor(color);
+        setBgColor(bgColor);
+        setLogoColor(color);
         using var _ = new MyStringBuilderScope(out var sb);
         sb.appendLine($"phase={phase.ToString()}");
         sb.appendLine($"timer={timer.remain:F2}");
-        panel.setDebugText(sb.ToString());
-        return isDone;
-    }
-
-    public void Dispose()
-    {
-        LT.UNLOAD<SplashPanel>();
-        panel = null;
+        setDebugText(sb.ToString());
     }
 }

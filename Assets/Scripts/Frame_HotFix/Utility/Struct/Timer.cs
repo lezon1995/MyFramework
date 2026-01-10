@@ -4,11 +4,13 @@
     public float elapsed;
     public bool finished;
     public float remain => duration - elapsed;
-    public float pct => MathUtils.isEqual(duration, 0F) ? 0F : elapsed / duration;
+    public float pct => MathUtility.isFloatEqual(duration, 0F) ? 0F : elapsed / duration;
+    public bool unstarted => !MathUtility.isFloatEqual(duration, 0F) && MathUtility.isFloatEqual(elapsed, 0F);
+    public bool isDone => finished;
 
     public bool update(float dt, bool canRepeatTrigger = false)
     {
-        elapsed = MathUtils.clamp(elapsed + dt, 0F, duration);
+        elapsed = MathUtility.clamp(elapsed + dt, 0F, duration);
         var timeUp = elapsed >= duration;
         if (canRepeatTrigger)
             return timeUp;

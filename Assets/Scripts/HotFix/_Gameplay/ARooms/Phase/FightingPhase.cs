@@ -8,6 +8,7 @@ namespace MarbleHero
 
         public override void onBegin(APhase last)
         {
+            base.onBegin(last);
         }
 
         public override void update(float dt)
@@ -30,6 +31,7 @@ namespace MarbleHero
 
         public override void onEnd()
         {
+            base.onEnd();
         }
     }
 }

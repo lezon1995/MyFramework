@@ -16,6 +16,7 @@ namespace MarbleHero
 
         public override void onBegin(APhase last)
         {
+            base.onBegin(last);
             SettleWin();
         }
 
@@ -31,6 +32,7 @@ namespace MarbleHero
 
         public override void onEnd()
         {
+            base.onEnd();
         }
 
         protected override void onBindListeners()

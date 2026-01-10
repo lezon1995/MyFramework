@@ -32,7 +32,7 @@ namespace MarbleHero
 
         public virtual bool update(float dt)
         {
-            Draw.ingame.xy.Label2D(new Vector2(0F, -Screen.height / 4F), $"({duration:F2}) {GetType().Name}", 20, LabelAlignment.Center, color);
+            Draw.ingame.xy.Label2D(new Vector2(Screen.width / 4F, -Screen.height / 4F), $"({duration:F2}) {GetType().Name}", 20, LabelAlignment.Center, color);
             
             duration -= dt;
 

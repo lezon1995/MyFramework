@@ -163,7 +163,7 @@ public class UGUIGeneratorInspector : GameInspector
 		// 成员变量定义的代码
 		List<string> memberDefineList = new();
 		memberDefineList.add("[ObfuzIgnore(ObfuzScope.TypeName)]");
-		memberDefineList.add("public class " + layoutName + " : " + generator.mParentType);
+		memberDefineList.add("public partial class " + layoutName + " : " + generator.mParentType);
 		memberDefineList.add("{");
 		foreach (MemberData data in generator.mMemberList)
 		{
@@ -228,6 +228,8 @@ public class UGUIGeneratorInspector : GameInspector
 			fileFullPath = F_SCRIPTS_HOTFIX_UI_PATH + layoutName + ".cs";
 			string fileContent = "";
 			line(ref fileContent, "using Obfuz;");
+			line(ref fileContent, "");
+			line(ref fileContent, $"namespace {F_SCRIPTS_HOTFIX_UI_NAMESPACE};");
 			line(ref fileContent, "");
 			line(ref fileContent, "// auto generate member start");
 			foreach (string str in memberDefineList)

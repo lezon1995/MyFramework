@@ -336,6 +336,15 @@ public class FrameBaseUtility
 		}
 		return go;
 	}
+
+	public static Transform find(Transform parent, string name, bool recursive = true)
+	{
+		var o = getGameObject(name, parent.gameObject, false, recursive);
+		if (o == null)
+			return null;
+
+		return o.transform;
+	}
 	public static GameObject getGameObject(string name, GameObject parent, bool errorIfNull = false, bool recursive = true)
 	{
 		if (name == null || name.Length == 0)

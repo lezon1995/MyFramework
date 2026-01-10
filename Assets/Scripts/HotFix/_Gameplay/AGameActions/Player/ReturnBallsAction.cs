@@ -42,8 +42,7 @@ namespace MarbleHero
         {
             tickDuration(dt);
 
-            var f = clamp(1 - duration / DURATION, 0, 1);
-            var t = curve.evaluate(f);
+            var t = curve.evaluate(duration.pct);
             foreach (var ball in player.activeBalls)
             {
                 var startPos = ballStartPos[ball.instanceID];

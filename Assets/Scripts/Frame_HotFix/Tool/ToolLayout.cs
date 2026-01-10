@@ -147,6 +147,10 @@ public static class LT
 	{
 		return CmdLayoutManagerLoad.execute(type, 0, LAYOUT_ORDER.ALWAYS_TOP_AUTO, true, false);
 	}
+	public static void LOAD<T>(out T t) where T : LayoutScript
+	{
+		t = CmdLayoutManagerLoad.execute(typeof(T), 0, LAYOUT_ORDER.AUTO, true, false) as T;
+	}
 	public static T LOAD<T>() where T : LayoutScript
 	{
 		return CmdLayoutManagerLoad.execute(typeof(T), 0, LAYOUT_ORDER.AUTO, true, false) as T;
@@ -165,6 +169,12 @@ public static class LT
 	}
 	#endregion
 	#region LAYOUT_VISIBLE
+	public static void HIDE<T>(ref T t) where T : LayoutScript
+	{
+		CmdLayoutManagerVisible.execute(typeof(T), false, false);
+		t = null;
+	}
+	
 	public static void HIDE<T>() where T : LayoutScript
 	{
 		CmdLayoutManagerVisible.execute(typeof(T), false, false);
@@ -184,6 +194,13 @@ public static class LT
 	public static void SHOW(Type type)
 	{
 		CmdLayoutManagerVisible.execute(type, true, false);
+	}
+	public static void SHOW<T>(out T t) where T : LayoutScript
+	{
+		if (CmdLayoutManagerVisible.execute(typeof(T), true, false) is not T layout)
+			LOAD(out layout);
+
+		t = layout;
 	}
 	public static T SHOW<T>() where T : LayoutScript
 	{
@@ -211,6 +228,15 @@ public static class LT
 	}
 	#endregion
 	#region UNLOAD
+	public static void UNLOAD<T>(ref T layout) where T : LayoutScript
+	{
+		Type type = typeof(T);
+		// 需要首先隐藏布局
+		CmdLayoutManagerVisible.execute(type, false, false);
+		mLayoutManager.destroyLayout(type);
+		layout = null;
+	}
+	
 	public static void UNLOAD<T>() where T : LayoutScript
 	{
 		Type type = typeof(T);

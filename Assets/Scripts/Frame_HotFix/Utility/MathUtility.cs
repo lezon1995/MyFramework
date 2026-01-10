@@ -2460,6 +2460,17 @@ public class MathUtility
 		}
 		return value;
 	}
+	public static Vector2 lerp(Vector2 start, Vector2 end, float t, float minRange = 0.0f)
+	{
+		saturate(ref t);
+		Vector2 value = start + (end - start) * t;
+		// 如果值已经在end的一定范围内了,则直接设置为end
+		if (lengthLess(value - end, minRange))
+		{
+			value = end;
+		}
+		return value;
+	}
 	public static Vector3 lerp(Vector3 start, Vector3 end, float t, float minRange = 0.0f)
 	{
 		saturate(ref t);

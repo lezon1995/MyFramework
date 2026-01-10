@@ -198,6 +198,7 @@ public class Transformable : ComponentOwner, ITransformable
 		return mObject.GetComponentInChildren<T>(includeInactive);
 	}
 	public GameObject getUnityObject() { return mObject; }
+	public Transform transform => mTransform;
 	public Transform getTransform() { return mTransform; }
 	public Vector3 getLeft(bool ignoreY = false) { return ignoreY ? normalize(resetY(-mTransform.right)) : -mTransform.right; }
 	public Vector3 getRight(bool ignoreY = false) { return ignoreY ? normalize(resetY(mTransform.right)) : mTransform.right; }
@@ -461,6 +462,12 @@ public class Transformable : ComponentOwner, ITransformable
 				resetTransform();
 			}
 		}
+	}
+
+	public Transform find(string path)
+	{
+		var t = mTransform.Find(path);
+		return t;
 	}
 	public void copyObjectTransform(GameObject obj)
 	{

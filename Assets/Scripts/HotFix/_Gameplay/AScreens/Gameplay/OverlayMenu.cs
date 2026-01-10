@@ -1,31 +1,25 @@
 ﻿namespace MarbleHero;
 
-public class OverlayMenu : ClassObject
+public partial class OverlayMenu
 {
-    GameplayPanel panel;
-    
     public override void onCtor()
     {
         base.onCtor();
-        panel = LT.LOAD<GameplayPanel>();
     }
 
     public override void onCreate()
     {
         base.onCreate();
-        LT.SHOW<GameplayPanel>();
     }
 
     public override void destroy()
     {
-        LT.HIDE<GameplayPanel>();
-            
         base.destroy();
     }
 
-    public void update(float dt)
+    public override void update(float dt)
     {
-        
+        base.update(dt);
     }
 
     public void hideCombatPanels()

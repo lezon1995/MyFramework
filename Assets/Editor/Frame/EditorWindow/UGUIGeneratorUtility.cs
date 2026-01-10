@@ -406,7 +406,8 @@ public class UGUIGeneratorUtility
 	public static string findScript(string fileNameNoDirNoSuffix)
 	{
 		List<string> fileList = new();
-		findFiles(F_SCRIPTS_PATH, fileList, ".cs");
+		// findFiles(F_SCRIPTS_PATH, fileList, ".cs"); //在Hotfix程序集下找
+		findFiles(F_SCRIPTS_HOTFIX_UI_PATH, fileList, ".cs"); ////在Hotfix程序集的UI目录下找
 		foreach (string file in fileList)
 		{
 			if (getFileNameNoSuffixNoDir(file) == fileNameNoDirNoSuffix)

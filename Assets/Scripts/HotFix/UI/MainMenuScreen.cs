@@ -1,11 +1,12 @@
 using System.Collections.Generic;
-using MarbleHero;
 using Obfuz;
 using UnityEngine;
 
+namespace MarbleHero;
+
 // auto generate member start
 [ObfuzIgnore(ObfuzScope.TypeName)]
-public class MainMenuPanel : LayoutScript
+public partial class MainMenuScreen : LayoutScript
 {
 	protected myUGUIObject mMenuButtons;
 	protected myUGUIImageSimple mOverlay;
@@ -15,10 +16,11 @@ public class MainMenuPanel : LayoutScript
 	protected Transform buttonsParent;
 	protected Dictionary<MainMenuType, MainMenuButton> buttons = new();
 	
-	public MainMenuPanel()
+	public MainMenuScreen()
 	{
 		// auto generate constructor start
 		// auto generate constructor end
+		mNeedUpdate = false;
 	}
 	public override void assignWindow()
 	{
@@ -31,9 +33,11 @@ public class MainMenuPanel : LayoutScript
 
 		buttonsParent = mMenuButtons.getTransform().Find("V");
 	}
+
 	public override void init()
 	{
 		base.init();
+		onInit();
 	}
 	public override void onGameState()
 	{

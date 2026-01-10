@@ -2,7 +2,7 @@
 
 public class BrickGroupGenerateAction : AGameAction, IGameActionArgs<AMonster, BrickGroup>
 {
-    const float GAP = 0.02F;
+    const float GAP = 0.05F;
     ACreature creature;
     BrickGroup brickGroup;
     bool lastOne;
@@ -26,7 +26,7 @@ public class BrickGroupGenerateAction : AGameAction, IGameActionArgs<AMonster, B
 
     public override void update(float dt)
     {
-        if (isFloatEqual(duration, GAP))
+        if (duration.unstarted)
         {
             if (brickGroup.tryTakeOne(out var t, out var remain))
             {
@@ -42,7 +42,8 @@ public class BrickGroupGenerateAction : AGameAction, IGameActionArgs<AMonster, B
         tickDuration(dt);
         if (isDone && !lastOne)
         {
-            duration = GAP;
+            duration.reset();
+            isDone = false;
         }
     }
 }

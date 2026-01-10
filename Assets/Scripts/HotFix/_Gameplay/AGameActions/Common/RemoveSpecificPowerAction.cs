@@ -20,7 +20,7 @@
 
         public override void update(float dt)
         {
-            if (duration == DURATION)
+            if (duration.unstarted)
             {
                 if (target.isDeadOrEscaped())
                 {

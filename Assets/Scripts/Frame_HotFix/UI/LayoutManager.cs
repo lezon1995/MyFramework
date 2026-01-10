@@ -309,15 +309,15 @@ public class LayoutManager : FrameSystem
 	}
 	public static void registeLayout<T>(bool inResource, LAYOUT_LIFE_CYCLE lifeCycle, LayoutScriptCallback callback = null) where T : LayoutScript
 	{
-		mLayoutManager.registeLayout(typeof(T), typeof(T).ToString(), inResource, lifeCycle, callback);
+		mLayoutManager.registeLayout(typeof(T), typeof(T).Name, inResource, lifeCycle, callback);
 	}
 	public static void registeLayout<T>(Action<T> callback) where T : LayoutScript
 	{
-		registeLayout(typeof(T).ToString(), false, LAYOUT_LIFE_CYCLE.PART_USE, callback);
+		registeLayout(typeof(T).Name, false, LAYOUT_LIFE_CYCLE.PART_USE, callback);
 	}
 	public static void registeLayoutPersist<T>(Action<T> callback) where T : LayoutScript
 	{
-		registeLayout(typeof(T).ToString(), false, LAYOUT_LIFE_CYCLE.PERSIST, callback);
+		registeLayout(typeof(T).Name, false, LAYOUT_LIFE_CYCLE.PERSIST, callback);
 	}
 	public static void registeLayout<T>(string name, bool inResource, LAYOUT_LIFE_CYCLE lifeCycle, Action<T> callback) where T : LayoutScript
 	{

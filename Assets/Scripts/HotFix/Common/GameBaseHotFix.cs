@@ -20,9 +20,9 @@ public partial class GBH
 	// 需要添加auto generate LayoutScript start和auto generate LayoutScript end才会自动生成代码
 	// auto generate LayoutScript start
 	public static DebugPanel mDebugPanel;
-	public static GameplayPanel mGameplayPanel;
-	public static MainMenuPanel mMainMenuPanel;
-	public static SplashPanel mSplashPanel;
+	public static MainMenuScreen mMainMenuScreen;
+	public static OverlayMenu mOverlayMenu;
+	public static SplashScreen mSplashScreen;
 	public static UIGaming mUIGaming;
 	public static UILogin mUILogin;
 	// auto generate LayoutScript end
