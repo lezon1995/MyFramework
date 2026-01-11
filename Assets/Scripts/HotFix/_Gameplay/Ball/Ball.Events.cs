@@ -9,7 +9,7 @@ public partial class Ball : IEventRouter
     , IEvent<DoAttackKillEffect>
 {
     public IEventRouter eventRouter => this;
-    
+
     protected void addListeners() => eventRouter.addAllListener(this);
     protected void removeListeners() => eventRouter.removeAllListener(this);
 
@@ -39,9 +39,13 @@ public partial class Ball : IEventRouter
         if (brickManager.getActiveBrick(c.gameObject.GetInstanceID(), out var brick))
         {
             var ball = this;
-            gameplayManager.handleAttackDamage(ball, brick);
+            player.onBallBeginOverlappingBrick(ball, brick);
+            gameplayManager.handleAttackDamage(ball, brick, out var killed);
             brick.onHitEnter(ball, normal);
             ball.onHitEnter(brick, normal);
+
+            collidingBrick = brick;
+            isOverlappingBrick = true;
         }
 
         if (isPenetrable)
@@ -70,7 +74,9 @@ public partial class Ball : IEventRouter
 
     protected virtual bool onHitEnter(BorderBot border, Vector2 normal)
     {
-        if (hasBeenCollided)
+        bool forceReturn = true;
+        player.onBallHitBorderBot(this, border, normal, ref forceReturn);
+        if (hasBeenCollided && forceReturn)
         {
             player.setBallReturn(this);
         }
@@ -128,8 +134,8 @@ public partial class Ball : IEventRouter
             }
         }
     }
-    
-    
+
+
     public void onEvent(DoAbilityEffect e)
     {
         for (var i = 0; i < buffs.Count; i++)

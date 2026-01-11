@@ -19,7 +19,6 @@ public class MainSceneGaming : SceneProcedure
         SeedHelper.setSeed("3Q350M8RNTUM4");
 
         balls = CLASS<SafeList<Ball>>();
-        // GameEntry.startCoroutine(gameplayManager.startGame());
         mGameFrameworkHotFix.registeOnApplicationPause(onApplicationPause);
     }
 

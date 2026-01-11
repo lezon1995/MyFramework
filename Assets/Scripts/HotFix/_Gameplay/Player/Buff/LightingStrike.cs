@@ -26,7 +26,7 @@ public class LightingStrike : Buff, IDoAttackEffect
             if (brickManager.getRandomActiveBrick(out var randomBrick, brick))
             {
                 var dmg = ball.getAbilityDmg(randomBrick);
-                gameplayManager.handleAbilityDamage(ball, randomBrick, dmg);
+                gameplayManager.handleAbilityDamage(ball, randomBrick, dmg, out var killed);
             }
         }
     }

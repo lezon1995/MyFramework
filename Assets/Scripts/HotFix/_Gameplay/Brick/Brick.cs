@@ -1,4 +1,5 @@
 ﻿using System;
+using Drawing;
 using UnityEngine;
 
 namespace MarbleHero;
@@ -9,7 +10,6 @@ public partial class Brick : MovableObject, IDamageable<Ball> , IReusable
     protected BrickManager manager;
     public int instanceID;
     protected Type type; // 角色类型
-    protected Rect rect;
     public long guid; // 角色的唯一ID
 
     #region Stats
@@ -45,7 +45,7 @@ public partial class Brick : MovableObject, IDamageable<Ball> , IReusable
     CoroutineState _coroutineState;
     float _coroutineTimeElapsed;
     float _invincibleTime;
-    float killTimer;
+    Timer killTimer;
 
     public void setBrickType(Type t) => type = t;
     public void setID(long id) => guid = id;
@@ -72,7 +72,6 @@ public partial class Brick : MovableObject, IDamageable<Ball> , IReusable
         manager = null;
         instanceID = 0;
         type = null;
-        rect = default;
         guid = 0;
         brickRenderer = null;
         brickCollider = null;
@@ -140,15 +139,16 @@ public partial class Brick : MovableObject, IDamageable<Ball> , IReusable
     {
         base.update(elapsedTime);
 
-        if (killTimer > 0)
+        if (killTimer)
         {
-            killTimer -= elapsedTime;
-            if (killTimer <= 0)
+            if (killTimer.update(elapsedTime))
             {
                 var e = new OnBrickDeathTotally(this);
                 e.trigger(this);
             }
         }
+        
+        Draw.ingame.xy.WireRectangle(getRect(), Color.red);
     }
 
     public override void fixedUpdate(float elapsedTime)
@@ -282,8 +282,9 @@ public partial class Brick : MovableObject, IDamageable<Ball> , IReusable
         return actualDamage > 0;
     }
 
-    public virtual void damage(Dmg dmg, GameObject instigator, Ball source, float invincibleTime = 0, Vector3 direction = default, IDmgCalculator calculator = null)
+    public virtual void damage(Dmg dmg, GameObject instigator, Ball source, out bool killed, float invincibleTime = 0, Vector3 direction = default, IDmgCalculator calculator = null)
     {
+        killed = false;
         if (!canTakeDamageThisFrame(out _))
             return;
 
@@ -296,7 +297,7 @@ public partial class Brick : MovableObject, IDamageable<Ball> , IReusable
             dmg.setDamageDealt(damageDealt);
             dmg.setDirection(direction);
 
-            if ((int)dmg.damageDealt > 0)
+            if ((int)dmg.damageDealt > 1)
             {
                 new DmgTextEvent(dmg, getTransform()).trigger();
             }
@@ -386,6 +387,7 @@ public partial class Brick : MovableObject, IDamageable<Ball> , IReusable
             }
 
             kill();
+            killed = true;
         }
     }
 
@@ -427,12 +429,10 @@ public partial class Brick : MovableObject, IDamageable<Ball> , IReusable
         brickCollider.setSize(w, h);
     }
 
-    public Rect getRect() => rect;
-
-    public void refreshRect()
+    public Rect getRect()
     {
-        rect = new(0, 0, width, height);
+        Rect rect = new(0, 0, width, height);
         rect.center = getWorldPosition();
+        return rect;
     }
-
 }

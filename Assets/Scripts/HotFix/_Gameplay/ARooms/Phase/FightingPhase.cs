@@ -32,6 +32,7 @@ namespace MarbleHero
         public override void onEnd()
         {
             base.onEnd();
+            player.onFightingPhaseEnd();
         }
     }
 }

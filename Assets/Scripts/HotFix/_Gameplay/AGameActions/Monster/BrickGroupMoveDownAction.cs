@@ -70,8 +70,6 @@ public class BrickGroupMoveDownAction : AGameAction, IGameActionArgs<AMonster>
                 brick.setWorldPositionY(endY);
                 if (endRow < 0)
                     brick.kill();
-                else
-                    brick.refreshRect();
             }
         }
     }

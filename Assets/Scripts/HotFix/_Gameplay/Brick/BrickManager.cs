@@ -17,7 +17,6 @@ public class BrickManager : FrameSystem
     protected Dictionary<long, Brick> brickGUIDList = new(); // 角色ID索引表
     protected SafeList<Brick> brickUpdateList = new(); // 用于更新角色的列表
     protected SafeList<Brick> brickFixedUpdateList = new(); // 需要在FixedUpdate中更新的列表,如果直接使用mBrickGUIDList,会非常慢,而很多时候其实并不需要进行物理更新,所以单独使用一个列表存储
-    protected Dictionary<Rect, Brick> activeBrickGrids = new();
 
     protected Dictionary<Type, ObjectPool<Brick>> brickPools = new();
 
@@ -228,7 +227,6 @@ public class BrickManager : FrameSystem
                     brickUpdateList.remove(brick);
                     brickFixedUpdateList.remove(brick);
                     activeBricks.Remove(brick.instanceID);
-                    removeBrickFromGrids(brick);
                 },
                 actionOnDestroy: brick =>
                 {
@@ -247,10 +245,8 @@ public class BrickManager : FrameSystem
         brick.setMaxHealth(health);
         // brick.setSize(1.14F, 0.82F);
         brick.setSize(size);
-        brick.refreshRect();
         brick.onAcquire();
 
-        activeBrickGrids[brick.getRect()] = brick;
         activeBrickList.add(brick);
         return brick;
     }
@@ -293,7 +289,6 @@ public class BrickManager : FrameSystem
         brick.setMaxHealth(health);
         // brick.setSize(1.14F, 0.82F);
         brick.setSize(size);
-        brick.refreshRect();
 
         brick.eventRouter.addListener<OnBrickDeath>(this);
         brick.eventRouter.addListener<OnBrickDeathTotally>(this);
@@ -345,27 +340,10 @@ public class BrickManager : FrameSystem
         brickUpdateList.remove(brick);
         brickFixedUpdateList.remove(brick);
 
-        removeBrickFromGrids(brick);
-
         brick.eventRouter.removeListener<OnBrickDeath>(this);
         brick.eventRouter.removeListener<OnBrickDeathTotally>(this);
 
         UN_CLASS(ref brick);
-    }
-
-    void removeBrickFromGrids(Brick brick)
-    {
-        Rect keyRect = default;
-        foreach (var (rect, b) in activeBrickGrids)
-        {
-            if (b == brick)
-            {
-                keyRect = rect;
-                break;
-            }
-        }
-
-        activeBrickGrids.Remove(keyRect);
     }
 
     public void destroyBrickList<T>(IList<T> characterList) where T : Brick
@@ -418,21 +396,14 @@ public class BrickManager : FrameSystem
 
     public bool containsBrickAt(Rect rect)
     {
-        return activeBrickGrids.ContainsKey(rect);
-    }
-
-    public bool tryGetBrickAt(Rect rect, out Brick brick)
-    {
-        return activeBrickGrids.TryGetValue(rect, out brick);
-    }
-
-    public void refreshAllBrickGrid()
-    {
-        activeBrickGrids.Clear();
         foreach (var brick in activeBrickList)
         {
-            brick.refreshRect();
-            activeBrickGrids[brick.getRect()] = brick;
+            if (brick.getRect().Overlaps(rect))
+            {
+                return true;
+            }
         }
+
+        return false;
     }
 }

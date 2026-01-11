@@ -554,11 +554,10 @@ namespace MarbleHero
 
         public void spawnRelicAndObtain(float x, float y, ARelic relic)
         {
-            if (relic.relicId == "Circlet" && player.hasRelic("Circlet"))
+            if (relic.relicId == "Circlet" && player.tryGetRelic("Circlet", out var circlet))
             {
-                ARelic circ = player.getRelic("Circlet");
-                circ.counter++;
-                circ.flash();
+                circlet.counter++;
+                circlet.flash();
             }
             else
             {

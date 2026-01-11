@@ -74,7 +74,7 @@ public class LaserHorizontal : Buff, IDoAttackEffect
 
             var dmg = ball.getAbilityDmg(brick);
             dmg.setCrit();
-            gameplayManager.handleAbilityDamage(ball, brick, dmg);
+            gameplayManager.handleAbilityDamage(ball, brick, dmg, out var killed);
 
             if (leftBricks.Count > 0)
                 startTask(leftBricks, ball).Forget();
@@ -95,7 +95,7 @@ public class LaserHorizontal : Buff, IDoAttackEffect
 
             var dmg = ball.getAbilityDmg(brick);
             dmg.setCrit();
-            gameplayManager.handleAbilityDamage(ball, brick, dmg);
+            gameplayManager.handleAbilityDamage(ball, brick, dmg, out var killed);
         }
 
         UnityEngine.Pool.ListPool<Brick>.Release(list);

@@ -42,7 +42,7 @@ public class LightingStrike3 : Buff, IDoAttackKillEffect
 
             var dmg = ball.getAbilityDmg(randomBrick);
             dmg.setCrit();
-            gameplayManager.handleAbilityDamage(ball, randomBrick, dmg);
+            gameplayManager.handleAbilityDamage(ball, randomBrick, dmg, out var killed);
         }
 
         UnityEngine.Pool.ListPool<Brick>.Release(list);

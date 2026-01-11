@@ -23,9 +23,9 @@ public class GuideLine : MovableObject
     float distance = 10f;
     bool isLine;
     bool isOff;
-    bool isInteractable;
     Vector3 shootPosition;
     Vector3 shootDirection;
+    Vector3 dragPos;
 
     public override void onCtor()
     {
@@ -75,22 +75,21 @@ public class GuideLine : MovableObject
             return;
 
         //if (CtrGame.instance.isGameOver || !CtrGame.instance.isGameStart) return;
-        if (!isInteractable)
-            return;
-
-        isInteractable = false;
-        player.shootBall(shootPosition, shootDirection);
+        player.shootBalls(shootPosition, shootDirection);
     }
 
     void DragCallback(ComponentOwner owner, Vector3 pos)
     {
-        if (!isInteractable)
-            return;
-
         if (!room.inPlayerTurn)
             return;
 
-        var diff = screenToWorld(pos, false) - shootPosition;
+        dragPos = screenToWorld(pos, false);
+        updateShootDirection(dragPos);
+    }
+
+    void updateShootDirection(Vector3 targetPos)
+    {
+        var diff = targetPos - shootPosition;
         diff.Normalize();
         var rotZ = Mathf.Atan2(diff.y, diff.x) * Mathf.Rad2Deg;
         var rotation = Quaternion.Euler(0f, 0f, Mathf.Clamp((rotZ - 90), -83, 83));
@@ -104,7 +103,6 @@ public class GuideLine : MovableObject
 
         //if (CtrGame.instance.isGameOver || !CtrGame.instance.isGameStart) return;
         //if (!CtrGame.instance.PlayerReady) return;
-        isInteractable = true;
     }
 
     protected override void initComponents()
@@ -149,11 +147,8 @@ public class GuideLine : MovableObject
     public override void update(float elapsedTime)
     {
         base.update(elapsedTime);
-        
-        if (isOff)
-            return;
 
-        if (!isInteractable)
+        if (isOff)
             return;
 
         //Material Anim
@@ -167,6 +162,7 @@ public class GuideLine : MovableObject
     void refreshGuideLine()
     {
         Vector2 origin = shootPosition;
+        updateShootDirection(dragPos);
         Vector2 up = shootDirection;
         Vector2 dir = origin - (up * -distance);
 
@@ -472,10 +468,11 @@ public class GuideLine : MovableObject
         player = p;
     }
 
-    public void setShootPosition(Vector3 pos)
+    public void setShootPosition(Vector3 pos, bool resetShootDirection)
     {
         shootPosition = pos;
-        shootDirection = Vector3.up;
+        if (resetShootDirection)
+            shootDirection = Vector3.up;
     }
 
     public void setIndicatorBallPosition(Vector3 pos)

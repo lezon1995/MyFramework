@@ -103,7 +103,6 @@ public abstract class BrickGroup : ClassObject, IEvent<OnBrickDeath>
     /// </summary>
     protected virtual int getBrickCount(int turnCount)
     {
-        return 6;
         int n = randomInt(0, 99);
         int count = 0;
 

@@ -227,7 +227,7 @@ public interface IReusable
 public interface IDamageable<in Attacker>
 {
     bool canTakeDamageThisFrame(out ResistDamageType resistType);
-    void damage(Dmg dmg, GameObject instigator, Attacker source, float invincibleTime = 0F, Vector3 direction = default, IDmgCalculator calculator = null);
+    void damage(Dmg dmg, GameObject instigator, Attacker source, out bool killed, float invincibleTime = 0F, Vector3 direction = default, IDmgCalculator calculator = null);
     bool kill();
     bool isDead();
 }

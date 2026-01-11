@@ -130,7 +130,7 @@ namespace MarbleHero
                         // if (tier == RelicTier.BOSS && room is TreasureRoomBoss)
                             // ADungeon.overlayMenu.proceedButton.show();
                             
-                        onEquip();
+                        onEquip(player);
                     }
 
                     scale = Settings.scale;

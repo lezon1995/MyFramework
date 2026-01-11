@@ -19,6 +19,12 @@ namespace MarbleHero
                 relic.atTurnStartPostDraw();
         }
 
+        public void applyOnShootBallRelics(Ball ball)
+        {
+            foreach (var relic in relics)
+                relic.onShootBall(ball);
+        }
+
         public bool hasRelic(string relicId)
         {
             foreach (var relic in relics)
@@ -50,7 +56,7 @@ namespace MarbleHero
             if (amount > relics.Count)
             {
                 foreach (var relic in relics)
-                    relic.onUnequip();
+                    relic.onUnequip(this);
                 relics.Clear();
                 return;
             }
@@ -58,7 +64,7 @@ namespace MarbleHero
             for (int i = 0; i < amount; i++)
             {
                 int index = MathUtils.random(0, relics.Count - 1);
-                relics[index].onUnequip();
+                relics[index].onUnequip(this);
                 relics.RemoveAt(index);
             }
 
@@ -74,7 +80,7 @@ namespace MarbleHero
             {
                 if (relic.relicId == relicId)
                 {
-                    relic.onUnequip();
+                    relic.onUnequip(this);
                     toRemove = relic;
                 }
             }

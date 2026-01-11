@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using PrimeTween;
+using Drawing;
 using UnityEngine;
 
 namespace MarbleHero;
@@ -10,7 +10,7 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
 {
     protected Comparison<RaycastHit2D> comparison;
 
-    public int instanceID;//GameObject的instanceID，可以根据不同GameObject而变化
+    public int instanceID; //GameObject的instanceID，可以根据不同GameObject而变化
     protected Type type;
     public long guid; // Ball这个对象的guid，
 
@@ -54,6 +54,7 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
     Collider2D hitCollider;
     TrailRenderer trailRenderer;
     APlayer player;
+    public Brick collidingBrick;
 
     Action<Ball> onDead;
 
@@ -66,6 +67,7 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
     float lastRadius;
     bool enabled;
     bool hasBeenCollided;
+    public bool isOverlappingBrick;
 
     public void setOnDead(Action<Ball> action) => onDead = action;
     public void setBallType(Type t) => type = t;
@@ -108,6 +110,7 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
         direction = Vector2.zero;
         hitNormal = Vector2.zero;
         player = null;
+        collidingBrick = null;
         hitCollider = null;
         ballRenderer = null;
         trailRenderer = null;
@@ -115,6 +118,7 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
         lastDirection = default;
         enabled = false;
         hasBeenCollided = false;
+        isOverlappingBrick = false;
 
         maxHealth = 0;
         minPhysicDamage = maxPhysicDamage = 0;
@@ -158,7 +162,7 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
         invulnerable = false;
         isPenetrable = false;
         horizontalBorderTeleportable = false;
-        
+
         this.removeListener<OnBrickColliderChanged>();
 
         UN_CLASS_LIST(buffs);
@@ -198,6 +202,8 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
         float t = (Time.time - Time.fixedTime) / Time.fixedDeltaTime;
         var p = Vector3.Lerp(prePos, curPos, t);
         setPosition(p);
+
+        Draw.ingame.xy.Circle(p, radius, Color.red);
     }
 
     public override void fixedUpdate(float elapsedTime)
@@ -223,9 +229,26 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
         {
             onHitEnter(hitCollider, hitNormal);
         }
+        else
+        {
+            if (collidingBrick)
+            {
+                var rect = collidingBrick.getRect();
+                if (circleIntersectRectangle(getCircle(), rect.center, rect.size))
+                {
+                    isOverlappingBrick = true;
+                }
+                else
+                {
+                    player.onBallEndOverlappingBrick(this, collidingBrick);
+                    collidingBrick = null;
+                    isOverlappingBrick = false;
+                }
+            }
+        }
     }
 
-    protected void reflectBounce(Vector2 normal)
+    public void reflectBounce(Vector2 normal)
     {
         var reflectDir = Vector2.Reflect(direction, normal);
         setDirection(reflectDir);
@@ -353,6 +376,11 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
         ballRenderer.transform.localScale = new(diameter, diameter, 1);
     }
 
+    public Circle2 getCircle()
+    {
+        return new(curPos, radius);
+    }
+
     void checkRadius()
     {
         if (isFloatEqual(lastRadius, radius))
@@ -460,8 +488,9 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
         return actualDamage > 0;
     }
 
-    public void damage(Dmg dmg, GameObject instigator, Brick source, float invincibleTime = 0, Vector3 direction = default, IDmgCalculator calculator = null)
+    public void damage(Dmg dmg, GameObject instigator, Brick source, out bool killed, float invincibleTime = 0, Vector3 direction = default, IDmgCalculator calculator = null)
     {
+        killed = false;
         if (!canTakeDamageThisFrame(out _))
             return;
 

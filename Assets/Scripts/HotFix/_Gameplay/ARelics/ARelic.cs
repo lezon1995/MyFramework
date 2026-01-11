@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace MarbleHero
 {
     [Serializable]
-    public partial class ARelic : IComparable<ARelic>
+    public abstract partial class ARelic : IComparable<ARelic>
     {
         public string name;
         public string relicId;
@@ -108,14 +109,14 @@ namespace MarbleHero
             p.relics.Add(this);
             if (callOnEquip)
             {
-                onEquip();
+                onEquip(p);
                 relicTip();
             }
 
             UnlockTracker.markRelicAsSeen(relicId);
         }
 
-        public void instantObtain(int slot, bool callOnEquip)
+        public void instantObtain(APlayer player, int slot, bool callOnEquip)
         {
             if (relicId == "Circlet" && player.tryGetRelic("Circlet", out var relic))
             {
@@ -136,7 +137,7 @@ namespace MarbleHero
 
                 if (callOnEquip)
                 {
-                    onEquip();
+                    onEquip(player);
                     relicTip();
                 }
 
@@ -161,7 +162,7 @@ namespace MarbleHero
                 flash();
                 player.addRelic(this);
                 // hb.move(currentX, currentY);
-                onEquip();
+                onEquip(player);
                 relicTip();
                 UnlockTracker.markRelicAsSeen(relicId);
             }
@@ -237,11 +238,11 @@ namespace MarbleHero
         {
         }
 
-        public void onEquip()
+        public virtual void onEquip(APlayer p)
         {
         }
 
-        public void onUnequip()
+        public virtual void onUnequip(APlayer p)
         {
         }
 
@@ -270,6 +271,10 @@ namespace MarbleHero
         }
 
         public void onPlayerEndTurn()
+        {
+        }
+
+        public virtual void onShootBall(Ball ball)
         {
         }
 
@@ -465,6 +470,30 @@ namespace MarbleHero
         {
         }
 
-        public virtual ARelic makeCopy() => new(relicId, imgUrl, tier, landingSFX);
+        public virtual void onPlayerTurnUpdate(APlayer p, float dt)
+        {
+        }
+        
+        public virtual void onBallBeginOverlappingBrick(APlayer p, Ball ball, Brick brick)
+        {
+        }
+
+        public virtual void onBallEndOverlappingBrick(APlayer p, Ball ball, Brick brick)
+        {
+        }
+
+        public virtual void onPlayerTurnEnd(APlayer p)
+        {
+        }
+
+        public virtual void onFightingPhaseEnd(APlayer p)
+        {
+        }
+
+        public abstract ARelic makeCopy();
+
+        public virtual void onBallHitBorderBot(APlayer p, Ball ball, BorderBot border, Vector2 normal, ref bool forceReturn)
+        {
+        }
     }
 }

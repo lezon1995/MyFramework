@@ -20,23 +20,21 @@ public class RandomAnyEmptyBrickGroup : BrickGroup
         templates.Clear();
         var health = turnCount;
         int count = getBrickCount(turnCount);
-        using var _ = new ListScope2T<Rect, int>(out var emptyGrids, out var selectIndexes);
-        var allGrids = brickManager.brickLayout.getAllGrids();
-        emptyGrids.setRange(allGrids);
+        using var _ = new ListScope2T<Rect, int>(out var grids, out var selectIndexes);
+        grids.setRange(brickManager.brickLayout.getAllGrids());
 
-        for (var i = emptyGrids.Count - 1; i >= 0; i--)
+        for (var i = grids.Count - 1; i >= 0; i--)
         {
-            if (brickManager.containsBrickAt(emptyGrids[i]))
+            if (brickManager.containsBrickAt(grids[i]))
             {
-                emptyGrids.removeAt(i);
-                break;
+                grids.removeAt(i);
             }
         }
 
-        randomSelect(emptyGrids.count(), count, selectIndexes);
+        randomSelect(grids.count(), count, selectIndexes);
         foreach (var index in selectIndexes)
         {
-            var rect = allGrids.get(index);
+            var rect = grids.get(index);
             templates.add(new(rect, health));
         }
     }

@@ -1,4 +1,6 @@
-﻿namespace MarbleHero;
+﻿using UnityEngine;
+
+namespace MarbleHero;
 
 /// <summary>
 /// 在最顶行的空位置生成砖块
@@ -17,13 +19,20 @@ public class TopRowRandomBrickGroup : BrickGroup
         templates.Clear();
         var health = turnCount;
         int count = getBrickCount(turnCount);
-        var topRowGrids = brickManager.brickLayout.getTopRowGrids();
-
-        using var _ = ListScope<int>.get(out var selectIndexes);
-        randomSelect(topRowGrids.count(), count, selectIndexes);
+        using var _ = new ListScope2T<Rect, int>(out var grids, out var selectIndexes);
+        grids.setRange(brickManager.brickLayout.getTopRowGrids());
+        for (var i = grids.Count - 1; i >= 0; i--)
+        {
+            if (brickManager.containsBrickAt(grids[i]))
+            {
+                grids.removeAt(i);
+            }
+        }
+        
+        randomSelect(grids.count(), count, selectIndexes);
         foreach (var index in selectIndexes)
         {
-            var rect = topRowGrids.get(index);
+            var rect = grids.get(index);
             templates.add(new(rect, health));
         }
     }

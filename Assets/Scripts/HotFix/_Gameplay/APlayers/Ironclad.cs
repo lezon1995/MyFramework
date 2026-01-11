@@ -21,6 +21,17 @@ namespace MarbleHero
             initializeClass(getLoadout());
         }
 
+        public override List<string> getStartingRelics()
+        {
+            List<string> retVal = new();
+            retVal.add(FreeBall.ID);
+            retVal.add(Origami.ID);
+            retVal.add(BurlapBag.ID);
+            foreach (var relicId in retVal)
+                UnlockTracker.markRelicAsSeen(relicId);
+            return retVal;
+        }
+
         public override string getPortraitImageName()
         {
             return "ironcladPortrait.jpg";

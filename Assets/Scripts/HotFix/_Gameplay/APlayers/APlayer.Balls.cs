@@ -17,7 +17,7 @@ namespace MarbleHero
         protected Exp exp;
         public List<Ball> activeBalls = new();
         public Vector3 nextPosition;
-        protected bool isFirstBallReturn;
+        public bool isFirstBallReturn;
 
         protected List<Buff> buffs = new();
         protected List<Type> ballBuffs = new();
@@ -72,15 +72,14 @@ namespace MarbleHero
 
         public GuideLine getGuideLine() => guideLine;
 
-        public void shootBall(Vector3 shootPosition, Vector3 shootDirection)
+        public void shootBalls(Vector3 shootPosition, Vector3 shootDirection)
         {
+            // ballMaxCount++;
             // CtrUI.instance.SetReturnBallButton(true);
             isReturnBall = false;
-            // shotRot.transform.position = guideLine.transform.position;
-            // shotRot.transform.rotation = guideLine.transform.rotation;
-            GameEntry.startCoroutine(shootBallCo(shootPosition, shootDirection));
-            guideLine?.guidelineOff();
-            isEndingTurn = true;
+            guideLine.setIndicatorBallActive(false);
+            guideLine.guidelineOff();
+            actionManager.addToBot<ShootBallsAction>().with(shootPosition, shootDirection);
         }
 
         public bool anyActiveBall()
@@ -100,14 +99,14 @@ namespace MarbleHero
 
                 var ball = ballManager.acquireBall(shootPosition, 0.14F, shootDirection, 8F);
                 selectIndexes.Clear();
-                randomSelect(ballBuffs.count(), 1, selectIndexes);
+                /*randomSelect(ballBuffs.count(), 1, selectIndexes);
                 foreach (var index in selectIndexes)
                 {
                     var buffType = ballBuffs.get(index);
                     var buff = CLASS<Buff>(buffType);
                     buff.setBrickManager(brickManager);
                     ball.addBuff(buff);
-                }
+                }*/
 
                 // ball.setPenetrable(true);
                 // ball.setHorizontalBorderTeleportable(true);
@@ -195,11 +194,19 @@ namespace MarbleHero
         public void setNextPositionX(float posX)
         {
             nextPosition.x = posX;
-            guideLine.setShootPosition(nextPosition);
+            guideLine.setShootPosition(nextPosition, true);
             guideLine.setIndicatorBallPosition(nextPosition);
             guideLine.setIndicatorBallActive(true);
 
             // SoundManager.Instance.PlayEffect(SoundList.sound_play_sfx_ball_comback);
+        }
+
+        public void moveNextPositionX(float deltaX)
+        {
+            nextPosition.x += deltaX;
+            guideLine.setShootPosition(nextPosition, false);
+            guideLine.setIndicatorBallPosition(nextPosition);
+            guideLine.setIndicatorBallActive(true);
         }
 
         public void setBallReturn(Ball ball)

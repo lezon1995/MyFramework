@@ -39,6 +39,9 @@ namespace MarbleHero
         public static void initialize()
         {
             long startTime = TimeUtility.getNowTimeStampMS();
+            add(new FreeBall());
+            add(new Origami());
+            add(new BurlapBag());
             // add(new Abacus());
             // add(new Akabeko());
             // add(new Anchor());

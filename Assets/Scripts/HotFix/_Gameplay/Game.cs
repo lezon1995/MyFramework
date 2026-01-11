@@ -346,7 +346,7 @@ namespace MarbleHero
                                 foreach (var relic in player.relics)
                                 {
                                     relic.updateDescription(player.chosenClass);
-                                    relic.onEquip();
+                                    relic.onEquip(player);
                                 }
 
                                 // foreach (var card in player.masterDeck.group)
@@ -491,14 +491,14 @@ namespace MarbleHero
             foreach (string relicID in trial.extraStartingRelicIDs())
             {
                 ARelic relic = RelicLibrary.getRelic(relicID);
-                relic.instantObtain(player.relics.Count, false);
+                relic.instantObtain(player, player.relics.Count, false);
                 ADungeon.relicsToRemoveOnStart.Add(relic.relicId);
             }
 
             foreach (ARelic r in player.relics)
             {
                 r.updateDescription(player.chosenClass);
-                r.onEquip();
+                r.onEquip(player);
             }
 
             // if (!trial.keepsStarterCards())

@@ -23,8 +23,6 @@
         {
             base.onBegin(last);
 
-            brickManager.refreshAllBrickGrid();
-
             player.getGuideLine().guidelineOn();
             player.getGuideLine().enableDragCallback();
         }
@@ -32,6 +30,7 @@
         public override void update(float dt)
         {
             base.update(dt);
+            player.onPlayerTurnUpdate(dt);
         }
 
         public override void fixedUpdate(float dt)
@@ -42,9 +41,7 @@
         public override void onEnd()
         {
             base.onEnd();
-
-            player.getGuideLine().guidelineOff();
-            player.getGuideLine().disableDragCallback();
+            player.onPlayerTurnEnd();
         }
     }
 }
