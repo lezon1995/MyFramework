@@ -42,6 +42,11 @@ namespace MarbleHero
             add(new FreeBall());
             add(new Origami());
             add(new BurlapBag());
+            add(new BrokenTripod());
+            add(new AmmoSupply());
+            add(new SideBorderPortal());
+            add(new LakeMirror());
+            add(new RhombicDarts());
             // add(new Abacus());
             // add(new Akabeko());
             // add(new Anchor());

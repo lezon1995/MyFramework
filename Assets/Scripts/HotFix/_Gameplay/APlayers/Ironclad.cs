@@ -24,9 +24,14 @@ namespace MarbleHero
         public override List<string> getStartingRelics()
         {
             List<string> retVal = new();
-            retVal.add(FreeBall.ID);
-            retVal.add(Origami.ID);
-            retVal.add(BurlapBag.ID);
+            // retVal.add(FreeBall.ID);
+            // retVal.add(Origami.ID);
+            // retVal.add(BurlapBag.ID);
+            // retVal.add(BrokenTripod.ID);
+            // retVal.add(AmmoSupply.ID);
+            // retVal.add(SideBorderPortal.ID);
+            // retVal.add(LakeMirror.ID);
+            retVal.add(RhombicDarts.ID);
             foreach (var relicId in retVal)
                 UnlockTracker.markRelicAsSeen(relicId);
             return retVal;
@@ -50,7 +55,7 @@ namespace MarbleHero
 
         public override CharSelectInfo getLoadout()
         {
-            return new CharSelectInfo("", "", 100, 100, 99, 5, this, getStartingRelics(), getStartingDeck(), false);
+            return new("", "", 100, 100, 99, 5, this, getStartingRelics(), getStartingDeck(), false);
         }
 
         public override string getTitle(PlayerClass plyrClass)

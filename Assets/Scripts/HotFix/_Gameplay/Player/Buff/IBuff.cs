@@ -24,20 +24,12 @@ public interface IHitEnterBrick
 
 public class Buff : ClassObject
 {
-    protected BrickManager brickManager;
     protected int level = 1;
 
     public override void resetProperty()
     {
         base.resetProperty();
-
-        brickManager = null;
         level = 1;
-    }
-
-    public void setBrickManager(BrickManager manager)
-    {
-        brickManager = manager;
     }
 
     public virtual void setLevel(int v)

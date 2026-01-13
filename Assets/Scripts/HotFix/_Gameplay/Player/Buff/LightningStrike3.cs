@@ -6,7 +6,7 @@ namespace MarbleHero;
 /// <summary>
 /// 造成致命撞击伤害时，对随机其他X个砖块造成连锁闪电攻击。
 /// </summary>
-public class LightingStrike3 : Buff, IDoAttackKillEffect
+public class LightningStrike3 : Buff, IDoAttackKillEffect
 {
     protected int getCount()
     {

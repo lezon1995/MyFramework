@@ -19,9 +19,6 @@ namespace MarbleHero
         float glowTimer;
         public float flashTimer;
 
-        public Texture img;
-        public Texture largeImg;
-        public Texture outlineImg;
         public static string IMG_DIR = "images/relics/";
         public static string OUTLINE_DIR = "images/relics/outline/";
         static string L_IMG_DIR = "images/largeRelics/";

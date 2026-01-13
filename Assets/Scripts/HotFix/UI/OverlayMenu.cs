@@ -9,9 +9,12 @@ namespace MarbleHero;
 public partial class OverlayMenu : LayoutScript
 {
 	protected myUGUIObject mPlayerInfo;
+	protected myUGUIObject mEnemyInfo;
 	// auto generate member end
 	
 	public Intents intents;
+	public PlayerInfo playerInfo;
+	public EnemyInfo enemyInfo;
 	public OverlayMenu()
 	{
 		// auto generate constructor start
@@ -22,11 +25,15 @@ public partial class OverlayMenu : LayoutScript
 	{
 		// auto generate assignWindow start
 		newObject(out myUGUIObject content, "Content", false);
-		newObject(out myUGUIObject top, content, "Top", false);
-		newObject(out mPlayerInfo, top, "PlayerInfo");
+		newObject(out myUGUIObject left, content, "Left", false);
+		newObject(out mPlayerInfo, left, "PlayerInfo");
+		newObject(out myUGUIObject right, content, "Right", false);
+		newObject(out mEnemyInfo, right, "EnemyInfo");
 		// auto generate assignWindow end
 
 		intents = new(find(mRoot.transform, "Intents"));
+		playerInfo = new(this);
+		enemyInfo = new(this);
 	}
 	public override void init()
 	{

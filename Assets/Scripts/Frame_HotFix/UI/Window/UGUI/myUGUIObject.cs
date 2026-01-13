@@ -477,7 +477,7 @@ public class myUGUIObject : Transformable, IMouseEventCollect
 		mChildOrderSorted = false;
 		if (refreshUIDepth)
 		{
-			mLayout.refreshUIDepth(mParent, true);
+			mLayout?.refreshUIDepth(mParent, true);
 		}
 	}
 	public void setAsFirstSibling(bool refreshUIDepth = true)
@@ -486,7 +486,7 @@ public class myUGUIObject : Transformable, IMouseEventCollect
 		mChildOrderSorted = false;
 		if (refreshUIDepth)
 		{
-			mLayout.refreshUIDepth(mParent, true);
+			mLayout?.refreshUIDepth(mParent, true);
 		}
 	}
 	public int getSibling() { return mTransform.GetSiblingIndex(); }
@@ -500,7 +500,7 @@ public class myUGUIObject : Transformable, IMouseEventCollect
 		mChildOrderSorted = false;
 		if (refreshUIDepth)
 		{
-			mLayout.refreshUIDepth(mParent, true);
+			mLayout?.refreshUIDepth(mParent, true);
 		}
 		return true;
 	}
@@ -920,7 +920,7 @@ public class myUGUIObject : Transformable, IMouseEventCollect
 		mChildOrderSorted = false;
 		if (refreshDepth)
 		{
-			mLayout.refreshUIDepth(this, false);
+			mLayout?.refreshUIDepth(this, false);
 		}
 	}
 	protected static int compareSiblingIndex(myUGUIObject child0, myUGUIObject child1)
@@ -940,5 +940,90 @@ public class myUGUIObject : Transformable, IMouseEventCollect
 		setClickCallback(clickCallback);
 		setPressCallback(pressCallback);
 		setHoverCallback(hoverCallback);
+	}
+	
+	public T newObject<T>(out T obj) where T : myUGUIObject, new()
+	{
+		return newObject(out obj, true);
+	}
+
+	public T newObject<T>(out T obj, string name) where T : myUGUIObject, new()
+	{
+		return newObject(out obj, name, true);
+	}
+
+	// 创建myUGUIObject,并且在布局中查找GameObject分配到myUGUIObject
+	public T newObject<T>(out T obj, string name, bool showError) where T : myUGUIObject, new()
+	{
+		obj = null;
+		GameObject parentObj = getObject();
+		GameObject gameObject;
+		if (parentObj == null)
+			gameObject = getRootGameObject(name, showError);
+		else
+			gameObject = getGameObject(name, parentObj, showError, true);
+
+		if (gameObject == null)
+			return obj;
+
+		myUGUIObject existUIObj = mLayout?.getUIObject(gameObject);
+		if (existUIObj != null)
+		{
+			if (showError)
+			{
+				logError("已经创建了相同GameObject的UI对象:" + name);
+				return null;
+			}
+
+			obj = existUIObj as T;
+			if (obj == null)
+			{
+				logError("已经创建了相同GameObject的UI对象,但是两次创建的类型不一致,第一次创建的类型:" + existUIObj.GetType().ToString() + ", 第二次创建的类型:" + typeof(T).ToString() + ", name:" + name);
+			}
+
+			return obj;
+		}
+
+		obj = LayoutScript.newUIObject<T>(mLayout, gameObject);
+		return obj;
+	}
+
+	// 创建myUGUIObject,并且在布局中查找GameObject分配到myUGUIObject
+	public T newObject<T>(out T obj, bool showError) where T : myUGUIObject, new()
+	{
+		obj = null;
+		GameObject gameObject= getObject();
+		if (gameObject == null)
+			return obj;
+
+		myUGUIObject existUIObj = mLayout?.getUIObject(gameObject);
+		if (existUIObj != null)
+		{
+			if (showError)
+				return null;
+
+			obj = existUIObj as T;
+			return obj;
+		}
+
+		obj = LayoutScript.newUIObject<T>(mLayout, gameObject);
+		return obj;
+	}
+
+	public bool find<T>(out T t) where T : Component
+	{
+		return mObject.TryGetComponent(out t);
+	}
+	
+	public bool find<T>(out T t, string name, bool recursive = true) where T : Component
+	{
+		var o = getGameObject(name, mObject, true, recursive);
+		if (o)
+		{
+			return o.TryGetComponent(out t);
+		}
+
+		t = null;
+		return false;
 	}
 }

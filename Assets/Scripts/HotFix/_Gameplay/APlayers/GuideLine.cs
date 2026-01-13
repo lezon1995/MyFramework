@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Drawing;
+using UnityEngine;
 
 namespace MarbleHero;
 
@@ -21,10 +22,14 @@ public class GuideLine : MovableObject
     LayerMask _mask0, _mask1, _mask2, _mask3, _hit2Mask;
 
     float distance = 10f;
+    float minShootDirectionLimitAngle = defaultMinShootDirectionLimitAngle;
+    float maxShootDirectionLimitAngle = defaultMaxShootDirectionLimitAngle;
+    const float defaultMinShootDirectionLimitAngle = -83F;
+    const float defaultMaxShootDirectionLimitAngle = 83F;
     bool isLine;
     bool isOff;
-    Vector3 shootPosition;
-    Vector3 shootDirection;
+    Vector3 originalShootPosition, shootPosition;
+    Vector3 rawShootDirection, shootDirection;
     Vector3 dragPos;
 
     public override void onCtor()
@@ -89,11 +94,16 @@ public class GuideLine : MovableObject
 
     void updateShootDirection(Vector3 targetPos)
     {
-        var diff = targetPos - shootPosition;
+        var diff = targetPos - originalShootPosition;
         diff.Normalize();
         var rotZ = Mathf.Atan2(diff.y, diff.x) * Mathf.Rad2Deg;
-        var rotation = Quaternion.Euler(0f, 0f, Mathf.Clamp((rotZ - 90), -83, 83));
+        var rotation = Quaternion.Euler(0f, 0f, Mathf.Clamp((rotZ - 90), minShootDirectionLimitAngle, maxShootDirectionLimitAngle));
         shootDirection = rotation * Vector3.up;
+
+        var rotationRaw = Quaternion.Euler(0f, 0f, (rotZ - 90));
+        rawShootDirection = rotationRaw * Vector3.up;
+        Draw.ingame.xy.Line(originalShootPosition, originalShootPosition + shootDirection * 5, Color.green);
+        Draw.ingame.xy.Line(shootPosition, shootPosition + shootDirection * 5, Color.red);
     }
 
     void DragStartCallback(ComponentOwner owner, TouchPoint point, ref bool drag)
@@ -473,6 +483,47 @@ public class GuideLine : MovableObject
         shootPosition = pos;
         if (resetShootDirection)
             shootDirection = Vector3.up;
+    }
+
+    public void setOriginalShootPosition(Vector3 pos)
+    {
+        originalShootPosition = pos;
+    }
+
+    public Vector2 getShootDirection()
+    {
+        return shootDirection;
+    }
+
+    public Vector2 getRawShootDirection()
+    {
+        return rawShootDirection;
+    }
+
+    public void setShootDirectionLimitAngle(float min, float max)
+    {
+        minShootDirectionLimitAngle = min;
+        maxShootDirectionLimitAngle = max;
+    }
+
+    public void resetShootDirectionLimitAngle()
+    {
+        minShootDirectionLimitAngle = defaultMinShootDirectionLimitAngle;
+        maxShootDirectionLimitAngle = defaultMaxShootDirectionLimitAngle;
+    }
+
+    public void addMask(int mask)
+    {
+        _mask0 |= mask;
+        _mask1 |= mask;
+        _mask2 |= mask;
+    }
+
+    public void removeMask(int mask)
+    {
+        _mask0 &= ~mask;
+        _mask1 &= ~mask;
+        _mask2 &= ~mask;
     }
 
     public void setIndicatorBallPosition(Vector3 pos)

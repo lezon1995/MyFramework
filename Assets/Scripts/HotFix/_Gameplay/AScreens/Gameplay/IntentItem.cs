@@ -8,6 +8,7 @@ public abstract class IntentItem : ClassObject
     public abstract Intent type { get; }
     public abstract string name { get; }
     public string content => name;
+    protected myUGUIObject obj;
     protected GameObject o;
     protected RectTransform rect, iconRect;
     protected myUGUIButton button;
@@ -21,25 +22,24 @@ public abstract class IntentItem : ClassObject
     {
         var path = $"{GAMEPLAY_PATH}/Prefabs/UI/IntentItem.prefab";
         o = mPrefabPoolManager.createObject(path, 0, false, true);
-        o.TryGetComponent(out rect);
-        findComponent(o, "Rect", out iconRect);
-        findComponent(o, "Rect", out iconCanvasGroup);
-        findComponent(o, "Desc", out descCanvasGroup);
+        
+        obj = LayoutScript.newUIObject<myUGUIObject>(o);
 
-        button = LayoutScript.newUIObject<myUGUIButton>(o);
+        obj.find(out rect);
+        obj.find(out iconRect, "Rect");
+        obj.find(out iconCanvasGroup, "Rect");
+        obj.find(out descCanvasGroup, "Desc");
+
+        obj.newObject(out button);
         button.setName(name);
         button.setUGUIButtonClick(onClick);
         button.setUGUIMouseEnter((pointer, go) => { Tween.Scale(o.transform, endValue: 1.2F, duration: 0.1F, ease: Ease.OutCubic); });
         button.setUGUIMouseExit((pointer, go) => { Tween.Scale(o.transform, endValue: 1F, duration: 0.1F, ease: Ease.OutCubic); });
 
-        var t1 = button.transform.Find("Rect/Level");
-        level = LayoutScript.newUIObject<myUGUIText>(button, null, t1.gameObject);
+        obj.newObject(out level, "Rect/Level");
+        obj.newObject(out icon, "Rect/Icon");
+        obj.newObject(out description, "Desc");
 
-        var t2 = button.transform.Find("Rect/Icon");
-        icon = LayoutScript.newUIObject<myUGUIImageSimple>(button, null, t2.gameObject);
-        
-        var t3 = button.transform.Find("Desc");
-        description = LayoutScript.newUIObject<myUGUIText>(button, null, t3.gameObject);
         description.setText(content);
         defaultDescY = description.getRectTransform().anchoredPosition.y;
         targetDescY = defaultDescY + 50;

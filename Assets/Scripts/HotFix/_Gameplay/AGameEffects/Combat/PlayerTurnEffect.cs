@@ -1,7 +1,4 @@
-﻿using Drawing;
-using UnityEngine;
-
-namespace MarbleHero
+﻿namespace MarbleHero
 {
     public class PlayerTurnEffect : AGameEffect
     {
@@ -11,7 +8,6 @@ namespace MarbleHero
         public override void onCreate()
         {
             duration = DUR;
-            startingDuration = DUR;
             if (Settings.usesOrdinal)
             {
                 // turnMessage = GameActionManager.turn + getOrdinalNaming(GameActionManager.turn) + BattleStartEffect.TURN_TXT;
@@ -27,8 +23,6 @@ namespace MarbleHero
 
             sound.play("TURN_EFFECT");
             monsters.showIntent();
-
-            scale = 1.0F;
         }
 
         public override bool update(float dt)

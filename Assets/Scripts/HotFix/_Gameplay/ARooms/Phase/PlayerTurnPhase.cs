@@ -22,9 +22,7 @@
         public override void onBegin(APhase last)
         {
             base.onBegin(last);
-
-            player.getGuideLine().guidelineOn();
-            player.getGuideLine().enableDragCallback();
+            player.onPlayerTurnBegin();
         }
 
         public override void update(float dt)

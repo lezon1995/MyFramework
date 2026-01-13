@@ -1605,6 +1605,11 @@ public class MathUtility
 		return lengthLess(centerToRightTop, circle.mRadius);
 	}
 	// 判断圆形和矩形是否相交,rotation为角度制
+	public static bool circleIntersectRectangle(Circle2 circle, Rect rect, float rectAngle = 0F)
+	{
+		return circleIntersectRectangle(circle, rect.center, rect.size, rectAngle);
+	}
+	// 判断圆形和矩形是否相交,rotation为角度制
 	public static bool circleIntersectRectangle(Circle2 circle, Vector2 rectanglePosition, Vector2 size, float rectAngle = 0F)
 	{
 		Vector2 circleCenter = circle.mCenter;

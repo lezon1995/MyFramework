@@ -39,34 +39,41 @@ public partial class Ball : IEventRouter
         if (brickManager.getActiveBrick(c.gameObject.GetInstanceID(), out var brick))
         {
             var ball = this;
-            player.onBallBeginOverlappingBrick(ball, brick);
-            gameplayManager.handleAttackDamage(ball, brick, out var killed);
+            var dmg = ball.getDmg(brick);
             brick.onHitEnter(ball, normal);
-            ball.onHitEnter(brick, normal);
+            ball.onHitEnter(brick, normal, ref dmg);
+            gameplayManager.handleAttackDamage(ball, brick, dmg, out var killed);
 
             collidingBrick = brick;
-            isOverlappingBrick = true;
-        }
-
-        if (isPenetrable)
-        {
-            setDirection(getDirection());
-        }
-        else
-        {
-            reflectBounce(normal);
+            if (killed)
+            {
+                counters.killBrick.count();
+            }
         }
 
         return true;
     }
 
-    protected virtual bool onHitEnter(Brick brick, Vector2 normal)
+    protected virtual bool onHitEnter(Brick brick, Vector2 normal, ref Dmg dmg)
     {
+        bool triggerRegularHit = true;
+        player.onBallHitBrick(this, brick, normal, ref triggerRegularHit, ref dmg);
+        if (triggerRegularHit)
+        {
+            counters.hit.count();
+            counters.hitBrick.count();
+            if (isPenetrable)
+                setDirection(getDirection());
+            else
+                reflectBounce(normal);
+        }
+
         return true;
     }
 
     protected virtual bool onHitEnter(BorderTop border, Vector2 normal)
     {
+        counters.hit.count();
         hasBeenCollided = true;
         reflectBounce(normal);
         return true;
@@ -86,6 +93,7 @@ public partial class Ball : IEventRouter
 
     protected virtual bool onHitEnter(BorderLeft border, Vector2 normal)
     {
+        counters.hit.count();
         hasBeenCollided = true;
         if (horizontalBorderTeleportable)
         {
@@ -103,6 +111,7 @@ public partial class Ball : IEventRouter
 
     protected virtual bool onHitEnter(BorderRight border, Vector2 normal)
     {
+        counters.hit.count();
         hasBeenCollided = true;
         if (horizontalBorderTeleportable)
         {

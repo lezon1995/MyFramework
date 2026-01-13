@@ -30,7 +30,7 @@ public class Origami : ARelic
         effectingBalls.add(ball);
     }
     
-    public override void onBallEndOverlappingBrick(APlayer p, Ball ball, Brick brick)
+    public override void onBallEndOverlappingBrick(APlayer p, Ball ball, Brick brick, bool prematurely)
     {
         if (effectingBalls.Contains(ball))
         {

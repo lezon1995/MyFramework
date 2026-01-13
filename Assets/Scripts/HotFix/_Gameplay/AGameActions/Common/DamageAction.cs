@@ -11,10 +11,12 @@ namespace MarbleHero
         bool skipWait;
         bool muteSfx;
         
-        public void onCreate(ACreature target, DamageInfo info)
+        public void onCreate(ACreature _target, DamageInfo info)
         {
             damage = info;
             duration = DURATION;
+            source = info.owner;
+            target = _target;
         }
 
         public override void update(float dt)
@@ -25,7 +27,7 @@ namespace MarbleHero
                 return;
             }
 
-            if (duration == DURATION)
+            if (duration.unstarted)
             {
                 Debug.Log($"{source.name} Cause {damageAmount} dmg to {target.name}");
 

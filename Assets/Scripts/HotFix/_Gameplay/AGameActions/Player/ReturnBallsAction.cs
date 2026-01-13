@@ -59,7 +59,7 @@ namespace MarbleHero
                 }
 
                 player.activeBalls.Clear();
-                player.setNextPositionX(targetPosition.x);
+                player.setOriginalShootPositionX(targetPosition.x);
             }
         }
     }

@@ -24,13 +24,16 @@ public class GameplayManager : FrameSystem
         base.destroy();
     }
 
-    public void handleAttackDamage(Ball ball, Brick brick, out bool killed)
+    public void handleAttackDamage(Ball ball, Brick brick, Dmg dmg, out bool killed)
     {
         killed = false;
         if (brick.canTakeDamageThisFrame(out var resistType))
         {
-            var dmg = ball.getDmg(brick);
             brick.damage(dmg, ball.getObject(), ball, out killed, 0F, ball.getDirection(), dmgCalculator);
+            if (dmg.isCrit)
+            {
+                ball.counters.critHit.count();
+            }
         }
         else
         {

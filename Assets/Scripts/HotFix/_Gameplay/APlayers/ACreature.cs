@@ -27,6 +27,8 @@ namespace MarbleHero
             set => _health = value;
         }
 
+        public float currentHealthPct => (float)_health / _healthMax;
+
         public int _healthMax;
 
         public virtual int maxHealth

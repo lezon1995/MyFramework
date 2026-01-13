@@ -20,6 +20,9 @@ public partial class OverlayMenu
     public override void update(float dt)
     {
         base.update(dt);
+
+        playerInfo.refresh(player);
+        enemyInfo.refresh(enemy);
     }
 
     public void hideCombatPanels()
@@ -28,5 +31,64 @@ public partial class OverlayMenu
 
     public void showCombatPanels()
     {
+    }
+
+    public class PlayerInfo
+    {
+        myUGUIText health, healthMax, ballCount;
+        myUGUIImageSimple healthBar;
+
+        public PlayerInfo(OverlayMenu layout)
+        {
+            var parent = layout.mPlayerInfo;
+            parent.newObject(out health, "TextCurHealth");
+            parent.newObject(out healthMax, "TextMaxHealth");
+            parent.newObject(out healthBar, "HealthBar");
+            parent.newObject(out ballCount, "TextBallCount");
+        }
+
+        public void refresh(APlayer p)
+        {
+            if (p == null)
+                return;
+
+            setHealth(p.currentHealth);
+            setHealthPct(p.currentHealthPct);
+            setHealthMax(p.maxHealth);
+            setBallCount(p.ballCount);
+        }
+
+        public void setHealth(int v) => health.setText(v);
+        public void setHealthPct(float v) => healthBar.setFillPercent(v);
+        public void setHealthMax(int v) => healthMax.setText(v);
+        public void setBallCount(int v) => ballCount.setText(v);
+    }
+
+    public class EnemyInfo
+    {
+        myUGUIText health, healthMax;
+        myUGUIImageSimple healthBar;
+
+        public EnemyInfo(OverlayMenu layout)
+        {
+            var parent = layout.mEnemyInfo;
+            parent.newObject(out health, "TextCurHealth");
+            parent.newObject(out healthMax, "TextMaxHealth");
+            parent.newObject(out healthBar, "HealthBar");
+        }
+
+        public void refresh(AMonster m)
+        {
+            if (m == null)
+                return;
+
+            setHealth(m.currentHealth);
+            setHealthPct(m.currentHealthPct);
+            setHealthMax(m.maxHealth);
+        }
+
+        public void setHealth(int v) => health.setText(v);
+        public void setHealthPct(float v) => healthBar.setFillPercent(v);
+        public void setHealthMax(int v) => healthMax.setText(v);
     }
 }

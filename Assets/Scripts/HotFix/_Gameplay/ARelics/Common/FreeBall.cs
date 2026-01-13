@@ -20,11 +20,11 @@ public class FreeBall : ARelic
     {
         if (InputActionSet.left.isPressed() && !InputActionSet.right.isPressed())
         {
-            p.moveNextPositionX(-dt);
+            p.moveShootPositionX(-dt);
         }
         else if (InputActionSet.right.isPressed() && !InputActionSet.left.isPressed())
         {
-            p.moveNextPositionX(dt);
+            p.moveShootPositionX(dt);
         }
     }
 

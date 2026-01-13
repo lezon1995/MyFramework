@@ -360,8 +360,12 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 	{
 		return newObject(out obj, parent, name, true);
 	}
+	public T newObject<T>(myUGUIObject parent, out T obj, string name) where T : myUGUIObject, new()
+	{
+		return newObject(out obj, parent, name, true, false);
+	}
 	// 创建myUGUIObject,并且在布局中查找GameObject分配到myUGUIObject
-	public T newObject<T>(out T obj, myUGUIObject parent, string name, bool showError) where T : myUGUIObject, new()
+	public T newObject<T>(out T obj, myUGUIObject parent, string name, bool showError, bool setParent = true) where T : myUGUIObject, new()
 	{
 		obj = null;
 		GameObject parentObj = parent?.getObject();
@@ -372,7 +376,7 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 		}
 		else
 		{
-			gameObject = getGameObject(name, parentObj, showError, false);
+			gameObject = getGameObject(name, parentObj, showError, true);
 		}
 		if (gameObject == null)
 		{
@@ -393,7 +397,12 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 			}
 			return obj;
 		}
-		obj = newUIObject<T>(parent, mLayout, gameObject);
+
+		if (setParent)
+			obj = newUIObject<T>(parent, mLayout, gameObject);
+		else
+			obj = newUIObject<T>(mLayout, gameObject);
+			
 		return obj;
 	}
 	public T newObject<T>(out T obj, myUGUIObject parent, GameObject go) where T : myUGUIObject, new()
@@ -404,6 +413,19 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 	public static T newUIObject<T>(GameObject go) where T : myUGUIObject, new()
 	{
 		return newUIObject<T>(null, null, go);
+	}
+	public static T newUIObject<T>(GameLayout layout, GameObject go) where T : myUGUIObject, new()
+	{
+		T obj = new();
+		obj.setLayout(layout);
+		obj.setObject(go);
+		obj.init();
+		// 如果在创建窗口对象时,布局已经完成了自适应,则通知窗口
+		if (layout != null && layout.isAnchorApplied())
+		{
+			obj.notifyAnchorApply();
+		}
+		return obj;
 	}
 	public static T newUIObject<T>(myUGUIObject parent, GameLayout layout, GameObject go) where T : myUGUIObject, new()
 	{

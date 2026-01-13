@@ -35,7 +35,7 @@ namespace MarbleHero
         string assetURL;
 
         public ACreature owner { get; set; }
-        
+
         public enum LandingSound
         {
             CLINK,
@@ -473,12 +473,16 @@ namespace MarbleHero
         public virtual void onPlayerTurnUpdate(APlayer p, float dt)
         {
         }
-        
+
         public virtual void onBallBeginOverlappingBrick(APlayer p, Ball ball, Brick brick)
         {
         }
 
-        public virtual void onBallEndOverlappingBrick(APlayer p, Ball ball, Brick brick)
+        public virtual void onBallEndOverlappingBrick(APlayer p, Ball ball, Brick brick, bool prematurely)
+        {
+        }
+
+        public virtual void onPlayerTurnBegin(APlayer p)
         {
         }
 
@@ -493,6 +497,10 @@ namespace MarbleHero
         public abstract ARelic makeCopy();
 
         public virtual void onBallHitBorderBot(APlayer p, Ball ball, BorderBot border, Vector2 normal, ref bool forceReturn)
+        {
+        }
+
+        public virtual void onBallHitBrick(APlayer p, Ball ball, Brick brick, Vector2 normal, ref bool triggerRegularHit, ref Dmg dmg)
         {
         }
     }

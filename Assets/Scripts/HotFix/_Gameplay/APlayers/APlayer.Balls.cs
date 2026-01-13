@@ -16,7 +16,7 @@ namespace MarbleHero
         protected GuideLine guideLine;
         protected Exp exp;
         public List<Ball> activeBalls = new();
-        public Vector3 nextPosition;
+        public Vector3 originalShootPosition, shootPosition;
         public bool isFirstBallReturn;
 
         protected List<Buff> buffs = new();
@@ -44,8 +44,8 @@ namespace MarbleHero
             exp.setData(data);
             exp.resetLevel();
 
-            nextPosition = getWorldPosition();
-            setNextPositionX(nextPosition.x);
+            originalShootPosition = shootPosition = getWorldPosition();
+            setOriginalShootPositionX(shootPosition.x);
 
             // buffs.add(CLASS<LightingStrike>()).setBrickManager(brickManager);
             // buffs.add(CLASS<LightingStrike3>()).setBrickManager(brickManager);
@@ -54,8 +54,8 @@ namespace MarbleHero
 
             ballBuffs.add(typeof(LaserHorizontal));
             ballBuffs.add(typeof(LaserVertical));
-            ballBuffs.add(typeof(LightingStrike));
-            ballBuffs.add(typeof(LightingStrike3));
+            ballBuffs.add(typeof(LightningStrike));
+            ballBuffs.add(typeof(LightningStrike3));
 
             addListeners();
         }
@@ -188,24 +188,39 @@ namespace MarbleHero
         public void returnBall()
         {
             // CtrUI.instance.SetReturnBallButton(false);
-            actionManager.addToTop<ReturnBallsAction>().with(nextPosition);
+            actionManager.addToTop<ReturnBallsAction>().with(shootPosition);
         }
 
-        public void setNextPositionX(float posX)
+        public void setCurrentShootPosition(Vector2 p)
         {
-            nextPosition.x = posX;
-            guideLine.setShootPosition(nextPosition, true);
-            guideLine.setIndicatorBallPosition(nextPosition);
+            shootPosition = p;
+            guideLine.setShootPosition(shootPosition, true);
+            guideLine.setIndicatorBallPosition(shootPosition);
             guideLine.setIndicatorBallActive(true);
 
             // SoundManager.Instance.PlayEffect(SoundList.sound_play_sfx_ball_comback);
         }
 
-        public void moveNextPositionX(float deltaX)
+        public void setOriginalShootPositionX(float posX)
         {
-            nextPosition.x += deltaX;
-            guideLine.setShootPosition(nextPosition, false);
-            guideLine.setIndicatorBallPosition(nextPosition);
+            shootPosition = originalShootPosition; 
+            shootPosition.x = posX;
+            originalShootPosition.x = posX;
+            guideLine.setOriginalShootPosition(originalShootPosition);
+            guideLine.setShootPosition(originalShootPosition, true);
+            guideLine.setIndicatorBallPosition(originalShootPosition);
+            guideLine.setIndicatorBallActive(true);
+
+            // SoundManager.Instance.PlayEffect(SoundList.sound_play_sfx_ball_comback);
+        }
+
+        public void moveShootPositionX(float deltaX)
+        {
+            shootPosition.x += deltaX;
+            originalShootPosition.x += deltaX;
+            guideLine.setOriginalShootPosition(originalShootPosition);
+            guideLine.setShootPosition(originalShootPosition, false);
+            guideLine.setIndicatorBallPosition(originalShootPosition);
             guideLine.setIndicatorBallActive(true);
         }
 
@@ -214,7 +229,7 @@ namespace MarbleHero
             if (!isFirstBallReturn)
             {
                 isFirstBallReturn = true;
-                setNextPositionX(ball.getWorldPosition().x);
+                setOriginalShootPositionX(ball.getWorldPosition().x);
                 activeBalls.Remove(ball);
                 ballManager.releaseBall(ball);
                 return;
@@ -223,7 +238,7 @@ namespace MarbleHero
             ball.setEnabled(false);
             activeBalls.Remove(ball);
             Tween
-                .Position(ball.getTransform(), endValue: nextPosition, duration: 0.15F, ease: Ease.OutCubic)
+                .Position(ball.getTransform(), endValue: shootPosition, duration: 0.15F, ease: Ease.OutCubic)
                 .OnComplete(ball, b =>
                 {
                     ballManager.releaseBall(b);

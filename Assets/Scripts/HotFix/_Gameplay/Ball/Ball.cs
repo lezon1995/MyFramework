@@ -22,6 +22,7 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
     public float speed = 6F;
     public float radius = 0.1F;
     public float dmgRate = 1F;
+    public float crit = 0.1F;
 
 
     public float curHealth;
@@ -55,6 +56,7 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
     TrailRenderer trailRenderer;
     APlayer player;
     public Brick collidingBrick;
+    public Brick overlappingBrick;
 
     Action<Ball> onDead;
 
@@ -62,6 +64,7 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
     Vector2 lastDirection;
     Vector2 direction;
     Vector2 hitNormal;
+    public BallCounters counters;
 
     float movementDelta;
     float lastRadius;
@@ -78,6 +81,11 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
     public Ball()
     {
         comparison = Comparison;
+    }
+
+    public override void onCreate()
+    {
+        CLASS(out counters);
     }
 
     public override void init()
@@ -109,8 +117,10 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
         movementDelta = 0;
         direction = Vector2.zero;
         hitNormal = Vector2.zero;
+        UN_CLASS(ref counters);
         player = null;
         collidingBrick = null;
+        overlappingBrick = null;
         hitCollider = null;
         ballRenderer = null;
         trailRenderer = null;
@@ -126,6 +136,7 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
         speed = 0F;
         radius = 0F;
         dmgRate = 1F;
+        crit = 0.1F;
 
         curHealth = 0F;
         immuneToDamage = false;
@@ -156,6 +167,7 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
         speed = 0F;
         radius = 0F;
         dmgRate = 1F;
+        crit = 0.1F;
 
         curHealth = 0F;
         immuneToDamage = false;
@@ -233,16 +245,35 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
         {
             if (collidingBrick)
             {
-                var rect = collidingBrick.getRect();
-                if (circleIntersectRectangle(getCircle(), rect.center, rect.size))
+                if (circleIntersectRectangle(getCircle(), collidingBrick.getRect()))
                 {
-                    isOverlappingBrick = true;
+                    if (overlappingBrick != collidingBrick)
+                    {
+                        if (!isOverlappingBrick)
+                        {
+                            isOverlappingBrick = true;
+                        }
+                        else
+                        {
+                            //如果上一次的Overlapping还未结束，则提前结束上一次的Overlapping
+                            var lastOverlappingBrick = overlappingBrick;
+                            player.onBallEndOverlappingBrick(this, lastOverlappingBrick, true);
+                        }
+
+                        overlappingBrick = collidingBrick;
+                        player.onBallBeginOverlappingBrick(this, overlappingBrick);
+                    }
                 }
                 else
                 {
-                    player.onBallEndOverlappingBrick(this, collidingBrick);
+                    if (isOverlappingBrick)
+                    {
+                        isOverlappingBrick = false;
+                        player.onBallEndOverlappingBrick(this, overlappingBrick, false);
+                        overlappingBrick = null;
+                    }
+
                     collidingBrick = null;
-                    isOverlappingBrick = false;
                 }
             }
         }
@@ -252,6 +283,7 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
     {
         var reflectDir = Vector2.Reflect(direction, normal);
         setDirection(reflectDir);
+        counters.reflect.count();
     }
 
     public Vector2 getDirection()
@@ -423,6 +455,8 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
         var d = getPhysicDamage();
         var dmg = Dmg.physicDmg(d);
         dmg.setAttackEffect();
+        if (randomHit(crit))
+            dmg.setCrit();
         return dmg;
     }
 

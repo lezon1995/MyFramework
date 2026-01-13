@@ -577,6 +577,15 @@ public abstract partial class APlayer : ACreature
             relic.onPlayerTurnUpdate(this, dt);
     }
 
+    public void onPlayerTurnBegin()
+    {
+        guideLine.guidelineOn();
+        guideLine.enableDragCallback();
+        
+        foreach (var relic in relics)
+            relic.onPlayerTurnBegin(this);
+    }
+
     public void onPlayerTurnEnd()
     {
         guideLine.guidelineOff();
@@ -598,15 +607,23 @@ public abstract partial class APlayer : ACreature
             relic.onBallBeginOverlappingBrick(this, ball, brick);
     }
 
-    public void onBallEndOverlappingBrick(Ball ball, Brick brick)
+    public void onBallEndOverlappingBrick(Ball ball, Brick brick, bool prematurely)
     {
+        ball.counters.penetrateBrick.count();
+        
         foreach (var relic in relics)
-            relic.onBallEndOverlappingBrick(this, ball, brick);
+            relic.onBallEndOverlappingBrick(this, ball, brick, prematurely);
     }
 
     public void onBallHitBorderBot(Ball ball, BorderBot border, Vector2 normal, ref bool forceReturn)
     {
         foreach (var relic in relics)
             relic.onBallHitBorderBot(this, ball, border, normal, ref forceReturn);
+    }
+
+    public void onBallHitBrick(Ball ball, Brick brick, Vector2 normal, ref bool triggerRegularHit, ref Dmg dmg)
+    {
+        foreach (var relic in relics)
+            relic.onBallHitBrick(this, ball, brick, normal, ref triggerRegularHit, ref dmg);
     }
 }
