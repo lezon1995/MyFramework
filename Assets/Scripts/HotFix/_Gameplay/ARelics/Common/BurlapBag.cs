@@ -3,6 +3,7 @@
 namespace MarbleHero;
 
 /// <summary>
+/// 麻布袋
 /// 当球回到底边界时有概率再次反弹而不是回收
 /// </summary>
 public class BurlapBag : ARelic

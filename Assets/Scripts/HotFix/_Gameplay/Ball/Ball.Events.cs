@@ -65,7 +65,7 @@ public partial class Ball : IEventRouter
             if (isPenetrable)
                 setDirection(getDirection());
             else
-                reflectBounce(normal);
+                reflectBounce(normal, true);
         }
 
         return true;

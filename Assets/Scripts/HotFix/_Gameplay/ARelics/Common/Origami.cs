@@ -3,6 +3,7 @@
 namespace MarbleHero;
 
 /// <summary>
+/// 千纸鹤
 /// 发射出去的球具有1次穿透能力
 /// </summary>
 public class Origami : ARelic

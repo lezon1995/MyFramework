@@ -47,6 +47,8 @@ namespace MarbleHero
             add(new SideBorderPortal());
             add(new LakeMirror());
             add(new RhombicDarts());
+            add(new MilkShake());
+            add(new Rattle());
             // add(new Abacus());
             // add(new Akabeko());
             // add(new Anchor());

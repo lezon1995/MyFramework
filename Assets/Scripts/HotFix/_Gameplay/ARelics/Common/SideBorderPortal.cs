@@ -1,6 +1,7 @@
 ﻿namespace MarbleHero;
 
 /// <summary>
+/// 侧边传送门
 /// 球碰到左右边界时不再反弹，而是传送至对方边界。
 /// </summary>
 public class SideBorderPortal : ARelic

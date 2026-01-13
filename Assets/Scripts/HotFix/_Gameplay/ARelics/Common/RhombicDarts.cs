@@ -3,6 +3,7 @@
 namespace MarbleHero;
 
 /// <summary>
+/// 菱形飞镖
 /// 撞击砖块的斜边时必暴击
 /// </summary>
 public class RhombicDarts : ARelic

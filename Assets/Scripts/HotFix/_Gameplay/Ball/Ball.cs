@@ -19,10 +19,10 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
     public int maxHealth;
     public int minPhysicDamage, maxPhysicDamage;
     public int minMagicDamage, maxMagicDamage;
-    public float speed = 6F;
+    public Stat speed = 6F;
     public float radius = 0.1F;
     public float dmgRate = 1F;
-    public float crit = 0.1F;
+    public Stat crit = 0.1F;
 
 
     public float curHealth;
@@ -279,9 +279,10 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
         }
     }
 
-    public void reflectBounce(Vector2 normal)
+    public void reflectBounce(Vector2 normal, bool fromBrick = false)
     {
         var reflectDir = Vector2.Reflect(direction, normal);
+        player.onBallReflect(this, normal, fromBrick, ref reflectDir);
         setDirection(reflectDir);
         counters.reflect.count();
     }

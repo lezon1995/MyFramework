@@ -3,6 +3,7 @@
 namespace MarbleHero;
 
 /// <summary>
+/// 破损的鼎
 /// 球从正下方撞击砖块时可以穿透砖块
 /// </summary>
 public class BrokenTripod : ARelic

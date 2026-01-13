@@ -1,6 +1,7 @@
 ﻿namespace MarbleHero;
 
 /// <summary>
+/// 弹药供给
 /// 当前回合数为3的倍数时获得1个基础球
 /// </summary>
 public class AmmoSupply : ARelic

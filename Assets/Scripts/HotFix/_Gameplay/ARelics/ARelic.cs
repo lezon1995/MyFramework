@@ -503,5 +503,9 @@ namespace MarbleHero
         public virtual void onBallHitBrick(APlayer p, Ball ball, Brick brick, Vector2 normal, ref bool triggerRegularHit, ref Dmg dmg)
         {
         }
+
+        public virtual void onBallReflect(APlayer p, Ball ball, Vector2 normal, bool fromBrick, ref Vector2 reflectDir)
+        {
+        }
     }
 }

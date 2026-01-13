@@ -31,7 +31,9 @@ namespace MarbleHero
             // retVal.add(AmmoSupply.ID);
             // retVal.add(SideBorderPortal.ID);
             // retVal.add(LakeMirror.ID);
-            retVal.add(RhombicDarts.ID);
+            // retVal.add(RhombicDarts.ID);
+            retVal.add(MilkShake.ID);
+            retVal.add(Rattle.ID);
             foreach (var relicId in retVal)
                 UnlockTracker.markRelicAsSeen(relicId);
             return retVal;

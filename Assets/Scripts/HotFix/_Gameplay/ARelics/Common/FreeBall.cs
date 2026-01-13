@@ -1,6 +1,7 @@
 ﻿namespace MarbleHero;
 
 /// <summary>
+/// 自由球
 /// 发球点可以左右移动
 /// </summary>
 public class FreeBall : ARelic

@@ -1,6 +1,7 @@
 ﻿namespace MarbleHero;
 
 /// <summary>
+/// 湖中镜
 /// 发球时若朝着下方发射，发球点则会出现在顶边界。
 /// </summary>
 public class LakeMirror : ARelic

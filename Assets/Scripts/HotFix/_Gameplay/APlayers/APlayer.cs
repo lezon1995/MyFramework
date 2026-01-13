@@ -626,4 +626,10 @@ public abstract partial class APlayer : ACreature
         foreach (var relic in relics)
             relic.onBallHitBrick(this, ball, brick, normal, ref triggerRegularHit, ref dmg);
     }
+
+    public void onBallReflect(Ball ball, Vector2 normal, bool fromBrick, ref Vector2 reflectDir)
+    {
+        foreach (var relic in relics)
+            relic.onBallReflect(this, ball, normal, fromBrick, ref reflectDir);
+    }
 }
