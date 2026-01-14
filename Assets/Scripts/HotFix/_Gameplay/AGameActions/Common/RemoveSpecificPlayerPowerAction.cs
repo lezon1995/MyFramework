@@ -3,7 +3,7 @@
     public class RemoveSpecificPlayerPowerAction : AGameAction
     {
         string powerToRemove;
-        PlayerPower powerInstance;
+        CreaturePower powerInstance;
         static float DURATION = 0.1F;
 
         public RemoveSpecificPlayerPowerAction(ACreature target, ACreature source, string powerToRemove)
@@ -12,7 +12,7 @@
             this.powerToRemove = powerToRemove;
         }
 
-        public RemoveSpecificPlayerPowerAction(ACreature target, ACreature source, PlayerPower powerInstance)
+        public RemoveSpecificPlayerPowerAction(ACreature target, ACreature source, CreaturePower powerInstance)
         {
             duration = DURATION;
             this.powerInstance = powerInstance;
@@ -28,7 +28,7 @@
                     return;
                 }
 
-                PlayerPower removeMe = null;
+                CreaturePower removeMe = null;
                 if (powerToRemove != null)
                 {
                     removeMe = target.getPower(powerToRemove);

@@ -507,25 +507,25 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
         return true;
     }
 
-    public virtual bool computeDamageOutput(ref Dmg dmg, out float actualDamage, out float rawFinalDamage, IDmgCalculator calculator = null)
+    public virtual bool computeDamageOutput(ref Dmg dmg, IDmgCalculator calculator = null)
     {
-        calculator ??= DmgCalculator.Default;
-
-        actualDamage = 0F;
-        rawFinalDamage = 0F;
         if (invulnerable)
             return false;
 
         if (immuneToDamage)
             return false;
 
+        calculator ??= DmgCalculator.Default;
+        int actualDamage = 1;
         float damage = dmg.value;
         var totalDamage = damage;
 
         float rawBaseDamage = calculator.computeDamageAlgo(dmg.algo, totalDamage, curHealth, maxHealth);
         float rawCritDamage = calculator.computeDamageCrit(dmg, rawBaseDamage);
-        rawFinalDamage = calculator.computeDamageRate(dmg, rawCritDamage);
+        var rawFinalDamage = calculator.computeDamageRate(dmg, rawCritDamage);
 
+        dmg.setDamageRaw(rawFinalDamage);
+        dmg.setDamageDealt(actualDamage);
         return actualDamage > 0;
     }
 
@@ -535,18 +535,17 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
         if (!canTakeDamageThisFrame(out _))
             return;
 
-        computeDamageOutput(ref dmg, out var damageDealt, out var damageRaw, calculator);
+        computeDamageOutput(ref dmg, calculator);
 
         //设置此次dmg实际造成的伤害，并通知伤害飘字显示
         {
-            dmg.setDamageRaw(damageRaw);
-            dmg.setDamageDealt(damageDealt);
+       
             dmg.setDirection(direction);
         }
 
         // we decrease the character's health by the damage
         float preHealth = curHealth;
-        setHealth(curHealth - damageDealt);
+        setHealth(curHealth - dmg.damageDealt);
         // lastDamage = damageDealt;
         // lastDamageType = dmg.actualType;
         // lastDamageDirection = direction;

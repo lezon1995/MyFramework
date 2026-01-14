@@ -20,18 +20,19 @@ public struct Dmg
     public Effects effect;
     public float value;
     public Types type;
-    public Types actualType { get; set; }
+    public Types actualType;
     public Algos algo;
     public bool isCrit;
     public float critRate;
     public Stat dmgRate;
-    public bool isSelf { get; set; }
-    public float damageRaw { get; set; }
-    public float damageDealt { get; set; }
-    public Vector3 direction { get; set; }
-    public Vector2 hitNormal { get; set; }
+    public bool isSelf;
+    public float damageRaw;
+    public int damageDealt;
+    public bool triggerEffect;
+    public Vector3 direction;
+    public Vector2 hitNormal;
 
-    public Mixed mix { get; set; }
+    public Mixed mix;
 
     public static Dmg physicDmg(float value) => new(value, Types.PHYSIC, false);
     public static Dmg magicDmg(float value) => new(value, Types.MAGIC, false);
@@ -47,7 +48,8 @@ public struct Dmg
         critRate = 2F;
         dmgRate = 1F;
         damageRaw = 0F;
-        damageDealt = 0F;
+        damageDealt = 0;
+        triggerEffect = true;
         direction = Vector3.zero;
         hitNormal = Vector2.zero;
         isSelf = false;
@@ -64,7 +66,8 @@ public struct Dmg
         critRate = 2F;
         dmgRate = 1F;
         damageRaw = 0F;
-        damageDealt = 0F;
+        damageDealt = 0;
+        triggerEffect = true;
         direction = Vector3.zero;
         hitNormal = Vector2.zero;
         isSelf = false;
@@ -149,7 +152,7 @@ public struct Dmg
         return this;
     }
 
-    public Dmg setDamageDealt(float damage)
+    public Dmg setDamageDealt(int damage)
     {
         damageDealt = damage;
         return this;
@@ -191,6 +194,12 @@ public struct Dmg
         return this;
     }
 
+    public Dmg setTriggerEffect(bool v)
+    {
+        triggerEffect = v;
+        return this;
+    }
+
     public enum Types
     {
         PHYSIC,
@@ -226,9 +235,9 @@ public struct Dmg
         public float magicDamageDealt { get; set; }
         public float trueDamageDealt { get; set; }
 
-        public float Sum()
+        public int Sum()
         {
-            return physicDamageDealt + magicDamageDealt + trueDamageDealt;
+            return (int)(physicDamageDealt + magicDamageDealt + trueDamageDealt);
         }
     }
 }
@@ -251,9 +260,9 @@ public interface IDmgCalculator
 {
     float computeDamageAlgo(Dmg.Algos algo, float value, float curHealth, float maxHealth);
     float computeDamageCrit(Dmg dmg, float damage);
-    float computeDamageRate(Dmg dmg, float damage);
+    int computeDamageRate(Dmg dmg, float damage);
     Dmg.Mixed computeDamageMix(Dmg.Mixed mix, float damage, float physicResist, float magicResist);
-    float computeDamageDefence(Dmg.Types type, float damage, float physicResist, float magicResist);
+    int computeDamageDefence(Dmg.Types type, float damage, float physicResist, float magicResist);
 }
 
 public class DmgCalculator : IDmgCalculator
@@ -281,9 +290,9 @@ public class DmgCalculator : IDmgCalculator
         };
     }
 
-    public float computeDamageRate(Dmg dmg, float damage)
+    public int computeDamageRate(Dmg dmg, float damage)
     {
-        return damage * dmg.dmgRate;
+        return (int)(damage * dmg.dmgRate);
     }
 
     public Dmg.Mixed computeDamageMix(Dmg.Mixed mix, float damage, float physicResist, float magicResist)
@@ -303,14 +312,14 @@ public class DmgCalculator : IDmgCalculator
         return mix;
     }
 
-    public float computeDamageDefence(Dmg.Types type, float damage, float physicResist, float magicResist)
+    public int computeDamageDefence(Dmg.Types type, float damage, float physicResist, float magicResist)
     {
         return type switch
         {
-            Dmg.Types.PHYSIC => damage / (physicResist / 100 + 1),
-            Dmg.Types.MAGIC => damage / (magicResist / 100 + 1),
-            Dmg.Types.TRUE => damage,
-            _ => damage
+            Dmg.Types.PHYSIC => (int)(damage / (physicResist / 100 + 1)),
+            Dmg.Types.MAGIC => (int)(damage / (magicResist / 100 + 1)),
+            Dmg.Types.TRUE => (int)damage,
+            _ => (int)damage
         };
     }
 }

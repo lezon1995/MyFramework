@@ -4,11 +4,11 @@ public class ApplyPlayerPowerAction : AGameAction
 {
     // static UIStrings uiStrings = Game.languagePack.getUIString("ApplyPowerAction");
     // public static string[] TEXT = uiStrings.TEXT;
-    PlayerPower powerToApply;
+    CreaturePower powerToApply;
     float startingDuration;
     int amount;
 
-    public ApplyPlayerPowerAction(ACreature target, ACreature source, PlayerPower powerToApply, int stackAmount, bool isFast)
+    public ApplyPlayerPowerAction(ACreature target, ACreature source, CreaturePower powerToApply, int stackAmount, bool isFast)
     {
         if (Settings.FAST_MODE)
             startingDuration = 0.1F;
@@ -28,11 +28,11 @@ public class ApplyPlayerPowerAction : AGameAction
         }
     }
 
-    public ApplyPlayerPowerAction(ACreature target, ACreature source, PlayerPower powerToApply) : this(target, source, powerToApply, powerToApply.amount)
+    public ApplyPlayerPowerAction(ACreature target, ACreature source, CreaturePower powerToApply) : this(target, source, powerToApply, powerToApply.amount)
     {
     }
 
-    public ApplyPlayerPowerAction(ACreature target, ACreature source, PlayerPower powerToApply, int stackAmount) : this(target, source, powerToApply, stackAmount, false)
+    public ApplyPlayerPowerAction(ACreature target, ACreature source, CreaturePower powerToApply, int stackAmount) : this(target, source, powerToApply, stackAmount, false)
     {
     }
 

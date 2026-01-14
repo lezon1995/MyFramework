@@ -40,25 +40,25 @@ public class Opponent : AMonster
                 break;
             case 2:
                 setMove(1, Intent.BRICK_GENERATE_X);
-                setMove(2, Intent.BRICK_MOVE_DOWN_X);
+                // setMove(2, Intent.BRICK_MOVE_DOWN_X);
                 break;
             case 3:
                 setMove(1, Intent.BRICK_GENERATE_X);
-                setMove(2, Intent.BRICK_MOVE_DOWN_X);
-                setMove(3, Intent.BRICK_GENERATE_X);
+                // setMove(2, Intent.BRICK_MOVE_DOWN_X);
+                // setMove(3, Intent.BRICK_GENERATE_X);
                 break;
             case 4:
                 setMove(1, Intent.BRICK_GENERATE_X);
-                setMove(2, Intent.BRICK_MOVE_DOWN_X);
-                setMove(3, Intent.BRICK_GENERATE_X);
-                setMove(4, Intent.BRICK_MOVE_DOWN_X);
+                // setMove(2, Intent.BRICK_MOVE_DOWN_X);
+                // setMove(3, Intent.BRICK_GENERATE_X);
+                // setMove(4, Intent.BRICK_MOVE_DOWN_X);
                 break;
             case 5:
                 setMove(1, Intent.BRICK_GENERATE_X);
-                setMove(2, Intent.BRICK_MOVE_DOWN_X);
-                setMove(3, Intent.BRICK_GENERATE_X);
-                setMove(4, Intent.BRICK_MOVE_DOWN_X);
-                setMove(5, Intent.BRICK_GENERATE_X);
+                // setMove(2, Intent.BRICK_MOVE_DOWN_X);
+                // setMove(3, Intent.BRICK_GENERATE_X);
+                // setMove(4, Intent.BRICK_MOVE_DOWN_X);
+                // setMove(5, Intent.BRICK_GENERATE_X);
                 break;
         }
 

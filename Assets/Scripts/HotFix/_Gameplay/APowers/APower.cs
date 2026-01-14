@@ -245,7 +245,10 @@ public abstract class APower : ClassObject, IComparable<APower>
 
     public virtual float modifyBlock(float blockAmount) => blockAmount;
 
-    public virtual float modifyBlock(float blockAmount, ACard card) => modifyBlock(blockAmount);
+    public virtual float modifyBlock(float blockAmount, ACard card)
+    {
+        return modifyBlock(blockAmount);
+    }
 
     public virtual float modifyBlockLast(float blockAmount) => blockAmount;
 
@@ -253,9 +256,6 @@ public abstract class APower : ClassObject, IComparable<APower>
     {
     }
 
-    public virtual int onPlayerGainedBlock(float blockAmount) => floor(blockAmount);
-
-    public virtual int onPlayerGainedBlock(int blockAmount) => blockAmount;
 
     public virtual void onGainCharge(int chargeAmount)
     {

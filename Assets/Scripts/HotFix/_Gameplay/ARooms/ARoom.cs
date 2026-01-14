@@ -464,9 +464,9 @@ namespace MarbleHero
             if (!player.hasPower("Barricade") && !player.hasPower("Blur"))
             {
                 if (player.hasRelic("Calipers"))
-                    player.loseBlock(15);
+                    player.block.loseBlock(15);
                 else
-                    player.loseBlock();
+                    player.block.loseBlock();
             }
 
             if (!isBattleOver)

@@ -50,6 +50,7 @@ public abstract partial class APlayer : ACreature
         name = Game.playerName;
         title = getTitle(chosenClass);
         isPlayer = true;
+        block = new PlayerBlock(this);
         initializeStarterRelics(chosenClass);
         loadPrefs();
 
@@ -300,14 +301,14 @@ public abstract partial class APlayer : ACreature
     public override void damage(DamageInfo info)
     {
         int dmg = info.output;
-        bool hadBlock = currentBlock > 0;
+        bool hadBlock = block.currentBlock > 0;
         if (dmg < 0)
             dmg = 0;
 
         if (dmg > 1 && hasPower("IntangiblePlayer"))
             dmg = 1;
 
-        dmg = decrementBlock(info, dmg);
+        block.decrementBlock(ref dmg);
 
         if (info.owner == this)
             foreach (var relic in relics)
@@ -424,14 +425,14 @@ public abstract partial class APlayer : ACreature
                 isDead = true;
                 // ADungeon.deathScreen = new DeathScreen(monsters);
                 currentHealth = 0;
-                if (currentBlock > 0)
+                if (block.currentBlock > 0)
                 {
-                    loseBlock();
+                    block.loseBlock();
                     //ADungeon.effectList.Add(new HbBlockBrokenEffect(hb.cX - hb.width / 2.0F + BLOCK_ICON_X, hb.cY - hb.height / 2.0F + BLOCK_ICON_Y));
                 }
             }
         }
-        else if (currentBlock > 0)
+        else if (block.currentBlock > 0)
         {
             //ADungeon.effectList.Add(new BlockedWordEffect(this, hb.cX, hb.cY, uiStrings.TEXT[0]));
         }

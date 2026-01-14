@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using UnityEngine;
 
 namespace MarbleHero
 {
@@ -37,9 +36,9 @@ namespace MarbleHero
             set => _healthMax = value;
         }
 
-        public int currentBlock;
+        public ABlock block;
 
-        public List<PlayerPower> powers = new();
+        public List<CreaturePower> powers = new();
         public List<ARelic> relics = new();
 
         public override void setName(string name)
@@ -124,119 +123,6 @@ namespace MarbleHero
 
         #endregion
 
-        #region Block
-
-        public void addBlock(int blockAmount)
-        {
-            float tmp = blockAmount;
-            if (isPlayer)
-            {
-                foreach (var r in player.relics)
-                    tmp = r.onPlayerGainedBlock(tmp);
-
-                if (tmp > 0.0F)
-                    foreach (var p in powers)
-                        p.onGainedBlock(tmp);
-            }
-
-            bool effect = currentBlock == 0;
-            foreach (var m in room.monsters.monsters)
-            {
-                foreach (var p in m.powers)
-                    tmp = p.onPlayerGainedBlock(tmp);
-            }
-
-            currentBlock += floor(tmp);
-            if (currentBlock >= 99 && isPlayer)
-                UnlockTracker.unlockAchievement("IMPERVIOUS");
-
-            if (currentBlock > 999)
-                currentBlock = 999;
-
-            if (currentBlock == 999)
-                UnlockTracker.unlockAchievement("BARRICADED");
-
-            if (effect && currentBlock > 0)
-            {
-                // gainBlockAnimation();
-            }
-            else if (blockAmount > 0)
-            {
-                // Color tmpCol = Settings.GOLD_COLOR.cpy();
-                // tmpCol.a = blockTextColor.a;
-                // blockTextColor = tmpCol;
-                // blockScale = 5.0F;
-            }
-        }
-
-        public void loseBlock(int amount, bool noAnimation)
-        {
-            bool effect = currentBlock != 0;
-            currentBlock -= amount;
-            if (currentBlock < 0)
-                currentBlock = 0;
-
-            if (currentBlock == 0 && effect)
-            {
-                // if (!noAnimation)
-                // ADungeon.effectList.add(new HbBlockBrokenEffect(hb.cX - hb.width / 2.0F + BLOCK_ICON_X, hb.cY - hb.height / 2.0F + BLOCK_ICON_Y));
-            }
-            else if (currentBlock > 0 && amount > 0)
-            {
-                Color tmp = Color.white;
-                // tmp.a = blockTextColor.a;
-                // blockTextColor = tmp;
-                // blockScale = 5.0F;
-            }
-        }
-
-        public void loseBlock() => loseBlock(currentBlock);
-        public void loseBlock(bool noAnimation) => loseBlock(currentBlock, noAnimation);
-        public void loseBlock(int amount) => loseBlock(amount, false);
-
-        protected virtual void brokeBlock()
-        {
-            // ADungeon.effectList.add(new HbBlockBrokenEffect(hb.cX - hb.width / 2.0F + BLOCK_ICON_X, hb.cY - hb.height / 2.0F + BLOCK_ICON_Y));
-            // Game.sound.play("BLOCK_BREAK");
-        }
-
-        protected int decrementBlock(DamageInfo info, int damageAmount)
-        {
-            if (info.type != DamageInfo.DamageType.HP_LOSS && currentBlock > 0)
-            {
-                // Game.screenShake.shake(ScreenShake.ShakeIntensity.MED, ScreenShake.ShakeDur.SHORT, false);
-                if (damageAmount > currentBlock)
-                {
-                    damageAmount -= currentBlock;
-                    // if (Settings.SHOW_DMG_BLOCK)
-                    // ADungeon.effectList.add(new BlockedNumberEffect(hb.cX, hb.cY + hb.height / 2.0F, Integer.toString(currentBlock)));
-                    loseBlock();
-                    brokeBlock();
-                }
-                else if (damageAmount == currentBlock)
-                {
-                    damageAmount = 0;
-                    loseBlock();
-                    brokeBlock();
-                    // ADungeon.effectList.add(new BlockedWordEffect(this, hb.cX, hb.cY, TEXT[1]));
-                }
-                else
-                {
-                    // Game.sound.play("BLOCK_ATTACK");
-                    loseBlock(damageAmount);
-                    // for (int i = 0; i < 18; i++)
-                    // ADungeon.effectList.add(new BlockImpactLineEffect(hb.cX, hb.cY));
-                    // if (Settings.SHOW_DMG_BLOCK)
-                    // ADungeon.effectList.add(new BlockedNumberEffect(hb.cX, hb.cY + hb.height / 2.0F, Integer.toString(damageAmount)));
-                    damageAmount = 0;
-                }
-            }
-
-            return damageAmount;
-        }
-
-        #endregion
-
         #region Events
 
         public void applyStartOfTurnPowers()
@@ -271,7 +157,7 @@ namespace MarbleHero
                 powers[i].update(dt);
         }
 
-        public void addPower(PlayerPower power)
+        public void addPower(CreaturePower power)
         {
             bool hasBuffAlready = false;
             foreach (var p in powers)
@@ -302,7 +188,7 @@ namespace MarbleHero
             }
         }
 
-        public PlayerPower getPower(string targetID)
+        public CreaturePower getPower(string targetID)
         {
             foreach (var p in powers)
             {

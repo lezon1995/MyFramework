@@ -660,7 +660,7 @@ namespace MarbleHero
             // player.discardPile.clear();
             // player.exhaustPile.clear();
             // player.limbo.clear();
-            player.loseBlock(true);
+            player.block.loseBlock();
             player.damagedThisCombat = 0;
 
             GameActionManager.turn.reset();

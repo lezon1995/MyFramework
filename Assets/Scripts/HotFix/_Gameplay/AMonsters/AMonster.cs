@@ -102,6 +102,7 @@ namespace MarbleHero
         {
             base.onCtor();
             onBrickGroupClear = releaseBrickGroup;
+            block = new MonsterBlock(this);
         }
 
         public override void onCreate()
@@ -128,7 +129,6 @@ namespace MarbleHero
                 _health = (int)(_health * 1.5F);
 
             _health = _maxHealth;
-            currentBlock = 0;
             refreshIntentHbLocation();
         }
 
@@ -174,14 +174,6 @@ namespace MarbleHero
 
         public override bool isDeadOrEscaped() => isDying || halfDead || isEscaping;
 
-        protected override void brokeBlock()
-        {
-            foreach (var r in player.relics)
-                r.onBlockBroken(this);
-
-            base.brokeBlock();
-        }
-
         public override void damage(DamageInfo info)
         {
             if (info.output > 0 && hasPower("IntangiblePlayer"))
@@ -194,9 +186,9 @@ namespace MarbleHero
             if (damageAmount < 0)
                 damageAmount = 0;
 
-            bool hadBlock = currentBlock != 0;
+            bool hadBlock = block.currentBlock != 0;
             bool weakenedToZero = damageAmount == 0;
-            damageAmount = decrementBlock(info, damageAmount);
+            block.decrementBlock(ref damageAmount);
 
             if (info.owner == player)
                 foreach (var r in player.relics)
@@ -239,7 +231,7 @@ namespace MarbleHero
             }
             else if (!probablyInstantKill)
             {
-                if (weakenedToZero && currentBlock == 0)
+                if (weakenedToZero && block.currentBlock == 0)
                 {
                     if (hadBlock)
                     {
@@ -267,9 +259,9 @@ namespace MarbleHero
                     // ADungeon.overlayMenu.hideCombatPanels();
                 }
 
-                if (currentBlock > 0)
+                if (block.currentBlock > 0)
                 {
-                    loseBlock();
+                    block.loseBlock();
                     // ADungeon.effectList.Add(new HbBlockBrokenEffect(hb.cX - hb.width / 2.0F + BLOCK_ICON_X, hb.cY - hb.height / 2.0F + BLOCK_ICON_Y));
                 }
             }

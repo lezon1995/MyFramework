@@ -36,14 +36,14 @@
                         isModified = true;
                 }
 
-                foreach (APower p in owner.powers)
+                foreach (var p in owner.powers)
                 {
                     tmp = p.atDamageGive(tmp, type);
                     if (Value != (int)tmp)
                         isModified = true;
                 }
 
-                foreach (APower p in target.powers)
+                foreach (var p in target.powers)
                 {
                     tmp = p.atDamageReceive(tmp, type);
                     if (Value != (int)tmp)
@@ -53,14 +53,14 @@
                 // tmp = player.stance.atDamageReceive(tmp, type);
                 if (Value != (int)tmp)
                     isModified = true;
-                foreach (APower p in owner.powers)
+                foreach (var p in owner.powers)
                 {
                     tmp = p.atDamageFinalGive(tmp, type);
                     if (Value != (int)tmp)
                         isModified = true;
                 }
 
-                foreach (APower p in target.powers)
+                foreach (var p in target.powers)
                 {
                     tmp = p.atDamageFinalReceive(tmp, type);
                     if (Value != (int)tmp)
@@ -69,7 +69,7 @@
             }
             else
             {
-                foreach (APower p in owner.powers)
+                foreach (var p in owner.powers)
                 {
                     tmp = p.atDamageGive(tmp, type);
                     if (Value != (int)tmp)
@@ -79,21 +79,21 @@
                 // tmp = player.stance.atDamageGive(tmp, type);
                 if (Value != (int)tmp)
                     isModified = true;
-                foreach (APower p in target.powers)
+                foreach (var p in target.powers)
                 {
                     tmp = p.atDamageReceive(tmp, type);
                     if (Value != (int)tmp)
                         isModified = true;
                 }
 
-                foreach (APower p in owner.powers)
+                foreach (var p in owner.powers)
                 {
                     tmp = p.atDamageFinalGive(tmp, type);
                     if (Value != (int)tmp)
                         isModified = true;
                 }
 
-                foreach (APower p in target.powers)
+                foreach (var p in target.powers)
                 {
                     tmp = p.atDamageFinalReceive(tmp, type);
                     if (Value != (int)tmp)
@@ -111,14 +111,14 @@
             output = Value;
             isModified = false;
             float tmp = output;
-            foreach (APower p in target.powers)
+            foreach (var p in target.powers)
             {
                 tmp = p.atDamageReceive(output, type);
                 if (Value != output)
                     isModified = true;
             }
 
-            foreach (APower p in target.powers)
+            foreach (var p in target.powers)
             {
                 tmp = p.atDamageFinalReceive(output, type);
                 if (Value != output)

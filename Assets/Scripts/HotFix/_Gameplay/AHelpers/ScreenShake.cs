@@ -78,7 +78,7 @@ public class ScreenShake
     {
         handleCameraShake(dt);
 
-        /*if (Settings.HORIZ_LETTERBOX_AMT != 0 || Settings.VERT_LETTERBOX_AMT != 0)
+        if (Settings.HORIZ_LETTERBOX_AMT != 0 || Settings.VERT_LETTERBOX_AMT != 0)
             return;
 
         if (duration != 0.0F)
@@ -87,20 +87,20 @@ public class ScreenShake
             if (duration < 0.0F)
             {
                 duration = 0.0F;
-                viewport.update(Settings.M_W, Settings.M_H);
+                mainCamera.transform.localPosition = cameraInitialPosition;
                 return;
             }
 
-            float tmp = Interpolation.fade.apply(0.1F, intensityValue, duration / startDuration);
-            x = MathUtils.cosDeg((float) (System.currentTimeMillis() % 360L) / intervalSpeed) * tmp;
+            float tmp = MMLerp.fade.apply(0.1F, intensityValue, duration / startDuration);
+            x = MathUtils.cosDeg(TimeUtility.getNowTimeStampMS() % 360L / intervalSpeed) * tmp;
             if (Settings.SCREEN_SHAKE)
             {
-                if (vertical)
-                    viewport.update(Settings.M_W, (int) (Settings.M_H + Math.abs(x)));
-                else
-                    viewport.update((int) (Settings.M_W + x), Settings.M_H);
+                // if (vertical)
+                //     viewport.update(Settings.M_W, (int) (Settings.M_H + abs(x)));
+                // else
+                //     viewport.update((int) (Settings.M_W + x), Settings.M_H);
             }
-        }*/
+        }
     }
 
     void handleCameraShake(float dt)

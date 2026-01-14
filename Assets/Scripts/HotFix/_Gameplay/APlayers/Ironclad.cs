@@ -26,12 +26,12 @@ namespace MarbleHero
             List<string> retVal = new();
             // retVal.add(FreeBall.ID);
             // retVal.add(Origami.ID);
-            // retVal.add(BurlapBag.ID);
+            retVal.add(BurlapBag.ID);
             // retVal.add(BrokenTripod.ID);
             // retVal.add(AmmoSupply.ID);
             // retVal.add(SideBorderPortal.ID);
             // retVal.add(LakeMirror.ID);
-            retVal.add(RhombicDarts.ID);
+            // retVal.add(RhombicDarts.ID);
             retVal.add(MilkShake.ID);
             // retVal.add(Rattle.ID);
             retVal.add(ImpactHammer.ID);

@@ -94,7 +94,7 @@ namespace MarbleHero
                     continue;
 
                 if (!m.hasPower("Barricade"))
-                    m.loseBlock();
+                    m.block.loseBlock();
 
                 m.applyStartOfTurnPowers();
             }

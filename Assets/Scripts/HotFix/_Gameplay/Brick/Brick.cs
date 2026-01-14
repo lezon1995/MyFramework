@@ -6,7 +6,7 @@ using UnityEngine;
 namespace MarbleHero;
 
 [Serializable]
-public partial class Brick : MovableObject, IDamageable<Ball> , IReusable
+public partial class Brick : MovableObject, IDamageable<Ball>, IReusable
 {
     protected BrickManager manager;
     public int instanceID;
@@ -32,7 +32,7 @@ public partial class Brick : MovableObject, IDamageable<Ball> , IReusable
     BrickRenderer brickRenderer;
     BrickCollider brickCollider;
 
-    protected List<BrickPower> powers = new();
+    public List<BrickPower> powers = new();
 
     public int curHealth;
     public int curHealthStack;
@@ -55,6 +55,11 @@ public partial class Brick : MovableObject, IDamageable<Ball> , IReusable
     public Type getType() => type;
     public long getGUID() => guid;
 
+    public override void onCtor()
+    {
+        base.onCtor();
+    }
+
     public override void init()
     {
         base.init();
@@ -72,13 +77,13 @@ public partial class Brick : MovableObject, IDamageable<Ball> , IReusable
     public override void resetProperty()
     {
         base.resetProperty();
+        UN_CLASS_LIST(powers);
         manager = null;
         instanceID = 0;
         type = null;
         guid = 0;
         brickRenderer = null;
         brickCollider = null;
-        UN_CLASS_LIST(powers);
 
         width = 0F;
         height = 0F;
@@ -108,6 +113,8 @@ public partial class Brick : MovableObject, IDamageable<Ball> , IReusable
 
     public void onRelease()
     {
+        UN_CLASS_LIST(powers);
+
         width = 0F;
         height = 0F;
         maxHealth = 0;
@@ -115,6 +122,7 @@ public partial class Brick : MovableObject, IDamageable<Ball> , IReusable
         physicResist = 0F;
         magicResist = 0F;
         dodgeChance = 0F;
+        
 
         curHealth = 0;
         curHealthStack = 0;
@@ -151,7 +159,7 @@ public partial class Brick : MovableObject, IDamageable<Ball> , IReusable
                 e.trigger(this);
             }
         }
-        
+
         Draw.ingame.xy.WireRectangle(getRect(), Color.red);
     }
 
@@ -254,24 +262,22 @@ public partial class Brick : MovableObject, IDamageable<Ball> , IReusable
     /// <summary>
     /// Returns the damage this health should take after processing potential resistances
     /// </summary>
-    public virtual bool computeDamageOutput(ref Dmg dmg, out float actualDamage, out float rawFinalDamage, IDmgCalculator calculator = null)
+    public virtual bool computeDamageOutput(ref Dmg dmg, IDmgCalculator calculator = null)
     {
-        calculator ??= DmgCalculator.Default;
-
-        actualDamage = 0F;
-        rawFinalDamage = 0F;
         if (invulnerable)
             return false;
 
         if (immuneToDamage)
             return false;
 
+        calculator ??= DmgCalculator.Default;
+
         float damage = dmg.value;
         var totalDamage = damage;
-
+        int actualDamage;
         float rawBaseDamage = calculator.computeDamageAlgo(dmg.algo, totalDamage, curHealth, maxHealth);
         float rawCritDamage = calculator.computeDamageCrit(dmg, rawBaseDamage);
-        rawFinalDamage = calculator.computeDamageRate(dmg, rawCritDamage);
+        int rawFinalDamage = calculator.computeDamageRate(dmg, rawCritDamage);
 
         if (dmg.mix.on)
         {
@@ -283,6 +289,8 @@ public partial class Brick : MovableObject, IDamageable<Ball> , IReusable
             actualDamage = calculator.computeDamageDefence(dmg.actualType, rawFinalDamage, physicResist, magicResist);
         }
 
+        dmg.setDamageRaw(rawFinalDamage);
+        dmg.setDamageDealt(actualDamage);
         return actualDamage > 0;
     }
 
@@ -292,28 +300,24 @@ public partial class Brick : MovableObject, IDamageable<Ball> , IReusable
         if (!canTakeDamageThisFrame(out _))
             return;
 
-        computeDamageOutput(ref dmg, out var damageDealt, out var damageRaw, calculator);
+        computeDamageOutput(ref dmg, calculator);
 
         //设置此次dmg实际造成的伤害，并通知伤害飘字显示
         {
-            dmg.setDamageRaw(damageRaw);
-            dmg.setDamageDealt(damageDealt);
             dmg.setDirection(direction);
 
-            if ((int)dmg.damageDealt > 1)
+            if (dmg.damageDealt > 1)
             {
                 new DmgTextEvent(dmg, getTransform()).trigger();
             }
         }
-        
-        foreach (var p in powers)
-        {
-            p.onBeforeApplyDamage(this, source, ref dmg);
-        }
 
-        //触发本次伤害所造成的攻击特效/技能特效
-        if (!dmg.isSelf)
+        foreach (var p in powers)
+            p.onBeforeApplyDamage(this, source, ref dmg);
+
+        if (dmg.triggerEffect)
         {
+            //触发本次伤害所造成的攻击特效/技能特效
             if (dmg.hasHitEffect())
             {
                 var e = new DoHitEffect(source, this);
@@ -329,57 +333,55 @@ public partial class Brick : MovableObject, IDamageable<Ball> , IReusable
             }
         }
 
-        // we decrease the character's health by the damage
-        int preHealth = curHealth;
-        int health = clampMin((int)(curHealth - damageDealt), 0);
-        setHealth(health);
-        // lastDamage = damageDealt;
-        // lastDamageType = dmg.actualType;
-        // lastDamageDirection = direction;
-
         eventRouter.trigger(new OnHit());
 
-        // we prevent the character from colliding with Projectiles, Player and Enemies
-        if (invincibleTime > 0)
+        if (dmg.damageDealt > 0)
         {
-            setDamageDisabled();
-            _coroutineTimeElapsed = 0F;
-            _coroutineState = CoroutineState.DamageEnabled;
-            _invincibleTime = invincibleTime;
-        }
+            // we decrease the character's health by the damage
+            int preHealth = curHealth;
+            int health = clampMin((curHealth - dmg.damageDealt), 0);
+            setHealth(health);
+            // lastDamage = damageDealt;
+            // lastDamageType = dmg.actualType;
+            // lastDamageDirection = direction;
 
-        // we trigger a damage taken event
-        // MMDamageTakenEvent.Trigger(this, instigator, curHealth, damageDealt, preHealth);
-
-        //造成伤害后处理Source吸血，触发DoDmg
-        if (!dmg.isSelf)
-        {
-            var e = new DoDmgBrick(this, dmg);
-            source.eventRouter.trigger(e);
-            source.getPlayer().eventRouter.trigger(e);
-        }
-
-        //造成伤害后，触发OnDmg
-        if (!dmg.isSelf)
-            eventRouter.trigger(new OnDmg(source, dmg));
-
-        // we play our feedback
-        // if (FeedbackIsProportionalToDamage)
-        //     DamageMMFeedbacks.Play(transform.position, damageDealt);
-        // else
-        //     DamageMMFeedbacks.Play(transform.position);
-
-        // we update the health bar
-        // UpdateHealthBar(true);
-
-        brickRenderer.playFxHit();
-
-        //检测是否死亡
-        if (curHealth <= 0)
-        {
-            curHealth = 0;
-            if (!dmg.isSelf)
+            // we prevent the character from colliding with Projectiles, Player and Enemies
+            if (invincibleTime > 0)
             {
+                setDamageDisabled();
+                _coroutineTimeElapsed = 0F;
+                _coroutineState = CoroutineState.DamageEnabled;
+                _invincibleTime = invincibleTime;
+            }
+
+            // we trigger a damage taken event
+            // MMDamageTakenEvent.Trigger(this, instigator, curHealth, damageDealt, preHealth);
+
+            //造成伤害后处理Source吸血，触发DoDmg
+            {
+                var e = new DoDmgBrick(this, dmg);
+                source.eventRouter.trigger(e);
+                source.getPlayer().eventRouter.trigger(e);
+
+                //造成伤害后，触发OnDmg
+                eventRouter.trigger(new OnDmg(source, dmg));
+            }
+
+            // we play our feedback
+            // if (FeedbackIsProportionalToDamage)
+            //     DamageMMFeedbacks.Play(transform.position, damageDealt);
+            // else
+            //     DamageMMFeedbacks.Play(transform.position);
+
+            // we update the health bar
+            // UpdateHealthBar(true);
+
+            brickRenderer.playFxHit();
+
+            //检测是否死亡
+            if (curHealth <= 0)
+            {
+                curHealth = 0;
                 if (dmg.hasHitEffect())
                 {
                     var e = new DoAttackKillEffect(source, this, instigator);
@@ -392,11 +394,18 @@ public partial class Brick : MovableObject, IDamageable<Ball> , IReusable
                     source.eventRouter.trigger(e);
                     source.getPlayer().eventRouter.trigger(e);
                 }
-            }
 
-            kill();
-            killed = true;
+                kill();
+                killed = true;
+            }
         }
+    }
+    
+    public T addPower<T>() where T : BrickPower
+    {
+        var power = CLASS<BrickPower>(typeof(T));
+        powers.add(power);
+        return power as T;
     }
 
     public virtual bool kill()
