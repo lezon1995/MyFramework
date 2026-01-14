@@ -24,11 +24,14 @@ public class GameplayManager : FrameSystem
         base.destroy();
     }
 
-    public void handleAttackDamage(Ball ball, Brick brick, Dmg dmg, out bool killed)
+    public void handleHitDamage(Ball ball, Brick brick, ref Dmg dmg, out bool killed)
     {
         killed = false;
         if (brick.canTakeDamageThisFrame(out var resistType))
         {
+            foreach (var p in ball.powers)
+                p.onBeforeHandleHitDamage(ball, brick, ref dmg);
+
             brick.damage(dmg, ball.getObject(), ball, out killed, 0F, ball.getDirection(), dmgCalculator);
             if (dmg.isCrit)
             {
@@ -65,11 +68,14 @@ public class GameplayManager : FrameSystem
         }
     }
 
-    public void handleAbilityDamage(Ball ball, Brick brick, Dmg dmg, out bool killed)
+    public void handleSkillDamage(Ball ball, Brick brick, ref Dmg dmg, out bool killed)
     {
         killed = false;
         if (brick.canTakeDamageThisFrame(out var resistType))
         {
+            foreach (var p in ball.powers)
+                p.onBeforeHandleSkillDamage(ball, brick, ref dmg);
+            
             brick.damage(dmg, ball.getObject(), ball, out killed, 0F, ball.getDirection(), dmgCalculator);
         }
         else

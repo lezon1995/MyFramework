@@ -1,6 +1,6 @@
 ﻿namespace MarbleHero;
 
-public class BrickGroupGenerateAction : AGameAction, IGameActionArgs<AMonster, BrickGroup>
+public class BrickGroupGenerateAction : AGameAction, IArgs<AMonster, BrickGroup>
 {
     const float GAP = 0.05F;
     ACreature creature;

@@ -4,8 +4,8 @@ namespace MarbleHero;
 
 public partial class Ball : IEventRouter
     , IEvent<OnBrickColliderChanged>
-    , IEvent<DoAttackEffect>
-    , IEvent<DoAbilityEffect>
+    , IEvent<DoHitEffect>
+    , IEvent<DoSkillEffect>
     , IEvent<DoAttackKillEffect>
 {
     public IEventRouter eventRouter => this;
@@ -39,35 +39,35 @@ public partial class Ball : IEventRouter
         if (brickManager.getActiveBrick(c.gameObject.GetInstanceID(), out var brick))
         {
             var ball = this;
-            var dmg = ball.getDmg(brick);
+            var dmg = ball.getHitDmg(brick, normal);
             brick.onHitEnter(ball, normal);
-            ball.onHitEnter(brick, normal, ref dmg);
-            gameplayManager.handleAttackDamage(ball, brick, dmg, out var killed);
+            ball.onHitEnter(brick, normal, out var triggerRegularHit);
+            gameplayManager.handleHitDamage(ball, brick, ref dmg, out var killed);
 
             collidingBrick = brick;
             if (killed)
             {
                 counters.killBrick.count();
             }
+
+            if (triggerRegularHit)
+            {
+                counters.hit.count();
+                counters.hitBrick.count();
+                if (isPenetrable)
+                    setDirection(getDirection());
+                else
+                    reflectBounce(normal, true);
+            }
         }
 
         return true;
     }
 
-    protected virtual bool onHitEnter(Brick brick, Vector2 normal, ref Dmg dmg)
+    protected virtual bool onHitEnter(Brick brick, Vector2 normal, out bool triggerRegularHit)
     {
-        bool triggerRegularHit = true;
-        player.onBallHitBrick(this, brick, normal, ref triggerRegularHit, ref dmg);
-        if (triggerRegularHit)
-        {
-            counters.hit.count();
-            counters.hitBrick.count();
-            if (isPenetrable)
-                setDirection(getDirection());
-            else
-                reflectBounce(normal, true);
-        }
-
+        triggerRegularHit = true;
+        player.onBallHitBrick(this, brick, normal, ref triggerRegularHit);
         return true;
     }
 
@@ -132,7 +132,7 @@ public partial class Ball : IEventRouter
         refreshHitInfo(true);
     }
 
-    public void onEvent(DoAttackEffect e)
+    public void onEvent(DoHitEffect e)
     {
         for (var i = 0; i < buffs.Count; i++)
         {
@@ -145,7 +145,7 @@ public partial class Ball : IEventRouter
     }
 
 
-    public void onEvent(DoAbilityEffect e)
+    public void onEvent(DoSkillEffect e)
     {
         for (var i = 0; i < buffs.Count; i++)
         {

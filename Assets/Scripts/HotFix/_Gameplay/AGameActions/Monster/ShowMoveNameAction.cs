@@ -1,6 +1,6 @@
 ﻿namespace MarbleHero;
 
-public class ShowMoveNameAction : AGameAction, IGameActionArgs<AMonster, EnemyMoveInfo>
+public class ShowMoveNameAction : AGameAction, IArgs<AMonster, EnemyMoveInfo>
 {
     const float DURATION = 0.25F;
     AMonster monster;

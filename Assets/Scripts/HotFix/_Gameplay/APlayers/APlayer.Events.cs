@@ -1,8 +1,8 @@
 ﻿namespace MarbleHero;
 
 public partial class APlayer : IEventRouter
-    , IEvent<DoAttackEffect>
-    , IEvent<DoAbilityEffect>
+    , IEvent<DoHitEffect>
+    , IEvent<DoSkillEffect>
     , IEvent<DoAttackKillEffect>
 {
     public IEventRouter eventRouter => this;
@@ -10,7 +10,7 @@ public partial class APlayer : IEventRouter
     protected void addListeners() => eventRouter.addAllListener(this);
     protected void removeListeners() => eventRouter.removeAllListener(this);
 
-    public void onEvent(DoAttackEffect e)
+    public void onEvent(DoHitEffect e)
     {
         for (var i = 0; i < buffs.Count; i++)
         {
@@ -22,7 +22,7 @@ public partial class APlayer : IEventRouter
         }
     }
 
-    public void onEvent(DoAbilityEffect e)
+    public void onEvent(DoSkillEffect e)
     {
         for (var i = 0; i < buffs.Count; i++)
         {

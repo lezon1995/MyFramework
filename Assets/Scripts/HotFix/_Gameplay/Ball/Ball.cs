@@ -50,6 +50,7 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
     #endregion
 
     protected List<Buff> buffs = new();
+    public List<BallPower> powers = new();
 
     GameObject ballRenderer;
     Collider2D hitCollider;
@@ -112,6 +113,7 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
         onDead = null;
         // comparison = null; 不重置
         // buffs = null; 不重置
+        UN_CLASS_LIST(powers);
         prePos = curPos = targetPos = Vector2.zero;
 
         movementDelta = 0;
@@ -160,6 +162,7 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
         lastDirection = default;
         enabled = false;
         hasBeenCollided = false;
+        UN_CLASS_LIST(powers);
 
         maxHealth = 0;
         minPhysicDamage = maxPhysicDamage = 0;
@@ -451,21 +454,24 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
         return false;
     }
 
-    public virtual Dmg getDmg(Brick brick)
+    public virtual Dmg getHitDmg(Brick brick, Vector2 normal)
     {
         var d = getPhysicDamage();
         var dmg = Dmg.physicDmg(d);
-        dmg.setAttackEffect();
+        dmg.setHitEffect();
+        dmg.setDmgRate(dmgRate);
+        dmg.setHitNormal(normal);
         if (randomHit(crit))
             dmg.setCrit();
         return dmg;
     }
 
-    public virtual Dmg getAbilityDmg(Brick brick)
+    public virtual Dmg getSkillDmg(Brick brick)
     {
         var d = getMagicDamage();
         var dmg = Dmg.magicDmg(d);
-        dmg.setAbilityEffect();
+        dmg.setSkillEffect();
+        dmg.setDmgRate(dmgRate);
         return dmg;
     }
 
@@ -600,5 +606,12 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
     public void addBuff(Buff buff)
     {
         buffs.add(buff);
+    }
+
+    public T addPower<T>() where T : BallPower
+    {
+        var power = CLASS<BallPower>(typeof(T));
+        powers.add(power);
+        return power as T;
     }
 }

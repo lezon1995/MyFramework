@@ -2,7 +2,7 @@
 
 namespace MarbleHero
 {
-    public class DisplayMovesAction : AGameAction, IGameActionArgs<AMonster>
+    public class DisplayMovesAction : AGameAction, IArgs<AMonster>
     {
         const float GAP = 0.5F;
         Queue<EnemyMoveInfo> queue = new();

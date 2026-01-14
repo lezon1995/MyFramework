@@ -2,7 +2,7 @@
 
 namespace MarbleHero;
 
-public class BrickGroupMoveDownAction : AGameAction, IGameActionArgs<AMonster>
+public class BrickGroupMoveDownAction : AGameAction, IArgs<AMonster>
 {
     const float DURATION = 0.2F;
 

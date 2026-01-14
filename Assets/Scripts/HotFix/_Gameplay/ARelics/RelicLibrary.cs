@@ -49,6 +49,7 @@ namespace MarbleHero
             add(new RhombicDarts());
             add(new MilkShake());
             add(new Rattle());
+            add(new ImpactHammer());
             // add(new Abacus());
             // add(new Akabeko());
             // add(new Anchor());

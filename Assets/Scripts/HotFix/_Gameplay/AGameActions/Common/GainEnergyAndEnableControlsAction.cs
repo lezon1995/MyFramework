@@ -1,6 +1,6 @@
 ﻿namespace MarbleHero
 {
-    public class GainEnergyAndEnableControlsAction : AGameAction, IGameActionArgs<int>
+    public class GainEnergyAndEnableControlsAction : AGameAction, IArgs<int>
     {
         int energyGain;
         

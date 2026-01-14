@@ -24,11 +24,12 @@ public struct Dmg
     public Algos algo;
     public bool isCrit;
     public float critRate;
-    public float dmgRate;
+    public Stat dmgRate;
     public bool isSelf { get; set; }
     public float damageRaw { get; set; }
     public float damageDealt { get; set; }
     public Vector3 direction { get; set; }
+    public Vector2 hitNormal { get; set; }
 
     public Mixed mix { get; set; }
 
@@ -38,7 +39,7 @@ public struct Dmg
 
     public Dmg(float v, Types t, bool crit)
     {
-        effect = Effects.Attack;
+        effect = Effects.Hit;
         value = v;
         type = actualType = t;
         algo = Algos.FIXED;
@@ -48,13 +49,14 @@ public struct Dmg
         damageRaw = 0F;
         damageDealt = 0F;
         direction = Vector3.zero;
+        hitNormal = Vector2.zero;
         isSelf = false;
         mix = default;
     }
 
     public Dmg(float v, Types t, Algos a)
     {
-        effect = Effects.Attack;
+        effect = Effects.Hit;
         value = v;
         type = actualType = t;
         algo = a;
@@ -64,6 +66,7 @@ public struct Dmg
         damageRaw = 0F;
         damageDealt = 0F;
         direction = Vector3.zero;
+        hitNormal = Vector2.zero;
         isSelf = false;
         mix = default;
     }
@@ -106,37 +109,37 @@ public struct Dmg
         return this;
     }
 
-    public bool hasAttackEffect()
+    public bool hasHitEffect()
     {
-        return (effect & Effects.Attack) != 0;
+        return (effect & Effects.Hit) != 0;
     }
 
-    public Dmg setAttackEffect()
+    public Dmg setHitEffect()
     {
-        effect = Effects.Attack;
+        effect = Effects.Hit;
         return this;
     }
 
-    public bool hasAbilityEffect()
+    public bool hasSkillEffect()
     {
-        return (effect & Effects.Ability) != 0;
+        return (effect & Effects.Skill) != 0;
     }
 
-    public Dmg setAbilityEffect()
+    public Dmg setSkillEffect()
     {
-        effect = Effects.Ability;
+        effect = Effects.Skill;
         return this;
     }
 
-    public Dmg addAttackEffect()
+    public Dmg addHitEffect()
     {
-        effect |= Effects.Attack;
+        effect |= Effects.Hit;
         return this;
     }
 
-    public Dmg addAbilityEffect()
+    public Dmg addSkillEffect()
     {
-        effect |= Effects.Ability;
+        effect |= Effects.Skill;
         return this;
     }
 
@@ -158,6 +161,12 @@ public struct Dmg
         return this;
     }
 
+    public Dmg setHitNormal(Vector2 normal)
+    {
+        hitNormal = normal;
+        return this;
+    }
+
     public Dmg setActualType(Types t)
     {
         actualType = t;
@@ -167,6 +176,12 @@ public struct Dmg
     public Dmg setDmgRate(float rate)
     {
         dmgRate = rate;
+        return this;
+    }
+
+    public Dmg addDmgRate(float delta)
+    {
+        dmgRate.increase(delta);
         return this;
     }
 
@@ -194,8 +209,8 @@ public struct Dmg
     [Flags]
     public enum Effects
     {
-        Attack = 1 << 0,
-        Ability = 1 << 1,
+        Hit = 1 << 0,
+        Skill = 1 << 1,
     }
 
     [Serializable]

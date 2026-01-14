@@ -1,6 +1,6 @@
 ﻿namespace MarbleHero
 {
-    public class WaitAction : AGameAction, IGameActionArgs<float>
+    public class WaitAction : AGameAction, IArgs<float>
     {
         public void onCreate(float time)
         {

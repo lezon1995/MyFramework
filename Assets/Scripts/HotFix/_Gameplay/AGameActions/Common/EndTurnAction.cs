@@ -21,7 +21,7 @@
         }
     }
 
-    public class StartPlayerTurnAction : AGameAction, IGameActionArgs<ARoom>
+    public class StartPlayerTurnAction : AGameAction, IArgs<ARoom>
     {
         ARoom room;
 
@@ -54,7 +54,7 @@
     }
     
     
-    public class EndPlayerTurnAction : AGameAction, IGameActionArgs<ARoom>
+    public class EndPlayerTurnAction : AGameAction, IArgs<ARoom>
     {
         ARoom room;
 
@@ -80,7 +80,7 @@
         }
     }
 
-    public class StartEnemyTurnAction : AGameAction, IGameActionArgs<ARoom>
+    public class StartEnemyTurnAction : AGameAction, IArgs<ARoom>
     {
         const float END_TURN_WAIT_DURATION = 1.2F;
         ARoom room;

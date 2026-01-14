@@ -1,6 +1,6 @@
 ﻿namespace MarbleHero
 {
-    public class RollMoveAction : AGameAction, IGameActionArgs<AMonster>
+    public class RollMoveAction : AGameAction, IArgs<AMonster>
     {
         AMonster monster;
 

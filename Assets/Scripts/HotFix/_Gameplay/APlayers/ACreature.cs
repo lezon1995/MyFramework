@@ -39,7 +39,7 @@ namespace MarbleHero
 
         public int currentBlock;
 
-        public List<APower> powers = new();
+        public List<PlayerPower> powers = new();
         public List<ARelic> relics = new();
 
         public override void setName(string name)
@@ -271,7 +271,7 @@ namespace MarbleHero
                 powers[i].update(dt);
         }
 
-        public void addPower(APower power)
+        public void addPower(PlayerPower power)
         {
             bool hasBuffAlready = false;
             foreach (var p in powers)
@@ -292,7 +292,7 @@ namespace MarbleHero
                     int buffCount = 0;
                     foreach (var p in powers)
                     {
-                        if (p.type == APower.PowerType.BUFF)
+                        if (p.type == PowerType.BUFF)
                             buffCount++;
                     }
 
@@ -302,7 +302,7 @@ namespace MarbleHero
             }
         }
 
-        public APower getPower(string targetID)
+        public PlayerPower getPower(string targetID)
         {
             foreach (var p in powers)
             {

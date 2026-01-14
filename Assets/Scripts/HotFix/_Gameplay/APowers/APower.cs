@@ -4,7 +4,13 @@ using UnityEngine;
 
 namespace MarbleHero;
 
-public abstract class APower : IComparable<APower>
+public enum PowerType
+{
+    BUFF,
+    DEBUFF
+}
+
+public abstract class APower : ClassObject, IComparable<APower>
 {
     protected static float POWER_STACK_FONT_SCALE = 8.0F;
     static float FONT_LERP = 10.0F;
@@ -13,22 +19,34 @@ public abstract class APower : IComparable<APower>
     protected float fontScale = 1.0F;
 
     List<AGameEffect> effect = new();
-    public ACreature owner { get; set; }
+    public ACreature owner;
     public string name;
     public string description;
     public string ID;
     public int amount = -1;
     public int priority = 5;
-    public PowerType type = PowerType.BUFF;
-    protected bool isTurnBased = false;
-    public bool isPostActionPower = false;
-    public bool canGoNegative = false;
+    public PowerType type;
+    protected bool isTurnBased;
+    public bool isPostActionPower;
+    public bool canGoNegative;
     public static string[] DESCRIPTIONS;
 
-    public enum PowerType
+    public override void resetProperty()
     {
-        BUFF,
-        DEBUFF
+        base.resetProperty();
+        
+        fontScale = 0;
+        UN_CLASS_LIST(effect);
+        owner = null;
+        name = null;
+        description = null;
+        ID = null;
+        amount = 0;
+        priority = 0;
+        type = default;
+        isTurnBased = false;
+        isPostActionPower = false;
+        canGoNegative = false;
     }
 
     public static void initialize()
@@ -49,25 +67,25 @@ public abstract class APower : IComparable<APower>
 
     public void playApplyPowerSfx()
     {
-        /*int roll = MathUtils.random(0, 2);
+        int roll = MathUtils.random(0, 2);
         if (type == PowerType.BUFF)
         {
             if (roll == 0)
-                Game.sound.play("BUFF_1");
+                sound.play("BUFF_1");
             else if (roll == 1)
-                Game.sound.play("BUFF_2");
+                sound.play("BUFF_2");
             else
-                Game.sound.play("BUFF_3");
+                sound.play("BUFF_3");
         }
         else
         {
             if (roll == 0)
-                Game.sound.play("DEBUFF_1");
+                sound.play("DEBUFF_1");
             else if (roll == 1)
-                Game.sound.play("DEBUFF_2");
+                sound.play("DEBUFF_2");
             else
-                Game.sound.play("DEBUFF_3");
-        }*/
+                sound.play("DEBUFF_3");
+        }
     }
 
     public void updateParticles()
@@ -122,7 +140,7 @@ public abstract class APower : IComparable<APower>
             return;
         }
 
-        fontScale = 8.0F;
+        fontScale = POWER_STACK_FONT_SCALE;
         amount += stackAmount;
     }
 
@@ -130,12 +148,12 @@ public abstract class APower : IComparable<APower>
     {
         if (amount - reduceAmount <= 0)
         {
-            fontScale = 8.0F;
+            fontScale = POWER_STACK_FONT_SCALE;
             amount = 0;
         }
         else
         {
-            fontScale = 8.0F;
+            fontScale = POWER_STACK_FONT_SCALE;
             amount -= reduceAmount;
         }
     }
@@ -263,7 +281,7 @@ public abstract class APower : IComparable<APower>
     {
     }
 
-    public int CompareTo(APower other) => priority - other.priority;
+    public int CompareTo(APower other) => priority.CompareTo(other.priority);
 
     public void flash()
     {
@@ -289,11 +307,17 @@ public abstract class APower : IComparable<APower>
         return powerData;
     }
 
-    public virtual int onLoseHp(int damageAmount) => damageAmount;
+    public virtual int onLoseHp(int damageAmount)
+    {
+        return damageAmount;
+    }
 
     public virtual void onVictory()
     {
     }
 
-    public virtual bool canPlayCard(ACard card) => true;
+    public virtual bool canPlayCard(ACard card)
+    {
+        return true;
+    }
 }

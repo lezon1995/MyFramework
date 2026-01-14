@@ -2,7 +2,7 @@
 
 namespace MarbleHero
 {
-    public class DamageAction : AGameAction, IGameActionArgs<ACreature, DamageInfo>
+    public class DamageAction : AGameAction, IArgs<ACreature, DamageInfo>
     {
         DamageInfo damage;
         int damageAmount;

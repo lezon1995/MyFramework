@@ -621,10 +621,10 @@ public abstract partial class APlayer : ACreature
             relic.onBallHitBorderBot(this, ball, border, normal, ref forceReturn);
     }
 
-    public void onBallHitBrick(Ball ball, Brick brick, Vector2 normal, ref bool triggerRegularHit, ref Dmg dmg)
+    public void onBallHitBrick(Ball ball, Brick brick, Vector2 normal, ref bool triggerRegularHit)
     {
         foreach (var relic in relics)
-            relic.onBallHitBrick(this, ball, brick, normal, ref triggerRegularHit, ref dmg);
+            relic.onBallHitBrick(this, ball, brick, normal, ref triggerRegularHit);
     }
 
     public void onBallReflect(Ball ball, Vector2 normal, bool fromBrick, ref Vector2 reflectDir)

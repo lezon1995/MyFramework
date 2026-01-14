@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace MarbleHero
 {
-    public class ReturnBallsAction : AGameAction, IGameActionArgs<Vector3>
+    public class ReturnBallsAction : AGameAction, IArgs<Vector3>
     {
         const float DURATION = 0.25F;
 

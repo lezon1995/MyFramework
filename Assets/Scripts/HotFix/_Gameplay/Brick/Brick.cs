@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Drawing;
 using UnityEngine;
 
@@ -30,6 +31,8 @@ public partial class Brick : MovableObject, IDamageable<Ball> , IReusable
 
     BrickRenderer brickRenderer;
     BrickCollider brickCollider;
+
+    protected List<BrickPower> powers = new();
 
     public int curHealth;
     public int curHealthStack;
@@ -75,6 +78,7 @@ public partial class Brick : MovableObject, IDamageable<Ball> , IReusable
         guid = 0;
         brickRenderer = null;
         brickCollider = null;
+        UN_CLASS_LIST(powers);
 
         width = 0F;
         height = 0F;
@@ -288,7 +292,6 @@ public partial class Brick : MovableObject, IDamageable<Ball> , IReusable
         if (!canTakeDamageThisFrame(out _))
             return;
 
-        dmg.setDmgRate(source.dmgRate);
         computeDamageOutput(ref dmg, out var damageDealt, out var damageRaw, calculator);
 
         //设置此次dmg实际造成的伤害，并通知伤害飘字显示
@@ -302,20 +305,25 @@ public partial class Brick : MovableObject, IDamageable<Ball> , IReusable
                 new DmgTextEvent(dmg, getTransform()).trigger();
             }
         }
+        
+        foreach (var p in powers)
+        {
+            p.onBeforeApplyDamage(this, source, ref dmg);
+        }
 
         //触发本次伤害所造成的攻击特效/技能特效
         if (!dmg.isSelf)
         {
-            if (dmg.hasAttackEffect())
+            if (dmg.hasHitEffect())
             {
-                var e = new DoAttackEffect(source, this);
+                var e = new DoHitEffect(source, this);
                 source.eventRouter.trigger(e);
                 source.getPlayer().eventRouter.trigger(e);
             }
 
-            if (dmg.hasAbilityEffect())
+            if (dmg.hasSkillEffect())
             {
-                var e = new DoAbilityEffect(source, this);
+                var e = new DoSkillEffect(source, this);
                 source.eventRouter.trigger(e);
                 source.getPlayer().eventRouter.trigger(e);
             }
@@ -372,7 +380,7 @@ public partial class Brick : MovableObject, IDamageable<Ball> , IReusable
             curHealth = 0;
             if (!dmg.isSelf)
             {
-                if (dmg.hasAttackEffect())
+                if (dmg.hasHitEffect())
                 {
                     var e = new DoAttackKillEffect(source, this, instigator);
                     source.eventRouter.trigger(e);

@@ -2,24 +2,24 @@
 
 namespace MarbleHero;
 
-public struct DoAttackEffect
+public struct DoHitEffect
 {
     public Ball ball;
     public Brick brick;
 
-    public DoAttackEffect(Ball b1, Brick b2)
+    public DoHitEffect(Ball b1, Brick b2)
     {
         ball = b1;
         brick = b2;
     }
 }
 
-public struct DoAbilityEffect
+public struct DoSkillEffect
 {
     public Ball ball;
     public Brick brick;
 
-    public DoAbilityEffect(Ball b1, Brick b2)
+    public DoSkillEffect(Ball b1, Brick b2)
     {
         ball = b1;
         brick = b2;

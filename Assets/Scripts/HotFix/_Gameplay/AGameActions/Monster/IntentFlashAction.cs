@@ -1,6 +1,6 @@
 ﻿namespace MarbleHero;
 
-public class IntentFlashAction : AGameAction, IGameActionArgs<AMonster, EnemyMoveInfo>
+public class IntentFlashAction : AGameAction, IArgs<AMonster, EnemyMoveInfo>
 {
     const float DURATION = 0.5F;
     ACreature monster;

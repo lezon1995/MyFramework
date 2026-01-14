@@ -1,18 +1,18 @@
 ﻿namespace MarbleHero
 {
-    public class RemoveSpecificPowerAction : AGameAction
+    public class RemoveSpecificPlayerPowerAction : AGameAction
     {
         string powerToRemove;
-        APower powerInstance;
+        PlayerPower powerInstance;
         static float DURATION = 0.1F;
 
-        public RemoveSpecificPowerAction(ACreature target, ACreature source, string powerToRemove)
+        public RemoveSpecificPlayerPowerAction(ACreature target, ACreature source, string powerToRemove)
         {
             duration = DURATION;
             this.powerToRemove = powerToRemove;
         }
 
-        public RemoveSpecificPowerAction(ACreature target, ACreature source, APower powerInstance)
+        public RemoveSpecificPlayerPowerAction(ACreature target, ACreature source, PlayerPower powerInstance)
         {
             duration = DURATION;
             this.powerInstance = powerInstance;
@@ -28,7 +28,7 @@
                     return;
                 }
 
-                APower removeMe = null;
+                PlayerPower removeMe = null;
                 if (powerToRemove != null)
                 {
                     removeMe = target.getPower(powerToRemove);

@@ -2,7 +2,7 @@
 
 namespace MarbleHero
 {
-    public class ShootBallsAction : AGameAction, IGameActionArgs<Vector3, Vector3>
+    public class ShootBallsAction : AGameAction, IArgs<Vector3, Vector3>
     {
         const float GAP = 0.05F;
 

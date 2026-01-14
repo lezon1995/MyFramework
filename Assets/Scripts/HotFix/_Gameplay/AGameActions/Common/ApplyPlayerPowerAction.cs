@@ -1,14 +1,14 @@
 ﻿namespace MarbleHero;
 
-public class ApplyPowerAction : AGameAction
+public class ApplyPlayerPowerAction : AGameAction
 {
     // static UIStrings uiStrings = Game.languagePack.getUIString("ApplyPowerAction");
     // public static string[] TEXT = uiStrings.TEXT;
-    APower powerToApply;
+    PlayerPower powerToApply;
     float startingDuration;
     int amount;
 
-    public ApplyPowerAction(ACreature target, ACreature source, APower powerToApply, int stackAmount, bool isFast)
+    public ApplyPlayerPowerAction(ACreature target, ACreature source, PlayerPower powerToApply, int stackAmount, bool isFast)
     {
         if (Settings.FAST_MODE)
             startingDuration = 0.1F;
@@ -28,11 +28,11 @@ public class ApplyPowerAction : AGameAction
         }
     }
 
-    public ApplyPowerAction(ACreature target, ACreature source, APower powerToApply) : this(target, source, powerToApply, powerToApply.amount)
+    public ApplyPlayerPowerAction(ACreature target, ACreature source, PlayerPower powerToApply) : this(target, source, powerToApply, powerToApply.amount)
     {
     }
 
-    public ApplyPowerAction(ACreature target, ACreature source, APower powerToApply, int stackAmount) : this(target, source, powerToApply, stackAmount, false)
+    public ApplyPlayerPowerAction(ACreature target, ACreature source, PlayerPower powerToApply, int stackAmount) : this(target, source, powerToApply, stackAmount, false)
     {
     }
 
@@ -48,7 +48,7 @@ public class ApplyPowerAction : AGameAction
         if (duration == startingDuration)
         {
             if (source != null)
-                foreach (APower pow in source.powers)
+                foreach (var pow in source.powers)
                     pow.onApplyPower(powerToApply, target, source);
 
             ARelic relic;
@@ -61,7 +61,7 @@ public class ApplyPowerAction : AGameAction
 
             // ADungeon.effectList.Add(new FlashAtkImgEffect(target.hb.cX, target.hb.cY, attackEffect));
             bool hasBuffAlready = false;
-            foreach (APower p in target.powers)
+            foreach (var p in target.powers)
             {
                 if (p.ID == powerToApply.ID && p.ID != "Night Terror")
                 {
@@ -74,12 +74,12 @@ public class ApplyPowerAction : AGameAction
                     // else 
                     if (amount > 0)
                     {
-                        // if (p.type == APower.PowerType.BUFF || p is StrengthPower || p is DexterityPower)
+                        // if (p.type == PowerType.BUFF || p is StrengthPower || p is DexterityPower)
                         // ADungeon.effectList.Add(new PowerBuffEffect(target.hb.cX - target.animX, target.hb.cY + target.hb.height / 2.0F, "+" + amount + " " + powerToApply.name));
                         // else
                         // ADungeon.effectList.Add(new PowerDebuffEffect(target.hb.cX - target.animX, target.hb.cY + target.hb.height / 2.0F, "+" + amount + " " + powerToApply.name));
                     }
-                    else if (p.type == APower.PowerType.BUFF)
+                    else if (p.type == PowerType.BUFF)
                     {
                         // ADungeon.effectList.Add(new PowerBuffEffect(target.hb.cX - target.animX, target.hb.cY + target.hb.height / 2.0F, powerToApply.name + TEXT[3]));
                     }
@@ -105,7 +105,7 @@ public class ApplyPowerAction : AGameAction
                 {
                     // ADungeon.effectList.Add(new PowerDebuffEffect(target.hb.cX - target.animX, target.hb.cY + target.hb.height / 2.0F, powerToApply.name + TEXT[3]));
                 }
-                else if (powerToApply.type == APower.PowerType.BUFF)
+                else if (powerToApply.type == PowerType.BUFF)
                 {
                     // ADungeon.effectList.Add(new PowerBuffEffect(target.hb.cX - target.animX, target.hb.cY + target.hb.height / 2.0F, powerToApply.name));
                 }
@@ -118,9 +118,9 @@ public class ApplyPowerAction : AGameAction
                 if (target.isPlayer)
                 {
                     int buffCount = 0;
-                    foreach (APower p in target.powers)
+                    foreach (var p in target.powers)
                     {
-                        if (p.type == APower.PowerType.BUFF)
+                        if (p.type == PowerType.BUFF)
                             buffCount++;
                     }
 
