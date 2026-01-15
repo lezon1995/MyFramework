@@ -2,7 +2,7 @@
 
 public class BrickBlock : ABlock
 {
-    Brick brick;
+    public Brick brick;
 
     public void setBrick(Brick b)
     {

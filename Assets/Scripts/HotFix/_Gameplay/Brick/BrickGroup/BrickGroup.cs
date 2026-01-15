@@ -77,7 +77,7 @@ public abstract class BrickGroup : ClassObject, IEvent<OnBrickDeath>
     {
         var brick = brickManager.acquireBrick(t.rect.center, t.rect.size, t.health);
 
-        brick.addPower<BrickBlockPower>().with(brick, 10);
+        brick.addBlock(10);
 
         brick.eventRouter.addListener(this);
         addBrick(brick);

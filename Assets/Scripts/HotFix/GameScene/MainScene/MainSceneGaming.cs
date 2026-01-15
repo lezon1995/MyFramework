@@ -62,6 +62,35 @@ public class MainSceneGaming : SceneProcedure
             // balls.add(ball);
         }
 
+        if (isKeyCurrentDown(KeyCode.Keypad1))
+        {
+            var mousePosition = getMousePosition();
+            var worldPos = screenToWorld(mousePosition, false);
+            var rect = brickManager.brickLayout.getRectAtPos(worldPos);
+            foreach (var (id, brick) in brickManager.getActiveBricks())
+            {
+                if (brick.getRect().Contains(worldPos))
+                {
+                    brick.addBlock(5);
+                    break;
+                }
+            }
+        }
+        if (isKeyCurrentDown(KeyCode.Keypad2))
+        {
+            var mousePosition = getMousePosition();
+            var worldPos = screenToWorld(mousePosition, false);
+            var rect = brickManager.brickLayout.getRectAtPos(worldPos);
+            foreach (var (id, brick) in brickManager.getActiveBricks())
+            {
+                if (brick.getRect().Contains(worldPos))
+                {
+                    brick.removeBlock(5);
+                    break;
+                }
+            }
+        }
+
         if (isKeyCurrentDown(KeyCode.R))
         {
             player.returnBall();

@@ -131,6 +131,7 @@ public class BrickRenderer : GameComponent
     public void refreshBlockAmount(int v)
     {
         blockAmount.text = v.ToString();
+        playFxBlockHit();
     }
 
     public void playFadeIn()
@@ -167,7 +168,7 @@ public class BrickRenderer : GameComponent
     {
         block.gameObject.SetActive(true);
         blockAmount.gameObject.SetActive(true);
-        block.transform.localScale = Vector3.one * 1.5F;
+        block.transform.localScale = Vector3.one * 2F;
         block.color = new(1F, 1F, 1F, 0F);
         blockAmount.alpha = 0F;
         health.alpha = 1F;
@@ -177,6 +178,14 @@ public class BrickRenderer : GameComponent
         Tween.Alpha(blockAmount, endValue: 1F, duration: 0.2F, ease: Ease.OutCubic);
         Tween.Alpha(health, endValue: 0.5F, duration: 0.2F, ease: Ease.OutCubic);
     }
+    
+    public void playFxBlockHit()
+    {
+        block.transform.localScale = Vector3.one * 1.15F;
+        Sequence
+            .Create(Tween.Scale(block.transform, endValue: Vector3.one * 0.85F, duration: 0.15F, ease: Ease.OutCubic))
+            .Chain(Tween.Scale(block.transform, endValue: Vector3.one * 1F, duration: 0.15F, ease: Ease.OutCubic));
+    }
 
     public void playFxLoseBlock()
     {
@@ -185,7 +194,7 @@ public class BrickRenderer : GameComponent
         blockAmount.alpha = 1F;
         health.alpha = 0.5F;
         
-        Tween.Scale(block.transform, endValue: 1.5F, duration: 0.2F, ease: Ease.OutCubic);
+        Tween.Scale(block.transform, endValue: 2F, duration: 0.2F, ease: Ease.OutCubic);
         Tween.Alpha(block, endValue: 0F, duration: 0.2F, ease: Ease.OutCubic).OnComplete(block, s => s.gameObject.SetActive(false));
         Tween.Alpha(blockAmount, endValue: 0F, duration: 0.2F, ease: Ease.OutCubic).OnComplete(blockAmount, s => s.gameObject.SetActive(false));
         Tween.Alpha(health, endValue: 1F, duration: 0.2F, ease: Ease.OutCubic);

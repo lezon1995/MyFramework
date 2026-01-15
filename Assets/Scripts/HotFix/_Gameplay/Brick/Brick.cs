@@ -401,6 +401,27 @@ public partial class Brick : MovableObject, IDamageable<Ball>, IReusable
         }
     }
 
+    public void addBlock(int amount)
+    {
+        if (!tryGetPower<BrickBlockPower>(out var power))
+        {
+            power = addPower<BrickBlockPower>();
+            power.with(this, amount);
+        }
+        else
+        {
+            power.addBlockAmount(amount);
+        }
+    }
+
+    public void removeBlock(int amount)
+    {
+        if (tryGetPower<BrickBlockPower>(out var power))
+        {
+            power.removeBlockAmount(amount);
+        }
+    }
+
     public bool hasPower<T>()
     {
         for (var i = powers.Count - 1; i >= 0; i--)
@@ -409,6 +430,21 @@ public partial class Brick : MovableObject, IDamageable<Ball>, IReusable
                 return true;
         }
 
+        return false;
+    }
+
+    public bool tryGetPower<T>(out T power) where T : BrickPower
+    {
+        for (var i = powers.Count - 1; i >= 0; i--)
+        {
+            if (powers[i] is T t)
+            {
+                power = t;
+                return true;
+            }
+        }
+
+        power = null;
         return false;
     }
 
