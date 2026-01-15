@@ -34,7 +34,9 @@ namespace MarbleHero
             // retVal.add(RhombicDarts.ID);
             retVal.add(MilkShake.ID);
             // retVal.add(Rattle.ID);
-            retVal.add(ImpactHammer.ID);
+            // retVal.add(ImpactHammer.ID);
+            retVal.add(RoughCelling.ID);
+            retVal.add(RoughWall.ID);
             foreach (var relicId in retVal)
                 UnlockTracker.markRelicAsSeen(relicId);
             return retVal;

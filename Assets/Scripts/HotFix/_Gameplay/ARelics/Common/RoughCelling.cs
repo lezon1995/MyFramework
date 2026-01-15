@@ -36,10 +36,19 @@ public class RoughCelling : ARelic
 
         if (minDistBrick)
         {
-            var inDir = ball.getDirection();
-            var outDir = minDisDirection;
-            normal = (-inDir + outDir) / 2F;
+            normal = computeNormal(ball.getDirection(), minDisDirection);
         }
+    }
+    
+    static Vector2 computeNormal(Vector2 incident, Vector2 reflected)
+    {
+        Vector2 n = (incident - reflected).normalized;
+
+        // 保证法线朝向正确
+        if (Vector2.Dot(incident, n) > 0)
+            n = -n;
+
+        return n;
     }
 
     public override ARelic makeCopy() => new RoughCelling();
