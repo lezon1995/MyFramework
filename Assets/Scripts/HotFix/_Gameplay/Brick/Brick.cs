@@ -29,7 +29,7 @@ public partial class Brick : MovableObject, IDamageable<Ball>, IReusable
 
     #endregion
 
-    BrickRenderer brickRenderer;
+    public BrickRenderer brickRenderer;
     BrickCollider brickCollider;
 
     public List<BrickPower> powers = new();
@@ -122,7 +122,7 @@ public partial class Brick : MovableObject, IDamageable<Ball>, IReusable
         physicResist = 0F;
         magicResist = 0F;
         dodgeChance = 0F;
-        
+
 
         curHealth = 0;
         curHealthStack = 0;
@@ -400,12 +400,38 @@ public partial class Brick : MovableObject, IDamageable<Ball>, IReusable
             }
         }
     }
-    
+
+    public bool hasPower<T>()
+    {
+        for (var i = powers.Count - 1; i >= 0; i--)
+        {
+            if (powers[i] is T)
+                return true;
+        }
+
+        return false;
+    }
+
     public T addPower<T>() where T : BrickPower
     {
         var power = CLASS<BrickPower>(typeof(T));
         powers.add(power);
         return power as T;
+    }
+
+    public bool removePower<T>() where T : BrickPower
+    {
+        for (var i = powers.Count - 1; i >= 0; i--)
+        {
+            if (powers[i] is T t)
+            {
+                powers.removeAt(i);
+                UN_CLASS(t);
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public virtual bool kill()
