@@ -152,6 +152,11 @@ public class BrickManager : FrameSystem
         return activeBricks;
     }
 
+    public List<Brick> getActiveBrickList()
+    {
+        return activeBrickList;
+    }
+
     public Dictionary<long, Brick> getBrickList()
     {
         return brickGUIDList;

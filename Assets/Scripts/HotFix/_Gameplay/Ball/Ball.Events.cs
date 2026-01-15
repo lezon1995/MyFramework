@@ -73,6 +73,7 @@ public partial class Ball : IEventRouter
 
     protected virtual bool onHitEnter(BorderTop border, Vector2 normal)
     {
+        player.onBallHitBorderTop(this, border, ref normal);
         counters.hit.count();
         hasBeenCollided = true;
         reflectBounce(normal);
@@ -103,6 +104,7 @@ public partial class Ball : IEventRouter
         }
         else
         {
+            player.onBallHitBorderLeft(this, border, ref normal);
             reflectBounce(normal);
         }
 
@@ -121,6 +123,7 @@ public partial class Ball : IEventRouter
         }
         else
         {
+            player.onBallHitBorderRight(this, border, ref normal);
             reflectBounce(normal);
         }
 

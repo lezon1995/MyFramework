@@ -621,6 +621,22 @@ public abstract partial class APlayer : ACreature
         foreach (var relic in relics)
             relic.onBallHitBorderBot(this, ball, border, normal, ref forceReturn);
     }
+    
+    public void onBallHitBorderTop(Ball ball, BorderTop border, ref Vector2 normal)
+    {
+        foreach (var relic in relics)
+            relic.onBallHitBorderTop(this, ball, border, ref normal);
+    }
+    public void onBallHitBorderLeft(Ball ball, BorderLeft border, ref Vector2 normal)
+    {
+        foreach (var relic in relics)
+            relic.onBallHitBorderLeft(this, ball, border, ref normal);
+    }
+    public void onBallHitBorderRight(Ball ball, BorderRight border, ref Vector2 normal)
+    {
+        foreach (var relic in relics)
+            relic.onBallHitBorderRight(this, ball, border, ref normal);
+    }
 
     public void onBallHitBrick(Ball ball, Brick brick, Vector2 normal, ref bool triggerRegularHit)
     {

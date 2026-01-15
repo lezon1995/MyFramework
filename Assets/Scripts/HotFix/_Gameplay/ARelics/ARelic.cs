@@ -500,6 +500,16 @@ namespace MarbleHero
         {
         }
 
+        public virtual void onBallHitBorderTop(APlayer p, Ball ball, BorderTop border, ref Vector2 normal)
+        {
+        }
+        public virtual void onBallHitBorderLeft(APlayer p, Ball ball, BorderLeft border, ref Vector2 normal)
+        {
+        }
+        public virtual void onBallHitBorderRight(APlayer p, Ball ball, BorderRight border, ref Vector2 normal)
+        {
+        }
+
         public virtual void onBallHitBrick(APlayer p, Ball ball, Brick brick, Vector2 normal, ref bool triggerRegularHit)
         {
         }
