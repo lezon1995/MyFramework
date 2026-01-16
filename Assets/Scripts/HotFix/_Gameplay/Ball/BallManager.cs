@@ -9,7 +9,7 @@ namespace MarbleHero;
 public class BallManager : FrameSystem
 {
     //key: gameObject.GetInstanceID()
-    protected Dictionary<int, Ball> activeBalls = new();//发射后运动中的Ball
+    public Dictionary<int, Ball> activeBalls = new();//发射后运动中的Ball
     protected Dictionary<int, Ball> inactiveBalls = new();//回到底板后待发射的Ball
     protected Dictionary<Type, Dictionary<long, Ball>> ballTypeList = new(); // 角色分类列表
     protected Dictionary<long, Ball> ballGUIDList = new(); // 角色ID索引表
@@ -159,7 +159,7 @@ public class BallManager : FrameSystem
         }
 
         var ball = pool.Get();
-        ball.setTeleportPosition(pos);
+        ball.setTeleportPosition(pos, BORDER_BOT_LAYER_MASK);
         ball.setRadius(radius);
         ball.setShootDirection(direction);
         ball.setSpeed(speed);
@@ -201,12 +201,6 @@ public class BallManager : FrameSystem
         var path = $"{GAMEPLAY_PATH}/Prefabs/Play/Ball_0.prefab";
         var o = mPrefabPoolManager.createObject(path, 0, false, true);
         ball.setObject(o);
-        ball.setTeleportPosition(pos);
-        ball.setRadius(radius);
-        ball.setShootDirection(direction);
-        ball.setSpeed(speed);
-        ball.setPhysicDamage(1, 1);
-        ball.setMagicDamage(1, 1);
         ball.setPlayer(player);
         ball.setEnabled(true);
 

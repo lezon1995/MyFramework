@@ -315,13 +315,17 @@ namespace MarbleHero
                     monsters?.update(dt);
                     if (waitTimer)
                     {
+                        effectManager.updateLogic(dt);
                         if (actionManager.currentAction || !actionManager.isEmpty())
                             actionManager.fixedUpdate(dt);
                     }
                     else
                     {
                         if (!ADungeon.isScreenUp)
+                        {
+                            effectManager.updateLogic(dt);
                             actionManager.fixedUpdate(dt);
+                        }
 
                         if (ADungeon.screen != CurrentScreen.HAND_SELECT)
                             player.combatFixedUpdate(dt);
@@ -330,7 +334,11 @@ namespace MarbleHero
                     break;
                 case RoomPhase.COMPLETE:
                     if (!ADungeon.isScreenUp)
+                    {
+                        effectManager.updateLogic(dt);
                         actionManager.fixedUpdate(dt);
+                    }
+
                     break;
                 case RoomPhase.INCOMPLETE:
                     break;
@@ -405,7 +413,7 @@ namespace MarbleHero
         {
             actionManager.turnHasEnded = true;
             if (!ADungeon.isScreenUp)
-                effectManager.addToTop<BattleStartEffect>();
+                effectManager.addRender<BattleStartEffect>();
 
             actionManager.addToBot<GainEnergyAndEnableControlsAction>().with(1);
             player.applyStartOfCombatPreDrawLogic();

@@ -8,19 +8,19 @@ public class GameEffectManager
     {
     }
 
-    public List<AGameEffect> topLevelEffects = new();
-    public List<AGameEffect> topLevelEffectsQueue = new();
-    public List<AGameEffect> effectList = new();
-    public List<AGameEffect> effectsQueue = new();
+    public List<ARenderEffect> renderEffects = new();
+    public List<ARenderEffect> renderEffectsQueue = new();
+    public List<ALogicEffect> logicEffects = new();
+    public List<ALogicEffect> logicEffectsQueue = new();
 
-    protected void updateTopLevelEffects(float dt)
+    protected void updateRenderEffects(float dt)
     {
-        for (var i = 0; i < topLevelEffects.Count;)
+        for (var i = 0; i < renderEffects.Count;)
         {
-            var e = topLevelEffects[i];
+            var e = renderEffects[i];
             if (e.update(dt))
             {
-                topLevelEffects.RemoveAt(i);
+                renderEffects.RemoveAt(i);
                 UN_CLASS(e);
             }
             else
@@ -28,26 +28,26 @@ public class GameEffectManager
         }
     }
 
-    protected void clearTopLevelEffects()
+    protected void clearRenderEffects()
     {
-        for (var i = topLevelEffects.Count - 1; i >= 0; i--)
+        for (var i = renderEffects.Count - 1; i >= 0; i--)
         {
-            var e = topLevelEffects[i];
-            topLevelEffects.RemoveAt(i);
+            var e = renderEffects[i];
+            renderEffects.RemoveAt(i);
             UN_CLASS(e);
         }
 
-        topLevelEffectsQueue.Clear();
+        renderEffectsQueue.Clear();
     }
 
-    protected void updateEffects(float dt)
+    protected void updateLogicEffects(float dt)
     {
-        for (var i = 0; i < effectList.Count;)
+        for (var i = 0; i < logicEffects.Count;)
         {
-            var e = effectList[i];
+            var e = logicEffects[i];
             if (e.update(dt))
             {
-                effectList.RemoveAt(i);
+                logicEffects.RemoveAt(i);
                 UN_CLASS(e);
             }
             else
@@ -55,55 +55,51 @@ public class GameEffectManager
         }
     }
 
-    protected void clearEffects()
+    protected void clearLogicEffects()
     {
-        for (var i = effectList.Count - 1; i >= 0; i--)
+        for (var i = logicEffects.Count - 1; i >= 0; i--)
         {
-            var e = effectList[i];
-            effectList.RemoveAt(i);
+            var e = logicEffects[i];
+            logicEffects.RemoveAt(i);
             UN_CLASS(e);
         }
 
-        effectsQueue.Clear();
+        logicEffectsQueue.Clear();
     }
 
-    public void update(float dt)
+    public void updateRender(float dt)
     {
-        updateTopLevelEffects(dt);
-        updateEffects(dt);
+        updateRenderEffects(dt);
 
-        effectList.AddRange(effectsQueue);
-        effectsQueue.Clear();
+        renderEffects.AddRange(renderEffectsQueue);
+        renderEffectsQueue.Clear();
+    }
 
-        topLevelEffects.AddRange(topLevelEffectsQueue);
-        topLevelEffectsQueue.Clear();
+    public void updateLogic(float dt)
+    {
+        updateLogicEffects(dt);
+        
+        logicEffects.AddRange(logicEffectsQueue);
+        logicEffectsQueue.Clear();
     }
     
-    public void addToTop(AGameEffect effect)
+    public T addRender<T>() where T : ARenderEffect
     {
-        topLevelEffects.Add(effect);
+        var effect = CLASS<ARenderEffect>(typeof(T));
+        renderEffects.Add(effect);
+        return effect as T;
     }
 
-    public void add(AGameEffect effect)
+    public T addLogic<T>() where T : ALogicEffect
     {
-        effectList.Add(effect);
-    } 
-    
-    public void addToTop<T>() where T : AGameEffect
-    {
-        var effect = CLASS<AGameEffect>(typeof(T));
-        topLevelEffects.Add(effect);
-    }
-
-    public void add<T>() where T : AGameEffect
-    {
-        var effect = CLASS<AGameEffect>(typeof(T));
-        effectList.Add(effect);
+        var effect = CLASS<ALogicEffect>(typeof(T));
+        logicEffects.Add(effect);
+        return effect as T;
     }
 
     public void clear()
     {
-        clearEffects();
-        clearTopLevelEffects();
+        clearLogicEffects();
+        clearRenderEffects();
     }
 }

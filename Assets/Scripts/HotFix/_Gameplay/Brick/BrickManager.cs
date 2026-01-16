@@ -131,6 +131,33 @@ public class BrickManager : FrameSystem
         randomBrick = list.get(randomIndex);
         return randomBrick != null;
     }
+    
+    public bool getRandomActiveBrick(out Brick randomBrick, List<Brick> excepts, Vector2 excludeCenter, float excludeRange = 0F)
+    {
+        using var _ = new ListScope<Brick>(out var list);
+        list.addRange(activeBricks.Values);
+        if (excepts.count() > 0)
+        {
+            foreach (var except in excepts)
+                list.Remove(except);
+        }
+        
+        if (excludeRange > 0F)
+        {
+            for (var i = list.Count - 1; i >= 0; i--)
+            {
+                Vector2 pos = list[i].getWorldPosition();
+                if ((excludeCenter - pos).sqrMagnitude <= excludeRange * excludeRange)
+                {
+                    list.RemoveAt(i);
+                }
+            }
+        }
+
+        var randomIndex = randomInt(0, list.Count - 1);
+        randomBrick = list.get(randomIndex);
+        return randomBrick != null;
+    }
 
     public bool getRandomActiveBricks(ref List<Brick> randomBricks, int count, Brick except = null)
     {

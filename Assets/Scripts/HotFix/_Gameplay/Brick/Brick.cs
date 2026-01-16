@@ -306,7 +306,7 @@ public partial class Brick : MovableObject, IDamageable<Ball>, IReusable
         {
             dmg.setDirection(direction);
 
-            if (dmg.damageDealt > 1)
+            if (dmg.damageDealt > 0)
             {
                 new DmgTextEvent(dmg, getTransform()).trigger();
             }

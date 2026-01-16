@@ -113,7 +113,7 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
         onDead = null;
         // comparison = null; 不重置
         // buffs = null; 不重置
-        UN_CLASS_LIST(powers);
+        removeAllPowers(); // 移除所有powers
         prePos = curPos = targetPos = Vector2.zero;
 
         movementDelta = 0;
@@ -162,7 +162,7 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
         lastDirection = default;
         enabled = false;
         hasBeenCollided = false;
-        UN_CLASS_LIST(powers);
+        removeAllPowers();
 
         maxHealth = 0;
         minPhysicDamage = maxPhysicDamage = 0;
@@ -610,7 +610,36 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
     public T addPower<T>() where T : BallPower
     {
         var power = CLASS<BallPower>(typeof(T));
+        power.with(this);
         powers.add(power);
+        power.onGainPower(this);
         return power as T;
+    }
+
+    public void removeAllPowers()
+    {
+        for (var i = powers.Count - 1; i >= 0; i--)
+        {
+            var power = powers[i];
+            power.onLosePower(this);
+            powers.removeAt(i);
+            UN_CLASS(power);
+        }
+    }
+    
+    public bool removePower<T>() where T : BallPower
+    {
+        for (var i = powers.Count - 1; i >= 0; i--)
+        {
+            if (powers[i] is T power)
+            {
+                power.onLosePower(this);
+                powers.removeAt(i);
+                UN_CLASS(power);
+                return true;
+            }
+        }
+
+        return false;
     }
 }

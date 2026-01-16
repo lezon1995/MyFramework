@@ -15,7 +15,7 @@
     {
         public override void update(float dt)
         {
-            effectManager.addToTop<PlayerTurnEffect>();
+            effectManager.addRender<PlayerTurnEffect>();
             // player.energy.recharge();
             isDone = true;
         }
@@ -48,7 +48,7 @@
         public override void update(float dt)
         {
             if (!room.skipMonsterTurn)
-                effectManager.addToTop<EnemyTurnEffect>();
+                effectManager.addRender<EnemyTurnEffect>();
             isDone = true;
         }
     }

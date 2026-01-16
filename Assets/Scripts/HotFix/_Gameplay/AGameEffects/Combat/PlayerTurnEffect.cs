@@ -1,33 +1,32 @@
-﻿namespace MarbleHero
+﻿namespace MarbleHero;
+
+public class PlayerTurnEffect : ARenderEffect
 {
-    public class PlayerTurnEffect : AGameEffect
+    const float DUR = 2.0F;
+    string turnMessage;
+
+    public override void onCreate()
     {
-        const float DUR = 2.0F;
-        string turnMessage;
-
-        public override void onCreate()
+        duration = DUR;
+        if (Settings.usesOrdinal)
         {
-            duration = DUR;
-            if (Settings.usesOrdinal)
-            {
-                // turnMessage = GameActionManager.turn + getOrdinalNaming(GameActionManager.turn) + BattleStartEffect.TURN_TXT;
-            }
-            else if (Settings.language == GameLanguage.VIE)
-            {
-                // turnMessage = BattleStartEffect.TURN_TXT + " " + GameActionManager.turn;
-            }
-            else
-            {
-                // turnMessage = GameActionManager.turn + BattleStartEffect.TURN_TXT;
-            }
-
-            sound.play("TURN_EFFECT");
-            monsters.showIntent();
+            // turnMessage = GameActionManager.turn + getOrdinalNaming(GameActionManager.turn) + BattleStartEffect.TURN_TXT;
+        }
+        else if (Settings.language == GameLanguage.VIE)
+        {
+            // turnMessage = BattleStartEffect.TURN_TXT + " " + GameActionManager.turn;
+        }
+        else
+        {
+            // turnMessage = GameActionManager.turn + BattleStartEffect.TURN_TXT;
         }
 
-        public override bool update(float dt)
-        {
-            return base.update(dt);
-        }
+        sound.play("TURN_EFFECT");
+        monsters.showIntent();
+    }
+
+    public override bool update(float dt)
+    {
+        return base.update(dt);
     }
 }

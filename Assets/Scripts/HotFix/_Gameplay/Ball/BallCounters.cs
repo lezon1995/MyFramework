@@ -1,4 +1,6 @@
-﻿namespace MarbleHero;
+﻿using System.Collections.Generic;
+
+namespace MarbleHero;
 
 public class BallCounters : ClassObject
 {
@@ -21,18 +23,35 @@ public class BallCounters : ClassObject
     }
 }
 
-public class HitCounter : Counter
+
+
+public abstract class BallCounter : Counter
+{
+    public List<CounterTrigger> triggers = new();
+
+    public void addTrigger(CounterTrigger trigger)
+    {
+        triggers.Add(trigger);
+    }
+}
+
+public class HitCounter : BallCounter
 {
     public static HitCounter global = new();
 
     public override bool count(int delta = 1)
     {
         global.internalCount(delta);
-        return base.count(delta);
+        base.count(delta);
+        foreach (var trigger in triggers)
+        {
+            trigger.count(delta);
+        }
+        return true;
     }
 }
 
-public class CritHitCounter : Counter
+public class CritHitCounter : BallCounter
 {
     public static CritHitCounter global = new();
 
@@ -43,7 +62,7 @@ public class CritHitCounter : Counter
     }
 }
 
-public class ReflectCounter : Counter
+public class ReflectCounter : BallCounter
 {
     public static ReflectCounter global = new();
 
@@ -54,7 +73,7 @@ public class ReflectCounter : Counter
     }
 }
 
-public class PenetrateBrickCounter : Counter
+public class PenetrateBrickCounter : BallCounter
 {
     public static PenetrateBrickCounter global = new();
 
@@ -65,9 +84,20 @@ public class PenetrateBrickCounter : Counter
     }
 }
 
-public class HitBrickCounter : Counter
+public class HitBrickCounter : BallCounter
 {
     public static HitBrickCounter global = new();
+
+    public void count(Brick b)
+    {
+        foreach (var t in triggers)
+        {
+            if (t.triggerAction is ITriggerAction<Brick> action)
+            {
+                action.trigger(b);
+            }
+        }
+    }
 
     public override bool count(int delta = 1)
     {
@@ -76,7 +106,7 @@ public class HitBrickCounter : Counter
     }
 }
 
-public class KillBrickCounter : Counter
+public class KillBrickCounter : BallCounter
 {
     public static KillBrickCounter global = new();
 

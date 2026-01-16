@@ -345,7 +345,7 @@ namespace MarbleHero
             }
 
             turnPhaseEffectActive = false;
-            effectManager.update(dt);
+            effectManager.updateRender(dt);
             overlayMenu.update(dt);
             cardInstanceIdGenerator = 0;
         }

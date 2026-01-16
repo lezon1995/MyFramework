@@ -1,21 +1,17 @@
-﻿using Drawing;
-using UnityEngine;
+﻿namespace MarbleHero;
 
-namespace MarbleHero
+public class BattleStartEffect : ARenderEffect
 {
-    public class BattleStartEffect : AGameEffect
+    const float maxDuration = 4.0F;
+
+    public override void onCreate()
     {
-        const float maxDuration = 4.0F;
+        base.onCreate();
+        duration = maxDuration;
+    }
 
-        public override void onCreate()
-        {
-            base.onCreate();
-            duration = maxDuration;
-        }
-
-        public override bool update(float dt)
-        {
-            return base.update(dt);
-        }
+    public override bool update(float dt)
+    {
+        return base.update(dt);
     }
 }
