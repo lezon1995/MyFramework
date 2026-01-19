@@ -1,24 +1,26 @@
 ﻿namespace MarbleHero;
 
 /// <summary>
-/// 球撞击X次触发ElectricChain
+/// 球撞击{0}次触发{1}次Effect
 /// </summary>
-public class BallHitTriggerElectricChainPower : BallPower, ITriggerAction<Brick>
+public class BallHitBrickCountEffectPower : BallPower
 {
     public override void onGainPower(Ball ball)
     {
         var trigger = CLASS<CounterTrigger>();
         trigger.setGap(4);
-        trigger.setTriggerAction(this);
-        ball.counters.hitBrick.addTrigger(trigger);
     }
 
     public override void onLosePower(Ball ball)
     {
     }
+    
+    public override void onHitBrick(Brick brick)
+    {
+    }
 
     public void trigger(Brick b)
     {
-        effectManager.addLogic<ElectricChain>().with(owner, b, 3);
+        effectManager.addLogic<ElectricChainEffect>().with(owner, b, 3);
     }
 }

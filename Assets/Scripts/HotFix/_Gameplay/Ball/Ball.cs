@@ -114,6 +114,7 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
         // comparison = null; 不重置
         // buffs = null; 不重置
         removeAllPowers(); // 移除所有powers
+        powers.Clear();
         prePos = curPos = targetPos = Vector2.zero;
 
         movementDelta = 0;
@@ -529,9 +530,8 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
         return actualDamage > 0;
     }
 
-    public void damage(Dmg dmg, GameObject instigator, Brick source, out bool killed, float invincibleTime = 0, Vector3 direction = default, IDmgCalculator calculator = null)
+    public void damage(ref Dmg dmg, GameObject instigator, Brick source, float invincibleTime = 0F, Vector3 direction = default, IDmgCalculator calculator = null)
     {
-        killed = false;
         if (!canTakeDamageThisFrame(out _))
             return;
 

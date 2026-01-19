@@ -294,9 +294,8 @@ public partial class Brick : MovableObject, IDamageable<Ball>, IReusable
         return actualDamage > 0;
     }
 
-    public virtual void damage(Dmg dmg, GameObject instigator, Ball source, out bool killed, float invincibleTime = 0, Vector3 direction = default, IDmgCalculator calculator = null)
+    public virtual void damage(ref Dmg dmg, GameObject instigator, Ball source, float invincibleTime = 0F, Vector3 direction = default, IDmgCalculator calculator = null)
     {
-        killed = false;
         if (!canTakeDamageThisFrame(out _))
             return;
 
@@ -396,7 +395,7 @@ public partial class Brick : MovableObject, IDamageable<Ball>, IReusable
                 }
 
                 kill();
-                killed = true;
+                dmg.isLethal = true;
             }
         }
     }

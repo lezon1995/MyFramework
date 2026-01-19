@@ -42,13 +42,9 @@ public partial class Ball : IEventRouter
             var dmg = ball.getHitDmg(brick, normal);
             brick.onHitEnter(ball, normal);
             ball.onHitEnter(brick, normal, out var triggerRegularHit);
-            gameplayManager.handleHitDamage(ball, brick, ref dmg, out var killed);
+            gameplayManager.handleHitDamage(ball, brick, ref dmg);
 
             collidingBrick = brick;
-            if (killed)
-            {
-                counters.killBrick.count();
-            }
 
             if (triggerRegularHit)
             {
@@ -67,6 +63,9 @@ public partial class Ball : IEventRouter
     protected virtual bool onHitEnter(Brick brick, Vector2 normal, out bool triggerRegularHit)
     {
         triggerRegularHit = true;
+        foreach (var p in powers)
+            p.onHitBrick(brick);
+
         player.onBallHitBrick(this, brick, normal, ref triggerRegularHit);
         return true;
     }
@@ -127,6 +126,30 @@ public partial class Ball : IEventRouter
             reflectBounce(normal);
         }
 
+        return true;
+    }
+
+    public virtual bool onCritHit(Brick brick)
+    {
+        counters.critHit.count();
+        return true;
+    }
+
+    public virtual bool onCritSkill(Brick brick)
+    {
+        counters.critSkill.count();
+        return true;
+    }
+
+    public virtual bool onHitKill(Brick brick)
+    {
+        counters.hitKill.count();
+        return true;
+    }
+
+    public virtual bool onSkillKill(Brick brick)
+    {
+        counters.skillKill.count();
         return true;
     }
 

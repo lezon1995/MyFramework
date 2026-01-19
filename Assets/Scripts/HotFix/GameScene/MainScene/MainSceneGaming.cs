@@ -95,7 +95,7 @@ public class MainSceneGaming : SceneProcedure
         if (isKeyCurrentDown(KeyCode.Keypad6))
         {
             brickManager.getRandomActiveBrick(out var b);
-            effectManager.addLogic<ElectricChain>().with(player.activeBalls.get(0), b, 3);
+            effectManager.addLogic<ElectricChainEffect>().with(player.activeBalls.get(0), b, 3);
         }
 
         if (isKeyCurrentDown(KeyCode.R))

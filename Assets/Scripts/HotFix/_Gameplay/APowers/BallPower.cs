@@ -31,4 +31,7 @@ public class BallPower : APower, IArgs<Ball>
     {
     }
 
+    public virtual void onHitBrick(Brick brick)
+    {
+    }
 }

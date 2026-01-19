@@ -1,7 +1,20 @@
 ﻿namespace MarbleHero;
 
-public class CreaturePower : APower
+public class CreaturePower : APower, IArgs<ACreature>
 {
+    protected ACreature owner;
+    
+    public void onCreate(ACreature ball)
+    {
+        owner = ball;
+    }
+
+    public override void resetProperty()
+    {
+        base.resetProperty();
+        owner = null;
+    }
+
     public virtual int onPlayerGainedBlock(float blockAmount)
     {
         return floor(blockAmount);

@@ -24,19 +24,19 @@ public class GameplayManager : FrameSystem
         base.destroy();
     }
 
-    public void handleHitDamage(Ball ball, Brick brick, ref Dmg dmg, out bool killed)
+    public void handleHitDamage(Ball ball, Brick brick, ref Dmg dmg)
     {
-        killed = false;
         if (brick.canTakeDamageThisFrame(out var resistType))
         {
             foreach (var p in ball.powers)
                 p.onBeforeHandleHitDamage(ball, brick, ref dmg);
 
-            brick.damage(dmg, ball.getObject(), ball, out killed, 0F, ball.getDirection(), dmgCalculator);
+            brick.damage(ref dmg, ball.getObject(), ball, 0F, ball.getDirection(), dmgCalculator);
             if (dmg.isCrit)
-            {
-                ball.counters.critHit.count();
-            }
+                ball.onCritHit(brick);
+            
+            if (dmg.isLethal)
+                ball.onHitKill(brick);
         }
         else
         {
@@ -64,19 +64,24 @@ public class GameplayManager : FrameSystem
         if (ball.getSelfDamage(brick, out var selfDamage))
         {
             var selfDmg = Dmg.trueDmg(selfDamage).setSelf();
-            ball.damage(selfDmg, ball.getObject(), brick, out _);
+            ball.damage(ref selfDmg, ball.getObject(), brick);
         }
     }
 
-    public void handleSkillDamage(Ball ball, Brick brick, ref Dmg dmg, out bool killed)
+    public void handleSkillDamage(Ball ball, Brick brick, ref Dmg dmg)
     {
-        killed = false;
         if (brick.canTakeDamageThisFrame(out var resistType))
         {
             foreach (var p in ball.powers)
                 p.onBeforeHandleSkillDamage(ball, brick, ref dmg);
             
-            brick.damage(dmg, ball.getObject(), ball, out killed, 0F, ball.getDirection(), dmgCalculator);
+            brick.damage(ref dmg, ball.getObject(), ball, 0F, ball.getDirection(), dmgCalculator);
+            
+            if (dmg.isCrit)
+                ball.onCritHit(brick);
+            
+            if (dmg.isLethal)
+                ball.onSkillKill(brick);
         }
         else
         {
@@ -104,7 +109,7 @@ public class GameplayManager : FrameSystem
         if (ball.getSelfDamage(brick, out var selfDamage))
         {
             var selfDmg = Dmg.trueDmg(selfDamage).setSelf();
-            ball.damage(selfDmg, ball.getObject(), brick, out _);
+            ball.damage(ref selfDmg, ball.getObject(), brick);
         }
     }
 

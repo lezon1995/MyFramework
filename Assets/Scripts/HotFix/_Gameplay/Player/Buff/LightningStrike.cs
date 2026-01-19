@@ -26,7 +26,7 @@
 //             if (brickManager.getRandomActiveBrick(out var randomBrick, brick))
 //             {
 //                 var dmg = ball.getAbilityDmg(randomBrick);
-//                 gameplayManager.handleAbilityDamage(ball, randomBrick, dmg, out var killed);
+//                 gameplayManager.handleAbilityDamage(ball, randomBrick, dmg);
 //             }
 //         }
 //     }

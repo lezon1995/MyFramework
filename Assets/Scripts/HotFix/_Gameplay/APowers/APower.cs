@@ -19,7 +19,6 @@ public abstract class APower : ClassObject, IComparable<APower>
     protected float fontScale = 1.0F;
 
     List<AGameEffect> effect = new();
-    public ACreature owner;
     public string name;
     public string description;
     public string ID;
@@ -37,7 +36,6 @@ public abstract class APower : ClassObject, IComparable<APower>
         
         fontScale = 0;
         UN_CLASS_LIST(effect);
-        owner = null;
         name = null;
         description = null;
         ID = null;

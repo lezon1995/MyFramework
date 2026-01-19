@@ -1,14 +1,14 @@
-﻿using System.Collections.Generic;
-
-namespace MarbleHero;
+﻿namespace MarbleHero;
 
 public class BallCounters : ClassObject
 {
     public HitCounter hit = new();
     public ReflectCounter reflect = new();
     public CritHitCounter critHit = new();
+    public CritSkillCounter critSkill = new();
     public HitBrickCounter hitBrick = new();
-    public KillBrickCounter killBrick = new();
+    public HitKillCounter hitKill = new();
+    public SkillKillCounter skillKill = new();
     public PenetrateBrickCounter penetrateBrick = new();
 
     public override void resetProperty()
@@ -17,8 +17,10 @@ public class BallCounters : ClassObject
         hit.reset();
         reflect.reset();
         critHit.reset();
+        critSkill.reset();
         hitBrick.reset();
-        killBrick.reset();
+        hitKill.reset();
+        skillKill.reset();
         penetrateBrick.reset();
     }
 }
@@ -27,33 +29,26 @@ public class BallCounters : ClassObject
 
 public abstract class BallCounter : Counter
 {
-    public List<CounterTrigger> triggers = new();
-
-    public void addTrigger(CounterTrigger trigger)
-    {
-        triggers.Add(trigger);
-    }
 }
 
 public class HitCounter : BallCounter
 {
     public static HitCounter global = new();
-
-    public override bool count(int delta = 1)
-    {
-        global.internalCount(delta);
-        base.count(delta);
-        foreach (var trigger in triggers)
-        {
-            trigger.count(delta);
-        }
-        return true;
-    }
 }
 
 public class CritHitCounter : BallCounter
 {
     public static CritHitCounter global = new();
+
+    public override bool count(int delta = 1)
+    {
+        global.internalCount(delta);
+        return base.count(delta);
+    }
+}
+public class CritSkillCounter : BallCounter
+{
+    public static CritSkillCounter global = new();
 
     public override bool count(int delta = 1)
     {
@@ -88,17 +83,6 @@ public class HitBrickCounter : BallCounter
 {
     public static HitBrickCounter global = new();
 
-    public void count(Brick b)
-    {
-        foreach (var t in triggers)
-        {
-            if (t.triggerAction is ITriggerAction<Brick> action)
-            {
-                action.trigger(b);
-            }
-        }
-    }
-
     public override bool count(int delta = 1)
     {
         global.internalCount(delta);
@@ -106,9 +90,19 @@ public class HitBrickCounter : BallCounter
     }
 }
 
-public class KillBrickCounter : BallCounter
+public class HitKillCounter : BallCounter
 {
-    public static KillBrickCounter global = new();
+    public static HitKillCounter global = new();
+
+    public override bool count(int delta = 1)
+    {
+        global.internalCount(delta);
+        return base.count(delta);
+    }
+}
+public class SkillKillCounter : BallCounter
+{
+    public static SkillKillCounter global = new();
 
     public override bool count(int delta = 1)
     {

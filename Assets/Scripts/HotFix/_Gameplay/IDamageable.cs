@@ -29,6 +29,7 @@ public struct Dmg
     public float damageRaw;
     public int damageDealt;
     public bool triggerEffect;
+    public bool isLethal;
     public Vector3 direction;
     public Vector2 hitNormal;
 
@@ -53,6 +54,7 @@ public struct Dmg
         direction = Vector3.zero;
         hitNormal = Vector2.zero;
         isSelf = false;
+        isLethal = false;
         mix = default;
     }
 
@@ -71,6 +73,7 @@ public struct Dmg
         direction = Vector3.zero;
         hitNormal = Vector2.zero;
         isSelf = false;
+        isLethal = false;
         mix = default;
     }
 
@@ -251,7 +254,7 @@ public interface IReusable
 public interface IDamageable<in Attacker>
 {
     bool canTakeDamageThisFrame(out ResistDamageType resistType);
-    void damage(Dmg dmg, GameObject instigator, Attacker source, out bool killed, float invincibleTime = 0F, Vector3 direction = default, IDmgCalculator calculator = null);
+    void damage(ref Dmg dmg, GameObject instigator, Attacker source, float invincibleTime = 0F, Vector3 direction = default, IDmgCalculator calculator = null);
     bool kill();
     bool isDead();
 }

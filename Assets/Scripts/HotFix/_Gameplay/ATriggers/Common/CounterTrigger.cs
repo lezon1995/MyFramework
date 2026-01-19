@@ -12,7 +12,7 @@ public class CounterTrigger : ATrigger
 
     public void count(int delta)
     {
-        elapsed+=delta;
+        elapsed += delta;
         if (elapsed>=gap)
         {
             
