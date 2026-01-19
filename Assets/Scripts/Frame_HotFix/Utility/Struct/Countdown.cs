@@ -1,4 +1,4 @@
-﻿public struct TimerInt
+﻿public struct Countdown
 {
     public int duration;
     public int elapsed;
@@ -37,14 +37,14 @@
         finished = false;
     }
 
-    public static implicit operator bool(TimerInt timer)
+    public static implicit operator bool(Countdown timer)
     {
         return timer.duration > 0 && timer.elapsed < timer.duration;
     }
 
-    public static implicit operator int(TimerInt timer) => timer.remain;
+    public static implicit operator int(Countdown timer) => timer.remain;
 
-    public static implicit operator TimerInt(int duration) => new()
+    public static implicit operator Countdown(int duration) => new()
     {
         duration = duration,
         elapsed = 0,

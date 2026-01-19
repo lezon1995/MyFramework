@@ -315,7 +315,7 @@ namespace MarbleHero
                     monsters?.update(dt);
                     if (waitTimer)
                     {
-                        effectManager.updateLogic(dt);
+                        effectManager.fixedUpdateLogic(dt);
                         if (actionManager.currentAction || !actionManager.isEmpty())
                             actionManager.fixedUpdate(dt);
                     }
@@ -323,7 +323,7 @@ namespace MarbleHero
                     {
                         if (!ADungeon.isScreenUp)
                         {
-                            effectManager.updateLogic(dt);
+                            effectManager.fixedUpdateLogic(dt);
                             actionManager.fixedUpdate(dt);
                         }
 
@@ -335,7 +335,7 @@ namespace MarbleHero
                 case RoomPhase.COMPLETE:
                     if (!ADungeon.isScreenUp)
                     {
-                        effectManager.updateLogic(dt);
+                        effectManager.fixedUpdateLogic(dt);
                         actionManager.fixedUpdate(dt);
                     }
 

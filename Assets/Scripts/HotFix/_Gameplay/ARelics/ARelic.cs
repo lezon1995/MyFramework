@@ -517,5 +517,9 @@ namespace MarbleHero
         public virtual void onBallReflect(APlayer p, Ball ball, Vector2 normal, bool fromBrick, ref Vector2 reflectDir)
         {
         }
+
+        public virtual void onBallKillBrick(APlayer p, Ball ball, Brick brick)
+        {
+        }
     }
 }

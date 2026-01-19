@@ -10,14 +10,16 @@ namespace MarbleHero;
 /// </summary>
 public class ElectricChainEffect : ALogicEffect, IArgs<Ball, Brick, int>
 {
-    const string path = $"{GAMEPLAY_PATH}/Prefabs/FxParticle/FxElectricChain.prefab";
-    const float GAP = 0.15F;
-    const float AFTER_DURATION = 1F;
-    Ball ball;
-    List<Brick> history = new();
-    TimerInt count;
-    bool lastOne;
-    List<GameObject> list = new();
+    protected const string path = $"{GAMEPLAY_PATH}/Prefabs/FxParticle/FxElectricChain.prefab";
+    protected const float GAP = 0.15F;
+    protected const float AFTER_DURATION = 1F;
+
+    protected List<GameObject> list = new();
+    protected List<Brick> history = new();
+    protected Ball ball;
+
+    protected Countdown count;
+    protected bool lastOne;
 
     public void onCreate(Ball b1, Brick b2, int c)
     {
@@ -42,7 +44,7 @@ public class ElectricChainEffect : ALogicEffect, IArgs<Ball, Brick, int>
         }
     }
 
-    public override bool update(float dt)
+    public override bool fixedUpdate(float dt)
     {
         if (ball == null)
             return true;
@@ -82,7 +84,7 @@ public class ElectricChainEffect : ALogicEffect, IArgs<Ball, Brick, int>
             }
         }
 
-        base.update(dt);
+        base.fixedUpdate(dt);
         if (isDone && !lastOne)
         {
             duration.reset();
@@ -92,3 +94,8 @@ public class ElectricChainEffect : ALogicEffect, IArgs<Ball, Brick, int>
         return isDone;
     }
 }
+
+public class MovingElectricChainEffect : ElectricChainEffect
+{
+    
+} 

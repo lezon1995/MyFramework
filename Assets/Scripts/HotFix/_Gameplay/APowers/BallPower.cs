@@ -34,4 +34,8 @@ public class BallPower : APower, IArgs<Ball>
     public virtual void onHitBrick(Brick brick)
     {
     }
+
+    public virtual void onHitBorder(Border border)
+    {
+    }
 }

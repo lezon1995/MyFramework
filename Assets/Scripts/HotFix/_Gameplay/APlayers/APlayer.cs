@@ -176,7 +176,7 @@ public abstract partial class APlayer : ACreature
 
     protected void initializeStarterRelics(PlayerClass chosenClass)
     {
-        List<string> relics = getStartingRelics();
+        var relics = getStartingRelics();
         if (ModHelper.isModEnabled("Cursed Run"))
         {
             relics.Clear();
@@ -648,5 +648,11 @@ public abstract partial class APlayer : ACreature
     {
         foreach (var relic in relics)
             relic.onBallReflect(this, ball, normal, fromBrick, ref reflectDir);
+    }
+
+    public void onBallKillBrick(Ball ball, Brick brick)
+    {
+        foreach (var relic in relics)
+            relic.onBallKillBrick(this, ball, brick);
     }
 }

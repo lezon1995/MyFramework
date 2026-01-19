@@ -31,8 +31,8 @@ namespace MarbleHero
     public abstract class ALogicEffect : AGameEffect
     {
         public override bool isLogic => true;
-        
-        public override bool update(float dt)
+
+        public virtual bool fixedUpdate(float dt)
         {
             duration.update(dt);
             if (duration.isDone)
@@ -40,6 +40,11 @@ namespace MarbleHero
                 isDone = true;
             }
 
+            return isDone;
+        }
+        
+        public override bool update(float dt)
+        {
             return isDone;
         }
     }

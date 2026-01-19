@@ -6,7 +6,7 @@ using UnityEngine;
 namespace MarbleHero;
 
 [Serializable]
-public partial class Brick : MovableObject, IDamageable<Ball>, IReusable
+public partial class Brick : MovableObject, IDamageable<Ball>, IHittable, IReusable
 {
     protected BrickManager manager;
     public int instanceID;

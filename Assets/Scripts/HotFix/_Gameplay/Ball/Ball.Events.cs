@@ -38,6 +38,7 @@ public partial class Ball : IEventRouter
         hasBeenCollided = true;
         if (brickManager.getActiveBrick(c.gameObject.GetInstanceID(), out var brick))
         {
+            lastHittable = brick;
             var ball = this;
             var dmg = ball.getHitDmg(brick, normal);
             brick.onHitEnter(ball, normal);
@@ -72,6 +73,10 @@ public partial class Ball : IEventRouter
 
     protected virtual bool onHitEnter(BorderTop border, Vector2 normal)
     {
+        lastHittable = border;
+        foreach (var p in powers)
+            p.onHitBorder(border);
+
         player.onBallHitBorderTop(this, border, ref normal);
         counters.hit.count();
         hasBeenCollided = true;
@@ -81,9 +86,18 @@ public partial class Ball : IEventRouter
 
     protected virtual bool onHitEnter(BorderBot border, Vector2 normal)
     {
+        lastHittable = border;
         bool forceReturn = true;
         player.onBallHitBorderBot(this, border, normal, ref forceReturn);
-        if (hasBeenCollided && forceReturn)
+        if (forceReturn == false)
+        {
+            foreach (var p in powers)
+                p.onHitBorder(border);
+
+            counters.hit.count();
+            reflectBounce(normal);
+        }
+        else if (hasBeenCollided)
         {
             player.setBallReturn(this);
         }
@@ -93,6 +107,10 @@ public partial class Ball : IEventRouter
 
     protected virtual bool onHitEnter(BorderLeft border, Vector2 normal)
     {
+        lastHittable = border;
+        foreach (var p in powers)
+            p.onHitBorder(border);
+
         counters.hit.count();
         hasBeenCollided = true;
         if (horizontalBorderTeleportable)
@@ -112,6 +130,10 @@ public partial class Ball : IEventRouter
 
     protected virtual bool onHitEnter(BorderRight border, Vector2 normal)
     {
+        lastHittable = border;
+        foreach (var p in powers)
+            p.onHitBorder(border);
+
         counters.hit.count();
         hasBeenCollided = true;
         if (horizontalBorderTeleportable)
@@ -141,14 +163,22 @@ public partial class Ball : IEventRouter
         return true;
     }
 
+    protected virtual bool onKill(Brick brick)
+    {
+        player.onBallKillBrick(this, brick);
+        return true;
+    }
+
     public virtual bool onHitKill(Brick brick)
     {
+        onKill(brick);
         counters.hitKill.count();
         return true;
     }
 
     public virtual bool onSkillKill(Brick brick)
     {
+        onKill(brick);
         counters.skillKill.count();
         return true;
     }

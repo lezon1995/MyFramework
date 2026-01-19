@@ -40,18 +40,27 @@ public class GameEffectManager
         renderEffectsQueue.Clear();
     }
 
-    protected void updateLogicEffects(float dt)
+    protected void fixedUpdateLogicEffects(float dt)
     {
         for (var i = 0; i < logicEffects.Count;)
         {
             var e = logicEffects[i];
-            if (e.update(dt))
+            if (e.fixedUpdate(dt))
             {
                 logicEffects.RemoveAt(i);
                 UN_CLASS(e);
             }
             else
                 i++;
+        }
+    }
+
+    protected void updateLogicEffects(float dt)
+    {
+        for (var i = 0; i < logicEffects.Count; i++)
+        {
+            var e = logicEffects[i];
+            e.update(dt);
         }
     }
 
@@ -70,14 +79,15 @@ public class GameEffectManager
     public void updateRender(float dt)
     {
         updateRenderEffects(dt);
+        updateLogicEffects(dt);
 
         renderEffects.AddRange(renderEffectsQueue);
         renderEffectsQueue.Clear();
     }
 
-    public void updateLogic(float dt)
+    public void fixedUpdateLogic(float dt)
     {
-        updateLogicEffects(dt);
+        fixedUpdateLogicEffects(dt);
         
         logicEffects.AddRange(logicEffectsQueue);
         logicEffectsQueue.Clear();

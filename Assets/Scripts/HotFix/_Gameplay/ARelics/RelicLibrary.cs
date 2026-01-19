@@ -201,6 +201,11 @@ namespace MarbleHero
             // addGreen(new ToughBandages());
             // addGreen(new TwistedFunnel());
             // addGreen(new WristBlade());
+            
+            addRed(new RoundBattery());
+            addRed(new UnstableBattery());
+            addRed(new ExtremelyUnstableBattery());
+
             // addRed(new BlackBlood());
             // addRed(new Brimstone());
             // addRed(new BurningBlood());

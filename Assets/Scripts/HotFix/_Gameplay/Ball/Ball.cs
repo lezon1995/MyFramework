@@ -71,6 +71,7 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
     float lastRadius;
     bool enabled;
     bool hasBeenCollided;
+    public IHittable lastHittable;
     public bool isOverlappingBrick;
 
     public void setOnDead(Action<Ball> action) => onDead = action;
@@ -127,6 +128,7 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
         hitCollider = null;
         ballRenderer = null;
         trailRenderer = null;
+        lastHittable = null;
         lastRadius = 0;
         lastDirection = default;
         enabled = false;
@@ -155,6 +157,7 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
 
     public void onRelease()
     {
+        lastHittable = null;
         prePos = curPos = targetPos = Vector2.zero;
         movementDelta = 0;
         direction = Vector2.zero;

@@ -2,7 +2,7 @@
 
 namespace MarbleHero;
 
-public class Border : MovableObject
+public class Border : MovableObject, IHittable
 {
     protected SpriteRenderer renderer;
 
