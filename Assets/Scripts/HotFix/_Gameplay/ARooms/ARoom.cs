@@ -442,7 +442,8 @@ namespace MarbleHero
             // CtrUI.instance.NextTurnReady();
 
             GameActionManager.turnScore = 0;
-            GameActionManager.comboCount = 0;
+            GameActionManager.turnExp = 0;
+            GameActionManager.turnCombo = 0;
 
             // startPlayerTurn();
             startEnemyTurn();

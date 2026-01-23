@@ -49,7 +49,7 @@ namespace MarbleHero
             actionManager.addToBot<WaitAction>().with(1F);
             actionManager.addToBot<DamageAction>().with(enemy, new DamageInfo(player, 1));
             actionManager.addToBot<WaitAction>().with(2F);
-            actionManager.addToBot<AddScoreAction>();
+            actionManager.addToBot<AddExpAction>();
         }
     }
 }

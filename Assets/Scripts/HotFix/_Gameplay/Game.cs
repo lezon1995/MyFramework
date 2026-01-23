@@ -142,6 +142,7 @@ namespace MarbleHero
                 sound = new();
                 screenShake = new(getMainCamera());
 
+                GameDesign.initialize();
                 // GameDictionary.initialize();
                 // ImageMaster.initialize();
                 APower.initialize();

@@ -247,9 +247,9 @@ namespace MarbleHero
             return;
         }
 
-        public void addExp(int turnScore)
+        public void addExp(int xp)
         {
-            exp.addXp(turnScore);
+            exp.addXp(xp);
         }
     }
 }

@@ -72,8 +72,10 @@ namespace MarbleHero
 
         public void onEvent(OnBrickDeath e)
         {
-            var combo = ++GameActionManager.comboCount;
-            GameActionManager.turnScore += combo * 10;
+            var combo = ++GameActionManager.turnCombo;
+            var baseExp = gameDesign.baseExpStandard;
+            int extraExp = gameDesign.getExtraExpAtCombo(combo);
+            GameActionManager.turnExp += (baseExp + extraExp);
             e.combo = combo;
 
             brickDeathTimer = 0.15F;

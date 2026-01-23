@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6bd3390c339d47e29b3ea65f2ba006c6, type: 3}
+  m_Name: GameDesign
+  m_EditorClassIdentifier: HotFix::MarbleHero.GameDesign
+  globalExpCoefficient: 1
+  globalDurationCoefficient: 1
+  globalDurationMinutes: 30
+  maxLevel: 18
+  baseExpStandard: 10
+  oneTurnKillBrickAvg: 5
+  oneGameTurnDuration: 45
+  reachMaxLevelAtProgress: 0.7
+  comboKillExpCoefficient: 0.25
+  comboKillCap: 10
