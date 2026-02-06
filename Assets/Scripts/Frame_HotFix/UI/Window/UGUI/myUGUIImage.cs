@@ -58,7 +58,7 @@ public class myUGUIImage : myUGUIImageSimple, IUGUIImage
 		mImage.sprite = mOriginSprite;
 		if (mLayout.isInResources())
 		{
-			mAtlasManager.unloadAtlasInResourcecs(ref mOriginAtlasPtr);
+			mAtlasManager.unloadAtlasInResources(ref mOriginAtlasPtr);
 		}
 		else
 		{
@@ -112,6 +112,7 @@ public class myUGUIImage : myUGUIImageSimple, IUGUIImage
 		mLocalizationManager.registeLocalization(this, chineseSpriteName);
 		collection.addLocalizationObject(this);
 	}
+	public bool isOriginAtlas(UGUIAtlasPtr atlas) { return mOriginAtlasPtr == atlas; }
 	public string getOriginSpriteName() { return mOriginSpriteName; }
 	public void setOriginSpriteName(string textureName) { mOriginSpriteName = textureName; }
 	// 自动计算图片的原始名称,也就是不带后缀的名称,后缀默认以_分隔

@@ -64,6 +64,10 @@ public class ClassPool : FrameSystem
 	// isNewObject表示是否是new出来的对象,false则为从回收列表中重复使用的对象
 	public ClassObject newClass(Type type, bool onlyOnce)
 	{
+		if (mHasDestroy)
+		{
+			return null;
+		}
 		if (isEditor() && !isMainThread())
 		{
 			Debug.LogError("只能在主线程中使用此对象池,子线程中请使用ClassPoolThread代替");
@@ -118,10 +122,19 @@ public class ClassPool : FrameSystem
 	}
 	public T newClass<T>(bool onlyOnce) where T : ClassObject
 	{
+		if (mHasDestroy)
+		{
+			return null;
+		}
 		return newClass(typeof(T), onlyOnce) as T;
 	}
 	public T newClass<T>(out T obj, bool onlyOnce) where T : ClassObject
 	{
+		if (mHasDestroy)
+		{
+			obj = null;
+			return null;
+		}
 		ClassObject classObj = newClass(typeof(T), onlyOnce);
 		obj = classObj as T;
 		if (obj == null)
@@ -132,6 +145,10 @@ public class ClassPool : FrameSystem
 	}
 	public void destroyClass<T>(ref T classObject) where T : ClassObject
 	{
+		if (mHasDestroy)
+		{
+			return;
+		}
 		// 由于传递的是引用,所以为了确保不受外部影响,定义一个临时变量
 		T temp = classObject;
 		classObject = null;
@@ -165,6 +182,10 @@ public class ClassPool : FrameSystem
 	}
 	public void destroyClassList<T>(ICollection<T> classObjectList) where T : ClassObject
 	{
+		if (mHasDestroy)
+		{
+			return;
+		}
 		if (isEditor() && !isMainThread())
 		{
 			Debug.LogError("只能在主线程中使用ClassPool,子线程中请使用ClassPoolThread代替");
@@ -194,7 +215,7 @@ public class ClassPool : FrameSystem
 				mObjectStack.Remove(classObject);
 				if (objList.Contains(classObject))
 				{
-					Debug.LogError("ClassObject is in Unused list! can not add again! Type: " + type);
+					Debug.LogError("ClassObject is in Unused list! can not add again! Type: " + type + ", hash:" + classObject.GetHashCode());
 					continue;
 				}
 				removeInuse(classObject, type);
@@ -206,6 +227,10 @@ public class ClassPool : FrameSystem
 	}
 	public void destroyClass<T>(Queue<T> classObjectList) where T : ClassObject
 	{
+		if (mHasDestroy)
+		{
+			return;
+		}
 		if (isEditor() && !isMainThread())
 		{
 			Debug.LogError("只能在主线程中使用ClassPool,子线程中请使用ClassPoolThread代替");
@@ -235,7 +260,7 @@ public class ClassPool : FrameSystem
 				mObjectStack.Remove(classObject);
 				if (objList.Contains(classObject))
 				{
-					Debug.LogError("ClassObject is in Unused list! can not add again! Type: " + type);
+					Debug.LogError("ClassObject is in Unused list! can not add again! Type: " + type + ", hash:" + classObject.GetHashCode());
 					continue;
 				}
 				removeInuse(classObject, type);

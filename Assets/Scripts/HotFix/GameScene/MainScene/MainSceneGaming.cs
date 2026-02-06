@@ -1,5 +1,10 @@
-﻿using MarbleHero;
+using MarbleHero;
 using UnityEngine;
+using static FrameUtility;
+using static FrameBaseHotFix;
+using static UnityUtility;
+using static GBH;
+using static LT;
 
 /// <summary>
 /// 游戏启动后进入到主菜单页面，一直到游戏退出之间的流程

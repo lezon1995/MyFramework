@@ -1,11 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using static UnityUtility;
 using static FrameUtility;
 using static MathUtility;
 using static FrameBaseUtility;
+using System;
+
+public interface IPoolItem<T>
+{
+	void setData(T data);
+}
 
 // 负责窗口对象池,UsedList是有序的
+[CommonWindowPool]
 public class WindowStructPool<T> : WindowStructPoolBase where T : WindowObjectBase, IRecyclable
 {
 	protected HashSet<T> mUnusedItemList = new();	// 未使用列表
@@ -21,18 +27,15 @@ public class WindowStructPool<T> : WindowStructPoolBase where T : WindowObjectBa
 		}
 		mUnusedItemList.Clear();
 	}
-	// 这个init需要在界面中手动调用,因为参数跟默认的init不一样
-	public void init(bool newItemToLast)
+	public override void init()
 	{
-		init(mTemplate.getParent(), typeof(T), newItemToLast);
-	}
-	public void init(myUGUIObject parent, bool newItemToLast)
-	{
-		init(parent, typeof(T), newItemToLast);
-	}
-	public void init(Type type, bool newItemToLast)
-	{
-		init(mTemplate.getParent(), type, newItemToLast);
+		base.init();
+		if (mTemplate == null)
+		{
+			logError("mTemplate为空,无法进行初始化,请确保在初始化前就设置好当前对象池的mTemplate,界面:" + mScript.GetType());
+			return;
+		}
+		init(mTemplate.getParent(), typeof(T), true);
 	}
 	public List<T> getUsedList() { return mUsedItemList; }
 	public bool isUsed(T item) { return mUsedItemList.Contains(item); }
@@ -45,7 +48,7 @@ public class WindowStructPool<T> : WindowStructPoolBase where T : WindowObjectBa
 		}
 	}
 	// 将source从sourcePool中移动到当前池中,inUsed表示移动到当前池以后是处于正在使用的状态还是未使用状态
-	public void moveItem(WindowStructPool<T> sourcePool, T source, bool inUsed, bool moveParent = true)
+	public void moveItem(WindowStructPool<T> sourcePool, T source, bool inUsed)
 	{
 		// 从原来的池中移除
 		sourcePool.mUsedItemList.Remove(source);
@@ -59,12 +62,10 @@ public class WindowStructPool<T> : WindowStructPoolBase where T : WindowObjectBa
 		{
 			mUnusedItemList.Add(source);
 		}
-		if (moveParent)
-		{
-			source.setParent(mItemParent);
-		}
+		source.setParent(mItemParent);
 		// 检查分配ID种子,确保后面池中的已分配ID一定小于分配ID种子
 		mAssignIDSeed = getMax(source.getAssignID(), mAssignIDSeed);
+		source.reassignParent(this);
 	}
 	public void newItem(int count)
 	{
@@ -95,9 +96,10 @@ public class WindowStructPool<T> : WindowStructPoolBase where T : WindowObjectBa
 		}
 		else
 		{
-			item = createInstance<T>(mObjectType, mScript);
+			item = createInstance<T>(mObjectType, this);
 			item.assignWindow(parent, mTemplate, isEditor() ? mPreName + makeID() : mPreName);
 			item.init();
+			item.postInit();
 		}
 		item.setAssignID(++mAssignIDSeed);
 		item.reset();
@@ -106,8 +108,15 @@ public class WindowStructPool<T> : WindowStructPoolBase where T : WindowObjectBa
 		{
 			item.setAsLastSibling(false);
 		}
-		mUsedItemList.Add(item);
-		return item;
+		return mUsedItemList.add(item);
+	}
+	public void newItemWithList<TData>(List<TData> dataList, Action<T, TData> callback)
+	{
+		unuseAll();
+		foreach (TData data in dataList)
+		{
+			callback(newItem(), data);
+		}
 	}
 	public override void unuseAll()
 	{
@@ -122,6 +131,12 @@ public class WindowStructPool<T> : WindowStructPoolBase where T : WindowObjectBa
 			mUnusedItemList.Add(item);
 		}
 		mUsedItemList.Clear();
+	}
+	public bool unuseItem(ref T item, bool showError = true)
+	{
+		bool result = unuseItem(item, showError);
+		item = null;
+		return result;
 	}
 	public bool unuseItem(T item, bool showError = true)
 	{
@@ -177,4 +192,5 @@ public class WindowStructPool<T> : WindowStructPoolBase where T : WindowObjectBa
 		}
 		mUsedItemList.RemoveRange(startIndex, count);
 	}
+	public override int getInUseCount() { return mUsedItemList.count(); }
 }

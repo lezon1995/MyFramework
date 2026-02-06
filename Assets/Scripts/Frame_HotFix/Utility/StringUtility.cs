@@ -27,7 +27,8 @@ public class StringUtility
 	private static Dictionary<string, Vector3Int> mStringToVector3Cache;				// 字符串转换为3维向量的缓存
 	private static int STRING_TO_VECTOR2INT_MAX_CACHE = 10240;                          // mStringToVector2Cache最大数量
 	private static Dictionary<string, string> mInvalidParamChars;                       // invalid characters that cannot be found in a valid method-verb or http header
-	private static List<char> mChineseSymbol;											// 中文的标点
+	private static List<char> mChineseSymbol;                                           // 中文的标点
+	private static string[] mChineseNumber = { "零", "一", "二", "三", "四", "五", "六", "七", "八", "九", "十" };
 	public const string EMPTY = "";                                                     // 表示空字符串
 	// 只能使用{index}拼接
 	public static string format(string format, string args)
@@ -161,6 +162,15 @@ public class StringUtility
 			++index;
 		}
 		return builder.ToString();
+	}
+	public static Color SToColor(string str)
+	{
+		if (str[0] != '#')
+		{
+			str = "#" + str;
+		}
+		ColorUtility.TryParseHtmlString(str, out Color color);
+		return color;
 	}
 	public static int getFirstNumberPos(string str)
 	{
@@ -549,14 +559,14 @@ public class StringUtility
 		int dotPos = builder.LastIndexOf('/');
 		if (dotPos != -1)
 		{
-			builder = builder.Remove(0, dotPos + 1);
+			builder = builder[(dotPos + 1)..];
 		}
 		return builder;
 	}
 	// 获得文件的后缀名,带.号
 	public static string getFileSuffix(string file)
 	{
-		int dotPos = file.IndexOf('.', file.LastIndexOf('/'));
+		int dotPos = file.IndexOf('.', clampMin(file.LastIndexOf('/')));
 		if (dotPos != -1)
 		{
 			return file.removeStartCount(dotPos);
@@ -1184,19 +1194,42 @@ public class StringUtility
 	{
 		return str == "true" || str == "True" || str == "TRUE";
 	}
-	public static string intToChineseString(int value)
+	// 只能获取小于等于99的中文数字
+	public static string getChineseNumber(int num)
+	{
+		if (num <= 10)
+		{
+			return mChineseNumber[num];
+		}
+		if (num < 100)
+		{
+			int first = num / 10;
+			int second = num % 10;
+			if (second == 0)
+			{
+				return mChineseNumber[first] + mChineseNumber[10];
+			}
+			else
+			{
+				return getChineseNumber(first * 10) + getChineseNumber(second);
+			}
+		}
+		return "";
+	}
+	// 函数名中的int仅表示整数的意思,并非特指int类型
+	public static string intToChineseString(long value)
 	{
 		using var a = new MyStringBuilderScope(out var builder);
 		// 大于1亿
 		if (value >= 100000000)
 		{
-			builder.append(IToS(value / 100000000), "亿");
+			builder.append(LToS(value / 100000000), "亿");
 			value %= 100000000;
 		}
 		// 大于1万
 		if (value >= 10000)
 		{
-			builder.append(IToS(value / 10000), "万");
+			builder.append(LToS(value / 10000), "万");
 			value %= 10000;
 		}
 		if (value > 0)
@@ -2051,7 +2084,6 @@ public class StringUtility
 			}
 		}
 	}
-#if USE_TMP
 	// 将文本拆分为多行来显示,originString应该是不带富文本标签的字符串,否则会影响字符长度的计算
 	// 默认每一行至少可以容纳30个字符,所以都是从30开始截取字符串,为了提高效率
 	public static void generateMultiLine(myUGUITextTMP textWindow, string originString, List<string> lineList, int minStringLength = 30)
@@ -2085,7 +2117,6 @@ public class StringUtility
 			}
 		}
 	}
-#endif
 	// 将富文本还原为原始的字符串,暂时只考虑颜色,charColorList的输出长度与返回字符串的长度一致,其中每个元素表示相同下标的字符的颜色
 	public static string getStringNoRichText(string originContent, List<string> charColorList)
 	{

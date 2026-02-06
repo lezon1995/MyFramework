@@ -4,6 +4,7 @@ using static FrameUtility;
 using static FrameBaseUtility;
 
 // 可通过Key索引的复杂窗口对象池
+[CommonWindowPool]
 public class WindowStructPoolMap<Key, T> : WindowStructPoolBase where T : WindowObjectBase, IRecyclable
 {
 	protected Dictionary<Key, T> mUsedItemList = new(); // 正在使用的列表
@@ -19,17 +20,10 @@ public class WindowStructPoolMap<Key, T> : WindowStructPoolBase where T : Window
 		}
 		mUnusedItemList.Clear();
 	}
-	public void init(myUGUIObject parent)
+	public override void init()
 	{
-		init(parent, typeof(T), true);
-	}
-	public void init(bool newItemToLast)
-	{
-		init(mTemplate.getParent(), typeof(T), newItemToLast);
-	}
-	public void init1(myUGUIObject parent, bool newItemToLast)
-	{
-		init(parent, typeof(T), newItemToLast);
+		base.init();
+		init(mTemplate.getParent(), typeof(T), true);
 	}
 	public bool hasKey(Key key) { return mUsedItemList.ContainsKey(key); }
 	public T getItem(Key key) { return mUsedItemList.get(key); }
@@ -52,9 +46,10 @@ public class WindowStructPoolMap<Key, T> : WindowStructPoolBase where T : Window
 		}
 		else
 		{
-			item = createInstance<T>(mObjectType, mScript);
+			item = createInstance<T>(mObjectType, this);
 			item.assignWindow(parent, mTemplate, isEditor() ? mPreName + makeID() : mPreName);
 			item.init();
+			item.postInit();
 		}
 		item.setAssignID(++mAssignIDSeed);
 		item.reset();
@@ -63,8 +58,7 @@ public class WindowStructPoolMap<Key, T> : WindowStructPoolBase where T : Window
 		{
 			item.setAsLastSibling(false);
 		}
-		mUsedItemList.Add(key, item);
-		return item;
+		return mUsedItemList.add(key, item);
 	}
 	public override void unuseAll()
 	{
@@ -95,4 +89,5 @@ public class WindowStructPoolMap<Key, T> : WindowStructPoolBase where T : Window
 		mUnusedItemList.Push(item);
 		return true;
 	}
+	public override int getInUseCount() { return mUsedItemList.count(); }
 }

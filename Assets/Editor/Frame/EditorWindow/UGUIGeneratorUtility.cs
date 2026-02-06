@@ -3,9 +3,7 @@ using System.Reflection;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-#if USE_TMP
 using TMPro;
-#endif
 #if USE_AVPRO_VIDEO
 using RenderHeads.Media.AVProVideo;
 #endif
@@ -58,30 +56,64 @@ public class UGUIGeneratorUtility
 					GameObject newObj = objectField(item.mObject, 160);
 					if (newObj != item.mObject)
 					{
-						if (newObj == generator.gameObject)
+						do
 						{
-							log("不能添加根节点");
-							newObj = null;
-						}
-						if (generator.mMemberList.Exists((obj) => { return obj.mObject == newObj && newObj != null; }))
-						{
-							log("节点" + newObj.name + "已经在列表中了,不能重复添加");
-							item.mObject = null;
-						}
-						else
-						{
-							item.mObject = newObj;
-							// 如果是以0结尾的,就自动设置为静态数组类型的,且自动查找数组长度
-							if (item.mObject != null)
+							if (newObj == generator.gameObject)
 							{
-								string name = item.mObject.name;
-								if (getLastNotNumberPos(name) == name.Length - 2 && name.endWith("0"))
-								{
-									item.mArrayType = ARRAY_TYPE.STATIC_ARRAY;
-									item.autoSetArrayLength();
-								}
+								log("不能添加根节点");
+								newObj = null;
+								break;
 							}
-						}
+							if (generator.mMemberList.Exists((obj) => { return obj.mObject == newObj && newObj != null; }))
+							{
+								log("节点" + newObj.name + "已经在列表中了,不能重复添加");
+								item.mObject = null;
+								break;
+							}
+							item.mObject = newObj;
+							if (item.mObject == null)
+							{
+								break;
+							}
+							// 如果是以0结尾的,就自动设置为静态数组类型的,且自动查找数组长度
+							string name = item.mObject.name;
+							if (getLastNotNumberPos(name) == name.Length - 2 && name.endWith("0"))
+							{
+								item.mArrayType = ARRAY_TYPE.STATIC_ARRAY;
+								item.autoSetArrayLength();
+							}
+							if (item.mObject.TryGetComponent<UGUISubGenerator>(out _))
+							{
+								item.setWindowType(WINDOW_TYPE.SUB_UI);
+								item.mType = getClassNameFromGameObject(item.mObject);
+							}
+							// 简单判断一下有可能设置的类型,比如如果名字带Checkbox,则可能是UGUICheckbox
+							if (name.Contains("Checkbox"))
+							{
+								item.setWindowType(WINDOW_TYPE.COMMON_CONTROL);
+								item.mType = typeof(UGUICheckbox).ToString();
+							}
+							else if (name.Contains("Tab"))
+							{
+								item.setWindowType(WINDOW_TYPE.COMMON_CONTROL);
+								item.mType = typeof(TabItem).ToString();
+							}
+							else if (name.Contains("Progress"))
+							{
+								item.setWindowType(WINDOW_TYPE.COMMON_CONTROL);
+								item.mType = typeof(UGUIProgress).ToString();
+							}
+							else if (name.Contains("Button"))
+							{
+								item.setWindowType(WINDOW_TYPE.COMMON_CONTROL);
+								item.mType = typeof(LegendButton).ToString();
+							}
+							else if (name.Contains("Slider"))
+							{
+								item.setWindowType(WINDOW_TYPE.COMMON_CONTROL);
+								item.mType = typeof(UGUISlider).ToString();
+							}
+						} while (false);
 					}
 				}
 				else
@@ -102,24 +134,20 @@ public class UGUIGeneratorUtility
 				List<string> typeList = null;
 				switch (item.mWindowType)
 				{
-					case WINDOW_TYPE.NORMAL_WINDOW:
-						{
-							typeList = generateAvailableTypeList(item.mObject);
-						}
-						break;
-					case WINDOW_TYPE.COMMON_SUB_UI: typeList = getCommonSubUITypeList(); break;
-					case WINDOW_TYPE.SUB_PANEL: break;
-					case WINDOW_TYPE.SCROLL_LIST: typeList = getSubUIWithGenericTypeList(); break;
-					case WINDOW_TYPE.POOL: typeList = getPoolTypeList(); break;
+					case WINDOW_TYPE.NORMAL_WINDOW:		typeList = generateAvailableTypeList(item.mObject);break;
+					case WINDOW_TYPE.COMMON_CONTROL:	typeList = getCommonSubUITypeList(); break;
+					case WINDOW_TYPE.SUB_UI: break;
+					case WINDOW_TYPE.SCROLL_LIST:		typeList = getSubUIWithGenericTypeList(); break;
+					case WINDOW_TYPE.POOL:				typeList = getPoolTypeList(); break;
 				}
-				if (typeList == null && item.mWindowType != WINDOW_TYPE.SUB_PANEL)
+				if (typeList == null && item.mWindowType != WINDOW_TYPE.SUB_UI)
 				{
 					Debug.LogError("未知的WindowType:" + item.mWindowType);
 					return;
 				}
 
 				// 子页面特殊判断,类型名要跟节点名字匹配
-				if (item.mWindowType == WINDOW_TYPE.SUB_PANEL)
+				if (item.mWindowType == WINDOW_TYPE.SUB_UI)
 				{
 					item.mType = getClassNameFromGameObject(item.mObject);
 					labelWidth(item.mType, 148, ClassTypeCaches.hasClass(item.mType) ? Color.green : Color.red);
@@ -182,6 +210,10 @@ public class UGUIGeneratorUtility
 			{
 				generator.mMemberList.Remove(data);
 			}
+		}
+		if (button("添加节点", 200, 25))
+		{
+			generator.addNewItem();
 		}
 	}
 	protected static void drawTemplateParamUGUIDragViewLoop(MemberData data)
@@ -270,9 +302,8 @@ public class UGUIGeneratorUtility
 		}
 		if (mSubUIParentList.Count == 0)
 		{
-			mSubUIParentList.Add(typeof(WindowObjectUGUI).ToString());
-			mSubUIParentList.Add(typeof(WindowRecyclableUGUI).ToString());
-			mSubUIParentList.Add("DragViewItem");
+			mSubUIParentList.AddRange(getTypesWithAttributeInFrameHotFixDll<CommonWindowObjectAttribute>());
+			mSubUIParentList.AddRange(getTypesWithAttributeInHotFixDll<CommonWindowObjectAttribute>());
 		}
 		return mSubUIParentList;
 	}
@@ -284,8 +315,8 @@ public class UGUIGeneratorUtility
 		}
 		if (mUIParentList.Count == 0)
 		{
-			mUIParentList.Add(typeof(LayoutScript).ToString());
-			mUIParentList.AddRange(EditorDefine.getLayoutScriptBaseClass());
+			mUIParentList.AddRange(getTypesWithAttributeInFrameHotFixDll<LayoutScriptBaseAttribute>());
+			mUIParentList.AddRange(getTypesWithAttributeInHotFixDll<LayoutScriptBaseAttribute>());
 		}
 		return mUIParentList;
 	}
@@ -309,10 +340,8 @@ public class UGUIGeneratorUtility
 		}
 		if (mPoolTypeList.Count == 0)
 		{
-			mPoolTypeList.Add("WindowStructPool");
-			mPoolTypeList.Add("WindowStructPoolMap");
-			mPoolTypeList.Add("WindowStructPoolUnOrder");
-			mPoolTypeList.Add("WindowPool");
+			mPoolTypeList.AddRange(getTypesWithAttributeInFrameHotFixDll<CommonWindowPoolAttribute>());
+			mPoolTypeList.AddRange(getTypesWithAttributeInHotFixDll<CommonWindowPoolAttribute>());
 		}
 		return mPoolTypeList;
 	}
@@ -324,8 +353,8 @@ public class UGUIGeneratorUtility
 		}
 		if (mCommonSubUITypeList.Count == 0)
 		{
-			mCommonSubUITypeList.AddRange(getTypesInFrameHotFixDll<ICommonUI>());
-			mCommonSubUITypeList.AddRange(getTypesInHotFixDll<ICommonUI>());
+			mCommonSubUITypeList.AddRange(getTypesWithAttributeInFrameHotFixDll<CommonControlAttribute>());
+			mCommonSubUITypeList.AddRange(getTypesWithAttributeInHotFixDll<CommonControlAttribute>());
 		}
 		return mCommonSubUITypeList;
 	}
@@ -417,7 +446,7 @@ public class UGUIGeneratorUtility
 		}
 		return null;
 	}
-	public static void generateNewObject(List<string> generatedLines, List<MemberData> list, List<MemberData> fixedList, List<string> createdObject, MemberData curData, GameObject root)
+	public static void generateNewObject(List<string> generatedLines, List<MemberData> list, List<MemberData> fixedList, List<GameObject> createdVariableObject, MemberData curData, GameObject root)
 	{
 		string curObjName = curData.getMemberName();
 		GameObject parent = curData.getParentObject();
@@ -440,32 +469,31 @@ public class UGUIGeneratorUtility
 			{
 				generateAssignWindowLineTemp("\t\t", generatedLines, curObjName, null, false);
 			}
-			createdObject.add(curObjName);
+			createdVariableObject.add(curData.mObject);
 			// 从列表中移除,避免再次被遍历到,如果是临时构造的数据,自己就会移除失败,也就无需关心
 			list.Remove(curData);
 			return;
 		}
 
 		// 如果父节点已经创建了,则可以创建
-		if (createdObject.Contains(parent.name))
+		string parentName;
+		bool parentIsSubUI = false;
+		// 父节点是成员变量
+		MemberData parentData = fixedList.Find((data) => { return data.mObject != null && data.mObject == parent && data.mArrayType == ARRAY_TYPE.NONE; });
+		if (parentData != null)
 		{
-			int curDataIndex = fixedList.IndexOf(curData);
-			string parentName;
-			bool parentIsSubUI = false;
-			// 父节点是成员变量
-			MemberData parentData = fixedList.Find((data) => { return data.mObject != null && data.mObject.name == parent.name; });
-			if (parentData != null)
-			{
-				parentName = "m" + parent.name;
-				parentIsSubUI = parentData.mWindowType != WINDOW_TYPE.NORMAL_WINDOW;
-			}
-			// 父节点是临时变量
-			else
-			{
-				parentName = parent.name.substr(0, 1).ToLower() + parent.name.removeStartCount(1);
-			}
+			parentName = "m" + parent.name;
+			parentIsSubUI = parentData.mWindowType != WINDOW_TYPE.NORMAL_WINDOW;
+		}
+		// 父节点是临时变量
+		else
+		{
+			parentName = parent.name.substr(0, 1).ToLower() + parent.name.removeStartCount(1);
+		}
+		if (createdVariableObject.Contains(parent))
+		{
 			// 创建的是成员变量
-			if (curDataIndex >= 0)
+			if (fixedList.IndexOf(curData) >= 0)
 			{
 				generateAssignWindowLine("\t\t", generatedLines, curObjName, parentName, parentIsSubUI, curData);
 			}
@@ -474,29 +502,30 @@ public class UGUIGeneratorUtility
 			{
 				generateAssignWindowLineTemp("\t\t", generatedLines, curObjName, parentName, parentIsSubUI);
 			}
-			createdObject.add(curObjName);
+			createdVariableObject.add(curData.mObject);
 			list.Remove(curData);
-			return;
-		}
-
-		// 父节点还没有创建,则需要判断父节点是否在成员列表中,如果不在,就需要创建临时的变量
-		int parentIndex = list.FindIndex((data) => { return data.mObject != null && data.mObject.name == parent.name; });
-		if (parentIndex >= 0)
-		{
-			// 递归创建父节点
-			generateNewObject(generatedLines, list, fixedList, createdObject, list[parentIndex], root);
-			// 创建自己
-			generateNewObject(generatedLines, list, fixedList, createdObject, curData, root);
 		}
 		else
 		{
-			// 父节点只是一个临时节点,则需要先创建父节点
-			MemberData parentData = new();
-			parentData.mObject = parent;
-			parentData.mType = typeof(myUGUIObject).ToString();
-			generateNewObject(generatedLines, list, fixedList, createdObject, parentData, root);
-			// 创建自己
-			generateNewObject(generatedLines, list, fixedList, createdObject, curData, root);
+			// 父节点还没有创建,则需要判断父节点是否在成员列表中,如果不在,就需要创建临时的变量
+			int parentIndex = list.FindIndex((data) => { return data.mObject != null && data.mObject.name == parent.name && data.mArrayType == ARRAY_TYPE.NONE; });
+			if (parentIndex >= 0)
+			{
+				// 递归创建父节点
+				generateNewObject(generatedLines, list, fixedList, createdVariableObject, list[parentIndex], root);
+				// 创建自己
+				generateNewObject(generatedLines, list, fixedList, createdVariableObject, curData, root);
+			}
+			else
+			{
+				// 父节点只是一个临时节点,则需要先创建父节点
+				MemberData newParentData = new();
+				newParentData.mObject = parent;
+				newParentData.mType = typeof(myUGUIObject).ToString();
+				generateNewObject(generatedLines, list, fixedList, createdVariableObject, newParentData, root);
+				// 创建自己
+				generateNewObject(generatedLines, list, fixedList, createdVariableObject, curData, root);
+			}
 		}
 	}
 	// 会将创建的临时变量的名字返回出去
@@ -513,9 +542,9 @@ public class UGUIGeneratorUtility
 		lines.Add(prefix + "newObject(out " + typeof(myUGUIObject).ToString() + " " + varName + ", " + parentParam + "\"" + curName + "\", false);");
 		return varName;
 	}
-	public static void generateAssignWindowLine(string prefix, List<string> lines, string curName, string parentName, bool parentIsSubUI, MemberData data)
+	public static void generateAssignWindowLine(string prefix, List<string> lines, string curObjectName, string parentName, bool parentIsSubUI, MemberData data)
 	{
-		string newName = data.mArrayType == ARRAY_TYPE.STATIC_ARRAY ? curName.removeEndNumber() : curName;
+		string newName = data.mArrayType == ARRAY_TYPE.STATIC_ARRAY ? curObjectName.removeEndNumber() : curObjectName;
 		if (parentIsSubUI && parentName != null)
 		{
 			parentName += ".getRoot()";
@@ -525,9 +554,9 @@ public class UGUIGeneratorUtility
 			// 动态列表只支持控件或者子页面类型的
 			if (data.mArrayType == ARRAY_TYPE.DYNAMIC_ARRAY)
 			{
-				if (data.mWindowType == WINDOW_TYPE.COMMON_SUB_UI || data.mWindowType == WINDOW_TYPE.SUB_PANEL)
+				if (data.mWindowType == WINDOW_TYPE.COMMON_CONTROL || data.mWindowType == WINDOW_TYPE.SUB_UI)
 				{
-					string varName = generateAssignWindowLineTemp(prefix, lines, curName, parentName, false);
+					string varName = generateAssignWindowLineTemp(prefix, lines, curObjectName, parentName, false);
 					lines.Add(prefix + "for (int i = 0; i < m" + newName + ".Length; ++i)");
 					lines.Add(prefix + "{");
 					string parentParam = parentName ?? "mRoot";
@@ -557,22 +586,23 @@ public class UGUIGeneratorUtility
 		}
 		else
 		{
+			string createVarName = "m" + curObjectName;
 			if (data.mWindowType == WINDOW_TYPE.NORMAL_WINDOW)
 			{
 				string showErrorParam = data.mHideError ? ", false" : "";
 				string parentParam = parentName != null ? parentName + ", " : "";
-				lines.Add(prefix + "newObject(out m" + curName + ", " + parentParam + "\"" + curName + "\"" + showErrorParam + ");");
+				lines.Add(prefix + "newObject(out " + createVarName + ", " + parentParam + "\"" + curObjectName + "\"" + showErrorParam + ");");
 			}
-			else if (data.mWindowType == WINDOW_TYPE.SUB_PANEL || data.mWindowType == WINDOW_TYPE.COMMON_SUB_UI)
+			else if (data.mWindowType == WINDOW_TYPE.SUB_UI || data.mWindowType == WINDOW_TYPE.COMMON_CONTROL)
 			{
 				string parentParam = parentName ?? "mRoot";
-				lines.Add(prefix + "m" + curName + ".assignWindow(" + parentParam + ", \"" + curName + "\");");
+				lines.Add(prefix + createVarName + ".assignWindow(" + parentParam + ", \"" + curObjectName + "\");");
 			}
 			else if (data.mWindowType == WINDOW_TYPE.SCROLL_LIST)
 			{
 				string parentParam = parentName ?? "mRoot";
-				lines.Add(prefix + "m" + curName + ".assignWindow(" + parentParam + ", \"" + data.mViewportObject.name + "\");");
-				lines.Add(prefix + "m" + curName + ".assignTemplate(\"" + data.mPoolTemplate.name + "\");");
+				lines.Add(prefix + createVarName + ".assignWindow(" + parentParam + ", \"" + data.mViewportObject.name + "\");");
+				lines.Add(prefix + createVarName + ".assignTemplate(\"" + data.mPoolTemplate.name + "\");");
 			}
 			else if (data.mWindowType == WINDOW_TYPE.POOL)
 			{
@@ -580,15 +610,15 @@ public class UGUIGeneratorUtility
 				string parentParam = parentName != null ? parentName + ", " : "mRoot, ";
 				if (data.mType == "WindowStructPoolMap")
 				{
-					lines.Add(prefix + "m" + curName + ".assignTemplate" + templateTypeStr + "(" + parentParam + "\"" + data.mPoolTemplate.name + "\");");
+					lines.Add(prefix + createVarName + ".assignTemplate" + templateTypeStr + "(" + parentParam + "\"" + data.mPoolTemplate.name + "\");");
 				}
 				else if (data.mType == "WindowPool")
 				{
-					lines.Add(prefix + "m" + curName + ".assignTemplate" + templateTypeStr + "(" + parentParam + "\"" + data.mPoolTemplate.name + "\");");
+					lines.Add(prefix + createVarName + ".assignTemplate(" + parentParam + "\"" + data.mPoolTemplate.name + "\");");
 				}
 				else
 				{
-					lines.Add(prefix + "m" + curName + ".assignTemplate" + templateTypeStr + "(" + parentParam + "\"" + data.mPoolTemplate.name + "\");");
+					lines.Add(prefix + createVarName + ".assignTemplate" + templateTypeStr + "(" + parentParam + "\"" + data.mPoolTemplate.name + "\");");
 				}
 			}
 		}
@@ -698,12 +728,10 @@ public class UGUIGeneratorUtility
 		{
 			mTempAvailableTypeList.Add(typeof(myUGUIInputField).ToString());
 		}
-#if USE_TMP
 		if (go.TryGetComponent<TMP_InputField>(out _))
 		{
 			mTempAvailableTypeList.Add(typeof(myUGUIInputFieldTMP).ToString());
 		}
-#endif
 
 		mTempAvailableTypeList.Add(typeof(myUGUIObject).ToString());
 		if (go.TryGetComponent<Image>(out _))
@@ -713,6 +741,7 @@ public class UGUIGeneratorUtility
 			mTempAvailableTypeList.Add(typeof(myUGUIImagePro).ToString());
 			mTempAvailableTypeList.Add(typeof(myUGUIImageAnim).ToString());
 			mTempAvailableTypeList.Add(typeof(myUGUIImageAnimPro).ToString());
+			mTempAvailableTypeList.Add(typeof(myUGUIImageButton).ToString());
 			mTempAvailableTypeList.Add(typeof(myUGUINumber).ToString());
 		}
 		if (go.TryGetComponent<RawImage>(out _))
@@ -723,17 +752,13 @@ public class UGUIGeneratorUtility
 		if (go.TryGetComponent<Text>(out _))
 		{
 			mTempAvailableTypeList.Add(typeof(myUGUIText).ToString());
-#if USE_TMP
 			mTempAvailableTypeList.Add(typeof(myUGUITextAuto).ToString());
-#endif
 		}
-#if USE_TMP
 		if (go.TryGetComponent<TextMeshProUGUI>(out _))
 		{
 			mTempAvailableTypeList.Add(typeof(myUGUITextTMP).ToString());
 			mTempAvailableTypeList.Add(typeof(myUGUITextAuto).ToString());
 		}
-#endif
 		if (go.TryGetComponent<MeshRenderer>(out _))
 		{
 			mTempAvailableTypeList.Add(typeof(myUGUILineMesh).ToString());
@@ -784,107 +809,37 @@ public class UGUIGeneratorUtility
 		return mNormalWindowList;
 	}
 	//------------------------------------------------------------------------------------------------------------------------------
-	protected static bool hasTypeInHotFixDll(string targetType)
+	// 从 DLL 文件中筛选实现指定接口的非抽象类
+	protected static List<string> getTypesWithAttributeInHotFixDll<T>() where T : Attribute
 	{
-		foreach (Type type in Assembly.LoadFrom(F_PROJECT_PATH + "Library/ScriptAssemblies/HotFix.dll").GetTypes())
-		{
-			// 跳过无法加载的类型、接口和抽象类
-			if (type == null || type.IsInterface || type.IsAbstract)
-			{
-				continue;
-			}
-			if (type.ToString() == targetType)
-			{
-				return true;
-			}
-		}
-		return false;
+		return getTypesWithAttributeInDll(F_PROJECT_PATH + "Library/ScriptAssemblies/HotFix.dll", typeof(T));
 	}
 	// 从 DLL 文件中筛选实现指定接口的非抽象类
-	protected static List<string> getTypesInHotFixDll<T>()
+	protected static List<string> getTypesWithAttributeInFrameHotFixDll<T>() where T : Attribute
 	{
-		return getTypesInDll(F_PROJECT_PATH + "Library/ScriptAssemblies/HotFix.dll", typeof(T));
-	}
-	// 从 DLL 文件中筛选实现指定接口的非抽象类
-	protected static List<string> getTypesInFrameHotFixDll<T>()
-	{
-		return getTypesInDll(F_PROJECT_PATH + "Library/ScriptAssemblies/Frame_HotFix.dll", typeof(T));
+		return getTypesWithAttributeInDll(F_PROJECT_PATH + "Library/ScriptAssemblies/Frame_HotFix.dll", typeof(T));
 	}
 	// 从 DLL 文件中筛选实现指定接口的非抽象类,keepGenericMark是否保留模板参数类型显示,默认不保留,只获取类名本身
-	protected static List<string> getTypesInDll(string dllFullPath, Type targetType, bool keepGenericMark = false)
+	protected static List<string> getTypesWithAttributeInDll(string dllFullPath, Type attribute, bool keepGenericMark = false)
 	{
 		// 获取所有类型（捕获加载异常）
 		List<string> typeList = new();
 		foreach (Type type in Assembly.LoadFrom(dllFullPath).GetTypes())
 		{
 			// 跳过无法加载的类型、接口和抽象类
-			if (type == null || type.IsInterface || type.IsAbstract)
+			if (type == null || type.IsInterface)
 			{
 				continue;
 			}
-			// 检查是否实现了目标接口
-			if (isImplementsType(type, targetType))
+			foreach (CustomAttributeData item in type.CustomAttributes)
 			{
-				if (keepGenericMark)
+				if (item.AttributeType == attribute)
 				{
-					typeList.Add(type.ToString());
-				}
-				else
-				{
-					typeList.Add(type.ToString().rangeToFirst('`'));
+					typeList.Add(keepGenericMark ? type.ToString() : type.ToString().rangeToFirst('`'));
+					break;
 				}
 			}
 		}
 		return typeList;
-	}
-	// 判断类型是否直接或间接实现目标接口
-	protected static bool isImplementsType(Type type, Type targetType)
-	{
-		if (targetType == null)
-		{
-			return false;
-		}
-		// 接口类型判断
-		if (targetType.IsInterface)
-		{
-			foreach (Type iface in type.GetInterfaces())
-			{
-				if (IsMatchingGenericType(iface, targetType))
-				{
-					return true;
-				}
-			}
-			return false;
-		}
-		// 基类判断
-		else
-		{
-			// 遍历继承链
-			Type currentType = type;
-			while (currentType != null && currentType != typeof(object))
-			{
-				if (IsMatchingGenericType(currentType, targetType))
-				{
-					return true;
-				}
-				currentType = currentType.BaseType;
-			}
-			return false;
-		}
-	}
-	// 匹配泛型类型定义（支持开放/封闭泛型）
-	protected static bool IsMatchingGenericType(Type typeToCheck, Type targetType)
-	{
-		// 泛型定义匹配（例如：IEnumerable<>）
-		if (targetType.IsGenericTypeDefinition)
-		{
-			return typeToCheck.IsGenericType &&
-				   typeToCheck.GetGenericTypeDefinition() == targetType;
-		}
-		// 具体类型匹配（包括封闭泛型如 IEnumerable<int>）
-		else
-		{
-			return typeToCheck == targetType;
-		}
 	}
 }

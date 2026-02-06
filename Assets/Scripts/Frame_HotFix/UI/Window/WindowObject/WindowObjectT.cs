@@ -47,9 +47,10 @@ public abstract class WindowObjectT<T> : WindowObjectBase where T : myUGUIObject
 	}
 	public bool isValid() { return mRoot != null; }
 	public override bool isActive() { return mRoot?.isActiveInHierarchy() ?? false; }
+	public override bool isActiveSelf() { return mRoot?.isActive() ?? false; }
 	public override void setActive(bool active) 
 	{
-		bool curActive = isActive();
+		bool curActive = isActiveSelf();
 		if (curActive && mChangePositionAsInvisible && isVectorEqual(mRoot.getPosition(), FAR_POSITION))
 		{
 			curActive = false;
@@ -110,7 +111,7 @@ public abstract class WindowObjectT<T> : WindowObjectBase where T : myUGUIObject
 	{
 		if (mRoot == null)
 		{
-			logError("mRoot为空,请确保在assignWindow中已经给mRoot赋值了");
+			logError("mRoot为空,请确保在assignWindow中已经给mRoot赋值了, type:" + GetType());
 		}
 	}
 	protected T0 newObject<T0>(out T0 obj, string name) where T0 : myUGUIObject, new()

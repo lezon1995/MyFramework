@@ -26,7 +26,7 @@ public partial class GBH
     public static MainMenuScreen mMainMenuScreen;
     public static OverlayMenu mOverlayMenu;
     public static SplashScreen mSplashScreen;
-    public static UIGaming mUIGaming;
+    public static UIGame mUIGame;
     public static UILogin mUILogin;
     // auto generate LayoutScript end
 

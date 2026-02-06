@@ -216,7 +216,13 @@ public class InputSystem : FrameSystem
 			touchPoint.lateUpdate();
 		}
 	}
-	public void registeInputField(IInputField inputField) { mInputFieldList.Add(inputField); }
+	public void registeInputField(IInputField inputField)
+	{
+		if (!mInputFieldList.Add(inputField))
+		{
+			logError("不能重复注册InputField");
+		}
+	}
 	public void unregisteInputField(IInputField inputField) { mInputFieldList.Remove(inputField); }
 	public void setMask(FOCUS_MASK mask) { mFocusMask = (int)mask; }
 	public bool hasMask(FOCUS_MASK mask) { return mask == FOCUS_MASK.NONE || mFocusMask == 0 || (mFocusMask & (int)mask) != 0; }
@@ -315,6 +321,33 @@ public class InputSystem : FrameSystem
 		return mTouchPointList.tryGetValue(pointerID, out TouchPoint point) && point.isCurrentUp();
 	}
 	public TouchPoint getTouchPoint(int pointerID) { return mTouchPointList.get(pointerID); }
+	public Vector3 getMouseLeftPosition() 
+	{
+		if (!isEditor() && !isStandalone())
+		{
+			logError("getMouseLeftPosition仅限编辑器或者桌面端使用");
+			return Vector3.zero;
+		}
+		return getTouchPoint((int)MOUSE_BUTTON.LEFT).getCurPosition();
+	}
+	public Vector3 getMouseMiddlePosition()
+	{
+		if (!isEditor() && !isStandalone())
+		{
+			logError("getMouseLeftPosition仅限编辑器或者桌面端使用");
+			return Vector3.zero;
+		}
+		return getTouchPoint((int)MOUSE_BUTTON.MIDDLE).getCurPosition();
+	}
+	public Vector3 getMouseRightPosition()
+	{
+		if (!isEditor() && !isStandalone())
+		{
+			logError("getMouseLeftPosition仅限编辑器或者桌面端使用");
+			return Vector3.zero;
+		}
+		return getTouchPoint((int)MOUSE_BUTTON.RIGHT).getCurPosition();
+	}
 	// 外部可以通过获取点击操作列表,获取到这一帧的所有点击操作信息,且不分平台,统一移动端触屏和桌面端鼠标操作(未考虑桌面端的触屏)
 	public SafeDictionary<int, TouchPoint> getTouchPointList() { return mTouchPointList; }
 	public int getTouchPointDownCount()

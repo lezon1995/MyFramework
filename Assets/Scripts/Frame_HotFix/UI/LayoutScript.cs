@@ -4,18 +4,20 @@ using System.Runtime.CompilerServices;
 #endif
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 using static UnityUtility;
 using static FrameBaseHotFix;
 using static StringUtility;
 using static FrameBaseUtility;
 
 // 布局脚本基类,用于执行布局相关的逻辑
+[LayoutScriptBase]
 public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, IWindowObjectOwner
 {
 	protected HashSet<myUGUIScrollRect> mScrollViewRegisteList;		// 用于检测ScrollView合法性的列表
 	protected HashSet<IInputField> mInputFieldRegisteList;			// 用于检测InputField合法性的列表
-	protected HashSet<WindowStructPoolBase> mPoolList;				// 布局中使用的窗口对象池列表,收集后方便统一销毁
-	protected HashSet<WindowStructPoolBase> mPoolRootList;          // mPoolList中由LayoutScript直接持有的对象池
+	protected HashSet<WindowStructPoolBase> mPoolRootList;          // 由LayoutScript直接持有的对象池
+	protected HashSet<WindowPoolBase> mWindowPoolRootList;          // 由LayoutScript直接持有的窗口对象池
 	protected HashSet<WindowObjectBase> mWindowObjectList;			// 布局中使用的非对象池中的窗口对象,收集后方便统一销毁
 	protected HashSet<WindowObjectBase> mWindowObjectRootList;      // mWindowObjectList中的root节点列表,也就是排除了嵌套在子界面中的对象
 	protected HashSet<IDragViewLoop> mDragViewLoopList;				// 存储界面中的滚动列表,用于调用列表的update
@@ -24,20 +26,27 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 	protected myUGUIObject mRoot;									// 布局中的根节点
 	protected bool mRegisterChecked;								// 是否已经检测过了合法性
 	protected bool mNeedUpdate = true;								// 布局脚本是否需要指定update,为了提高效率,可以不执行当前脚本的update,虽然update可能是空的,但是不调用会效率更高
-	protected bool mEscHide;                                        // 按Esc键时是否关闭此界面
-	protected bool mUnuseAllWhenHide = true;						// 是否在隐藏时将引用的对象池中的对象全部回收
+	protected bool mEscHide;                                        // 按Esc键时是否关闭此界面,仅在PC端使用
+	protected bool mUnuseAllWhenHide = true;                        // 是否在隐藏时将引用的对象池中的对象全部回收
+	protected bool mNeedResetAllChild = true;						// 是否在调用onGameState时,去调用所有一级子节点的reset,默认为true
 	public override void destroy()
 	{
 		base.destroy();
 		// 避免遗漏本地化的注销,此处再次确认注销一次
 		clearLocalization();
 
-		foreach (WindowStructPoolBase item in mPoolList.safe())
+		foreach (WindowStructPoolBase item in mPoolRootList.safe())
 		{
 			item.destroy();
 		}
-		mPoolList?.Clear();
 		mPoolRootList?.Clear();
+
+		foreach (WindowPoolBase item in mWindowPoolRootList.safe())
+		{
+			item.destroy();
+		}
+		mWindowPoolRootList?.Clear();
+
 		foreach (WindowObjectBase item in mWindowObjectRootList.safe())
 		{
 			item.destroy();
@@ -55,8 +64,8 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 		base.resetProperty();
 		mScrollViewRegisteList?.Clear();
 		mInputFieldRegisteList?.Clear();
-		mPoolList?.Clear();
 		mPoolRootList?.Clear();
+		mWindowPoolRootList?.Clear();
 		mWindowObjectList?.Clear();
 		mWindowObjectRootList?.Clear();
 		mDragViewLoopList?.Clear();
@@ -67,6 +76,7 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 		mNeedUpdate = true;
 		mEscHide = false;
 		mUnuseAllWhenHide = true;
+		mNeedResetAllChild = true;
 	}
 	public virtual void setLayout(GameLayout layout) { mLayout = layout; }
 	public virtual bool onESCDown()
@@ -131,15 +141,24 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 	}
 	public void addWindowStructPool(WindowStructPoolBase pool)
 	{
-		mPoolList ??= new();
-		if (!mPoolList.Add(pool))
-		{
-			logError("不能重复注册对象池");
-		}
 		if (pool.isRootPool())
 		{
 			mPoolRootList ??= new();
-			mPoolRootList.Add(pool);
+			if (!mPoolRootList.Add(pool))
+			{
+				logError("不能重复注册对象池");
+			}
+		}
+	}
+	public void addWindowPool(WindowPoolBase pool)
+	{
+		if (pool.isRootPool())
+		{
+			mWindowPoolRootList ??= new();
+			if (!mWindowPoolRootList.Add(pool))
+			{
+				logError("不能重复注册窗口对象池");
+			}
 		}
 	}
 	public void addWindowObject(WindowObjectBase windowObj)
@@ -163,9 +182,41 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 	public abstract void assignWindow();
 	public virtual void init() 
 	{
+		// 调用所有对象池的初始化
+		foreach (WindowStructPoolBase item in mPoolRootList.safe())
+		{
+			item.init();
+		}
+		// 调用所有窗口对象池的初始化
+		foreach (WindowPoolBase item in mWindowPoolRootList.safe())
+		{
+			item.init();
+		}
+		// 调用所有根对象的初始化
 		foreach (WindowObjectBase item in mWindowObjectRootList.safe())
 		{
 			item.init();
+			item.postInit();
+		}
+	}
+	public void postInit()
+	{
+		// 如果初始化以后,item中的对象池是有创建节点的,则需要设置为不能自动清空对象池,不然会出问题
+		foreach (WindowStructPoolBase pool in mPoolRootList.safe())
+		{
+			if (pool.getInUseCount() > 0)
+			{
+				mUnuseAllWhenHide = false;
+				break;
+			}
+		}
+		foreach (WindowPoolBase pool in mWindowPoolRootList.safe())
+		{
+			if (pool.getInUseCount() > 0)
+			{
+				mUnuseAllWhenHide = false;
+				break;
+			}
 		}
 	}
 	public void updateAllDragView()
@@ -200,17 +251,29 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 			mRoot.getObject().GetComponentsInChildren(scrollViewList);
 			foreach (ScrollRect item in scrollViewList)
 			{
-				if (mScrollViewRegisteList == null || !mScrollViewRegisteList.Contains(mLayout.getUIObject(item.gameObject) as myUGUIScrollRect))
+				if (!mScrollViewRegisteList.contains(mLayout.getUIObject(item.gameObject) as myUGUIScrollRect))
 				{
 					logError("滑动列表未注册:" + item.gameObject.name + ", layout:" + mLayout.getName());
 				}
 			}
 
+			// 所有的原生UGUI输入框
 			using var b = new ListScope<InputField>(out var inputFieldList);
 			mRoot.getObject().GetComponentsInChildren(inputFieldList);
 			foreach (InputField item in inputFieldList)
 			{
-				if (mInputFieldRegisteList == null || !mInputFieldRegisteList.Contains(mLayout.getUIObject(item.gameObject) as IInputField))
+				if (!mInputFieldRegisteList.contains(mLayout.getUIObject(item.gameObject) as IInputField))
+				{
+					logError("输入框未注册:" + item.gameObject.name + ", layout:" + mLayout.getName());
+				}
+			}
+
+			// 所有的TextMeshPro输入框
+			using var c = new ListScope<TMP_InputField>(out var tmpInputFieldList);
+			mRoot.getObject().GetComponentsInChildren(tmpInputFieldList);
+			foreach (TMP_InputField item in tmpInputFieldList)
+			{
+				if (!mInputFieldRegisteList.contains(mLayout.getUIObject(item.gameObject) as IInputField))
 				{
 					logError("输入框未注册:" + item.gameObject.name + ", layout:" + mLayout.getName());
 				}
@@ -220,7 +283,11 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 		// 只通知没有父节点的窗口对象,其他带父节点的会由父节点窗口对象来调用
 		foreach (WindowObjectBase item in mWindowObjectRootList.safe())
 		{
-			item.reset();
+			if (mNeedResetAllChild)
+			{ 
+				item.reset();
+			}
+			item.onShow();
 		}
 	}
 	public virtual void onDrawGizmos() { }
@@ -240,6 +307,10 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 		{
 			// 隐藏界面时调用所有对象池的回收,将创建的所有对象都回收掉
 			foreach (WindowStructPoolBase item in mPoolRootList.safe())
+			{
+				item.unuseAll();
+			}
+			foreach (WindowPoolBase item in mWindowPoolRootList.safe())
 			{
 				item.unuseAll();
 			}
@@ -280,7 +351,7 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 	{
 		parent ??= mRoot;
 		GameObject obj = UnityUtility.cloneObject(oriObj.getObject(), name);
-		target = newUIObject<T>(parent, mLayout, obj);
+		target = newUIObject<T>(parent, mLayout, obj, true);
 		target.setActive(active);
 		target.cloneFrom(oriObj);
 	}
@@ -294,7 +365,7 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 		// UGUI需要添加RectTransform
 		getOrAddComponent<RectTransform>(go);
 		go.layer = parent.getObject().layer;
-		T obj = newUIObject<T>(parent, mLayout, go);
+		T obj = newUIObject<T>(parent, mLayout, go, true);
 		obj.setActive(active);
 		go.transform.localScale = Vector3.one;
 		go.transform.localEulerAngles = Vector3.zero;
@@ -306,7 +377,7 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 		GameObject go = createGameObject(name);
 		parent ??= mRoot;
 		go.layer = parent.getObject().layer;
-		T obj = newUIObject<T>(parent, mLayout, go);
+		T obj = newUIObject<T>(parent, mLayout, go, true);
 		obj.setActive(active);
 		go.transform.localScale = Vector3.one;
 		go.transform.localEulerAngles = Vector3.zero;
@@ -399,24 +470,25 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 		}
 
 		if (setParent)
-			obj = newUIObject<T>(parent, mLayout, gameObject);
+			obj = newUIObject<T>(parent, mLayout, gameObject, false);
 		else
-			obj = newUIObject<T>(mLayout, gameObject);
+			obj = newUIObject<T>(mLayout, gameObject, false);
 			
 		return obj;
 	}
 	public T newObject<T>(out T obj, myUGUIObject parent, GameObject go) where T : myUGUIObject, new()
 	{
-		obj = newUIObject<T>(parent, mLayout, go);
+		obj = newUIObject<T>(parent, mLayout, go, false);
 		return obj;
 	}
 	public static T newUIObject<T>(GameObject go) where T : myUGUIObject, new()
 	{
-		return newUIObject<T>(null, null, go);
+		return newUIObject<T>(null, null, go, false);
 	}
-	public static T newUIObject<T>(GameLayout layout, GameObject go) where T : myUGUIObject, new()
+	public static T newUIObject<T>(GameLayout layout, GameObject go, bool isNewObject) where T : myUGUIObject, new()
 	{
 		T obj = new();
+		obj.setIsNewObject(isNewObject);
 		obj.setLayout(layout);
 		obj.setObject(go);
 		obj.init();
@@ -427,9 +499,11 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 		}
 		return obj;
 	}
-	public static T newUIObject<T>(myUGUIObject parent, GameLayout layout, GameObject go) where T : myUGUIObject, new()
+	// isNewObject表示是否为动态new出来的节点,如果是动态new出来的,则在发现缺少组件时会自动添加而不是报错提示
+	public static T newUIObject<T>(myUGUIObject parent, GameLayout layout, GameObject go, bool isNewObject) where T : myUGUIObject, new()
 	{
 		T obj = new();
+		obj.setIsNewObject(isNewObject);
 		obj.setLayout(layout);
 		obj.setObject(go);
 		obj.setParent(parent, false);

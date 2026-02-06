@@ -1,5 +1,4 @@
-﻿#if USE_TMP
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System;
@@ -49,6 +48,10 @@ public class myUGUITextAuto : myUGUIObject, IUGUIText
 	public void setText(int value)
 	{
 		setText(IToS(value));
+	}
+	public void setText(long value)
+	{
+		setText(LToS(value));
 	}
 	public void applyPreferredWidth(float height = 0.0f, float extraWidth = 0.0f)
 	{
@@ -316,4 +319,3 @@ public class myUGUITextAuto : myUGUIObject, IUGUIText
 		collection.addLocalizationObject(this);
 	}
 }
-#endif

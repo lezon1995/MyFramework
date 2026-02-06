@@ -4,6 +4,7 @@ using static FrameUtility;
 using static FrameBaseUtility;
 
 // 负责窗口对象池,效率稍微高一些,但是功能会比普通的WindowStructPool少一点,UsedList是无序的
+[CommonWindowPool]
 public class WindowStructPoolUnOrder<T> : WindowStructPoolBase where T : WindowObjectBase, IRecyclable
 {
 	protected HashSet<T> mUsedItemList = new();		// 正在使用的列表
@@ -19,13 +20,10 @@ public class WindowStructPoolUnOrder<T> : WindowStructPoolBase where T : WindowO
 		}
 		mUnusedItemList.Clear();
 	}
-	public void init(bool newItemToLast)
+	public override void init()
 	{
-		init(mTemplate.getParent(), typeof(T), newItemToLast);
-	}
-	public void init(myUGUIObject parent, bool newItemToLast)
-	{
-		init(parent, typeof(T), newItemToLast);
+		base.init();
+		init(mTemplate.getParent(), typeof(T), true);
 	}
 	public HashSet<T> getUsedList() { return mUsedItemList; }
 	public void checkCapacity(int capacity)
@@ -68,9 +66,10 @@ public class WindowStructPoolUnOrder<T> : WindowStructPoolBase where T : WindowO
 		}
 		else
 		{
-			item = createInstance<T>(mObjectType, mScript);
+			item = createInstance<T>(mObjectType, this);
 			item.assignWindow(parent, mTemplate, isEditor() ? mPreName + makeID() : mPreName);
 			item.init();
+			item.postInit();
 		}
 		item.setAssignID(++mAssignIDSeed);
 		item.reset();
@@ -79,8 +78,7 @@ public class WindowStructPoolUnOrder<T> : WindowStructPoolBase where T : WindowO
 		{
 			item.setAsLastSibling(false);
 		}
-		mUsedItemList.Add(item);
-		return item;
+		return mUsedItemList.add(item);
 	}
 	public override void unuseAll()
 	{
@@ -91,6 +89,12 @@ public class WindowStructPoolUnOrder<T> : WindowStructPoolBase where T : WindowO
 			mUnusedItemList.Enqueue(item);
 		}
 		mUsedItemList.Clear();
+	}
+	public bool unuseItem(ref T item, bool showError = true)
+	{
+		bool result = unuseItem(item, showError);
+		item = null;
+		return result;
 	}
 	public bool unuseItem(T item, bool showError = true)
 	{
@@ -121,4 +125,5 @@ public class WindowStructPoolUnOrder<T> : WindowStructPoolBase where T : WindowO
 		mUnusedItemList.Enqueue(item);
 		return true;
 	}
+	public override int getInUseCount() { return mUsedItemList.count(); }
 }

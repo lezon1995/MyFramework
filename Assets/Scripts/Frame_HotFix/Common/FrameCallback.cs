@@ -1,6 +1,6 @@
-﻿using UnityEngine;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Net;
+using UnityEngine;
 using UnityEngine.Networking;
 #if USE_AVPRO_VIDEO
 using RenderHeads.Media.AVProVideo;
@@ -9,8 +9,10 @@ using UObject = UnityEngine.Object;
 
 // 游戏委托定义
 public delegate bool BoolFunction();
+public delegate bool Predicate2<T0, T1>(T0 obj0, T1 obj1);
 public delegate void StringCallback(string info);
 public delegate void IntCallback(int value);
+public delegate void LongCallback(long value);
 public delegate void FloatStringParam(float floatParam, string stringParam);
 public delegate void StringListCallback(List<string> info);
 public delegate void StringArrayCallback(string[] lines);
@@ -32,6 +34,7 @@ public delegate void Float2Callback(float value0, float value1);
 public delegate void Float3Callback(float value0, float value1, float value2);
 public delegate void BoolCallback(bool value);
 public delegate void BoolIntCallback(bool value0, int value1);
+public delegate void BoolLongCallback(bool value0, long value1);
 public delegate void StringIntCallback(string str, int value);
 public delegate void StringBoolCallback(string str, bool value);
 public delegate void FloatBoolCallback(float progress, bool done);

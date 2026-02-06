@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using static UnityUtility;
 using static FrameUtility;
 using static FrameDefine;
+using static FrameBaseUtility;
 using UObject = UnityEngine.Object;
 
 // 用于实现图集的不同加载方式
@@ -157,7 +158,7 @@ public abstract class AtlasLoaderBase
 		}
 		return op;
 	}
-	// 卸载图集
+	// 卸载图集,atlasPtr会在上一层调用中被回收,所以无需在这里去UN_CLASS
 	public bool unloadAtlas(UGUIAtlasPtr atlasPtr)
 	{
 		if (atlasPtr == null || !atlasPtr.isValid() || atlasPtr.getToken() == 0)
@@ -192,6 +193,17 @@ public abstract class AtlasLoaderBase
 			atlas.setFilePath(loadPath);
 			atlas.mMainAsset = mainAsset;
 			var spriteAtlas = mainAsset as SpriteAtlas;
+			if (spriteAtlas.spriteCount == 0)
+			{
+				if (isEditor())
+				{
+					logError("在编辑器中无法获取到一个SpriteAtlas中的图片数量,可能未开启图集的打包,请在PlayerSettings->Editor->Sprite Atlas Mode中设置为Sprite Atlas V2 - Enable,或者也可能这个图集中真的没有图片");
+				}
+				else
+				{
+					logError("在真机运行时无法获取到一个SpriteAtlas中的图片数量,可能没有正常触发SpriteAtlasManager.atlasRequested,或者也可能这个图集中真的没有图片");
+				}
+			}
 			atlas.setAtlas(spriteAtlas);
 			Sprite[] spriteList = new Sprite[spriteAtlas.spriteCount];
 			if (spriteAtlas.GetSprites(spriteList) != spriteList.Length)

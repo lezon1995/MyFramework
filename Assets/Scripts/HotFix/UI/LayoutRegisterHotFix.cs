@@ -12,7 +12,7 @@ public class LayoutRegisterHotFix
 		registeLayout<MainMenuScreen>((script) =>					{ mMainMenuScreen = script; });
 		registeLayout<OverlayMenu>((script) =>						{ mOverlayMenu = script; });
 		registeLayout<SplashScreen>((script) =>						{ mSplashScreen = script; });
-		registeLayout<UIGaming>((script) =>							{ mUIGaming = script; });
+		registeLayout<UIGame>((script) =>							{ mUIGame = script; });
 		registeLayout<UILogin>((script) =>							{ mUILogin = script; });
 		// auto generate end
 	}

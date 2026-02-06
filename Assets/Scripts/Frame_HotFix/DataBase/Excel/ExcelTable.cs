@@ -79,7 +79,11 @@ public class ExcelTable
 		while (reader.getIndex() < reader.getDataSize())
 		{
 			var data = createInstance<ExcelData>(mDataType);
-			data.read(reader);
+			if (!data.read(reader))
+			{
+				logError("表格解析失败,表格:" + mTableName + ", ID:" + data.mID);
+				break;
+			}
 			if (!mDataMap.TryAdd(data.mID, data))
 			{
 				logError("表格中存在重复ID,表格:" + mTableName + ", ID:" + data.mID);
@@ -147,6 +151,50 @@ public class ExcelTable
 		if (list0.Count != list1.Count)
 		{
 			logError("列表长度不一致, ID:" + id + ", 表格:" + mTableName + ", 第一个长度:" + list0.Count + ", 第二个长度:" + list1.Count);
+		}
+	}
+	public void checkStringValue(string curValue, string supposeValue, int id)
+	{
+		if (supposeValue.isEmpty() && !curValue.isEmpty() ||
+			!supposeValue.isEmpty() && curValue.isEmpty() ||
+			(!supposeValue.isEmpty() && !curValue.isEmpty() && curValue != supposeValue))
+		{
+			logError("文本填写错误, ID:" + id + ", 表格:" + mTableName + ", 当前填写的文本:" + curValue + ", 正确的文本:" + supposeValue);
+		}
+	}
+	public void checkStringValue(List<string> curValue, List<string> supposeValue, int id)
+	{
+		if (curValue.count() != supposeValue.count())
+		{
+			logError("文本数量填写错误, ID:" + id + ", 表格:" + mTableName + ", 当前填写的文本数量:" + curValue.count() + ", 正确的文本数量:" + supposeValue.count());
+		}
+		for (int i = 0;	i < curValue.count(); ++i)
+		{
+			if (curValue[i] != supposeValue[i])
+			{
+				logError("第" + i + "个文本填写错误, ID:" + id + ", 表格:" + mTableName + ", 当前填写的文本:" + curValue[i] + ", 正确的文本:" + supposeValue[i]);
+			}
+		}
+	}
+	public void checkStringValue(string curValue, string supposeValue, ushort id)
+	{
+		if (curValue != supposeValue)
+		{
+			logError("文本填写错误, ID:" + id + ", 表格:" + mTableName + ", 当前填写的文本:" + curValue + ", 正确的文本:" + supposeValue);
+		}
+	}
+	public void checkStringValue(List<string> curValue, List<string> supposeValue, ushort id)
+	{
+		if (curValue.count() != supposeValue.count())
+		{
+			logError("文本数量填写错误, ID:" + id + ", 表格:" + mTableName + ", 当前填写的文本数量:" + curValue.count() + ", 正确的文本数量:" + supposeValue.count());
+		}
+		for (int i = 0; i < curValue.count(); ++i)
+		{
+			if (curValue[i] != supposeValue[i])
+			{
+				logError("第" + i + "个文本填写错误, ID:" + id + ", 表格:" + mTableName + ", 当前填写的文本:" + curValue[i] + ", 正确的文本:" + supposeValue[i]);
+			}
 		}
 	}
 	public static void checkPath(string path, bool checkSpace = true)
@@ -229,13 +277,23 @@ public class ExcelTable
 			// 如果已有同id的数据，那就重新读一遍来替换；否则需要创建并添加。
 			if (mDataMap.TryGetValue(id, out ExcelData data))
 			{
-				data.read(reader);
+				if (!data.read(reader))
+				{
+					break;
+				}
 			}
 			else
 			{
 				data = createInstance<ExcelData>(mDataType);
-				data.read(reader);
-				mDataMap.Add(data.mID, data);
+				if (!data.read(reader))
+				{
+					logError("表格解析失败,表格:" + mTableName + ", ID:" + data.mID);
+					break;
+				}
+				if (!mDataMap.TryAdd(data.mID, data))
+				{
+					logError("表格中存在重复ID,表格:" + mTableName + ", ID:" + data.mID);
+				}
 			}
 		}
 		// 最后删除减少的行

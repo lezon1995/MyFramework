@@ -256,11 +256,11 @@ public class Transformable : ComponentOwner, ITransformable
 		{
 			return;
 		}
-		mPositionDirty = true;
 		if (isVectorEqual(mTransform.localPosition, pos))
 		{
 			return;
 		}
+		mPositionDirty = true;
 		mTransform.localPosition = pos;
 		mPositionModifyCallback?.Invoke();
 	}

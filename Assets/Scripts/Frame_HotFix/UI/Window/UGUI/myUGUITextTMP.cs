@@ -1,5 +1,4 @@
-﻿#if USE_TMP
-using UnityEngine;
+﻿using UnityEngine;
 using TMPro;
 using System;
 using System.Collections.Generic;
@@ -46,6 +45,10 @@ public class myUGUITextTMP : myUGUIObject, IUGUIText
 	public void setText(int value)
 	{
 		setText(IToS(value));
+	}
+	public void setText(long value)
+	{
+		setText(LToS(value));
 	}
 	public void applyPreferredWidth(float height = 0.0f, float extraWidth = 0.0f)
 	{
@@ -153,4 +156,3 @@ public class myUGUITextTMP : myUGUIObject, IUGUIText
 		collection.addLocalizationObject(this);
 	}
 }
-#endif

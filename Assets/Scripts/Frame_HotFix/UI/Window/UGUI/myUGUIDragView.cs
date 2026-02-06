@@ -13,17 +13,19 @@ public class myUGUIDragView : myUGUIObject
 	{
 		mNeedUpdate = true;
 	}
-	public void initDragView()
+	public override void init()
 	{
-		initDragView(DRAG_DIRECTION.VERTICAL, toRadian(45.0f), false, true, true);
-	}
-	public void initDragView(DRAG_DIRECTION direction)
-	{
-		initDragView(direction, toRadian(45.0f), false, true, true);
-	}
-	public void initDragView(DRAG_DIRECTION direction, float angleThresholdRadian)
-	{
-		initDragView(direction, angleThresholdRadian, false, true, true);
+		base.init();
+		// 这里直接获取父节点作为viewport
+		mLayout.getScript().bindPassOnlyParent(mParent);
+		registeCollider(true);
+		setDepthOverAllChild(true);
+		setDragDirection(DRAG_DIRECTION.VERTICAL);
+		setDragAngleThreshold(toRadian(45.0f));
+		setClampInner(false);
+		setAllowDragOnlyOverParentSize(true);
+		setClampInRange(true);
+		mInited = true;
 	}
 	// angleThresholdRadian表示拖拽方向与允许拖拽方向的夹角绝对值最大值,弧度制
 	// clampInner为true表示DragView只能在父节点的区域内滑动,父节点区域小于DragView区域时不能滑动
@@ -33,16 +35,11 @@ public class myUGUIDragView : myUGUIObject
 	// clampInRange为true表示拖拽时始终限制在正常范围内
 	public void initDragView(DRAG_DIRECTION direction, float angleThresholdRadian, bool clampInner, bool allowDragOnlyOverParentSize, bool clampInRange)
 	{
-		// 这里直接获取父节点作为viewport
-		mLayout.getScript().bindPassOnlyParent(mParent);
-		registeCollider(true);
-		setDepthOverAllChild(true);
 		setDragDirection(direction);
 		setDragAngleThreshold(angleThresholdRadian);
 		setClampInner(clampInner);
 		setAllowDragOnlyOverParentSize(allowDragOnlyOverParentSize);
 		setClampInRange(clampInRange);
-		mInited = true;
 	}
 	public override bool isReceiveScreenTouch() { return true; }
 	public myUGUIObject getViewport() { return mParent; }
@@ -61,7 +58,7 @@ public class myUGUIDragView : myUGUIObject
 		mDragViewComponent.onTouchDown(mousePos, touchID);
 		if (!mInited)
 		{
-			logError("COMWindowDragView组件未初始化,是否忘记调用了myUGUIDragView的initDragView?");
+			logError("myUGUIDragView未初始化,是否忘记调用了myUGUIDragView的init?");
 		}
 	}
 	// 鼠标在屏幕上抬起

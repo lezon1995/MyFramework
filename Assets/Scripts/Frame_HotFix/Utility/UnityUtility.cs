@@ -6,9 +6,6 @@ using System.Collections;
 #if USE_SPINE
 using Spine.Unity;
 #endif
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
@@ -16,9 +13,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.Rendering;
 #endif
-#if USE_TMP
 using TMPro;
-#endif
 using UObject = UnityEngine.Object;
 using UDebug = UnityEngine.Debug;
 using static FrameBaseUtility;
@@ -477,6 +472,19 @@ public class UnityUtility
 		}
 		screenPosition.z = 0.0f;
 		return screenPosition;
+	}
+	// screenCenterAsZero为false表示输入的坐标是以屏幕左下角为原点的坐标
+	// screenCenterAsZero为true表示输入的坐标是以屏幕中心为原点的坐标
+	public static Vector3 screenToWorld(Vector3 screenPos, Camera camera, bool screenCenterAsZero = true)
+	{
+		if (screenCenterAsZero)
+		{
+			screenPos += getHalfScreenSize().toVec3();
+			screenPos.z = 0.0f;
+		}
+		Vector3 worldPosition = camera.ScreenToWorldPoint(screenPos);
+		worldPosition.z = 0.0f;
+		return worldPosition;
 	}
 	public static Vector3 worldToScreen(Vector3 worldPos, bool screenCenterAsZero = true)
 	{
