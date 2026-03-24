@@ -495,7 +495,7 @@ public class UnityUtility
 		return worldToScreen(worldPos, getUICamera(), screenCenterAsZero);
 	}
 	
-	public static Vector3 screenToWorld(Vector3 screenPos, Camera camera, bool screenCenterAsZero = true)
+	public static Vector3 screenToWorldKeepZ(Vector3 screenPos, Camera camera, bool screenCenterAsZero = true)
 	{
 		if (screenCenterAsZero)
 		{

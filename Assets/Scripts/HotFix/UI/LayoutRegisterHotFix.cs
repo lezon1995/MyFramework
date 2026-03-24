@@ -11,6 +11,7 @@ public class LayoutRegisterHotFix
 		registeLayout<DebugPanel>((script) =>						{ mDebugPanel = script; });
 		registeLayout<MainMenuScreen>((script) =>					{ mMainMenuScreen = script; });
 		registeLayout<OverlayMenu>((script) =>						{ mOverlayMenu = script; });
+		registeLayout<RewardChoosePanel>((script) =>				{ mRewardChoosePanel = script; });
 		registeLayout<SplashScreen>((script) =>						{ mSplashScreen = script; });
 		registeLayout<UIGame>((script) =>							{ mUIGame = script; });
 		registeLayout<UILogin>((script) =>							{ mUILogin = script; });

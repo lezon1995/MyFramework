@@ -190,18 +190,23 @@ public class HybridCLRSystem
 			errorCallback?.Invoke();
 			return;
 		}
+
 		if (downloadFiles == null)
-		{
 			return;
-		}
+
 		downloadFiles.set(fileDllName, bytes);
 		if (++finishCount < downloadFiles.Count)
-		{
 			return;
-		}
+
 		// 加载以后不再卸载
-		Assembly.Load(decryptAES(downloadFiles.get(HOTFIX_FRAME_BYTES_FILE), aesKey, aesIV));
-		launchInternal(Assembly.Load(decryptAES(downloadFiles.get(HOTFIX_BYTES_FILE), aesKey, aesIV)));
+		byte[] encryptedFrameHotfixBytes = downloadFiles.get(HOTFIX_FRAME_BYTES_FILE);
+		byte[] decryptedFrameHotfixBytes = decryptAES(encryptedFrameHotfixBytes, aesKey, aesIV);
+		Assembly.Load(decryptedFrameHotfixBytes);
+
+		byte[] encryptedHotfixBytes = downloadFiles.get(HOTFIX_BYTES_FILE);
+		byte[] decryptedHotfixBytes = decryptAES(encryptedHotfixBytes, aesKey, aesIV);
+		Assembly hotfixAssembly = Assembly.Load(decryptedHotfixBytes);
+		launchInternal(hotfixAssembly);
 	}
 	protected static void launchEditor(Action errorCallback)
 	{
@@ -222,14 +227,14 @@ public class HybridCLRSystem
 		}
 		launchInternal(hotFixAssembly);
 	}
-	protected static void launchInternal(Assembly hotFixAssembly)
+	protected static void launchInternal(Assembly hotfixAssembly)
 	{
-		if (hotFixAssembly == null)
+		if (hotfixAssembly == null)
 		{
 			logErrorBase("加载热更程序集失败:" + HOTFIX_FILE);
 			return;
 		}
-		Type type = hotFixAssembly.GetType("GameHotFix");
+		Type type = hotfixAssembly.GetType("GameHotFix");
 		if (type == null)
 		{
 			logErrorBase("在热更程序集中找不到GameHotFix类");

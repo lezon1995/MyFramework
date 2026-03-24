@@ -198,6 +198,7 @@ public class Transformable : ComponentOwner, ITransformable
 		return mObject.GetComponentInChildren<T>(includeInactive);
 	}
 	public GameObject getUnityObject() { return mObject; }
+	public GameObject gameObject => mObject;
 	public Transform transform => mTransform;
 	public Transform getTransform() { return mTransform; }
 	public Vector3 getLeft(bool ignoreY = false) { return ignoreY ? normalize(resetY(-mTransform.right)) : -mTransform.right; }

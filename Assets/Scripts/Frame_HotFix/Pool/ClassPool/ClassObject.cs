@@ -41,4 +41,44 @@ public class ClassObject : IEquatable<ClassObject>, IEventListener, IResetProper
 	void IDisposable.Dispose()
 	{
 	}
+	
+	public void with<P1>(P1 p1)
+	{
+		if (this is IArgs<P1> args)
+		{
+			args.onCreate(p1);
+		}
+	}
+
+	public void with<P1, P2>(P1 p1, P2 p2)
+	{
+		if (this is IArgs<P1, P2> args)
+		{
+			args.onCreate(p1, p2);
+		}
+	}
+
+	public void with<P1, P2, P3>(P1 p1, P2 p2, P3 p3)
+	{
+		if (this is IArgs<P1, P2, P3> args)
+		{
+			args.onCreate(p1, p2, p3);
+		}
+	}
+
+	public void with<P1, P2, P3, P4>(P1 p1, P2 p2, P3 p3, P4 p4)
+	{
+		if (this is IArgs<P1, P2, P3, P4> args)
+		{
+			args.onCreate(p1, p2, p3, p4);
+		}
+	}
+
+	public void with<P1, P2, P3, P4, P5>(P1 p1, P2 p2, P3 p3, P4 p4, P5 p5)
+	{
+		if (this is IArgs<P1, P2, P3, P4, P5> args)
+		{
+			args.onCreate(p1, p2, p3, p4, p5);
+		}
+	}
 }

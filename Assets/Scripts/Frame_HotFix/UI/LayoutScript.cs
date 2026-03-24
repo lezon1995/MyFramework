@@ -485,7 +485,7 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 	{
 		return newUIObject<T>(null, null, go, false);
 	}
-	public static T newUIObject<T>(GameLayout layout, GameObject go, bool isNewObject) where T : myUGUIObject, new()
+	public static T newUIObject<T>(GameLayout layout, GameObject go, bool isNewObject = false) where T : myUGUIObject, new()
 	{
 		T obj = new();
 		obj.setIsNewObject(isNewObject);
@@ -500,7 +500,7 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 		return obj;
 	}
 	// isNewObject表示是否为动态new出来的节点,如果是动态new出来的,则在发现缺少组件时会自动添加而不是报错提示
-	public static T newUIObject<T>(myUGUIObject parent, GameLayout layout, GameObject go, bool isNewObject) where T : myUGUIObject, new()
+	public static T newUIObject<T>(myUGUIObject parent, GameLayout layout, GameObject go, bool isNewObject = false) where T : myUGUIObject, new()
 	{
 		T obj = new();
 		obj.setIsNewObject(isNewObject);

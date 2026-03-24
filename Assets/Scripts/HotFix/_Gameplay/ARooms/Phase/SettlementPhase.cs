@@ -46,10 +46,10 @@ namespace MarbleHero
         void SettleWin()
         {
             Debug.Log($"Settle Fight Win Start");
-            actionManager.addToBot<WaitAction>().with(1F);
+            actionManager.addToBot<WaitAction>().with(0.5F);
             actionManager.addToBot<DamageAction>().with(enemy, new DamageInfo(player, 1));
-            actionManager.addToBot<WaitAction>().with(2F);
-            actionManager.addToBot<AddExpAction>();
+            actionManager.addToBot<WaitAction>().with(1F);
+            actionManager.addToBot<GainExpAction>();
         }
     }
 }

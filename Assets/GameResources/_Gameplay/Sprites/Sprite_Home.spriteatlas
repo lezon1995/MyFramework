@@ -21,8 +21,8 @@ SpriteAtlas:
       crunchedCompression: 0
       sRGB: 1
     platformSettings:
-    - serializedVersion: 3
-      m_BuildTarget: iPhone
+    - serializedVersion: 4
+      m_BuildTarget: iOS
       m_MaxTextureSize: 2048
       m_ResizeAlgorithm: 0
       m_TextureFormat: 55
@@ -34,7 +34,7 @@ SpriteAtlas:
       m_IgnorePlatformSupport: 0
       m_AndroidETC2FallbackOverride: 0
       m_ForceMaximumCompressionQuality_BC6H_BC7: 1
-    - serializedVersion: 3
+    - serializedVersion: 4
       m_BuildTarget: Android
       m_MaxTextureSize: 2048
       m_ResizeAlgorithm: 0
@@ -47,7 +47,7 @@ SpriteAtlas:
       m_IgnorePlatformSupport: 0
       m_AndroidETC2FallbackOverride: 0
       m_ForceMaximumCompressionQuality_BC6H_BC7: 1
-    - serializedVersion: 3
+    - serializedVersion: 4
       m_BuildTarget: Standalone
       m_MaxTextureSize: 2048
       m_ResizeAlgorithm: 0
@@ -90,7 +90,8 @@ SpriteAtlas:
     - 828d37d0abe464d68914ee35bc4b0ba7: 21300000
     - c21e7ed08c541483cbee62bbea35346e: 21300000
     - f0a829e01c5f44f9ca72bfcf055091ae: 21300000
-    - c110aef0e8e8b49a9a6b324d2b89ab08: 21300000
+    - c110aef0e8e8b49a9a6b324d2b89ab08: -817548643
+    - c110aef0e8e8b49a9a6b324d2b89ab08: -2028910012
     - 8b9fc201929474b778b2a448e4e893db: 21300000
     - 14bcd711c07414c8487c1246d833eb40: 21300000
     - fb251431b1f984664ba694443a4d1f47: 21300000
@@ -300,7 +301,9 @@ SpriteAtlas:
     - cb446bfcbf7b34c31bbbd8bda01ebe02: 21300000
     - 4bf7110d4a6644a18ab22664a1fce94a: 21300000
     - e303970d408144fd7ac528598dc17ca4: 21300000
-    - d0bd970d1e2534da5ab551238cce9ac5: 21300000
+    - d0bd970d1e2534da5ab551238cce9ac5: 1701863557
+    - d0bd970d1e2534da5ab551238cce9ac5: -1202298825
+    - d0bd970d1e2534da5ab551238cce9ac5: -1403922693
     - d1117a0d5bd7f48d4a3d284dddc887eb: 21300000
     - 9a469f0d16e9a4a478e700260fc873d1: 21300000
     - 58ff231db9c1743b7a194cf351d66e8f: 21300000
@@ -381,7 +384,8 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 828d37d0abe464d68914ee35bc4b0ba7, type: 3}
   - {fileID: 21300000, guid: c21e7ed08c541483cbee62bbea35346e, type: 3}
   - {fileID: 21300000, guid: f0a829e01c5f44f9ca72bfcf055091ae, type: 3}
-  - {fileID: 21300000, guid: c110aef0e8e8b49a9a6b324d2b89ab08, type: 3}
+  - {fileID: -817548643, guid: c110aef0e8e8b49a9a6b324d2b89ab08, type: 3}
+  - {fileID: -2028910012, guid: c110aef0e8e8b49a9a6b324d2b89ab08, type: 3}
   - {fileID: 21300000, guid: 8b9fc201929474b778b2a448e4e893db, type: 3}
   - {fileID: 21300000, guid: 14bcd711c07414c8487c1246d833eb40, type: 3}
   - {fileID: 21300000, guid: fb251431b1f984664ba694443a4d1f47, type: 3}
@@ -591,7 +595,9 @@ SpriteAtlas:
   - {fileID: 21300000, guid: cb446bfcbf7b34c31bbbd8bda01ebe02, type: 3}
   - {fileID: 21300000, guid: 4bf7110d4a6644a18ab22664a1fce94a, type: 3}
   - {fileID: 21300000, guid: e303970d408144fd7ac528598dc17ca4, type: 3}
-  - {fileID: 21300000, guid: d0bd970d1e2534da5ab551238cce9ac5, type: 3}
+  - {fileID: 1701863557, guid: d0bd970d1e2534da5ab551238cce9ac5, type: 3}
+  - {fileID: -1202298825, guid: d0bd970d1e2534da5ab551238cce9ac5, type: 3}
+  - {fileID: -1403922693, guid: d0bd970d1e2534da5ab551238cce9ac5, type: 3}
   - {fileID: 21300000, guid: d1117a0d5bd7f48d4a3d284dddc887eb, type: 3}
   - {fileID: 21300000, guid: 9a469f0d16e9a4a478e700260fc873d1, type: 3}
   - {fileID: 21300000, guid: 58ff231db9c1743b7a194cf351d66e8f, type: 3}
@@ -671,7 +677,8 @@ SpriteAtlas:
   - do
   - gb
   - lu
-  - background_shadow
+  - background_shadow_1
+  - background_shadow_0
   - user_thumb_6
   - menu_txt_classic
   - gd
@@ -881,7 +888,9 @@ SpriteAtlas:
   - skin_Bolt ball
   - setting_sound_off
   - settings
-  - background
+  - background_2
+  - background_0
+  - background_1
   - btn_edit_thumbnail
   - ranking_tab_arrow
   - bh

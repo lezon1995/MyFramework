@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace MarbleHero;
@@ -9,6 +10,8 @@ public class Exp : ClassObject
     const string XP_TOTAL = "_XpTotal";
     const string XP_REQUIRED = "_XpRequired";
 
+    Action levelUpAction;
+    
     ExpData data;
     bool saveOnQuit;
     bool saveOnDestroy;
@@ -33,6 +36,11 @@ public class Exp : ClassObject
         }
     }
 
+    public void setOnLevelUp(Action action)
+    {
+        levelUpAction = action;
+    }
+    
     public void setLevel(int value)
     {
         if (level != value)
@@ -152,6 +160,7 @@ public class Exp : ClassObject
             newLevel++;
             newXpRequired = calculateXpRequiredToNextLevel(newLevel);
             new OnLevelUp((int)newXp, newLevel, Mathf.Clamp01(newXp / newXpRequired)).trigger();
+            levelUpAction?.Invoke();
         }
 
         if (newLevel >= maxLevel)

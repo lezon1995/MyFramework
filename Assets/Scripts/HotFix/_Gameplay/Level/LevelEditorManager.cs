@@ -51,7 +51,7 @@ namespace MarbleHero
             Draw.ingame.xy.Line(left1, left2);
             Draw.ingame.xy.Line(right1, right2);
 
-            Vector2 mousePos = screenToWorld(Input.mousePosition, mainCamera, screenCenterAsZero: false);
+            Vector2 mousePos = screenToWorldKeepZ(Input.mousePosition, mainCamera, screenCenterAsZero: false);
             var add = Input.GetKey(KeyCode.LeftShift);
             var remove = Input.GetKey(KeyCode.LeftControl);
 

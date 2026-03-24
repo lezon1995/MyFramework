@@ -37,25 +37,26 @@ public class Opponent : AMonster
         {
             case 1:
                 setMove(1, Intent.BRICK_GENERATE_X);
+                setMove(2, Intent.BRICK_MOVE_DOWN_X);
                 break;
             case 2:
                 setMove(1, Intent.BRICK_GENERATE_X);
-                // setMove(2, Intent.BRICK_MOVE_DOWN_X);
+                setMove(2, Intent.BRICK_MOVE_DOWN_X);
                 break;
             case 3:
                 setMove(1, Intent.BRICK_GENERATE_X);
-                // setMove(2, Intent.BRICK_MOVE_DOWN_X);
+                setMove(2, Intent.BRICK_MOVE_DOWN_X);
                 // setMove(3, Intent.BRICK_GENERATE_X);
                 break;
             case 4:
                 setMove(1, Intent.BRICK_GENERATE_X);
-                // setMove(2, Intent.BRICK_MOVE_DOWN_X);
+                setMove(2, Intent.BRICK_MOVE_DOWN_X);
                 // setMove(3, Intent.BRICK_GENERATE_X);
                 // setMove(4, Intent.BRICK_MOVE_DOWN_X);
                 break;
             case 5:
                 setMove(1, Intent.BRICK_GENERATE_X);
-                // setMove(2, Intent.BRICK_MOVE_DOWN_X);
+                setMove(2, Intent.BRICK_MOVE_DOWN_X);
                 // setMove(3, Intent.BRICK_GENERATE_X);
                 // setMove(4, Intent.BRICK_MOVE_DOWN_X);
                 // setMove(5, Intent.BRICK_GENERATE_X);
@@ -92,10 +93,10 @@ public class Opponent : AMonster
         var num = GameActionManager.turn % 4;
         BrickGroup brickGroup = num switch
         {
-            0 => CLASS<TopRowRandomBrickGroup>(),
-            1 => CLASS<RandomRowRandomBrickGroup>(),
-            2 => CLASS<RandomColRandomBrickGroup>(),
-            3 => CLASS<RandomAnyEmptyBrickGroup>(),
+            // 0 => CLASS<TopRowRandomBrickGroup>(),
+            // 1 => CLASS<RandomRowRandomBrickGroup>(),
+            // 2 => CLASS<RandomColRandomBrickGroup>(),
+            // 3 => CLASS<RandomAnyEmptyBrickGroup>(),
             _ => CLASS<TopRowRandomBrickGroup>()
         };
 

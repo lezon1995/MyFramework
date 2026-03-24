@@ -583,7 +583,7 @@ namespace MarbleHero
 
         public static string generateRandomAlias()
         {
-            var alphabet = "abcdefghijklmnopqrstuvwxyz0123456789";
+            const string alphabet = "abcdefghijklmnopqrstuvwxyz0123456789";
             using var _ = new MyStringBuilderScope(out var sb);
             for (int i = 0; i < 16; i++)
             {

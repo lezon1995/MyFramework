@@ -191,8 +191,8 @@ public partial class Brick : MovableObject, IDamageable<Ball>, IHittable, IReusa
     {
         curHealth = value;
         brickRenderer.refreshHealth(curHealth);
-        // var sprite = manager.getBrickSpriteByHealth(value);
-        // brickRenderer.setBrickSprite(sprite);
+        var sprite = manager.getBrickSpriteByHealth(value);
+        brickRenderer.setBrickSprite(sprite);
     }
 
     public void setInitialHealth(int value)

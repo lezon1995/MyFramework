@@ -43,6 +43,7 @@ namespace MarbleHero
             var data = mResourceManager.loadGameResource<ExpData>(path);
             exp.setData(data);
             exp.resetLevel();
+            exp.setOnLevelUp(onLevelUp);
 
             originalShootPosition = shootPosition = getWorldPosition();
             setOriginalShootPositionX(shootPosition.x);
@@ -203,7 +204,7 @@ namespace MarbleHero
 
         public void setOriginalShootPositionX(float posX)
         {
-            shootPosition = originalShootPosition; 
+            shootPosition = originalShootPosition;
             shootPosition.x = posX;
             originalShootPosition.x = posX;
             guideLine.setOriginalShootPosition(originalShootPosition);
@@ -247,9 +248,14 @@ namespace MarbleHero
             return;
         }
 
-        public void addExp(int xp)
+        public void gainExp(int xp)
         {
             exp.addXp(xp);
+        }
+
+        protected void onLevelUp()
+        {
+            actionManager.addToBot<OpenRewardChoosePanelAction>();
         }
     }
 }

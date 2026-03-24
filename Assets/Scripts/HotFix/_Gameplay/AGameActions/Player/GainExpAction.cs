@@ -1,10 +1,10 @@
 ﻿namespace MarbleHero
 {
-    public class AddExpAction : AGameAction
+    public class GainExpAction : AGameAction
     {
         public override void update(float dt)
         {
-            player.addExp(GameActionManager.turnExp);
+            player.gainExp(GameActionManager.turnExp);
             isDone = true;
         }
     }
