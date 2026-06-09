@@ -123,8 +123,8 @@ public partial class SplashScreen
         setBgColor(bgColor);
         setLogoColor(color);
         using var _ = new MyStringBuilderScope(out var sb);
-        sb.appendLine($"phase={phase.ToString()}");
-        sb.appendLine($"timer={timer.remain:F2}");
+        sb.addLine($"phase={phase.ToString()}");
+        sb.addLine($"timer={timer.remain:F2}");
         setDebugText(sb.ToString());
     }
 }

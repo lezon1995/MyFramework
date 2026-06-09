@@ -47,7 +47,7 @@ public struct ListScope<T> : IDisposable
 		mList.addRange(initList);
 	}
 
-	public static ListScope<T> get(out List<T> list, IEnumerable<T> initList = null)
+	public static ListScope<T> get(out List<T> list, List<T> initList = null)
 	{
 		return new(out list, initList);
 	}

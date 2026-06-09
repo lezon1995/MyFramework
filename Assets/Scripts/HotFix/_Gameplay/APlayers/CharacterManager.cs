@@ -120,7 +120,7 @@ namespace MarbleHero
             if (p == null)
                 return;
 
-            mPrefabPoolManager.destroyObject(p.getObject(), false);
+            mPrefabPoolManager.destroyObject(p.gameObject, false);
             UN_CLASS(ref p);
         }
 

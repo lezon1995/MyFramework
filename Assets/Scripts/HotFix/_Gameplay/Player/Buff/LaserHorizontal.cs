@@ -35,7 +35,7 @@ public class LaserHorizontal : Buff, IDoAttackEffect
         if (randomHit(chance))
         {
             var path = $"{GAMEPLAY_PATH}/Prefabs/FxParticle/FxLaser.prefab";
-            var effect = mEffectManager.createEffect(path, null, null, 0, true, true, 0.5F);
+            var effect = mEffectManager.createEffect(path, null, null, 0, true, true, default, 0.5F);
             var pos = brick.getWorldPosition();
             triggerPos = pos;
             effect.setWorldPosition(pos);

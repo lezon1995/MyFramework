@@ -92,7 +92,7 @@ public class BrickManager : FrameSystem
         {
             var path = $"{GAMEPLAY_PATH}/Sprites/Play/_Blocks/box_{i}.png";
             var sprite = mResourceManager.loadGameResource<Sprite>(path);
-            brickSprites[i] = sprite;
+            brickSprites[i] = sprite.getResource();
         }
 
         brickLayout = new(levelManager.getBorderSize(), 6, 10);
@@ -362,7 +362,7 @@ public class BrickManager : FrameSystem
         if (brick == null)
             return;
 
-        mPrefabPoolManager.destroyObject(brick.getObject(), false);
+        mPrefabPoolManager.destroyObject(brick.gameObject, false);
 
         long guid = brick.getGUID();
         // 从角色分类列表中移除
@@ -378,25 +378,9 @@ public class BrickManager : FrameSystem
         UN_CLASS(ref brick);
     }
 
-    public void destroyBrickList<T>(IList<T> characterList) where T : Brick
+    public void destroyBrickList<T>(List<T> characterList) where T : Brick
     {
         foreach (T brick in characterList.safe())
-        {
-            long guid = brick.getGUID();
-            // 从角色分类列表中移除
-            brickTypeList.get(brick.getType())?.Remove(guid);
-            // 从ID索引表中移除
-            brickGUIDList.Remove(guid);
-            brickUpdateList.remove(brick);
-            brickFixedUpdateList.remove(brick);
-        }
-
-        UN_CLASS_LIST(characterList);
-    }
-
-    public void destroyBrickList<T0, T1>(IDictionary<T0, T1> characterList) where T1 : Brick
-    {
-        foreach (T1 brick in (characterList?.Values).safe())
         {
             long guid = brick.getGUID();
             // 从角色分类列表中移除

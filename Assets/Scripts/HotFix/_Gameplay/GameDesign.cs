@@ -60,7 +60,7 @@ namespace MarbleHero
         public static void initialize()
         {
             var path = $"{GAMEPLAY_PATH}/GameDesign.asset";
-            gameDesign = mResourceManager.loadGameResource<GameDesign>(path);
+            gameDesign = mResourceManager.loadGameResource<GameDesign>(path).getResource();
         }
     }
 }

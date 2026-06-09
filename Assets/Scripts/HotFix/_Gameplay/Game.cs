@@ -216,9 +216,9 @@ namespace MarbleHero
             if (Settings.isDebug)
             {
                 using var _ = new MyStringBuilderScope(out var sb);
-                sb.appendLine($"mode={mode.ToString()}");
-                sb.appendLine($"screenTimer={screenTimer.remain:F2}");
-                sb.appendLine($"room={room?.GetType().Name}");
+                sb.addLine($"mode={mode.ToString()}");
+                sb.addLine($"screenTimer={screenTimer.remain:F2}");
+                sb.addLine($"room={room?.GetType().Name}");
                 mDebugPanel.setDebugText(sb.ToString());
             }
 
@@ -588,7 +588,7 @@ namespace MarbleHero
             for (int i = 0; i < 16; i++)
             {
                 var index = MathUtils.random(0, alphabet.Length - 1);
-                sb.append(alphabet[index]);
+                sb.add(alphabet[index]);
             }
 
             return sb.ToString();

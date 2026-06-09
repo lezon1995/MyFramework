@@ -31,7 +31,7 @@ public class GameplayManager : FrameSystem
             foreach (var p in ball.powers)
                 p.onBeforeHandleHitDamage(ball, brick, ref dmg);
 
-            brick.damage(ref dmg, ball.getObject(), ball, 0F, ball.getDirection(), dmgCalculator);
+            brick.damage(ref dmg, ball.gameObject, ball, 0F, ball.getDirection(), dmgCalculator);
             if (dmg.isCrit)
                 ball.onCritHit(brick);
             
@@ -64,7 +64,7 @@ public class GameplayManager : FrameSystem
         if (ball.getSelfDamage(brick, out var selfDamage))
         {
             var selfDmg = Dmg.trueDmg(selfDamage).setSelf();
-            ball.damage(ref selfDmg, ball.getObject(), brick);
+            ball.damage(ref selfDmg, ball.gameObject, brick);
         }
     }
 
@@ -75,7 +75,7 @@ public class GameplayManager : FrameSystem
             foreach (var p in ball.powers)
                 p.onBeforeHandleSkillDamage(ball, brick, ref dmg);
             
-            brick.damage(ref dmg, ball.getObject(), ball, 0F, ball.getDirection(), dmgCalculator);
+            brick.damage(ref dmg, ball.gameObject, ball, 0F, ball.getDirection(), dmgCalculator);
             
             if (dmg.isCrit)
                 ball.onCritHit(brick);
@@ -109,7 +109,7 @@ public class GameplayManager : FrameSystem
         if (ball.getSelfDamage(brick, out var selfDamage))
         {
             var selfDmg = Dmg.trueDmg(selfDamage).setSelf();
-            ball.damage(ref selfDmg, ball.getObject(), brick);
+            ball.damage(ref selfDmg, ball.gameObject, brick);
         }
     }
 

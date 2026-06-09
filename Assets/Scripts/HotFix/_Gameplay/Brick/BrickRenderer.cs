@@ -28,7 +28,7 @@ public class BrickRenderer : GameComponent
         base.init(owner);
         if (owner is Brick brick)
         {
-            var obj = brick.getObject();
+            var obj = brick.gameObject;
             gameObject = obj;
             findComponent(obj, "Renderer", out renderer);
             findComponent(obj, "Health", out health);

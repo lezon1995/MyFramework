@@ -33,7 +33,7 @@ namespace MarbleHero
             setWorldPositionY(-4.7F);
 
             guideLine = CLASS<GuideLine>();
-            guideLine.setObject(getGameObject("GuideLine", getObject()));
+            guideLine.setObject(FrameBaseUtility.getGameObject("GuideLine", gameObject));
             guideLine.setName("GuideLine");
             guideLine.setPlayer(this);
             guideLine.init();
@@ -41,7 +41,7 @@ namespace MarbleHero
             exp = CLASS<Exp>();
             var path = $"{GAMEPLAY_PATH}/ExpData.asset";
             var data = mResourceManager.loadGameResource<ExpData>(path);
-            exp.setData(data);
+            exp.setData(data.getResource());
             exp.resetLevel();
             exp.setOnLevelUp(onLevelUp);
 

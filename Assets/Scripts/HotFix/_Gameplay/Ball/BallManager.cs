@@ -236,7 +236,7 @@ public class BallManager : FrameSystem
         if (ball == null)
             return;
 
-        mPrefabPoolManager.destroyObject(ball.getObject(), false);
+        mPrefabPoolManager.destroyObject(ball.gameObject, false);
 
         long guid = ball.getGUID();
         // 从角色分类列表中移除
@@ -250,26 +250,9 @@ public class BallManager : FrameSystem
         UN_CLASS(ref ball);
     }
 
-    public void destroyBallList<T>(IList<T> characterList) where T : Ball
+    public void destroyBallList<T>(List<T> characterList) where T : Ball
     {
         foreach (T ball in characterList.safe())
-        {
-            long guid = ball.getGUID();
-            // 从角色分类列表中移除
-            ballTypeList.get(ball.getType())?.Remove(guid);
-            // 从ID索引表中移除
-            ballGUIDList.Remove(guid);
-
-            ballUpdateList.remove(ball);
-            ballFixedUpdateList.remove(ball);
-        }
-
-        UN_CLASS_LIST(characterList);
-    }
-
-    public void destroyBallList<T0, T1>(IDictionary<T0, T1> characterList) where T1 : Ball
-    {
-        foreach (T1 ball in (characterList?.Values).safe())
         {
             long guid = ball.getGUID();
             // 从角色分类列表中移除

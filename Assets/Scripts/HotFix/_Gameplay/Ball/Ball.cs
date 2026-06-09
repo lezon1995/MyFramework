@@ -196,7 +196,7 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
         instanceID = obj.GetInstanceID();
         curPos = obj.transform.position;
 
-        ballRenderer = getGameObject("Renderer", obj);
+        ballRenderer = FrameBaseUtility.getGameObject("Renderer", obj);
         findComponent(obj, out trailRenderer);
 
         if (isEditor())

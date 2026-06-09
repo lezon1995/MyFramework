@@ -71,10 +71,10 @@ namespace MarbleHero
             using var _ = new MyStringBuilderScope(out var sb);
             foreach (var c in cards)
             {
-                sb.append("#b").append(c.Value).append(" ").append(c.Key);
+                sb.add("#b").add(c.Value).add(" ").add(c.Key);
                 if (c.Value > 1)
-                    sb.append("s");
-                sb.append(", ");
+                    sb.add("s");
+                sb.add(", ");
             }
 
             string retVal = sb.ToString();

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using static FrameUtility;
 using static MathUtility;
 
@@ -442,6 +443,18 @@ public static class ListExtension
 		}
 		return list;
 	}
+
+	public static List<T> addRange<T>(this List<T> list, IEnumerable<T> other)
+	{
+		if (list == null || other == null || other.Count() == 0)
+		{
+			return list;
+		}
+		list.Capacity = list.Count + other.Count();
+		list.AddRange(other);
+		return list;
+	}
+	
 	public static List<T> addRange<T>(this List<T> list, Span<T> other)
 	{
 		if (list.Capacity < list.Count + other.Length)

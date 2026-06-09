@@ -14,7 +14,7 @@ public class BrickCollider : GameComponent
         base.init(owner);
         if (owner is Brick brick)
         {
-            var obj = brick.getObject();
+            var obj = brick.gameObject;
             gameObject = obj;
             findComponent(obj, out polygon);
         }

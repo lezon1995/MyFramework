@@ -274,15 +274,15 @@ public class LayoutManager : FrameSystem
 	// 方便调用的布局注册函数
 	public static void registeLayout<T>(LAYOUT_LIFE_CYCLE lifeCycle, LayoutScriptCallback callback = null) where T : LayoutScript
 	{
-		mLayoutManager.registeLayout(typeof(T), R_UI_PREFAB_PATH + typeof(T).ToString() + ".prefab", lifeCycle, callback);
+		mLayoutManager.registeLayout(typeof(T), R_UI_PREFAB_PATH + typeof(T).Name + ".prefab", lifeCycle, callback);
 	}
 	public static void registeLayout<T>(Action<T> callback) where T : LayoutScript
 	{
-		registeLayout(typeof(T).ToString(), LAYOUT_LIFE_CYCLE.PART_USE, callback);
+		registeLayout(typeof(T).Name, LAYOUT_LIFE_CYCLE.PART_USE, callback);
 	}
 	public static void registeLayoutPersist<T>(Action<T> callback) where T : LayoutScript
 	{
-		registeLayout(typeof(T).ToString(), LAYOUT_LIFE_CYCLE.PERSIST, callback);
+		registeLayout(typeof(T).Name, LAYOUT_LIFE_CYCLE.PERSIST, callback);
 	}
 	public static void registeLayout<T>(string name, LAYOUT_LIFE_CYCLE lifeCycle, Action<T> callback) where T : LayoutScript
 	{

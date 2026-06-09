@@ -9,7 +9,7 @@ public class UIObject : IDisposable
     public UIObject(myUGUIObject t)
     {
         obj = t;
-        gameObject = t.getObject();
+        gameObject = t.getGameObject();
     }
 
     protected void find<T>(string name, out T result) where T : Component

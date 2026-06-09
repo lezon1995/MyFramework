@@ -246,7 +246,7 @@ namespace MarbleHero
         static void initializeDisplay()
         {
             log("Initializing display settings...");
-            var config = GameEntry.getInstance().mFramworkParam;
+            var config = GameEntryBase.getInstance().mFrameworkParam;
             // DisplayConfig config = DisplayConfig.readConfig();
             (M_W, M_H) = (Screen.width, Screen.height);
             (WIDTH, HEIGHT) = (Screen.width, Screen.height);

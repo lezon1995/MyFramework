@@ -15,7 +15,7 @@ namespace MarbleHero
 
                 File.WriteAllTextAsync(path, data);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return;
             }

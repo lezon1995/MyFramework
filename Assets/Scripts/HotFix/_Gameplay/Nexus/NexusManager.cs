@@ -100,7 +100,7 @@ public class NexusManager : FrameSystem
         if (nexus == null)
             return;
 
-        mPrefabPoolManager.destroyObject(nexus.getObject(), false);
+        mPrefabPoolManager.destroyObject(nexus.gameObject, false);
         UN_CLASS(ref nexus);
     }
 }

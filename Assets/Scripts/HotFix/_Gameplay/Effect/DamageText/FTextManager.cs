@@ -48,8 +48,8 @@ public class FTextManager : FrameSystem
     {
         var damage = mResourceManager.loadGameResource<FTextSetting>($"{GAMEPLAY_PATH}/FTextSetting_Damage.asset");
         var damage_Crit = mResourceManager.loadGameResource<FTextSetting>($"{GAMEPLAY_PATH}/FTextSetting_Damage_Crit.asset");
-        settings.add("Damage", damage);
-        settings.add("Damage_Crit", damage_Crit);
+        settings.add("Damage", damage.getResource());
+        settings.add("Damage_Crit", damage_Crit.getResource());
     }
 
     public override void destroy()

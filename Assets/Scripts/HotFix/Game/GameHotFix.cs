@@ -9,9 +9,6 @@ global using static GameDefine;
 global using static HotfixDefine;
 global using static GBH;
 using System;
-using System.Reflection;
-using static GameDefine;
-using static GBH;
 using MarbleHero;
 
 public class GameHotFix : GameHotFixBase<GameHotFix>

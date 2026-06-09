@@ -162,6 +162,7 @@ public class GlobalTouchSystem : FrameSystem
 		}
 		else if (obj is MovableObject)
 		{
+			camera ??= mCameraManager.getMainCamera();
 			if (camera == null)
 			{
 				logError("need a camera!");

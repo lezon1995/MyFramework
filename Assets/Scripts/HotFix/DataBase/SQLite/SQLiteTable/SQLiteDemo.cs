@@ -3,7 +3,6 @@ using Mono.Data.Sqlite;
 using System;
 using System.Collections.Generic;
 
-#if USE_SQLITE
 public class TDDemo : SQLiteData
 {
 	public static string DemoColName = "DemoColName";
@@ -16,5 +15,6 @@ public class TDDemo : SQLiteData
 }
 
 public class SQLiteDemo : SQLiteTable
-{}
+{
+}
 #endif
