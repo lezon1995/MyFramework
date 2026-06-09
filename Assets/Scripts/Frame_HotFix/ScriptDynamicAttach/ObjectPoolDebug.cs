@@ -19,21 +19,22 @@ public class ObjectPoolDebug : MonoBehaviour
 	public List<PrefabPoolDebugInfo> mPrefabPoolInfo = new();	// 预设列表
 	private void Update()
 	{
-		if (GameEntry.getInstance() == null || !GameEntry.getInstance().mFramworkParam.mEnableScriptDebug || mPrefabPoolManager == null)
+		if (GameEntryBase.getInstance() == null || !GameEntryBase.getInstance().mFrameworkParam.mEnableScriptDebug || mPrefabPoolManager == null)
 		{
 			return;
 		}
 
-		mInstanceListValues.setRange(mPrefabPoolManager.getInstanceList().Values);
+		mInstanceListValues.setRangeValues(mPrefabPoolManager.getInstanceList());
 
 		mPrefabPoolInfo.Clear();
-		foreach (var item in mPrefabPoolManager.getPrefabPoolList().getMainList())
+		foreach (var item in mPrefabPoolManager.getPrefabPoolList())
 		{
+			PrefabPool pool = item.Value;
 			PrefabPoolDebugInfo info = new();
-			info.InuseCount = item.Value.getInuseCount();
-			info.UnuseCount = item.Value.getUnuseCount();
-			info.PrefabName = item.Value.getPrefab() != null ? item.Value.getPrefab().name : "null";
-			info.FileName = item.Value.getFileName();
+			info.InuseCount = pool.getInuseCount();
+			info.UnuseCount = pool.getUnuseCount();
+			info.PrefabName = pool.getPrefab() != null ? pool.getPrefab().name : "null";
+			info.FileName = pool.getFileName();
 			mPrefabPoolInfo.Add(info);
 		}
 	}

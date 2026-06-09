@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using UnityEngine;
 using static FrameBaseUtility;
 using static MathUtility;
 using static UnityUtility;
@@ -19,27 +20,55 @@ public class WindowPool<T> : WindowPoolBase where T : myUGUIObject, new()
 	{
 		mTemplate = template;
 	}
-	public override void destroy()
-	{
-		base.destroy();
-	}
 	public override void init()
 	{
 		base.init();
 		mParent = mTemplate.getParent();
 		mTemplate.setActive(false);
 	}
-	public T newWindow(string name = null)
+	public void newItemListHorizontal(int count)
+	{
+		unuseAll();
+		newItem(count);
+		autoGridHorizontal();
+	}
+	public void newItemListVertical(int count)
+	{
+		unuseAll();
+		newItem(count);
+		autoGridVertical();
+	}
+	public void newItem(int count)
+	{
+		if (mParent == null)
+		{
+			logError("窗口池的父节点为空, 是否忘了调用init?");
+			return;
+		}
+		for (int i = 0; i < count; ++i)
+		{
+			newItem(mParent, null);
+		}
+	}
+	public T newItemIf(bool condition)
+	{
+		if (condition)
+		{
+			return newItem();
+		}
+		return null;
+	}
+	public T newItem(string name = null)
 	{
 		if (mParent == null)
 		{
 			logError("窗口池的父节点为空, 是否忘了调用init?");
 			return null;
 		}
-		return newWindow(mParent, name);
+		return newItem(mParent, name);
 	}
 	// 新创建的窗口会自动移动到父节点的最后一个子节点的位置
-	public T newWindow(myUGUIObject parent, string name = null)
+	public T newItem(myUGUIObject parent, string name = null)
 	{
 		name ??= mTemplate.getName();
 		T window = null;
@@ -66,6 +95,7 @@ public class WindowPool<T> : WindowPoolBase where T : myUGUIObject, new()
 	{
 		foreach (T item in mInusedList)
 		{
+			mUnusedList.Add(item);
 			if (mDestroyCallback != null)
 			{
 				mDestroyCallback(item);
@@ -74,11 +104,18 @@ public class WindowPool<T> : WindowPoolBase where T : myUGUIObject, new()
 			{
 				item.setActive(false);
 			}
-			mUnusedList.Add(item);
 		}
 		mInusedList.Clear();
 	}
-	public bool unuseWindow(T window)
+	public bool tryUnuseItem(T window)
+	{
+		if (!mInusedList.contains(window))
+		{
+			return false;
+		}
+		return unuseItem(window);
+	}
+	public bool unuseItem(T window)
 	{
 		if (window == null)
 		{
@@ -123,18 +160,125 @@ public class WindowPool<T> : WindowPoolBase where T : myUGUIObject, new()
 		}
 		for (int i = 0; i < count; ++i)
 		{
-			mUnusedList.add(mInusedList[startIndex + i]).setActive(false);
+			var window = mInusedList[startIndex + i];
+			mUnusedList.Add(window);
+			if (mDestroyCallback != null)
+			{
+				mDestroyCallback(window);
+			}
+			else
+			{
+				window.setActive(false);
+			}
 		}
 		mInusedList.RemoveRange(startIndex, count);
 	}
-	public void checkCapacity(int capacity)
+	public void ensureCapacity(int capacity)
 	{
 		int needCount = capacity - mInusedList.Count;
 		for (int i = 0; i < needCount; ++i)
 		{
-			newWindow();
+			newItem();
 		}
 	}
 	public override int getInUseCount() { return mInusedList.Count; }
 	public List<T> getWindowList() { return mInusedList; }
+	public void autoGridHorizontal()
+	{
+		WidgetUtility.autoGridHorizontal(mParent, true, true, 0.0f, true, 0.0f, 0.0f, 0.0f, true);
+	}
+	public void autoGridHorizontal(float intervalNoScreenScale)
+	{
+		WidgetUtility.autoGridHorizontal(mParent, true, true, intervalNoScreenScale, true, 0.0f, 0.0f, 0.0f, true);
+	}
+	public void autoGridHorizontal(bool keepLeftSide)
+	{
+		WidgetUtility.autoGridHorizontal(mParent, true, true, 0.0f, true, 0.0f, 0.0f, 0.0f, keepLeftSide);
+	}
+	public void autoGridHorizontal(float intervalNoScreenScale, bool keepLeftSide)
+	{
+		WidgetUtility.autoGridHorizontal(mParent, true, true, intervalNoScreenScale, true, 0.0f, 0.0f, 0.0f, keepLeftSide);
+	}
+	public void autoGridHorizontal(bool autoRefreshUIDepth, bool refreshIgnoreInactive)
+	{
+		WidgetUtility.autoGridHorizontal(mParent, autoRefreshUIDepth, refreshIgnoreInactive, 0.0f, true, 0.0f, 0.0f, 0.0f, true);
+	}
+	// 自动排列一个节点下的所有子节点的位置,从左往右紧密排列,并且不改变子节点的大小,keepLeftSide为true表示改变大小后保持父节点的左边界位置不变,false表示保持右边界位置不变
+	public void autoGridHorizontal(bool autoRefreshUIDepth, bool refreshIgnoreInactive, float intervalNoScreenScale, bool changeRootPosSize = true, float minWidth = 0.0f, float extraLeftWidth = 0.0f, float extraRightWidth = 0.0f, bool keepLeftSide = true)
+	{
+		WidgetUtility.autoGridHorizontal(mParent, autoRefreshUIDepth, refreshIgnoreInactive, intervalNoScreenScale, changeRootPosSize, minWidth, extraLeftWidth, extraRightWidth, keepLeftSide);
+	}
+	// 将自动排列的方法直接写到对象池中,方便使用
+	// 一般对于排列是有两个地方有需求,1:滑动列表,2:不可滑动,但是有多个相似节点需要动态创建后排列好
+	// 一般滑动列表都会需要在排列好后将边对齐父节点,而对于不可滑动的列表,需求会根据实际情况有不同
+	public void autoGridHorizontalForDragView()
+	{
+		WidgetUtility.autoGridHorizontal(mParent, true, true, 0.0f, true, 0.0f, 0.0f, 0.0f, true);
+		mParent.setLeftCenterToParentLeftCenter();
+	}
+	public void autoGridHorizontalCenter()
+	{
+		WidgetUtility.autoGridHorizontalCenter(mParent, true, true, 0.0f);
+	}
+	public void autoGridVertical()
+	{
+		WidgetUtility.autoGridVertical(mParent, true, true, 0.0f, 0.0f, 0.0f, 0.0f, true);
+	}
+	public void autoGridVertical(bool keepTopSide)
+	{
+		WidgetUtility.autoGridVertical(mParent, true, true, 0.0f, 0.0f, 0.0f, 0.0f, keepTopSide);
+	}
+	public void autoGridVertical(float intervalNoScreenScale)
+	{
+		WidgetUtility.autoGridVertical(mParent, true, true, intervalNoScreenScale, 0.0f, 0.0f, 0.0f, true);
+	}
+	public void autoGridVertical(float intervalNoScreenScale, bool keepTopSide)
+	{
+		WidgetUtility.autoGridVertical(mParent, true, true, intervalNoScreenScale, 0.0f, 0.0f, 0.0f, keepTopSide);
+	}
+	public void autoGridVertical(bool autoRefreshUIDepth, bool refreshIgnoreInactive)
+	{
+		WidgetUtility.autoGridVertical(mParent, autoRefreshUIDepth, refreshIgnoreInactive, 0.0f, 0.0f, 0.0f, 0.0f, true);
+	}
+	public void autoGridVertical(bool autoRefreshUIDepth, bool refreshIgnoreInactive, float intervalNoScreenScale, float minHeight = 0.0f, float extraTopHeight = 0.0f, float extraBottomHeight = 0.0f, bool keepTopSide = true)
+	{
+		WidgetUtility.autoGridVertical(mParent, autoRefreshUIDepth, refreshIgnoreInactive, intervalNoScreenScale, minHeight, extraTopHeight, extraBottomHeight, keepTopSide);
+	}
+	public void autoGridVerticalForDragView()
+	{
+		WidgetUtility.autoGridVertical(mParent, true, true, 0.0f, 0.0f, 0.0f, 0.0f, true);
+		mParent.setTopCenterToParentTopCenter();
+	}
+	public void autoGridVerticalForDragView(float intervalNoScreenScale)
+	{
+		WidgetUtility.autoGridVertical(mParent, true, true, intervalNoScreenScale, 0.0f, 0.0f, 0.0f, true);
+		mParent.setTopCenterToParentTopCenter();
+	}
+	public void autoGridForDragView()
+	{
+		WidgetUtility.autoGrid(mParent, mTemplate.getSize(), Vector2.zero, true, true, true, HORIZONTAL_DIRECTION.LEFT);
+		// 根据排列后的子节点,计算出父节点的高度
+		WidgetUtility.setWindowBestHeight(mParent, true, true);
+		mParent.setTopCenterToParentTopCenter();
+	}
+	public void autoGrid()
+	{
+		WidgetUtility.autoGrid(mParent, mTemplate.getSize(), Vector2.zero, true, true, true, HORIZONTAL_DIRECTION.LEFT);
+	}
+	public void autoGrid(bool autoRefreshUIDepth)
+	{
+		WidgetUtility.autoGrid(mParent, mTemplate.getSize(), Vector2.zero, autoRefreshUIDepth, true, true, HORIZONTAL_DIRECTION.LEFT);
+	}
+	public void autoGrid(Vector2 intervalNoScreenScale)
+	{
+		WidgetUtility.autoGrid(mParent, mTemplate.getSize(), intervalNoScreenScale, true, true, true, HORIZONTAL_DIRECTION.LEFT);
+	}
+	public void autoGrid(HORIZONTAL_DIRECTION horizontal)
+	{
+		WidgetUtility.autoGrid(mParent, mTemplate.getSize(), Vector2.zero, true, true, true, horizontal);
+	}
+	public void autoGrid(Vector2 intervalNoScreenScale, HORIZONTAL_DIRECTION horizontal)
+	{
+		WidgetUtility.autoGrid(mParent, mTemplate.getSize(), intervalNoScreenScale, true, true, true, horizontal);
+	}
 }

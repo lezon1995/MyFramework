@@ -52,19 +52,13 @@ public abstract class GameScene : ComponentOwner
 	}
 	public virtual void willDestroy()
 	{
-		foreach (SceneProcedure item in mSceneProcedureList.Values)
-		{
-			item.willDestroy();
-		}
+		mSceneProcedureList.forValue(item => item.willDestroy());
 	}
 	public override void destroy()
 	{
 		base.destroy();
 		// 销毁所有流程
-		foreach (SceneProcedure item in mSceneProcedureList.Values)
-		{
-			item.destroy();
-		}
+		mSceneProcedureList.forValue(item => item.destroy());
 		mSceneProcedureList.Clear();
 		destroyUnityObject(ref mObject);
 	}
@@ -103,6 +97,7 @@ public abstract class GameScene : ComponentOwner
 		changeProcedure(mExitProcedure);
 		mCurProcedure?.exit(null, null);
 		mCurProcedure = null;
+		Resources.UnloadUnusedAssets();
 		GC.Collect();
 	}
 	public GameObject getObject() { return mObject; }
@@ -121,7 +116,7 @@ public abstract class GameScene : ComponentOwner
 		// 准备时间必须大于0
 		if (time <= 0.0f)
 		{
-			logError("preapare time must be larger than 0!");
+			logError("prepare time must be larger than 0!");
 			return;
 		}
 		// 正在准备跳转时,不允许再次准备跳转
@@ -203,8 +198,10 @@ public abstract class GameScene : ComponentOwner
 		return mLastProcedureList[^1].GetType();
 	}
 	public SceneProcedure getProcedure(Type type) { return mSceneProcedureList.get(type); }
+	public SceneProcedure getProcedure<T>() { return mSceneProcedureList.get(typeof(T)); }
 	public Type getCurProcedureType() { return mCurProcedure.GetType(); }
 	public SceneProcedure getCurProcedure() { return mCurProcedure; }
+	public int getProcedureCount() { return mSceneProcedureList.count(); }
 	// 获取当前场景的当前流程或父流程中指定类型的流程
 	public SceneProcedure getCurOrParentProcedure(Type type) { return mCurProcedure.getThisOrParent(type); }
 	public T getCurOrParentProcedure<T>() where T : SceneProcedure { return mCurProcedure.getThisOrParent(typeof(T)) as T; }

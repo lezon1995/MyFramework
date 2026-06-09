@@ -43,7 +43,7 @@ public class UIDepth
 	{
 		if (orderInParent < 0 || orderInParent > ushort.MaxValue)
 		{
-			logError("节点在父节点中的顺序值无效,有效范围是1~" + ushort.MaxValue);
+			logError("节点在父节点中的顺序值无效,有效范围是1~" + ushort.MaxValue + ",当前:" + orderInParent);
 			return;
 		}
 		if (parentDepth == null)
@@ -151,7 +151,7 @@ public class UIDepth
 			{
 				levelDepth = (int)((mWindowDepth2 & ((ulong)ushort.MaxValue << offsetBit)) >> offsetBit);
 			}
-			str.append(IToS(levelDepth), " ");
+			str.add(IToS(levelDepth), " ");
 		}
 		return str.ToString();
 	}

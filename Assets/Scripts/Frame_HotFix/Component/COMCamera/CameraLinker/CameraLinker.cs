@@ -4,7 +4,6 @@ using UnityEngine;
 using static MathUtility;
 using static UnityUtility;
 using static FrameUtility;
-using static BinaryUtility;
 using static FrameBaseUtility;
 
 // 摄像机的连接器,用于摄像机的跟随逻辑
@@ -62,7 +61,7 @@ public class CameraLinker : GameComponent
 		mCameraCollision = CAMERA_COLLISION.NONE;
 		mUpdateMoment = LINKER_UPDATE.LATE_UPDATE; 
 		mIgnoreLayer = -1;
-		memset(mTempResults, null);
+		mTempResults.setAllValue(null);
 	}
 	public override void update(float elapsedTime)
 	{

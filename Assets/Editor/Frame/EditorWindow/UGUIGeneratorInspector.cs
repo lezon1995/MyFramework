@@ -8,6 +8,7 @@ using static StringUtility;
 using static FrameDefine;
 using static EditorCommonUtility;
 using static UGUIGeneratorUtility;
+using static FrameUtility;
 
 [CustomEditor(typeof(UGUIGenerator))]
 public class UGUIGeneratorInspector : GameInspector
@@ -23,8 +24,23 @@ public class UGUIGeneratorInspector : GameInspector
 		{
 			return;
 		}
+
+		using (new GUILayout.HorizontalScope())
+		{
+			if (button("锁定Inspector", 200, 25))
+			{
+				setAllInspectorsLocked(true);
+			}
+			if (button("解锁Inspector", 200, 25))
+			{
+				setAllInspectorsLocked(false);
+			}
+		}
+		space(10);
+
 		using (new EditorModifyScope(this))
 		{
+			textField(ref generator.mComment, "注释:", 400);
 			toggle(ref generator.mIsPersistent, "常驻界面");
 			// 基类类型
 			using (new GUILayout.HorizontalScope(GUILayout.Width(200)))
@@ -39,7 +55,8 @@ public class UGUIGeneratorInspector : GameInspector
 			}
 			drawMemberInspector(generator);
 		}
-		EditorGUILayout.Space(10);
+		space(10);
+
 		using (new GUILayout.VerticalScope())
 		{
 			if (button("生成代码", 300, 25))
@@ -101,23 +118,23 @@ public class UGUIGeneratorInspector : GameInspector
 			string lineString; 
 			if (comGenerator.mIsPersistent)
 			{
-				lineString = "\t\tregisteLayoutPersist<" + className + ">((script) =>";
+				lineString = "\t\tregisteLayoutPersist<" + className + ">(script =>";
 			}
 			else
 			{
-				lineString = "\t\tregisteLayout<" + className + ">((script) =>";
+				lineString = "\t\tregisteLayout<" + className + ">(script =>";
 			}
 			string endString;
 			string subPath = fileList[i].removeStartString(F_UI_PREFAB_PATH).removeEndString(getFileNameWithSuffix(fileList[i]));
 			if (subPath.isEmpty())
 			{
-				endString = "{ m" + className + " = script; });";
+				endString = "m" + className + " = script);";
 			}
 			else
 			{
-				endString = "{ m" + className + " = script; }, \"" + subPath + "\");";
+				endString = "m" + className + " = script, \"" + subPath + "\");";
 			}
-			appendWithAlign(ref lineString, endString, 68);
+			appendWithAlign(ref lineString, endString, 64);
 			insertList.Add(lineString);
 		}
 		// LayoutRegisterHotFix
@@ -129,10 +146,7 @@ public class UGUIGeneratorInspector : GameInspector
 				(string line) => { return line.endWith("// auto generate start"); },
 				(string line) => { return line.endWith("// auto generate end"); }))
 			{
-				foreach (string str in insertList)
-				{
-					codeList.Insert(++lineStart0, str);
-				}
+				insertList.For(str => codeList.Insert(++lineStart0, str));
 			}
 			writeTxtFile(registerFileFullPath, stringsToString(codeList, "\r\n"), true);
 		}
@@ -146,10 +160,7 @@ public class UGUIGeneratorInspector : GameInspector
 				(string line) => { return line.endWith("// auto generate LayoutScript start"); },
 				(string line) => { return line.endWith("// auto generate LayoutScript end"); }))
 			{
-				foreach (string str in uiList)
-				{
-					codeList.Insert(++lineStart0, "\tpublic static " + str + " m" + str + ";");
-				}
+				uiList.For(str => codeList.Insert(++lineStart0, "\tpublic static " + str + " m" + str + ";"));
 			}
 			writeTxtFile(gameBaseFileFullPath, stringsToString(codeList, "\r\n"), true);
 		}
@@ -166,7 +177,7 @@ public class UGUIGeneratorInspector : GameInspector
 		// 先找一下有没有已经存在的UI脚本
 		string prefabName = PrefabStageUtility.GetCurrentPrefabStage().assetPath;
 		string fileFullPath = findScript(className);
-		foreach (string line in openTxtFileLinesSync(fileFullPath).safe())
+		foreach (string line in openTxtFileLinesSync(fileFullPath, false).safe())
 		{
 			// 查找是否能获取到生成的源UI文件
 			if (line.startWith("// generate from:") && 
@@ -180,6 +191,7 @@ public class UGUIGeneratorInspector : GameInspector
 		// 成员变量定义的代码
 		List<string> memberDefineList = new();
 		memberDefineList.add("// generate from:" + prefabName);
+		memberDefineList.add("// " + generator.mComment);
 		memberDefineList.add("[ObfuzIgnore(ObfuzScope.TypeName)]");
 		memberDefineList.add("public partial class " + className + " : " + generator.mParentType);
 		memberDefineList.add("{");
@@ -208,16 +220,6 @@ public class UGUIGeneratorInspector : GameInspector
 			}
 		}
 
-		// assignWindow中的代码
-		List<GameObject> tempCreatedList = new();
-		List<string> generatedAssignLines = new();
-		List<MemberData> tempDataList = new(generator.mMemberList);
-		while (tempDataList.Count > 0)
-		{
-			MemberData data = tempDataList.get(0);
-			generateNewObject(generatedAssignLines, tempDataList, generator.mMemberList, tempCreatedList, data, generator.gameObject);
-		}
-
 		// 构造函数的代码
 		List<string> constructorLines = new();
 		foreach (MemberData data in generator.mMemberList)
@@ -241,59 +243,102 @@ public class UGUIGeneratorInspector : GameInspector
 			}
 		}
 
+		// assignWindow中的代码
+		List<GameObject> tempCreatedList = new();
+		List<string> generatedAssignLines = new();
+		List<MemberData> tempDataList = new(generator.mMemberList);
+		while (tempDataList.Count > 0)
+		{
+			MemberData data = tempDataList.get(0);
+			generateNewObject(generatedAssignLines, tempDataList, generator.mMemberList, tempCreatedList, data, generator.gameObject);
+		}
+
+		// init中的代码
+		List<string> generatedInitLines = new();
+		List<string> generatedClickCallbackLists = new();
+		List<string> clickCallbackCheckLists = new();
+		foreach (MemberData data in generator.mMemberList)
+		{
+			if (data.mRegisterCollider)
+			{
+				if (data.mHasClickEvent)
+				{
+					if (data.getTypeName() == typeof(myUGUIImageSimple).ToString() ||
+						data.getTypeName() == typeof(myUGUIImageAnim).ToString() ||
+						data.getTypeName() == typeof(myUGUIImage).ToString())
+					{
+						generatedInitLines.add("\t\tm" + data.getMemberName() + ".registeColliderImage(" + "on" + data.getMemberName() + "Click);");
+						clickCallbackCheckLists.add(generatedClickCallbackLists.add("\tprotected void on" + data.getMemberName() + "Click()"));
+					}
+					else if (data.getTypeName() == typeof(TabItem).ToString())
+					{
+						generatedInitLines.add("\t\tm" + data.getMemberName() + ".setCallback(" + "on" + data.getMemberName() + "Click);");
+						clickCallbackCheckLists.add(generatedClickCallbackLists.add("\tprotected void on" + data.getMemberName() + "Click()"));
+					}
+					else if (data.getTypeName() == typeof(UGUICheckbox).ToString())
+					{
+						generatedInitLines.add("\t\tm" + data.getMemberName() + ".setCheckCallback(" + "on" + data.getMemberName() + "Click);");
+						clickCallbackCheckLists.add(generatedClickCallbackLists.add("\tprotected void on" + data.getMemberName() + "Click(UGUICheckbox checkbox)"));
+					}
+					else
+					{
+						generatedInitLines.add("\t\tm" + data.getMemberName() + ".registeCollider(" + "on" + data.getMemberName() + "Click);");
+						clickCallbackCheckLists.add(generatedClickCallbackLists.add("\tprotected void on" + data.getMemberName() + "Click()"));
+					}
+					generatedClickCallbackLists.add("\t{");
+					generatedClickCallbackLists.add("\t\t;");
+					generatedClickCallbackLists.add("\t}");
+				}
+				else
+				{
+					generatedInitLines.add("\t\tm" + data.getMemberName() + ".registeCollider();");
+				}
+			}
+		}
+
 		if (fileFullPath.isEmpty())
 		{
 			fileFullPath = F_SCRIPTS_HOTFIX_UI_PATH + className + ".cs";
 			string fileContent = "";
-			bool needStringUtility = false;
-			foreach (string item in generatedAssignLines)
-			{
-				if (item.Contains(" IToS("))
-				{
-					needStringUtility = true;
-					break;
-				}
-			}
-			if (needStringUtility)
+			line(ref fileContent, "using Obfuz;");
+			if (generatedAssignLines.contains(item => item.Contains(" IToS(")))
 			{
 				line(ref fileContent, "using static StringUtility;");
 			}
-			line(ref fileContent, "using Obfuz;");
 			line(ref fileContent, "");
 			line(ref fileContent, $"namespace {F_SCRIPTS_HOTFIX_UI_NAMESPACE};");
 			line(ref fileContent, "");
 			line(ref fileContent, "// auto generate member start");
-			foreach (string str in memberDefineList)
-			{
-				line(ref fileContent, str);
-			}
+			line(ref fileContent, memberDefineList);
 			line(ref fileContent, "\t// auto generate member end");
 			line(ref fileContent, "\tpublic " + className + "()");
 			line(ref fileContent, "\t{");
 			line(ref fileContent, "\t\t// auto generate constructor start");
-			foreach (string str in constructorLines)
-			{
-				line(ref fileContent, str);
-			}
+			line(ref fileContent, constructorLines);
 			line(ref fileContent, "\t\t// auto generate constructor end");
 			line(ref fileContent, "\t}");
 			line(ref fileContent, "\tpublic override void assignWindow()");
 			line(ref fileContent, "\t{");
 			line(ref fileContent, "\t\t// auto generate assignWindow start");
-			foreach (string str in generatedAssignLines)
-			{
-				line(ref fileContent, str);
-			}
+			line(ref fileContent, generatedAssignLines);
 			line(ref fileContent, "\t\t// auto generate assignWindow end");
 			line(ref fileContent, "\t}");
 			line(ref fileContent, "\tpublic override void init()");
 			line(ref fileContent, "\t{");
 			line(ref fileContent, "\t\tbase.init();");
+			line(ref fileContent, "\t\t// auto generate init start");
+			line(ref fileContent, generatedInitLines);
+			line(ref fileContent, "\t\t// auto generate init end");
 			line(ref fileContent, "\t}");
 			line(ref fileContent, "\tpublic override void onGameState()");
 			line(ref fileContent, "\t{");
 			line(ref fileContent, "\t\tbase.onGameState();");
 			line(ref fileContent, "\t}");
+			if (!generatedClickCallbackLists.isEmpty())
+			{
+				line(ref fileContent, "\t//--------------------------------------------------------------------------------------------------------------------------------------------");
+				line(ref fileContent, generatedClickCallbackLists);
+			}
 			line(ref fileContent, "}");
 			writeTxtFile(fileFullPath, fileContent, true);
 			// 新生成文件后需要刷新一下资源
@@ -307,27 +352,17 @@ public class UGUIGeneratorInspector : GameInspector
 				(string line) => { return line.endWith("// auto generate member start"); },
 				(string line) => { return line.endWith("// auto generate member end"); }, false))
 			{
-				foreach (string str in memberDefineList)
-				{
-					codeList.Insert(++lineStart0, str);
-				}
+				memberDefineList.For(str => codeList.Insert(++lineStart0, str));
 			}
 			else
 			{
 				// 找不到就在类的第一行插入
-				for (int i = 0; i < codeList.Count; ++i)
+				if (codeList.find(item=>item.Contains(" class " + className + " "), out int index))
 				{
-					if (codeList[i].Contains(" class " + className + " "))
-					{
-						int lineStart = i - 2;
-						codeList.Insert(++lineStart, "\t// auto generate member start");
-						foreach (string str in memberDefineList)
-						{
-							codeList.Insert(++lineStart, str);
-						}
-						codeList.Insert(++lineStart, "\t// auto generate member end");
-						break;
-					}
+					int lineStart = index - 2;
+					codeList.Insert(++lineStart, "\t// auto generate member start");
+					memberDefineList.For(str => codeList.Insert(++lineStart, str));
+					codeList.Insert(++lineStart, "\t// auto generate member end");
 				}
 			}
 
@@ -336,50 +371,31 @@ public class UGUIGeneratorInspector : GameInspector
 				(string line) => { return line.endWith("// auto generate constructor start"); },
 				(string line) => { return line.endWith("// auto generate constructor end"); }, false))
 			{
-				foreach (string str in constructorLines)
-				{
-					codeList.Insert(++lineStart1, str);
-				}
+				constructorLines.For(str => codeList.Insert(++lineStart1, str));
 			}
 			// 找不到就在构造的第一行插入
 			else
 			{
-				bool foundConstructor = false;
-				for (int i = 0; i < codeList.Count; ++i)
+				bool foundConstructor = codeList.find(item=>item.Contains("public " + className + "()"), out int index);
+				if (foundConstructor)
 				{
-					if (codeList[i].Contains("public " + className + "()"))
-					{
-						foundConstructor = true;
-						int lineStart = i + 1;
-						codeList.Insert(++lineStart, "\t\t// auto generate constructor start");
-						foreach (string str in constructorLines)
-						{
-							codeList.Insert(++lineStart, str);
-						}
-						codeList.Insert(++lineStart, "\t\t// auto generate constructor end");
-						break;
-					}
+					int lineStart = index + 1;
+					codeList.Insert(++lineStart, "\t\t// auto generate constructor start");
+					constructorLines.For(str => codeList.Insert(++lineStart, str));
+					codeList.Insert(++lineStart, "\t\t// auto generate constructor end");
 				}
 				// 如果连构造函数都没找到,就在自动生成的成员变量后面加
 				if (!foundConstructor)
 				{
-					for (int i = 0; i < codeList.Count; ++i)
+					foundConstructor = codeList.find(item => item.Contains("auto generate member end"), out int lineStart);
+					if (foundConstructor)
 					{
-						if (codeList[i].Contains("auto generate member end"))
-						{
-							foundConstructor = true;
-							int lineStart = i;
-							codeList.Insert(++lineStart, "\tpublic " + className + "()");
-							codeList.Insert(++lineStart, "\t{");
-							codeList.Insert(++lineStart, "\t\t// auto generate constructor start");
-							foreach (string str in constructorLines)
-							{
-								codeList.Insert(++lineStart, str);
-							}
-							codeList.Insert(++lineStart, "\t\t// auto generate constructor end");
-							codeList.Insert(++lineStart, "\t}");
-							break;
-						}
+						codeList.Insert(++lineStart, "\tpublic " + className + "()");
+						codeList.Insert(++lineStart, "\t{");
+						codeList.Insert(++lineStart, "\t\t// auto generate constructor start");
+						constructorLines.For(str => codeList.Insert(++lineStart, str));
+						codeList.Insert(++lineStart, "\t\t// auto generate constructor end");
+						codeList.Insert(++lineStart, "\t}");
 					}
 				}
 			}
@@ -389,26 +405,51 @@ public class UGUIGeneratorInspector : GameInspector
 				(string line) => { return line.endWith("// auto generate assignWindow start"); },
 				(string line) => { return line.endWith("// auto generate assignWindow end"); }, false))
 			{
-				foreach (string str in generatedAssignLines)
-				{
-					codeList.Insert(++lineStart2, str);
-				}
+				generatedAssignLines.For(str => codeList.Insert(++lineStart2, str));
 			}
 			// 找不到就在assignWindow的第一行插入
 			else
 			{
-				for (int i = 0; i < codeList.Count; ++i)
+				if (codeList.find(item => item.Contains("public override void assignWindow()"), out int index))
 				{
-					if (codeList[i].Contains("public override void assignWindow()"))
+					int lineStart = index + 1;
+					codeList.Insert(++lineStart, "\t\t// auto generate assignWindow start");
+					generatedAssignLines.For(str => codeList.Insert(++lineStart, str));
+					codeList.Insert(++lineStart, "\t\t// auto generate assignWindow end");
+				}
+			}
+
+			// init
+			if (findCustomCode(fileFullPath, ref codeList, out int lineStart3,
+				(string line) => { return line.endWith("// auto generate init start"); },
+				(string line) => { return line.endWith("// auto generate init end"); }, false))
+			{
+				generatedInitLines.For(str => codeList.Insert(++lineStart3, str));
+			}
+			// 找不到就在init的第一行插入
+			else
+			{
+				if (codeList.find(item => item.Contains("base.init()"), out int index))
+				{
+					int lineStart = index;
+					codeList.Insert(++lineStart, "\t\t// auto generate init start");
+					generatedInitLines.For(str => codeList.Insert(++lineStart, str));
+					codeList.Insert(++lineStart, "\t\t// auto generate init end");
+				}
+			}
+
+			// 查找是否有缺失的点击事件回调函数
+			int insertIndex = codeList.FindLastIndex(line => line.endWith("}"));
+			if (insertIndex >= 0)
+			{
+				foreach (string line in clickCallbackCheckLists)
+				{
+					if (!codeList.contains(item => item.Contains(line)))
 					{
-						int lineStart = i + 1;
-						codeList.Insert(++lineStart, "\t\t// auto generate assignWindow start");
-						foreach (string str in generatedAssignLines)
-						{
-							codeList.Insert(++lineStart, str);
-						}
-						codeList.Insert(++lineStart, "\t\t// auto generate assignWindow end");
-						break;
+						codeList.Insert(insertIndex++, line);
+						codeList.Insert(insertIndex++, "\t{");
+						codeList.Insert(insertIndex++, "\t\t;");
+						codeList.Insert(insertIndex++, "\t}");
 					}
 				}
 			}

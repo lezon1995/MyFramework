@@ -57,12 +57,12 @@ public class myUGUITextAuto : myUGUIObject, IUGUIText
 	{
 		if (height <= 0.0f)
 		{
-			height = getWindowSize().y;
+			height = getSize().y;
 		}
 		else
 		{
 			// 如果要改变文本区域的宽度,则需要先修改一次窗口大小,使之根据指定的宽度重新计算preferredHeight
-			setWindowSize(new(getWindowSize().x, height));
+			setSize(new(getSize().x, height));
 		}
 		float preferredWidth = 0.0f;
 		if (mTextPro != null)
@@ -73,18 +73,18 @@ public class myUGUITextAuto : myUGUIObject, IUGUIText
 		{
 			preferredWidth = mText.preferredWidth;
 		}
-		setWindowSize(new(preferredWidth + extraWidth, height));
+		setSize(new(preferredWidth + extraWidth, height));
 	}
 	public void applyPreferredHeight(float width = 0.0f, float extraHeight = 0.0f)
 	{
 		if (width <= 0.0f)
 		{
-			width = getWindowSize().x;
+			width = getSize().x;
 		}
 		else
 		{
 			// 如果要改变文本区域的宽度,则需要先修改一次窗口大小,使之根据指定的宽度重新计算preferredHeight
-			setWindowSize(new(width, getWindowSize().y));
+			setSize(new(width, getSize().y));
 		}
 		float preferredHeight = 0.0f;
 		if (mTextPro != null)
@@ -95,7 +95,7 @@ public class myUGUITextAuto : myUGUIObject, IUGUIText
 		{
 			preferredHeight = mText.preferredHeight;
 		}
-		setWindowSize(new(width, preferredHeight + extraHeight));
+		setSize(new(width, preferredHeight + extraHeight));
 	}
 	public string getText() 
 	{
@@ -121,9 +121,9 @@ public class myUGUITextAuto : myUGUIObject, IUGUIText
 		}
 		return 1.0f; 
 	}
-	public override void setAlpha(float alpha, bool fadeChild)
+	public override void setAlpha(float alpha)
 	{
-		base.setAlpha(alpha, fadeChild);
+		base.setAlpha(alpha);
 		if (mTextPro != null)
 		{
 			Color color = mTextPro.color;
@@ -288,7 +288,7 @@ public class myUGUITextAuto : myUGUIObject, IUGUIText
 		mLocalizationManager.registeLocalization(this, mainText, param);
 		collection.addLocalizationObject(this);
 	}
-	public void setText(string mainText, IList<string> paramList, ILocalizationCollection collection)
+	public void setText(string mainText, List<string> paramList, ILocalizationCollection collection)
 	{
 		mLocalizationManager.registeLocalization(this, mainText, paramList);
 		collection.addLocalizationObject(this);
@@ -308,7 +308,7 @@ public class myUGUITextAuto : myUGUIObject, IUGUIText
 		mLocalizationManager.registeLocalization(this, mainText, param0, param1, callback);
 		collection.addLocalizationObject(this);
 	}
-	public void setText(string mainText, IList<string> paramList, LocalizationCallback callback, ILocalizationCollection collection)
+	public void setText(string mainText, List<string> paramList, LocalizationCallback callback, ILocalizationCollection collection)
 	{
 		mLocalizationManager.registeLocalization(this, mainText, paramList, callback);
 		collection.addLocalizationObject(this);

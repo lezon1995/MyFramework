@@ -87,11 +87,11 @@ public class AvatarRenderer : FrameSystem
 		// 创建一个新的摄像机
 		else
 		{
-			GameObject goPost = cloneObject(mCameraPostTemplate.getObject(), "CameraPost");
+			GameObject goPost = cloneObject(mCameraPostTemplate.getGameObject(), "CameraPost");
 			goPost.transform.SetParent(mCameraPostTemplate.getTransform().parent);
 			postCamera = mCameraManager.createCamera(goPost, 0, true, false);
 
-			GameObject goNoPost = cloneObject(mCameraNoPostTemplate.getObject(), "CameraNoPost");
+			GameObject goNoPost = cloneObject(mCameraNoPostTemplate.getGameObject(), "CameraNoPost");
 			goNoPost.transform.SetParent(mCameraNoPostTemplate.getTransform().parent);
 			noPostCamera = mCameraManager.createCamera(goNoPost, 0, true, false);
 		}
@@ -110,8 +110,8 @@ public class AvatarRenderer : FrameSystem
 			logError("材质不是MergeTextureMat,无法创建渲染纹理");
 			return avatarPos;
 		}
-		mat.SetTexture("_map2", postCamera.createRenderTarget(ui.getWindowSize()));
-		mat.SetTexture("_map1", noPostCamera.createRenderTarget(ui.getWindowSize()));
+		mat.SetTexture("_map2", postCamera.createRenderTarget(ui.getSize()));
+		mat.SetTexture("_map1", noPostCamera.createRenderTarget(ui.getSize()));
 		return avatarPos;
 	}
 	public void destroyRenderTarget(myUGUIRawImage ui)

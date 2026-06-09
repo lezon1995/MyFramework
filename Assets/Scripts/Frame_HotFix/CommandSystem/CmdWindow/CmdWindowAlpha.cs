@@ -47,7 +47,7 @@ public class CmdWindowAlpha
 		obj.getOrAddComponent(out COMWindowAlpha com);
 		if (com == null || !com.isActive())
 		{
-			obj.setAlpha(targetAlpha, false);
+			obj.setAlpha(targetAlpha);
 			return;
 		}
 		com.setStart(targetAlpha);

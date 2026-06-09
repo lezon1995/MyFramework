@@ -15,7 +15,7 @@ public class CameraDebug : MonoBehaviour
 	public List<string> ActiveComponent = new();	// 激活的组件列表
 	public void Update()
 	{
-		if (GameEntry.getInstance() == null || !GameEntry.getInstance().mFramworkParam.mEnableScriptDebug)
+		if (GameEntryBase.getInstance() == null || !GameEntryBase.getInstance().mFrameworkParam.mEnableScriptDebug)
 		{
 			return;
 		}
@@ -29,17 +29,14 @@ public class CameraDebug : MonoBehaviour
 			CurLinkerName = linker.GetType().ToString();
 			if(linker.getLinkObject() != null)
 			{
-				LinkedObject = linker.getLinkObject().getObject();
+				LinkedObject = linker.getLinkObject().getGameObject();
 				LinkedObjectName = linker.getLinkObject().getName();
 			}
 			Relative = linker.getRelativePosition();
+			CurRelative = Vector3.zero;
 			if (LinkedObject != null)
 			{
 				CurRelative = mGameCamera.getWorldPosition() - LinkedObject.transform.position;
-			}
-			else
-			{
-				CurRelative = Vector3.zero;
 			}
 		}
 		else
@@ -57,10 +54,7 @@ public class CameraDebug : MonoBehaviour
 			using var a = new SafeDictionaryReader<Type, GameComponent>(allComponent);
 			foreach (var item in a.mReadList)
 			{
-				if (item.Value.isActive())
-				{
-					ActiveComponent.Add(item.Key.ToString());
-				}
+				ActiveComponent.addIf(item.Key.ToString(), item.Value.isActive());
 			}
 		}
 	}

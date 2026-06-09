@@ -56,7 +56,7 @@ public class CheckResourcesWindow : GameEditorWindow
 						{
 							mFileReferenceList.Clear();
 							Dictionary<string, List<string>> tempList = new();
-							doCheck(path, tempList, getAllResourceFileText());
+							doCheck(path, tempList, getAllResourceGuidInverseRefList());
 							// 这里的GameMenu,collectUsedFile需要在Game层自己实现,
 							HashSet<string> outerRefList = GameMenu.collectUsedFile();
 							foreach (var item in tempList)
@@ -76,7 +76,7 @@ public class CheckResourcesWindow : GameEditorWindow
 					{
 						if (EditorUtility.DisplayDialog("查找资源引用", "确认查找文件夹中所有文件的引用? " + path, "确认", "取消"))
 						{
-							var allFileText = getAllResourceFileText();
+							var allFileText = getAllResourceGuidInverseRefList();
 							// 不查找meta文件的引用
 							List<string> validFiles = new();
 							foreach (string item in Directory.GetFiles(path, "*.*", SearchOption.AllDirectories))
@@ -150,27 +150,25 @@ public class CheckResourcesWindow : GameEditorWindow
 					foreach (var item in mFileReferenceList)
 					{
 						List<string> refList = item.Value.mRefInGameRes;
-						if (refList.Count > 1)
+						if (refList.Count <= 1)
 						{
-							bool usedInSingleFolder = true;
-							string refFilePath = null;
-							foreach (string refFile in refList)
+							continue;
+						}
+						bool usedInSingleFolder = true;
+						string refFilePath = null;
+						foreach (string refFile in refList)
+						{
+							if (refFilePath == null)
 							{
-								if (refFilePath == null)
-								{
-									refFilePath = getFilePath(refFile);
-								}
-								else if (refFilePath != getFilePath(refFile))
-								{
-									usedInSingleFolder = false;
-									break;
-								}
+								refFilePath = getFilePath(refFile);
 							}
-							if (!usedInSingleFolder)
+							else if (refFilePath != getFilePath(refFile))
 							{
-								tempFileRefList.add(item);
+								usedInSingleFolder = false;
+								break;
 							}
 						}
+						tempFileRefList.addIf(item, !usedInSingleFolder);
 					}
 				}
 				else
@@ -217,10 +215,7 @@ public class CheckResourcesWindow : GameEditorWindow
 
 						// 过滤一下重复的文件夹
 						Dictionary<string, string> refFolderList = new();
-						foreach (string refFile in refList)
-						{
-							refFolderList.TryAdd(getFolderName(refFile), getFilePath(refFile));
-						}
+						refList.For(refFile => refFolderList.TryAdd(getFolderName(refFile), getFilePath(refFile)));
 
 						string allRefFolder = EMPTY;
 						string allRefFolderTip = EMPTY;
@@ -358,9 +353,9 @@ public class CheckResourcesWindow : GameEditorWindow
 	protected void doCheck(string path, Dictionary<string, List<string>> refList, Dictionary<string, List<FileGUIDLines>> allFileText)
 	{
 		DateTime start = DateTime.Now;
-		Dictionary<string, UObject> refrenceList = new();
-		searchFileRefrence(path, false, refrenceList, allFileText, false);
-		refList.add(path.rightToLeft(), new(refrenceList.Keys));
-		Debug.Log("查找" + path + "的引用,引用数量:" + refrenceList.Count+ "耗时:" + (int)(DateTime.Now - start).TotalMilliseconds + "毫秒");
+		Dictionary<string, UObject> referenceList = new();
+		searchFileReference(path, false, referenceList, allFileText, false);
+		refList.add(path.rightToLeft(), new(referenceList.Keys));
+		Debug.Log("查找" + path + "的引用,引用数量:" + referenceList.Count+ "耗时:" + (int)(DateTime.Now - start).TotalMilliseconds + "毫秒");
 	}
 }

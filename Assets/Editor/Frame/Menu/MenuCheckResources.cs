@@ -12,13 +12,14 @@ using static StringUtility;
 using static MathUtility;
 using static EditorCommonUtility;
 using static FrameDefine;
+using static EditorDefine;
 using static FrameBaseDefine;
 using static EditorFileUtility;
 
 public class MenuCheckResources
 {
 	[MenuItem("检查资源/查找文件引用  %Q", false, 2)]
-	public static void searchRefrence()
+	public static void searchReference()
 	{
 		// 查找该文件的所有引用
 		bool checkAll = false;
@@ -36,15 +37,16 @@ public class MenuCheckResources
 		// 选择的是文件,则只查找文件的引用
 		if (isFileExist(path))
 		{
-			doSearchRefrence(path, getAllResourceFileText());
+			doSearchReference(path, getAllResourceGuidInverseRefList());
 		}
 		// 选择的是目录,则查找目录中所有文件的引用
 		else if (isDirExist(path))
 		{
 			if (checkAll || EditorUtility.DisplayDialog("查找所有资源引用", "确认查找文件夹中所有文件的引用? " + path, "确认", "取消"))
 			{
+				DateTime start = DateTime.Now;
 				Debug.Log("开始查找资源引用:" + path + "...");
-				var allFileText = getAllResourceFileText();
+				var allFileText = getAllResourceGuidInverseRefList();
 				// 不查找meta文件的引用
 				List<string> validFiles = new();
 				foreach (string item in Directory.GetFiles(path, "*.*", SearchOption.AllDirectories))
@@ -56,10 +58,10 @@ public class MenuCheckResources
 				for (int i = 0; i < count; ++i)
 				{
 					displayProgressBar("查找所有资源引用", "进度: ", i + 1, count);
-					doSearchRefrence(validFiles[i], allFileText);
+					doSearchReference(validFiles[i], allFileText);
 				}
 				clearProgressBar();
-				Debug.Log("完成查找资源引用");
+				Debug.Log("完成查找资源引用, 耗时:" + (DateTime.Now - start).TotalMilliseconds + "毫秒");
 			}
 		}
 	}
@@ -110,7 +112,7 @@ public class MenuCheckResources
 		}
 	}
 	[MenuItem("检查资源/查找TPAtlas图集引用", false, 4)]
-	public static void checkTPAtlasRefrence()
+	public static void checkTPAtlasReference()
 	{
 		bool checkAll = false;
 		string path = AssetDatabase.GetAssetPath(Selection.activeObject);
@@ -129,7 +131,7 @@ public class MenuCheckResources
 		{
 			if (path.endWith("png", false))
 			{
-				doCheckTPAtlasRefrence(path, getAllFileText(F_UI_PREFAB_PATH));
+				doCheckTPAtlasReference(path, getAllGuidInverseRefList(F_UI_PREFAB_PATH));
 			}
 		}
 		else if (isDirExist(path))
@@ -142,14 +144,14 @@ public class MenuCheckResources
 				{
 					validFiles.addIf(item, item.endWith("png", false));
 				}
-				var allFileText = getAllFileText(F_UI_PREFAB_PATH);
+				var allFileText = getAllGuidInverseRefList(F_UI_PREFAB_PATH);
 				// 开始查找所有文件的引用
 				int count = validFiles.Count;
 				for (int i = 0; i < count; ++i)
 				{
 					string filePath = validFiles[i];
 					displayProgressBar("检查图集引用", "进度: ", i + 1, count);
-					doCheckTPAtlasRefrence(filePath, allFileText);
+					doCheckTPAtlasReference(filePath, allFileText);
 				}
 				clearProgressBar();
 			}
@@ -184,7 +186,8 @@ public class MenuCheckResources
 				foreach (string item in Directory.GetFiles(path, "*.prefab", SearchOption.AllDirectories))
 				{
 					string file = item.rightToLeft();
-					validFiles.addIf(file, !file.endWith(".meta", false));
+					string fileName = getFileNameWithSuffix(file);
+					validFiles.addIf(file, !file.endWith(".meta", false) && !getIgnoreScaleAnchorCheck().contains(fileName));
 				}
 				// 开始查找所有文件的引用
 				int count = validFiles.Count;
@@ -217,13 +220,13 @@ public class MenuCheckResources
 		Debug.Log("开始查找未引用的资源:" + path + "...");
 		if (isFileExist(path))
 		{
-			doCheckUnusedFile(path, getAllResourceFileText());
+			doCheckUnusedFile(path, getAllResourceGuidInverseRefList());
 		}
 		else if (isDirExist(path))
 		{
 			if (checkAll || EditorUtility.DisplayDialog("查找未引用的资源", "确认查找文件夹中所有未使用资源? " + path, "确认", "取消"))
 			{
-				var allFileText = getAllResourceFileText();
+				var allFileText = getAllResourceGuidInverseRefList();
 				List<string> validFiles = new();
 				foreach (string item in Directory.GetFiles(path, "*.*", SearchOption.AllDirectories))
 				{
@@ -283,20 +286,21 @@ public class MenuCheckResources
 		}
 	}
 	[MenuItem("检查资源/检查材质引用丢失", false, 101)]
-	public static void checkMaterialMissingRefrence()
+	public static void checkMaterialMissingReference()
 	{
 		Debug.Log("开始检查是否有材质引用丢失");
 		// 所有Material的GUID集合
-		List<string> materialGUIDsList = new(getAllGUIDBySuffixInFilePath(F_ASSETS_PATH, ".mat.meta", "材质").Keys);
+		List<string> materialGUIDsList = new();
+		materialGUIDsList.setRangeKeys(getAllGUIDBySuffixInFilePath(F_ASSETS_PATH, ".mat.meta", "材质"));
 		// 所有引用Material的.prefab与.unity文件的集合
 		// 丢失脚本引用的资源字典(key = "引用了丢失材质的资源路径",value = 该资源丢失的材质的guid列表)
 		Dictionary<string, List<string>> missingRefAssetsList = new();
-		foreach (var item in getMaterialRefrenceFileText(F_ASSETS_PATH))
+		foreach (var item in getMaterialReferenceFileText(F_ASSETS_PATH))
 		{
 			FileGUIDLines fileInfo = item.Value;
-			foreach (string guidsStr in fileInfo.mContainGUIDLines)
+			foreach (string guidsStr in fileInfo.mGUIDs)
 			{
-				foreach (string guid in split(guidsStr, '-'))
+				foreach (string guid in guidsStr.split('-'))
 				{
 					// 与存着所有的材质球GUID的列表进行比对
 					if (!materialGUIDsList.Contains(guid))
@@ -357,7 +361,7 @@ public class MenuCheckResources
 		Debug.Log("完成检查材质贴图是否存在");
 	}
 	[MenuItem("检查资源/检查材质是否引用了shader未使用的贴图", false, 103)]
-	public static void checkMaterialTextureRefrence()
+	public static void checkMaterialTextureReference()
 	{
 		// 查找该文件的所有引用
 		bool checkAll = false;
@@ -405,7 +409,7 @@ public class MenuCheckResources
 	}
 	// 检查热更与非热更资源是否存在相互引用(如有资源互相引用则为不合法)
 	[MenuItem("检查资源/检查热更与非热更资源是否相互引用", false, 105)]
-	public static void checkRsourcesRefEachOther()
+	public static void checkResourcesRefEachOther()
 	{
 		Debug.Log("开始检查热更与非热更资源相互引用");
 		// 所有热更资源的GUID
@@ -414,9 +418,9 @@ public class MenuCheckResources
 		var allResourcesAssetGUID = getAllGUIDAndSpriteIDBySuffixInFilePath(P_RESOURCES_PATH, ".meta", "所有非热更资源");
 
 		// 所有热更资源中所有带引用的文件的集合
-		var refGameResourcesFilesDic = getAllRefrenceFileText(P_GAME_RESOURCES_PATH);
+		var refGameResourcesFilesDic = getAllReferenceFileText(P_GAME_RESOURCES_PATH);
 		// 所有非热更资源中所有带引用的文件的集合
-		var refResourcesFilesDic = getAllRefrenceFileText(P_RESOURCES_PATH);
+		var refResourcesFilesDic = getAllReferenceFileText(P_RESOURCES_PATH);
 		// 错误引用资源的字典
 		Dictionary<string, Dictionary<string, string>> errorRefAssetDic = new();
 
@@ -499,10 +503,7 @@ public class MenuCheckResources
 		List<string> resourcesFilesList = new();
 		foreach (string file in tempFileList)
 		{
-			if (!file.Contains("/Unused/") && !file.endWith(".meta"))
-			{
-				resourcesFilesList.Add(file);
-			}
+			resourcesFilesList.addIf(file, !file.Contains("/Unused/") && !file.endWith(".meta"));
 		}
 
 		// 重复的资源的路径字典(key: MD5字符串, value: 相同资源的列表)
@@ -516,8 +517,9 @@ public class MenuCheckResources
 		}
 
 		// 输出结果
-		foreach (var element in hasSameAssetsDic.Values)
+		foreach (var item in hasSameAssetsDic)
 		{
+			var element = item.Value;
 			if (element.Count > 1)
 			{
 				Debug.LogError("出现重复的资源,路径为:\n" + stringsToString(element, '\n'), loadAsset(element[0]));
@@ -547,7 +549,7 @@ public class MenuCheckResources
 		Debug.Log("完成检查预设变换");
 	}
 	[MenuItem("检查资源/检查所有Prefab文件MeshCollider的模型Read-Write", false, 112)]
-	public static void findMeshColliderFBXReadAndWirte()
+	public static void findMeshColliderFBXReadAndWrite()
 	{
 		if (!EditorUtility.DisplayDialog("提示", "是否开始检查所有预设的MeshCollider的模型是否开启Read-Write? ", "确认", "取消"))
 		{
@@ -564,14 +566,14 @@ public class MenuCheckResources
 			string filePath = fullPathToProjectPath(fileList[i]);
 			GameObject targetPrefab = loadGameObject(filePath);
 			if (!targetPrefab.TryGetComponent<MeshCollider>(out var collider) ||
-				!targetPrefab.TryGetComponent<MeshFilter>(out var meshFiliter))
+				!targetPrefab.TryGetComponent<MeshFilter>(out var meshFilter))
 			{
 				continue;
 			}
-			Mesh mesh = meshFiliter.sharedMesh;
+			Mesh mesh = meshFilter.sharedMesh;
 			if (mesh == null)
 			{
-				Debug.LogError(meshFiliter.gameObject.name + "的Mesh丢失", targetPrefab);
+				Debug.LogError(meshFilter.gameObject.name + "的Mesh丢失", targetPrefab);
 				continue;
 			}
 			if (!saveErrorObj.Add(collider.sharedMesh))
@@ -591,7 +593,7 @@ public class MenuCheckResources
 		Debug.Log("------结束检查预设的模型是否开启Read-Write,耗时: " + (DateTime.Now - startTime));
 	}
 	[MenuItem("检查资源/检查所有场景的MeshCollider模型Read-Write", false, 113)]
-	public static void findAllSceneMeshColliderFBXReadAndWirte()
+	public static void findAllSceneMeshColliderFBXReadAndWrite()
 	{
 		if (!EditorUtility.DisplayDialog("提示", "是否开始检查所有场景的MeshCollider模型是否开启Read-Write? ", "确认", "取消"))
 		{
@@ -610,16 +612,20 @@ public class MenuCheckResources
 			Debug.Log("进入场景 ==>> " + currentScene);
 			displayProgressBar("MeshCollider的Read-Write是否启用", "进度: ", i + 1, sceneCount);
 			EditorSceneManager.OpenScene(currentScene, OpenSceneMode.Single);
+#if UNITY_6000_4_OR_NEWER
+			foreach (GameObject go in UObject.FindObjectsByType<GameObject>())
+#else
 			foreach (GameObject go in UObject.FindObjectsByType<GameObject>(FindObjectsSortMode.None))
+#endif
 			{
 				if (!go.TryGetComponent<MeshCollider>(out var collider) ||
-					!go.TryGetComponent<MeshFilter>(out var meshFiliter))
+					!go.TryGetComponent<MeshFilter>(out var meshFilter))
 				{
 					continue;
 				}
-				if (meshFiliter.sharedMesh == null)
+				if (meshFilter.sharedMesh == null)
 				{
-					Debug.LogError(meshFiliter.gameObject.name + "的Mesh丢失");
+					Debug.LogError(meshFilter.gameObject.name + "的Mesh丢失");
 					continue;
 				}
 				if (collider.sharedMesh == null)
@@ -646,7 +652,7 @@ public class MenuCheckResources
 		Debug.Log("------结束检查所有场景的模型是否开启Read-Write,耗时: " + (DateTime.Now - startTime));
 	}
 	[MenuItem("检查资源/【当前场景】检查场景MeshCollider模型Read-Write", false, 114)]
-	public static void findSceneMeshColliderFBXReadAndWirte()
+	public static void findSceneMeshColliderFBXReadAndWrite()
 	{
 		if (!EditorUtility.DisplayDialog("提示", "是否开始检查当前场景的MeshCollider模型是否开启Read-Write? ", "确认", "取消"))
 		{
@@ -656,19 +662,23 @@ public class MenuCheckResources
 		Debug.Log("------开始检查Scene的Mesh是否开启Read-Write------");
 		DateTime startTime = DateTime.Now;
 		HashSet<Mesh> saveErrorObj = new();
+#if UNITY_6000_4_OR_NEWER
+		GameObject[] sceneObjects = UObject.FindObjectsByType<GameObject>();
+#else
 		GameObject[] sceneObjects = UObject.FindObjectsByType<GameObject>(FindObjectsSortMode.None);
+#endif
 		int objectCount = sceneObjects.Length;
 		for (int i = 0; i < objectCount; ++i)
 		{
 			displayProgressBar("MeshCollider的Mesh的Read-Write是否启用", "进度: ", i + 1, objectCount);
 			if (!sceneObjects[i].TryGetComponent<MeshCollider>(out var collider) ||
-				!sceneObjects[i].TryGetComponent<MeshFilter>(out var meshFiliter))
+				!sceneObjects[i].TryGetComponent<MeshFilter>(out var meshFilter))
 			{
 				continue;
 			}
-			if (meshFiliter.sharedMesh == null)
+			if (meshFilter.sharedMesh == null)
 			{
-				Debug.LogError(meshFiliter.gameObject.name + "的Mesh丢失");
+				Debug.LogError(meshFilter.gameObject.name + "的Mesh丢失");
 				continue;
 			}
 			if (collider.sharedMesh == null)
@@ -695,7 +705,11 @@ public class MenuCheckResources
 	public static void findSceneLayerNull()
 	{
 		Debug.Log("------开始检查当前Scene是否含有Layer空对象------");
+#if UNITY_6000_4_OR_NEWER
+		foreach (GameObject item in UObject.FindObjectsByType<GameObject>())
+#else
 		foreach (GameObject item in UObject.FindObjectsByType<GameObject>(FindObjectsSortMode.None))
+#endif
 		{
 			string layerName = LayerMask.LayerToName(item.layer);
 			if (layerName == EMPTY)
@@ -716,9 +730,10 @@ public class MenuCheckResources
 		// UGUI路径常量
 		const string uiPath = "Packages/com.unity.ugui";
 		// 所有引用了脚本的.prefab与.unity文件
-		foreach (FileGUIDLines fileInfo in getScriptRefrenceFileText(F_ASSETS_PATH).Values)
+		foreach (var item in getScriptReferenceFileText(F_ASSETS_PATH))
 		{
-			foreach (string guid in fileInfo.mContainGUIDLines)
+			FileGUIDLines fileInfo = item.Value;
+			foreach (string guid in fileInfo.mGUIDs)
 			{
 				// 与存着所有的脚本GUID的列表进行比对,剔除UGUI脚本的GUID
 				if (scripGUIDList.Contains(guid) || AssetDatabase.GUIDToAssetPath(guid).Contains(uiPath))
@@ -973,14 +988,14 @@ public class MenuCheckResources
 		// 选择的是文件,则只查找文件的引用
 		if (isFileExist(path))
 		{
-			doCheckSingleUsedFile(path, getAllResourceFileText(), false);
+			doCheckSingleUsedFile(path, getAllResourceGuidInverseRefList(), false);
 		}
 		// 选择的是目录,则查找目录中所有文件的引用
 		else if (isDirExist(path))
 		{
 			if (checkAll || EditorUtility.DisplayDialog("检查所有被单一引用的文件", "确认查找文件夹中所有文件? " + path, "确认", "取消"))
 			{
-				var allFileText = getAllResourceFileText();
+				var allFileText = getAllResourceGuidInverseRefList();
 				// 不查找meta文件的引用
 				List<string> validFiles = new();
 				foreach (string item in Directory.GetFiles(path, "*.*", SearchOption.AllDirectories))

@@ -561,7 +561,7 @@ public class MathUtility
 				factors.RemoveAt(0);
 			}
 		}
-		if (numbers.Count != 1)
+		if (numbers.Count == 1)
 		{
 			return numbers[0];
 		}
@@ -881,7 +881,7 @@ public class MathUtility
 	// 根据几率随机选择一个下标,oddsList中的元素是权重,几率就是权重除以所有权重的和
 	public static int randomHit(Span<float> oddsList, int count)
 	{
-		if (oddsList.isEmptySpan() || count == 0)
+		if (oddsList.isEmpty() || count == 0)
 		{
 			return 0;
 		}
@@ -1118,22 +1118,22 @@ public class MathUtility
 		otherPoint = point + line.mEnd - line.mStart;
 	}
 	// 第index0个点和第index1个点的连线是否位于多边形内部,并且不与任何边相交,要求点列表是以逆时针来排列的
-	public static bool canConnectPoint(List<Vector2> vertice, int index0, int index1)
+	public static bool canConnectPoint(List<Vector2> vertices, int index0, int index1)
 	{
-		int verticeCount = vertice.Count;
-		if (verticeCount < 4)
+		int verticesCount = vertices.Count;
+		if (verticesCount < 4)
 		{
 			return true;
 		}
-		Vector2 lastPoint = vertice[(index0 - 1 + vertice.Count) % vertice.Count];
-		Vector2 nextPoint = vertice[(index0 + 1) % vertice.Count];
-		Vector2 curPoint = vertice[index0];
+		Vector2 lastPoint = vertices[(index0 - 1 + vertices.Count) % vertices.Count];
+		Vector2 nextPoint = vertices[(index0 + 1) % vertices.Count];
+		Vector2 curPoint = vertices[index0];
 		// 当前点的相邻两个点的从下一个点的连线到上一个点的连线的角度
 		Vector2 lastDir = lastPoint - curPoint;
 		Vector2 nextDir = nextPoint - curPoint;
 		float angle0 = getAngleVector2ToVector2(lastDir, nextDir);
 		adjustRadian360(ref angle0);
-		float angle1 = getAngleVector2ToVector2(vertice[index1] - curPoint, nextDir);
+		float angle1 = getAngleVector2ToVector2(vertices[index1] - curPoint, nextDir);
 		adjustRadian360(ref angle1);
 		// 法线向上时,点是按逆时针来排列,夹角小于邻边角时才有效
 		bool validAngle = angle1 <= angle0;
@@ -1143,14 +1143,14 @@ public class MathUtility
 			return false;
 		}
 		// 判断是否与其他边相交
-		for (int i = 0; i < verticeCount; ++i)
+		for (int i = 0; i < verticesCount; ++i)
 		{
 			// 先判断是否有端点重合,端点重合时认为不相交
-			if (i == index0 || i == index1 || (i + 1) % verticeCount == index0 || (i + 1) % verticeCount == index1)
+			if (i == index0 || i == index1 || (i + 1) % verticesCount == index0 || (i + 1) % verticesCount == index1)
 			{
 				continue;
 			}
-			if (intersectLineSection(vertice[i], vertice[(i + 1) % verticeCount], vertice[index0], vertice[index1], out _))
+			if (intersectLineSection(vertices[i], vertices[(i + 1) % verticesCount], vertices[index0], vertices[index1], out _))
 			{
 				return false;
 			}
@@ -1537,7 +1537,7 @@ public class MathUtility
 		return true;
 	}
 	// 二维平面上一个点是否在一个多边形内,多边形的顺时针点列表,并且只能是凸多边形
-	public static bool isPointInPolygon(IList<Vector2> pointList, Vector2 point)
+	public static bool isPointInPolygon(List<Vector2> pointList, Vector2 point)
 	{
 		int count = pointList.Count;
 		for (int i = 0; i < count; ++i)
@@ -2097,6 +2097,17 @@ public class MathUtility
 		vec.x *= scale;
 		vec.y *= scale;
 		vec.z *= scale;
+	}
+	public static Vector2 setLength(Vector2 vec, float length)
+	{
+		float scale = divide(1.0f, getLength(vec)) * length;
+		return new(vec.x * scale, vec.y * scale);
+	}
+	public static void setLength(ref Vector2 vec, float length)
+	{
+		float scale = divide(1.0f, getLength(vec)) * length;
+		vec.x *= scale;
+		vec.y *= scale;
 	}
 	// 将矩阵的缩放设置为1,并且不改变位移和旋转
 	public static Matrix4x4 identityMatrix4(Matrix4x4 rot)
@@ -3054,20 +3065,20 @@ public class MathUtility
 			keyPointList.Add(new(keyPosList[i], distanceFromStart, distanceFromLast));
 		}
 	}
-	// 查找移动指定距离后当前位于哪段线段上
-	public static int findPointIndex(List<KeyPoint> distanceListFromStart, float curDistance, int startIndex = -1, int endIndex = -1)
+	public static int findPointIndex(List<KeyPoint> distanceListFromStart, float curDistance)
 	{
-		if (startIndex == -1)
-		{
-			startIndex = 0;
-		}
-		if (endIndex == -1)
-		{
-			endIndex = distanceListFromStart.Count - 1;
-		}
+		return findPointIndex(distanceListFromStart, curDistance, 0, distanceListFromStart.Count - 1);
+	}
+	public static int findPointIndex(List<KeyPoint> distanceListFromStart, float curDistance, int startIndex)
+	{
+		return findPointIndex(distanceListFromStart, curDistance, startIndex, distanceListFromStart.Count - 1);
+	}
+	// 查找移动指定距离后当前位于哪段线段上
+	public static int findPointIndex(List<KeyPoint> distanceListFromStart, float curDistance, int startIndex, int endIndex)
+	{
 		if (curDistance < distanceListFromStart[startIndex].mDistanceFromStart)
 		{
-			return startIndex - 1;
+			return clampMin(startIndex - 1);
 		}
 		if (curDistance >= distanceListFromStart[endIndex].mDistanceFromStart)
 		{
@@ -3095,12 +3106,20 @@ public class MathUtility
 			return middleIndex;
 		}
 	}
+	public static int findPointIndex(List<float> distanceListFromStart, float curDistance)
+	{
+		return findPointIndex(distanceListFromStart, curDistance, 0, distanceListFromStart.Count - 1);
+	}
+	public static int findPointIndex(List<float> distanceListFromStart, float curDistance, int startIndex)
+	{
+		return findPointIndex(distanceListFromStart, curDistance, startIndex, distanceListFromStart.Count - 1);
+	}
 	// 查找移动指定距离后当前位于哪段线段上
 	public static int findPointIndex(List<float> distanceListFromStart, float curDistance, int startIndex, int endIndex)
 	{
 		if (curDistance < distanceListFromStart[startIndex])
 		{
-			return startIndex - 1;
+			return clampMin(startIndex - 1);
 		}
 		if (curDistance >= distanceListFromStart[endIndex])
 		{
@@ -3401,7 +3420,7 @@ public class MathUtility
 			resultList[i] = getBezier(points, loop, divide(i, bezierDetail - 1));
 		}
 	}
-	public static List<Vector3> getBezierPoints(IList<Vector3> points, bool loop, int bezierDetail = 20)
+	public static List<Vector3> getBezierPoints(List<Vector3> points, bool loop, int bezierDetail = 20)
 	{
 		if (points.Count == 1)
 		{
@@ -3676,6 +3695,11 @@ public class MathUtility
 	// 由于使用了静态成员变量,所以不能在多线程中调用该函数
 	public static bool AStar4(List<bool> map, int beginIndex, int endIndex, int width, List<int> foundPath)
 	{
+		if (beginIndex == endIndex)
+		{
+			foundPath.add(endIndex);
+			return true;
+		}
 		if (!preAStar(map, beginIndex, endIndex, width, foundPath))
 		{
 			return false;
@@ -3762,6 +3786,11 @@ public class MathUtility
 	}
 	public static bool AStar8(List<bool> map, int beginIndex, int endIndex, int width, List<int> foundPath)
 	{
+		if (beginIndex == endIndex)
+		{
+			foundPath.add(endIndex);
+			return true;
+		}
 		if (!preAStar(map, beginIndex, endIndex, width, foundPath))
 		{
 			return false;
@@ -3848,6 +3877,11 @@ public class MathUtility
 	// 依赖于不同行相同x坐标的格子之间偶数行的格子始终比奇数行的要靠左一些
 	public static bool AStar6OddR(List<bool> map, int beginIndex, int endIndex, int width, List<int> foundPath)
 	{
+		if (beginIndex == endIndex)
+		{
+			foundPath.add(endIndex);
+			return true;
+		}
 		if (!preAStar(map, beginIndex, endIndex, width, foundPath))
 		{
 			return false;
@@ -3941,6 +3975,11 @@ public class MathUtility
 	// 依赖于不同行相同x坐标的格子之间偶数行的格子始终比奇数行的要靠右一些
 	public static bool AStar6EvenR(List<bool> map, int beginIndex, int endIndex, int width, List<int> foundPath)
 	{
+		if (beginIndex == endIndex)
+		{
+			foundPath.add(endIndex);
+			return true;
+		}
 		if (!preAStar(map, beginIndex, endIndex, width, foundPath))
 		{
 			return false;
@@ -4035,9 +4074,9 @@ public class MathUtility
 	{
 		quickSort(arr, 0, arr.Count - 1, comparison);
 	}
-	public static void quickSort<T>(List<T> arr, bool ascend = true) where T : IComparable<T>
+	public static void quickSort<T>(List<T> arr) where T : IComparable<T>
 	{
-		quickSort(arr, 0, arr.Count - 1, ascend);
+		quickSort(arr, 0, arr.Count - 1);
 	}
 	public static bool overlapBox3(Vector3 pos0, Vector3 size0, Vector3 pos1, Vector3 size1)
 	{
@@ -4107,7 +4146,7 @@ public class MathUtility
 				else
 				{
 					int startNext = nextIndex(tempVertices.Count, startIndex);
-					if (!isConvexVertice(tempVertices, startNext, startIndex, curIndex, order))
+					if (!isConvexVertices(tempVertices, startNext, startIndex, curIndex, order))
 					{
 						curIndex = prevIndex(tempVertices.Count, curIndex);
 						cutOffPolygon(tempVertices, polygonList.addClass().mPoints, ref startIndex, ref curIndex);
@@ -4118,9 +4157,19 @@ public class MathUtility
 			curIndex = nextIndex(tempVertices.Count, curIndex);
 		}
 	}
+	public static void splitNumber(long number, List<byte> numbers)
+	{
+		do
+		{
+			numbers.add((byte)(number % 10));
+			number /= 10;
+		}
+		while (number > 0);
+		numbers.inverse();
+	}
 	//------------------------------------------------------------------------------------------------------------------------------
 	// 一个多边形中的三个点的夹角是否大于180
-	protected static bool isConvexVertice(List<Vector2> points, int index0, int index1, int index2, bool isClockwise)
+	protected static bool isConvexVertices(List<Vector2> points, int index0, int index1, int index2, bool isClockwise)
 	{
 		if (index0 == index2)
 		{
@@ -4217,15 +4266,14 @@ public class MathUtility
 			end = 0;
 		}
 	}
-	protected static int prevIndex(int verticeCount, int index)
+	protected static int prevIndex(int verticesCount, int index)
 	{
-		return (index - 1 + verticeCount) % verticeCount;
+		return (index - 1 + verticesCount) % verticesCount;
 	}
-	protected static int nextIndex(int verticeCount, int index)
+	protected static int nextIndex(int verticesCount, int index)
 	{
-		return (index + 1) % verticeCount;
+		return (index + 1) % verticesCount;
 	}
-	// 可以通过comparison自己决定升序还是降序,所以不再需要额外的参数
 	protected static void quickSort<T>(List<T> arr, int low, int high, Comparison<T> comparison)
 	{
 		if (high <= low)
@@ -4246,14 +4294,14 @@ public class MathUtility
 				break;
 			}
 			// 交换i,j对应的值
-			swapIndex(arr, i, j);
+			(arr[i], arr[j]) = (arr[j], arr[i]);
 		}
 		// 中枢值与j对应值交换
-		swapIndex(arr, low, j);
+		(arr[low], arr[j]) = (arr[j], arr[low]);
 		quickSort(arr, low, j - 1, comparison);
 		quickSort(arr, j + 1, high, comparison);
 	}
-	protected static void quickSort<T>(List<T> arr, int low, int high, bool ascend = true) where T : IComparable<T>
+	protected static void quickSort<T>(List<T> arr, int low, int high) where T : IComparable<T>
 	{
 		if (high <= low)
 		{
@@ -4264,33 +4312,21 @@ public class MathUtility
 		T key = arr[low];
 		while (true)
 		{
-			// 升序
-			if(ascend)
-			{
-				// 从左向右找到一个比key大的值,如果小于key,则一直继续查找
-				while (arr[++i].CompareTo(key) < 0 && i != high) { }
-				// 从右向左找到一个比key小的值,如果大于key,则一直继续查找
-				while (arr[--j].CompareTo(key) > 0 && j != low) { }
-			}
-			// 降序
-			else
-			{
-				// 从左向右找到一个比key小的值,如果大于key,则一直继续查找
-				while (arr[++i].CompareTo(key) > 0 && i != high) { }
-				// 从右向左找到一个比key大的值,如果小于key,则一直继续查找
-				while (arr[--j].CompareTo(key) < 0 && j != low) { }
-			}
+			// 从左向右找到一个比key大的值,如果小于key,则一直继续查找
+			while (arr[++i].CompareTo(key) < 0 && i != high) { }
+			// 从右向左找到一个比key小的值,如果大于key,则一直继续查找
+			while (arr[--j].CompareTo(key) > 0 && j != low) { }
 			if (i >= j)
 			{
 				break;
 			}
 			// 交换i,j对应的值
-			swapIndex(arr, i, j);
+			(arr[j], arr[i]) = (arr[i], arr[j]);
 		}
 		// 中枢值与j对应值交换
-		swapIndex(arr, low, j);
-		quickSort(arr, low, j - 1, ascend);
-		quickSort(arr, j + 1, high, ascend);
+		(arr[low], arr[j]) = (arr[j], arr[low]);
+		quickSort(arr, low, j - 1);
+		quickSort(arr, j + 1, high);
 	}
 	protected static void swapIndex<T>(List<T> list, int index0, int index1)
 	{

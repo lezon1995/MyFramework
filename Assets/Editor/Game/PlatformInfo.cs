@@ -20,6 +20,7 @@ public enum GAME_CHANNEL : byte
 	TAP_TAP,			// TapTap平台,仅做示例
 }
 
+// 这个类负责实现上传资源,生成一些名字,宏定义,创建当前平台实例等功能
 public abstract class PlatformInfo : PlatformBase
 {
 
@@ -97,7 +98,7 @@ public abstract class PlatformInfo : PlatformBase
 		log("开始上传文件, path:" + uploadLocalPath);
 		progressBar(displayTitle, "正在获取远端文件列表", 0.0f);
 		var remoteFileList = ObsSystem.getFileList(remotePath);
-		remoteFileList.remove(VERSION, FILE_LIST, FILE_LIST_MD5);
+		remoteFileList.remove(VERSION, FILE_LIST);
 		log("远端共" + remoteFileList.Count + "个文件");
 		progressBar(displayTitle, "正在计算本地文件列表", 0.0f);
 		// 对比远端和本地的文件,删除远端无用的文件
@@ -112,12 +113,13 @@ public abstract class PlatformInfo : PlatformBase
 		}
 		List<string> ignoreSuffix = new() { ".unity3d.manifest", ".meta" };
 		Dictionary<string, GameFileInfo> localFileInfoList = new();
-		string generatedContent = generateFileInfoList(uploadLocalPath, false, mIgnoreFile, null, ignoreSuffix);
+		string generatedContent = generateFileList(uploadLocalPath);
 		parseFileList(generatedContent, localFileInfoList);
 		// 如果扫描出来不一样就更新本地文件列表
 		if (generatedContent != content)
 		{
-			writeFileList(uploadLocalPath, generatedContent);
+			logError("扫描的本地文件信息与FileList中记录的信息不一致,请检查并重试");
+			return false;
 		}
 
 		log("本地共" + localFileInfoList.Count + "个文件");
@@ -132,7 +134,7 @@ public abstract class PlatformInfo : PlatformBase
 		List<string> modifyList = checkNeedUploadFile(remoteFileList, localFileInfoList);
 		// 要将资源列表文件上传上去
 		// 版本号文件不上传
-		modifyList.add(FILE_LIST, FILE_LIST_MD5);
+		modifyList.add(FILE_LIST);
 		modifyList.Remove(VERSION);
 		int remainRetry = 5;
 		doUpload(modifyList, uploadLocalPath, remotePath, displayTitle, (int failedCount) =>

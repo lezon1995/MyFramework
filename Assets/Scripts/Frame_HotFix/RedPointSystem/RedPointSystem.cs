@@ -16,7 +16,7 @@ using static FrameUtility;
 // 红点的关联数据频繁变动时,比如显示当前页的前面所有页是否有奖励可领取的红点
 public class RedPointSystem : FrameSystem
 {
-	protected List<RedPoint> mRedPointList = new();				// 所有的根节点的红点列表
+	protected List<RedPoint> mRedPointList = new();				// 所有的红点列表
 	public override void update(float elapsedTime)
 	{
 		base.update(elapsedTime);
@@ -87,6 +87,15 @@ public class RedPointSystem : FrameSystem
 		{
 			pointList.Clear();
 		}
+	}
+	// 移除列表中的红点,以及其所有的子节点
+	public void destroyRedPoint<TKey, TValue>(Dictionary<TKey, TValue> pointList) where TValue : RedPoint
+	{
+		foreach (var point in pointList.safe())
+		{
+			destroyRedPointInternal(point.Value);
+		}
+		pointList?.Clear();
 	}
 	// 刷新所有节点的状态
 	public void refresh()

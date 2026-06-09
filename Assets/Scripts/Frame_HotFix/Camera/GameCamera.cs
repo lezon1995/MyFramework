@@ -27,6 +27,7 @@ public class GameCamera : MovableObject
 	public override void destroy()
 	{
 		base.destroy();
+		destroyRenderTexture();
 		destroyComponent<CameraDebug>(mObject);
 	}
 	public override void resetProperty()
@@ -105,26 +106,35 @@ public class GameCamera : MovableObject
 		mCamera.cullingMask = layer;
 	}
 	public int getLastVisibleLayer() { return mLastVisibleLayer; }
+	public int getVisibleLayer() { return mCamera.cullingMask; }
 	public void setPostProcessing(bool post)
 	{
 #if USE_URP
 		getOrAddUnityComponent<UniversalAdditionalCameraData>().renderPostProcessing = post;
 #endif
 	}
+#if USE_URP
+	public void setRenderType(CameraRenderType renderType)
+	{
+		UnityUtility.setRenderType(mCamera, renderType);
+	}
+#endif
 	public void setRenderTarget(RenderTexture renderTarget)
 	{
 #if USE_URP
-		if (getOrAddUnityComponent<UniversalAdditionalCameraData>().cameraStack.Count > 0)
+		var cameraData = getOrAddUnityComponent<UniversalAdditionalCameraData>();
+		if (cameraData.cameraStack.Count > 0)
 		{
 			logError("设置RenderTexture的摄像机不能再添加cameraStack,请移除此摄像机上所有的cameraStack");
 		}
-		if (getOrAddUnityComponent<UniversalAdditionalCameraData>().renderType != CameraRenderType.Base)
+		if (cameraData.renderType != CameraRenderType.Base)
 		{
 			logError("只能给Base摄像机添加RenderTarget,否则会添加失败");
 		}
 #endif
 		mCamera.targetTexture = renderTarget;
 	}
+	// 必须要调用destroyRenderTexture来销毁这个RenderTexture,否则会有内存泄漏
 	public RenderTexture createRenderTarget(Vector2 size)
 	{
 		if (mCamera.targetTexture != null)
@@ -143,6 +153,37 @@ public class GameCamera : MovableObject
 		}
 		RenderTexture.ReleaseTemporary(mCamera.targetTexture);
 		mCamera.targetTexture = null;
+	}
+	public void addCameraStack(GameCamera otherCamera, int index = -1)
+	{
+		addCameraStack(otherCamera.getCamera(), index);
+	}
+	public void addCameraStack(Camera otherCamera, int index = -1)
+	{
+#if USE_URP
+		var cameraData = getOrAddUnityComponent<UniversalAdditionalCameraData>();
+		if (cameraData.renderType != CameraRenderType.Base)
+		{
+			logError("当前摄像机是Overlay摄像机,无法添加其他摄像机到cameraStack");
+			return;
+		}
+		var otherCameraData = otherCamera.gameObject.GetComponent<UniversalAdditionalCameraData>();
+		if (otherCameraData == null || otherCameraData.renderType != CameraRenderType.Overlay)
+		{
+			logError("摄像机不是Overlay摄像机,无法添加到cameraStack");
+			return;
+		}
+		if (cameraData.cameraStack.contains(otherCamera))
+		{
+			logError("cameraStack中已经有这个摄像机了,不能再次添加");
+			return;
+		}
+		if (index < 0 || index > cameraData.cameraStack.Count)
+		{
+			index = cameraData.cameraStack.Count;
+		}
+		cameraData.cameraStack.Insert(index, otherCamera);
+#endif
 	}
 	public RenderTexture getRenderTarget() { return mCamera.targetTexture; }
 	//------------------------------------------------------------------------------------------------------------------------------

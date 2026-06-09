@@ -18,6 +18,26 @@ public class GameEditorBase : Editor
 		SerializedProperty property = findProperty(propertyName);
 		EditorGUILayout.PropertyField(property, new(displayName, toolTip), includeChildren);
 	}
+	public T objectField<T>(string label, UnityEngine.Object obj, params GUILayoutOption[] options) where T : UnityEngine.Object
+	{
+		return EditorGUILayout.ObjectField(label, obj, typeof(T), true, options) as T;
+	}
+	public void objectField<T>(string label, ref T obj, params GUILayoutOption[] options) where T : UnityEngine.Object
+	{
+		obj = EditorGUILayout.ObjectField(label, obj, typeof(T), true, options) as T;
+	}
+	public void space(float pixels)
+	{
+		GUILayout.Space(pixels);
+	}
+	public void label(string text)
+	{
+		EditorGUILayout.LabelField(text);
+	}
+	public bool button(string name, int width = 100)
+	{
+		return GUILayout.Button(name, GUILayout.Width(width));
+	}
 	// 直接显示一个bool属性,返回修改以后的值
 	public bool toggle(string displayName, bool value)
 	{
@@ -76,6 +96,28 @@ public class GameEditorBase : Editor
 		value = retValue;
 		return modified;
 	}
+	// 直接显示一个float属性,并且会改变这个变量本身,返回值为是否改变过
+	public bool displayFloat(string displayName, ref float value)
+	{
+		float retValue = EditorGUILayout.FloatField(new GUIContent(displayName), value);
+		bool modified = retValue != value;
+		value = retValue;
+		return modified;
+	}
+	public bool displayVector3(string displayName, string toolTip, ref Vector3 value)
+	{
+		Vector3 retValue = EditorGUILayout.Vector3Field(new GUIContent(displayName, toolTip), value);
+		bool modified = retValue != value;
+		value = retValue;
+		return modified;
+	}
+	public bool displayVector3(string displayName, ref Vector3 value)
+	{
+		Vector3 retValue = EditorGUILayout.Vector3Field(new GUIContent(displayName), value);
+		bool modified = retValue != value;
+		value = retValue;
+		return modified;
+	}
 	// 直接显示一个枚举属性,返回修改以后的值,如果被修改过,则会设置modified为true,否则不改变modefied的值
 	public T displayEnum<T>(string displayName, T value, ref bool modified) where T : Enum
 	{
@@ -108,19 +150,26 @@ public class GameEditorBase : Editor
 	{
 		return GameEditorWindow.displayEnum(display, tip, ref value);
 	}
+	// 直接显示一个枚举属性,返回值表示是否已经修改过
+	public bool displayEnum<T>(string display, ref T value) where T : Enum
+	{
+		return GameEditorWindow.displayEnum(display, "", ref value);
+	}
 	// 显示整数的下拉框
 	public int intPopup(string displayName, string[] valueDisplay, int[] values)
 	{
 		return EditorGUILayout.IntPopup(displayName, 0, valueDisplay, values);
 	}
-	public void beginContents()
+	// 开始绘制列表中的一项
+	public void beginListContents()
 	{
-		EditorGUILayout.BeginHorizontal(GUILayout.MinHeight(10f));
+		EditorGUILayout.BeginHorizontal("box", GUILayout.MinHeight(10f));
 		GUILayout.Space(10f);
 		GUILayout.BeginVertical();
 		GUILayout.Space(2f);
 	}
-	public void endContents()
+	// 结束绘制列表中的一项
+	public void endListContents()
 	{
 		GUILayout.Space(3f);
 		GUILayout.EndVertical();

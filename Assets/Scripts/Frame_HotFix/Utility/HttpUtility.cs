@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
@@ -8,9 +8,9 @@ using System.Security.Cryptography.X509Certificates;
 using System.Net.Security;
 using UnityEngine.Networking;
 using Newtonsoft.Json;
+using static SerializeByteUtility;
 using static UnityUtility;
 using static FrameUtility;
-using static BinaryUtility;
 using static StringUtility;
 using static FrameBaseHotFix;
 using static FrameBaseUtility;
@@ -129,12 +129,12 @@ public class HttpUtility
 	// 异步post请求,webgl可用
 	public static void httpPostAsyncWebGL(string url, byte[] data, string contentType, Dictionary<string, string> header, UnityHttpCallback callback)
 	{
-		GameEntry.startCoroutine(unityPost(url, data, contentType, header, callback));
+		GameEntryBase.startCoroutine(unityPost(url, data, contentType, header, callback));
 	}
 	// 异步post请求,webgl可用
 	public static void httpPostAsyncWebGL(string url, string param, UnityHttpCallback callback)
 	{
-		GameEntry.startCoroutine(unityPost(url, stringToBytes(param), "application/json", null, callback));
+		GameEntryBase.startCoroutine(unityPost(url, param.toBytes(), "application/json", null, callback));
 	}
 	// 同步post请求
 	public static string httpPost(string url, out WebExceptionStatus status, out HttpStatusCode code, byte[] data, int dataLength = -1)
@@ -144,17 +144,17 @@ public class HttpUtility
 	// 同步post请求
 	public static string httpPost(string url, out WebExceptionStatus status, out HttpStatusCode code, string param)
 	{
-		return httpPost(url, out status, out code, stringToBytes(param), -1, "application/x-www-form-urlencoded", null);
+		return httpPost(url, out status, out code, param.toBytes(), -1, "application/x-www-form-urlencoded", null);
 	}
 	// 同步post请求
 	public static string httpPost(string url, out WebExceptionStatus status, out HttpStatusCode code, string param, string contentType)
 	{
-		return httpPost(url, out status, out code, stringToBytes(param), -1, contentType, null);
+		return httpPost(url, out status, out code, param.toBytes(), -1, contentType, null);
 	}
 	// 同步post请求
 	public static string httpPost(string url, out WebExceptionStatus status, out HttpStatusCode code, string param, string contentType, Dictionary<string, string> header)
 	{
-		return httpPost(url, out status, out code, stringToBytes(param), -1, contentType, header);
+		return httpPost(url, out status, out code, param.toBytes(), -1, contentType, header);
 	}
 	// 同步post请求
 	public static string httpPost(string url, out WebExceptionStatus status, out HttpStatusCode code, Dictionary<string, string> header)
@@ -169,17 +169,17 @@ public class HttpUtility
 	// 异步post请求
 	public static void httpPostAsync(string url, string param, HttpCallback callback = null)
 	{
-		httpPostAsync(url, stringToBytes(param), -1, "application/x-www-form-urlencoded", null, callback);
+		httpPostAsync(url, param.toBytes(), -1, "application/x-www-form-urlencoded", null, callback);
 	}
 	// 异步post请求
 	public static void httpPostAsync(string url, string param, string contentType, HttpCallback callback = null)
 	{
-		httpPostAsync(url, stringToBytes(param), -1, contentType, null, callback);
+		httpPostAsync(url, param.toBytes(), -1, contentType, null, callback);
 	}
 	// 异步post请求
 	public static void httpPostAsync(string url, string param, string contentType, Dictionary<string, string> header, HttpCallback callback = null)
 	{
-		httpPostAsync(url, stringToBytes(param), -1, contentType, header, callback);
+		httpPostAsync(url, param.toBytes(), -1, contentType, header, callback);
 	}
 	// 异步post请求
 	public static void httpPostAsync(string url, Dictionary<string, string> header, HttpCallback callback)
@@ -238,22 +238,22 @@ public class HttpUtility
 	// 异步get请求,webgl可用
 	public static void httpGetAsyncWebGL(string url, Dictionary<string, string> paramList, Dictionary<string, string> header, string contentType, UnityHttpCallback callback, int timeoutSecond)
 	{
-		GameEntry.startCoroutine(unityPrepareGet(url, contentType, header, paramList, callback, timeoutSecond));
+		GameEntryBase.startCoroutine(unityPrepareGet(url, contentType, header, paramList, callback, timeoutSecond));
 	}
 	// 异步get请求,webgl可用,带header
 	public static void httpGetAsyncWebGLWithHeader(string url, Dictionary<string, string> header, UnityHttpCallback callback)
 	{
-		GameEntry.startCoroutine(unityPrepareGet(url, "application/x-www-form-urlencoded", null, header, callback, 10));
+		GameEntryBase.startCoroutine(unityPrepareGet(url, "application/x-www-form-urlencoded", null, header, callback, 10));
 	}
 	// 异步get请求,webgl可用,带参数
 	public static void httpGetAsyncWebGLWithParam(string url, Dictionary<string, string> paramList, UnityHttpCallback callback)
 	{
-		GameEntry.startCoroutine(unityPrepareGet(url, "application/x-www-form-urlencoded", null, paramList, callback, 10));
+		GameEntryBase.startCoroutine(unityPrepareGet(url, "application/x-www-form-urlencoded", null, paramList, callback, 10));
 	}
 	// 异步get请求,webgl可用,不带header,不带参数
 	public static void httpGetAsyncWebGL(string url, UnityHttpCallback callback)
 	{
-		GameEntry.startCoroutine(unityPrepareGet(url, "application/x-www-form-urlencoded", null, null, callback, 10));
+		GameEntryBase.startCoroutine(unityPrepareGet(url, "application/x-www-form-urlencoded", null, null, callback, 10));
 	}
 	//------------------------------------------------------------------------------------------------------------------------------
 	protected static HttpWebRequest prepareDelete(string url, Dictionary<string, string> paramList, Dictionary<string, string> header, string contentType)
@@ -286,7 +286,7 @@ public class HttpUtility
 			item.write(stream, boundary);
 		}
 		// 结尾
-		byte[] footer = stringToBytes("\r\n--" + boundary + "--\r\n");
+		byte[] footer = ("\r\n--" + boundary + "--\r\n").toBytes();
 		stream.Write(footer, 0, footer.Length);
 		contentType = "multipart/form-data; boundary=" + boundary;
 	}
@@ -449,16 +449,13 @@ public class HttpUtility
 		}
 		int count = paramList.Count;
 		using var a = new MyStringBuilderScope(out var parameters);
-		parameters.append("?");
+		parameters.add('?');
 		// 从集合中取出所有参数，设置表单参数（AddField())
 		int index = 0;
 		foreach (var item in paramList)
 		{
-			parameters.append(item.Key, "=", item.Value);
-			if (index++ != count - 1)
-			{
-				parameters.append('&');
-			}
+			parameters.add(item.Key, "=", item.Value);
+			parameters.addIf('&', index++ != count - 1);
 		}
 		return parameters.ToString();
 	}
@@ -478,7 +475,14 @@ public class HttpUtility
 		request.downloadHandler = new DownloadHandlerBuffer();
 		// 发送请求并等待完成
 		yield return request.SendWebRequest();
-		callback?.Invoke(request.downloadHandler.text, request.result, request.responseCode);
+		try
+		{
+			callback?.Invoke(request.downloadHandler.text, request.result, request.responseCode);
+		}
+		catch (Exception e)
+		{
+			logException(e, "HTTP POST请求异常: " + url);
+		}
 	}
 	protected static IEnumerator unityPrepareGet(string url, string contentType, Dictionary<string, string> header, Dictionary<string, string> paramList, UnityHttpCallback callback, int timeoutSecond)
 	{
@@ -495,7 +499,14 @@ public class HttpUtility
 		}
 		// 发送请求并等待完成
 		yield return request.SendWebRequest();
-		callback?.Invoke(request.downloadHandler.text, request.result, request.responseCode);
+		try
+		{
+			callback?.Invoke(request.downloadHandler.text, request.result, request.responseCode);
+		}
+		catch (Exception e)
+		{
+			logException(e, "HTTP GET请求异常: " + url);
+		}
 	}
 	protected static bool myRemoteCertificateValidationCallback(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
 	{

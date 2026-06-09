@@ -22,6 +22,7 @@ public class UGUIDragViewLoop<T, DataType> : WindowObjectUGUI, IDragViewLoop whe
 	protected Vector2 mInterval;                            // 适配后的排列间隔
 	protected int mColCount;                                // 节点的排列列数
 	protected int mLastStartItemIndex;						// 用于判断是否刷新
+	protected int mLastEndItemIndex;						// 用于判断是否刷新
 	protected bool mNeedUpdateItems;                        // 是否需要调用所有节点的update
 	protected static List<DataType> mTempDataList;			// 用于外部临时构造一个数据列表的
 	public UGUIDragViewLoop(IWindowObjectOwner parent) : base(parent)
@@ -59,24 +60,19 @@ public class UGUIDragViewLoop<T, DataType> : WindowObjectUGUI, IDragViewLoop whe
 		var scaleAnchor = mContent.tryGetUnityComponent<ScaleAnchor>();
 		if (scaleAnchor == null)
 		{
-			logError("没有找到适配组件,需要给Content节点加上ScaleAnchor组件,路径:" + getGameObjectPath(mContent.getObject()));
+			logError("没有找到适配组件,需要给Content节点加上ScaleAnchor组件,路径:" + getGameObjectPath(mContent.getGameObject()));
 		}
 		mInterval = mContent.tryGetUnityComponent<ScaleAnchor>().getRealScale() * Vector2.zero;
-		mItemSize = mDisplayItemPool.getTemplate().getWindowSize();
+		mItemSize = mDisplayItemPool.getTemplate().getSize();
 		if (mItemSize.x < 1 || mItemSize.y < 1)
 		{
 			logError("无法获取节点的显示大小");
 			return;
 		}
-		Vector2 viewportSize = mViewport.getWindowSize();
+		Vector2 viewportSize = mViewport.getSize();
 		mColCount = floor((viewportSize.x + mInterval.x) / (mItemSize.x + mInterval.x));
 		// 这里+2比较重要,需要算出在任意情况下一定能够显示完整个viewport所需要的数量,最极限的就是中间已经铺了若干个完整的节点,上下留了一些空间,所以需要+2
-		int maxDisplayRowCount = floor((viewportSize.y + mInterval.y) / (mItemSize.y + mInterval.y)) + 2;
-		int maxDisplayItemCount = mColCount * maxDisplayRowCount;
-		for (int i = 0; i < maxDisplayItemCount; ++i)
-		{
-			mDisplayItemPool.newItem();
-		}
+		mDisplayItemPool.newItem(mColCount * (floor((viewportSize.y + mInterval.y) / (mItemSize.y + mInterval.y)) + 2));
 		// 这里的创建然后销毁纯粹就是为了刷新节点深度,因为节点数量固定,所以后续就算再次复用也无需再刷新深度
 		mScript.getLayout().refreshUIDepth(mContent, true);
 		mDisplayItemPool.unuseAll();
@@ -111,11 +107,11 @@ public class UGUIDragViewLoop<T, DataType> : WindowObjectUGUI, IDragViewLoop whe
 			mAllItemPos.Clear();
 			if (dataList.count() == 0)
 			{
-				mContent.setWindowHeight(0);
+				mContent.setHeight(0);
 			}
 			else
 			{
-				float contentWidth = mContent.getWindowSize().x;
+				float contentWidth = mContent.getSize().x;
 				Vector2 curLeftTop = Vector2.zero;
 				// 为了避免浮点计算的误差,使用计数的方式来获得行数,如果通过(最大高度 + 高度间隔) / (节点高度 + 高度间隔)的方式计算,可能会由于误差而算错
 				int rowCount = dataList.Count > 0 ? 1 : 0;
@@ -137,19 +133,21 @@ public class UGUIDragViewLoop<T, DataType> : WindowObjectUGUI, IDragViewLoop whe
 					mAllItemPos[i] = new(mAllItemPos[i].x - mContent.getPivot().x * contentWidth, mAllItemPos[i].y + (1 - mContent.getPivot().y) * maxHeight);
 				}
 				// Content的顶部在Viewport中的位置
-				float contentTop = mContent.getPosition().y + mContent.getPivot().y * mContent.getWindowSize().y;
+				float contentTop = mContent.getPosition().y + mContent.getPivot().y * mContent.getSize().y;
 				// 计算出Content节点的总高度
-				mContent.setWindowHeight(maxHeight);
+				mContent.setHeight(maxHeight);
 				// 只有当top不在Viewport内时才会调整,否则即使调整了,也会自动被拉回
-				if (keepContentTopPos && contentTop >= mViewport.getWindowSize().y * 0.5f)
+				if (keepContentTopPos && contentTop >= mViewport.getSize().y * 0.5f)
 				{
-					mContent.setPosition(new(0.0f, contentTop - mContent.getPivot().y * mContent.getWindowSize().y));
+					mContent.setPosition(new(0.0f, contentTop - mContent.getPivot().y * mContent.getSize().y));
 				}
 				else
 				{
 					mContent.setTopCenterToParentTopCenter();
 				}
 			}
+			mDisplayItemPool.unuseAll();
+			mDisplayItemMap.Clear();
 		}
 		mDataList.setRange(dataList);
 		updateDisplayItem();
@@ -207,7 +205,7 @@ public class UGUIDragViewLoop<T, DataType> : WindowObjectUGUI, IDragViewLoop whe
 	// 根据指定条件替换数据,newData需要是重新从对象池中创建的
 	public void updateDisplayItem(Predicate<DataType> match, DataType newData, bool forceRefresh = true)
 	{
-		if (mDataList.findIndex(match, out int index))
+		if (mDataList.find(match, out int index))
 		{
 			setData(index, newData, forceRefresh);
 		}
@@ -237,12 +235,12 @@ public class UGUIDragViewLoop<T, DataType> : WindowObjectUGUI, IDragViewLoop whe
 	public void updateDisplayItem(bool forceRefresh = true)
 	{
 		// 根据当前Content的位置,计算出当前显示的节点
-		float viewportTopToContentTop = mContent.getWindowSize().y * (1 - mContent.getPivot().y) + mContent.getPosition().y - mViewport.getWindowSize().y * (1 - mViewport.getPivot().y);
+		float viewportTopToContentTop = mContent.getSize().y * (1 - mContent.getPivot().y) + mContent.getPosition().y - mViewport.getSize().y * (1 - mViewport.getPivot().y);
 		int topRowIndex = floor(viewportTopToContentTop / (mItemSize.y + mInterval.y));
-		int bottomRowIndex = ceil((viewportTopToContentTop + mViewport.getWindowSize().y) / (mItemSize.y + mInterval.y));
+		int bottomRowIndex = ceil((viewportTopToContentTop + mViewport.getSize().y) / (mItemSize.y + mInterval.y));
 		int startItemIndex = clampMin(topRowIndex * mColCount);
 		int endItemIndex = clampMin(bottomRowIndex * mColCount);
-		if (mLastStartItemIndex != startItemIndex || forceRefresh)
+		if (mLastStartItemIndex != startItemIndex || mLastEndItemIndex != endItemIndex || forceRefresh)
 		{
 			// 先移除超出区域的节点
 			var displayItemList = mDisplayItemPool.getUsedList();
@@ -279,6 +277,7 @@ public class UGUIDragViewLoop<T, DataType> : WindowObjectUGUI, IDragViewLoop whe
 		}
 		mLastRefreshedContentPos = mContent.getPosition();
 		mLastStartItemIndex = startItemIndex;
+		mLastEndItemIndex = endItemIndex;
 	}
 	// 滑动列表的tick
 	public void updateDragView()

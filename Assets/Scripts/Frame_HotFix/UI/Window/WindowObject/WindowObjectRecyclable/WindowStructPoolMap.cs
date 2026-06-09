@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using static UnityUtility;
 using static FrameUtility;
 using static FrameBaseUtility;
 
 // 可通过Key索引的复杂窗口对象池
 [CommonWindowPool]
-public class WindowStructPoolMap<Key, T> : WindowStructPoolBase where T : WindowObjectBase, IRecyclable
+public class WindowStructPoolMap<Key, T> : WindowStructPoolBase where T : WindowObjectBase, IRecyclableUI
 {
 	protected Dictionary<Key, T> mUsedItemList = new(); // 正在使用的列表
 	protected Stack<T> mUnusedItemList = new();         // 未使用列表
@@ -24,6 +25,10 @@ public class WindowStructPoolMap<Key, T> : WindowStructPoolBase where T : Window
 	{
 		base.init();
 		init(mTemplate.getParent(), typeof(T), true);
+	}
+	public void For(Action<KeyValuePair<Key, T>> action)
+	{
+		mUsedItemList.For(action);
 	}
 	public bool hasKey(Key key) { return mUsedItemList.ContainsKey(key); }
 	public T getItem(Key key) { return mUsedItemList.get(key); }
@@ -62,11 +67,12 @@ public class WindowStructPoolMap<Key, T> : WindowStructPoolBase where T : Window
 	}
 	public override void unuseAll()
 	{
-		foreach (T item in mUsedItemList.Values)
+		foreach (var item in mUsedItemList)
 		{
-			item.recycle();
-			item.setActive(false);
-			mUnusedItemList.Push(item);
+			T value = item.Value;
+			value.recycle();
+			value.setActive(false);
+			mUnusedItemList.Push(value);
 		}
 		mUsedItemList.Clear();
 	}

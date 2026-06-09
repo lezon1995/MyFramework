@@ -1,5 +1,5 @@
-﻿using UnityEngine;
-using static FrameUtility;
+﻿using static FrameUtility;
+using static FrameBaseHotFix;
 
 // Tweener是用于代替Dotween这种的缓动操作
 public class TweenerManager : FrameSystem
@@ -9,9 +9,9 @@ public class TweenerManager : FrameSystem
 	{
 		base.update(elapsedTime);
 		using var a = new SafeDictionaryReader<long, MyTweener>(mTweenerList);
-		foreach (MyTweener item in a.mReadList.Values)
+		foreach (var item in a.mReadList)
 		{
-			item.update(item.isIgnoreTimeScale() ? Time.unscaledDeltaTime : elapsedTime);
+			item.Value.update(item.Value.isIgnoreTimeScale() ? mGameFrameworkHotFix.getUnscaledTime() : elapsedTime);
 		}
 	}
 	public MyTweenerFloat createTweenerFloat()

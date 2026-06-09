@@ -9,25 +9,26 @@ public class AudioManagerDebug : MonoBehaviour
 	public List<string> LoadedAudioList = new();	// 已加载音频列表
 	public void Update()
 	{
-		if (GameEntry.getInstance() == null || !GameEntry.getInstance().mFramworkParam.mEnableScriptDebug)
+		if (GameEntryBase.getInstance() == null || !GameEntryBase.getInstance().mFrameworkParam.mEnableScriptDebug)
 		{
 			return;
 		}
 		AudioList.Clear();
 		LoadedAudioList.Clear();
-		foreach (AudioInfo item in mAudioManager.getAudioList().Values)
+		foreach (var item in mAudioManager.getAudioList())
 		{
-			if (item.mIsLocal)
+			AudioInfo info = item.Value;
+			if (info.mIsLocal)
 			{
-				AudioList.Add(item.mState + "\t" + item.mAudioName + ",  InResources");
+				AudioList.Add(info.mState + "\t" + info.mAudioName + ",  InResources");
 			}
 			else
 			{
-				AudioList.Add(item.mState + "\t" + item.mAudioName);
+				AudioList.Add(info.mState + "\t" + info.mAudioName);
 			}
-			if (item.mState == LOAD_STATE.LOADED)
+			if (info.mState == LOAD_STATE.LOADED)
 			{
-				LoadedAudioList.Add(item.mAudioName);
+				LoadedAudioList.Add(info.mAudioName);
 			}
 		}
 	}

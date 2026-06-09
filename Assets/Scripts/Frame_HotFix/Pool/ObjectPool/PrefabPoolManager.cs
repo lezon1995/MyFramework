@@ -39,33 +39,18 @@ public class PrefabPoolManager : FrameSystem
 				mPrefabPoolList.remove(item.Key);
 				// 需要将实例化列表中的属于此对象池的所有对象也一起销毁
 				PrefabPool pool = item.Value;
-				foreach (GameObjectInfo obj in pool.getInuseList())
-				{
-					mInstanceList.Remove(obj.getObject());
-				}
-				foreach (GameObjectInfo obj in pool.getUnuseList())
-				{
-					mInstanceList.Remove(obj.getObject());
-				}
+				pool.getInuseList().For(obj => mInstanceList.Remove(obj.getObject()));
+				pool.getUnuseList().For(obj => mInstanceList.Remove(obj.getObject()));
 				UN_CLASS(ref pool);
 			}
 		});
 		mResourceManager.addUnloadObjectCallback((UObject obj) =>
 		{
-			if (obj is not GameObject)
-			{
-				return;
-			}
 			// 找到对应的PrefabPool将其销毁
-			foreach (var item in mPrefabPoolList.getMainList())
+			if (obj is GameObject && mPrefabPoolList.getMainList().find((key, value) => value.getPrefab() == obj, out var item))
 			{
-				PrefabPool pool = item.Value;
-				if (pool.getPrefab() == obj)
-				{
-					UN_CLASS(ref pool);
-					mPrefabPoolList.remove(item.Key);
-					break;
-				}
+				UN_CLASS(item.Value);
+				mPrefabPoolList.remove(item.Key);
 			}
 		});
 	}
@@ -83,8 +68,9 @@ public class PrefabPoolManager : FrameSystem
 		if (tickTimerLoop(ref mDestroyTimer, elapsedTime, mTimerInterval))
 		{
 			using var a = new SafeDictionaryReader<string, PrefabPool>(mPrefabPoolList);
-			foreach (PrefabPool pool in a.mReadList.Values)
+			foreach (var item in a.mReadList)
 			{
+				PrefabPool pool = item.Value;
 				if (!pool.isEmptyInUse())
 				{
 					continue;
@@ -103,11 +89,11 @@ public class PrefabPoolManager : FrameSystem
 		}
 		if (isEditor())
 		{
-			foreach (GameObjectInfo item in mInstanceList.Values)
+			foreach (var item in mInstanceList)
 			{
-				if (item.getObject() == null)
+				if (item.Value.getObject() == null)
 				{
-					logError("Object can not be destroy outside of PrefabPoolManager! filePath:" + item.getFileWithPath());
+					logError("Object can not be destroy outside of PrefabPoolManager! filePath:" + item.Value.getFileWithPath());
 				}
 			}
 		}
@@ -146,7 +132,7 @@ public class PrefabPoolManager : FrameSystem
 	// 异步创建物体,实际上只是异步加载,实例化还是同步的
 	// fileWithPath是GameResource下的相对路径
 	// failCallback的参数表示是否为资源加载失败而失败
-	public CustomAsyncOperation createObjectAsyncSafe(ClassObject relatedObj, string fileWithPath, int objectTag, bool moveToHide, bool active, GameObjectCallback callback, BoolCallback failCallback = null)
+	public CustomAsyncOperation createObjectAsyncSafe(IRecyclable relatedObj, string fileWithPath, int objectTag, bool moveToHide, bool active, GameObjectCallback callback, BoolCallback failCallback = null)
 	{
 		if (fileWithPath.isEmpty())
 		{
@@ -161,7 +147,12 @@ public class PrefabPoolManager : FrameSystem
 			{
 				if (!poolDestroy)
 				{
-					logError("prefab加载失败:" + fileWithPath + ",请确认文件存在,且带后缀名,且不能使用反斜杠\\," + (fileWithPath.Contains(' ') || fileWithPath.Contains('　') ? "注意此文件名中带有空格" : ""));
+					string info = "prefab加载失败:" + fileWithPath + ",请确认文件存在,且带后缀名,且不能使用反斜杠\\";
+					if (fileWithPath.Contains(' ') || fileWithPath.Contains('　'))
+					{
+						info += ",注意此文件名中带有空格";
+					}
+					logError(info);
 				}
 				// 资源加载失败而失败
 				failCallback?.Invoke(true);
@@ -193,7 +184,12 @@ public class PrefabPoolManager : FrameSystem
 		GameObjectInfo objInfo = pool.getOneUnused(objectTag);
 		if (objInfo == null)
 		{
-			logError("prefab加载失败:" + fileWithPath + ",请确认文件存在,且带后缀名,且不能使用反斜杠\\," + (fileWithPath.Contains(' ') || fileWithPath.Contains('　') ? "注意此文件名中带有空格" : ""));
+			string info = "prefab加载失败:" + fileWithPath + ",请确认文件存在,且带后缀名,且不能使用反斜杠\\";
+			if (fileWithPath.Contains(' ') || fileWithPath.Contains('　'))
+			{
+				info += ",注意此文件名中带有空格";
+			}
+			logError(info);
 			return null;
 		}
 		postCreateObject(pool, objInfo, moveToHide, parent, active);
@@ -203,14 +199,8 @@ public class PrefabPoolManager : FrameSystem
 	public void destroyAllWithTag(int objectTag)
 	{
 		using var a = new ListScope<GameObjectInfo>(out var tempList);
-		foreach (GameObjectInfo item in mInstanceList.Values)
-		{
-			tempList.addIf(item, item.getTag() == objectTag);
-		}
-		foreach (GameObjectInfo item in tempList)
-		{
-			destroyObject(item.getObject(), true);
-		}
+		mInstanceList.For(item => tempList.addIf(item.Value, item.Value.getTag() == objectTag));
+		tempList.For(item => destroyObject(item.getObject(), true));
 	}
 	public void destroyObject(GameObject obj, bool destroyReally)
 	{

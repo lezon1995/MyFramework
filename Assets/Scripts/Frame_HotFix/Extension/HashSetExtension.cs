@@ -1,9 +1,42 @@
-﻿using System.Collections.Generic;
-using static System.Linq.Enumerable;
+﻿using System;
+using System.Collections.Generic;
 using static FrameUtility;
+
+public class EmptyHashSet<T>
+{
+	public static HashSet<T> mList;
+	public static HashSet<T> getEmptyList()
+	{
+		mList ??= new();
+		return mList;
+	}
+}
 
 public static class HashSetExtension
 {
+	public static void For<T>(this HashSet<T> list, Action<T> action)
+	{
+		if (list.isEmpty())
+		{
+			return;
+		}
+		foreach (T item in list)
+		{
+			action(item);
+		}
+	}
+	public static T addOrRemove<T>(this HashSet<T> list, T value, bool add)
+	{
+		if (add)
+		{
+			list.Add(value);
+		}
+		else
+		{
+			list.Remove(value);
+		}
+		return value;
+	}
 	public static T add<T>(this HashSet<T> list, T value)
 	{
 		list.Add(value);
@@ -11,17 +44,67 @@ public static class HashSetExtension
 	}
 	public static bool addNot<T>(this HashSet<T> list, T value, T notValue)
 	{
-		if (value.Equals(notValue))
+		if (equal(value, notValue))
 		{
 			return false;
 		}
 		list.Add(value);
 		return true;
 	}
-	public static HashSet<T> setRange<T>(this HashSet<T> list, IEnumerable<T> other)
+	public static HashSet<TKey> addRangeKeys<TKey, TValue>(this HashSet<TKey> list, Dictionary<TKey, TValue> other)
+	{
+		if (other.isEmpty())
+		{
+			return list;
+		}
+		foreach (var item in other)
+		{
+			list.Add(item.Key);
+		}
+		return list;
+	}
+	public static HashSet<TValue> addRangeValues<TKey, TValue>(this HashSet<TValue> list, Dictionary<TKey, TValue> other)
+	{
+		if (other.isEmpty())
+		{
+			return list;
+		}
+		foreach (var item in other)
+		{
+			list.Add(item.Value);
+		}
+		return list;
+	}
+	public static HashSet<TKey> setRangeKeys<TKey, TValue>(this HashSet<TKey> list, Dictionary<TKey, TValue> other)
+	{
+		if (other.isEmpty())
+		{
+			return list;
+		}
+		list.Clear();
+		foreach (var item in other)
+		{
+			list.Add(item.Key);
+		}
+		return list;
+	}
+	public static HashSet<TValue> setRangeValues<TKey, TValue>(this HashSet<TValue> list, Dictionary<TKey, TValue> other)
+	{
+		if (other.isEmpty())
+		{
+			return list;
+		}
+		list.Clear();
+		foreach (var item in other)
+		{
+			list.Add(item.Value);
+		}
+		return list;
+	}
+	public static HashSet<T> setRange<T>(this HashSet<T> list, HashSet<T> other)
 	{
 		list.Clear();
-		if (other == null || other.Count() == 0)
+		if (other.isEmpty())
 		{
 			return list;
 		}
@@ -31,9 +114,21 @@ public static class HashSetExtension
 		}
 		return list;
 	}
-	public static HashSet<T> addRange<T>(this HashSet<T> list, IEnumerable<T> other)
+	public static HashSet<T> addRange<T>(this HashSet<T> list, List<T> other)
 	{
-		if (other == null || other.Count() == 0)
+		if (other.isEmpty())
+		{
+			return list;
+		}
+		foreach (T item in other)
+		{
+			list.Add(item);
+		}
+		return list;
+	}
+	public static HashSet<T> addRange<T>(this HashSet<T> list, HashSet<T> other)
+	{
+		if (other.isEmpty())
 		{
 			return list;
 		}
@@ -65,9 +160,9 @@ public static class HashSetExtension
 		return list.add(CLASS<T>());
 	}
 	// Base 必须是 T 的基类或者实现 T 的接口
-	public static HashSet<Base> addRangeDerived<Base, T>(this HashSet<Base> list, IEnumerable<T> other) where Base : class where T : Base
+	public static HashSet<Base> addRangeDerived<Base, T>(this HashSet<Base> list, List<T> other) where Base : class where T : Base
 	{
-		if (other == null || other.Count() == 0)
+		if (other.isEmpty())
 		{
 			return list;
 		}
@@ -105,4 +200,45 @@ public static class HashSetExtension
 		list.Remove(elem);
 		return elem;
 	}
+	public static bool removeIf<T>(this HashSet<T> list, T value, bool condition)
+	{
+		if (condition)
+		{
+			return list.Remove(value);
+		}
+		return false;
+	}
+	public static bool contains<T>(this HashSet<T> list, T other)
+	{
+		if (list.isEmpty())
+		{
+			return false;
+		}
+		foreach (T item in list)
+		{
+			if (equal(item, other))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+	public static bool contains<T>(this HashSet<T> list, Predicate<T> action)
+	{
+		if (list.isEmpty())
+		{
+			return false;
+		}
+		foreach (T item in list)
+		{
+			if (action(item))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+	public static bool isEmpty<T>(this HashSet<T> list) { return list == null || list.Count == 0; }
+	public static HashSet<T> safe<T>(this HashSet<T> original) { return original ?? EmptyHashSet<T>.getEmptyList(); }
+	public static int count<T>(this HashSet<T> list) { return list?.Count ?? 0; }
 }

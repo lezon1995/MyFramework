@@ -6,6 +6,7 @@ using static MathUtility;
 
 // 可显示数字的窗口,支持带+-符号,小数点
 // 性能不如myUGUIImageNumber,如果有性能需求,首选myUGUIImageNumber
+// 优势就是比较灵活,可以设置数字之间的间隔,数字的停靠方式,数字的显示方向等,适合对数字显示有特殊需求的场景
 public class myUGUINumber : myUGUIImage
 {
 	protected List<myUGUIImageSimple> mNumberList = new();	// 数字窗口列表
@@ -50,9 +51,8 @@ public class myUGUINumber : myUGUIImage
 	public override void notifyAnchorApply()
 	{
 		base.notifyAnchorApply();
-		// 此处默认数字窗口都是以ASPECT_BASE.AB_AUTO的方式等比放大
-		Vector2 screenScale = getScreenScale(ASPECT_BASE.AUTO);
-		mInterval = (int)(mInterval * (mDirection == NUMBER_DIRECTION.HORIZONTAL ? screenScale.x : screenScale.y));
+		// 此处默认数字窗口都是以ASPECT_BASE.AUTO的方式等比放大
+		mInterval = (int)adjustByScreenScaleAuto(mInterval);
 	}
 	public override void cloneFrom(myUGUIObject obj)
 	{
@@ -80,7 +80,7 @@ public class myUGUINumber : myUGUIImage
 		int count = getMin(mNumberList.Count, mNumber.Length);
 		for (int i = 0; i < count; ++i)
 		{
-			width += (int)mNumberList[i].getWindowSize().x;
+			width += (int)mNumberList[i].getSize().x;
 		}
 		return width + mInterval * (mNumber.Length - 1);
 	}
@@ -102,7 +102,7 @@ public class myUGUINumber : myUGUIImage
 		int count = getMin(mNumberList.Count, mNumber.Length);
 		for (int i = 0; i < count; ++i)
 		{
-			height += (int)mNumberList[i].getWindowSize().y;
+			height += (int)mNumberList[i].getSize().y;
 		}
 		return height + mInterval * (mNumber.Length - 1);
 	}
@@ -245,7 +245,7 @@ public class myUGUINumber : myUGUIImage
 		}
 		
 		// 根据当前窗口的大小调整所有数字的大小
-		Vector2 windowSize = getWindowSize();
+		Vector2 windowSize = getSize();
 		int numberLength = mNumber.Length;
 		Vector2 numberSize = Vector2.zero;
 		float numberScale = 0.0f;
@@ -269,19 +269,19 @@ public class myUGUINumber : myUGUIImage
 			char curChar = mNumber[i];
 			if (curChar <= '9' && curChar >= '0')
 			{
-				mNumberList[i].setWindowSize(numberSize);
+				mNumberList[i].setSize(numberSize);
 			}
 			else if (curChar == DOT_MARK)
 			{
-				mNumberList[i].setWindowSize(mDotSprite.rect.size * numberScale);
+				mNumberList[i].setSize(mDotSprite.rect.size * numberScale);
 			}
 			else if (curChar == ADD_MARK)
 			{
-				mNumberList[i].setWindowSize(mAddSprite.rect.size * numberScale);
+				mNumberList[i].setSize(mAddSprite.rect.size * numberScale);
 			}
 			else if (curChar == MINUS_MARK)
 			{
-				mNumberList[i].setWindowSize(mMinusSprite.rect.size * numberScale);
+				mNumberList[i].setSize(mMinusSprite.rect.size * numberScale);
 			}
 		}
 
@@ -311,7 +311,7 @@ public class myUGUINumber : myUGUIImage
 			for (int i = 0; i < numberLength; ++i)
 			{
 				myUGUIImageSimple number = mNumberList[i];
-				Vector2 size = number.getWindowSize();
+				Vector2 size = number.getSize();
 				number.setPosition(leftOrTop + size * 0.5f);
 				leftOrTop.x += size.x + mInterval;
 			}
@@ -334,7 +334,7 @@ public class myUGUINumber : myUGUIImage
 			for (int i = 0; i < numberLength; ++i)
 			{
 				myUGUIImageSimple number = mNumberList[i];
-				Vector2 size = number.getWindowSize();
+				Vector2 size = number.getSize();
 				number.setPosition(leftOrTop + new Vector2(size.x * 0.5f, -size.y * 0.5f));
 				leftOrTop.y -= size.y + mInterval;
 			}

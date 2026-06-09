@@ -9,7 +9,7 @@ public class ClassPoolThreadDebug : MonoBehaviour
 	public List<string> TypeList = new();	// 类型信息列表
 	public void Update()
 	{
-		if (GameEntry.getInstance() == null || !GameEntry.getInstance().mFramworkParam.mEnableScriptDebug)
+		if (GameEntryBase.getInstance() == null || !GameEntryBase.getInstance().mFrameworkParam.mEnableScriptDebug)
 		{
 			return;
 		}
@@ -19,16 +19,11 @@ public class ClassPoolThreadDebug : MonoBehaviour
 			TypeList.Clear();
 			foreach (var item in mClassPoolThread.getPoolList())
 			{
+				var list = item.Value;
 				using var a = new MyStringBuilderScope(out var builder);
-				builder.append(item.Key.ToString());
-				if (item.Value.getInusedList().Count > 0)
-				{
-					builder.append(", 已使用:", IToS(item.Value.getInusedList().Count));
-				}
-				if (item.Value.getUnusedList().Count > 0)
-				{
-					builder.append(", 未使用:", IToS(item.Value.getUnusedList().Count));
-				}
+				builder.add(item.Key.ToString());
+				builder.addIf(", 已使用:", IToS(list.getInusedList().Count), list.getInusedList().Count > 0);
+				builder.addIf(", 未使用:", IToS(list.getUnusedList().Count), list.getUnusedList().Count > 0);
 				TypeList.Add(builder.ToString());
 			}
 		}

@@ -1,14 +1,12 @@
 ﻿#if USE_SQLITE
 using Mono.Data.Sqlite;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using static UnityUtility;
 using static FileUtility;
 using static StringUtility;
 using static FrameUtility;
-using static BinaryUtility;
 using static FrameBaseHotFix;
 using static FrameDefine;
 using static FrameBaseDefine;
@@ -56,7 +54,7 @@ public class SQLiteTable : ClassObject
 			mResourceManager.loadGameResourceAsync<TextAsset>(R_SQLITE_PATH + mTableName + ".bytes", (textAsset)=>
 			{
 				mState = LOAD_STATE.LOADED;
-				postLoad(textAsset.bytes);
+				postLoad(textAsset.getResource().bytes);
 				mResourceManager?.unload(ref textAsset);
 				callback?.Invoke();
 			});
@@ -79,10 +77,12 @@ public class SQLiteTable : ClassObject
 			return;
 		}
 		mState = LOAD_STATE.LOADING;
-		TextAsset textAsset = null;
 		if (mResourceManager != null)
 		{
-			textAsset = mResourceManager.loadGameResource<TextAsset>(R_SQLITE_PATH + mTableName + ".bytes");
+			ResourceRef<TextAsset> textAsset = mResourceManager.loadGameResource<TextAsset>(R_SQLITE_PATH + mTableName + ".bytes");
+			mState = LOAD_STATE.LOADED;
+			postLoad(textAsset.getResource().bytes);
+			mResourceManager.unload(ref textAsset);
 		}
 		else
 		{
@@ -90,20 +90,10 @@ public class SQLiteTable : ClassObject
 			{
 				return;
 			}
-			textAsset = loadAssetAtPath<TextAsset>(P_SQLITE_PATH + mTableName + ".bytes");
-		}
-		mState = LOAD_STATE.LOADED;
-		postLoad(textAsset.bytes);
-		if (mResourceManager != null)
-		{
-			mResourceManager.unload(ref textAsset);
-		}
-		else
-		{
-			if (isEditor())
-			{
-				Resources.UnloadAsset(textAsset);
-			}
+			var textAsset = loadAssetAtPath<TextAsset>(P_SQLITE_PATH + mTableName + ".bytes");
+			mState = LOAD_STATE.LOADED;
+			postLoad(textAsset.bytes);
+			Resources.UnloadAsset(textAsset);
 		}
 	}
 	public string getDecryptFileName() { return mDecryptFileName; }
@@ -198,7 +188,7 @@ public class SQLiteTable : ClassObject
 			}
 		}
 	}
-	public void checkListPair(IList list0, IList list1, int dataID)
+	public void checkListPair<T0, T1>(List<T0> list0, List<T1> list1, int dataID)
 	{
 		if (list0.Count != list1.Count)
 		{
@@ -225,12 +215,20 @@ public class SQLiteTable : ClassObject
 	}
 	protected SQLiteData queryInternal(int id, bool errorIfNull = true)
 	{
+		if (id <= 0)
+		{
+			if (errorIfNull)
+			{
+				logError("表格中找不到指定数据: ID:" + id + ", Type:" + mDataClassType);
+			}
+			return null;
+		}
 		if (mDataMap.TryGetValue(id, out SQLiteData data))
 		{
 			return data;
 		}
 		using var a = new MyStringBuilderScope(out var condition);
-		condition.appendConditionInt(SQLiteData.ID, id, EMPTY);
+		condition.addConditionInt(SQLiteData.ID, id, EMPTY);
 		parseReader(doQuery(condition.ToString()), out data);
 		mDataMap.Add(id, data);
 		if (data == null && errorIfNull)
@@ -287,7 +285,7 @@ public class SQLiteTable : ClassObject
 		}
 		reader?.Close();
 	}
-	protected void parseReader(Type type, SqliteDataReader reader, IList dataList)
+	protected void parseReader<T>(Type type, SqliteDataReader reader, List<T> dataList) where T : SQLiteData
 	{
 		if (type != mDataClassType)
 		{
@@ -304,7 +302,7 @@ public class SQLiteTable : ClassObject
 			var data = createInstance<SQLiteData>(type);
 			data.mTable = this;
 			data.parse(reader);
-			dataList.Add(data);
+			dataList.Add(data as T);
 		}
 		reader.Close();
 	}
@@ -324,7 +322,8 @@ public class SQLiteTable : ClassObject
 		try
 		{
 			// 解密文件,只解密128分之1的数据,减少耗时
-			byte[] encryptKey = stringToBytes(generateFileMD5(stringToBytes("ASLD" + mTableName)).ToUpper() + "23y35y9832635872349862365274732047chsudhgkshgwshfoweh238c42384fync9388v45982nc3484");
+			string suffixKey = "23y35y9832635872349862365274732047chsudhgkshgwshfoweh238c42384fync9388v45982nc3484";
+			byte[] encryptKey = (generateFileMD5(("ASLD" + mTableName).toBytes()).ToUpper() + suffixKey).toBytes();
 			int fileSize = fileBuffer.Length;
 			int index = 0;
 			for (int i = 0; i < fileSize >> 7; ++i)

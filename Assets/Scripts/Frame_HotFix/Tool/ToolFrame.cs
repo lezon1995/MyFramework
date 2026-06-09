@@ -454,6 +454,14 @@ public static class FT
 	{
 		CmdTransformableMovePath.execute(obj, valueKeyFrame, doingCallback, doneCallback, valueOffset, timeOffset, speed, keyframe, loop);
 	}
+	public static void MOVE_SCALE_PATH_EX(this ITransformable obj, Dictionary<float, Vector3> moveKeyFrame, Dictionary<float, Vector3> scaleKeyFrame, Vector3 moveOffset, Vector3 scaleOffset, KeyFrameCallback doneCallback)
+	{
+		obj.MOVE_SCALE_PATH_EX(KEY_CURVE.ZERO_ONE, moveKeyFrame, scaleKeyFrame, moveOffset, scaleOffset, 1.0f, false, 0.0f, null, doneCallback);
+	}
+	public static void MOVE_SCALE_PATH_EX(this ITransformable obj, int keyframe, Dictionary<float, Vector3> moveKeyFrame, Dictionary<float, Vector3> scaleKeyFrame, Vector3 moveOffset, Vector3 scaleOffset, float speed, bool loop, float timeOffset, KeyFrameCallback doingCallback, KeyFrameCallback doneCallback)
+	{
+		CmdTransformableMoveScalePath.execute(obj, moveKeyFrame, scaleKeyFrame, doingCallback, doneCallback, moveOffset, scaleOffset, timeOffset, speed, keyframe, loop);
+	}
 	#endregion
 	//------------------------------------------------------------------------------------------------------------------------------
 	// 插值位置
@@ -832,6 +840,21 @@ public static class FT
 	public static void SCALE_CURVE_EX(this ITransformable obj, int keyframe, List<Vector3> scaleList, float onceLength, bool loop, float offset, KeyFrameCallback doingCallback, KeyFrameCallback doneCallback)
 	{
 		CmdTransformableScaleCurve.execute(obj, scaleList, onceLength, offset, keyframe, loop, doingCallback, doneCallback);
+	}
+	#endregion
+	// 播放缓动序列,需要该节点上有缓动序列组件
+	#region 播放缓动序列
+	public static void SEQUENCE_STOP(this ITransformable obj)
+	{
+		CmdTransformableSequence.execute(obj);
+	}
+	public static void SEQUENCE(this ITransformable obj)
+	{
+		CmdTransformableSequence.execute(obj, null);
+	}
+	public static void SEQUENCE(this ITransformable obj, SequenceCallback doneCallback)
+	{
+		CmdTransformableSequence.execute(obj, doneCallback);
 	}
 	#endregion
 }

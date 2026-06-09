@@ -8,14 +8,6 @@ public class TimeUtility
 {
 	private static DateTime mTime19700101 = new(1970, 1, 1);	// 时间的起始
 	private static long mThisTimeMS;							// 这一帧的时间戳,每一帧设置一次,方便与elapsedTime搭配使用
-	// 获取从1970年1月1日到现在所经过的毫秒数
-	public static long timeGetTime() { return (long)(DateTime.Now - mTime19700101).TotalMilliseconds; }
-	// 获取从1970年1月1日到现在所经过的秒数
-	public static long getTimeSecond() { return (long)(DateTime.Now - mTime19700101).TotalSeconds; }
-	// 获取从1970年1月1日到当前UTC时间(世界标准时间)所经过的毫秒数
-	public static long timeGetTimeUTC() { return (long)(DateTime.UtcNow - mTime19700101).TotalMilliseconds; }
-	// 获取从1970年1月1日到当前UTC时间(世界标准时间)所经过的秒数
-	public static long getTimeSecondUTC() { return (long)(DateTime.UtcNow - mTime19700101).TotalSeconds; }
 	// GameFramework每一帧设置一次
 	public static void setThisTimeMS(long time) { mThisTimeMS = time; }
 	// 获取这一帧的时间戳,时间戳在这一帧内都不变,比getNowTimeStampMS效率高一些
@@ -29,9 +21,9 @@ public class TimeUtility
 	public static string getDateTimeToUTC(long utcTimeStamp, TIME_DISPLAY display) { return getTimeString(timeStampToDateTimeUTC(utcTimeStamp), display); }
 	// timeStamp是UTC时间戳,会转换为本地时间来显示
 	public static string getLocalTime(long utcTimeStamp, TIME_DISPLAY display) { return getTimeString(timeStampToDateTime(utcTimeStamp), display); }
-	// 将时间转化成时间戳,dateTime是本地时间
+	// 将时间转化成时间戳,这里不区分是否为utc时间
 	public static long dateTimeToTimeStamp(DateTime dateTime) { return (long)(dateTime - mTime19700101).TotalSeconds; }
-	// 将时间转化成时间戳,dateTime是本地时间
+	// 将时间转化成时间戳,这里不区分是否为utc时间
 	public static long dateTimeToTimeStampMS(DateTime dateTime) { return (long)(dateTime - mTime19700101).TotalMilliseconds; }
 	// 将时间戳转化成时间,转换后是本地时间
 	public static DateTime timeStampToDateTime(long utcTimeStamp) { return mTime19700101.AddSeconds(utcTimeStamp).ToLocalTime(); }
@@ -47,10 +39,10 @@ public class TimeUtility
 	public static long getNowUTCTimeStamp() { return dateTimeToTimeStamp(DateTime.UtcNow); }
 	// 获得当前的UTC时间戳,以毫秒为单位
 	public static long getNowUTCTimeStampMS() { return dateTimeToTimeStampMS(DateTime.UtcNow); }
-	// 判断两个时间戳是否在同一天,time为localtime
+	// 判断两个时间戳是否在同一天,time为utctime
 	public static bool isSameDay(long utcTimeStamp0, long utcTimeStamp1)
 	{
-		return isSameDay(timeStampToDateTime(utcTimeStamp0), timeStampToDateTime(utcTimeStamp1));
+		return isSameDay(timeStampToDateTimeUTC(utcTimeStamp0), timeStampToDateTimeUTC(utcTimeStamp1));
 	}
 	// 判断两个时间是否在同一天
 	public static bool isSameDay(DateTime date0, DateTime date1)
@@ -60,7 +52,7 @@ public class TimeUtility
 			   date0.Day == date1.Day;
 	}
 	// 判断指定时间是否在今天,time为localtime
-	public static bool isTodayTime(long utcTimeStamp) { return isSameDay(timeStampToDateTime(utcTimeStamp), DateTime.Now); }
+	public static bool isTodayTime(long utcTimeStamp) { return isSameDay(timeStampToDateTimeUTC(utcTimeStamp), DateTime.Now); }
 	// 判断指定时间是否在今天
 	public static bool isTodayTime(DateTime date) { return isSameDay(date, DateTime.Now); }
 	// 获取今天的时间,如果hour为0,就是今天的凌晨0点
@@ -95,14 +87,8 @@ public class TimeUtility
 	{
 		minuteToHourMinute(totalMinute, out int hour, out int minute);
 		using var a = new MyStringBuilderScope(out var timeStr);
-		if (hour > 0)
-		{
-			timeStr.append(IToS(hour), "小时");
-		}
-		if (minute > 0)
-		{
-			timeStr.append(IToS(minute), "分钟");
-		}
+		timeStr.addIf(IToS(hour), "小时", hour > 0);
+		timeStr.addIf(IToS(minute), "分钟", minute > 0);
 		return timeStr.ToString();
 	}
 	// 一般用于倒计时显示的字符串,只获取数字,自己拼接需要显示的字符串,适用于需要切换多语言的文本
@@ -177,6 +163,10 @@ public class TimeUtility
 		{
 			return strcat(IToS(hour, 2), ":", IToS(min, 2), ":", IToS(second, 2));
 		}
+		else if (display == TIME_DISPLAY.HM_2)
+		{
+			return IToS(hour, 2) + ":" + IToS(min, 2);
+		}
 		else if (display == TIME_DISPLAY.MS_2)
 		{
 			return IToS(min + hour * 60, 2) + ":" + IToS(second, 2);
@@ -237,6 +227,17 @@ public class TimeUtility
 			}
 			return IToS(totalMin) + "分";
 		}
+		else if (display == TIME_DISPLAY.MS_ZH)
+		{
+			int totalMin = timeSecond / 60;
+			int curSecond = timeSecond % 60;
+			// 小于1天,并且大于等于1小时
+			if (totalMin > 0)
+			{
+				return IToS(totalMin) + "分" + IToS(curSecond) + "秒";
+			}
+			return IToS(curSecond) + "秒";
+		}
 		return EMPTY;
 	}
 	// 只能在主线程中调用的获取当前时间字符串
@@ -249,6 +250,10 @@ public class TimeUtility
 		else if (display == TIME_DISPLAY.HMS_2)
 		{
 			return strcat(IToS(time.Hour, 2), ":", IToS(time.Minute, 2), ":", IToS(time.Second, 2));
+		}
+		else if (display == TIME_DISPLAY.HM_2)
+		{
+			return IToS(time.Hour, 2) + ":" + IToS(time.Minute, 2);
 		}
 		else if (display == TIME_DISPLAY.MS_2)
 		{
@@ -265,6 +270,10 @@ public class TimeUtility
 		else if (display == TIME_DISPLAY.HM_ZH)
 		{
 			return IToS(time.Hour) + "时" + IToS(time.Minute) + "分";
+		}
+		else if (display == TIME_DISPLAY.MS_ZH)
+		{
+			return IToS(time.Minute) + "分" + IToS(time.Second) + "秒";
 		}
 		else if (display == TIME_DISPLAY.YMD_ZH)
 		{
@@ -286,6 +295,10 @@ public class TimeUtility
 		{
 			return IToS(time.Hour, 2) + ":" + IToS(time.Minute, 2) + ":" + IToS(time.Second, 2);
 		}
+		else if (display == TIME_DISPLAY.HM_2)
+		{
+			return IToS(time.Hour, 2) + ":" + IToS(time.Minute, 2);
+		}
 		else if (display == TIME_DISPLAY.MS_2)
 		{
 			return IToS(time.Minute, 2) + ":" + IToS(time.Second, 2);
@@ -301,6 +314,10 @@ public class TimeUtility
 		else if (display == TIME_DISPLAY.HM_ZH)
 		{
 			return IToS(time.Hour) + "时" + IToS(time.Minute) + "分";
+		}
+		else if (display == TIME_DISPLAY.MS_ZH)
+		{
+			return IToS(time.Minute) + "分" + IToS(time.Second) + "秒";
 		}
 		else if (display == TIME_DISPLAY.YMD_ZH)
 		{
@@ -318,23 +335,29 @@ public class TimeUtility
 		StringBuilder builder = new(256);
 		if (display == TIME_DISPLAY.HMSM)
 		{
-			builder.Append(IToS(time.Hour)).
-					Append(":").Append(IToS(time.Minute)).
-					Append(":").Append(IToS(time.Second)).
-					Append(":").Append(IToS(time.Millisecond));
+			builder.Append(IToS(time.Hour)).Append(":").
+					Append(IToS(time.Minute)).Append(":").
+					Append(IToS(time.Second)).Append(":").
+					Append(IToS(time.Millisecond));
 			return builder.ToString();
 		}
 		else if (display == TIME_DISPLAY.HMS_2)
 		{
-			builder.Append(IToS(time.Hour, 2)).
-					Append(":").Append(IToS(time.Minute, 2)).
-					Append(":").Append(IToS(time.Second, 2));
+			builder.Append(IToS(time.Hour, 2)).Append(":").
+					Append(IToS(time.Minute, 2)).Append(":").
+					Append(IToS(time.Second, 2));
+			return builder.ToString();
+		}
+		else if (display == TIME_DISPLAY.HM_2)
+		{
+			builder.Append(IToS(time.Hour, 2)).Append(":").
+					Append(IToS(time.Minute, 2));
 			return builder.ToString();
 		}
 		else if (display == TIME_DISPLAY.MS_2)
 		{
-			builder.Append(":").Append(IToS(time.Minute, 2)).
-					Append(":").Append(IToS(time.Second, 2));
+			builder.Append(IToS(time.Minute, 2)).Append(":").
+					Append(IToS(time.Second, 2));
 			return builder.ToString();
 		}
 		else if (display == TIME_DISPLAY.DHMS_ZH)
@@ -356,6 +379,12 @@ public class TimeUtility
 		{
 			builder.Append(IToS(time.Hour)).Append("时").
 					Append(IToS(time.Minute)).Append("分");
+			return builder.ToString();
+		}
+		else if (display == TIME_DISPLAY.MS_ZH)
+		{
+			builder.Append(IToS(time.Minute)).Append("分").
+					Append(IToS(time.Second)).Append("秒");
 			return builder.ToString();
 		}
 		else if (display == TIME_DISPLAY.YMD_ZH)

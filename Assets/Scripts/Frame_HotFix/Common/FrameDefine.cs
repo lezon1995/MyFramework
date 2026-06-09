@@ -37,10 +37,6 @@ public class FrameDefine
 	public const string P_SCRIPTS_PATH = P_ASSETS_PATH + SCRIPTS + "/";
 	public const string P_GAME_RESOURCES_PATH = P_ASSETS_PATH + GAME_RESOURCES + "/";
 	public const string P_RESOURCES_SCENE_PATH = P_RESOURCES_PATH + SCENE + "/";
-	public const string P_RESOURCES_ATLAS_PATH = P_RESOURCES_PATH + ATLAS + "/";
-	public const string P_RESOURCES_TEXTURE_PATH = P_RESOURCES_PATH + TEXTURE + "/";
-	public const string P_RESOURCES_UI_PATH = P_RESOURCES_PATH + UI + "/";
-	public const string P_RESOURCES_UI_PREFAB_PATH = P_RESOURCES_UI_PATH + UI_PREFAB + "/";
 	public const string P_ATLAS_PATH = P_GAME_RESOURCES_PATH + ATLAS + "/";
 	public const string P_UI_PATH = P_GAME_RESOURCES_PATH + UI + "/";
 	public const string P_FONT_PATH = P_GAME_RESOURCES_PATH + FONT + "/";
@@ -52,7 +48,7 @@ public class FrameDefine
 	public const string P_UNUSED_PATH = P_GAME_RESOURCES_PATH + UNUSED + "/";
 
 	// 相对路径,相对于StreamingAssets,以SA_开头,表示StreamingAssets
-	// 由于Android下的StreamingAssets路径不完全以Assets路径开头,与其他平台不一致,所以不定义相对于Asstes的路径
+	// 由于Android下的StreamingAssets路径不完全以Assets路径开头,与其他平台不一致,所以不定义相对于Assets的路径
 	public const string SA_VIDEO_PATH = VIDEO + "/";
 
 	// 相对路径,相对于Resources,R_开头,表示Resources
@@ -107,6 +103,7 @@ public class FrameDefine
 	public const string KEY_FRAME_FILE = R_KEY_FRAME_PATH + "Keyframe.prefab";
 	public const string STREAMING_ASSET_FILE = "StreamingAssets.bytes";
 	public const string ATLAS_PATH_CONFIG = "AtlasPathConfig.txt";
+	public const string SPRITE_PATH_CONFIG = "SpritePathConfig.txt";
 	// 后缀名
 	public const string SPRITE_ATLAS_SUFFIX = ".spriteatlasv2";
 	public const string ASSET_BUNDLE_SUFFIX = ".unity3d";
@@ -123,9 +120,12 @@ public class FrameDefine
 	// 层
 	public const string LAYER_UI_BLUR = "UIBlur";
 	public static int LAYER_INT_UI_BLUR = LayerMask.NameToLayer(LAYER_UI_BLUR);
+	// 颜色
+	public const string COLOR_RED_STR = "FF0000";
+	public const string COLOR_GREEN_STR = "00FF00";
+	public const string COLOR_YELLOW_STR = "FFFF00";
+	public const string COLOR_WHITE_STR = "FFFFFF";
 
-	// Tag
-	public const string TAG_NO_CLICK = "NoClick";
 	// Animator状态机参数名hash,数字后缀表示动画层,暂时只列出了2层动画参数
 	public const int ANIMATION_LAYER_COUNT = 2;
 	public static int[] ANIMATOR_STATE = new int[ANIMATION_LAYER_COUNT] { Animator.StringToHash("State0"), Animator.StringToHash("State1") };

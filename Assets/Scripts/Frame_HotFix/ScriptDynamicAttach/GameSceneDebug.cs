@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using static FrameBaseHotFix;
 
 // 逻辑场景调试信息
 public class GameSceneDebug : MonoBehaviour
@@ -9,7 +8,7 @@ public class GameSceneDebug : MonoBehaviour
 	public void setGameScene(GameScene scene) { mGameScene = scene; }
 	public void Update()
 	{
-		if (GameEntry.getInstance() == null || !GameEntry.getInstance().mFramworkParam.mEnableScriptDebug)
+		if (GameEntryBase.getInstance() == null || !GameEntryBase.getInstance().mFrameworkParam.mEnableScriptDebug)
 		{
 			return;
 		}

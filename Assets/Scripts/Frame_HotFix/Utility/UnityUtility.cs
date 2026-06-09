@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
@@ -266,7 +266,7 @@ public class UnityUtility
 	}
 	public static void cloneObjectAsync(GameObject oriObj, string name, GameObjectCallback callback)
 	{
-		GameEntry.startCoroutine(instantiateCoroutine(oriObj, name, callback));
+		GameEntryBase.startCoroutine(instantiateCoroutine(oriObj, name, callback));
 	}
 	public static GameObject createGameObject(string name, GameObject parent = null)
 	{
@@ -276,7 +276,7 @@ public class UnityUtility
 	}
 	// 一般不会直接调用该函数,要创建物体时需要使用ObjectPool来创建和回收
 	// parent为实例化后挂接的父节点
-	// prefabName为预设名,带Resources下相对路径
+	// prefabName为预设名,带GameResources下相对路径
 	// name为实例化后的名字
 	// 其他三个是实例化后本地的变换
 	public static GameObject instantiatePrefab(GameObject parent, GameObject prefab, string name, bool active)
@@ -302,7 +302,14 @@ public class UnityUtility
 			obj.SetActive(active);
 		}
 		findShaders(obj);
-		callback?.Invoke(obj);
+		try
+		{
+			callback?.Invoke(obj);
+		}
+		catch (Exception e)
+		{
+			logException(e);
+		}
 	}
 #endif
 	public static void findMaterialShader(Material material)
@@ -529,7 +536,7 @@ public class UnityUtility
 
 		Vector2 parentWorldPosition = divideVector3(window.getWorldPosition(), mLayoutManager.getUIRoot().getScale());
 		Vector2 windowPos = divideVector2(screenPos - parentWorldPosition, window.getWorldScale());
-		Vector2 halfWindowSize = window.getWindowSize() * 0.5f;
+		Vector2 halfWindowSize = window.getSize() * 0.5f;
 		return inRange(windowPos, -halfWindowSize, halfWindowSize);
 	}
 	// screenCenterAsZero为true表示返回的坐标是以window的中心为原点,false表示以window的左下角为原点
@@ -547,7 +554,7 @@ public class UnityUtility
 			windowPos = divideVector2(screenPos - parentWorldPosition, window.getWorldScale());
 			if (!windowCenterAsZero)
 			{
-				windowPos += window.getWindowSize() * 0.5f;
+				windowPos += window.getSize() * 0.5f;
 			}
 		}
 		else
@@ -582,6 +589,20 @@ public class UnityUtility
 	{
 		return atCameraBack(position, getMainCamera());
 	}
+#if USE_URP
+	public static void setRenderType(Camera camera, CameraRenderType renderType)
+	{
+		if (!camera.gameObject.TryGetComponent<UniversalAdditionalCameraData>(out var cameraData))
+		{
+			cameraData = camera.gameObject.AddComponent<UniversalAdditionalCameraData>();
+		}
+		if (renderType == CameraRenderType.Overlay)
+		{
+			cameraData.cameraStack?.Clear();
+		}
+		cameraData.renderType = renderType;
+	}
+#endif
 	public static void setGameObjectLayer(GameObject obj, int layer)
 	{
 		if (obj == null)
@@ -774,28 +795,28 @@ public class UnityUtility
 		Transform transform = collider.transform;
 		Vector3 colliderWorldPos = localToWorld(transform, collider.center);
 		int hitCount = Physics.OverlapBoxNonAlloc(colliderWorldPos, collider.size * 0.5f, results, transform.localRotation, layer);
-		return removeClassElement(results, hitCount, collider);
+		return results.removeValue(hitCount, collider);
 	}
 	public static int overlapAllBox(BoxCollider2D collider, Collider2D[] results, int layer = -1)
 	{
 		Transform transform = collider.transform;
 		Vector2 colliderWorldPos = localToWorld(transform, collider.offset);
 		int hitCount = Physics2D.OverlapBoxNonAlloc(colliderWorldPos, collider.size, transform.localEulerAngles.z, results, layer);
-		return removeClassElement(results, hitCount, collider);
+		return results.removeValue(hitCount, collider);
 	}
 	public static int overlapAllSphere(SphereCollider collider, Collider[] results, int layer = -1)
 	{
 		Transform transform = collider.transform;
 		Vector3 colliderWorldPos = localToWorld(transform, collider.center);
 		int hitCount = Physics.OverlapSphereNonAlloc(colliderWorldPos, collider.radius, results, layer);
-		return removeClassElement(results, hitCount, collider);
+		return results.removeValue(hitCount, collider);
 	}
 	public static int overlapAllSphere(CircleCollider2D collider, Collider2D[] results, int layer = -1)
 	{
 		Transform transform = collider.transform;
 		Vector2 colliderWorldPos = localToWorld(transform, collider.offset);
 		int hitCount = Physics2D.OverlapCircleNonAlloc(colliderWorldPos, collider.radius, results, layer);
-		return removeClassElement(results, hitCount, collider);
+		return results.removeValue(hitCount, collider);
 	}
 	public static int overlapAllCapsule(CapsuleCollider collider, Collider[] results, int layer = -1)
 	{
@@ -805,7 +826,7 @@ public class UnityUtility
 		point0 = localToWorld(transform, point0);
 		point1 = localToWorld(transform, point1);
 		int hitCount = Physics.OverlapCapsuleNonAlloc(point0, point1, collider.radius, results, layer);
-		return removeClassElement(results, hitCount, collider);
+		return results.removeValue(hitCount, collider);
 	}
 	public static int overlapAllCapsule(CharacterController collider, Collider[] results, int layer = -1)
 	{
@@ -815,14 +836,14 @@ public class UnityUtility
 		point0 = localToWorld(transform, point0);
 		point1 = localToWorld(transform, point1);
 		int hitCount = Physics.OverlapCapsuleNonAlloc(point0, point1, collider.radius, results, layer);
-		return removeClassElement(results, hitCount, collider);
+		return results.removeValue(hitCount, collider);
 	}
 	public static int overlapAllCapsule(CapsuleCollider2D collider, Collider2D[] results, int layer = -1)
 	{
 		Transform transform = collider.transform;
 		float eulerZ = transform.localEulerAngles.z;
 		int hitCount = Physics2D.OverlapCapsuleNonAlloc(transform.position, collider.size, collider.direction, eulerZ, results, layer);
-		return removeClassElement(results, hitCount, collider);
+		return results.removeValue(hitCount, collider);
 	}
 	public static bool overlapBoxIgnoreY(BoxCollider box0, BoxCollider box1, GameObject parent, int precision = 4)
 	{
@@ -861,7 +882,7 @@ public class UnityUtility
 		{
 			return 0;
 		}
-		memset(results, null);
+		results.setAllValue(null);
 		if (collider is BoxCollider box)
 		{
 			return overlapAllBox(box, results, layer);
@@ -886,7 +907,7 @@ public class UnityUtility
 		{
 			return 0;
 		}
-		memset(results, null);
+		results.setAllValue(null);
 		int hitCount = 0;
 		if (collider is BoxCollider2D box2D)
 		{
@@ -1060,18 +1081,6 @@ public class UnityUtility
 		// 还原旋转
 		return rotateVector3(localPosition, Quaternion.Inverse(generateWorldRotation(parent)));
 	}
-	public static string getTransformPath(Transform transform)
-	{
-		if (transform == null)
-		{
-			return EMPTY;
-		}
-		if (transform.parent == null)
-		{
-			return transform.name;
-		}
-		return getTransformPath(transform.parent) + "/" + transform.name;
-	}
 	public static float getAnimationLength(Animator animator, string name)
 	{
 		if (animator == null || animator.runtimeAnimatorController == null)
@@ -1143,50 +1152,42 @@ public class UnityUtility
 	public static Vector2Int getScreenSize() { return mScreenSize; }
 	public static Vector2Int getHalfScreenSize() { return mHalfScreenSize; }
 	public static float getScreenAspect() { return mScreenAspect; }
-	public static Vector2 getRootSize() { return getUGUIRoot().getWindowSize(); }
+	public static Vector2 getRootSize() { return getUGUIRoot().getSize(); }
 	// 获取屏幕独立的缩放值
 	public static Vector2 getScreenScale() { return FrameBaseUtility.getScreenScale(mScreenSize); }
+	// 获取常用情况下的自动缩放比例
+	public static float getScreenScaleAuto() { return generateScreenScaleByAspectBase(getScreenScale(), ASPECT_BASE.AUTO).x; }
 	// 根据一定规则,获取屏幕的缩放
-	public static Vector2 getScreenScale(ASPECT_BASE aspectBase) { return adjustScreenScale(getScreenScale(), aspectBase); }
-	public static Vector3 adjustScreenScale(Vector2 screenScale, ASPECT_BASE aspectBase = ASPECT_BASE.AUTO)
+	public static Vector2 getScreenScale(ASPECT_BASE aspectBase) { return generateScreenScaleByAspectBase(getScreenScale(), aspectBase); }
+	public static Vector2 generateScreenScaleByAspectBase(Vector2 screenScale, ASPECT_BASE aspectBase = ASPECT_BASE.AUTO)
 	{
-		Vector3 newScale = screenScale;
-		if (aspectBase != ASPECT_BASE.NONE)
+		Vector2 newScale = screenScale;
+		if (aspectBase == ASPECT_BASE.USE_HEIGHT_SCALE)
 		{
-			if (aspectBase == ASPECT_BASE.USE_HEIGHT_SCALE)
-			{
-				newScale.x = screenScale.y;
-				newScale.y = screenScale.y;
-			}
-			else if (aspectBase == ASPECT_BASE.USE_WIDTH_SCALE)
-			{
-				newScale.x = screenScale.x;
-				newScale.y = screenScale.x;
-			}
-			else if (aspectBase == ASPECT_BASE.AUTO)
-			{
-				newScale.x = getMin(screenScale.x, screenScale.y);
-				newScale.y = getMin(screenScale.x, screenScale.y);
-			}
-			else if (aspectBase == ASPECT_BASE.INVERSE_AUTO)
-			{
-				newScale.x = getMax(screenScale.x, screenScale.y);
-				newScale.y = getMax(screenScale.x, screenScale.y);
-			}
+			newScale.x = screenScale.y;
+			newScale.y = newScale.x;
 		}
-		// Z轴按照Y轴的缩放值来缩放
-		newScale.z = newScale.y;
+		else if (aspectBase == ASPECT_BASE.USE_WIDTH_SCALE)
+		{
+			newScale.x = screenScale.x;
+			newScale.y = newScale.x;
+		}
+		else if (aspectBase == ASPECT_BASE.AUTO)
+		{
+			newScale.x = getMin(screenScale.x, screenScale.y);
+			newScale.y = newScale.x;
+		}
+		else if (aspectBase == ASPECT_BASE.INVERSE_AUTO)
+		{
+			newScale.x = getMax(screenScale.x, screenScale.y);
+			newScale.y = newScale.x;
+		}
 		return newScale;
 	}
-	// 根据屏幕适配的x方向的缩放,来调整originValue的值
-	public static float applyScreenScaleX(float originValue, ASPECT_BASE aspectBase = ASPECT_BASE.AUTO)
+	// 根据屏幕适配的缩放,来调整originValue的值
+	public static float adjustByScreenScaleAuto(float originValue)
 	{
-		return originValue * getScreenScale(aspectBase).x;
-	}
-	// 根据屏幕适配的y方向的缩放,来调整originValue的值
-	public static float applyScreenScaleY(float originValue, ASPECT_BASE aspectBase = ASPECT_BASE.AUTO)
-	{
-		return originValue * getScreenScale(aspectBase).y;
+		return originValue * getScreenScaleAuto();
 	}
 	public static Material findMaterial(Renderer render)
 	{
@@ -1291,6 +1292,18 @@ public class UnityUtility
 	public static int getContentLength(TextMeshProUGUI textComponent, string str)
 	{
 		return (int)textComponent.GetPreferredValues(str, float.PositiveInfinity, 0).x;
+	}
+	public static int getGameObjectID(UObject go)
+	{
+		if (go == null)
+		{
+			return 0;
+		}
+#if UNITY_6000_4_OR_NEWER
+		return (int)EntityId.ToULong(go.GetEntityId());
+#else
+		return go.GetInstanceID();
+#endif
 	}
 #if USE_SPINE
 	public static void playSpineAnimation(SkeletonAnimation comSkeleton, string anim, bool loop, bool force = false)
@@ -1550,6 +1563,13 @@ public class UnityUtility
 		{
 			go.name = name;
 		}
-		callback?.Invoke(go);
+		try
+		{
+			callback?.Invoke(go);
+		}
+		catch (Exception e)
+		{
+			logException(e, "实例化游戏对象异常");
+		}
 	}
 }

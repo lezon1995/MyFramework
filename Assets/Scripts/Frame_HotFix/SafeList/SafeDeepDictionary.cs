@@ -31,10 +31,12 @@ public class SafeDeepDictionary<Key, Value> : ClassObject
 		mTempInuseList.Remove(list);
 		mTempUnuseList.Enqueue(list);
 	}
+	public Dictionary<Key, Value>.Enumerator GetEnumerator() { return mMainList.GetEnumerator(); }
 	// 获取主列表,存储着当前实时的数据列表,所有的删除和新增都会立即更新此列表
 	// 如果确保在遍历过程中不会对列表进行修改,则可以使用MainList
 	// 如果可能会对列表进行修改,则应该使用startForeach
 	public Dictionary<Key, Value> getMainList() { return mMainList; }
+	public int count() { return mMainList.count(); }
 	public bool tryGetValue(Key key, out Value value) { return mMainList.TryGetValue(key, out value); }
 	public Value tryGet(Key key) { return mMainList.get(key); }
 	public bool containsKey(Key key) { return mMainList.ContainsKey(key); }

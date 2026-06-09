@@ -4,7 +4,7 @@ using System.Net.Sockets;
 using System.Collections.Generic;
 using static StringUtility;
 using static UnityUtility;
-using static BinaryUtility;
+using static SerializeBitUtility;
 using static FrameUtility;
 using static FrameBaseHotFix;
 using static FrameDefine;
@@ -67,7 +67,7 @@ public abstract class NetConnectTCP : NetConnect
 		mReceiveThread.stop();
 		mSendThread.stop();
 		mSocket = null;
-		memset(mRecvBuff, (byte)0);
+		mRecvBuff.setAllDefault();
 		mPort = 0;
 		mManualDisconnect = false;
 		mManualSendReceive = false;
@@ -162,7 +162,7 @@ public abstract class NetConnectTCP : NetConnect
 		{
 			foreach (PacketReceiveInfo info in a.mReadList.safe())
 			{
-				NetPacket packet = parsePacket(info.mType, info.mPacketData, info.mPacketSize, info.mSequence, info.mFieldFlag);
+				NetPacket packet = parsePacket(info.mType, info.mPacketData, info.mPacketSize, info.mSequence, info.mFieldFlag, info.mHasSign);
 				UN_ARRAY_BYTE_THREAD(info.mPacketData);
 				if (packet == null)
 				{
@@ -296,7 +296,7 @@ public abstract class NetConnectTCP : NetConnect
 		{
 			// 在Receive之前先判断SocketBuffer中有没有数据可以读,因为如果不判断直接调用的话,可能会出现即使SocketBuffer中有数据,
 			// Receive仍然获取不到的问题,具体原因未知,且出现几率也比较小,但是仍然可能会出现.所以先判断再Receive就不会出现这个问题
-			while (mSocket.Available == 0)
+			if (mSocket.Available == 0)
 			{
 				return;
 			}
@@ -326,7 +326,7 @@ public abstract class NetConnectTCP : NetConnect
 				using (new ThreadLockScope(mInputBufferLock))
 				{
 					PARSE_RESULT result = preParsePacket(mInputBuffer.getData(), mInputBuffer.getDataLength(), out int bitIndex, out byte[] packetData,
-													out ushort packetType, out int packetSize, out int sequence, out ulong fieldFlag);
+													out ushort packetType, out int packetSize, out uint sequence, out ulong fieldFlag, out bool hasSign);
 					if (result != PARSE_RESULT.SUCCESS)
 					{
 						if (result == PARSE_RESULT.ERROR)
@@ -336,7 +336,7 @@ public abstract class NetConnectTCP : NetConnect
 						}
 						break;
 					}
-					mReceiveBuffer.add(new(packetData, fieldFlag, packetSize, sequence, packetType));
+					mReceiveBuffer.add(new(packetData, fieldFlag, packetSize, sequence, packetType, hasSign));
 
 					if (!mInputBuffer.removeData(0, bitCountToByteCount(bitIndex)))
 					{
@@ -366,7 +366,7 @@ public abstract class NetConnectTCP : NetConnect
 		}
 	}
 	//------------------------------------------------------------------------------------------------------------------------------
-	protected abstract NetPacket parsePacket(ushort packetType, byte[] buffer, int size, int sequence, ulong fieldFlag);
+	protected abstract NetPacket parsePacket(ushort packetType, byte[] buffer, int size, uint sequence, ulong fieldFlag, bool hasSign);
 	// 发送Socket消息
 	protected void sendThread(ref bool run)
 	{
@@ -395,10 +395,10 @@ public abstract class NetConnectTCP : NetConnect
 		try
 		{
 			byte[] allBytes = mTotalBuffer.getData();
-			int allSendedCount = 0;
-			while (allSendedCount < allLength)
+			int allSendCount = 0;
+			while (allSendCount < allLength)
 			{
-				int thisSendCount = mSocket.Send(allBytes, allSendedCount, allLength - allSendedCount, SocketFlags.None);
+				int thisSendCount = mSocket.Send(allBytes, allSendCount, allLength - allSendCount, SocketFlags.None);
 				if (thisSendCount == 0)
 				{
 					// 服务器关闭了连接
@@ -411,7 +411,7 @@ public abstract class NetConnectTCP : NetConnect
 					notifyNetState(NET_STATE.SERVER_CLOSE, SocketError.NotConnected);
 					break;
 				}
-				allSendedCount += thisSendCount;
+				allSendCount += thisSendCount;
 			}
 		}
 		catch (ObjectDisposedException) { }
@@ -422,14 +422,14 @@ public abstract class NetConnectTCP : NetConnect
 		mTotalBuffer.clear();
 	}
 	protected abstract PARSE_RESULT preParsePacket(byte[] buffer, int size, out int bitIndex, out byte[] outPacketData, 
-													out ushort packetType, out int packetSize, out int sequence, out ulong fieldFlag);
+													out ushort packetType, out int packetSize, out uint sequence, out ulong fieldFlag, out bool hasSign);
 	protected void debugHistoryPacket()
 	{
 		using var a = new ClassThreadScope<MyStringBuilder>(out var info);
-		info.append("最后接收的消息:\n");
+		info.add("最后接收的消息:\n");
 		foreach (string item in mReceivePacketHistory)
 		{
-			info.append(item, "\n");
+			info.add(item, "\n");
 		}
 		logError(info.ToString());
 	}

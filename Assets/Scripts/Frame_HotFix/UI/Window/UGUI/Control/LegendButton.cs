@@ -4,13 +4,14 @@ using UnityEngine;
 [CommonControl]
 public class LegendButton : WindowObjectUGUI
 {
+	protected myUGUIObject mGray;
 	protected myUGUITextTMP mText;
 	protected Vector3 mOriginTextPosition;
 	protected Color mOriginTextColor;
-	protected static int mDefaultClickSound;
 	public LegendButton(IWindowObjectOwner parent) : base(parent) { }
 	protected override void assignWindowInternal()
 	{
+		newObject(out mGray, "Gray", false);
 		newObject(out mText, "Text", false);
 	}
 	public override void init()
@@ -23,11 +24,7 @@ public class LegendButton : WindowObjectUGUI
 		mRoot.setHoverDetailCallback(onButtonHover);
 		mRoot.setPressDetailCallback(onButtonPress);
 		mRoot.setOnScreenTouchUp(onScreenTouchUp);
-		if (mText != null)
-		{
-			mOriginTextPosition = mText.getPosition();
-			mOriginTextColor = mText.getColor();
-		}
+		initOriginProperty();
 	}
 	public override void reset()
 	{
@@ -35,23 +32,40 @@ public class LegendButton : WindowObjectUGUI
 		mText?.setPosition(mOriginTextPosition);
 		mText?.setColor(mOriginTextColor);
 	}
-	public static void setDefaultClickSound(int sound) { mDefaultClickSound = sound; }
+	public void initOriginProperty()
+	{
+		if (mText != null)
+		{
+			mOriginTextPosition = mText.getPosition();
+			mOriginTextColor = mText.getColor();
+		}
+	}
 	public void registeCollider(Action clickCallback, int clickSound = 0)
 	{
-		mRoot?.registeCollider(clickCallback, clickSound != 0 ? clickSound : mDefaultClickSound);
+		mRoot?.registeCollider(clickCallback, clickSound != 0 ? clickSound : myUGUIObject.getDefaultClickSound());
 	}
 	public void registeCollider(Vector3Callback clickCallback, int clickSound = 0)
 	{
-		mRoot?.registeCollider(clickCallback, clickSound != 0 ? clickSound : mDefaultClickSound);
+		mRoot?.registeCollider(clickCallback, clickSound != 0 ? clickSound : myUGUIObject.getDefaultClickSound());
 	}
 	public void unregisteCollider()
 	{
 		mRoot?.unregisteCollider();
 	}
+	public void setPressCallback(BoolCallback callback)
+	{
+		if (mRoot == null)
+		{
+			return;
+		}
+		mRoot.registeCollider();
+		mRoot.setPressCallback(callback);
+	}
 	public void setText(string str) { mText?.setText(str); }
 	public void setText(int value) { mText?.setText(value); }
 	public myUGUITextTMP getTextObject() { return mText; }
 	public void setHandleInput(bool handle) { mRoot?.setHandleInput(handle); }
+	public void setGray(bool gray) { mGray?.setActive(gray); }
 	//------------------------------------------------------------------------------------------------------------------------------
 	protected void onButtonPress(Vector3 touchPos, bool press)
 	{
@@ -73,5 +87,6 @@ public class LegendButton : WindowObjectUGUI
 			mText.setPosition(mOriginTextPosition);
 			mText.setColor(mOriginTextColor);
 		}
+		mRoot.getPressCallback()?.Invoke(false);
 	}
 }

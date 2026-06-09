@@ -1,4 +1,6 @@
-﻿public class MainSceneExit : SceneProcedure
+using UnityEngine;
+
+public class MainSceneExit : SceneProcedure
 {
     protected override void onInit(SceneProcedure lastProcedure)
     {

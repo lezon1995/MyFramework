@@ -13,6 +13,7 @@ using System.IO.Compression;
 #if USE_SEVEN_ZIP
 using SevenZip;
 #endif
+using static SerializeByteUtility;
 using static UnityUtility;
 using static StringUtility;
 using static MathUtility;
@@ -57,7 +58,7 @@ public class FrameUtility
 	// 百分比一般用于属性增幅之类的
 	public static string toPercent(string value, int precision = 1) { return FToS(SToF(value) * 100, precision) + "%"; }
 	public static string toPercent(float value, int precision = 1) { return FToS(value * 100, precision) + "%"; }
-	// 几率类的一般是万分比的格式填写的
+	// 几率类的一般是万分比的格式填写的,10000表示100%
 	public static string toProbability(string value) { return FToS(SToF(value) * 0.01f) + "%"; }
 	public static string toProbability(float value) { return FToS(value * 0.01f) + "%"; }
 	public static string fixedAndPercent(int value, float percent)
@@ -82,23 +83,23 @@ public class FrameUtility
 	// 将UI的宽高调整为偶数
 	public static void makeSizeEven(myUGUIObject obj)
 	{
-		Vector2 scrollRectSize = obj.getWindowSize();
+		Vector2 scrollRectSize = obj.getSize();
 		int intScrollSizeX = ceil(scrollRectSize.x);
 		int intScrollSizeY = ceil(scrollRectSize.y);
 		float newScrollSizeX = intScrollSizeX + (intScrollSizeX & 1);
 		float newScrollSizeY = intScrollSizeY + (intScrollSizeY & 1);
 		if (!isFloatEqual(newScrollSizeX, scrollRectSize.x) || !isFloatEqual(newScrollSizeY, scrollRectSize.y))
 		{
-			obj.setWindowSize(new(newScrollSizeX, newScrollSizeY));
+			obj.setSize(new(newScrollSizeX, newScrollSizeY));
 		}
 	}
 	public static T PACKET<T>() where T : NetPacket
 	{
-		return mNetPacketFactory.createSocketPacket(typeof(T)) as T;
+		return mNetPacketFactory?.createSocketPacket(typeof(T)) as T;
 	}
 	public static T PACKET<T>(out T packet) where T : NetPacket
 	{
-		return packet = mNetPacketFactory.createSocketPacket(typeof(T)) as T;
+		return packet = mNetPacketFactory?.createSocketPacket(typeof(T)) as T;
 	}
 	// 获得一个合适的文件写入路径,fileName是StreamingAssets下的相对路径,带后缀
 	public static string availableWritePath(string fileName)
@@ -130,8 +131,6 @@ public class FrameUtility
 	public static void writeFileList(string path, string content)
 	{
 		writeTxtFile(path + FILE_LIST, content);
-		// 再生成此文件的MD5文件,用于客户端校验文件内容是否改变
-		writeTxtFile(path + FILE_LIST_MD5, generateFileMD5(stringToBytes(content), -1));
 	}
 	//------------------------------------------------------------------------------------------------------------------------------
 	// 跳转流程或场景的工具函数
@@ -141,7 +140,7 @@ public class FrameUtility
 	}
 	public static void changeProcedureDelay<T>(float delayTime = 0.001f) where T : SceneProcedure
 	{
-		delayCall(()=>{ getCurScene().changeProcedure<T>(); }, delayTime);
+		delayCall(delayTime , ()=>{ getCurScene().changeProcedure<T>(); });
 	}
 	public static void prepareChangeProcedure<T>(float prepareTime = 0.001f) where T : SceneProcedure
 	{
@@ -162,7 +161,7 @@ public class FrameUtility
 	}
 	public static void changeProcedureDelay(Type procedure, float delayTime = 0.001f)
 	{
-		delayCall(() => { getCurScene().changeProcedure(procedure); }, delayTime);
+		delayCall(delayTime , () => { getCurScene().changeProcedure(procedure); });
 	}
 	public static void prepareChangeProcedure(Type procedure, float prepareTime = 0.001f)
 	{
@@ -291,51 +290,80 @@ public class FrameUtility
 	}
 	//------------------------------------------------------------------------------------------------------------------------------
 	// 列表对象池
-	public static List<T> LIST<T>(IEnumerable<T> initList = null)
+	public static List<T> LIST<T>()
+	{
+		LIST(out List<T> list);
+		return list;
+	}
+	public static List<T> LIST<T>(List<T> initList)
 	{
 		LIST(out List<T> list, initList);
 		return list;
 	}
-	public static void LIST<T>(out List<T> list, IEnumerable<T> initList = null)
+	public static List<T> LIST<T>(T[] initList)
 	{
-		if (GameEntry.getInstance() == null || mListPool == null)
+		LIST(out List<T> list, initList);
+		return list;
+	}
+	public static void LIST<T>(out List<T> list, List<T> initList)
+	{
+		LIST(out list);
+		if (initList != null)
+		{
+			list.AddRange(initList);
+		}
+	}
+	public static void LIST<T>(out List<T> list, T[] initList)
+	{
+		LIST(out list);
+		if (initList != null)
+		{
+			list.AddRange(initList);
+		}
+	}
+	public static void LIST<T>(out List<T> list)
+	{
+		if (GameEntryBase.getInstance() == null || mListPool == null)
 		{
 			list = new();
 			return;
 		}
 		string stackTrace = EMPTY;
-		if (GameEntry.getInstance().mFramworkParam.mEnablePoolStackTrace)
+		if (GameEntryBase.getInstance().mFrameworkParam.mEnablePoolStackTrace)
 		{
 			stackTrace = getStackTrace();
 		}
 		list = mListPool.newList(typeof(T), typeof(List<T>), stackTrace, true) as List<T>;
-		if (initList != null)
-		{
-			list.AddRange(initList);
-		}
 	}
-	public static List<T> LIST_PERSIST<T>(IEnumerable<T> initList = null)
+	public static List<T> LIST_PERSIST<T>()
 	{
-		LIST_PERSIST(out List<T> list, initList);
+		LIST_PERSIST(out List<T> list, (T[])null);
 		return list;
 	}
-	public static void LIST_PERSIST<T>(out List<T> list, IEnumerable<T> initList = null)
+	public static List<T> LIST_PERSIST<T>(out List<T> list)
 	{
-		if (GameEntry.getInstance() == null || mListPool == null)
+		if (GameEntryBase.getInstance() == null || mListPool == null)
 		{
 			list = new();
-			return;
+			return list;
 		}
 		string stackTrace = EMPTY;
-		if (GameEntry.getInstance().mFramworkParam.mEnablePoolStackTrace)
+		if (GameEntryBase.getInstance().mFrameworkParam.mEnablePoolStackTrace)
 		{
 			stackTrace = getStackTrace();
 		}
 		list = mListPool.newList(typeof(T), typeof(List<T>), stackTrace, false) as List<T>;
-		if (initList != null)
-		{
-			list.AddRange(initList);
-		}
+		return list;
+	}
+	public static List<T> LIST_PERSIST<T>(out List<T> list, T[] initList)
+	{
+		LIST_PERSIST(out list);
+		return list.addRange(initList);
+	}
+	public static List<T> LIST_PERSIST<T>(out List<T> list, List<T> initList)
+	{
+		LIST_PERSIST(out list);
+		return list.addRange(initList);
 	}
 	public static void UN_LIST<T>(List<T> list)
 	{
@@ -351,26 +379,22 @@ public class FrameUtility
 	}
 	public static HashSet<T> SET_PERSIST<T>()
 	{
-		SET_PERSIST(out HashSet<T> list);
-		return list;
+		return SET_PERSIST(out HashSet<T> list);
 	}
-	public static void SET_PERSIST<T>(out HashSet<T> list, IEnumerable<T> initList = null)
+	public static HashSet<T> SET_PERSIST<T>(out HashSet<T> list, List<T> initList = null)
 	{
-		if (GameEntry.getInstance() == null || mListPool == null)
+		if (GameEntryBase.getInstance() == null || mListPool == null)
 		{
 			list = new();
-			return;
+			return list;
 		}
 		string stackTrace = EMPTY;
-		if (GameEntry.getInstance().mFramworkParam.mEnablePoolStackTrace)
+		if (GameEntryBase.getInstance().mFrameworkParam.mEnablePoolStackTrace)
 		{
 			stackTrace = getStackTrace();
 		}
 		list = mHashSetPool.newList(typeof(T), typeof(HashSet<T>), stackTrace, false) as HashSet<T>;
-		if (initList != null)
-		{
-			list.addRange(initList);
-		}
+		return list.addRange(initList);
 	}
 	public static void UN_SET<T>(HashSet<T> list)
 	{
@@ -386,22 +410,22 @@ public class FrameUtility
 	}
 	public static Dictionary<K, V> DIC_PERSIST<K, V>()
 	{
-		DIC_PERSIST(out Dictionary<K, V> list);
-		return list;
+		return DIC_PERSIST(out Dictionary<K, V> list);
 	}
-	public static void DIC_PERSIST<K, V>(out Dictionary<K, V> list)
+	public static Dictionary<K, V> DIC_PERSIST<K, V>(out Dictionary<K, V> list)
 	{
-		if (GameEntry.getInstance() == null || mListPool == null)
+		if (GameEntryBase.getInstance() == null || mListPool == null)
 		{
 			list = new();
-			return;
+			return list;
 		}
 		string stackTrace = EMPTY;
-		if (GameEntry.getInstance().mFramworkParam.mEnablePoolStackTrace)
+		if (GameEntryBase.getInstance().mFrameworkParam.mEnablePoolStackTrace)
 		{
 			stackTrace = getStackTrace();
 		}
 		list = mDictionaryPool.newList(typeof(K), typeof(V), typeof(Dictionary<K, V>), stackTrace, false) as Dictionary<K, V>;
+		return list;
 	}
 	public static void UN_DIC<K, V>(Dictionary<K, V> list)
 	{
@@ -488,14 +512,15 @@ public class FrameUtility
 		}
 		return mClassPoolThread?.newClass(typeof(T)) as T;
 	}
-	public static void CLASS_THREAD<T>(out T value) where T : ClassObject, new()
+	public static T CLASS_THREAD<T>(out T value) where T : ClassObject, new()
 	{
 		if (mClassPoolThread == null)
 		{
 			value = new();
-			return;
+			return value;
 		}
 		value = mClassPoolThread?.newClass(typeof(T)) as T;
+		return value;
 	}
 	public static void UN_CLASS<T>(ref T obj) where T : ClassObject
 	{
@@ -505,7 +530,7 @@ public class FrameUtility
 	{
 		mClassPool?.destroyClass(ref obj);
 	}
-	public static void UN_CLASS_LIST<T>(IList<T> objList) where T : ClassObject
+	public static void UN_CLASS_LIST<T>(List<T> objList) where T : ClassObject
 	{
 		mClassPool?.destroyClassList(objList);
 		objList?.Clear();
@@ -515,9 +540,9 @@ public class FrameUtility
 		mClassPool?.destroyClassList(objList);
 		objList?.Clear();
 	}
-	public static void UN_CLASS_LIST<T0, T1>(IDictionary<T0, T1> objList) where T1 : ClassObject
+	public static void UN_CLASS_LIST<T0, T1>(Dictionary<T0, T1> objList) where T1 : ClassObject
 	{
-		mClassPool?.destroyClassList(objList.Values);
+		mClassPool?.destroyClassList(objList);
 		objList?.Clear();
 	}
 	public static void UN_CLASS_LIST<T>(Queue<T> objList) where T : ClassObject
@@ -528,7 +553,7 @@ public class FrameUtility
 	{
 		mClassPoolThread?.destroyClass(ref obj);
 	}
-	public static void UN_CLASS_LIST_THREAD<T>(IList<T> objList) where T : ClassObject
+	public static void UN_CLASS_LIST_THREAD<T>(List<T> objList) where T : ClassObject
 	{
 		mClassPoolThread?.destroyClassList(objList);
 		objList.Clear();
@@ -543,6 +568,28 @@ public class FrameUtility
 			return;
 		}
 		array = mArrayPool.newArray<T>(count, false);
+	}
+	public static void ARRAY<T>(out T[] array, int count)
+	{
+		if (mArrayPool == null)
+		{
+			array = new T[count];
+			return;
+		}
+		array = mArrayPool.newArray<T>(count, true);
+	}
+	public static T[] ARRAY<T>(int count)
+	{
+		T[] array;
+		if (mArrayPool == null)
+		{
+			array = new T[count];
+		}
+		else
+		{
+			array = mArrayPool.newArray<T>(count, true);
+		}
+		return array;
 	}
 	public static void UN_ARRAY<T>(T[] array, bool destroyReally = false)
 	{
@@ -564,6 +611,30 @@ public class FrameUtility
 			return;
 		}
 		array = mByteArrayPool.newArray(count, false);
+	}
+	public static void ARRAY_BYTE(out byte[] array, int count)
+	{
+		if (mByteArrayPool == null)
+		{
+			array = new byte[count];
+		}
+		else
+		{
+			array = mByteArrayPool.newArray(count, true);
+		}
+	}
+	public static byte[] ARRAY_BYTE(int count)
+	{
+		byte[] array = null;
+		if (mByteArrayPool == null)
+		{
+			array = new byte[count];
+		}
+		else
+		{
+			array = mByteArrayPool.newArray(count, true);
+		}
+		return array;
 	}
 	public static void UN_ARRAY_BYTE(ref byte[] array, bool destroyReally = false)
 	{
@@ -616,7 +687,11 @@ public class FrameUtility
 	// 而delayCallSafe只有在guard销毁以后才能终止延迟执行
 	// 在主线程中发起延迟调用函数,函数将在主线程中调用,如果watcher在开始执行命令时被销毁了,则命令不会被执行
 	// LayoutScript不能作为watcher,因为不是从对象池中创建的
-	public static long delayCall(Action function, float delayTime = 0.0f, DelayCmdWatcher watcher = null)
+	public static long delayCall(Action function)
+	{
+		return delayCall(0.0f, function, null);
+	}
+	public static long delayCall(float delayTime, Action function, DelayCmdWatcher watcher = null)
 	{
 		if (function == null || mGlobalCmdReceiver == null)
 		{
@@ -821,7 +896,7 @@ public class FrameUtility
 		}
 	}
 	// 在主线程中发起延迟调用函数,函数将在主线程中调用
-	public static long delayCallSafe(Action function, ClassObject guard, float delayTime = 0.0f)
+	public static long delayCallSafe(Action function, IRecyclable guard, float delayTime = 0.0f)
 	{
 		if (function == null || mGlobalCmdReceiver == null || guard == null)
 		{
@@ -852,7 +927,7 @@ public class FrameUtility
 			return cmd.getAssignID();
 		}
 	}
-	public static long delayCallSafe<T0>(Action<T0> function, T0 param0, ClassObject guard, float delayTime = 0.0f)
+	public static long delayCallSafe<T0>(Action<T0> function, T0 param0, IRecyclable guard, float delayTime = 0.0f)
 	{
 		if (function == null || mGlobalCmdReceiver == null || guard == null)
 		{
@@ -885,7 +960,7 @@ public class FrameUtility
 			return cmd.getAssignID();
 		}
 	}
-	public static long delayCallSafe<T0, T1>(Action<T0, T1> function, T0 param0, T1 param1, ClassObject guard, float delayTime = 0.0f)
+	public static long delayCallSafe<T0, T1>(Action<T0, T1> function, T0 param0, T1 param1, IRecyclable guard, float delayTime = 0.0f)
 	{
 		if (function == null || mGlobalCmdReceiver == null || guard == null)
 		{
@@ -920,7 +995,7 @@ public class FrameUtility
 			return cmd.getAssignID();
 		}
 	}
-	public static long delayCallSafe<T0, T1, T2>(Action<T0, T1, T2> function, T0 param0, T1 param1, T2 param2, ClassObject guard, float delayTime = 0.0f)
+	public static long delayCallSafe<T0, T1, T2>(Action<T0, T1, T2> function, T0 param0, T1 param1, T2 param2, IRecyclable guard, float delayTime = 0.0f)
 	{
 		if (function == null || mGlobalCmdReceiver == null || guard == null)
 		{
@@ -957,7 +1032,7 @@ public class FrameUtility
 			return cmd.getAssignID();
 		}
 	}
-	public static long delayCallSafe<T0, T1, T2, T3>(Action<T0, T1, T2, T3> function, T0 param0, T1 param1, T2 param2, T3 param3, ClassObject guard, float delayTime = 0.0f)
+	public static long delayCallSafe<T0, T1, T2, T3>(Action<T0, T1, T2, T3> function, T0 param0, T1 param1, T2 param2, T3 param3, IRecyclable guard, float delayTime = 0.0f)
 	{
 		if (function == null || mGlobalCmdReceiver == null || guard == null)
 		{
@@ -996,7 +1071,7 @@ public class FrameUtility
 			return cmd.getAssignID();
 		}
 	}
-	public static long delayCallSafe<T0, T1, T2, T3, T4>(Action<T0, T1, T2, T3, T4> function, T0 param0, T1 param1, T2 param2, T3 param3, T4 param4, ClassObject guard, float delayTime = 0.0f)
+	public static long delayCallSafe<T0, T1, T2, T3, T4>(Action<T0, T1, T2, T3, T4> function, T0 param0, T1 param1, T2 param2, T3 param3, T4 param4, IRecyclable guard, float delayTime = 0.0f)
 	{
 		if (function == null || mGlobalCmdReceiver == null || guard == null)
 		{
@@ -1050,6 +1125,10 @@ public class FrameUtility
 	{
 		intToBytes(value, out byte byte0, out byte byte1, out byte byte2, out byte byte3);
 		return (ushort)(crc16(0x1F, byte0, byte1, byte2, byte3) ^ 0x123F);
+	}
+	public static bool equal<T>(T value0, T value1)
+	{
+		return EqualityComparer<T>.Default.Equals(value0, value1);
 	}
 	public static string getLocalIP()
 	{
@@ -1422,7 +1501,7 @@ public class FrameUtility
 		{
 			return;
 		}
-		foreach (string line in splitLine(content))
+		foreach (string line in content.splitLine())
 		{
 			var info = GameFileInfo.createInfo(line);
 			list.addNotNullKey(info?.mFileName, info);
@@ -1518,6 +1597,18 @@ public class FrameUtility
 		}
 		return fullTrace.ToString();
 	}
+	public static string getClassNameFromGameObject(GameObject go)
+	{
+		if (go == null)
+		{
+			return "";
+		}
+		if (go.TryGetComponent(out UGUISubGenerator com))
+		{
+			return com.mAutoType ? go.name.removeEndNumber() : com.mCustomClassName;
+		}
+		return go.name.removeEndNumber();
+	}
 	public static int makeID()
 	{
 		if (mIDMaker >= 0x7FFFFFFF)
@@ -1529,103 +1620,6 @@ public class FrameUtility
 	public static void notifyIDUsed(int id)
 	{
 		mIDMaker = getMax(mIDMaker, id);
-	}
-	// 移除数组中的第index个元素,validElementCount是数组中有效的元素个数
-	public static void removeElement<T>(T[] array, int validElementCount, int index)
-	{
-		if (index < 0 || index >= validElementCount)
-		{
-			return;
-		}
-		int moveCount = validElementCount - index - 1;
-		for (int i = 0; i < moveCount; ++i)
-		{
-			array[index + i] = array[index + i + 1];
-		}
-	}
-	// 移除数组中的所有value,T为引用类型
-	public static int removeClassElement<T>(T[] array, int validElementCount, T value) where T : class
-	{
-		for (int i = 0; i < validElementCount; ++i)
-		{
-			if (array[i] == value)
-			{
-				removeElement(array, validElementCount--, i--);
-			}
-		}
-		return validElementCount;
-	}
-	// 移除数组中的所有value,T为继承自IEquatable的值类型
-	public static int removeValueElement<T>(T[] array, int validElementCount, T value) where T : IEquatable<T>
-	{
-		for (int i = 0; i < validElementCount; ++i)
-		{
-			if (array[i].Equals(value))
-			{
-				removeElement(array, validElementCount--, i--);
-			}
-		}
-		return validElementCount;
-	}
-	public static bool arrayContains<T>(T[] array, T value, int arrayLen = -1)
-	{
-		if (array.isEmpty())
-		{
-			return false;
-		}
-		if (arrayLen == -1)
-		{
-			arrayLen = array.Length;
-		}
-		for (int i = 0; i < arrayLen; ++i)
-		{
-			if (EqualityComparer<T>.Default.Equals(array[i], value))
-			{
-				return true;
-			}
-		}
-		return false;
-	}
-	// 比较两个列表是否完全一致
-	public static bool compareList<T>(List<T> list0, List<T> list1)
-	{
-		if (list0 == null && list1 == null)
-		{
-			return true;
-		}
-		if (list0 == null || list1 == null)
-		{
-			return false;
-		}
-		int count = list0.Count;
-		if (count != list1.Count)
-		{
-			return false;
-		}
-		for (int i = 0; i < count; ++i)
-		{
-			if (!EqualityComparer<T>.Default.Equals(list0[i], list1[i]))
-			{
-				return false;
-			}
-		}
-		return true;
-	}
-	// 反转列表顺序
-	public static void inverseList<T>(IList<T> list)
-	{
-		if (list.isEmpty())
-		{
-			return;
-		}
-		int count = list.Count;
-		int halfCount = list.Count >> 1;
-		for (int i = 0; i < halfCount; ++i)
-		{
-			T temp = list[i];
-			list[i] = list[count - 1 - i];
-			list[count - 1 - i] = temp;
-		}
 	}
 	public static IPAddress hostNameToIPAddress(string hostName)
 	{
@@ -1641,6 +1635,12 @@ public class FrameUtility
 		{
 			logError(typeof(T) + "枚举不包含值:" + value);
 		}
+	}
+	// 获取数量显示的颜色,比如数量不足时显示红色,数量足够时显示白色或者绿色
+	public static string getCountColor(bool enough, string enoughColor = null)
+	{
+		enoughColor ??= COLOR_WHITE_STR;
+		return enough ? enoughColor : COLOR_RED_STR;
 	}
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR
 	public static bool launchExe(string dir, string args, int timeoutMilliseconds, bool hidden = false)

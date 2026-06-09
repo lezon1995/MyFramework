@@ -9,13 +9,13 @@ public class ResourcesManagerDebug : MonoBehaviour
 	public List<AssetBundleDebug> mLoadedAssetBundleListValues = new();	// 已加载的AssetBundle列表Value
 	public void Update()
 	{
-		if (GameEntry.getInstance() == null || !GameEntry.getInstance().mFramworkParam.mEnableScriptDebug)
+		if (GameEntryBase.getInstance() == null || !GameEntryBase.getInstance().mFrameworkParam.mEnableScriptDebug)
 		{
 			return;
 		}
 		mLoadedAssetBundleListKeys.Clear();
 		mLoadedAssetBundleListValues.Clear();
-		foreach(var item in mResourceManager.getAssetBundleLoader().getAssetBundleInfoList())
+		foreach(var item in mResourceManager.getAssetBundleInfoList())
 		{
 			if (item.Value.getLoadState() != LOAD_STATE.LOADED)
 			{
@@ -23,9 +23,9 @@ public class ResourcesManagerDebug : MonoBehaviour
 			}
 			mLoadedAssetBundleListKeys.Add(item.Key);
 			AssetBundleDebug bundleDebug = new(item.Value.getBundleName());
-			bundleDebug.mAssetList.setRange(item.Value.getAssetList().Values);
-			bundleDebug.mParentBundles.setRange(item.Value.getParents().Keys);
-			bundleDebug.mChildBundles.setRange(item.Value.getChildren().Keys);
+			bundleDebug.mAssetList.setRangeValues(item.Value.getAssetList());
+			bundleDebug.mParentBundles.setRangeKeys(item.Value.getParents());
+			bundleDebug.mChildBundles.setRangeKeys(item.Value.getChildren());
 			mLoadedAssetBundleListValues.Add(bundleDebug);
 		}
 	}

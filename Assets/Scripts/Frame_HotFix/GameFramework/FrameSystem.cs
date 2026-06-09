@@ -17,13 +17,17 @@ public class FrameSystem : ComponentOwner
 		// 由于一般FrameSystem不会使用对象池来管理,所以构造时就设置当前对象为有效
 		mHasDestroy = false;
 	}
+	// 组件的初始化顺序:
+	// 首先是FrameHotFix层中的所有系统组件:所有组件的preInitAsync->所有组件的initAsync->所有组件的init->所有组件的lateInit
+	// 加载所有表格,不过只是加载文件,后续实际需要访问数据时才会解析
+	// HotFix层的所有系统组件:所有组件的init->所有组件的lateInit,因为一般HotFix层不会涉及到在初始化时立即去异步加载资源,所以没有异步的初始化
 	public virtual void preInitAsync(Action callback) { callback?.Invoke(); }
 	public virtual void initAsync(Action callback) { callback?.Invoke(); }
 	public virtual void init()
 	{
 		if (mCreateObject)
 		{
-			mObject = createGameObject(GetType().ToString(), GameEntry.getInstanceObject());
+			mObject = createGameObject(GetType().ToString(), GameEntryBase.getInstanceObject());
 		}
 		initComponents();
 	}
@@ -47,9 +51,9 @@ public class FrameSystem : ComponentOwner
 	public GameObject getObject() { return mObject; }
 	public virtual void onDrawGizmos() { }
 	// a小于b返回-1, a等于b返回0, a大于b返回1,升序排序
-	static public int compareInit(FrameSystem a, FrameSystem b) { return sign(a.mInitOrder - b.mInitOrder); }
+	public static int compareInit(FrameSystem a, FrameSystem b) { return sign(a.mInitOrder - b.mInitOrder); }
 	// a小于b返回-1, a等于b返回0, a大于b返回1,升序排序
-	static public int compareUpdate(FrameSystem a, FrameSystem b) { return sign(a.mUpdateOrder - b.mUpdateOrder); }
+	public static int compareUpdate(FrameSystem a, FrameSystem b) { return sign(a.mUpdateOrder - b.mUpdateOrder); }
 	// a小于b返回-1, a等于b返回0, a大于b返回1,升序排序
-	static public int compareDestroy(FrameSystem a, FrameSystem b) { return sign(a.mDestroyOrder - b.mDestroyOrder); }
+	public static int compareDestroy(FrameSystem a, FrameSystem b) { return sign(a.mDestroyOrder - b.mDestroyOrder); }
 }

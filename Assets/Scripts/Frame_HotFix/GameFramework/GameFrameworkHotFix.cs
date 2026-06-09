@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.Rendering;
 using Obfuz;
 using System;
 using System.Collections.Generic;
@@ -18,13 +19,14 @@ public class GameFrameworkHotFix : IFramework
 	protected List<FrameSystem> mFrameComponentInit = new(128);						// 存储框架组件,用于初始化
 	protected List<FrameSystem> mFrameComponentUpdate = new(128);					// 存储框架组件,用于更新
 	protected List<FrameSystem> mFrameComponentDestroy = new(128);					// 存储框架组件,用于销毁
-	protected ThreadTimeLock mTimeLock = new(15);									// 用于主线程锁帧,与Application.targetFrameRate功能类似
 	protected DateTime mStartTime;													// 启动游戏时的时间
+	protected DateTime mFrameStartTime;												// 当前帧的开始时间
 	protected DateTime mCurTime;													// 记录当前时间
 	protected Action mOnApplicationQuitCallBack;									// 程序退出的回调
 	protected BoolCallback mOnApplicationFocusCallBack;								// 程序切换到前台或者切换到后台的回调
 	protected BoolCallback mOnApplicationPauseCallBack;								// 程序暂停或恢复暂停的回调
-	protected float mThisFrameTime;													// 当前这一帧的消耗时间
+	protected float mThisFrameTime;                                                 // 当前这一帧的消耗时间,包含timeScale
+	protected float mThisFrameUnscaledTime;                                         // 当前这一帧的消耗时间,不包含timeScale
 	protected long mFrameIndex;														// 当前帧下标
 	protected int mCurFrameCount;													// 当前已执行的帧数量
 	protected int mFrameRate;														// 当前设置的最大帧率
@@ -37,26 +39,28 @@ public class GameFrameworkHotFix : IFramework
 	public static void startHotFix(Action callback)
 	{
 		GameFrameworkHotFix framework = new();
-		GameEntry.getInstance().setFrameworkHotFix(framework);
+		GameEntryBase.getInstance().setFrameworkHotFix(framework);
 		framework.init(callback);
 	}
 	public DateTime getStartTime() { return mStartTime; }
-	public DateTime getFrameStartTime() { return mTimeLock.getFrameStartTime(); }
+	public DateTime getFrameStartTime() { return mFrameStartTime; }
 	public long getFrameIndex() { return mFrameIndex; }
+	public float getUnscaledTime() { return mThisFrameUnscaledTime; }
 	public void update(float elapsedTime)
 	{
 		++mFrameIndex;
 		++mCurFrameCount;
-		DateTime now = DateTime.Now;
-		if ((now - mCurTime).TotalMilliseconds >= 1000.0f)
+		mFrameStartTime = DateTime.Now;
+		if ((mFrameStartTime - mCurTime).TotalMilliseconds >= 1000.0f)
 		{
 			mFPS = mCurFrameCount;
 			mCurFrameCount = 0;
-			mCurTime = now;
+			mCurTime = mFrameStartTime;
 		}
-		mThisFrameTime = clampMax((float)(mTimeLock.update() * 0.001) * Time.timeScale, 0.3f);
+		mThisFrameTime = clampMax(Time.deltaTime, 0.3f);
 		elapsedTime = mThisFrameTime;
 		setThisTimeMS(getNowTimeStampMS());
+		mThisFrameUnscaledTime = Time.unscaledDeltaTime;
 		if (mFrameComponentUpdate == null)
 		{
 			return;
@@ -182,7 +186,7 @@ public class GameFrameworkHotFix : IFramework
 	}
 	public void resetFrameRate()
 	{
-		setFrameRate(GameEntry.getInstance().mFramworkParam.mDefaultFrameRate);
+		setFrameRate(GameEntryBase.getInstance().mFrameworkParam.mDefaultFrameRate);
 	}
 	public bool isResourceAvailable() { return mResourceAvailable; }
 	public bool isDestroy() { return mIsDestroy; }
@@ -245,11 +249,6 @@ public class GameFrameworkHotFix : IFramework
 	public T registeFrameSystem<T>(Action<T> callback, int initOrder = -1, int updateOrder = -1, int destroyOrder = -1) where T : FrameSystem, new()
 	{
 		Type type = typeof(T);
-		if (isDevOrEditor())
-		{
-			// 暂时不再打印注册日志了
-			//log("注册系统:" + type.ToString() + ", owner:" + GetType());
-		}
 		T com = new();
 		string name = type.Assembly.FullName.rangeToFirst(',') + "_" + type.ToString();
 		com.setName(name);
@@ -275,21 +274,34 @@ public class GameFrameworkHotFix : IFramework
 		mOnMemoryModifiedCheck?.Invoke(flag, param0, param1, param2, param3);
 	}
 	//------------------------------------------------------------------------------------------------------------------------------
-	protected void preInitAsync(Action callback)
-	{
-		int initedCount = 0;
-		foreach (FrameSystem item in mFrameComponentInit)
-		{
-			item.preInitAsync(() =>
-			{
-				if (++initedCount == mFrameComponentInit.count())
-				{
-					callback?.Invoke();
-				}
-			});
-		}
-	}
 	protected void init(Action callback)
+	{
+		// 先执行所有的preInitAsync
+		preInitAsync(() =>
+		{
+			// 再执行所有的initAsync,因为部分initAsync会依赖于preInitAsync
+			int initedCount = 0;
+			foreach (FrameSystem item in mFrameComponentInit)
+			{
+				item.initAsync(() =>
+				{
+					if (++initedCount == mFrameComponentInit.count())
+					{
+						resourceAvailable();
+						try
+						{
+							callback?.Invoke();
+						}
+						catch(Exception e)
+						{
+							logException(e);
+						}
+					}
+				});
+			}
+		});
+	}
+	protected void preInitAsync(Action callback)
 	{
 		using var a = new ProfilerScope(0);
 		// 通过代码添加接受java日志的节点
@@ -297,13 +309,9 @@ public class GameFrameworkHotFix : IFramework
 		mGameFrameworkHotFix = this;
 		mIsDestroy = false;
 		mStartTime = DateTime.Now;
-		setFrameRate(GameEntry.getInstance().mFramworkParam.mDefaultFrameRate);
-
-		if (!isEditor() && isDevelopment())
-		{
-			// 跟引擎自带的dev的调试控制台功能重合了,所以不再使用
-			//getOrAddComponent<ConsoleToScreen>(GameEntry.getInstanceObject());
-		}
+		mFrameStartTime = DateTime.Now;
+		DebugManager.instance.enableRuntimeUI = false;
+		setFrameRate(GameEntryBase.getInstance().mFrameworkParam.mDefaultFrameRate);
 
 		// 设置默认的日志等级
 		setLogLevel(LOG_LEVEL.FORCE);
@@ -311,7 +319,7 @@ public class GameFrameworkHotFix : IFramework
 		registeFrameSystem<AndroidPluginManager>(null);
 		registeFrameSystem<AndroidAssetLoader>(null);
 		registeFrameSystem<AndroidMainClass>(null);
-		AndroidPluginManager.initAnroidPlugin(mOnPackageName?.Invoke());
+		AndroidPluginManager.initAndroidPlugin(mOnPackageName?.Invoke());
 		AndroidAssetLoader.initJava(AndroidPluginManager.getPackageName() + ".AssetLoader");
 		AndroidMainClass.initJava(AndroidPluginManager.getPackageName() + ".MainClass");
 		log("start game hotfix!");
@@ -361,30 +369,17 @@ public class GameFrameworkHotFix : IFramework
 		}
 		mCurTime = DateTime.Now;
 
-		// 先执行所有的preInitAsync
-		preInitAsync(() =>
+		int initedCount = 0;
+		foreach (FrameSystem item in mFrameComponentInit)
 		{
-			// 再执行所有的initAsync,因为部分initAsync会依赖于preInitAsync
-			int initedCount = 0;
-			foreach (FrameSystem item in mFrameComponentInit)
+			item.preInitAsync(() =>
 			{
-				item.initAsync(() =>
+				if (++initedCount == mFrameComponentInit.count())
 				{
-					if (++initedCount == mFrameComponentInit.count())
-					{
-						resourceAvailable();
-						try
-						{
-							callback?.Invoke();
-						}
-						catch(Exception e)
-						{
-							logException(e);
-						}
-					}
-				});
-			}
-		});
+					callback?.Invoke();
+				}
+			});
+		}
 	}
 	protected void initFrameSystem()
 	{

@@ -35,22 +35,11 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 		// 避免遗漏本地化的注销,此处再次确认注销一次
 		clearLocalization();
 
-		foreach (WindowStructPoolBase item in mPoolRootList.safe())
-		{
-			item.destroy();
-		}
+		mPoolRootList.For(item => item.destroy());
 		mPoolRootList?.Clear();
-
-		foreach (WindowPoolBase item in mWindowPoolRootList.safe())
-		{
-			item.destroy();
-		}
+		mWindowPoolRootList.For(item => item.destroy());
 		mWindowPoolRootList?.Clear();
-
-		foreach (WindowObjectBase item in mWindowObjectRootList.safe())
-		{
-			item.destroy();
-		}
+		mWindowObjectRootList.For(item => item.destroy());
 		mWindowObjectRootList?.Clear();
 		mWindowObjectList?.Clear();
 
@@ -96,6 +85,7 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 	{
 		mLayout.notifyUIObjectNeedUpdate(uiObj, needUpdate);
 	}
+	// 由于基本都是使用了自定义的滑动列表,所以基本不再使用UGUI自带的ScrollRect了
 	public void registeScrollRect(myUGUIScrollRect scrollRect, myUGUIObject viewport, myUGUIObject content, float verticalPivot = 1.0f, float horizontalPivot = 0.5f)
 	{
 		mScrollViewRegisteList ??= new();
@@ -117,7 +107,7 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 	{
 		mInputSystem.unregisteInputField(inputField);
 	}
-	// parent的区域中才能允许parent的子节点接收射线检测
+	// parent的区域中才能允许parent的子节点接收射线检测,一般用于滑动列表
 	public void bindPassOnlyParent(myUGUIObject parent)
 	{
 		// 设置当前窗口需要调整深度在所有子节点之上,并计算深度调整值
@@ -127,7 +117,8 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 		parent.registeCollider();
 		mGlobalTouchSystem.bindPassOnlyParent(parent);
 	}
-	// parent的区域中只有passOnlyArea的区域可以穿透
+	// parent的区域中只有passOnlyArea的区域可以穿透,两个节点不需要有任何关系
+	// 暂时没有发现需要使用passOnlyArea的情况,先保留这个接口,如果后续没有使用再删除
 	public void bindPassOnlyArea(myUGUIObject parent, myUGUIObject passOnlyArea)
 	{
 		parent.registeCollider();
@@ -183,39 +174,29 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 	public virtual void init() 
 	{
 		// 调用所有对象池的初始化
-		foreach (WindowStructPoolBase item in mPoolRootList.safe())
-		{
-			item.init();
-		}
+		mPoolRootList.For(item => item.init());
 		// 调用所有窗口对象池的初始化
-		foreach (WindowPoolBase item in mWindowPoolRootList.safe())
-		{
-			item.init();
-		}
+		mWindowPoolRootList.For(item => item.init());
 		// 调用所有根对象的初始化
-		foreach (WindowObjectBase item in mWindowObjectRootList.safe())
-		{
-			item.init();
-			item.postInit();
-		}
+		mWindowObjectRootList.For(item => item.init());
 	}
 	public void postInit()
 	{
 		// 如果初始化以后,item中的对象池是有创建节点的,则需要设置为不能自动清空对象池,不然会出问题
-		foreach (WindowStructPoolBase pool in mPoolRootList.safe())
+		if (mPoolRootList.contains(pool=> pool.getInUseCount() > 0) ||
+			mWindowPoolRootList.contains(pool => pool.getInUseCount() > 0))
 		{
-			if (pool.getInUseCount() > 0)
-			{
-				mUnuseAllWhenHide = false;
-				break;
-			}
+			mUnuseAllWhenHide = false;
 		}
-		foreach (WindowPoolBase pool in mWindowPoolRootList.safe())
+		// 调用所有根对象的初始化
+		mWindowObjectRootList.For(item => item.postInit());
+
+		// 自动注册所有的InputField
+		foreach (var item in mLayout.getUIObjectList())
 		{
-			if (pool.getInUseCount() > 0)
+			if (item.Value is IInputField inputField)
 			{
-				mUnuseAllWhenHide = false;
-				break;
+				registeInputField(inputField);
 			}
 		}
 	}
@@ -243,12 +224,13 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 	// 一般是重置布局状态,再根据当前游戏状态设置布局显示前的状态,执行一些显示时的动效
 	public virtual void onGameState() 
 	{
+		interruptAllCommand();
 		if (isEditor() && !mRegisterChecked)
 		{
 			mRegisterChecked = true;
 			// 检查是否注册了所有的ScrollRect
 			using var a = new ListScope<ScrollRect>(out var scrollViewList);
-			mRoot.getObject().GetComponentsInChildren(scrollViewList);
+			mRoot.getGameObject().GetComponentsInChildren(scrollViewList);
 			foreach (ScrollRect item in scrollViewList)
 			{
 				if (!mScrollViewRegisteList.contains(mLayout.getUIObject(item.gameObject) as myUGUIScrollRect))
@@ -259,7 +241,7 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 
 			// 所有的原生UGUI输入框
 			using var b = new ListScope<InputField>(out var inputFieldList);
-			mRoot.getObject().GetComponentsInChildren(inputFieldList);
+			mRoot.getGameObject().GetComponentsInChildren(inputFieldList);
 			foreach (InputField item in inputFieldList)
 			{
 				if (!mInputFieldRegisteList.contains(mLayout.getUIObject(item.gameObject) as IInputField))
@@ -270,7 +252,7 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 
 			// 所有的TextMeshPro输入框
 			using var c = new ListScope<TMP_InputField>(out var tmpInputFieldList);
-			mRoot.getObject().GetComponentsInChildren(tmpInputFieldList);
+			mRoot.getGameObject().GetComponentsInChildren(tmpInputFieldList);
 			foreach (TMP_InputField item in tmpInputFieldList)
 			{
 				if (!mInputFieldRegisteList.contains(mLayout.getUIObject(item.gameObject) as IInputField))
@@ -287,12 +269,16 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 			{ 
 				item.reset();
 			}
-			item.onShow();
+			if (item.isActive())
+			{
+				item.onShow();
+			}
 		}
 	}
 	public virtual void onDrawGizmos() { }
 	public virtual void onHide()
 	{
+		interruptAllCommand();
 		clearLocalization();
 		mEventSystem?.unlistenEvent(this);
 		// 隐藏界面时调用所有非对象池中对象的onHide,用于通知自身被隐藏了
@@ -306,21 +292,10 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 		if (mUnuseAllWhenHide)
 		{
 			// 隐藏界面时调用所有对象池的回收,将创建的所有对象都回收掉
-			foreach (WindowStructPoolBase item in mPoolRootList.safe())
-			{
-				item.unuseAll();
-			}
-			foreach (WindowPoolBase item in mWindowPoolRootList.safe())
-			{
-				item.unuseAll();
-			}
+			mPoolRootList.For(item => item.unuseAll());
+			mWindowPoolRootList.For(item => item.unuseAll());
 		}
 		mInputSystem?.unlistenKey(this);
-	}
-	// 通知脚本开始显示或隐藏,中断全部命令
-	public void notifyStartShowOrHide()
-	{
-		interruptAllCommand();
 	}
 	public bool hasObject(string name)
 	{
@@ -329,7 +304,7 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 	public bool hasObject(myUGUIObject parent, string name)
 	{
 		parent ??= mRoot;
-		return getGameObject(name, parent.getObject()) != null;
+		return getGameObject(name, parent.getGameObject()) != null;
 	}
 	public T cloneObject<T>(myUGUIObject parent, myUGUIObject oriObj, string name) where T : myUGUIObject, new()
 	{
@@ -350,7 +325,7 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 	public void cloneObject<T>(out T target, myUGUIObject parent, myUGUIObject oriObj, string name, bool active) where T : myUGUIObject, new()
 	{
 		parent ??= mRoot;
-		GameObject obj = UnityUtility.cloneObject(oriObj.getObject(), name);
+		GameObject obj = UnityUtility.cloneObject(oriObj.getGameObject(), name);
 		target = newUIObject<T>(parent, mLayout, obj, true);
 		target.setActive(active);
 		target.cloneFrom(oriObj);
@@ -364,7 +339,7 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 		parent ??= mRoot;
 		// UGUI需要添加RectTransform
 		getOrAddComponent<RectTransform>(go);
-		go.layer = parent.getObject().layer;
+		go.layer = parent.getGameObject().layer;
 		T obj = newUIObject<T>(parent, mLayout, go, true);
 		obj.setActive(active);
 		go.transform.localScale = Vector3.one;
@@ -376,7 +351,7 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 	{
 		GameObject go = createGameObject(name);
 		parent ??= mRoot;
-		go.layer = parent.getObject().layer;
+		go.layer = parent.getGameObject().layer;
 		T obj = newUIObject<T>(parent, mLayout, go, true);
 		obj.setActive(active);
 		go.transform.localScale = Vector3.one;
@@ -439,7 +414,7 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 	public T newObject<T>(out T obj, myUGUIObject parent, string name, bool showError, bool setParent = true) where T : myUGUIObject, new()
 	{
 		obj = null;
-		GameObject parentObj = parent?.getObject();
+		GameObject parentObj = parent?.getGameObject();
 		GameObject gameObject;
 		if (parentObj == null)
 		{
@@ -458,13 +433,14 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 		{
 			if (showError)
 			{
-				logError("已经创建了相同GameObject的UI对象:" + name);
+				logError("已经创建了相同GameObject的UI对象:" + name + ", layout:" + mLayout.getName());
 				return null;
 			}
 			obj = existUIObj as T;
 			if (obj == null)
 			{
-				logError("已经创建了相同GameObject的UI对象,但是两次创建的类型不一致,第一次创建的类型:" + existUIObj.GetType().ToString() + ", 第二次创建的类型:" + typeof(T).ToString() + ", name:" + name);
+				logError("已经创建了相同GameObject的UI对象,但是两次创建的类型不一致,第一次创建的类型:" + existUIObj.GetType().ToString() + 
+						", 第二次创建的类型:" + typeof(T).ToString() + ", name:" + name + ", layout:" + mLayout.getName());
 			}
 			return obj;
 		}
@@ -517,22 +493,22 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 	}
 	public static GameObject instantiate(myUGUIObject parent, string prefabPath, string name, int tag = 0)
 	{
-		GameObject go = mPrefabPoolManager.createObject(prefabPath, tag, false, false, parent.getObject());
+		GameObject go = mPrefabPoolManager.createObject(prefabPath, tag, false, false, parent.getGameObject());
 		if (go != null)
 		{
 			go.name = name;
 		}
 		return go;
 	}
-	public static CustomAsyncOperation instantiateAsync(myUGUIObject parent, string prefabPath, string name, int tag, GameObjectCallback callback)
+	public static CustomAsyncOperation instantiateAsync(IRecyclable safeObj, myUGUIObject parent, string prefabPath, string name, int tag, GameObjectCallback callback)
 	{
-		return mPrefabPoolManager.createObjectAsync(prefabPath, tag, false, false, (GameObject go) =>
+		return mPrefabPoolManager.createObjectAsyncSafe(safeObj, prefabPath, tag, false, false, (GameObject go) =>
 		{
 			if (go != null)
 			{
 				go.name = name;
 			}
-			setNormalProperty(go, parent.getObject());
+			setNormalProperty(go, parent.getGameObject());
 			callback?.Invoke(go);
 		});
 	}
@@ -551,7 +527,7 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 		{
 			return;
 		}
-		GameObject go = window.getObject();
+		GameObject go = window.getGameObject();
 		myUGUIObject.destroyWindow(window, false);
 		mPrefabPoolManager.destroyObject(ref go, destroyReally);
 		// 窗口销毁时不会通知布局刷新深度,因为移除对于深度不会产生影响
@@ -577,17 +553,14 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 		myUGUIObject.destroyWindow(obj, true);
 		// 窗口销毁时不会通知布局刷新深度,因为移除对于深度不会产生影响
 	}
-	public void close()
+	public virtual void close()
 	{
 		CmdLayoutManagerVisible.execute(GetType(), false, false);
 	}
 	//------------------------------------------------------------------------------------------------------------------------------
 	protected void clearLocalization()
 	{
-		foreach (IUGUIObject item in mLocalizationObjectList.safe())
-		{
-			mLocalizationManager.unregisteLocalization(item);
-		}
+		mLocalizationManager.unregisteLocalization(mLocalizationObjectList);
 		mLocalizationObjectList?.Clear();
 	}
 }

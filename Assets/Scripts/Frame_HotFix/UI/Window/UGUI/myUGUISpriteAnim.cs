@@ -2,7 +2,6 @@
 using UnityEngine;
 using static UnityUtility;
 using static StringUtility;
-using static MathUtility;
 
 // Sprite的序列帧
 public class myUGUISpriteAnim : myUGUISprite, IUIAnimation
@@ -39,17 +38,13 @@ public class myUGUISpriteAnim : myUGUISprite, IUIAnimation
 	public override void update(float elapsedTime)
 	{
 		base.update(elapsedTime);
-		if (isCulled())
-		{
-			return;
-		}
 		if (mSpriteList.Count == 0)
 		{
 			setSpriteName(null);
 		}
 		mControl.update(elapsedTime);
 	}
-	public override void setAtlas(UGUIAtlasPtr atlas, bool clearSprite = false, bool force = false)
+	public override void setAtlas(AtlasRef atlas, bool clearSprite = false, bool force = false)
 	{
 		if (!force && atlas?.getAtlas() == getAtlas()?.getAtlas())
 		{
@@ -95,7 +90,6 @@ public class myUGUISpriteAnim : myUGUISprite, IUIAnimation
 	public float getInterval()						{ return mControl.getInterval(); }
 	public float getSpeed()							{ return mControl.getSpeed(); }
 	public int getStartIndex()						{ return mControl.getStartIndex(); }
-	public float getPlayedTime()					{ return mControl.getPlayedTime(); }
 	public float getLength()						{ return mControl.getLength(); }
 	public PLAY_STATE getPlayState()				{ return mControl.getPlayState(); }
 	public bool getPlayDirection()					{ return mControl.getPlayDirection(); }
@@ -147,20 +141,26 @@ public class myUGUISpriteAnim : myUGUISprite, IUIAnimation
 			mPlayingCallbackList.Add(callback);
 		}
 	}
+	public void clearCallback()
+	{
+		mPlayEndCallbackList?.Clear();
+		mPlayingCallbackList?.Clear();
+	}
 	//------------------------------------------------------------------------------------------------------------------------------
 	protected void onPlaying(int frame, bool isPlaying)
 	{
-		if (mControl.getCurFrameIndex() >= mSpriteList.Count)
+		int spriteCount = mSpriteList.Count;
+		if (frame >= spriteCount)
 		{
 			return;
 		}
-		setSprite(mSpriteList[mControl.getCurFrameIndex()]);
+		setSprite(mSpriteList[frame]);
 		// 使用位置列表进行校正
 		if (mEffectAlign == EFFECT_ALIGN.POSITION_LIST)
 		{
-			if (!mTexturePosList.isEmpty())
+			if (mTexturePosList.count() == spriteCount)
 			{
-				setPosition(mTexturePosList[round(divide(frame, mSpriteList.Count) * mTexturePosList.Count)]);
+				setPosition(mTexturePosList[frame]);
 			}
 		}
 		// 对齐父节点的底部
@@ -169,7 +169,7 @@ public class myUGUISpriteAnim : myUGUISprite, IUIAnimation
 			myUGUIObject parent = getParent();
 			if (parent != null)
 			{
-				setPositionY((getWindowSize().y - parent.getWindowSize().y) * 0.5f);
+				setPositionY((getSize().y - parent.getSize().y) * 0.5f);
 			}
 		}
 		foreach (BoolCallback item in mPlayingCallbackList.safe())

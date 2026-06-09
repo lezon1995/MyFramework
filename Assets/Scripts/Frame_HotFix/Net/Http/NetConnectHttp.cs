@@ -85,7 +85,10 @@ public class NetConnectHttp : NetConnect
 					// 创建对应的消息包,并设置数据,然后放入列表中等待解析
 					var packet = mNetPacketFactory.createSocketPacket(pair.mPacketType) as NetPacketHttp;
 					packet.setConnect(this);
-					log("[ " + packet.GetType().Name + " ] " + pair.mData, LOG_LEVEL.LOW);
+					if (getLogLevel() <= LOG_LEVEL.LOW)
+					{
+						log("[ " + packet.GetType().Name + " ] " + pair.mData);
+					}
 					try
 					{
 						if (!pair.mData.isEmpty())
@@ -112,8 +115,7 @@ public class NetConnectHttp : NetConnect
 							logWarning("收到的消息为空:" + pair.mPacketType + ",将重试请求,已重试:" + (RETRY_COUNT - sendInfo.mRemainRetryCount) + ", 剩余:" + sendInfo.mRemainRetryCount);
 							--sendInfo.mRemainRetryCount;
 							// 添加到写缓冲中
-							CLASS_THREAD(out HttpSendInfo info);
-							info.cloneFrom(sendInfo);
+							CLASS_THREAD(out HttpSendInfo info).cloneFrom(sendInfo);
 							mOutputBuffer.add(info);
 							// 重试时不需要从mNotResponsePacket中移除
 						}
@@ -189,7 +191,10 @@ public class NetConnectHttp : NetConnect
 		info.mTimeout = packet.timeout();
 		info.mRemainRetryCount = RETRY_COUNT;	
 		mOutputBuffer.add(info);
-		log("[ " + packet.GetType().Name + " ] " + info.mMessage, LOG_LEVEL.LOW);
+		if (getLogLevel() <= LOG_LEVEL.LOW)
+		{
+			log("[ " + packet.GetType().Name + " ] " + info.mMessage);
+		}
 
 		// 发送消息需要备份一下
 		mNotResponsePacket.addClass(packet.GetType()).cloneFrom(info);
@@ -244,7 +249,7 @@ public class NetConnectHttp : NetConnect
 				if (item.mMethod == HTTP_METHOD.POST)
 				{
 #if UNITY_WEBGL
-					httpPostAsyncWebGL(fullURL, stringToBytes(item.mMessage), mContentType, mHttpHeader, (string result, UnityWebRequest.Result status, long code) =>
+					httpPostAsyncWebGL(fullURL, item.mMessage.stringToBytes(), mContentType, mHttpHeader, (string result, UnityWebRequest.Result status, long code) =>
 					{
 						parsePacket(callback, type, result, status, code);
 					});

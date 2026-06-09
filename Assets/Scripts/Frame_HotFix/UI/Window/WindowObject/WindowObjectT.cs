@@ -25,6 +25,10 @@ public abstract class WindowObjectT<T> : WindowObjectBase where T : myUGUIObject
 	public void assignWindow(myUGUIObject parent, myUGUIObject template, string name)
 	{
 		mRootIsFromClone = true;
+		if (template.GetType() != typeof(T))
+		{
+			logError("模板节点与对象池根节点类型不一致,当前对象类型:" + GetType() + ", 模板节点:" + template.getGameObjectPath() + "\n模板类型:" + template.GetType() + ", 对象池根节点类型:" + typeof(T));
+		}
 		mScript.cloneObject(out mRoot, parent, template, name);
 		assignWindowInternal();
 	}
@@ -48,7 +52,7 @@ public abstract class WindowObjectT<T> : WindowObjectBase where T : myUGUIObject
 	public bool isValid() { return mRoot != null; }
 	public override bool isActive() { return mRoot?.isActiveInHierarchy() ?? false; }
 	public override bool isActiveSelf() { return mRoot?.isActive() ?? false; }
-	public override void setActive(bool active) 
+	public override bool setActive(bool active) 
 	{
 		bool curActive = isActiveSelf();
 		if (curActive && mChangePositionAsInvisible && isVectorEqual(mRoot.getPosition(), FAR_POSITION))
@@ -57,9 +61,8 @@ public abstract class WindowObjectT<T> : WindowObjectBase where T : myUGUIObject
 		}
 		if (active == curActive)
 		{
-			return;
+			return active;
 		}
-		base.setActive(active);
 		if (mChangePositionAsInvisible)
 		{
 			if (!active)
@@ -71,11 +74,12 @@ public abstract class WindowObjectT<T> : WindowObjectBase where T : myUGUIObject
 		{
 			mRoot.setActive(active);
 		}
+		return base.setActive(active);
 	}
 	public virtual void setPosition(Vector3 pos) { mRoot.setPosition(pos); }
 	public T getRoot() { return mRoot; }
 	public Vector3 getPosition() { return mRoot.getPosition(); }
-	public Vector2 getSize() { return mRoot.getWindowSize(); }
+	public Vector2 getSize() { return mRoot.getSize(); }
 	public int getSibling()
 	{
 		checkRoot();

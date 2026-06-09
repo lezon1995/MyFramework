@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System;
 using static UnityUtility;
 using static StringUtility;
@@ -33,14 +32,7 @@ public class CommandSystem : FrameSystem
 		for (int i = 0; i < count; ++i)
 		{
 			Command cmd = mCommandBufferProcess[i];
-			if (!cmd.isIgnoreTimeScale())
-			{
-				cmd.setDelayTime(cmd.getDelayTime() - elapsedTime);
-			}
-			else
-			{
-				cmd.setDelayTime(cmd.getDelayTime() - Time.unscaledDeltaTime);
-			}
+			cmd.setDelayTime(cmd.getDelayTime() - (!cmd.isIgnoreTimeScale() ? elapsedTime : mGameFrameworkHotFix.getUnscaledTime()));
 			if (cmd.getDelayTime() <= 0.0f)
 			{
 				// 命令的延迟执行时间到了,则执行命令
@@ -64,10 +56,7 @@ public class CommandSystem : FrameSystem
 	}
 	public void interruptCommand(List<long> assignIDList, bool showError = true)
 	{
-		foreach (long id in assignIDList)
-		{
-			interruptCommand(id, showError);
-		}
+		assignIDList.For(id => interruptCommand(id, showError));
 	}
 	// 中断命令
 	public bool interruptCommand(long assignID, bool showError = true)
@@ -99,9 +88,9 @@ public class CommandSystem : FrameSystem
 			{
 				using var a = new MyStringBuilderScope(out var builder);
 				cmd.onInterrupted();
-				builder.append("CMD : interrupt command ", LToS(assignID), " : ");
+				builder.add("CMD : interrupt command ", LToS(assignID), " : ");
 				cmd.debugInfo(builder);
-				builder.append(", receiver : ", cmd.getReceiver().getName());
+				builder.add(", receiver : ", cmd.getReceiver().getName());
 				log(builder.ToString(), LOG_LEVEL.HIGH);
 				mCommandBufferProcess.RemoveAt(i);
 				// 销毁回收命令
@@ -110,20 +99,15 @@ public class CommandSystem : FrameSystem
 			}
 		}
 
-		bool success = false;
 		// 在即将执行的列表中查找,不能删除列表元素，只能将接收者设置为空来阻止命令执行,如果正在执行该命令,则没有效果
-		foreach (Command cmd in mExecuteList)
+		// 确保一定不会出现在命令执行过程中中断了当前正在执行的命令,以及已经执行过的命令
+		bool success = mExecuteList.find(cmd => cmd.getAssignID() == assignID && cmd.getReceiver() != null && cmd.isDelayCommand(), out Command cmd0);
+		if (success)
 		{
-			// 为了确保一定不会出现在命令执行过程中中断了当前正在执行的命令,以及已经执行过的命令
-			if (cmd.getAssignID() == assignID && cmd.getReceiver() != null && cmd.isDelayCommand())
-			{
-				cmd.getReceiver().removeReceiveDelayCmd();
-				cmd.setReceiver(null);
-				success = true;
-				break;
-			}
+			cmd0.getReceiver().removeReceiveDelayCmd();
+			cmd0.setReceiver(null);
 		}
-		if (!success && showError)
+		else if (showError)
 		{
 			logError("not find cmd with assignID! " + assignID);
 		}
@@ -146,7 +130,7 @@ public class CommandSystem : FrameSystem
 		if (cmd.isDelayCommand())
 		{
 			using var a = new MyStringBuilderScope(out var builder);
-			builder.append("cmd is a delay cmd! can not use pushCommand!", LToS(cmd.getAssignID()), ", ");
+			builder.add("cmd is a delay cmd! can not use pushCommand!", LToS(cmd.getAssignID()), ", ");
 			cmd.debugInfo(builder);
 			logError(builder.ToString());
 			return;
@@ -160,17 +144,17 @@ public class CommandSystem : FrameSystem
 				if (isMainThread())
 				{
 					using var a = new MyStringBuilderScope(out var builder);
-					builder.append(cmd.GetType().ToString(), " : ", LToS(cmd.getAssignID()), ", ");
+					builder.add(cmd.GetType().ToString(), " : ", LToS(cmd.getAssignID()), ", ");
 					cmd.debugInfo(builder);
-					builder.append(", receiver : ", cmdReceiver.getName());
+					builder.add(", receiver : ", cmdReceiver.getName());
 					log(builder.ToString(), cmd.getCmdLogLevel());
 				}
 				else
 				{
 					using var a = new ClassThreadScope<MyStringBuilder>(out var builder);
-					builder.append(cmd.GetType().ToString(), " : ", LToS(cmd.getAssignID()), ", ");
+					builder.add(cmd.GetType().ToString(), " : ", LToS(cmd.getAssignID()), ", ");
 					cmd.debugInfo(builder);
-					builder.append(", receiver : ", cmdReceiver.getName());
+					builder.add(", receiver : ", cmdReceiver.getName());
 					log(builder.ToString(), cmd.getCmdLogLevel());
 				}
 			}
@@ -213,7 +197,7 @@ public class CommandSystem : FrameSystem
 		if (!cmd.isDelayCommand())
 		{
 			using var a = new MyStringBuilderScope(out var builder);
-			builder.append("cmd is not a delay command, Command : ", LToS(cmd.getAssignID()), ", ");
+			builder.add("cmd is not a delay command, Command : ", LToS(cmd.getAssignID()), ", ");
 			cmd.debugInfo(builder);
 			logError(builder.ToString());
 			return;
@@ -226,17 +210,17 @@ public class CommandSystem : FrameSystem
 				if (isMainThread())
 				{
 					using var b = new MyStringBuilderScope(out var builder);
-					builder.append("CMD : delay cmd : ", LToS(cmd.getAssignID()), ", ", FToS(delayExecute), ", info : ");
+					builder.add("CMD : delay cmd : ", LToS(cmd.getAssignID()), ", ", FToS(delayExecute), ", info : ");
 					cmd.debugInfo(builder);
-					builder.append(", receiver : ", cmdReceiver.getName());
+					builder.add(", receiver : ", cmdReceiver.getName());
 					log(builder.ToString(), cmd.getCmdLogLevel());
 				}
 				else
 				{
 					using var c = new ClassThreadScope<MyStringBuilder>(out var builder);
-					builder.append("CMD : delay cmd : ", LToS(cmd.getAssignID()), ", ", FToS(delayExecute), ", info : ");
+					builder.add("CMD : delay cmd : ", LToS(cmd.getAssignID()), ", ", FToS(delayExecute), ", info : ");
 					cmd.debugInfo(builder);
-					builder.append(", receiver : ", cmdReceiver.getName());
+					builder.add(", receiver : ", cmdReceiver.getName());
 					log(builder.ToString(), cmd.getCmdLogLevel());
 				}
 			}

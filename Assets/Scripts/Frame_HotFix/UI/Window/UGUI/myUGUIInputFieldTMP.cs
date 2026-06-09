@@ -28,9 +28,9 @@ public class myUGUIInputFieldTMP : myUGUIObject, IInputField
 		mInputField.onSubmit.AddListener(onSubmitEdit);
 		mInputField.onValueChanged.AddListener(onEditing);
 	}
-	public override void setAlpha(float alpha, bool fadeChild)
+	public override void setAlpha(float alpha)
 	{
-		base.setAlpha(alpha, fadeChild);
+		base.setAlpha(alpha);
 		Color color = mInputField.textComponent.color;
 		color.a = alpha;
 		mInputField.textComponent.color = color;
@@ -39,7 +39,7 @@ public class myUGUIInputFieldTMP : myUGUIObject, IInputField
 	public void setOnSubmitEdit(StringCallback action) { mOnSubmitEdit = action; }
 	public void setOnEditing(StringCallback action) { mOnEditing = action; }
 	public void cleanUp() { setText(EMPTY); }
-	public void setText(string value) { mInputField.text = value; }
+	public void setText(string value) { mInputField.SetTextWithoutNotify(value); }
 	public void setText(int value) { setText(IToS(value)); }
 	public void setText(float value) { setText(FToS(value, 2)); }
 	public string getText() { return mInputField.text; }

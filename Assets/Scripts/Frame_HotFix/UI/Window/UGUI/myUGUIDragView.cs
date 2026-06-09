@@ -33,7 +33,7 @@ public class myUGUIDragView : myUGUIObject
 	// 一般情况下作为滑动列表时可填false
 	// allowDragOnlyOverParentSize表示是否只有大小超过父节点时才能拖拽,当前节点没有超过父节点时不允许拖拽
 	// clampInRange为true表示拖拽时始终限制在正常范围内
-	public void initDragView(DRAG_DIRECTION direction, float angleThresholdRadian, bool clampInner, bool allowDragOnlyOverParentSize, bool clampInRange)
+	public void setDragView(DRAG_DIRECTION direction, float angleThresholdRadian, bool clampInner, bool allowDragOnlyOverParentSize, bool clampInRange)
 	{
 		setDragDirection(direction);
 		setDragAngleThreshold(angleThresholdRadian);
@@ -55,11 +55,11 @@ public class myUGUIDragView : myUGUIObject
 	public override void onTouchDown(Vector3 mousePos, int touchID)
 	{
 		base.onTouchDown(mousePos, touchID);
-		mDragViewComponent.onTouchDown(mousePos, touchID);
 		if (!mInited)
 		{
 			logError("myUGUIDragView未初始化,是否忘记调用了myUGUIDragView的init?");
 		}
+		mDragViewComponent.onTouchDown(mousePos, touchID);
 	}
 	// 鼠标在屏幕上抬起
 	public override void onScreenTouchUp(Vector3 mousePos, int touchID)
@@ -77,10 +77,10 @@ public class myUGUIDragView : myUGUIObject
 		base.onTouchStay(mousePos, touchID);
 		mDragViewComponent.onTouchStay(touchID);
 	}
-	public override void setWindowSize(Vector2 size)
+	public override void setSize(Vector2 size)
 	{
-		base.setWindowSize(size);
-		mCOMWindowCollider?.setColliderSize(getWindowSize(true));
+		base.setSize(size);
+		mCOMWindowCollider?.setColliderSize(getSize(true));
 		mDragViewComponent.onWindowSizeChange();
 	}
 	public void setAlignTopOrLeft(bool alignTopOrLeft) { mDragViewComponent.setAlignTopOrLeft(alignTopOrLeft); }

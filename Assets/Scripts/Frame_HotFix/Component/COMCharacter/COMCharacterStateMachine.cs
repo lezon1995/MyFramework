@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using static UnityUtility;
 using static FrameUtility;
@@ -34,9 +33,9 @@ public class COMCharacterStateMachine : GameComponent
 	{
 		// 先退出所有状态
 		using var a = new SafeDictionaryReader<Type, SafeList<CharacterState>>(mStateTypeList);
-		foreach (var item in a.mReadList.Values)
+		foreach (var item in a.mReadList)
 		{
-			using var b = new SafeListReader<CharacterState>(item);
+			using var b = new SafeListReader<CharacterState>(item.Value);
 			foreach (CharacterState state in b.mReadList)
 			{
 				leaveStateInternal(state, true, true);
@@ -67,7 +66,7 @@ public class COMCharacterStateMachine : GameComponent
 				state.setJustEnter(false);
 				continue;
 			}
-			state.update(state.isIgnoreTimeScale() ? Time.unscaledDeltaTime : elapsedTime);
+			state.update(state.isIgnoreTimeScale() ? mGameFrameworkHotFix.getUnscaledTime() : elapsedTime);
 		}
 	}
 	public override void fixedUpdate(float elapsedTime)
@@ -88,37 +87,63 @@ public class COMCharacterStateMachine : GameComponent
 			state.fixedUpdate(elapsedTime);
 		}
 	}
-	public T addStateIfNotExist<T>(StateParam param = null, float stateTime = -1.0f, long id = 0) where T : CharacterState
+	public T addStateIfNotExist<T>() where T : CharacterState
 	{
 		Type type = typeof(T);
 		if (hasState(type))
 		{
 			return null;
 		}
-		return addState(type, param, stateTime, id) as T;
+		return addState(type, null, 0) as T;
 	}
-	public CharacterState addStateIfNotExist(Type type, StateParam param = null, float stateTime = -1.0f, long id = 0)
+	public T addStateIfNotExist<T>(StateParam param) where T : CharacterState
+	{
+		Type type = typeof(T);
+		if (hasState(type))
+		{
+			return null;
+		}
+		return addState(type, param, 0) as T;
+	}
+	public CharacterState addStateIfNotExist(Type type, StateParam param, long id)
 	{
 		if (hasState(type))
 		{
 			return null;
 		}
-		return addState(type, param, stateTime, id);
+		return addState(type, param, id);
 	}
-	public T addState<T>(StateParam param = null, float stateTime = -1.0f, long id = 0) where T : CharacterState
+	public T addState<T>() where T : CharacterState
 	{
-		return addState(typeof(T), param, stateTime, id) as T;
+		return addState(typeof(T), null, 0) as T;
 	}
-	public CharacterState addState(Type type, StateParam param = null, float stateTime = -1.0f, long id = 0)
+	public CharacterState addState(Type type)
+	{
+		return addState(type, null, 0);
+	}
+	public T addState<T>(StateParam param) where T : CharacterState
+	{
+		return addState(typeof(T), param, 0) as T;
+	}
+	public T addState<T>(StateParam param, long id) where T : CharacterState
+	{
+		return addState(typeof(T), param, id) as T;
+	}
+	public CharacterState addState(Type type, StateParam param, long id)
 	{
 		if (id > 0 && mStateMap.ContainsKey(id))
 		{
-			logWarning("不能重复添加状态,type:" + type + ", stateTime:" + stateTime + ", id:" + id + ", character:" + mComponentOwner.getName());
+			logWarning("不能重复添加状态,type:" + type + ", id:" + id + ", character:" + mComponentOwner.getName());
 			return null;
 		}
 		CharacterState state = createState(type, param, id);
 		state.setCharacter(mCharacter);
 
+		float stateTime = -1.0f;
+		if (param != null)
+		{
+			stateTime = param.mBuffTime;
+		}
 		if (stateTime >= 0.0f)
 		{
 			state.setStateMaxTime(stateTime);
@@ -155,9 +180,9 @@ public class COMCharacterStateMachine : GameComponent
 
 		// 移除状态组互斥的状态
 		List<CharacterState> tempList = null;
-		foreach (var itemList in mStateTypeList.getMainList())
+		foreach (var itemList in mStateTypeList)
 		{
-			foreach (CharacterState item in itemList.Value.getMainList())
+			foreach (CharacterState item in itemList.Value)
 			{
 				if (item != state && item.isActive() && !mStateManager.allowKeepStateByGroup(type, item.GetType()))
 				{
@@ -227,7 +252,7 @@ public class COMCharacterStateMachine : GameComponent
 	public void removeStateInGroup(Type group, bool isBreak, string param)
 	{
 		using var a = new ListScope<CharacterState>(out var tempList);
-		foreach (var item in mStateTypeList.getMainList())
+		foreach (var item in mStateTypeList)
 		{
 			if (mStateManager.getGroupList(item.Key).contains(group))
 			{
@@ -314,9 +339,9 @@ public class COMCharacterStateMachine : GameComponent
 			return false;
 		}
 		// 检查是否有跟要添加的状态互斥且不能移除的状态
-		foreach (var itemList in mStateTypeList.getMainList())
+		foreach (var itemList in mStateTypeList)
 		{
-			foreach (CharacterState item in itemList.Value.getMainList())
+			foreach (CharacterState item in itemList.Value)
 			{
 				if (item != state && item.isActive() && !mStateManager.allowAddStateByGroup(stateType, item.GetType()))
 				{

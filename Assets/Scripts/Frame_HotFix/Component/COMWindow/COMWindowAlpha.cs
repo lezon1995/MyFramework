@@ -18,6 +18,6 @@ public class COMWindowAlpha : ComponentKeyFrame, IComponentModifyAlpha
 	{
 		var obj = mComponentOwner as myUGUIObject;
 		// 此处不使用递归透明度变化是为了尽量不影响其他窗口
-		obj.setAlpha(lerpSimple(mStart, mTarget, value), false);
+		obj.setAlpha(lerpSimple(mStart, mTarget, value));
 	}
 }

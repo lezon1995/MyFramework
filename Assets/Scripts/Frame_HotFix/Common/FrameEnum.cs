@@ -215,8 +215,10 @@ public enum TIME_DISPLAY : byte
 {
 	HMSM,					// 以Hour:Minute:Second:Millisecond形式显示,并且不补0
 	HMS_2,                  // 以Hour:Minute:Second形式显示,并且每个数都显示为2位数
+	HM_2,					// 以Hour:Minute形式显示,并且每个数都显示为2位数
 	MS_2,					// 以Minute:Second形式显示,并且每个数都显示为2位数
 	HM_ZH,					// 以Hour小时Minute分的形式显示
+	MS_ZH,					// 以Minute分Second秒的形式显示
 	DHMS_ZH,                // 以Day天Hour小时Minute分Second秒的形式显示,获取当前时间时将不会显示天数
 	DHM_ZH,					// 以Day天Hour小时Minute分的形式显示,获取当前时间时将不会显示天数
 	YMD_ZH,                 // 以Year年Month月Day天的形式显示,只适用于DateTime
@@ -443,7 +445,7 @@ public enum WINDOW_TYPE : byte
 	NORMAL_WINDOW,          // 单独的窗口
 	COMMON_CONTROL,         // 通用的控件
 	SUB_UI,                 // 子页面
-	SCROLL_LIST,            // 滚动列表
+	SCROLL_LIST,            // 无限滚动列表
 	POOL,                   // 对象池
 }
 
@@ -453,4 +455,28 @@ public enum ARRAY_TYPE : byte
 	NONE,                   // 不是数组
 	STATIC_ARRAY,           // 静态数组,就是直接获取界面上已经存在的节点存放到数组中
 	DYNAMIC_ARRAY,          // 动态数组,就是根据一个模板创建多个节点放到数组中,类似对象池,但是创建的是非对象池类型的节点,动态列表不支持单独的窗口类型
+}
+
+// 缓动的类型
+public enum TWEEN_TYPE : byte
+{
+	MOVE,					// 平移
+	ROTATE,					// 旋转
+	SCALE,					// 缩放
+}
+
+// 缓动的目标类型
+public enum TARGET_MODE : byte
+{
+	VALUE,					// 固定值
+	TRANSFORM_REALTIME,     // 指定节点,并且在移动过程中实时获取节点的值进行调整,适用于目标对象会移动的情况
+	TRANSFORM_SNAPSHOT,     // 指定节点,但是只在开始移动时获取节点的值进行调整,适用于目标对象不会移动的情况
+	SELF,					// 指定节点,但是只在开始移动时获取节点的值进行调整,适用于目标对象不会移动的情况
+}
+
+// 缓动的起始值的类型
+public enum START_MODE : byte
+{
+	VALUE,					// 编辑器配置的固定值
+	SELF,					// 播放时取节点当前值
 }

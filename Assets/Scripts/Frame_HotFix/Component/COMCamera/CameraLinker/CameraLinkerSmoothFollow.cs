@@ -35,15 +35,10 @@ public class CameraLinkerSmoothFollow : CameraLinkerThirdPerson
 	public void removeCheckLayer(int layer, CHECK_DIRECTION direction)
 	{
 		var layerList = mCheckDirectionList.get(direction);
-		int count = layerList.count();
-		for (int i = 0; i < count; ++i)
+		if (layerList != null && layerList.find(item => item.mLayerIndex == layer, out int index))
 		{
-			if (layerList[i].mLayerIndex == layer)
-			{
-				mCheckLayer.Remove(layerList[i]);
-				layerList.RemoveAt(i);
-				break;
-			}
+			mCheckLayer.Remove(layerList[index]);
+			layerList.RemoveAt(index);
 		}
 	}
 	//------------------------------------------------------------------------------------------------------------------------------
@@ -53,14 +48,10 @@ public class CameraLinkerSmoothFollow : CameraLinkerThirdPerson
 		{
 			mFollowPositionSpeed = lerp(mFollowPositionSpeed, mNormalSpeed, mSpeedRecover * elapsedTime);
 		}
-		Vector3 relative;
+		Vector3 relative = mRelativePosition;
 		if (mUseTargetYaw)
 		{
 			relative = rotateVector3(mRelativePosition, toRadian(mLinkObject.getRotation().y));
-		}
-		else
-		{
-			relative = mRelativePosition;
 		}
 		Vector3 targetPos = mLinkObject.getWorldPosition();
 		Vector3 nextPos = targetPos + relative;
@@ -69,9 +60,9 @@ public class CameraLinkerSmoothFollow : CameraLinkerThirdPerson
 		{
 			Ray ray = new();
 			// 从摄像机目标点检测
-			foreach (var layerList in mCheckDirectionList.Values)
+			foreach (var item in mCheckDirectionList)
 			{
-				foreach (CheckLayer layer in layerList)
+				foreach (CheckLayer layer in item.Value)
 				{
 					ray.origin = nextPos - layer.mDirectionVector;
 					ray.direction = layer.mDirectionVector;

@@ -96,9 +96,9 @@ public class GlobalTouchSystem : FrameSystem
 		}
 
 		// 更新触点逻辑
-		foreach (TouchInfo item in mTouchInfoList.Values)
+		foreach (var item in mTouchInfoList)
 		{
-			item.update(elapsedTime);
+			item.Value.update(elapsedTime);
 		}
 
 		// 检查摄像机是否被销毁
@@ -122,7 +122,7 @@ public class GlobalTouchSystem : FrameSystem
 	}
 	public bool isColliderRegisted(IMouseEventCollect obj) { return mAllObjectSet.Contains(obj); }
 	// 注册碰撞器,只有注册了的碰撞器才会进行检测,showError是否显示重复注册的报错
-	public void registeCollider(IMouseEventCollect obj, GameCamera camera = null, bool showError = true)
+	public void registeCollider(IMouseEventCollect obj, GameCamera camera = null)
 	{
 		// 允许自动添加碰撞盒
 		if (obj.getCollider(true) == null)
@@ -132,10 +132,6 @@ public class GlobalTouchSystem : FrameSystem
 		}
 		if (mAllObjectSet.Contains(obj))
 		{
-			if (showError)
-			{
-				logError("不能重复注册碰撞体: " + obj.getName() + ", " + obj.getDescription());
-			}
 			return;
 		}
 
@@ -166,6 +162,10 @@ public class GlobalTouchSystem : FrameSystem
 		}
 		else if (obj is MovableObject)
 		{
+			if (camera == null)
+			{
+				logError("need a camera!");
+			}
 			MouseCastObjectSet mouseCastSet = null;
 			foreach (MouseCastObjectSet item in mMouseCastObjectList)
 			{
@@ -216,9 +216,9 @@ public class GlobalTouchSystem : FrameSystem
 			return;
 		}
 
-		foreach (TouchInfo item in mTouchInfoList.Values)
+		foreach (var item in mTouchInfoList)
 		{
-			item.removeObject(obj);
+			item.Value.removeObject(obj);
 		}
 
 		if (obj is myUGUIObject window)
@@ -266,10 +266,7 @@ public class GlobalTouchSystem : FrameSystem
 			using var a = new SafeDictionaryReader<IMouseEventCollect, IMouseEventCollect>(mPassOnlyArea);
 			foreach (var item in a.mReadList)
 			{
-				if (item.Value == obj)
-				{
-					mPassOnlyArea.remove(item.Key);
-				}
+				mPassOnlyArea.removeIf(item.Key, item.Value == obj);
 			}
 		}
 	}
@@ -536,7 +533,7 @@ public class GlobalTouchSystem : FrameSystem
 			{
 				checkActiveOnlyOrder();
 				using var a = new ListScope<myUGUIObject>(out var list);
-				foreach (IMouseEventCollect obj in mActiveOnlyUIObject.getMainList())
+				foreach (IMouseEventCollect obj in mActiveOnlyUIObject)
 				{
 					if (obj is myUGUIObject uiObj && item.getWindowOrderList().Contains(uiObj))
 					{
@@ -587,7 +584,7 @@ public class GlobalTouchSystem : FrameSystem
 				else if (mActiveOnlyMovableObject.count() > 0)
 				{
 					using var a = new ListScope<IMouseEventCollect>(out var list);
-					foreach (IMouseEventCollect obj in mActiveOnlyMovableObject.getMainList())
+					foreach (IMouseEventCollect obj in mActiveOnlyMovableObject)
 					{
 						if (obj is MovableObject movable && item.mObjectOrderList.Contains(movable))
 						{

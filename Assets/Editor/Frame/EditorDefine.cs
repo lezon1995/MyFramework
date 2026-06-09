@@ -21,9 +21,6 @@ public class EditorDefine
 			P_ATLAS_PATH,
 			P_TEXTURE_PATH,
 			P_UI_PATH,
-			P_RESOURCES_ATLAS_PATH,
-			P_RESOURCES_TEXTURE_PATH,
-			P_RESOURCES_UI_PATH,
 			P_UNUSED_PATH,
 		};
 		list.AddRange(new GameEditorDefine().getNoMipmapsPath_Extension());
@@ -222,6 +219,13 @@ public class EditorDefine
 		list.AddRange(new GameEditorDefine().getIgnoreSystemFunctionCheck_Extension());
 		return list; 
 	}
+	// 检查是否有适配组件时需要忽略的prefab,不含路径,带后缀名
+	public static List<string> getIgnoreScaleAnchorCheck()
+	{
+		List<string> list = new();
+		list.AddRange(new GameEditorDefine().getIgnoreScaleAnchorCheck_Extension());
+		return list;
+	}
 	//------------------------------------------------------------------------------------------------------------------------------
 	protected virtual List<string> getNoMipmapsPath_Extension() { return new(); }
 	protected virtual List<string> getKeepFolder_Extension() { return new(); }
@@ -232,13 +236,7 @@ public class EditorDefine
 	protected virtual List<string> getIgnoreConstructValue_Extension() { return new(); }
 	protected virtual List<Type> getIgnoreResetPropertyClass_Extension() { return new(); }
 	protected virtual List<string> getIgnoreLayoutScript_Extension() { return new(); }
-	protected virtual List<string> getIgnoreCodeWidth_Extension() 
-	{
-		return new()
-		{ 
-			"/Description/",
-		};
-	}
+	protected virtual List<string> getIgnoreCodeWidth_Extension() { return new(); }
 	protected virtual List<string> getIgnoreVariableCheck_Extension() { return new(); }
 	protected virtual List<string> getIgnoreCheckClass_Extension() { return new(); }
 	protected virtual List<string> getIgnoreFileCheckFunction_Extension() 
@@ -250,4 +248,5 @@ public class EditorDefine
 	}
 	protected virtual List<string> getIgnoreCheckFunction_Extension() { return new(); }
 	protected virtual List<string> getIgnoreSystemFunctionCheck_Extension() { return new(); }
+	protected virtual List<string> getIgnoreScaleAnchorCheck_Extension() { return new(); }
 }

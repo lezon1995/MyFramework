@@ -1,8 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 // 自定义的对byte[]的封装,可用于序列化
-public class BIT_BYTES : SerializableBit, IEnumerable<byte>
+public class BIT_BYTES : SerializableBit
 {
 	public List<byte> mValue = new();		// 值
 	public byte this[int index]
@@ -16,11 +15,11 @@ public class BIT_BYTES : SerializableBit, IEnumerable<byte>
 		base.resetProperty();
 		mValue.Clear(); 
 	}
-	public override bool read(SerializerBitRead reader)
+	public override bool read(SerializerBitRead reader, bool needReadSign)
 	{
 		return reader.readList(mValue);
 	}
-	public override void write(SerializerBitWrite writer)
+	public override void write(SerializerBitWrite writer, bool needWriteSign)
 	{
 		writer.writeList(mValue);
 	}
@@ -36,6 +35,5 @@ public class BIT_BYTES : SerializableBit, IEnumerable<byte>
 	{
 		return value.mValue;
 	}
-	public IEnumerator<byte> GetEnumerator() { return mValue.GetEnumerator(); }
-	IEnumerator IEnumerable.GetEnumerator() { return mValue.GetEnumerator(); }
+	public List<byte>.Enumerator GetEnumerator() { return mValue.GetEnumerator(); }
 }

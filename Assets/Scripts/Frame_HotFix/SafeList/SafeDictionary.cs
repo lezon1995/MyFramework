@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using static UnityUtility;
 using static FrameUtility;
+using System;
 
 // 非线程安全
 // 可安全遍历的列表,支持在遍历过程中对列表进行修改
@@ -48,14 +49,7 @@ public class SafeDictionary<Key, Value> : ClassObject
 			{
 				foreach (var modify in mModifyList)
 				{
-					if (modify.mAdd)
-					{
-						mUpdateList.Add(modify.mKey, modify.mValue);
-					}
-					else
-					{
-						mUpdateList.Remove(modify.mKey);
-					}
+					mUpdateList.addOrRemove(modify.mKey, modify.mValue, modify.mAdd);
 				}
 			}
 			// 主列表元素较少,则直接同步主列表到更新列表
@@ -72,10 +66,45 @@ public class SafeDictionary<Key, Value> : ClassObject
 		return mUpdateList;
 	}
 	public void endForeach()							{ mForeaching = false; }
+	public Dictionary<Key, Value>.Enumerator GetEnumerator() { return mMainList.GetEnumerator(); }
 	// 获取主列表,存储着当前实时的数据列表,所有的删除和新增都会立即更新此列表
 	// 如果确保在遍历过程中不会对列表进行修改,则可以使用MainList
 	// 如果可能会对列表进行修改,则应该使用startForeach
 	public Dictionary<Key, Value> getMainList()			{ return mMainList; }
+	public bool isEmpty()								{ return mMainList.isEmpty(); }
+	public void For(Action<KeyValuePair<Key, Value>> action)
+	{
+		if (mMainList.isEmpty())
+		{
+			return;
+		}
+		foreach (var item in mMainList)
+		{
+			action(item);
+		}
+	}
+	public void forKey(Action<Key> action)
+	{
+		if (mMainList.isEmpty())
+		{
+			return;
+		}
+		foreach (var item in mMainList)
+		{
+			action(item.Key);
+		}
+	}
+	public void forValue(Action<Value> action)
+	{
+		if (mMainList.isEmpty())
+		{
+			return;
+		}
+		foreach (var item in mMainList)
+		{
+			action(item.Value);
+		}
+	}
 	public bool tryGetValue(Key key, out Value value)	{ return mMainList.TryGetValue(key, out value); }
 	public Value get(Key key)							{ return mMainList.get(key); }
 	public bool containsKey(Key key)					{ return mMainList.ContainsKey(key); }
@@ -91,6 +120,21 @@ public class SafeDictionary<Key, Value> : ClassObject
 		mModifyList.Add(new(key, value));
 		return true;
 	}
+	public void addIf(Key key, Value value, bool condition)
+	{
+		if (condition)
+		{
+			add(key, value);
+		}
+	}
+	public bool removeIf(Key key, bool condition)
+	{
+		if (condition)
+		{
+			return remove(key);
+		}
+		return false;
+	}
 	public bool remove(Key key)
 	{
 		if (!mMainList.Remove(key))
@@ -105,9 +149,9 @@ public class SafeDictionary<Key, Value> : ClassObject
 	{
 		if (mForeaching)
 		{
-			foreach (Key item in mMainList.Keys)
+			foreach (var item in mMainList)
 			{
-				mModifyList.Add(new(item));
+				mModifyList.Add(new(item.Key));
 			}
 		}
 		else

@@ -102,7 +102,7 @@ public class GameReleaseWindow : GameEditorWindow
 			}
 			label("当前宏定义:");
 			string def = PlayerSettings.GetScriptingDefineSymbols(getNameBuildTarget());
-			foreach (string line in split(def, ";"))
+			foreach (string line in def.split(";"))
 			{
 				label(line);
 			}
@@ -117,6 +117,18 @@ public class GameReleaseWindow : GameEditorWindow
 		using (new GUILayout.VerticalScope())
 		{
 			space(30);
+			if (isAndroid())
+			{
+#if USE_GOOGLE_PLAY_ASSET_DELIVERY
+				toggle(ref mPlatform.mGooglePlay, "GooglePlay", "生成GooglePlay的aab文件");
+#else
+				mPlatform.mGooglePlay = false;
+#endif
+			}
+			else
+			{
+				mPlatform.mGooglePlay = false;
+			}
 			if (mPlatform.mTestClient && !isWebGL())
 			{
 				if (toggle(ref mPlatform.mEnableHotFix, "启用热更"))
@@ -338,7 +350,7 @@ public class GameReleaseWindow : GameEditorWindow
 	{
 		Debug.Log("create platform:" + getBuildTarget());
 		mPlatform = PlatformInfo.create();
-		mPlatform.mIgnoreFile = new() { VERSION, FILE_LIST, FILE_LIST_MD5, mPlatform.mName, mPlatform.mName + ".manifest" };
+		mPlatform.mIgnoreFile = new() { VERSION, FILE_LIST, mPlatform.mName, mPlatform.mName + ".manifest" };
 		mPlatform.mGameChannel = GAME_CHANNEL.NONE;
 		mPlatform.mTestClient = true;
 		mPlatform.mEnableHotFix = !isWebGL();

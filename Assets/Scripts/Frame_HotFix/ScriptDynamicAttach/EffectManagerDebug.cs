@@ -6,16 +6,15 @@ using static FrameBaseHotFix;
 public class EffectManagerDebug : MonoBehaviour
 {
 	public List<GameObject> EffectList = new(); // 特效列表
+	public int mEffectCount;
 	public void Update()
 	{
-		if (GameEntry.getInstance() == null || !GameEntry.getInstance().mFramworkParam.mEnableScriptDebug)
+		if (GameEntryBase.getInstance() == null || !GameEntryBase.getInstance().mFrameworkParam.mEnableScriptDebug)
 		{
 			return;
 		}
+		mEffectCount = mEffectManager.getEffectList().count();
 		EffectList.Clear();
-		foreach (GameEffect item in mEffectManager.getEffectList().getMainList())
-		{
-			EffectList.Add(item.getObject());
-		}
+		mEffectManager.getEffectList().For(item => EffectList.Add(item.getGameObject()));
 	}
 }

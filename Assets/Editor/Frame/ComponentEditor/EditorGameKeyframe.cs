@@ -27,7 +27,7 @@ public class EditorGameKeyframe : GameEditorBase
 		var keyframe = target as GameKeyframe;
 		foreach (CurveInfo item in keyframe.mCurveList.safe())
 		{
-			beginContents();
+			beginListContents();
 			if (GUILayout.Button("X", GUILayout.Width(20)))
 			{
 				deleteKeyList ??= new();
@@ -36,23 +36,34 @@ public class EditorGameKeyframe : GameEditorBase
 			else
 			{
 				GUI.changed = false;
-				EditorGUILayout.CurveField(item.mID.ToString(), item.mCurve, GUILayout.Width(170f), GUILayout.Height(62f));
+				string name = item.mName;
+				if (name.isEmpty())
+				{
+					name = item.mID.ToString();
+				}
+				using (new GUILayout.VerticalScope())
+				{
+					using (new GUILayout.HorizontalScope())
+					{
+						GUILayout.Label("ID:" + item.mID.ToString(), GUILayout.Width(80));
+						GUILayout.Label("Name:", GUILayout.Width(50));
+						item.mName = EditorGUILayout.TextField(item.mName);
+					}
+					item.mCurve = EditorGUILayout.CurveField(item.mCurve, GUILayout.Height(20));
+				}
 				// 如果曲线有改动,则标记整个预设有改动
 				if (GUI.changed)
 				{
 					EditorUtility.SetDirty(target);
 				}
 			}
-			endContents();
+			endListContents();
 		}
 		if (deleteKeyList == null)
 		{
 			return;
 		}
-		foreach (CurveInfo item in deleteKeyList)
-		{
-			keyframe.destroyKeyframe(item);
-		}
+		deleteKeyList.For(item => keyframe.destroyKeyframe(item));
 		EditorUtility.SetDirty(target);
 	}
 }

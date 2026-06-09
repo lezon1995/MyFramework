@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -19,31 +19,28 @@ public class SceneSystem : FrameSystem
 	public override void destroy()
 	{
 		base.destroy();
-		foreach (string item in mSceneList.Keys)
-		{
-			unloadSceneOnly(item);
-		}
+		mSceneList.forKey(item => unloadSceneOnly(item));
 		mSceneList.Clear();
 	}
 	public override void update(float elapsedTime)
 	{
 		base.update(elapsedTime);
-		foreach (SceneInstance item in mSceneList.Values)
+		foreach (var item in mSceneList)
 		{
-			if (item.getActive())
+			if (item.Value.getActive())
 			{
-				item.update(elapsedTime);
+				item.Value.update(elapsedTime);
 			}
 		}
 	}
 	public override void lateUpdate(float elapsedTime)
 	{
 		base.lateUpdate(elapsedTime);
-		foreach (SceneInstance item in mSceneList.Values)
+		foreach (var item in mSceneList)
 		{
-			if (item.getActive())
+			if (item.Value.getActive())
 			{
-				item.lateUpdate(elapsedTime);
+				item.Value.lateUpdate(elapsedTime);
 			}
 		}
 	}
@@ -143,7 +140,7 @@ public class SceneSystem : FrameSystem
 			// scenePath + sceneName表示场景文件AssetBundle的路径,包含文件名
 			mResourceManager.preloadAssetBundleAsync(getScenePath(sceneName) + sceneName, (AssetBundleInfo bundle) =>
 			{
-				GameEntry.startCoroutine(loadSceneCoroutine(scene, op));
+				GameEntryBase.startCoroutine(loadSceneCoroutine(scene, op));
 			});
 		}
 		return op;
@@ -162,8 +159,8 @@ public class SceneSystem : FrameSystem
 	// 卸载除了dontUnloadSceneName以外的其他场景,初始默认场景除外
 	public void unloadOtherScene(string dontUnloadSceneName, bool unloadPath = true)
 	{
-		using var a = new ListScope<string>(out var tempList, mSceneList.Keys);
-		foreach (string sceneName in tempList)
+		using var a = new ListScope<string>(out var tempList);
+		foreach (string sceneName in tempList.setRangeKeys(mSceneList))
 		{
 			if (sceneName != dontUnloadSceneName)
 			{
@@ -191,27 +188,27 @@ public class SceneSystem : FrameSystem
 				break;
 			}
 		}
-		// 首先获得场景
-		scene.setScene(SceneManager.GetSceneByName(scene.getName()));
-		// 获得了场景根节点才能使场景显示或隐藏,为了尽量避免此处查找节点错误,所以不能使用容易重名的名字
-		scene.setRoot(getRootGameObject(scene.getName() + "_Root", true));
-		// 加载完毕后就立即初始化
-		scene.init();
-		if (scene.isActiveLoaded())
-		{
-			showScene(scene.getName(), false, scene.isMainScene());
-		}
-		else
-		{
-			hideScene(scene.getName());
-		}
-		scene.setState(LOAD_STATE.LOADED);
 		try
 		{
+			// 首先获得场景
+			scene.setScene(SceneManager.GetSceneByName(scene.getName()));
+			// 获得了场景根节点才能使场景显示或隐藏,为了尽量避免此处查找节点错误,所以不能使用容易重名的名字
+			scene.setRoot(getRootGameObject(scene.getName() + "_Root", true));
+			// 加载完毕后就立即初始化
+			scene.init();
+			if (scene.isActiveLoaded())
+			{
+				showScene(scene.getName(), false, scene.isMainScene());
+			}
+			else
+			{
+				hideScene(scene.getName());
+			}
+			scene.setState(LOAD_STATE.LOADED);
 			scene.callLoading(1.0f);
 			scene.callLoaded();
 		}
-		catch (Exception e)
+		catch(Exception e)
 		{
 			logException(e);
 		}

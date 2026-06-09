@@ -13,16 +13,28 @@ public class NetStructItemInfo : NetStructBit
 		addParam(mItemID, false);
 		addParam(mItemCount, false);
 	}
-	protected override bool readInternal(ulong fieldFlag, SerializerBitRead reader)
+	protected override bool readInternal(ulong fieldFlag, SerializerBitRead reader, bool needReadSign)
 	{
 		bool success = true;
-		success = success && reader.read(out mItemID.mValue, out mItemCount.mValue);
+		success = success && reader.read(out mItemID.mValue, out mItemCount.mValue, needReadSign);
 		return success;
 	}
-	public override void write(SerializerBitWrite writer)
+	public override void write(SerializerBitWrite writer, bool needWriteSign)
 	{
-		base.write(writer);
-		writer.write(stackalloc int[2]{ mItemID, mItemCount });
+		base.write(writer, needWriteSign);
+		writer.write(stackalloc int[2]{ mItemID, mItemCount }, needWriteSign);
+	}
+	public override bool hasSign()
+	{
+		if (mItemID.mValue < 0)
+		{
+			return true;
+		}
+		if (mItemCount.mValue < 0)
+		{
+			return true;
+		}
+		return false;
 	}
 	public override void resetProperty()
 	{
@@ -32,7 +44,7 @@ public class NetStructItemInfo : NetStructBit
 	}
 }
 
-public class NetStructItemInfo_List : SerializableBit, IEnumerable<NetStructItemInfo>
+public class NetStructItemInfo_List : SerializableBit
 {
 	public List<NetStructItemInfo> mList = new();
 	public NetStructItemInfo this[int index]
@@ -41,19 +53,18 @@ public class NetStructItemInfo_List : SerializableBit, IEnumerable<NetStructItem
 		set { mList[index] = value; }
 	}
 	public int Count{ get { return mList.Count; } }
-	public override bool read(SerializerBitRead reader)
+	public override bool read(SerializerBitRead reader, bool needReadSign)
 	{
-		return reader.readCustomList(mList);
+		return reader.readCustomList(mList, needReadSign);
 	}
-	public override void write(SerializerBitWrite writer)
+	public override void write(SerializerBitWrite writer, bool needWriteSign)
 	{
-		writer.writeCustomList(mList);
+		writer.writeCustomList(mList, needWriteSign);
 	}
 	public override void resetProperty()
 	{
 		base.resetProperty();
 		UN_CLASS_LIST(mList);
 	}
-	public IEnumerator<NetStructItemInfo> GetEnumerator(){ return mList.GetEnumerator(); }
-	IEnumerator IEnumerable.GetEnumerator() { return mList.GetEnumerator(); }
+	public List<NetStructItemInfo>.Enumerator GetEnumerator(){ return mList.GetEnumerator(); }
 }

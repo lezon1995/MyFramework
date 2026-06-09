@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using static FrameBaseHotFix;
 using static MathUtility;
@@ -11,6 +12,7 @@ public class GameEffect : MovableObject
 	protected List<TrailRenderer> mTrailRenderers = new();      // 特效中包含的拖尾组件列表
 	protected List<Animator> mEffectAnimators = new();          // 特效中包含的动画组件列表
 	protected GameEffectCallback mEffectDestroyCallback;        // 特效销毁时的回调
+	protected DateTime mUnuseTime;								// 回收时的时间戳
 	protected string mFilePath;                                 // 特效文件的路径,用于在某些时候获取路径
 	protected float mLifeTimer = -1.0f;                         // 特效生存时间计时器
 	protected int mTag;											// 在PrefabPool中的tag
@@ -18,7 +20,7 @@ public class GameEffect : MovableObject
 	protected bool mExistedObject;                              // 为true表示特效节点是一个已存在的节点,false表示特效是实时加载的一个节点
 	protected bool mMoveToHide;                                 // 是否通过移动到远处来隐藏
 	protected bool mIsDead;                                     // 特效是否已经死亡
-	protected bool mIsTemp;                                     // 是否为临时特效,临时特效会将特效对象存放到池中,不会重置对象的属性,提高效率
+	protected bool mIsEffectPool;                               // 是否为特效池中的特效,不会重置对象的属性,提高效率
 	protected PLAY_STATE mPlayState = PLAY_STATE.STOP;          // 特效整体的播放状态
 	public override void setObject(GameObject obj)
 	{
@@ -38,10 +40,7 @@ public class GameEffect : MovableObject
 				main.cullingMode = ParticleSystemCullingMode.Pause;
 			}
 			// 关掉自动销毁
-			foreach (TrailRenderer trail in mTrailRenderers)
-			{
-				trail.autodestruct = false;
-			}
+			mTrailRenderers.For(trail => trail.autodestruct = false);
 		}
 	}
 	public override void destroy()
@@ -65,13 +64,13 @@ public class GameEffect : MovableObject
 		// 播放后忽略了时间缩放,则只有在停止时才能修改忽略时间缩放,中间修改是无效的
 		if (mIgnoreTimeScale && mPlayState == PLAY_STATE.PLAY)
 		{
-			float remainTime = Time.unscaledDeltaTime - Time.deltaTime;
+			float unscaledTime = mGameFrameworkHotFix.getUnscaledTime();
 			foreach (ParticleSystem item in mParticleSystems)
 			{
 				// 只模拟没有在预设中设置为忽略时间缩放的粒子系统,已经设置忽略时间缩放的会由粒子系统自己更新
 				if (!item.main.useUnscaledTime)
 				{
-					item.Simulate(remainTime, false, false);
+					item.Simulate(unscaledTime, false, false);
 				}
 			}
 		}
@@ -82,17 +81,19 @@ public class GameEffect : MovableObject
 	}
 	public bool isExistObject()					{ return mExistedObject; }
 	public bool isDead()						{ return mIsDead; }
-	public bool isTemp()						{ return mIsTemp; }
+	public bool isInEffectPool()				{ return mIsEffectPool; }
 	public bool isMoveToHide()					{ return mMoveToHide; }
 	public bool isValidEffect()					{ return mObject != null; }
 	public string getFilePath()					{ return mFilePath; }
 	public int getTag()							{ return mTag; }
 	public PLAY_STATE getPlayState()			{ return mPlayState; }
+	public DateTime getUnuseTime()				{ return mUnuseTime; }
+	public void setUnuseTime(DateTime time)		{ mUnuseTime = time; }
 	public void setExistObject(bool exist)		{ mExistedObject = exist; }
 	public void setLifeTime(float time)			{ mLifeTimer = time; }
 	public void setFilePath(string path)		{ mFilePath = path; }
 	public void setTag(int tag)					{ mTag = tag; }
-	public void setTemp(bool temp)				{ mIsTemp = temp; }
+	public void setInEffectPool(bool temp)		{ mIsEffectPool = temp; }
 	public void setDead(bool dead)				{ mIsDead = dead; }
 	public void setMoveToHide(bool moveToHide)	{ mMoveToHide = moveToHide; }
 	public void setEffectDestroyCallback(GameEffectCallback effect) { mEffectDestroyCallback = effect; }
@@ -105,7 +106,7 @@ public class GameEffect : MovableObject
 		{
 			return mObject != null;
 		}
-		bool effectValid = mPrefabPoolManager.isExistInPool(getObject());
+		bool effectValid = mPrefabPoolManager.isExistInPool(getGameObject());
 		// 如果特效物体不是空的,可能是销毁物体时引擎不是立即销毁的,需要手动设置为空
 		if (!effectValid && mObject != null)
 		{
@@ -113,17 +114,17 @@ public class GameEffect : MovableObject
 		}
 		return effectValid;
 	}
-	public override void setActive(bool active)
+	public override bool setActive(bool active)
 	{
 		if (active == mObject.activeSelf)
 		{
-			return;
+			return active;
 		}
 		if (!active)
 		{
 			stop();
 		}
-		base.setActive(active);
+		return base.setActive(active);
 	}
 	public override void setIgnoreTimeScale(bool ignore, bool componentOnly = false)
 	{
@@ -213,10 +214,7 @@ public class GameEffect : MovableObject
 	}
 	public void clearTrail()
 	{
-		foreach (TrailRenderer trail in mTrailRenderers)
-		{
-			trail.Clear();
-		}
+		mTrailRenderers.For(trail => trail.Clear());
 	}
 	public override void resetProperty()
 	{
@@ -225,6 +223,7 @@ public class GameEffect : MovableObject
 		mTrailRenderers.Clear();
 		mEffectAnimators.Clear();
 		mEffectDestroyCallback = null;
+		mUnuseTime = DateTime.MinValue;
 		mFilePath = null;
 		mLifeTimer = -1.0f;
 		mTag = 0;
@@ -232,7 +231,7 @@ public class GameEffect : MovableObject
 		mExistedObject = false;
 		mMoveToHide = false;
 		mIsDead = false;
-		mIsTemp = false;
+		mIsEffectPool = false;
 		mPlayState = PLAY_STATE.STOP;
 	}
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -29,8 +29,7 @@ public class FileUtility
 			return null;
 		}
 		// 默认为UTF8
-		encoding ??= Encoding.UTF8;
-		return encoding.GetBytes(str);
+		return (encoding ?? Encoding.UTF8).GetBytes(str);
 	}
 	public static string bytesToString(byte[] bytes, Encoding encoding = null)
 	{
@@ -43,8 +42,7 @@ public class FileUtility
 			return "";
 		}
 		// 默认为UTF8
-		encoding ??= Encoding.UTF8;
-		return removeLastZero(encoding.GetString(bytes));
+		return removeLastZero((encoding ?? Encoding.UTF8).GetString(bytes));
 	}
 	// 字节数组转换为字符串时,末尾可能会带有数字0,此时在字符串比较时会出现错误,所以需要移除字符串末尾的0
 	public static string removeLastZero(string str)
@@ -80,12 +78,12 @@ public class FileUtility
 			callback?.Invoke(null);
 			return;
 		}
-		GameEntry.startCoroutine(openFileAsyncInternal(fileName, errorIfNull, callback));
+		GameEntryBase.startCoroutine(openFileAsyncInternal(fileName, errorIfNull, callback));
 	}
 	// fileNameList为绝对路径
 	public static void openFileListAsync(List<string> fileNameList, bool errorIfNull, StringBytesCallback callback)
 	{
-		GameEntry.startCoroutine(openFileListAsyncInternal(fileNameList, errorIfNull, callback));
+		GameEntryBase.startCoroutine(openFileListAsyncInternal(fileNameList, errorIfNull, callback));
 	}
 	// fileNameList为绝对路径
 	public static IEnumerator openFileListAsyncInternal(List<string> fileNameList, bool errorIfNull, StringBytesCallback callback)
@@ -383,7 +381,7 @@ public class FileUtility
 			}
 			else
 			{
-				GameEntry.startCoroutine(generateMD5ListAsyncInternal(fileNameList, callback));
+				GameEntryBase.startCoroutine(generateMD5ListAsyncInternal(fileNameList, callback));
 			}
 		}
 	}
@@ -541,8 +539,9 @@ public class FileUtility
 		// 新增文件和已修改文件都认为是已修改文件
 		// 如果不在本地文件列表中,则是新增的文件,在本地文件中,但是大小或MD5不同,则是已修改的文件
 		// 遍历远端文件列表
-		foreach (GameFileInfo remoteInfo in remoteInfoList.Values)
+		foreach (var item in remoteInfoList)
 		{
+			GameFileInfo remoteInfo = item.Value;
 			// 动态下载目录中的文件不需要下载
 			bool isIgnoreFile = false;
 			if (ignorePathList != null)
@@ -622,8 +621,6 @@ public class FileUtility
 	public static void writeFileList(string path, string content)
 	{
 		writeTxtFile(path + FILE_LIST, content);
-		// 再生成此文件的MD5文件,用于客户端校验文件内容是否改变
-		writeTxtFile(path + FILE_LIST_MD5, generateFileMD5(stringToBytes(content), -1));
 	}
 	// 获得一个合适的文件加载路径,fileName是StreamingAssets下的相对路径,带后缀
 	public static string availableReadPath(string fileName)

@@ -8,7 +8,6 @@ using static FrameBaseHotFix;
 using static UnityUtility;
 
 // 自定义的下拉列表
-[CommonControl]
 public abstract class UGUIDropListBase : WindowObjectUGUI
 {
 	protected Action mSelectCallback;				// 选项切换时的回调
@@ -91,7 +90,7 @@ public abstract class UGUIDropListBase : WindowObjectUGUI
 		setSelect(getIndexOfItem(item));
 		showOptions(false);
 	}
-	public void showOptions(bool show)
+	public virtual void showOptions(bool show)
 	{
 		mOptions.setActive(show);
 		mMask.setActive(show);
@@ -110,10 +109,10 @@ public abstract class UGUIDropListBase : WindowObjectUGUI
 	protected void onClick()
 	{
 		Vector3 labelPivot = mLabel.getPositionNoPivot();
-		Vector3 labelHalfSize = mLabel.getWindowSize() * 0.5f;
+		Vector3 labelHalfSize = mLabel.getSize() * 0.5f;
 		float labelLeftInParent = labelPivot.x - labelHalfSize.x;
 		float labelBottomInParent = labelPivot.y - labelHalfSize.y;
-		Vector2 halfSize = mOptions.getWindowSize() * 0.5f;
+		Vector2 halfSize = mOptions.getSize() * 0.5f;
 		mOptions.setPosition(new(labelLeftInParent + halfSize.x, labelBottomInParent - halfSize.y));
 		showOptions(true);
 	}

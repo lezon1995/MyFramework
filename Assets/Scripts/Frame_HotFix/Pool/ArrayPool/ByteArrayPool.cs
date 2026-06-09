@@ -33,9 +33,9 @@ public class ByteArrayPool : FrameSystem
 		base.update(elapsedTime);
 		if (isEditor())
 		{
-			foreach (var itemList in mInusedList.Values)
+			foreach (var itemList in mInusedList)
 			{
-				foreach (byte[] itemArray in itemList)
+				foreach (byte[] itemArray in itemList.Value)
 				{
 					string stack = mObjectStack.get(itemArray);
 					if (stack.isEmpty())
@@ -54,10 +54,7 @@ public class ByteArrayPool : FrameSystem
 	}
 	public void clearUnused()
 	{
-		foreach (var item in mUnusedList.Values)
-		{
-			item.Clear();
-		}
+		mUnusedList.forValue(item => item.Clear());
 	}
 	public Dictionary<int, HashSet<byte[]>> getPersistentInusedList() { return mPersistentInuseList; }
 	public Dictionary<int, HashSet<byte[]>> getInusedList() { return mInusedList; }
@@ -94,7 +91,7 @@ public class ByteArrayPool : FrameSystem
 		if (isEditor())
 		{
 			addInuse(array, onlyOnce);
-			mObjectStack.Add(array, GameEntry.getInstance().mFramworkParam.mEnablePoolStackTrace ? getStackTrace() : EMPTY);
+			mObjectStack.Add(array, GameEntryBase.getInstance().mFrameworkParam.mEnablePoolStackTrace ? getStackTrace() : EMPTY);
 			if (isNew && mCreatedCount % 1000 == 0)
 			{
 				logNoLock("byte[" + size + "]" + "数量已经达到了" + mCreatedCount + "个");

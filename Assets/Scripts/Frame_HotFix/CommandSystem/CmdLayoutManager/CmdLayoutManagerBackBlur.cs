@@ -18,13 +18,14 @@ public class CmdLayoutManagerBackBlur
 		{
 			maxOrder = getMax(layout.getRenderOrder(), maxOrder);
 		}
-		foreach (GameLayout layout in mLayoutManager.getLayoutList().getMainList().Values)
+		foreach (var item in mLayoutManager.getLayoutList())
 		{
-			if(!layout.isVisible())
+			GameLayout layout = item.Value;
+			if (!layout.isVisible())
 			{
 				continue;
 			}
-			GameObject rootObj = layout.getRoot().getObject();
+			GameObject rootObj = layout.getRoot().getGameObject();
 			if (layout.getRenderOrder() < maxOrder)
 			{
 				setGameObjectLayer(rootObj, LAYER_INT_UI_BLUR);

@@ -1,8 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 // 自定义的对ushort[]的封装,可用于序列化
-public class BIT_USHORTS : SerializableBit, IEnumerable<ushort>
+public class BIT_USHORTS : SerializableBit
 {
 	public List<ushort> mValue = new();    // 值
 	public ushort this[int index]
@@ -16,11 +15,11 @@ public class BIT_USHORTS : SerializableBit, IEnumerable<ushort>
 		base.resetProperty();
 		mValue.Clear(); 
 	}
-	public override bool read(SerializerBitRead reader)
+	public override bool read(SerializerBitRead reader, bool needReadSign)
 	{
 		return reader.readList(mValue);
 	}
-	public override void write(SerializerBitWrite writer)
+	public override void write(SerializerBitWrite writer, bool needWriteSign)
 	{
 		writer.writeList(mValue);
 	}
@@ -36,6 +35,5 @@ public class BIT_USHORTS : SerializableBit, IEnumerable<ushort>
 	{
 		return value.mValue;
 	}
-	public IEnumerator<ushort> GetEnumerator() { return mValue.GetEnumerator(); }
-	IEnumerator IEnumerable.GetEnumerator() { return mValue.GetEnumerator(); }
+	public List<ushort>.Enumerator GetEnumerator() { return mValue.GetEnumerator(); }
 }

@@ -22,7 +22,6 @@ using static MathUtility;
 using static FrameDefine;
 using static EditorFileUtility;
 using static FrameUtility;
-using static BinaryUtility;
 using static UnityUtility;
 using static EditorCommonUtility;
 using static FrameBaseDefine;
@@ -98,9 +97,7 @@ public abstract class PlatformBase
 			{
 				string relativePath = file.removeStartString(mAssetBundleFullPath);
 				// 删除指定
-				if (relativePath != FILE_LIST &&
-					relativePath != FILE_LIST_MD5 &&
-					!arrayContains(containOnlyFileList, relativePath))
+				if (relativePath != FILE_LIST && !containOnlyFileList.contains(relativePath))
 				{
 					deleteFile(dest + relativePath);
 					newList.Remove(file);
@@ -195,14 +192,9 @@ public abstract class PlatformBase
 	}
 	public bool writeFileList(string path)
 	{
-		writeFileList(path, generateFileInfoList(path, false, mIgnoreFile, null, new() { ".unity3d.manifest", ".meta" }));
-		return true;
-	}
-	public static void writeFileList(string path, string content)
-	{
+		string content = generateFileList(path, mIgnoreFile);
 		writeTxtFile(path + FILE_LIST, content);
-		// 再生成此文件的MD5文件,用于客户端校验文件内容是否改变
-		writeTxtFile(path + FILE_LIST_MD5, generateFileMD5(stringToBytes(content), -1));
+		return true;
 	}
 	// 检查所有的热更dll,以及AOT的dll是否都存在
 	public bool checkAllDllExist()
@@ -229,16 +221,15 @@ public abstract class PlatformBase
 	}
 	public abstract string getDefaultPlatformDefine();
 	public virtual void generateFolderPreName() { mFolderPreName = ""; }
-	public static string generateFileInfoList(string assetBundlePath, bool upperOrLower, List<string> ignoreFiles = null, List<string> ignorePath = null, List<string> ignoreSuffix = null)
+	public static string generateFileList(string assetBundlePath, List<string> ignoreFiles = null)
 	{
 		string fileContent = EMPTY;
-		List<string> fileInfoList = findFileList(assetBundlePath, ignoreFiles, ignorePath, ignoreSuffix);
-		// 计算文件信息
+		List<string> fileInfoList = findFileList(assetBundlePath, ignoreFiles, null, new() { ".unity3d.manifest", ".meta" });
 		// 将所有文件信息写入文件
 		fileContent += IToS(fileInfoList.Count) + "\n";
 		foreach (string item in fileInfoList)
 		{
-			fileContent += item.removeStartString(assetBundlePath) + "\t" + IToS(getFileSize(item)) + "\t" + generateFileMD5(item, upperOrLower) + "\n";
+			fileContent += item.removeStartString(assetBundlePath) + "\t" + IToS(getFileSize(item)) + "\t" + generateFileMD5(item, false) + "\n";
 		}
 		return fileContent;
 	}
@@ -385,7 +376,7 @@ public abstract class PlatformBase
 	//------------------------------------------------------------------------------------------------------------------------------
 	protected void updateEditVersionNumber()
 	{
-		mVersionNumber = split(mRemoteVersion, ".");
+		mVersionNumber = mRemoteVersion.split('.');
 		// 需要确保版本号只有3个部分
 		if (mVersionNumber.count() != 3)
 		{
@@ -401,7 +392,7 @@ public abstract class PlatformBase
 	// 由应用层提供自己的密钥,不提供则不会进行加密,Key和IV长度必须为16个字节
 	protected virtual byte[] getAESKey() { return null; }
 	protected virtual byte[] getAESIV() { return null; }
-	protected BuildOptions generateBuildOption(bool isTest)
+	protected static BuildOptions generateBuildOption(bool isTest)
 	{
 		BuildOptions options = BuildOptions.None;
 		options |= BuildOptions.CompressWithLz4HC;
@@ -409,12 +400,14 @@ public abstract class PlatformBase
 		{
 			options |= BuildOptions.Development;
 			// 不再开启自动连接Profiler,因为这会使打出来的程序无法在其他电脑调试
-			//options |= BuildOptions.ConnectWithProfiler;
+			options |= BuildOptions.ConnectWithProfiler;
+			// 深度分析会导致卡顿严重,谨慎开启
 			options |= BuildOptions.EnableDeepProfilingSupport;
 		}
 		return options;
 	}
 	protected abstract List<string> getDynamicDownloadList();
+	// 根据自己项目的情况在这个函数中去配置打包时需要的宏定义,比如是否启用热更,是否为测试客户端等,因为这些宏定义会影响代码编译,所以需要在打包前就配置好
 	protected abstract void configureScriptingDefine();
 	protected virtual bool preBuild()
 	{
@@ -570,14 +563,7 @@ public abstract class PlatformBase
 	}
 	protected bool isDynamicDownloadAsset(string fullPath)
 	{
-		foreach (string notPackFile in getDynamicDownloadList())
-		{
-			if (fullPath.StartsWith(mAssetBundleFullPath + notPackFile.ToLower()))
-			{
-				return true;
-			}
-		}
-		return false;
+		return getDynamicDownloadList().contains(notPackFile => fullPath.startWith(mAssetBundleFullPath + notPackFile.ToLower()));
 	}
 	// 将本地文件夹的所有文件上传到linux服务器的指定目录中,返回值表示是否上传成功并且检测通过,remoteDeletePath是相对路径,removeCopyFullPath是绝对路径
 	protected bool uploadFileToLinuxServer(string localPath, string remoteDeletePath, string removeCopyFullPath, string userNameAndIP, string password)
@@ -621,15 +607,13 @@ public abstract class PlatformBase
 		string curDirectory = "";
 		foreach (string line in output)
 		{
-			string[] keys = split(line, ' ');
+			string[] keys = line.split(' ');
 			if (keys.Length >= 9)
 			{
 				if (keys[0][0] == '-')
 				{
 					var fileInfo = RemoteFileInfo.parse(keys);
-					if (fileInfo.mFileName == FILE_LIST ||
-						fileInfo.mFileName == FILE_LIST_MD5 ||
-						fileInfo.mFileName == VERSION)
+					if (fileInfo.mFileName == FILE_LIST || fileInfo.mFileName == VERSION)
 					{
 						continue;
 					}

@@ -11,7 +11,7 @@ public class DictionaryPoolDebug : MonoBehaviour
 	public List<string> UnuseList = new();              // 未使用的对象列表
 	public void Update()
 	{
-		if (GameEntry.getInstance() == null || !GameEntry.getInstance().mFramworkParam.mEnableScriptDebug)
+		if (GameEntryBase.getInstance() == null || !GameEntryBase.getInstance().mFrameworkParam.mEnableScriptDebug)
 		{
 			return;
 		}
@@ -24,19 +24,13 @@ public class DictionaryPoolDebug : MonoBehaviour
 		InuseList.Clear();
 		foreach (var item in mDictionaryPool.getInusedList())
 		{
-			if (item.Value.Count > 0)
-			{
-				InuseList.Add(item.Key + ":" + IToS(item.Value.Count));
-			}
+			InuseList.addIf(item.Key + ":" + IToS(item.Value.Count), item.Value.Count > 0);
 		}
 
 		UnuseList.Clear();
 		foreach (var item in mDictionaryPool.getUnusedList())
 		{
-			if (item.Value.Count > 0)
-			{
-				UnuseList.Add(item.Key + ":" + IToS(item.Value.Count));
-			}
+			UnuseList.addIf(item.Key + ":" + IToS(item.Value.Count), item.Value.Count > 0);
 		}
 	}
 }

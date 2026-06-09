@@ -55,7 +55,7 @@ public class SafeList<T> : ClassObject
 					}
 					else
 					{
-						if (isEditor() && !value.mValue.Equals(mUpdateList[value.mRemoveIndex]))
+						if (isEditor() && !equal(value.mValue, mUpdateList[value.mRemoveIndex]))
 						{
 							logError("同步列表数据错误");
 						}
@@ -78,6 +78,34 @@ public class SafeList<T> : ClassObject
 	}
 	public void endForeach()		{ mForeaching = false; }
 	public bool isForeaching()		{ return mForeaching; }
+	public bool addOrRemove(T value, bool isAdd)
+	{
+		if (isAdd)
+		{
+			add(value);
+		}
+		else
+		{
+			remove(value);
+		}
+		return isAdd;
+	}
+	public bool addIf(T value, bool condition)
+	{
+		if (condition)
+		{
+			add(value);
+		}
+		return condition;
+	}
+	public void For(Action<T> action)
+	{
+		foreach (T item in mMainList)
+		{
+			action(item);
+		}
+	}
+	public List<T>.Enumerator GetEnumerator() { return mMainList.GetEnumerator(); }
 	// 获取主列表,存储着当前实时的数据列表,所有的删除和新增都会立即更新此列表
 	// 如果确保在遍历过程中不会对列表进行修改,则可以使用MainList
 	// 如果可能会对列表进行修改,则应该使用startForeach
@@ -108,7 +136,7 @@ public class SafeList<T> : ClassObject
 		}
 		add(value);
 	}
-	public void addRange(IList<T> list)
+	public void addRange(List<T> list)
 	{
 		foreach (T item in list)
 		{
@@ -116,7 +144,20 @@ public class SafeList<T> : ClassObject
 			mModifyList.Add(new(item, true, -1));
 		}
 	}
-	public void setRange(IList<T> list)
+	public void addRange(HashSet<T> list)
+	{
+		foreach (T item in list)
+		{
+			mMainList.Add(item);
+			mModifyList.Add(new(item, true, -1));
+		}
+	}
+	public void setRange(List<T> list)
+	{
+		clear();
+		addRange(list);
+	}
+	public void setRange(HashSet<T> list)
 	{
 		clear();
 		addRange(list);
@@ -132,15 +173,15 @@ public class SafeList<T> : ClassObject
 		mModifyList.Add(new(value, false, index));
 		return true;
 	}
-	public void removeAt(int index)
+	public T removeAt(int index)
 	{
 		if (index < 0 || index >= mMainList.Count)
 		{
-			return;
+			return default;
 		}
-
-		var value = mMainList.removeAt(index);
+		T value = mMainList.removeAt(index);
 		mModifyList.Add(new(value, false, index));
+		return value;
 	}
 	// 清空所有数据
 	public void clear()

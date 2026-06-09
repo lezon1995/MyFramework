@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,23 +8,23 @@ using static FrameUtility;
 using static FileUtility;
 using static FrameBaseHotFix;
 using static StringUtility;
-using static BinaryUtility;
 using static FrameDefine;
 using static FrameBaseDefine;
 using static FrameBaseUtility;
+using static ResourceUtility;
 
 // 从AssetBundle中加载资源
 public class AssetBundleLoader
 {
-	protected Dictionary<UObject, AssetBundleInfo> mAssetToAssetBundleInfo = new();	// 根据加载的Asset查找所属AssetBundle的列表
-	protected Dictionary<string, AssetBundleInfo> mAssetBundleInfoList = new();		// 根据名字查找AssetBundle的列表,此名字不含后缀
-	protected Dictionary<string, AssetInfo> mAssetToBundleInfo = new();				// 根据资源文件名查找Asset信息的列表,初始化时就会填充此列表
-	protected HashSet<Coroutine> mCoroutineList = new();							// 当前的协程列表
-	protected HashSet<string> mDontUnloadAssetBundle = new();						// 即使没有引用也不会调用卸载的AssetBundle
+	protected Dictionary<UObject, AssetBundleInfo> mAssetToAssetBundleInfo = new(); // 根据加载的Asset查找所属AssetBundle的列表
+	protected Dictionary<string, AssetBundleInfo> mAssetBundleInfoList = new();     // 根据名字查找AssetBundle的列表,此名字不含后缀
+	protected Dictionary<string, AssetInfo> mAssetToBundleInfo = new();             // 根据资源文件名查找Asset信息的列表,初始化时就会填充此列表
+	protected HashSet<Coroutine> mCoroutineList = new();                            // 当前的协程列表
+	protected HashSet<string> mDontUnloadAssetBundle = new();                       // 即使没有引用也不会调用卸载的AssetBundle
 	protected WaitForEndOfFrame mWaitForEndOfFrame = new();                         // 用于避免GC
-	protected string mDownloadURL;													// 资源包下载的地址
-	protected bool mAutoLoad = true;												// 当资源可用时是否自动初始化AssetBundle
-	protected bool mInited;															// AssetBundleLoader是否已经初始化
+	protected string mDownloadURL;                                                  // 资源包下载的地址
+	protected bool mAutoLoad = true;                                                // 当资源可用时是否自动初始化AssetBundle
+	protected bool mInited;                                                         // AssetBundleLoader是否已经初始化
 	public void initAssets(Action callback)
 	{
 		if (!mAutoLoad)
@@ -36,14 +36,14 @@ public class AssetBundleLoader
 		// 卸载所有已加载的AssetBundle
 		unloadAll();
 		// 加载AssetBundle的配置文件
-		GameEntry.startCoroutine(loadStreamingAssetsConfig(callback));
+		GameEntryBase.startCoroutine(loadStreamingAssetsConfig(callback));
 	}
 	protected IEnumerator loadStreamingAssetsConfig(Action callback)
 	{
 		string filePath = availableReadPath(STREAMING_ASSET_FILE);
 		if (filePath.isEmpty())
 		{
-			yield return ResourceManager.loadAssetsFromUrlWaiting(mDownloadURL + STREAMING_ASSET_FILE, (byte[] bytes) =>
+			yield return loadAssetsFromUrlWaiting(mDownloadURL + STREAMING_ASSET_FILE, (byte[] bytes) =>
 			{
 				// webgl没法写到本地
 				if (bytes != null && !isWebGL())
@@ -60,7 +60,7 @@ public class AssetBundleLoader
 					// 更新本地的文件列表
 					writeFileList(F_PERSISTENT_ASSETS_PATH, mAssetVersionSystem.generatePersistentAssetFileList());
 				}
-				
+
 				initAssetConfig(bytes, mDownloadURL + STREAMING_ASSET_FILE);
 				callback?.Invoke();
 			}, null);
@@ -83,9 +83,12 @@ public class AssetBundleLoader
 		}
 
 		// 更新检查所有资源包是否需要卸载
-		foreach (AssetBundleInfo bundle in mAssetBundleInfoList.Values)
+		foreach (var bundle in mAssetBundleInfoList)
 		{
-			bundle.update(elapsedTime);
+			if (bundle.Value.getAssetBundle() != null)
+			{
+				bundle.Value.update(elapsedTime);
+			}
 		}
 	}
 	public void destroy()
@@ -102,17 +105,16 @@ public class AssetBundleLoader
 	{
 		foreach (Coroutine item in mCoroutineList)
 		{
-			GameEntry.getInstance().StopCoroutine(item);
+			GameEntryBase.getInstance().StopCoroutine(item);
 		}
 		mCoroutineList.Clear();
 		mAssetToAssetBundleInfo.Clear();
-		foreach (AssetBundleInfo item in mAssetBundleInfoList.Values)
+		foreach (var item in mAssetBundleInfoList)
 		{
-			item.unload();
+			item.Value.unload();
 		}
 	}
-	// 这里的泛型T是为了外部能传任意的类型的引用进来,而不是只能传ref UObject
-	public bool unloadAsset<T>(ref T asset, bool showError) where T : UObject
+	public bool unloadAsset(UObject asset, bool showError)
 	{
 		if (asset == null)
 		{
@@ -131,7 +133,6 @@ public class AssetBundleLoader
 		{
 			return false;
 		}
-		asset = null;
 		return true;
 	}
 	public bool isInited() { return mInited; }
@@ -146,9 +147,9 @@ public class AssetBundleLoader
 		{
 			return;
 		}
-		foreach (AssetInfo item in info.getAssetList().Values)
+		foreach (var item in info.getAssetList())
 		{
-			mAssetToAssetBundleInfo.Remove(item.getAsset());
+			mAssetToAssetBundleInfo.Remove(item.Value.getAsset());
 		}
 		info.unload();
 	}
@@ -182,9 +183,9 @@ public class AssetBundleLoader
 			{
 				continue;
 			}
-			foreach (string asset in item.Value.getAssetList().Keys)
+			foreach (var asset in item.Value.getAssetList())
 			{
-				list.Add(removeSuffix(asset));
+				list.Add(removeSuffix(asset.Key));
 			}
 		}
 	}
@@ -272,9 +273,9 @@ public class AssetBundleLoader
 				{
 					return;
 				}
-				foreach (AssetInfo item in bundleInfo.getAssetList().Values)
+				foreach (var item in bundleInfo.getAssetList())
 				{
-					assetList.addIf(item.getAsset(), item.isLoaded());
+					assetList.addIf(item.Value.getAsset(), item.Value.isLoaded());
 				}
 				return;
 			}
@@ -306,7 +307,7 @@ public class AssetBundleLoader
 		return mAssetToBundleInfo.get(fileNameLower)?.getAssetBundle().loadAsset<T>(fileNameLower);
 	}
 	// 异步加载资源,文件名称带后缀,GameResources下的相对路径
-	public CustomAsyncOperation loadAssetAsync<T>(string fileName, bool errorIfNull, AssetLoadDoneCallback doneCallback) where T : UObject
+	public CustomAsyncOperation loadAssetAsync<T>(string fileName, bool errorIfNull, AssetLoadCallback doneCallback) where T : UObject
 	{
 		if (!mInited)
 		{
@@ -334,7 +335,7 @@ public class AssetBundleLoader
 			logError("AssetBundleLoader is not inited!");
 			return;
 		}
-		mCoroutineList.Add(GameEntry.startCoroutine(loadAssetBundleCoroutine(bundleInfo)));
+		mCoroutineList.Add(GameEntryBase.startCoroutine(loadAssetBundleCoroutine(bundleInfo)));
 	}
 	public void requestLoadAsset(AssetBundleInfo bundleInfo, string fileNameWithSuffix)
 	{
@@ -343,7 +344,7 @@ public class AssetBundleLoader
 			logError("AssetBundleLoader is not inited!");
 			return;
 		}
-		mCoroutineList.Add(GameEntry.startCoroutine(loadAssetCoroutine(bundleInfo, fileNameWithSuffix)));
+		mCoroutineList.Add(GameEntryBase.startCoroutine(loadAssetCoroutine(bundleInfo, fileNameWithSuffix)));
 	}
 	public void notifyAssetLoaded(UObject asset, AssetBundleInfo bundle)
 	{
@@ -368,7 +369,7 @@ public class AssetBundleLoader
 			logError("can not find resource : " + fileName + ",请确认文件存在,且带后缀名,且不能使用反斜杠\\," + (fileName.Contains(' ') || fileName.Contains('　') ? "注意此文件名中带有空格" : ""));
 			return;
 		}
-		mCoroutineList.Add(GameEntry.startCoroutine(downloadAssetBundleCoroutine(asset.getAssetBundle(), callback)));
+		mCoroutineList.Add(GameEntryBase.startCoroutine(downloadAssetBundleCoroutine(asset.getAssetBundle(), callback)));
 	}
 	//------------------------------------------------------------------------------------------------------------------------------
 	// 下载资源包的协程
@@ -385,7 +386,7 @@ public class AssetBundleLoader
 		if (bundleInfo.getLoadState() == LOAD_STATE.DOWNLOADING)
 		{
 			CustomAsyncOperation op = new();
-			bundleInfo.addDownloadCallback((AssetBundleInfo info, byte[] bytes)=>
+			bundleInfo.addDownloadCallback((AssetBundleInfo info, byte[] bytes) =>
 			{
 				op.setFinish();
 				callback?.Invoke(bytes);
@@ -397,7 +398,7 @@ public class AssetBundleLoader
 		{
 			bundleInfo.setLoadState(LOAD_STATE.DOWNLOADING);
 			string bundleFileName = bundleInfo.getBundleFileName();
-			yield return ResourceManager.loadAssetsFromUrlWaiting(mDownloadURL + bundleFileName, (byte[] bytes) =>
+			yield return loadAssetsFromUrlWaiting(mDownloadURL + bundleFileName, (byte[] bytes) =>
 			{
 				// webgl没法写到本地
 				if (bytes != null && !isWebGL())
@@ -427,7 +428,7 @@ public class AssetBundleLoader
 		{
 			log(bundleInfo.getBundleFileName() + " start load bundle");
 		}
-		while(!bundleInfo.isAllParentLoaded())
+		while (!bundleInfo.isAllParentLoaded())
 		{
 			yield return null;
 		}
@@ -438,7 +439,7 @@ public class AssetBundleLoader
 		if (fullPath == null)
 		{
 			byte[] assetBundleBytes = null;
-			yield return downloadAssetBundleCoroutine(bundleInfo, (byte[] bytes)=> { assetBundleBytes = bytes; });
+			yield return downloadAssetBundleCoroutine(bundleInfo, (byte[] bytes) => { assetBundleBytes = bytes; });
 			bundleInfo.setLoadState(LOAD_STATE.LOADING);
 			AssetBundleCreateRequest request = AssetBundle.LoadFromMemoryAsync(assetBundleBytes);
 			if (request != null)
@@ -452,7 +453,7 @@ public class AssetBundleLoader
 			bundleInfo.setLoadState(LOAD_STATE.LOADING);
 			if (isWebGL())
 			{
-				yield return ResourceManager.loadAssetsFromUrlWaiting(fullPath, (AssetBundle asset) => { assetBundle = asset; });
+				yield return loadAssetsFromUrlWaiting(fullPath, (AssetBundle asset) => { assetBundle = asset; });
 			}
 			else
 			{
@@ -533,7 +534,7 @@ public class AssetBundleLoader
 		{
 			// AssetBundle名字
 			serializer.readString(tempStringBuffer, tempStringBuffer.Length);
-			string bundleName = removeSuffix(bytesToString(tempStringBuffer));
+			string bundleName = removeSuffix(tempStringBuffer.bytesToString());
 			if (!mAssetBundleInfoList.TryGetValue(bundleName, out AssetBundleInfo bundleInfo))
 			{
 				bundleInfo = mAssetBundleInfoList.add(bundleName, new(bundleName));
@@ -543,7 +544,7 @@ public class AssetBundleLoader
 			for (int k = 0; k < assetCount; ++k)
 			{
 				serializer.readString(tempStringBuffer, tempStringBuffer.Length);
-				string assetName = bytesToString(tempStringBuffer);
+				string assetName = tempStringBuffer.bytesToString();
 				bundleInfo.addAssetName(assetName);
 				mAssetToBundleInfo.Add(assetName, bundleInfo.getAssetInfo(assetName));
 			}
@@ -552,14 +553,11 @@ public class AssetBundleLoader
 			for (int j = 0; j < depCount; ++j)
 			{
 				serializer.readString(tempStringBuffer, tempStringBuffer.Length);
-				bundleInfo.addParent(removeSuffix(bytesToString(tempStringBuffer)));
+				bundleInfo.addParent(removeSuffix(tempStringBuffer.bytesToString()));
 			}
 		}
 		// 配置清单解析完毕后,为每个AssetBundleInfo查找对应的依赖项
-		foreach (AssetBundleInfo info in mAssetBundleInfoList.Values)
-		{
-			info.findAllDependence();
-		}
+		mAssetBundleInfoList.forValue(item => item.findAllDependence());
 		mInited = true;
 		log("AssetBundle初始化完成, AssetBundle count : " + mAssetBundleInfoList.Count);
 	}

@@ -1,0 +1,295 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using static BinaryUtility;
+using static FrameUtility;
+
+public class EmptyArray<T>
+{
+	public static T[] mList;
+	public static T[] getEmptyList()
+	{
+		mList ??= new T[0];
+		return mList;
+	}
+}
+
+public static class ArrayExtension
+{
+	public static void setAllDefault<T>(this T[] list)
+	{
+		if (list.isEmpty())
+		{
+			return;
+		}
+		for (int i = 0; i < list.Length; ++i)
+		{
+			list[i] = default;
+		}
+	}
+	public static void setAllValue<T>(this T[] list, T value)
+	{
+		if (list.isEmpty())
+		{
+			return;
+		}
+		for (int i = 0; i < list.Length; ++i)
+		{
+			list[i] = value;
+		}
+	}
+	public static T[] setRange<T>(this T[] list, List<T> other)
+	{
+		if (other.isEmpty())
+		{
+			return list;
+		}
+		int index = 0;
+		foreach (T item in other)
+		{
+			list[index++] = item;
+		}
+		return list;
+	}
+	public static T[] setRange<T>(this T[] list, Span<T> other)
+	{
+		if (other.isEmpty())
+		{
+			return list;
+		}
+		for (int i = 0; i < other.Length; ++i)
+		{
+			list[i] = other[i];
+		}
+		return list;
+	}
+	public static void ForI<T>(this T[] list, Action<int> action)
+	{
+		if (list.isEmpty())
+		{
+			return;
+		}
+		for (int i = 0; i < list.Length; ++i)
+		{
+			action(i);
+		}
+	}
+	public static void For<T>(this T[] list, Action<T> action)
+	{
+		if (list.isEmpty())
+		{
+			return;
+		}
+		foreach (T item in list)
+		{
+			action(item);
+		}
+	}
+	public static bool find<T>(this T[] list, T value, out int index)
+	{
+		if (list.isEmpty())
+		{
+			index = -1;
+			return false;
+		}
+		for (int i = 0; i < list.Length; ++i)
+		{
+			if (equal(list[i], value))
+			{
+				index = i;
+				return true;
+			}
+		}
+		index = -1;
+		return false;
+	}
+	public static int find<T>(this T[] list, T value)
+	{
+		if (list.isEmpty())
+		{
+			return -1;
+		}
+		for (int i = 0; i < list.Length; ++i)
+		{
+			if (equal(list[i], value))
+			{
+				return i;
+			}
+		}
+		return -1;
+	}
+	public static T find<T>(this T[] list, Predicate<T> match)
+	{
+		if (list.isEmpty() || match == null)
+		{
+			return default;
+		}
+		foreach (T item in list)
+		{
+			if (match(item))
+			{
+				return item;
+			}
+		}
+		return default;
+	}
+	public static bool find<T>(this T[] list, Predicate<T> match, out T value)
+	{
+		if (list.isEmpty() || match == null)
+		{
+			value = default;
+			return false;
+		}
+		foreach (T item in list)
+		{
+			if (match(item))
+			{
+				value = item;
+				return true;
+			}
+		}
+		value = default;
+		return false;
+	}
+	public static bool find<T>(this T[] list, Predicate<T> match, out int index)
+	{
+		if (list.isEmpty() || match == null)
+		{
+			index = -1;
+			return false;
+		}
+		for (int i = 0; i < list.Length; ++i)
+		{
+			if (match(list[i]))
+			{
+				index = i;
+				return true;
+			}
+		}
+		index = -1;
+		return false;
+	}
+	public static int count<T>(this T[] list, Predicate<T> condition)
+	{
+		if (list.isEmpty() || condition == null)
+		{
+			return 0;
+		}
+		int curCount = 0;
+		foreach (T item in list)
+		{
+			if (condition.Invoke(item))
+			{
+				++curCount;
+			}
+		}
+		return curCount;
+	}
+	public static T get<T>(this T[] list, int index) 
+	{
+		if (list.isEmpty() || index < 0 || index >= list.Length)
+		{
+			return default;
+		}
+		return list[index];
+	}
+	public static void set<T>(this T[] list, int index, T value)
+	{
+		if (list.isEmpty() || index < 0 || index >= list.Length)
+		{
+			return;
+		}
+		list[index] = value;
+	}
+	public static int count<T>(this T[] list)										{ return list?.Length ?? 0; }
+	public static bool isEmpty<T>(this T[] list)									{ return list == null || list.Length == 0; }
+	public static bool contains<T>(this T[] list, T value)							
+	{
+		if (list.isEmpty())
+		{
+			return false;
+		}
+		int length = list.Length;
+		for (int i = 0; i < length; ++i)
+		{
+			if (equal(list[i], value))
+			{
+				return true;
+			}
+		}
+		return false; 
+	}
+	public static bool contains<T>(this T[] list, Predicate<T> match)				{ return list != null && list.find(match) != null; }
+	public static T[] safe<T>(this T[] original)									{ return original ?? EmptyArray<T>.getEmptyList(); }
+	public static T first<T>(this T[] list)
+	{
+		if (list.isEmpty())
+		{
+			return default;
+		}
+		return list[0];
+	}
+	public static void inverse<T>(this T[] list)
+	{
+		if (list.count() <= 1)
+		{
+			return;
+		}
+		int count = list.Length;
+		for (int i = 0; i < count >> 1; ++i)
+		{
+			(list[i], list[count - 1 - i]) = (list[count - 1 - i], list[i]);
+		}
+	}
+	public static string bytesToString(this byte[] bytes, Encoding encoding = null)
+	{
+		if (bytes.isEmpty())
+		{
+			return string.Empty;
+		}
+		// 默认为UTF8
+		return removeLastZero((encoding ?? Encoding.UTF8).GetString(bytes));
+	}
+	public static string bytesToString(this byte[] bytes, int count)
+	{
+		return bytes.bytesToString(0, count, null);
+	}
+	public static string bytesToString(this byte[] bytes, int startIndex, int count, Encoding encoding = null)
+	{
+		if (bytes == null || count < 0)
+		{
+			return null;
+		}
+		if (bytes.Length == 0 || count == 0 || startIndex + count > bytes.Length)
+		{
+			return string.Empty;
+		}
+		// 默认为UTF8
+		return removeLastZero((encoding ?? Encoding.UTF8).GetString(bytes, startIndex, count));
+	}
+	// 移除数组中的第index个元素,validElementCount是数组中有效的元素个数
+	public static void removeIndex<T>(this T[] array, int validElementCount, int index)
+	{
+		if (index < 0 || index >= validElementCount)
+		{
+			return;
+		}
+		int moveCount = validElementCount - index - 1;
+		for (int i = 0; i < moveCount; ++i)
+		{
+			array[index + i] = array[index + i + 1];
+		}
+	}
+	// 移除数组中的所有value
+	public static int removeValue<T>(this T[] array, int validElementCount, T value)
+	{
+		for (int i = 0; i < validElementCount; ++i)
+		{
+			if (equal(array[i], value))
+			{
+				removeIndex(array, validElementCount--, i--);
+			}
+		}
+		return validElementCount;
+	}
+}

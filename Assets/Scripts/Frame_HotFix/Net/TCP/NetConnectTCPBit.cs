@@ -10,8 +10,8 @@ using static FrameDefine;
 public class NetConnectTCPBit : NetConnectTCP
 {
 	protected SerializerBitWrite mBitWriter = new();	// 用于序列化
-	protected int mLastReceiveSequenceNumber;			// 上一次接收到的序列号
-	protected int mSendSequenceNumber;					// 当前序列号
+	protected uint mLastReceiveSequenceNumber;			// 上一次接收到的序列号
+	protected uint mSendSequenceNumber;					// 当前序列号
 	public override void resetProperty()
 	{
 		base.resetProperty();
@@ -50,7 +50,7 @@ public class NetConnectTCPBit : NetConnectTCP
 		// 包类型的高2位表示了当前包体是用几个字节存储的
 		ushort packetType = netPacket.getPacketType();
 		mBitWriter.clear();
-		netPacket.write(mBitWriter, out ulong fieldFlag);
+		netPacket.write(mBitWriter, netPacket.hasSign(), out ulong fieldFlag);
 		int realPacketSize = mBitWriter.getByteCount();
 		byte[] packetBodyData = mBitWriter.getBuffer();
 		if (realPacketSize < 0)
@@ -68,10 +68,11 @@ public class NetConnectTCPBit : NetConnectTCP
 
 		// 将消息包中的数据准备好,然后放入发送列表中
 		using var a = new ClassScope<SerializerBitWrite>(out var writer);
-		writer.write(realPacketSize);
+		writer.write((uint)realPacketSize);
 		writer.write(generateCRC16(realPacketSize));
 		writer.write(packetType);
 		writer.write(mSendSequenceNumber);
+		writer.write(netPacket.hasSign());
 		// 写入一位用于获取是否需要使用标记位
 		writer.write(fieldFlag != FULL_FIELD_FLAG);
 		if (fieldFlag != FULL_FIELD_FLAG)
@@ -93,11 +94,10 @@ public class NetConnectTCPBit : NetConnectTCP
 	}
 	//------------------------------------------------------------------------------------------------------------------------------
 	// 解析包体数据
-	protected override NetPacket parsePacket(ushort packetType, byte[] buffer, int size, int sequence, ulong fieldFlag)
+	protected override NetPacket parsePacket(ushort packetType, byte[] buffer, int size, uint sequence, ulong fieldFlag, bool hasSign)
 	{
 		// 创建对应的消息包,并设置数据,然后放入列表中等待解析
-		var packetReply = mNetPacketFactory.createSocketPacket(packetType) as NetPacketBit;
-		if (packetReply == null)
+		if (mNetPacketFactory.createSocketPacket(packetType) is not NetPacketBit packetReply)
 		{
 			return null;
 		}
@@ -111,7 +111,7 @@ public class NetConnectTCPBit : NetConnectTCP
 		mDecryptPacket?.Invoke(buffer, 0, size, (byte)(packetType + size + (sequence ^ 123 ^ packetType)));
 		using var a = new ClassScope<SerializerBitRead>(out var reader);
 		reader.init(buffer, size);
-		if (!packetReply.read(reader, fieldFlag))
+		if (!packetReply.read(reader, hasSign, fieldFlag))
 		{
 			logError("解析失败:" + packetReply.getPacketType());
 		}
@@ -125,7 +125,7 @@ public class NetConnectTCPBit : NetConnectTCP
 		return packetReply;
 	}
 	protected override PARSE_RESULT preParsePacket(byte[] buffer, int size, out int bitIndex, out byte[] outPacket, out ushort packetType, 
-													out int packetSize, out int sequence, out ulong fieldFlag)
+													out int packetSize, out uint sequence, out ulong fieldFlag, out bool hasSign)
 	{
 		bitIndex = 0;
 		outPacket = null;
@@ -133,6 +133,7 @@ public class NetConnectTCPBit : NetConnectTCP
 		packetSize = 0;
 		sequence = 0;
 		fieldFlag = FULL_FIELD_FLAG;
+		hasSign = false;
 		// 可能还没有接收完全,等待下次接收
 		if (size == 0)
 		{
@@ -141,10 +142,11 @@ public class NetConnectTCPBit : NetConnectTCP
 
 		using var a = new ClassThreadScope<SerializerBitRead>(out var reader);
 		reader.init(buffer, size, bitIndex);
-		if (!reader.read(out packetSize))
+		if (!reader.read(out uint tempPacketSize))
 		{
 			return PARSE_RESULT.NOT_ENOUGH;
 		}
+		packetSize = (int)tempPacketSize;
 		if (!reader.read(out ushort packetSizeCRC))
 		{
 			return PARSE_RESULT.NOT_ENOUGH;
@@ -159,6 +161,10 @@ public class NetConnectTCPBit : NetConnectTCP
 			return PARSE_RESULT.NOT_ENOUGH;
 		}
 		if (!reader.read(out sequence))
+		{
+			return PARSE_RESULT.NOT_ENOUGH;
+		}
+		if (!reader.read(out hasSign))
 		{
 			return PARSE_RESULT.NOT_ENOUGH;
 		}
@@ -190,7 +196,7 @@ public class NetConnectTCPBit : NetConnectTCP
 		}
 
 		// 确认此消息的数据接收完全以后再验证序列号
-		if (sequence != mLastReceiveSequenceNumber + 1 && mLastReceiveSequenceNumber != 0x7FFFFFFF)
+		if (sequence != mLastReceiveSequenceNumber + 1 && mLastReceiveSequenceNumber != 0xFFFFFFFF)
 		{
 			// 不通知服务器接收到非法消息,因为可能会有误报
 			// return PARSE_RESULT.ERROR;

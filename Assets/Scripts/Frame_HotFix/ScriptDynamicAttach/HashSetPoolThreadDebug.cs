@@ -10,7 +10,7 @@ public class HashSetPoolThreadDebug : MonoBehaviour
 	public List<string> UnuseList = new();		// 未使用列表
 	public void Update()
 	{
-		if (GameEntry.getInstance() == null || !GameEntry.getInstance().mFramworkParam.mEnableScriptDebug)
+		if (GameEntryBase.getInstance() == null || !GameEntryBase.getInstance().mFrameworkParam.mEnableScriptDebug)
 		{
 			return;
 		}
@@ -20,20 +20,12 @@ public class HashSetPoolThreadDebug : MonoBehaviour
 		{
 			foreach (var item in mHashSetPoolThread.getInusedList())
 			{
-				if (item.Value.Count == 0)
-				{
-					continue;
-				}
-				InuseList.Add(item.Key + ", 数量:" + IToS(item.Value.Count));
+				InuseList.addIf(item.Key + ", 数量:" + IToS(item.Value.Count), item.Value.Count != 0);
 			}
 
 			foreach (var item in mHashSetPoolThread.getUnusedList())
 			{
-				if (item.Value.Count == 0)
-				{
-					continue;
-				}
-				UnuseList.Add(item.Key + ", 数量:" + IToS(item.Value.Count));
+				UnuseList.addIf(item.Key + ", 数量:" + IToS(item.Value.Count), item.Value.Count != 0);
 			}
 		}
 	}

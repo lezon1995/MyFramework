@@ -1,12 +1,10 @@
 ﻿using System;
 using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
 using static UnityUtility;
 using static FrameBaseHotFix;
 using static FileUtility;
 using static FrameUtility;
-using static BinaryUtility;
 using static StringUtility;
 using static FrameDefine;
 using static FrameBaseUtility;
@@ -15,7 +13,7 @@ using static FrameBaseUtility;
 public class ExcelTable
 {
 	private Dictionary<int, ExcelData> mDataMap = new();    // 按数据ID进行索引的数据列表
-	protected TextAsset mTableFileData;						// 未解析的表格文件数据
+	protected ResourceRef<TextAsset> mTableFileData;		// 未解析的表格文件数据
 	protected byte[] mTableFileBytes;						// 为了支持非运行时也能够加载表格,所以可以传一个byte[],mTableFileBytes和mTableFileData只需要有一个有效就行
 	protected Type mDataType;								// 数据类型
 	protected string mTableName;							// 表格名字
@@ -40,7 +38,7 @@ public class ExcelTable
 			return;
 		}
 		string fileName = R_EXCEL_PATH + mTableName + ".bytes";
-		mResourceManager.loadGameResourceAsync(fileName, (TextAsset asset) =>
+		mResourceManager.loadGameResourceAsync<TextAsset>(fileName, (asset) =>
 		{
 			if (asset == null)
 			{
@@ -59,7 +57,7 @@ public class ExcelTable
 		{
 			clearCache();
 			clear();
-			parseFileReload(mTableFileBytes ?? mTableFileData.bytes);
+			parseFileReload(mTableFileBytes ?? mTableFileData?.getResource().bytes);
 			mResourceManager?.unload(ref mTableFileData);
 		}
 	}
@@ -101,10 +99,7 @@ public class ExcelTable
 	{
 		foreach (T value in valueList)
 		{
-			if (!isEnumValid(value))
-			{
-				logError("enum value error,name:" + varName + " in " + mTableName + ", ID:" + IToS(dataID) + ", Table:" + getTableName());
-			}
+			checkEnum(value, varName, dataID);
 		}
 	}
 	public void checkData(int id, int refDataID, string tableName)
@@ -122,10 +117,7 @@ public class ExcelTable
 	{
 		foreach (int id in ids)
 		{
-			if (getData(id, false) == null)
-			{
-				logError(mTableName + "中ID不存在:" + id + ", 引用此数据的表格:" + tableName + ", ID:" + refDataID);
-			}
+			checkData(id, refDataID, tableName);
 		}
 	}
 	public void checkData(List<int> ids, int refDataID, ExcelTable table)
@@ -136,17 +128,14 @@ public class ExcelTable
 	{
 		foreach (int id in ids)
 		{
-			if (getData(id, false) == null)
-			{
-				logError(mTableName + "中ID不存在:" + id + ", 引用此数据的表格:" + tableName + ", ID:" + refDataID);
-			}
+			checkData(id, refDataID, tableName);
 		}
 	}
 	public void checkData(List<ushort> ids, int refDataID, ExcelTable table)
 	{
 		checkData(ids, refDataID, table.mTableName);
 	}
-	public void checkListPair(IList list0, IList list1, int id)
+	public void checkListPair<T0, T1>(List<T0> list0, List<T1> list1, int id)
 	{
 		if (list0.Count != list1.Count)
 		{
@@ -225,7 +214,7 @@ public class ExcelTable
 	// 解密
 	protected void decodeFile(byte[] fileBuffer)
 	{
-		string key = generateFileMD5(stringToBytes("ASLD" + mTableName)).ToUpper() + "23y35y983";
+		string key = generateFileMD5(("ASLD" + mTableName).toBytes()).ToUpper() + "23y35y983";
 		int keyIndex = 0;
 		int fileLength = fileBuffer.Length;
 		for (int i = 0; i < fileLength; ++i)
@@ -241,7 +230,7 @@ public class ExcelTable
 	{
 		{
 			using var a = new ProfilerScope("excel read:" + mTableName);
-			parseFile(mTableFileBytes ?? mTableFileData.bytes);
+			parseFile(mTableFileBytes ?? mTableFileData?.getResource().bytes);
 		}
 		// 解析以后就可以卸载文件数据
 		mResourceManager?.unload(ref mTableFileData);
@@ -263,7 +252,7 @@ public class ExcelTable
 		decodeFile(fileBuffer);
 
 		using var a = new HashSetScope<int>(out var idsToRemove);
-		idsToRemove.addRange(mDataMap.Keys);
+		idsToRemove.addRangeKeys(mDataMap);
 		// 解析数据
 		using var b = new ClassScope<SerializerRead>(out var reader);
 		reader.init(fileBuffer);
@@ -297,11 +286,7 @@ public class ExcelTable
 			}
 		}
 		// 最后删除减少的行
-		foreach (int k in idsToRemove)
-		{
-			mDataMap.Remove(k);
-		}
-
+		idsToRemove.For(k => mDataMap.Remove(k));
 		log("热重载表格数据：" + mTableName);
 	}
 	// 为了避免歧义,getData,getDataMap设置为不允许外部访问

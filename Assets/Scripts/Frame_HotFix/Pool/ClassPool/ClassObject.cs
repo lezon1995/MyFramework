@@ -1,7 +1,8 @@
 ﻿using System;
+using System.Threading;
 
 // 可使用对象池进行创建和销毁的对象
-public class ClassObject : IEquatable<ClassObject>, IEventListener, IResetProperty, IDisposable
+public class ClassObject : IEquatable<ClassObject>, IEventListener, IResetProperty, IRecyclable, IDisposable
 {
 	protected static long mObjectInstanceIDSeed;	// 对象实例ID的种子
 	protected long mObjectInstanceID;               // 对象实例ID
@@ -11,7 +12,7 @@ public class ClassObject : IEquatable<ClassObject>, IEventListener, IResetProper
 	public ClassObject()
 	{
 		mHasDestroy = true;
-		mObjectInstanceID = ++mObjectInstanceIDSeed;
+		mObjectInstanceID = Interlocked.Increment(ref mObjectInstanceIDSeed);
 	}
 	public virtual void resetProperty()
 	{
@@ -25,7 +26,7 @@ public class ClassObject : IEquatable<ClassObject>, IEventListener, IResetProper
 	public virtual void onCtor() { }
 	// 每次被分配出去时调用,无论是第一次创建还是从池中获取都会调用,与destroy形成完成的生命周期
 	public virtual void onCreate() { }
-	public virtual void destroy() { }
+	public virtual void destroy() { mHasDestroy = true; }
 	public virtual void dispose() => ((IDisposable)this).Dispose();
 	public void setDestroy(bool isDestroy)			{ mHasDestroy = isDestroy; }
 	public void setAssignID(long assignID)			{ mAssignID = assignID; }

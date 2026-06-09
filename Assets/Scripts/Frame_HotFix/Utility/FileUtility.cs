@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -6,7 +6,7 @@ using System.Security.Cryptography;
 using UnityEngine.Networking;
 using static UnityUtility;
 using static StringUtility;
-using static BinaryUtility;
+using static SerializeByteUtility;
 using static FrameDefine;
 using static FrameBaseHotFix;
 using static FrameBaseUtility;
@@ -18,7 +18,7 @@ public class FileUtility
 	private static List<string> mTempPatternList = new();   // 用于避免GC
 	private static List<string> mTempFileList = new();      // 用于避免GC
 	private static List<string> mTempFileList1 = new();     // 用于避免GC
-	private static byte[] BOM = new byte[] { 0xEF, 0xBB, 0xBF };	// UTF8的BOM头
+	private static byte[] BOM = new byte[] { 0xEF, 0xBB, 0xBF };    // UTF8的BOM头
 	public static void validPath(ref string path)
 	{
 		// 不以/结尾,则加上/
@@ -84,15 +84,22 @@ public class FileUtility
 			{
 				logError("file not exist:" + fileName);
 			}
-			callback?.Invoke(null);
+			try
+			{
+				callback?.Invoke(null);
+			}
+			catch(Exception e)
+			{
+				logException(e);
+			}
 			return;
 		}
-		GameEntry.startCoroutine(openFileAsyncInternal(fileName, errorIfNull, callback));
+		GameEntryBase.startCoroutine(openFileAsyncInternal(fileName, errorIfNull, callback));
 	}
 	// fileNameList为绝对路径
 	public static void openFileListAsync(List<string> fileNameList, bool errorIfNull, StringBytesCallback callback)
 	{
-		GameEntry.startCoroutine(openFileListAsyncInternal(fileNameList, errorIfNull, callback));
+		GameEntryBase.startCoroutine(openFileListAsyncInternal(fileNameList, errorIfNull, callback));
 	}
 	public static void openTxtFileAsync(string fileName, bool errorIfNull, StringCallback callback)
 	{
@@ -106,7 +113,7 @@ public class FileUtility
 			{
 				offset = BOM.Length;
 			}
-			callback?.Invoke(bytesToString(bytes, offset, bytes.Length - offset));
+			callback?.Invoke(bytes.bytesToString(offset, bytes.Length - offset));
 		});
 	}
 	public static void openTxtFileLinesAsync(string fileName, bool errorIfNull, StringArrayCallback callback)
@@ -121,7 +128,7 @@ public class FileUtility
 			{
 				offset = BOM.Length;
 			}
-			callback?.Invoke(splitLine(bytesToString(bytes, offset, bytes.Length - offset)));
+			callback?.Invoke(bytes.bytesToString(offset, bytes.Length - offset).splitLine());
 		});
 	}
 	// 打开一个二进制文件,fileName为绝对路径,返回值为文件长度
@@ -196,7 +203,7 @@ public class FileUtility
 		{
 			offset = BOM.Length;
 		}
-		return bytesToString(fileContent, offset, fileContent.Length - offset);
+		return fileContent.bytesToString(offset, fileContent.Length - offset);
 	}
 	// 打开一个文本文件,fileName为绝对路径,并且自动将文件拆分为多行,移除末尾的换行符(\r或者\n),存储在fileLines中,包含空行,返回值是行数
 	public static int openTxtFileLinesSync(string fileName, out string[] fileLines, bool errorIfNull = true, bool keepEmptyLine = true)
@@ -207,7 +214,7 @@ public class FileUtility
 			fileLines = null;
 			return 0;
 		}
-		splitLine(fileContent, out fileLines, !keepEmptyLine);
+		fileContent.splitLine(out fileLines, !keepEmptyLine);
 		return fileLines.count();
 	}
 	// 打开一个文本文件,fileName为绝对路径,并且自动将文件拆分为多行,移除末尾的换行符(\r或者\n),存储在fileLines中,包含空行,返回值是行数
@@ -278,7 +285,7 @@ public class FileUtility
 	{
 		if (isEditor() || isIOS() || isWindows() || isWebGL())
 		{
-			byte[] bytes = stringToBytes(content);
+			byte[] bytes = content.toBytes();
 			if (bytes != null)
 			{
 				writeFile(fileName, bytes, bytes.Length, addBOM);
@@ -307,7 +314,7 @@ public class FileUtility
 		{
 			Directory.Move(fileName, newName);
 		}
-		catch(Exception e)
+		catch (Exception e)
 		{
 			logException(e, "fileName:" + fileName + ", newName:" + newName);
 		}
@@ -366,23 +373,23 @@ public class FileUtility
 		return isEmpty;
 	}
 	// 移动文件,参数为绝对路径
-	public static void moveFile(string source, string dest, bool overwrite = true)
+	public static bool moveFile(string source, string dest, bool overwrite = true)
 	{
 		if (!isFileExist(source))
 		{
-			return;
+			return false;
 		}
 		if (!isEditor() && isAndroid())
 		{
 			logError("can not move file on android!");
-			return;
+			return false;
 		}
 		if (isFileExist(dest))
 		{
 			// 先删除目标文件,因为File.Move不支持覆盖文件,目标文件存在时,File.Move会失败
 			if (!overwrite)
 			{
-				return;
+				return false;
 			}
 			deleteFile(dest);
 		}
@@ -392,6 +399,7 @@ public class FileUtility
 			createDir(getFilePath(dest));
 		}
 		File.Move(source, dest);
+		return true;
 	}
 	// 拷贝文件,参数为绝对路径
 	public static void copyFileAsync(string source, string dest, Action doneCallback)
@@ -638,7 +646,7 @@ public class FileUtility
 		}
 		validPath(ref path);
 		path = path.ensurePrefix(F_GAME_RESOURCES_PATH);
-		findFilesInternal(path, fileList, patterns, recursive);
+		findFilesInternal(path, fileList, patterns, null, recursive);
 		if (!keepAbsolutePath)
 		{
 			int removeLength = F_GAME_RESOURCES_PATH.Length;
@@ -693,7 +701,7 @@ public class FileUtility
 		else
 		{
 			path = path.ensurePrefix(F_STREAMING_ASSETS_PATH);
-			findFilesInternal(path, fileList, patterns, recursive);
+			findFilesInternal(path, fileList, patterns, null, recursive);
 			if (!keepAbsolutePath)
 			{
 				int removeLength = F_STREAMING_ASSETS_PATH.Length;
@@ -745,19 +753,19 @@ public class FileUtility
 		mTempPatternList.Clear();
 		mTempPatternList.addNotEmpty(pattern);
 		mTempFileList1.Clear();
-		findFilesInternal(path, mTempFileList1, mTempPatternList, recursive);
+		findFilesInternal(path, mTempFileList1, mTempPatternList, null, recursive);
 		return mTempFileList1;
 	}
 	// 查找指定目录下的所有文件,path为绝对路径
-	public static List<string> findFilesNonAlloc(string path, IList<string> patterns = null, bool recursive = true)
+	public static List<string> findFilesNonAlloc(string path, List<string> patterns = null, bool recursive = true)
 	{
 		mTempFileList1.Clear();
-		findFilesInternal(path, mTempFileList1, patterns, recursive);
+		findFilesInternal(path, mTempFileList1, patterns, null, recursive);
 		return mTempFileList1;
 	}
 	public static void findFiles(string path, List<string> fileList, List<string> patterns)
 	{
-		findFilesInternal(path, fileList, patterns, true);
+		findFilesInternal(path, fileList, patterns, null, true);
 	}
 	public static void findFiles(string path, List<string> fileList, string pattern, bool recursive = true)
 	{
@@ -765,19 +773,25 @@ public class FileUtility
 		{
 			mTempPatternList.Clear();
 			mTempPatternList.addNotEmpty(pattern);
-			findFilesInternal(path, fileList, mTempPatternList, recursive);
+			findFilesInternal(path, fileList, mTempPatternList, null, recursive);
 		}
 		else
 		{
-			findFilesInternal(path, fileList, new List<string>() { pattern }, true);
+			findFilesInternal(path, fileList, new List<string>() { pattern }, null, true);
 		}
 	}
 	public static void findFiles(string path, List<string> fileList, bool recursive = true)
 	{
-		findFilesInternal(path, fileList, null, recursive);
+		findFilesInternal(path, fileList, null, null, recursive);
+	}
+	public static List<string> findFilesExcludeNonAlloc(string path, List<string> excludePatterns, bool recursive = true)
+	{
+		mTempFileList1.Clear();
+		findFilesInternal(path, mTempFileList1, null, excludePatterns, recursive);
+		return mTempFileList1;
 	}
 	// 查找指定目录下的所有文件,path为绝对路径
-	public static void findFilesInternal(string path, List<string> fileList, IList<string> patterns, bool recursive)
+	public static void findFilesInternal(string path, List<string> fileList, List<string> patterns, List<string> excludePatterns, bool recursive)
 	{
 		try
 		{
@@ -796,12 +810,28 @@ public class FileUtility
 				foreach (FileInfo info in folder.GetFiles())
 				{
 					string fileName = info.Name;
+					bool isExclude = false;
+					foreach (string pattern in excludePatterns.safe())
+					{
+						if (fileName.endWith(pattern, false))
+						{
+							isExclude = true;
+							break;
+						}
+					}
+					if (isExclude)
+					{
+						continue;
+					}
 					// 不需要过滤,则直接放入列表
 					fileList.addIf(path + fileName, patterns.isEmpty());
 					// 如果需要过滤后缀名,则判断后缀
 					foreach (string pattern in patterns.safe())
 					{
-						fileList.addIf(path + fileName, fileName.endWith(pattern, false));
+						if (fileList.addIf(path + fileName, fileName.endWith(pattern, false)))
+						{
+							break;
+						}
 					}
 				}
 				// 查找所有子目录
@@ -809,7 +839,7 @@ public class FileUtility
 				{
 					foreach (string dir in Directory.GetDirectories(path))
 					{
-						findFilesInternal(dir, fileList, patterns, recursive);
+						findFilesInternal(dir, fileList, patterns, excludePatterns, recursive);
 					}
 				}
 			}
@@ -915,7 +945,7 @@ public class FileUtility
 			}
 			else
 			{
-				GameEntry.startCoroutine(generateMD5ListAsyncInternal(fileNameList, callback));
+				GameEntryBase.startCoroutine(generateMD5ListAsyncInternal(fileNameList, callback));
 			}
 		}
 	}
@@ -954,8 +984,9 @@ public class FileUtility
 	{
 		// 新增文件和已修改文件都认为是已修改文件
 		// 遍历本地文件列表
-		foreach (GameFileInfo localInfo in localInfoList.Values)
+		foreach (var item in localInfoList)
 		{
+			GameFileInfo localInfo = item.Value;
 			// 如果不在远端文件列表中,则是新增的文件,在远端文件中,但是大小或MD5不同,则是已修改的文件
 			if (!remoteList.TryGetValue(localInfo.mFileName, out GameFileInfo info) ||
 				info.mFileSize != localInfo.mFileSize ||

@@ -30,9 +30,9 @@ public class myUGUIInputField : myUGUIImageSimple, IInputField
 		mInputField.onEndEdit.AddListener(onEditEnd);
 		mInputField.onValueChanged.AddListener(onEditting);
 	}
-	public override void setAlpha(float alpha, bool fadeChild)
+	public override void setAlpha(float alpha)
 	{
-		base.setAlpha(alpha, fadeChild);
+		base.setAlpha(alpha);
 		Color color = mInputField.textComponent.color;
 		color.a = alpha;
 		mInputField.textComponent.color = color;

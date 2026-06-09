@@ -45,21 +45,14 @@ public class SafeHashSet<T> : ClassObject
 			{
 				foreach (var value in mModifyList)
 				{
-					if (value.mAdd)
-					{
-						mUpdateList.Add(value.mValue);
-					}
-					else
-					{
-						mUpdateList.Remove(value.mValue);
-					}
+					mUpdateList.addOrRemove(value.mValue, value.mAdd);
 				}
 			}
 			// 主列表元素较少,则直接同步主列表到更新列表
 			else
 			{
 				mUpdateList.Clear();
-				mUpdateList.UnionWith(mMainList);
+				mUpdateList.addRange(mMainList);
 			}
 		}
 		if (mUpdateList.Count != mMainList.Count)
@@ -70,6 +63,7 @@ public class SafeHashSet<T> : ClassObject
 		return mUpdateList;
 	}
 	public void endForeach()		{ mForeaching = false; }
+	public HashSet<T>.Enumerator GetEnumerator() { return mMainList.GetEnumerator(); }
 	// 获取主列表,存储着当前实时的数据列表,所有的删除和新增都会立即更新此列表
 	// 如果确保在遍历过程中不会对列表进行修改,则可以使用MainList
 	// 如果可能会对列表进行修改,则应该使用startForeach
@@ -86,6 +80,14 @@ public class SafeHashSet<T> : ClassObject
 		mModifyList.Add(new(value, true));
 		return true;
 	}
+	public bool addIf(T value, bool condition)
+	{
+		if (condition)
+		{
+			add(value);
+		}
+		return condition;
+	}
 	public bool remove(T value)
 	{
 		if (!mMainList.Remove(value))
@@ -94,6 +96,18 @@ public class SafeHashSet<T> : ClassObject
 		}
 		mModifyList.Add(new(value, false));
 		return true;
+	}
+	public bool addOrRemove(T value, bool isAdd)
+	{
+		if (isAdd)
+		{
+			add(value);
+		}
+		else
+		{
+			remove(value);
+		}
+		return isAdd;
 	}
 	// 清空所有数据
 	public void clear()

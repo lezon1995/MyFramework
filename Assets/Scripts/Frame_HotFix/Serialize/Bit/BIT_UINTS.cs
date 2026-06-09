@@ -1,8 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 // 自定义的对uint[]的封装,可用于序列化
-public class BIT_UINTS : SerializableBit, IEnumerable<uint>
+public class BIT_UINTS : SerializableBit
 {
 	public List<uint> mValue = new();    // 值
 	public uint this[int index]
@@ -16,11 +15,11 @@ public class BIT_UINTS : SerializableBit, IEnumerable<uint>
 		base.resetProperty();
 		mValue.Clear(); 
 	}
-	public override bool read(SerializerBitRead reader)
+	public override bool read(SerializerBitRead reader, bool needReadSign)
 	{
 		return reader.readList(mValue);
 	}
-	public override void write(SerializerBitWrite writer)
+	public override void write(SerializerBitWrite writer, bool needWriteSign)
 	{
 		writer.writeList(mValue);
 	}
@@ -36,6 +35,5 @@ public class BIT_UINTS : SerializableBit, IEnumerable<uint>
 	{
 		return value.mValue;
 	}
-	public IEnumerator<uint> GetEnumerator() { return mValue.GetEnumerator(); }
-	IEnumerator IEnumerable.GetEnumerator() { return mValue.GetEnumerator(); }
+	public List<uint>.Enumerator GetEnumerator() { return mValue.GetEnumerator(); }
 }

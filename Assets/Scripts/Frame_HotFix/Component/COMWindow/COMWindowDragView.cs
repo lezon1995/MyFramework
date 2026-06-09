@@ -375,7 +375,7 @@ public class COMWindowDragView : GameComponent
 	{
 		mMinMaxPosDirty = true;
 	}
-	public override void setActive(bool active)
+	public override bool setActive(bool active)
 	{
 		base.setActive(active);
 		// 启用或禁用组件时,需要将实时计算用的参数重置
@@ -385,13 +385,14 @@ public class COMWindowDragView : GameComponent
 		mDragging.set(false);
 		mStartDragWindowPosition = Vector3.zero;
 		mStartDragMousePosition = Vector3.zero;
+		return active;
 	}
 	//------------------------------------------------------------------------------------------------------------------------------
 	protected void getLocalMinMaxPixelPos(out Vector3 min, out Vector3 max)
 	{
 		if (mMinMaxPosDirty)
 		{
-			Vector2 parentWidgetSize = mWindow.getParent().getWindowSize();
+			Vector2 parentWidgetSize = mWindow.getParent().getSize();
 			// 计算父节点的世界缩放
 			Vector2 parentScale = divideVector3(mWindow.getTransform().parent.lossyScale, mLayoutManager.getUIRoot().getScale());
 			// 计算移动的位置范围
@@ -399,7 +400,7 @@ public class COMWindowDragView : GameComponent
 			Vector2 maxPos = parentWidgetSize * 0.5f * divideVector2(mMaxRelativePos, parentScale);
 			if (mClampType == CLAMP_TYPE.EDGE_IN_RECT)
 			{
-				Vector2 thisSize = mWindow.getWindowSize(true);
+				Vector2 thisSize = mWindow.getSize(true);
 				minPos += thisSize * 0.5f;
 				maxPos -= thisSize * 0.5f;
 				if (!mClampInner)
@@ -603,7 +604,7 @@ public class COMWindowDragView : GameComponent
 		if (mDragDirection == DRAG_DIRECTION.HORIZONTAL)
 		{
 			// 判断当前窗口的宽度是否超过了父节点的宽度
-			if (mAllowDragOnlyOverParentSize && mWindow.getWindowSize().x < mWindow.getParent().getWindowSize().x)
+			if (mAllowDragOnlyOverParentSize && mWindow.getSize().x < mWindow.getParent().getSize().x)
 			{
 				return false;
 			}
@@ -618,7 +619,7 @@ public class COMWindowDragView : GameComponent
 		else if (mDragDirection == DRAG_DIRECTION.VERTICAL)
 		{
 			// 判断当前窗口的高度是否超过了父节点的高度
-			if (mAllowDragOnlyOverParentSize && mWindow.getWindowSize().y < mWindow.getParent().getWindowSize().y)
+			if (mAllowDragOnlyOverParentSize && mWindow.getSize().y < mWindow.getParent().getSize().y)
 			{
 				return false;
 			}

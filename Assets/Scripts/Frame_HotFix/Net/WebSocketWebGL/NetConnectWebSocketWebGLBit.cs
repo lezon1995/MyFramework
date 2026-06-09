@@ -11,8 +11,8 @@ using static FrameBaseUtility;
 public class NetConnectWebSocketWebGLBit : NetConnectWebSocketWebGL
 {
 	protected SerializerBitWrite mWriter = new();		// 用于序列化
-	protected int mLastReceiveSequenceNumber;           // 上一次接收到的序列号
-	protected int mSendSequenceNumber;                  // 当前序列号
+	protected uint mLastReceiveSequenceNumber;           // 上一次接收到的序列号
+	protected uint mSendSequenceNumber;                  // 当前序列号
 	public override void resetProperty()
 	{
 		base.resetProperty();
@@ -51,7 +51,7 @@ public class NetConnectWebSocketWebGLBit : NetConnectWebSocketWebGL
 		// 包类型的高2位表示了当前包体是用几个字节存储的
 		ushort packetType = netPacket.getPacketType();
 		mWriter.clear();
-		netPacket.write(mWriter, out ulong fieldFlag);
+		netPacket.write(mWriter, netPacket.hasSign(), out ulong fieldFlag);
 		int realPacketSize = mWriter.getByteCount();
 		byte[] packetBodyData = mWriter.getBuffer();
 		if (realPacketSize < 0)
@@ -69,9 +69,10 @@ public class NetConnectWebSocketWebGLBit : NetConnectWebSocketWebGL
 
 		// 将消息包中的数据准备好,然后放入发送列表中
 		using var a = new ClassScope<SerializerWrite>(out var writer);
-		writer.write(realPacketSize);
+		writer.write((uint)realPacketSize);
 		writer.write(packetType);
 		writer.write(mSendSequenceNumber);
+		writer.write(netPacket.hasSign());
 		// 写入一位用于获取是否需要使用标记位
 		writer.write(fieldFlag != FULL_FIELD_FLAG);
 		if (fieldFlag != FULL_FIELD_FLAG)
@@ -90,7 +91,7 @@ public class NetConnectWebSocketWebGLBit : NetConnectWebSocketWebGL
 	}
 	//------------------------------------------------------------------------------------------------------------------------------
 	// 解析包体数据
-	protected override NetPacket parsePacket(ushort packetType, byte[] buffer, int size, int sequence, ulong fieldFlag)
+	protected override NetPacket parsePacket(ushort packetType, byte[] buffer, int size, uint sequence, ulong fieldFlag)
 	{
 		// 创建对应的消息包,并设置数据,然后放入列表中等待解析
 		var packetReply = mNetPacketFactory.createSocketPacket(packetType) as NetPacketByte;
@@ -118,7 +119,7 @@ public class NetConnectWebSocketWebGLBit : NetConnectWebSocketWebGL
 		return packetReply;
 	}
 	protected override PARSE_RESULT preParsePacket(byte[] buffer, int size, out int index, out byte[] outPacket, out ushort packetType,
-													out int packetSize, out int sequence, out ulong fieldFlag)
+													out int packetSize, out uint sequence, out ulong fieldFlag, out bool hasSign)
 	{
 		index = 0;
 		outPacket = null;
@@ -126,6 +127,7 @@ public class NetConnectWebSocketWebGLBit : NetConnectWebSocketWebGL
 		packetSize = 0;
 		sequence = 0;
 		fieldFlag = FULL_FIELD_FLAG;
+		hasSign = false;
 		// 可能还没有接收完全,等待下次接收
 		if (size == 0)
 		{
@@ -134,15 +136,20 @@ public class NetConnectWebSocketWebGLBit : NetConnectWebSocketWebGL
 
 		using var a = new ClassThreadScope<SerializerRead>(out var reader);
 		reader.init(buffer, size, index);
-		if (!reader.read(out packetSize))
+		if (!reader.read(out uint tempPacketSize))
 		{
 			return PARSE_RESULT.NOT_ENOUGH;
 		}
+		packetSize = (int)tempPacketSize;
 		if (!reader.read(out packetType))
 		{
 			return PARSE_RESULT.NOT_ENOUGH;
 		}
 		if (!reader.read(out sequence))
+		{
+			return PARSE_RESULT.NOT_ENOUGH;
+		}
+		if (!reader.read(out hasSign))
 		{
 			return PARSE_RESULT.NOT_ENOUGH;
 		}
@@ -165,7 +172,7 @@ public class NetConnectWebSocketWebGLBit : NetConnectWebSocketWebGL
 		}
 
 		// 确认此消息的数据接收完全以后再验证序列号
-		if (sequence != mLastReceiveSequenceNumber + 1 && mLastReceiveSequenceNumber != 0x7FFFFFFF)
+		if (sequence != mLastReceiveSequenceNumber + 1 && mLastReceiveSequenceNumber != 0xFFFFFFFF)
 		{
 			// 不通知服务器接收到非法消息,因为可能会有误报
 			// return PARSE_RESULT.ERROR;
