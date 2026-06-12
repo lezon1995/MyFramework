@@ -28,7 +28,7 @@ public abstract class MainMenuButton : IDisposable
     protected MainMenuButton()
     {
         var path = $"{GAMEPLAY_PATH}/Prefabs/UI/MainMenuButton.prefab";
-        o = mPrefabPoolManager.createObject(path, 0, false, true);
+        o = mPrefabPoolManager.createObject(path);
         button = LayoutScript.newUIObject<myUGUIButton>(null, null, o);
         button.setName(name);
         button.setUGUIButtonClick(onClick);

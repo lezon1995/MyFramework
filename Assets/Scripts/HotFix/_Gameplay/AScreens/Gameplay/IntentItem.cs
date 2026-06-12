@@ -21,7 +21,7 @@ public abstract class IntentItem : ClassObject
     public override void onCtor()
     {
         var path = $"{GAMEPLAY_PATH}/Prefabs/UI/IntentItem.prefab";
-        o = mPrefabPoolManager.createObject(path, 0, false, true);
+        o = mPrefabPoolManager.createObject(path);
         
         obj = LayoutScript.newUIObject<myUGUIObject>(o);
 

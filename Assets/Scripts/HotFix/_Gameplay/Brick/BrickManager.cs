@@ -311,7 +311,7 @@ public class BrickManager : FrameSystem
         brick.setID(id);
 
         var path = $"{GAMEPLAY_PATH}/Prefabs/Play/Brick.prefab";
-        var o = mPrefabPoolManager.createObject(path, 0, false, true);
+        var o = mPrefabPoolManager.createObject(path);
         brick.setManager(this);
         brick.setObject(o);
         brick.init();

@@ -113,7 +113,7 @@ public class FTextManager : FrameSystem
             text = CLASS<FText>();
             text.setName("FText");
             var path = $"{GAMEPLAY_PATH}/FTextTMP.prefab";
-            var o = mPrefabPoolManager.createObject(path, 0, true, true, textParent);
+            var o = mPrefabPoolManager.createObject(path, true, textParent);
             text.setObject(o);
         }
 

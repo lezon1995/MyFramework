@@ -83,7 +83,7 @@ public class NexusManager : FrameSystem
         nexus.setID(id);
 
         var path = $"{GAMEPLAY_PATH}/{name}.prefab";
-        var o = mPrefabPoolManager.createObject(path, 0, false, true);
+        var o = mPrefabPoolManager.createObject(path);
         nexus.setObject(o);
 
         nexus.init();

@@ -55,7 +55,7 @@ public class ElectricChainEffect : ALogicEffect, IArgs<Ball, Brick, int>
             if (brickManager.getRandomActiveBrick(out var b, history, excludePos, 1.5F))
             {
                 history.add(b);
-                var o = mPrefabPoolManager.createObject(path, 0, false, true, null);
+                var o = mPrefabPoolManager.createObject(path);
                 list.add(o);
                 if (o.TryGetComponent<LightningBolt2D.LightningBolt2D>(out var bolt))
                 {

@@ -40,7 +40,7 @@ public class ComboManager : FrameSystem
         var e = CLASS<ComboEffect>();
 
         var path = $"{GAMEPLAY_PATH}/Prefabs/ComboEffect.prefab";
-        var o = mPrefabPoolManager.createObject(path, 0, false, true);
+        var o = mPrefabPoolManager.createObject(path);
         e.setObject(o);
         e.setName($"ComboEffect_{comboCount * 10}");
         e.setWorldPosition(pos);

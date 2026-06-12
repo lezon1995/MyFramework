@@ -212,6 +212,17 @@ public class EffectManager : FrameSystem
 		}, failCallback);
 		return op;
 	}
+	
+	public GameEffect createEffect(string nameWithPath, float lifeTime)
+	{
+		return createEffect(nameWithPath, null, null, 0, true, true, default, lifeTime);
+	}
+
+	public GameEffect createEffect(string nameWithPath, Vector3 pos, float lifeTime)
+	{
+		return createEffect(nameWithPath, null, null, 0, true, true, pos, lifeTime);
+	}
+	
 	// 会从当前类中缓存的特效对象来获取,而不是从通用对象池中获取一个已经被重置过的对象
 	// 在attachedParent销毁时确认销毁所有挂接到此物体上的特效
 	// 同步从prefab中加载一个特效
@@ -417,7 +428,9 @@ public class EffectManager : FrameSystem
 	{
 		if (obj is Transformable trans && mEffectAttachList.Remove(trans, out var list))
 		{
-			list.For(effect => destroyEffect(effect, false));
+			foreach (var effect in list)
+				destroyEffect(effect, false);
+
 			UN_SET(ref list);
 		}
 	}

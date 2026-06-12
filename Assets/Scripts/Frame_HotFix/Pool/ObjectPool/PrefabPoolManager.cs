@@ -176,6 +176,17 @@ public class PrefabPoolManager : FrameSystem
 	{
 		return createObjectAsyncSafe(null, fileWithPath, objectTag, moveToHide, active, callback, null);
 	}
+
+	public GameObject createObject(string fileWithPath)
+	{
+		return createObject(fileWithPath, 0, false, true, null);
+	}
+	
+	public GameObject createObject(string fileWithPath, bool moveToHide, GameObject parent = null)
+	{
+		return createObject(fileWithPath, 0, moveToHide, true, parent);
+	}
+	
 	// 同步创建物体,fileWithPath是GameResource下的相对路径
 	public GameObject createObject(string fileWithPath, int objectTag, bool moveToHide, bool active, GameObject parent = null)
 	{

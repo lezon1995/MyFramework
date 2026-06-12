@@ -104,7 +104,7 @@ namespace MarbleHero
                     
                     newPlayer.setName(Game.playerName);
                     var path = $"{GAMEPLAY_PATH}/Player.prefab";
-                    var o = mPrefabPoolManager.createObject(path, 0, false, true);
+                    var o = mPrefabPoolManager.createObject(path);
                     newPlayer.setObject(o);
                     newPlayer.init();
                     log("Successfully recreated " + newPlayer.chosenClass);

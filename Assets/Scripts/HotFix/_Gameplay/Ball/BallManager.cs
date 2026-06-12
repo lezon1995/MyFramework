@@ -199,7 +199,7 @@ public class BallManager : FrameSystem
         ball.setID(id);
 
         var path = $"{GAMEPLAY_PATH}/Prefabs/Play/Ball_0.prefab";
-        var o = mPrefabPoolManager.createObject(path, 0, false, true);
+        var o = mPrefabPoolManager.createObject(path);
         ball.setObject(o);
         ball.setPlayer(player);
         ball.setEnabled(true);
