@@ -89,3 +89,7 @@ crashlytics-build.properties
 #Sub Module
 /Assets/TopDownEngine/ThirdParty/MoreMountains/InventoryEngine.meta
 /Assets/TopDownEngine/ThirdParty/MoreMountains/MMFeedbacks.meta
+
+/AssetBundleBuild
+/Assets/StreamingAssets
+/Assets/StreamingAssets.meta

@@ -44,7 +44,9 @@ public class TweenTrack
 			}
 			else
 			{
+#if UNITY_EDITOR
 				mCurve = EditorCurveFactory.getCurve(mCurveID);
+#endif
 			}
 		}
 		return mCurve;

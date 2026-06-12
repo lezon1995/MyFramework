@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿#if UNITY_EDITOR
+using System.Collections.Generic;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
@@ -106,3 +107,4 @@ public static class EditorCurveFactory
 		mStaticIDs = ids.ToArray();
 	}
 }
+#endif
