@@ -771,7 +771,7 @@ public class myUGUIObject : Transformable, IMouseEventCollect
 
 	public T newObject<T>(out T obj, string name) where T : myUGUIObject, new()
 	{
-		return newObject(out obj, name, true);
+		return newObject(out obj, name, false);
 	}
 
 	// 创建myUGUIObject,并且在布局中查找GameObject分配到myUGUIObject

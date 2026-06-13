@@ -500,7 +500,7 @@ public abstract partial class APlayer : ACreature
 
         room.monsters?.usePreBattleAction();
 
-        actionManager.addToTop<WaitAction>().with(1F);
+        actionManager.addToTop<WaitAction>().with(0.2F);
         applyPreCombatLogic();
     }
 

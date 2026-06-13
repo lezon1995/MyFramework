@@ -19,10 +19,10 @@ public class LevelManager : FrameSystem
     {
         base.init();
         var go = getRootGameObject("Level");
-        var left = getGameObject("BorderLeft", go);
-        var right = getGameObject("BorderRight", go);
-        var top = getGameObject("BorderTop", go);
-        var bot = getGameObject("BorderBot", go);
+        go.find(out var left, "BorderLeft");
+        go.find(out var right, "BorderRight");
+        go.find(out var top, "BorderTop");
+        go.find(out var bot, "BorderBot");
         borderLeft = createBorder<BorderLeft>(left);
         borderRight = createBorder<BorderRight>(right);
         borderTop = createBorder<BorderTop>(top);

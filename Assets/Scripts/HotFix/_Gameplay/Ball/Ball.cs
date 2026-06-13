@@ -196,8 +196,8 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
         instanceID = obj.GetInstanceID();
         curPos = obj.transform.position;
 
-        ballRenderer = FrameBaseUtility.getGameObject("Renderer", obj);
-        findComponent(obj, out trailRenderer);
+        obj.find(out ballRenderer, "Renderer");
+        obj.find(out trailRenderer);
 
         if (isEditor())
         {
@@ -542,7 +542,6 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
 
         //设置此次dmg实际造成的伤害，并通知伤害飘字显示
         {
-       
             dmg.setDirection(direction);
         }
 
@@ -629,7 +628,7 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
             UN_CLASS(power);
         }
     }
-    
+
     public bool removePower<T>() where T : BallPower
     {
         for (var i = powers.Count - 1; i >= 0; i--)

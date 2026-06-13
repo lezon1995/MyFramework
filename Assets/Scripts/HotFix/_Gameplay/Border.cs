@@ -19,7 +19,7 @@ public class Border : MovableObject, IHittable
     {
         base.setObject(obj);
 
-        findComponent(obj, "Renderer", out renderer);
+        obj.find(out renderer, "Renderer");
     }
 
     protected override void initComponents()

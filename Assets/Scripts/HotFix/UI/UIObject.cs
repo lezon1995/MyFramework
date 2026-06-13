@@ -14,7 +14,7 @@ public class UIObject : IDisposable
 
     protected void find<T>(string name, out T result) where T : Component
     {
-        findComponent(gameObject, name, out result);
+        gameObject.find(out result, name);
     }
 
     public virtual void update(float elapsedTime)

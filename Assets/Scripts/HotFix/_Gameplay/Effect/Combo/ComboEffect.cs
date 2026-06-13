@@ -10,8 +10,8 @@ public class ComboEffect : Transformable
     {
         base.setObject(obj);
 
-        findComponent(obj, "Sprite", out sprite);
-        findComponent(obj, "SpriteOverlay", out spriteOverlay);
+        obj.find(out sprite, "Sprite");
+        obj.find(out spriteOverlay, "SpriteOverlay");
     }
 
     public void setSprite(Sprite s)

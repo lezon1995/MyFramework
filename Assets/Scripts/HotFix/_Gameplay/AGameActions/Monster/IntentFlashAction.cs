@@ -2,7 +2,7 @@
 
 public class IntentFlashAction : AGameAction, IArgs<AMonster, EnemyMoveInfo>
 {
-    const float DURATION = 0.5F;
+    const float DURATION = 0.25F;
     ACreature monster;
     EnemyMoveInfo moveInfo;
     MyCurve curve;

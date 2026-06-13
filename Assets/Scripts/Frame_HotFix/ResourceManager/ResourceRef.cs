@@ -44,4 +44,6 @@ public class ResourceRef<T> : ClassObject where T : UObject
 		CLASS(out ResourceRef<T> newObjRef).setResource(mResource);
 		return newObjRef;
 	}
+	
+	public static implicit operator T(ResourceRef<T> r) => r?.getResource();
 }

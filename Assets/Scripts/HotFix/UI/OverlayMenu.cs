@@ -31,7 +31,7 @@ public partial class OverlayMenu : LayoutScript
 		newObject(out mEnemyInfo, right, "EnemyInfo");
 		// auto generate assignWindow end
 
-		intents = new(find(mRoot.transform, "Intents"));
+		intents = new(mRoot.transform.find("Intents"));
 		playerInfo = new(this);
 		enemyInfo = new(this);
 	}

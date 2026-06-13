@@ -593,6 +593,17 @@ public static class ListExtension
 		}
 		return list[index];
 	}
+
+	public static T element<T>(this List<T> list, int number)
+	{
+		var index = number - 1;
+		if (list.isEmpty() || index < 0 || index >= list.Count)
+		{
+			return default;
+		}
+		return list[index];
+	}
+	
 	public static bool set<T>(this List<T> list, int index, T value)
 	{
 		if (index < 0 || index >= list.Count)

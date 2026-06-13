@@ -33,7 +33,7 @@ namespace MarbleHero
             setWorldPositionY(-4.7F);
 
             guideLine = CLASS<GuideLine>();
-            guideLine.setObject(FrameBaseUtility.getGameObject("GuideLine", gameObject));
+            guideLine.setObject(gameObject.find("GuideLine"));
             guideLine.setName("GuideLine");
             guideLine.setPlayer(this);
             guideLine.init();

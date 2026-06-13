@@ -132,16 +132,16 @@ public class GuideLine : MovableObject
     {
         base.setObject(obj);
         lines = new LineRenderer[4];
-        findComponent(obj, "IndicatorBall", out indicatorBall);
-        findComponent(obj, "Group", out linesGroup);
-        findComponent(obj, "Line0", out lines[0]);
-        findComponent(obj, "Line1", out lines[1]);
-        findComponent(obj, "Line2", out lines[2]);
-        findComponent(obj, "Line3", out lines[3]);
+        obj.find(out indicatorBall, "IndicatorBall");
+        obj.find(out linesGroup, "Group");
+        obj.find(out lines[0], "Line0");
+        obj.find(out lines[1], "Line1");
+        obj.find(out lines[2], "Line2");
+        obj.find(out lines[3], "Line3");
 
         dots = new Transform[2];
-        findComponent(obj, "Dot0", out dots[0]);
-        findComponent(obj, "Dot1", out dots[1]);
+        obj.find(out dots[0], "Dot0");
+        obj.find(out dots[1], "Dot1");
 
         // lines[2].enabled = false;
         // lines[3].enabled = false;

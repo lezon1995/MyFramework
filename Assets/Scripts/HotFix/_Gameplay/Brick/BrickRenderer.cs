@@ -30,19 +30,19 @@ public class BrickRenderer : GameComponent
         {
             var obj = brick.gameObject;
             gameObject = obj;
-            findComponent(obj, "Renderer", out renderer);
-            findComponent(obj, "Health", out health);
-            findComponent(obj, "Shadow", out shadow);
-            findComponent(obj, "FxHit", out fxHit);
-            findComponent(obj, "FxDead", out fxDead);
+            obj.find(out renderer, "Renderer");
+            obj.find(out health, "Health");
+            obj.find(out shadow, "Shadow");
+            obj.find(out fxHit, "FxHit");
+            obj.find(out fxDead, "FxDead");
 
-            if (findComponent(obj, "Sprite", out sprite))
+            if (obj.find(out sprite, "Sprite"))
             {
                 brickMat = sprite.material;
             }
 
-            findComponent(obj, "Block", out block);
-            findComponent(obj, "BlockAmount", out blockAmount);
+            obj.find(out block, "Block");
+            obj.find(out blockAmount, "BlockAmount");
             block.gameObject.SetActive(false);
             blockAmount.gameObject.SetActive(false);
         }
@@ -127,7 +127,7 @@ public class BrickRenderer : GameComponent
     {
         health.text = v.ToString();
     }
-    
+
     public void refreshBlockAmount(int v)
     {
         blockAmount.text = v.ToString();
@@ -163,7 +163,7 @@ public class BrickRenderer : GameComponent
         brickFlashFrames = 2;
         brickMat.SetFloat(StrongTintFade, 1);
     }
-    
+
     public void playFxGainBlock()
     {
         block.gameObject.SetActive(true);
@@ -172,13 +172,13 @@ public class BrickRenderer : GameComponent
         block.color = new(1F, 1F, 1F, 0F);
         blockAmount.alpha = 0F;
         health.alpha = 1F;
-        
+
         Tween.Scale(block.transform, endValue: 1F, duration: 0.2F, ease: Ease.OutCubic);
         Tween.Alpha(block, endValue: 1F, duration: 0.2F, ease: Ease.OutCubic);
         Tween.Alpha(blockAmount, endValue: 1F, duration: 0.2F, ease: Ease.OutCubic);
         Tween.Alpha(health, endValue: 0.5F, duration: 0.2F, ease: Ease.OutCubic);
     }
-    
+
     public void playFxBlockHit()
     {
         block.transform.localScale = Vector3.one * 1.15F;
@@ -193,7 +193,7 @@ public class BrickRenderer : GameComponent
         block.color = new(1F, 1F, 1F, 1F);
         blockAmount.alpha = 1F;
         health.alpha = 0.5F;
-        
+
         Tween.Scale(block.transform, endValue: 2F, duration: 0.2F, ease: Ease.OutCubic);
         Tween.Alpha(block, endValue: 0F, duration: 0.2F, ease: Ease.OutCubic).OnComplete(block, s => s.gameObject.SetActive(false));
         Tween.Alpha(blockAmount, endValue: 0F, duration: 0.2F, ease: Ease.OutCubic).OnComplete(blockAmount, s => s.gameObject.SetActive(false));

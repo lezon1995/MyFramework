@@ -82,7 +82,7 @@
 
     public class StartEnemyTurnAction : AGameAction, IArgs<ARoom>
     {
-        const float END_TURN_WAIT_DURATION = 1.2F;
+        const float END_TURN_WAIT_DURATION = 0.2F;
         ARoom room;
 
         public void onCreate(ARoom r)

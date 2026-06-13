@@ -4,7 +4,7 @@ namespace MarbleHero
 {
     public class DisplayMovesAction : AGameAction, IArgs<AMonster>
     {
-        const float GAP = 0.5F;
+        const float GAP = 0.25F;
         Queue<EnemyMoveInfo> queue = new();
         AMonster monster;
         bool lastOne;

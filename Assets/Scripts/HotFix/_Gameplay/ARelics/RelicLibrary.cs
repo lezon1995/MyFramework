@@ -39,19 +39,22 @@ namespace MarbleHero
         public static void initialize()
         {
             long startTime = TimeUtility.getNowTimeStampMS();
-            add(new FreeBall());
-            add(new Origami());
-            add(new BurlapBag());
-            add(new BrokenTripod());
             add(new AmmoSupply());
-            add(new SideBorderPortal());
-            add(new LakeMirror());
-            add(new RhombicDarts());
-            add(new MilkShake());
-            add(new Rattle());
+            add(new Blender());
+            add(new BrokenTripod());
+            add(new BurlapBag());
+            add(new FishingNets());
+            add(new FreeBall());
             add(new ImpactHammer());
+            add(new LakeMirror());
+            add(new MilkShake());
+            add(new Origami());
+            add(new Rattle());
+            add(new RhombicDarts());
             add(new RoughCelling());
             add(new RoughWall());
+            add(new SideBorderPortal());
+            add(new TacticalShield());
             // add(new Abacus());
             // add(new Akabeko());
             // add(new Anchor());

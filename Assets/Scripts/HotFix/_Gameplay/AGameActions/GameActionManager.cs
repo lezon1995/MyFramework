@@ -276,7 +276,7 @@ public partial class GameActionManager
             m.applyTurnPowers();
             m.isEndingTurn = true;
 
-            addToBot<WaitAction>().with(1.5F);
+            addToBot<WaitAction>().with(0.5F);
             addToBot<StartPlayerTurnAction>().with(room);
         }
 
