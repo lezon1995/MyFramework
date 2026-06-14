@@ -100,7 +100,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5222326528845246713}
-  - component: {fileID: 1082445638733644012}
+  - component: {fileID: 3985728042684224026}
+  - component: {fileID: 2450780915621248536}
   m_Layer: 0
   m_Name: Ball_0
   m_TagString: Untagged
@@ -124,9 +125,31 @@ Transform:
   - {fileID: 5122250723159572038}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!96 &1082445638733644012
-TrailRenderer:
-  serializedVersion: 4
+--- !u!114 &3985728042684224026
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6794589263685341046}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03b089bac8a44d3b91d0ffe6d075d3c0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: HotFix::SmoothTrail
+  maxPathPointCount: 30
+  pointGap: 0.1
+  lerpPrecision: 10
+  color: {r: 1, g: 1, b: 1, a: 1}
+  width: 0.25
+  lifeTime: 0.5
+  isPausedTiming: 0
+  tension: 0
+  line: {fileID: 2450780915621248536}
+  updateInterval: 1
+--- !u!120 &2450780915621248536
+LineRenderer:
+  serializedVersion: 3
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -134,7 +157,7 @@ TrailRenderer:
   m_GameObject: {fileID: 6794589263685341046}
   m_Enabled: 1
   m_CastShadows: 0
-  m_ReceiveShadows: 0
+  m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
   m_MotionVectors: 1
@@ -162,7 +185,7 @@ TrailRenderer:
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
-  m_StitchLightmapSeams: 0
+  m_StitchLightmapSeams: 1
   m_SelectedEditorRenderState: 3
   m_MinimumChartSize: 4
   m_AutoUVMaxDistance: 0.5
@@ -173,8 +196,9 @@ TrailRenderer:
   m_SortingLayer: 3
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Time: 0.15
-  m_PreviewTimeScale: 1
+  m_Positions:
+  - {x: 0, y: 0, z: 0}
+  - {x: 0, y: 0, z: 1}
   m_Parameters:
     serializedVersion: 3
     widthMultiplier: 0.25
@@ -184,20 +208,20 @@ TrailRenderer:
       - serializedVersion: 3
         time: 0
         value: 1
-        inSlope: -1.6625001
-        outSlope: -1.6625001
+        inSlope: 0
+        outSlope: 0
         tangentMode: 0
         weightedMode: 0
         inWeight: 0.33333334
-        outWeight: 0.110275686
+        outWeight: 0.33333334
       - serializedVersion: 3
-        time: 1
-        value: 0.011108398
-        inSlope: -0.7843758
-        outSlope: -0.7843758
+        time: 0.99005395
+        value: 0
+        inSlope: 0.015785191
+        outSlope: 0.015785191
         tangentMode: 0
         weightedMode: 0
-        inWeight: 0.16290724
+        inWeight: 0.28127837
         outWeight: 0
       m_PreInfinity: 2
       m_PostInfinity: 2
@@ -239,10 +263,9 @@ TrailRenderer:
     textureScale: {x: 1, y: 1}
     shadowBias: 0.5
     generateLightingData: 0
-  m_MinVertexDistance: 0.1
-  m_Autodestruct: 0
-  m_Emitting: 1
-  m_ApplyActiveColorSpace: 0
+  m_UseWorldSpace: 1
+  m_Loop: 0
+  m_ApplyActiveColorSpace: 1
 --- !u!1 &7856991761346332477
 GameObject:
   m_ObjectHideFlags: 0
