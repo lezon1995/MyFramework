@@ -15,7 +15,7 @@ public partial class Ball : IEventRouter
 
     protected virtual bool onHitEnter(Collider2D c, Vector2 normal)
     {
-        if (hitCollider == null)
+        if (c == null)
         {
             Debug.LogError("onHitEnter collider == null");
             return false;

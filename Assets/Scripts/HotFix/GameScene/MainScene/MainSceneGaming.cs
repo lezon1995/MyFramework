@@ -51,7 +51,7 @@ public class MainSceneGaming : SceneProcedure
         {
             var mousePosition = getMousePosition();
             var worldPos = screenToWorld(mousePosition, false);
-            var ball = ballManager.acquireBall(worldPos, 0.14F, Random.insideUnitCircle, 6F);
+            var ball = ballManager.acquireBall(worldPos, 0.14F, Random.insideUnitCircle, 6F, true);
             balls.add(ball);
         }
 

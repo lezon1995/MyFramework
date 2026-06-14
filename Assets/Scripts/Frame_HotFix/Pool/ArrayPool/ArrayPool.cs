@@ -68,11 +68,11 @@ public class ArrayPool : FrameSystem
 			Debug.LogError("只能在主线程中使用ArrayPool");
 			return null;
 		}
-		if (!isPow2(size))
-		{
-			Debug.LogError("只有长度为2的n次方的数组才能使用ArrayPool");
-			return null;
-		}
+		// if (!isPow2(size))
+		// {
+		// 	Debug.LogError("只有长度为2的n次方的数组才能使用ArrayPool");
+		// 	return null;
+		// }
 		bool isNew = false;
 		Type type = typeof(T);
 		T[] array;

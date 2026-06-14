@@ -8,6 +8,7 @@ namespace MarbleHero;
 [Serializable]
 public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
 {
+    const float PHYSICS_CAST_DISTANCE = 100F;
     protected Comparison<RaycastHit2D> comparison;
 
     public int instanceID; //GameObject的instanceID，可以根据不同GameObject而变化
@@ -53,8 +54,12 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
     public List<BallPower> powers = new();
 
     GameObject ballRenderer;
+
     Collider2D hitCollider;
-    TrailRenderer trailRenderer;
+
+    // TrailRenderer trailRenderer;
+    SmoothTrail trailRenderer;
+
     APlayer player;
     public Brick collidingBrick;
     public Brick overlappingBrick;
@@ -246,7 +251,11 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
         Debug.DrawLine(curPos, targetPos, Color.white, 0.02F);
         if (curPos == targetPos)
         {
-            onHitEnter(hitCollider, hitNormal);
+            var validHit = onHitEnter(hitCollider, hitNormal);
+            if (!validHit)
+            {
+                refreshHitInfo(true);
+            }
         }
         else
         {
@@ -306,11 +315,11 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
         refreshHitInfo(true, exceptMask);
     }
 
-    public void setShootDirection(Vector2 dir, int exceptMask = 0)
+    public void setShootDirection(Vector2 dir, bool checkBorderBot, int exceptMask = 0)
     {
         lastDirection = direction;
         direction = dir.normalized;
-        refreshHitInfo(false, exceptMask);
+        refreshHitInfo(checkBorderBot, exceptMask);
     }
 
     public void setEnabled(bool b)
@@ -343,7 +352,7 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
                 filter.SetLayerMask(mask);
                 using var _ = new ListScope<RaycastHit2D>(out var hits);
                 var nowPos = (Vector2)getWorldPosition();
-                var count = Physics2D.CircleCast(nowPos, radius, direction, filter, hits, 20F);
+                var count = Physics2D.CircleCast(nowPos, radius, direction, filter, hits, PHYSICS_CAST_DISTANCE);
                 if (count > 0)
                 {
                     hits.Sort(comparison);
@@ -363,12 +372,12 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
             }
             else
             {
-                hit = Physics2D.CircleCast(curPos, radius, direction, 20F, mask);
+                hit = Physics2D.CircleCast(curPos, radius, direction, PHYSICS_CAST_DISTANCE, mask);
             }
         }
         else
         {
-            hit = Physics2D.CircleCast(curPos, radius, direction, 20F, mask);
+            hit = Physics2D.CircleCast(curPos, radius, direction, PHYSICS_CAST_DISTANCE, mask);
         }
 
         if (hit)
@@ -400,7 +409,7 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
 
     void clearTrail()
     {
-        trailRenderer.Clear();
+        trailRenderer.clearTrail();
     }
 
     public void setSpeed(float value)

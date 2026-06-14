@@ -1,4 +1,7 @@
-﻿public struct Stat
+﻿using System;
+
+[Serializable]
+public struct Stat
 {
     public float initial;
     public float extra;
