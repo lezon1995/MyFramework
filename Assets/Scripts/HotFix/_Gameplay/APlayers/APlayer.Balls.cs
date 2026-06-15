@@ -14,7 +14,7 @@ namespace MarbleHero
         public int ballCount = 1;
 
         protected GuideLine guideLine;
-        protected Exp exp;
+        public Exp exp;
         public List<Ball> activeBalls = new();
         public Vector3 originalShootPosition, shootPosition;
         public bool isFirstBallReturn;

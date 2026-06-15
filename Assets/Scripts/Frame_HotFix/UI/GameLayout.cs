@@ -30,6 +30,11 @@ public class GameLayout
 	protected bool mScriptInited;					// 脚本是否已经初始化
 	protected bool mBlurBack;						// 布局显示时是否需要使布局背后(比当前布局层级低)的所有布局模糊显示
 	protected LAYOUT_ORDER mRenderOrderType;		// 布局渲染顺序的计算方式
+
+	public GameLayout()
+	{
+	}
+
 	public void init()
 	{
 		mScript = mLayoutManager.createScript(this);

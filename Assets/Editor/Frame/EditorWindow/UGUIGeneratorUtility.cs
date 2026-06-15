@@ -498,7 +498,7 @@ public class UGUIGeneratorUtility
 		}
 		string parentParam = parentName != null ? parentName + ", " : "";
 		// 所有的临时变量都需要不显示错误,因为可能会跟之前重复了,但是无法通过名字来判断是否重复,比如之前创建的是数组元素
-		lines.Add(prefix + "newObject(out " + typeof(myUGUIObject).ToString() + " " + varName + ", " + parentParam + "\"" + curName + "\", false);");
+		lines.Add(prefix + "newObject(out " + typeof(myUGUIObject) + " " + varName + ", " + parentParam + "\"" + curName + "\", false);");
 		return varName;
 	}
 	// prefix用于控制缩进

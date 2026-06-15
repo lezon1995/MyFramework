@@ -24,6 +24,15 @@ public static class FrameBaseExtension
         result = o.transform;
         return true;
     }
+    
+    public static RectTransform find(this RectTransform parent, string name)
+    {
+        var o = getGameObject(name, parent.gameObject, true, true);
+        if (o == null)
+            return null;
+
+        return o.transform as RectTransform;
+    }
 
     public static GameObject find(this GameObject parent, string name)
     {

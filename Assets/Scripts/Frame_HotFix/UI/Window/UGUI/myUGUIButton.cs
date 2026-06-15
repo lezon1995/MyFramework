@@ -24,6 +24,11 @@ public class myUGUIButton : myUGUIImageSimple
 	}
 	public void setUGUIButtonClick(UnityAction callback)
 	{
+		mButton.onClick.RemoveAllListeners();
+		mButton.onClick.AddListener(callback);
+	}
+	public void addUGUIButtonClick(UnityAction callback)
+	{
 		mButton.onClick.AddListener(callback);
 	}
 }

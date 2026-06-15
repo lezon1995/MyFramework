@@ -439,8 +439,7 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 			obj = existUIObj as T;
 			if (obj == null)
 			{
-				logError("已经创建了相同GameObject的UI对象,但是两次创建的类型不一致,第一次创建的类型:" + existUIObj.GetType().ToString() + 
-						", 第二次创建的类型:" + typeof(T).ToString() + ", name:" + name + ", layout:" + mLayout.getName());
+				logError("已经创建了相同GameObject的UI对象,但是两次创建的类型不一致,第一次创建的类型:" + existUIObj.GetType() + ", 第二次创建的类型:" + typeof(T) + ", name:" + name + ", layout:" + mLayout.getName());
 			}
 			return obj;
 		}

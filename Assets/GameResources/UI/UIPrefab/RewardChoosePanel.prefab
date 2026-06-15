@@ -511,9 +511,9 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 7853161372105324752}
   - {fileID: 6722237775237577126}
   - {fileID: 3560653241700343620}
-  - {fileID: 7853161372105324752}
   m_Father: {fileID: 6818405700301339206}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -837,40 +837,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mComment: 
   mMemberList:
-  - mObject: {fileID: 1583685184712545767}
-    mType: myUGUIButton
-    mArrayType: 0
-    mArrayLength: 0
-    mWindowType: 0
-    mViewportObject: {fileID: 0}
-    mPoolTemplate: {fileID: 0}
-    mTemplateWindowType: 
-    mParam0: 
-    mParam1: 
-    mCustomName: 
-    mHideError: 0
-    mUseCustomName: 0
-    mRegisterCollider: 0
-    mHasClickEvent: 0
-  - mObject: {fileID: 5862793380020337572}
-    mType: myUGUIButton
-    mArrayType: 0
-    mArrayLength: 0
-    mWindowType: 0
-    mViewportObject: {fileID: 0}
-    mPoolTemplate: {fileID: 0}
-    mTemplateWindowType: 
-    mParam0: 
-    mParam1: 
-    mCustomName: 
-    mHideError: 0
-    mUseCustomName: 0
-    mRegisterCollider: 0
-    mHasClickEvent: 0
   - mObject: {fileID: 6019960655900405990}
     mType: myUGUIButton
-    mArrayType: 0
-    mArrayLength: 0
+    mArrayType: 1
+    mArrayLength: 3
     mWindowType: 0
     mViewportObject: {fileID: 0}
     mPoolTemplate: {fileID: 0}
@@ -1144,7 +1114,7 @@ GameObject:
   - component: {fileID: 1011137643290162673}
   - component: {fileID: 3243740478290214219}
   m_Layer: 5
-  m_Name: Template3
+  m_Name: Template0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

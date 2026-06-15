@@ -21,8 +21,9 @@ public partial class OverlayMenu
     {
         base.update(dt);
 
-        playerInfo.refresh(player);
-        enemyInfo.refresh(enemy);
+        expBar?.refresh(player.exp);
+        playerInfo?.refresh(player);
+        enemyInfo?.refresh(enemy);
     }
 
     public void hideCombatPanels()
@@ -33,18 +34,17 @@ public partial class OverlayMenu
     {
     }
 
-    public class PlayerInfo
+    public class PlayerInfo : UIObject, IRefresh<APlayer>
     {
         myUGUIText health, healthMax, ballCount;
         myUGUIImageSimple healthBar;
 
-        public PlayerInfo(OverlayMenu layout)
+        public PlayerInfo(myUGUIObject t) : base(t)
         {
-            var parent = layout.mPlayerInfo;
-            parent.newObject(out health, "TextCurHealth");
-            parent.newObject(out healthMax, "TextMaxHealth");
-            parent.newObject(out healthBar, "HealthBar");
-            parent.newObject(out ballCount, "TextBallCount");
+            t.newObject(out health, "TextCurHealth");
+            t.newObject(out healthMax, "TextMaxHealth");
+            t.newObject(out healthBar, "HealthBar");
+            t.newObject(out ballCount, "TextBallCount");
         }
 
         public void refresh(APlayer p)
@@ -64,17 +64,16 @@ public partial class OverlayMenu
         public void setBallCount(int v) => ballCount.setText(v);
     }
 
-    public class EnemyInfo
+    public class EnemyInfo : UIObject, IRefresh<AMonster>
     {
         myUGUIText health, healthMax;
         myUGUIImageSimple healthBar;
 
-        public EnemyInfo(OverlayMenu layout)
+        public EnemyInfo(myUGUIObject t) : base(t)
         {
-            var parent = layout.mEnemyInfo;
-            parent.newObject(out health, "TextCurHealth");
-            parent.newObject(out healthMax, "TextMaxHealth");
-            parent.newObject(out healthBar, "HealthBar");
+            t.newObject(out health, "TextCurHealth");
+            t.newObject(out healthMax, "TextMaxHealth");
+            t.newObject(out healthBar, "HealthBar");
         }
 
         public void refresh(AMonster m)

@@ -1,18 +1,25 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Obfuz;
 using UnityEngine;
 
 namespace MarbleHero;
 
 // auto generate member start
+// generate from:Assets/GameResources/UI/UIPrefab/OverlayMenu.prefab
+// 
 [ObfuzIgnore(ObfuzScope.TypeName)]
 public partial class OverlayMenu : LayoutScript
 {
+	protected myUGUIObject mExpBar;
 	protected myUGUIObject mPlayerInfo;
+	protected myUGUIObject mRelics;
 	protected myUGUIObject mEnemyInfo;
+	protected myUGUIObject mIntents;
 	// auto generate member end
 	
 	public Intents intents;
+	public ExpBar expBar;
+	public Relics relics;
 	public PlayerInfo playerInfo;
 	public EnemyInfo enemyInfo;
 	public OverlayMenu()
@@ -25,45 +32,55 @@ public partial class OverlayMenu : LayoutScript
 	{
 		// auto generate assignWindow start
 		newObject(out myUGUIObject content, "Content", false);
+		newObject(out myUGUIObject bot, content, "Bot", false);
+		newObject(out mExpBar, bot, "ExpBar");
 		newObject(out myUGUIObject left, content, "Left", false);
 		newObject(out mPlayerInfo, left, "PlayerInfo");
+		newObject(out myUGUIObject v1, mPlayerInfo, "V", false);
+		newObject(out mRelics, v1, "Relics");
 		newObject(out myUGUIObject right, content, "Right", false);
 		newObject(out mEnemyInfo, right, "EnemyInfo");
+		newObject(out myUGUIObject v2, mEnemyInfo, "V", false);
+		newObject(out mIntents, v2, "Intents");
 		// auto generate assignWindow end
 
-		intents = new(mRoot.transform.find("Intents"));
-		playerInfo = new(this);
-		enemyInfo = new(this);
+		intents = new(mIntents);
+		expBar = new(mExpBar);
+		relics = new(mRelics);
+		playerInfo = new(mPlayerInfo);
+		enemyInfo = new(mEnemyInfo);
 	}
 	public override void init()
 	{
 		base.init();
+		// auto generate init start
+		// auto generate init end
 	}
 	public override void onGameState()
 	{
 		base.onGameState();
 	}
 
-	public class Intents
+	public class Intents : UIObject
 	{
-		Transform intentsParent;
+		RectTransform intentsParent;
 		public Vector2[] intentPositions;
 		public Vector2 intentEffectingPos;
 		public Dictionary<int, IntentItem> intentItems = new();
 
-		public Intents(Transform t)
+		public Intents(myUGUIObject t) : base(t)
 		{
-			intentsParent = t.Find("V");
+			intentsParent = t.find("V");
 			intentPositions = new Vector2[5];
 			for (var i = 0; i < intentPositions.Length; i++)
 			{
 				var id = i + 1;
-				var tt = (RectTransform)intentsParent.Find($"Intent{id}");
+				var tt = intentsParent.find($"Intent{id}");
 				tt.gameObject.SetActive(false);
 				intentPositions[i] = tt.anchoredPosition;
 			}
 
-			var t1 = ((RectTransform)intentsParent.Find("IntentEffecting"));
+			var t1 = intentsParent.find("IntentEffecting");
 			t1.gameObject.SetActive(false);
 			intentEffectingPos = t1.anchoredPosition;
 		}
@@ -138,6 +155,32 @@ public partial class OverlayMenu : LayoutScript
 			item.setAlpha(lerp(1F, 0F, t));
 			item.setDescAlpha(lerp(0F, 1F, t));
 			item.setDescAnchoredPosition(t);
+		}
+	}
+
+	public class ExpBar : UIObject , IRefresh<Exp>
+	{
+		myUGUIImageSimple progress;
+		myUGUIText curExp, maxExp;
+		public ExpBar(myUGUIObject t) : base(t)
+		{
+			t.newObject(out progress, "ImgExpBar");
+			t.newObject(out curExp, "TextCurExp");
+			t.newObject(out maxExp, "TextMaxExp");
+		}
+
+		public void refresh(Exp exp)
+		{
+			progress.setFillPercent(exp.progress);
+			curExp.setText(IToS(exp.currentExp));
+			maxExp.setText(IToS(exp.currentLevelRequiredExp));
+		}
+	}
+
+	public class Relics : UIObject
+	{
+		public Relics(myUGUIObject t) : base(t)
+		{
 		}
 	}
 }

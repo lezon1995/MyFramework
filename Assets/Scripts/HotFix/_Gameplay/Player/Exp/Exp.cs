@@ -18,6 +18,9 @@ public class Exp : ClassObject
     bool loadOnStart;
 
     public int maxLevel => data.Trait.MaxLevel;
+    public float progress => xp / xpRequired;
+    public int currentExp => (int)xp;
+    public int currentLevelRequiredExp => (int)xpRequired;
 
     int level;
     float xp;
@@ -97,12 +100,12 @@ public class Exp : ClassObject
         }
     }
 
-    void updateAll(int level, float xpRequired, float xp, float xpTotal)
+    void updateAll(int _level, float _xpRequired, float _xp, float _xpTotal)
     {
-        setLevel(level);
-        setXpRequired(xpRequired);
-        setXpTotal(xpTotal);
-        setXp(xp);
+        setLevel(_level);
+        setXpRequired(_xpRequired);
+        setXpTotal(_xpTotal);
+        setXp(_xp);
     }
 
     public void save()

@@ -19,7 +19,8 @@ public abstract class WindowObjectBase : ILocalizationCollection, IWindowObjectO
 	protected bool mNeedUpdate;                             // 是否需要调用此对象的update,默认不调用update
 	protected bool mUnuseAllWhenHide = true;                // 是否在隐藏时将引用的对象池中的对象全部回收
 	protected bool mNeedResetAllChild = true;				// 是否在调用自身reset时,去调用所有子节点的reset,默认为true
-	public WindowObjectBase(IWindowObjectOwner parent)
+
+	protected WindowObjectBase(IWindowObjectOwner parent)
 	{
 		reassignParent(parent);
 	}

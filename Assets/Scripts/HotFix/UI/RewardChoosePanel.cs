@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Obfuz;
 using PrimeTween;
+using static StringUtility;
 
 namespace MarbleHero;
 
@@ -11,9 +12,7 @@ namespace MarbleHero;
 [ObfuzIgnore(ObfuzScope.TypeName)]
 public partial class RewardChoosePanel : LayoutScript
 {
-	protected myUGUIButton mTemplate1;
-	protected myUGUIButton mTemplate2;
-	protected myUGUIButton mTemplate3;
+	protected myUGUIButton[] mTemplate = new myUGUIButton[3];
 	// auto generate member end
 
 	static Action onChose;
@@ -30,9 +29,10 @@ public partial class RewardChoosePanel : LayoutScript
 		newObject(out myUGUIObject content, "Content", false);
 		newObject(out myUGUIObject mid, content, "Mid", false);
 		newObject(out myUGUIObject h, mid, "H", false);
-		newObject(out mTemplate1, h, "Template1");
-		newObject(out mTemplate2, h, "Template2");
-		newObject(out mTemplate3, h, "Template3");
+		for (int i = 0; i < mTemplate.Length; ++i)
+		{
+			newObject(out mTemplate[i], h, "Template" + IToS(i));
+		}
 		// auto generate assignWindow end
 	}
 	public override void init()
@@ -40,16 +40,12 @@ public partial class RewardChoosePanel : LayoutScript
 		base.init();
 		// auto generate init start
 		// auto generate init end
-		
-		var item1 = CLASS<Item>();
-		item1.with(mTemplate1);
-		var item2 = CLASS<Item>();
-		item2.with(mTemplate2);
-		var item3 = CLASS<Item>();
-		item3.with(mTemplate3);
-		items.add(item1);
-		items.add(item2);
-		items.add(item3);
+
+		for (var i = 0; i < mTemplate.Length; i++)
+		{
+			var item = new Item(mTemplate[i]);
+			items.add(item);
+		}
 	}
 	public override void onGameState()
 	{
@@ -58,7 +54,6 @@ public partial class RewardChoosePanel : LayoutScript
 
 	public override void destroy()
 	{
-		UN_CLASS_LIST(items);
 		base.destroy();
 	}
 
@@ -77,20 +72,18 @@ public partial class RewardChoosePanel : LayoutScript
 		onChose = value;
 	}
 
-	class Item : ClassObject
-		, IArgs<myUGUIButton>
-		, IRefresh<string>
+	class Item : UIObject, IRefresh<string>
 	{
 		myUGUIButton button;
 		myUGUIText title, desc;
 		string relicId;
 
-		public void onCreate(myUGUIButton btn)
+		public Item(myUGUIButton t) : base(t)
 		{
-			button = btn;
+			button = t;
 			button.setUGUIButtonClick(onClick);
-			button.setUGUIMouseEnter((pointer, go) => { Tween.Scale(button.transform, endValue: 1.2F, duration: 0.1F, ease: Ease.OutCubic); });
-			button.setUGUIMouseExit((pointer, go) => { Tween.Scale(button.transform, endValue: 1F, duration: 0.1F, ease: Ease.OutCubic); });
+			button.setUGUIMouseEnter((pointer, go) => Tween.Scale(go.transform, endValue: 1.2F, duration: 0.1F, ease: Ease.OutCubic));
+			button.setUGUIMouseExit((pointer, go) => Tween.Scale(go.transform, endValue: 1F, duration: 0.1F, ease: Ease.OutCubic));
 
 			button.newObject(out title, "Title");
 			button.newObject(out desc, "Desc");

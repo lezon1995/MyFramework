@@ -831,6 +831,12 @@ public class myUGUIObject : Transformable, IMouseEventCollect
 		obj = LayoutScript.newUIObject<T>(mLayout, gameObject);
 		return obj;
 	}
+	
+	public new RectTransform find(string path)
+	{
+		var t = mTransform.Find(path);
+		return t as RectTransform;
+	}
 
 	public bool find<T>(out T t) where T : Component
 	{
