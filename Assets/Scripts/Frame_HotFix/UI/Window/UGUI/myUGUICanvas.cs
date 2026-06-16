@@ -19,6 +19,10 @@ public class myUGUICanvas : myUGUIObject
 			mObject.TryGetComponent(out mRectTransform);
 			mTransform = mRectTransform;
 		}
+		if (!mObject.TryGetComponent(out mCanvasGroup))
+		{
+			mCanvasGroup = mObject.AddComponent<CanvasGroup>();
+		}
 		mCanvas.overrideSorting = true;
 		// 添加GraphicRaycaster
 		getOrAddUnityComponent<GraphicRaycaster>();

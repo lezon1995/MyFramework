@@ -160,6 +160,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4239029306956595298}
   - component: {fileID: 4393639564398603238}
+  - component: {fileID: 166888040299304249}
   - component: {fileID: 1146774495981351441}
   - component: {fileID: 3275463949008853656}
   m_Layer: 5
@@ -213,6 +214,18 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
+--- !u!225 &166888040299304249
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3850882776913756647}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!114 &1146774495981351441
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -243,6 +256,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1324c7b97d0cd4d4286eaa7aef336d1d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mComment: 
   mMemberList:
   - mObject: {fileID: 2233090718406848598}
     mType: myUGUIImageSimple
@@ -257,6 +271,8 @@ MonoBehaviour:
     mCustomName: 
     mHideError: 0
     mUseCustomName: 0
+    mRegisterCollider: 0
+    mHasClickEvent: 0
   - mObject: {fileID: 1517950754646323589}
     mType: myUGUIImageSimple
     mArrayType: 0
@@ -270,6 +286,8 @@ MonoBehaviour:
     mCustomName: 
     mHideError: 0
     mUseCustomName: 0
+    mRegisterCollider: 0
+    mHasClickEvent: 0
   - mObject: {fileID: 4581674099179751921}
     mType: myUGUIText
     mArrayType: 0
@@ -283,6 +301,8 @@ MonoBehaviour:
     mCustomName: 
     mHideError: 0
     mUseCustomName: 0
+    mRegisterCollider: 0
+    mHasClickEvent: 0
   mParentType: LayoutScript
   mIsPersistent: 0
 --- !u!1 &4581674099179751921

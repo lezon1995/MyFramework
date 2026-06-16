@@ -234,6 +234,16 @@ public enum LAYOUT_ORDER : byte
 	FIXED,					// 固定渲染顺序,并且不可以超过总在最上层的布局
 }
 
+// 布局当前渲染的状态
+public enum LAYOUT_STATE : byte
+{
+	NONE,
+	SHOWING,				// 布局打开中
+	ACTIVE,						// 布局已打开
+	HIDING,						// 布局关闭中
+	INACTIVE,					// 布局已关闭
+}
+
 // 每一帧校正图片位置时的选项
 public enum EFFECT_ALIGN : byte
 {

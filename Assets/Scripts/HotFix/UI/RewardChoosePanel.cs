@@ -41,6 +41,8 @@ public partial class RewardChoosePanel : LayoutScript
 		// auto generate init start
 		// auto generate init end
 
+		mLayout.setScriptControlShow(true);
+		mLayout.setScriptControlHide(true);
 		for (var i = 0; i < mTemplate.Length; i++)
 		{
 			var item = new Item(mTemplate[i]);
@@ -50,6 +52,16 @@ public partial class RewardChoosePanel : LayoutScript
 	public override void onGameState()
 	{
 		base.onGameState();
+		mRoot.setActive(true);
+		mRoot.setScale(0);
+		mRoot.setAlpha(0);
+
+		Tween.Alpha(mCanvasGroup, endValue: 1F, duration: 0.5F, ease: Ease.OutCubic);
+		Tween.Scale(mTransform, endValue: 1F, duration: 0.5F, ease: Ease.OutCubic)
+			.OnComplete(this, script =>
+		{
+			script.setActive(true);
+		});
 	}
 
 	public override void destroy()
@@ -60,6 +72,14 @@ public partial class RewardChoosePanel : LayoutScript
 	public override void onHide()
 	{
 		base.onHide();
+		mRoot.setScale(1);
+		mRoot.setAlpha(1);
+		Tween.Alpha(mCanvasGroup, endValue: 0F, duration: 0.5F, ease: Ease.OutCubic);
+		Tween.Scale(mTransform, endValue: 0F, duration: 0.5F, ease: Ease.OutCubic)
+			.OnComplete(this, script =>
+		{
+			script.setActive(false);
+		});
 	}
 
 	public override void close()
@@ -99,6 +119,9 @@ public partial class RewardChoosePanel : LayoutScript
 
 		void onClick()
 		{
+			if (button.getScript().isHide())
+				return;
+
 			RelicLibrary.getRelic(relicId).makeCopy().instantObtain(player, player.relics.Count , true);
 			onChose?.Invoke();
 		}

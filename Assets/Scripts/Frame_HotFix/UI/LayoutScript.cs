@@ -24,11 +24,14 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 	protected HashSet<IUGUIObject> mLocalizationObjectList;			// 注册的需要本地化的对象,因为每次修改文本显示都会往列表里加,所以使用HashSet
 	protected GameLayout mLayout;									// 所属布局
 	protected myUGUIObject mRoot;									// 布局中的根节点
+	protected RectTransform mTransform;
+	protected CanvasGroup mCanvasGroup;
 	protected bool mRegisterChecked;								// 是否已经检测过了合法性
 	protected bool mNeedUpdate = true;								// 布局脚本是否需要指定update,为了提高效率,可以不执行当前脚本的update,虽然update可能是空的,但是不调用会效率更高
 	protected bool mEscHide;                                        // 按Esc键时是否关闭此界面,仅在PC端使用
 	protected bool mUnuseAllWhenHide = true;                        // 是否在隐藏时将引用的对象池中的对象全部回收
 	protected bool mNeedResetAllChild = true;						// 是否在调用onGameState时,去调用所有一级子节点的reset,默认为true
+	protected LAYOUT_STATE mLayoutState;						// 当前布局所处的渲染状态
 	public override void destroy()
 	{
 		base.destroy();
@@ -61,11 +64,14 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 		mLocalizationObjectList?.Clear();
 		mLayout = null;
 		mRoot = null;
+		mTransform = null;
+		mCanvasGroup = null;
 		mRegisterChecked = false;
 		mNeedUpdate = true;
 		mEscHide = false;
 		mUnuseAllWhenHide = true;
 		mNeedResetAllChild = true;
+		mLayoutState = LAYOUT_STATE.NONE;
 	}
 	public virtual void setLayout(GameLayout layout) { mLayout = layout; }
 	public virtual bool onESCDown()
@@ -79,7 +85,13 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 	public bool isNeedUpdate() { return mNeedUpdate; }
 	public bool isVisible() { return mLayout.isVisible(); }
 	public GameLayout getLayout() { return mLayout; }
-	public void setRoot(myUGUIObject root) { mRoot = root; }
+
+	public void setRoot(myUGUIObject root)
+	{
+		mRoot = root;
+		mTransform = root?.getRectTransform();
+		mCanvasGroup = root?.getCanvasGroup();
+	}
 	public myUGUIObject getRoot() { return mRoot; }
 	public void notifyUIObjectNeedUpdate(myUGUIObject uiObj, bool needUpdate)
 	{
@@ -274,6 +286,8 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 				item.onShow();
 			}
 		}
+
+		mLayoutState = LAYOUT_STATE.SHOWING;
 	}
 	public virtual void onDrawGizmos() { }
 	public virtual void onHide()
@@ -296,7 +310,25 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 			mWindowPoolRootList.For(item => item.unuseAll());
 		}
 		mInputSystem?.unlistenKey(this);
+		mLayoutState = LAYOUT_STATE.HIDING;
 	}
+
+	public void setActive(bool active)
+	{
+		if (active)
+		{
+			mLayoutState = LAYOUT_STATE.ACTIVE;
+			mRoot.setActive(true);
+		}
+		else
+		{
+			mLayoutState = LAYOUT_STATE.INACTIVE;
+			mRoot.setActive(false);
+		}
+	}
+
+	public bool isHide() => mLayoutState is LAYOUT_STATE.HIDING or LAYOUT_STATE.INACTIVE;
+
 	public bool hasObject(string name)
 	{
 		return hasObject(mRoot, name);

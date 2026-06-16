@@ -5,6 +5,7 @@ public class LayoutDebug : MonoBehaviour
 {
 	protected GameLayout mLayout;		// 挂接的布局
 	public string Name;                 // 布局名称
+	public bool ScriptControlShow;      // 是否由脚本来控制显示
 	public bool ScriptControlHide;      // 是否由脚本来控制隐藏
 	public bool CheckBoxAnchor;         // 是否检查布局中所有带碰撞盒的窗口是否自适应分辨率
 	public bool IgnoreTimeScale;        // 更新布局时是否忽略时间缩放
@@ -20,6 +21,7 @@ public class LayoutDebug : MonoBehaviour
 			return;
 		}
 		Name = mLayout.getName();
+		ScriptControlShow = mLayout.isScriptControlShow();
 		ScriptControlHide = mLayout.isScriptControlHide();
 		CheckBoxAnchor = mLayout.isCheckBoxAnchor();
 		IgnoreTimeScale = mLayout.isIgnoreTimeScale();

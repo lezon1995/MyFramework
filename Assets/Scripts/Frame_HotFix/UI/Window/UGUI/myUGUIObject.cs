@@ -22,6 +22,7 @@ public class myUGUIObject : Transformable, IMouseEventCollect
 	protected RectTransform mRectTransform;                         // UGUI的Transform
 	protected GameLayout mLayout;									// 所属布局
 	protected Canvas mCanvas;										// 缓存的Canvas组件,避免重复去获取
+	protected CanvasGroup mCanvasGroup;										// 缓存的CanvasGroup组件,避免重复去获取
 	protected myUGUIObject mParent;									// 父节点窗口
 	protected int mID;												// 每个窗口的唯一ID
 	protected bool mDestroyImmediately;								// 销毁窗口时是否立即销毁
@@ -62,6 +63,7 @@ public class myUGUIObject : Transformable, IMouseEventCollect
 		}
 		mCOMWindowCollider?.setColliderSize(mRectTransform);
 		tryGetUnityComponent(out mCanvas);
+		tryGetUnityComponent(out mCanvasGroup);
 	}
 	public void onLayoutHide() 
 	{
@@ -266,7 +268,12 @@ public class myUGUIObject : Transformable, IMouseEventCollect
 		}
 		return windowSize;
 	}
-	public override void setAlpha(float alpha){}
+
+	public override void setAlpha(float alpha)
+	{
+		if (mCanvasGroup)
+			mCanvasGroup.alpha = alpha;
+	}
 	public virtual void setAlphaWithChild(float alpha)
 	{
 		setAlpha(alpha);
@@ -467,6 +474,7 @@ public class myUGUIObject : Transformable, IMouseEventCollect
 	public string getDescription()					{ return mLayout?.getName(); }
 	public int getID()								{ return mID; }
 	public GameLayout getLayout()					{ return mLayout; }
+	public LayoutScript getScript()					{ return mLayout.getScript(); }
 	public virtual bool isReceiveScreenTouch()		{ return mCOMWindowInteractive?.getOnScreenTouchUp() != null; }
 	public myUGUIObject getParent()					{ return mParent; }
 	public override float getAlpha()				{ return 1.0f; }
@@ -530,6 +538,7 @@ public class myUGUIObject : Transformable, IMouseEventCollect
 	public void setReceiveLayoutHide(bool receive)						{ mReceiveLayoutHide = receive; }
 	public void setIsNewObject(bool isNew)								{ mIsNewObject = isNew; }
 	public Canvas getCanvas()											{ return mCanvas; }
+	public CanvasGroup getCanvasGroup()											{ return mCanvasGroup; }
 	public override void setObject(GameObject go)
 	{
 		setName(go.name);

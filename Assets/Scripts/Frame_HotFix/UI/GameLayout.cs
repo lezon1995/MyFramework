@@ -23,6 +23,7 @@ public class GameLayout
 	protected int mDefaultLayer;					// 布局加载时所处的层
 	protected int mRenderOrder;						// 渲染顺序,越大则渲染优先级越高,不能小于0
 	protected bool mDefaultUpdateWindow = true;		// 是否默认就将所有注册的窗口添加到更新列表中,默认是添加的,在某些需要重点优化的布局中可以选择将哪些窗口放入更新列表
+	protected bool mScriptControlShow;				// 是否由脚本来控制显示
 	protected bool mScriptControlHide;				// 是否由脚本来控制隐藏
 	protected bool mIgnoreTimeScale;				// 更新布局时是否忽略时间缩放
 	protected bool mCheckBoxAnchor = true;			// 是否检查布局中所有带碰撞盒的窗口是否自适应分辨率
@@ -171,8 +172,11 @@ public class GameLayout
 		// 显示布局时立即显示
 		if (visible)
 		{
-			mRoot.setActive(visible);
 			mScript.onGameState();
+			if (!mScriptControlShow)
+			{
+				mScript.setActive(true);
+			}
 		}
 		// 隐藏布局时需要判断
 		else
@@ -189,7 +193,7 @@ public class GameLayout
 			mScript.onHide();
 			if (!mScriptControlHide)
 			{
-				mRoot.setActive(visible);
+				mScript.setActive(false);
 			}
 		}
 	}
@@ -255,6 +259,7 @@ public class GameLayout
 	public bool isIgnoreTimeScale()							{ return mIgnoreTimeScale; }
 	public bool canUIObjectUpdate(myUGUIObject uiObj)		{ return mNeedUpdateList.contains(uiObj); }
 	public bool isScriptControlHide()						{ return mScriptControlHide; }
+	public bool isScriptControlShow()						{ return mScriptControlShow; }
 	public bool isBlurBack()								{ return mBlurBack; }
 	public bool isAnchorApplied()							{ return mAnchorApplied; }
 	// set
@@ -262,6 +267,7 @@ public class GameLayout
 	public void setOrderType(LAYOUT_ORDER orderType)		{ mRenderOrderType = orderType; }
 	// 设置是否会立即隐藏,应该由布局脚本调用
 	public void setScriptControlHide(bool control)			{ mScriptControlHide = control; }
+	public void setScriptControlShow(bool control)			{ mScriptControlShow = control; }
 	public void setCheckBoxAnchor(bool check)				{ mCheckBoxAnchor = check; }
 	public void setIgnoreTimeScale(bool ignore)				{ mIgnoreTimeScale = ignore; }
 	public void setDefaultUpdateWindow(bool defaultUpdate)	{ mDefaultUpdateWindow = defaultUpdate; }
