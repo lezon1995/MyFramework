@@ -212,11 +212,11 @@ public class UGUIGeneratorInspector : GameInspector
 				{
 					logError("标记为数组的节点名为纯数字,无法生成数组代码");
 				}
-				memberDefineList.Add("\tprotected " + type + "[] m" + newName + " = new " + type + "[" + data.mArrayLength + "];");
+				memberDefineList.Add("\tprotected " + type + "[] " + newName + " = new " + type + "[" + data.mArrayLength + "];");
 			}
 			else
 			{
-				memberDefineList.Add("\tprotected " + type + " m" + memberName + ";");
+				memberDefineList.Add("\tprotected " + type + " " + memberName + ";");
 			}
 		}
 
@@ -232,14 +232,14 @@ public class UGUIGeneratorInspector : GameInspector
 			if (data.mArrayType != ARRAY_TYPE.NONE)
 			{
 				string newName = memberName.removeEndNumber();
-				constructorLines.add("\t\tfor (int i = 0; i < m" + newName + ".Length; ++i)");
+				constructorLines.add("\t\tfor (int i = 0; i < " + newName + ".Length; ++i)");
 				constructorLines.add("\t\t{");
-				constructorLines.add("\t\t\tm" + newName + "[i] = new(this);");
+				constructorLines.add("\t\t\t" + newName + "[i] = new(this);");
 				constructorLines.add("\t\t}");
 			}
 			else
 			{
-				constructorLines.add("\t\tm" + memberName + " = new(this);");
+				constructorLines.add("\t\t" + memberName + " = new(this);");
 			}
 		}
 
@@ -267,22 +267,22 @@ public class UGUIGeneratorInspector : GameInspector
 						data.getTypeName() == typeof(myUGUIImageAnim).ToString() ||
 						data.getTypeName() == typeof(myUGUIImage).ToString())
 					{
-						generatedInitLines.add("\t\tm" + data.getMemberName() + ".registeColliderImage(" + "on" + data.getMemberName() + "Click);");
+						generatedInitLines.add("\t\t" + data.getMemberName() + ".registeColliderImage(" + "on" + data.getMemberName() + "Click);");
 						clickCallbackCheckLists.add(generatedClickCallbackLists.add("\tprotected void on" + data.getMemberName() + "Click()"));
 					}
 					else if (data.getTypeName() == typeof(TabItem).ToString())
 					{
-						generatedInitLines.add("\t\tm" + data.getMemberName() + ".setCallback(" + "on" + data.getMemberName() + "Click);");
+						generatedInitLines.add("\t\t" + data.getMemberName() + ".setCallback(" + "on" + data.getMemberName() + "Click);");
 						clickCallbackCheckLists.add(generatedClickCallbackLists.add("\tprotected void on" + data.getMemberName() + "Click()"));
 					}
 					else if (data.getTypeName() == typeof(UGUICheckbox).ToString())
 					{
-						generatedInitLines.add("\t\tm" + data.getMemberName() + ".setCheckCallback(" + "on" + data.getMemberName() + "Click);");
+						generatedInitLines.add("\t\t" + data.getMemberName() + ".setCheckCallback(" + "on" + data.getMemberName() + "Click);");
 						clickCallbackCheckLists.add(generatedClickCallbackLists.add("\tprotected void on" + data.getMemberName() + "Click(UGUICheckbox checkbox)"));
 					}
 					else
 					{
-						generatedInitLines.add("\t\tm" + data.getMemberName() + ".registeCollider(" + "on" + data.getMemberName() + "Click);");
+						generatedInitLines.add("\t\t" + data.getMemberName() + ".registeCollider(" + "on" + data.getMemberName() + "Click);");
 						clickCallbackCheckLists.add(generatedClickCallbackLists.add("\tprotected void on" + data.getMemberName() + "Click()"));
 					}
 					generatedClickCallbackLists.add("\t{");
@@ -291,7 +291,7 @@ public class UGUIGeneratorInspector : GameInspector
 				}
 				else
 				{
-					generatedInitLines.add("\t\tm" + data.getMemberName() + ".registeCollider();");
+					generatedInitLines.add("\t\t" + data.getMemberName() + ".registeCollider();");
 				}
 			}
 		}

@@ -82,68 +82,72 @@ public class MemberData
 	}
 	public string getMemberName()
 	{
-		if (mWindowType == WINDOW_TYPE.NORMAL_WINDOW ||
-			mWindowType == WINDOW_TYPE.COMMON_CONTROL)
+		switch (mWindowType)
 		{
-			return mObject != null ? mObject.name : "";
+			case WINDOW_TYPE.NORMAL_WINDOW:
+			case WINDOW_TYPE.COMMON_CONTROL:
+			{
+				if (mUseCustomName)
+					return mCustomName;
+				
+				return mObject != null ? mObject.name : "";
+			}
+
+			case WINDOW_TYPE.SUB_UI:
+			{
+				if (mUseCustomName)
+					return mCustomName;
+
+				return mObject != null ? mObject.name : "";
+			}
+			case WINDOW_TYPE.SCROLL_LIST:
+			{
+				if (mUseCustomName)
+					return mCustomName;
+
+				if (mPoolTemplate != null)
+					return mPoolTemplate.name + "List";
+
+				break;
+			}
+			case WINDOW_TYPE.POOL:
+			{
+				if (mUseCustomName)
+					return mCustomName;
+
+				if (mPoolTemplate != null)
+					return mPoolTemplate.name + "Pool";
+
+				break;
+			}
 		}
-		if (mWindowType == WINDOW_TYPE.SUB_UI)
-		{
-			if (mUseCustomName)
-			{
-				return mCustomName;
-			}
-			return mObject != null ? mObject.name : "";
-		}
-		if (mWindowType == WINDOW_TYPE.SCROLL_LIST)
-		{
-			if (mUseCustomName)
-			{
-				return mCustomName;
-			}
-			if (mPoolTemplate != null)
-			{
-				return mPoolTemplate.name + "List";
-			}
-		}
-		else if (mWindowType == WINDOW_TYPE.POOL)
-		{
-			if (mUseCustomName)
-			{
-				return mCustomName;
-			}
-			if (mPoolTemplate != null)
-			{
-				return mPoolTemplate.name + "Pool";
-			}
-		}
+
 		return "";
 	}
+
 	public string getTypeName()
 	{
-		if (mWindowType == WINDOW_TYPE.NORMAL_WINDOW ||
-			mWindowType == WINDOW_TYPE.COMMON_CONTROL ||
-			mWindowType == WINDOW_TYPE.SUB_UI)
+		switch (mWindowType)
 		{
-			return mType;
-		}
-		if (mWindowType == WINDOW_TYPE.SCROLL_LIST)
-		{
-			return mType + "<" + mParam0 + ", " + mParam0 + ".Data>";
-		}
-		if (mWindowType == WINDOW_TYPE.POOL)
-		{
-			if (mType == "WindowStructPoolMap")
-			{
+			case WINDOW_TYPE.NORMAL_WINDOW:
+			case WINDOW_TYPE.COMMON_CONTROL:
+			case WINDOW_TYPE.SUB_UI:
+				return mType;
+
+			case WINDOW_TYPE.SCROLL_LIST:
+				return mType + "<" + mParam0 + ", " + mParam0 + ".Data>";
+
+			case WINDOW_TYPE.POOL when mType == "WindowStructPoolMap":
 				return mType + "<" + mParam0 + ", " + mParam1 + ">";
-			}
-			else
-			{
+
+			case WINDOW_TYPE.POOL:
 				return mType + "<" + mParam0 + ">";
-			}
+
+			default:
+				return "";
 		}
-		return "";
 	}
+
 	public void setWindowType(WINDOW_TYPE type)
 	{
 		if (mWindowType == type)

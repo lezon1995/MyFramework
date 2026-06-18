@@ -273,11 +273,15 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
                         {
                             //如果上一次的Overlapping还未结束，则提前结束上一次的Overlapping
                             var lastOverlappingBrick = overlappingBrick;
-                            player.onBallEndOverlappingBrick(this, lastOverlappingBrick, true);
+                            player.onBallEndOverlappingBrickOne(this, lastOverlappingBrick, true);
                         }
 
+                        var noOverlappingBefore = overlappingBrick == null;
                         overlappingBrick = collidingBrick;
-                        player.onBallBeginOverlappingBrick(this, overlappingBrick);
+                        if (noOverlappingBefore)
+                            player.onBallBeginOverlappingBrickAll(this, overlappingBrick);
+
+                        player.onBallBeginOverlappingBrickOne(this, overlappingBrick);
                     }
                 }
                 else
@@ -285,7 +289,8 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
                     if (isOverlappingBrick)
                     {
                         isOverlappingBrick = false;
-                        player.onBallEndOverlappingBrick(this, overlappingBrick, false);
+                        player.onBallEndOverlappingBrickOne(this, overlappingBrick, false);
+                        player.onBallEndOverlappingBrickAll(this, overlappingBrick, false);
                         overlappingBrick = null;
                     }
 
@@ -339,30 +344,70 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
 
         mask |= BRICK_LAYER_MASK;
         mask &= ~exceptMask;
+
+        // Issue 1: 先检测球是否已嵌入碰撞体，若是则尝试向反方向推出
+        var overlapFilter = new ContactFilter2D();
+        overlapFilter.SetLayerMask(mask);
+        using var overlapList = new ListScope<Collider2D>(out var overlapColliders);
+        int overlapCount = Physics2D.OverlapCircle(curPos, radius, overlapFilter, overlapColliders);
+        if (overlapCount > 0)
+        {
+            // 先尝试沿运动方向的反方向推出
+            Vector2 antiPushDir = direction != Vector2.zero ? -direction : Vector2.left;
+            float pushDist = radius * 2f;
+            Vector2 pushedPos = curPos + antiPushDir * pushDist;
+            overlapCount = Physics2D.OverlapCircle(pushedPos, radius, overlapFilter, overlapColliders);
+            if (overlapCount == 0)
+            {
+                curPos = pushedPos;
+            }
+            else
+            {
+                // 反方向不行，尝试正交方向
+                Vector2 orthoDir = new Vector2(-direction.y, direction.x);
+                pushedPos = curPos + orthoDir * pushDist;
+                overlapCount = Physics2D.OverlapCircle(pushedPos, radius, overlapFilter, overlapColliders);
+                if (overlapCount == 0)
+                {
+                    curPos = pushedPos;
+                }
+                else
+                {
+                    pushedPos = curPos - orthoDir * pushDist;
+                    overlapCount = Physics2D.OverlapCircle(pushedPos, radius, overlapFilter, overlapColliders);
+                    if (overlapCount == 0)
+                    {
+                        curPos = pushedPos;
+                    }
+                    // 所有方向都无法推出，保持原位，交给ensureNotOverlapping处理
+                }
+            }
+        }
+
         if (isPenetrable)
         {
+            // Issue 4: 每次新建filter，避免状态残留
             var filter = new ContactFilter2D();
             filter.useTriggers = true;
             filter.SetLayerMask(BRICK_LAYER_MASK);
 
-            using var a = new ListScope<Collider2D>(out var overlapColliders);
-            var overlapCount = Physics2D.OverlapCircle(curPos, radius, filter, overlapColliders);
-            if (overlapCount > 0)
+            using var a = new ListScope<Collider2D>(out var overlapColliders2);
+            var overlapCount2 = Physics2D.OverlapCircle(curPos, radius, filter, overlapColliders2);
+            if (overlapCount2 > 0)
             {
                 filter.SetLayerMask(mask);
                 using var _ = new ListScope<RaycastHit2D>(out var hits);
-                var nowPos = (Vector2)getWorldPosition();
-                var count = Physics2D.CircleCast(nowPos, radius, direction, filter, hits, PHYSICS_CAST_DISTANCE);
+                var count = Physics2D.CircleCast(curPos, radius, direction, filter, hits, PHYSICS_CAST_DISTANCE);
                 if (count > 0)
                 {
                     hits.Sort(comparison);
                     for (var i = 0; i < count; i++)
                     {
                         hit = hits[i];
-                        if (overlapColliders.Contains(hit.collider))
+                        if (overlapColliders2.Contains(hit.collider))
                             continue;
 
-                        var hitDir = hit.point - nowPos;
+                        var hitDir = hit.point - curPos;
                         if (Vector2.Dot(direction, hitDir) < 0)
                             continue;
 
@@ -388,7 +433,10 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
         }
         else
         {
+            // Issue 7: 无命中时设置远端目标，防止球停住
             hitCollider = null;
+            hitNormal = Vector2.zero;
+            targetPos = curPos + direction * PHYSICS_CAST_DISTANCE;
         }
     }
 

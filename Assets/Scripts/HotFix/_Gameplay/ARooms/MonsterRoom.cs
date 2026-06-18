@@ -75,7 +75,9 @@ namespace MarbleHero
             var combo = ++GameActionManager.turnCombo;
             var baseExp = gameDesign.baseExpStandard;
             int extraExp = gameDesign.getExtraExpAtCombo(combo);
-            GameActionManager.turnExp += (baseExp + extraExp);
+            var totalExp = baseExp + extraExp;
+            actionManager.addToBot<GainExpAction>().with(totalExp);
+            GameActionManager.turnExp += totalExp;
             e.combo = combo;
 
             brickDeathTimer = 0.15F;

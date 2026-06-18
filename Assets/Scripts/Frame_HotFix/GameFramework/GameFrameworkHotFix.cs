@@ -438,5 +438,6 @@ public class GameFrameworkHotFix : IFramework
 		registeFrameSystem<AvatarRenderer>((com) =>			{ mAvatarRenderer = com; });
 		registeFrameSystem<LayoutManager>((com) =>			{ mLayoutManager = com; }, 1000, 1000, -1);			// 布局管理器也需要在最后更新,确保所有游戏逻辑都更新完毕后,再更新界面
 		registeFrameSystem<PrefabPoolManager>((com) =>		{ mPrefabPoolManager = com; }, 2000, 2000, 2000);	// 物体管理器最后注册,销毁所有缓存的资源对象
+		registeFrameSystem<TemplatePoolManager>((com) =>		{ mTemplatePoolManager = com; }, 2000, 2000, 2000);	// 物体管理器最后注册,销毁所有缓存的资源对象
 	}
 }

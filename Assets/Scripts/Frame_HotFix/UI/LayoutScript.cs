@@ -443,7 +443,7 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 		return newObject(out obj, parent, name, true, false);
 	}
 	// 创建myUGUIObject,并且在布局中查找GameObject分配到myUGUIObject
-	public T newObject<T>(out T obj, myUGUIObject parent, string name, bool showError, bool setParent = true) where T : myUGUIObject, new()
+	public T newObject<T>(out T obj, myUGUIObject parent, string name, bool showError, bool setParent = false) where T : myUGUIObject, new()
 	{
 		obj = null;
 		GameObject parentObj = parent?.getGameObject();

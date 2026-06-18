@@ -8,6 +8,8 @@ namespace MarbleHero;
 [Serializable]
 public partial class Brick : MovableObject, IDamageable<Ball>, IHittable, IReusable
 {
+    public override string ToString() => mName;
+
     protected BrickManager manager;
     public int instanceID;
     protected Type type; // 角色类型

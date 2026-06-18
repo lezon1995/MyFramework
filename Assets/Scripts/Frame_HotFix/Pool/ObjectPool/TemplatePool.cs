@@ -1,0 +1,196 @@
+﻿using System;
+using System.Collections.Generic;
+using UnityEngine;
+using static UnityUtility;
+using static MathUtility;
+using static FrameBaseHotFix;
+using static FrameDefine;
+using static FrameUtility;
+
+// 单个prefab的实例化池
+public class TemplatePool : ClassObject
+{
+	protected HashSet<TemplateObjectInfo> mInuseList = new();   // 正在使用的实例化列表,第一个key是文件名,第二个列表中的key是实例化出的物体,value是物品信息,为了提高运行时效率,仅在编辑器下使用
+	protected List<TemplateObjectInfo> mUnuseList = new();		// 未使用的实例化列表,第一个key是文件名,第二个列表中的key是实例化出的物体,value是物品信息
+	protected GameObject mTemplate;								// 此实例物体的预设文件名,相对于GameResources的路径,带后缀
+	protected int mAsyncLoadingCount;                       // 正在异步加载的数量
+	protected int mAsyncInstantiateCount;					// 正在异步实例化的数量
+	public override void resetProperty()
+	{
+		base.resetProperty();
+		mInuseList.Clear();
+		mUnuseList.Clear();
+		mTemplate = null;
+		mAsyncLoadingCount = 0;
+		mAsyncInstantiateCount = 0;
+	}
+	public override void destroy()
+	{
+		base.destroy();
+		destroyAllInstance();
+	}
+	public void destroyAllInstance()
+	{
+		mInuseList.For(item => item.destroyObject());
+		mInuseList.Clear();
+		mUnuseList.For(item => item.destroyObject());
+		mUnuseList.Clear();
+	}
+	public void setTemplate(GameObject template)				{ mTemplate = template; }
+	public GameObject getTemplate()								{ return mTemplate; }
+	public List<TemplateObjectInfo> getUnuseList()				{ return mUnuseList; }
+	public HashSet<TemplateObjectInfo> getInuseList()			{ return mInuseList; }
+	public int getInuseCount()								{ return mInuseList.Count; }
+	public int getUnuseCount()								{ return mUnuseList.Count; }
+	public bool isEmpty()									{ return mInuseList.Count == 0 && mUnuseList.Count == 0 && mAsyncLoadingCount == 0 && mAsyncInstantiateCount == 0; }
+	public bool isEmptyInUse()								{ return mInuseList.Count == 0 && mAsyncLoadingCount == 0 && mAsyncInstantiateCount == 0; }
+	// 向池中同步初始化一定数量的对象
+	public void initToPool(int tag, int count, bool moveToHide)
+	{
+		if (mTemplate == null)
+			return;
+		doInitToPool(tag, count, moveToHide);
+	}
+	// 从对象池中同步获取或者创建一个物体
+	public TemplateObjectInfo getOneUnused(int tag)
+	{
+		TemplateObjectInfo objInfo;
+		// 未使用列表中有就从未使用列表中获取
+		if (mUnuseList.Count > 0)
+		{
+			objInfo = mUnuseList.popBack();
+			objInfo.setTemplate(mTemplate);
+			if (objInfo.getTag() != tag)
+			{
+				logError("不能为同一个物体设置不同的tag, file:" + objInfo.getTemplate() + ", 旧tag:" + objInfo.getTag() + ", 新tag:" + tag);
+			}
+		}
+		// 没有就创建一个新的
+		else
+		{
+			// 实例化
+			CLASS(out objInfo);
+			objInfo.setTemplate(mTemplate);
+			objInfo.setTag(tag);
+			objInfo.createObject();
+		}
+		objInfo.setUsing(true);
+		return mInuseList.add(objInfo);
+	}
+	// 销毁物体,destroyReally为true表示将对象直接从内存中销毁,false表示只是放到未使用列表中
+	// moveToHide为true则表示回收时不会改变GameObject的显示,只是将位置设置到很远的地方
+	public void destroyObject(TemplateObjectInfo obj, bool destroyReally)
+	{
+		if (obj.getPool() != this)
+		{
+			logError("要销毁的物体不属于当前对象池");
+			return;
+		}
+		GameObject go = obj.getObject();
+		if (!mInuseList.Remove(obj))
+		{
+			logError("从使用列表中移除失败:" + go.name + ", " + obj.GetHashCode() + ", pool hash:" + GetHashCode());
+		}
+		if (destroyReally)
+		{
+			mUnuseList.Remove(obj);
+			UN_CLASS(ref obj);
+			return;
+		}
+
+		bool moveToHide = obj.isMoveToHide();
+		if (go.transform.parent == null || go.transform.parent.gameObject != mPrefabPoolManager.getObject())
+		{
+			// 只有在PrefabPoolManager节点下的物体才可以在回收时只改变位置
+			moveToHide = false;
+		}
+		// 隐藏物体,并且将物体重新挂接到预设管理器下,重置物体变换
+		if (moveToHide)
+		{
+			go.transform.localPosition = FAR_POSITION;
+		}
+		else
+		{
+			if (go.activeSelf)
+			{
+				go.SetActive(false);
+			}
+			setNormalProperty(go, mPrefabPoolManager.getObject());
+		}
+		obj.setUsing(false);
+		mUnuseList.add(obj);
+	}
+	//------------------------------------------------------------------------------------------------------------------------------
+	protected void doInitToPool(int tag, int count, bool moveToHide)
+	{
+		if (mTemplate == null)
+		{
+			return;
+		}
+		int needCreate = clampMin(count - mInuseList.Count - mUnuseList.Count);
+		int needCapacity = mUnuseList.count() + needCreate;
+		if (mUnuseList.Capacity < needCapacity)
+		{
+			mUnuseList.Capacity = needCapacity;
+		}
+		for (int i = 0; i < needCreate; ++i)
+		{
+			TemplateObjectInfo objInfo = mUnuseList.addClass();
+			objInfo.setTemplate(mTemplate);
+			objInfo.setTag(tag);
+			// 实例化,同步进行
+			objInfo.createObject();
+			GameObject go = objInfo.getObject();
+			if (go != null)
+			{
+				// 隐藏物体,并且将物体重新挂接到预设管理器下,重置物体变换
+				setNormalProperty(go, mPrefabPoolManager.getObject());
+				if (moveToHide)
+				{
+					go.transform.localPosition = FAR_POSITION;
+				}
+				else if (go.activeSelf)
+				{
+					go.SetActive(false);
+				}
+			}
+			objInfo.setUsing(false);
+		}
+	}
+	// 从池中异步获取一个可用的对象
+	protected void getOneUnusedAsyncInternal(int tag, Action<TemplateObjectInfo> callback)
+	{
+		// 未使用列表中有就从未使用列表中获取
+		if (mUnuseList.Count > 0)
+		{
+			TemplateObjectInfo objInfo = mUnuseList.popBack();
+			objInfo.setTemplate(mTemplate);
+			if (objInfo.getTag() != tag)
+			{
+				logError("不能为同一个物体设置不同的tag, file:" + objInfo.getTemplate());
+			}
+			objInfo.setUsing(true);
+			callback?.Invoke(mInuseList.add(objInfo));
+		}
+		// 没有就创建一个新的
+		else
+		{
+			// 实例化
+			++mAsyncInstantiateCount;
+			var objInfo = CLASS<TemplateObjectInfo>();
+			objInfo.setTemplate(mTemplate);
+			objInfo.createObjectAsync((TemplateObjectInfo info) =>
+			{
+				--mAsyncInstantiateCount;
+				if (info == null)
+				{
+					callback?.Invoke(null);
+					return;
+				}
+				info.setTag(tag);
+				info.setUsing(true);
+				callback?.Invoke(mInuseList.add(info));
+			});
+		}
+	}
+}

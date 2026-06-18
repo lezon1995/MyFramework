@@ -23,6 +23,13 @@ public class MenuAssetBundle
 	{
 		packAssetBundle(getBuildTarget(), getAssetBundlePath(true), true);
 	}
+
+	[MenuItem(MENU_NAME + "构建AssetBundle", false, 0)]
+	public static void buildAssetBundleMenu()
+	{
+		packAssetBundle(getBuildTarget(), getAssetBundleBuildPath(), true, true);
+	}
+
 	[MenuItem(MENU_NAME + "刷新AssetBundle名字", false, 1)]
 	public static void refreshAllAssetBundleName()
 	{
@@ -58,7 +65,7 @@ public class MenuAssetBundle
 		clearAssetBundleName();
 	}
 	//------------------------------------------------------------------------------------------------------------------------------
-	public static bool packAssetBundle(BuildTarget target, string outputPath, bool showMessageBox)
+	public static bool packAssetBundle(BuildTarget target, string outputPath, bool showMessageBox, bool keepManifest = false)
 	{
 		Debug.Log("打包全部AssetBundle");
 		mIsPackingAssetBundle = true;
@@ -106,10 +113,14 @@ public class MenuAssetBundle
 				serializer.writeList(bundleInfo.mDependencies);
 			}
 			writeFile(outputPath + STREAMING_ASSET_FILE, serializer.getBuffer(), serializer.getDataSize(), false);
-			// 删除所有的manifest文件
-			foreach (string file in findFilesNonAlloc(outputPath, new List<string>() { ".manifest", ".manifest.meta" }))
+			if (!keepManifest)
 			{
-				deleteFile(file);
+				// 删除所有的manifest文件
+				var manifests = findFilesNonAlloc(outputPath, new List<string>() { ".manifest", ".manifest.meta" });
+				foreach (string file in manifests)
+				{
+					deleteFile(file);
+				}
 			}
 			postProcess();
 			showInfo("资源打包结束! 耗时 : " + (DateTime.Now - time0), showMessageBox, false);

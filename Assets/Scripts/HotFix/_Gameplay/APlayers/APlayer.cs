@@ -602,18 +602,38 @@ public abstract partial class APlayer : ACreature
             relic.onFightingPhaseEnd(this);
     }
 
-    public void onBallBeginOverlappingBrick(Ball ball, Brick brick)
+    public void onBallBeginOverlappingBrickAll(Ball ball, Brick brick)
     {
         foreach (var relic in relics)
-            relic.onBallBeginOverlappingBrick(this, ball, brick);
+            relic.onBallBeginOverlappingBrickAll(this, ball, brick);
+        
+        //log($"重叠All开始 start with {brick.getName()}");
     }
 
-    public void onBallEndOverlappingBrick(Ball ball, Brick brick, bool prematurely)
+    public void onBallEndOverlappingBrickAll(Ball ball, Brick brick, bool prematurely)
+    {
+        foreach (var relic in relics)
+            relic.onBallEndOverlappingBrickAll(this, ball, brick, prematurely);
+        
+        //log($"重叠All结束 end with {brick.getName()}");
+    }
+
+    public void onBallBeginOverlappingBrickOne(Ball ball, Brick brick)
+    {
+        foreach (var relic in relics)
+            relic.onBallBeginOverlappingBrickOne(this, ball, brick);
+        
+        //log($"重叠One开始 start with {brick.getName()}");
+    }
+
+    public void onBallEndOverlappingBrickOne(Ball ball, Brick brick, bool prematurely)
     {
         ball.counters.penetrateBrick.count();
         
         foreach (var relic in relics)
-            relic.onBallEndOverlappingBrick(this, ball, brick, prematurely);
+            relic.onBallEndOverlappingBrickOne(this, ball, brick, prematurely);
+        
+        //log($"重叠One结束 end with {brick.getName()}");
     }
 
     public void onBallHitBorderBot(Ball ball, BorderBot border, Vector2 normal, ref bool forceReturn)

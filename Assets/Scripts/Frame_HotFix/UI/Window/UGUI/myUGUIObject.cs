@@ -841,6 +841,40 @@ public class myUGUIObject : Transformable, IMouseEventCollect
 		return obj;
 	}
 	
+	public T newObject<T>(out T obj, GameObject o) where T : myUGUIObject, new()
+	{
+		obj = null;
+		if (o == null)
+			return obj;
+
+		myUGUIObject existUIObj = mLayout?.getUIObject(o);
+		if (existUIObj)
+		{
+			obj = existUIObj as T;
+			return obj;
+		}
+
+		obj = LayoutScript.newUIObject<T>(mLayout, o);
+		return obj;
+	}
+
+	public T newObject<T>(out T obj, Transform o) where T : myUGUIObject, new()
+	{
+		obj = null;
+		if (o == null)
+			return obj;
+
+		myUGUIObject existUIObj = mLayout?.getUIObject(o.gameObject);
+		if (existUIObj)
+		{
+			obj = existUIObj as T;
+			return obj;
+		}
+
+		obj = LayoutScript.newUIObject<T>(mLayout, o.gameObject);
+		return obj;
+	}
+	
 	public new RectTransform find(string path)
 	{
 		var t = mTransform.Find(path);

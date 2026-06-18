@@ -18,6 +18,7 @@ public class FrameBaseHotFix
 	public static CameraManager mCameraManager;
 	public static ResourceManager mResourceManager;
 	public static PrefabPoolManager mPrefabPoolManager;
+	public static TemplatePoolManager mTemplatePoolManager;
 	public static InputSystem mInputSystem;
 	public static KeyMappingSystem mKeyMappingSystem;
 	public static SceneSystem mSceneSystem;

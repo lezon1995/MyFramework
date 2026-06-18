@@ -37,7 +37,7 @@ namespace MarbleHero
             {
                 if (player.ballCount > 0)
                 {
-                    var ball = ballManager.acquireBall(shootPos, 0.14F, shootDir, 8F);
+                    var ball = ballManager.acquireBall(shootPos, 0.14F, shootDir, 16F);
                     if (player.ballCount == player.ballMaxCount)
                     {
                         // ball.isFirst = true;

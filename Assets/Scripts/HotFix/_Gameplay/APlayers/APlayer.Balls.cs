@@ -18,6 +18,7 @@ namespace MarbleHero
         public List<Ball> activeBalls = new();
         public Vector3 originalShootPosition, shootPosition;
         public bool isFirstBallReturn;
+        public int toClaimRewardCount;
 
         protected List<Buff> buffs = new();
         protected List<Type> ballBuffs = new();
@@ -73,14 +74,14 @@ namespace MarbleHero
 
         public GuideLine getGuideLine() => guideLine;
 
-        public void shootBalls(Vector3 shootPosition, Vector3 shootDirection)
+        public void shootBalls(Vector3 pos, Vector3 dir)
         {
             // ballMaxCount++;
             // CtrUI.instance.SetReturnBallButton(true);
             isReturnBall = false;
             guideLine.setIndicatorBallActive(false);
             guideLine.guidelineOff();
-            actionManager.addToBot<ShootBallsAction>().with(shootPosition, shootDirection);
+            actionManager.addToBot<ShootBallsAction>().with(pos, dir);
         }
 
         public void returnBall()
@@ -152,7 +153,7 @@ namespace MarbleHero
 
         protected void onLevelUp()
         {
-            actionManager.addToBot<OpenRewardChoosePanelAction>();
+            toClaimRewardCount++;
         }
     }
 }

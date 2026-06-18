@@ -3126,31 +3126,37 @@ public class EditorCommonUtility
 	public static string getAssetBundlePath(bool fullOrInProject, BuildTarget target = BuildTarget.NoTarget)
 	{
 		if (target == BuildTarget.NoTarget)
-		{
 			target = getBuildTarget();
-		}
-		if (target == BuildTarget.Android)
+
+		return target switch
 		{
-			return fullOrInProject ? F_ASSET_BUNDLE_ANDROID_PATH : P_ASSET_BUNDLE_ANDROID_PATH;
-		}
-		else if (target == BuildTarget.WebGL)
-		{
-			return fullOrInProject ? F_ASSET_BUNDLE_WEBGL_PATH : P_ASSET_BUNDLE_WEBGL_PATH;
-		}
-		else if (target == BuildTarget.iOS)
-		{
-			return fullOrInProject ? F_ASSET_BUNDLE_IOS_PATH : P_ASSET_BUNDLE_IOS_PATH;
-		}
-		else if (target == BuildTarget.StandaloneWindows || target == BuildTarget.StandaloneWindows64)
-		{
-			return fullOrInProject ? F_ASSET_BUNDLE_WINDOWS_PATH : P_ASSET_BUNDLE_WINDOWS_PATH;
-		}
-		else if (target == BuildTarget.StandaloneOSX)
-		{
-			return fullOrInProject ? F_ASSET_BUNDLE_MACOS_PATH : P_ASSET_BUNDLE_MACOS_PATH;
-		}
-		return null;
+			BuildTarget.Android => fullOrInProject ? F_ASSET_BUNDLE_ANDROID_PATH : P_ASSET_BUNDLE_ANDROID_PATH,
+			BuildTarget.WebGL => fullOrInProject ? F_ASSET_BUNDLE_WEBGL_PATH : P_ASSET_BUNDLE_WEBGL_PATH,
+			BuildTarget.iOS => fullOrInProject ? F_ASSET_BUNDLE_IOS_PATH : P_ASSET_BUNDLE_IOS_PATH,
+			BuildTarget.StandaloneWindows => fullOrInProject ? F_ASSET_BUNDLE_WINDOWS_PATH : P_ASSET_BUNDLE_WINDOWS_PATH,
+			BuildTarget.StandaloneWindows64 => fullOrInProject ? F_ASSET_BUNDLE_WINDOWS_PATH : P_ASSET_BUNDLE_WINDOWS_PATH,
+			BuildTarget.StandaloneOSX => fullOrInProject ? F_ASSET_BUNDLE_MACOS_PATH : P_ASSET_BUNDLE_MACOS_PATH,
+			_ => null
+		};
 	}
+
+	public static string getAssetBundleBuildPath(BuildTarget target = BuildTarget.NoTarget)
+	{
+		if (target == BuildTarget.NoTarget)
+			target = getBuildTarget();
+
+		return target switch
+		{
+			BuildTarget.Android => P_ASSET_BUNDLE_ANDROID_BUILD_PATH,
+			BuildTarget.WebGL => P_ASSET_BUNDLE_WEBGL_BUILD_PATH,
+			BuildTarget.iOS => P_ASSET_BUNDLE_IOS_BUILD_PATH,
+			BuildTarget.StandaloneWindows => P_ASSET_BUNDLE_WINDOWS_BUILD_PATH,
+			BuildTarget.StandaloneWindows64 => P_ASSET_BUNDLE_WINDOWS_BUILD_PATH,
+			BuildTarget.StandaloneOSX => P_ASSET_BUNDLE_MACOS_BUILD_PATH,
+			_ => null
+		};
+	}
+	
 	public static bool multiSpriteToSpritePNG(Texture2D tex2D, string outputPath)
 	{
 		bool backupReadable = tex2D.isReadable;

@@ -1,11 +1,24 @@
 ﻿namespace MarbleHero
 {
-    public class GainExpAction : AGameAction
+    public class GainExpAction : AGameAction, IArgs<int>
     {
+        int expToGain;
+        
+        public void onCreate(int exp)
+        {
+            expToGain = exp;
+        }
+
         public override void update(float dt)
         {
-            player.gainExp(GameActionManager.turnExp);
+            player.gainExp(expToGain);
             isDone = true;
+        }
+
+        public override void resetProperty()
+        {
+            base.resetProperty();
+            expToGain = 0;
         }
     }
 }

@@ -474,11 +474,18 @@ namespace MarbleHero
         {
         }
 
-        public virtual void onBallBeginOverlappingBrick(APlayer p, Ball ball, Brick brick)
+        public virtual void onBallBeginOverlappingBrickAll(APlayer p, Ball ball, Brick brick)
         {
         }
 
-        public virtual void onBallEndOverlappingBrick(APlayer p, Ball ball, Brick brick, bool prematurely)
+        public virtual void onBallEndOverlappingBrickAll(APlayer p, Ball ball, Brick brick, bool prematurely)
+        {
+        }
+        public virtual void onBallBeginOverlappingBrickOne(APlayer p, Ball ball, Brick brick)
+        {
+        }
+
+        public virtual void onBallEndOverlappingBrickOne(APlayer p, Ball ball, Brick brick, bool prematurely)
         {
         }
 

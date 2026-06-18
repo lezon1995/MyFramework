@@ -10,45 +10,40 @@ namespace MarbleHero;
 [ObfuzIgnore(ObfuzScope.TypeName)]
 public partial class OverlayMenu : LayoutScript
 {
-	protected myUGUIObject mExpBar;
-	protected myUGUIObject mPlayerInfo;
-	protected myUGUIObject mRelics;
-	protected myUGUIObject mEnemyInfo;
-	protected myUGUIObject mIntents;
+	protected ExpView mExpView;
+	protected RelicsView mRelicsView;
+	protected PlayerHealthView mPlayerHealthView;
+	protected EnemyHealthView mEnemyHealthView;
+	protected EnemyIntentsView mEnemyIntentsView;
 	// auto generate member end
 	
 	public Intents intents;
-	public ExpBar expBar;
-	public Relics relics;
-	public PlayerInfo playerInfo;
-	public EnemyInfo enemyInfo;
 	public OverlayMenu()
 	{
 		// auto generate constructor start
+		mExpView = new(this);
+		mRelicsView = new(this);
+		mPlayerHealthView = new(this);
+		mEnemyHealthView = new(this);
+		mEnemyIntentsView = new(this);
 		// auto generate constructor end
 		mNeedUpdate = false;
 	}
 	public override void assignWindow()
 	{
 		// auto generate assignWindow start
-		newObject(out myUGUIObject content, "Content", false);
-		newObject(out myUGUIObject bot, content, "Bot", false);
-		newObject(out mExpBar, bot, "ExpBar");
-		newObject(out myUGUIObject left, content, "Left", false);
-		newObject(out mPlayerInfo, left, "PlayerInfo");
-		newObject(out myUGUIObject v1, mPlayerInfo, "V", false);
-		newObject(out mRelics, v1, "Relics");
-		newObject(out myUGUIObject right, content, "Right", false);
-		newObject(out mEnemyInfo, right, "EnemyInfo");
-		newObject(out myUGUIObject v2, mEnemyInfo, "V", false);
-		newObject(out mIntents, v2, "Intents");
+		mExpView.assignWindow(mRoot, "Content/Bot/ExpView");
+		mRelicsView.assignWindow(mRoot, "Content/Left/PlayerInfo/RelicsView");
+		mPlayerHealthView.assignWindow(mRoot, "Content/Left/PlayerInfo/PlayerHealthView");
+		mEnemyHealthView.assignWindow(mRoot, "Content/Right/EnemyInfo/V/EnemyHealthView");
+		mEnemyIntentsView.assignWindow(mRoot, "Content/Right/EnemyInfo/V/EnemyIntentsView");
 		// auto generate assignWindow end
 
-		intents = new(mIntents);
-		expBar = new(mExpBar);
-		relics = new(mRelics);
-		playerInfo = new(mPlayerInfo);
-		enemyInfo = new(mEnemyInfo);
+		// intents = new(mIntents);
+		// expBar = new(mExpBar);
+		// relics = new(mRelics);
+		// playerInfo = new(mPlayerInfo);
+		// enemyInfo = new(mEnemyInfo);
 	}
 	public override void init()
 	{
@@ -155,32 +150,6 @@ public partial class OverlayMenu : LayoutScript
 			item.setAlpha(lerp(1F, 0F, t));
 			item.setDescAlpha(lerp(0F, 1F, t));
 			item.setDescAnchoredPosition(t);
-		}
-	}
-
-	public class ExpBar : UIObject , IRefresh<Exp>
-	{
-		myUGUIImageSimple progress;
-		myUGUIText curExp, maxExp;
-		public ExpBar(myUGUIObject t) : base(t)
-		{
-			t.newObject(out progress, "ImgExpBar");
-			t.newObject(out curExp, "TextCurExp");
-			t.newObject(out maxExp, "TextMaxExp");
-		}
-
-		public void refresh(Exp exp)
-		{
-			progress.setFillPercent(exp.progress);
-			curExp.setText(IToS(exp.currentExp));
-			maxExp.setText(IToS(exp.currentLevelRequiredExp));
-		}
-	}
-
-	public class Relics : UIObject
-	{
-		public Relics(myUGUIObject t) : base(t)
-		{
 		}
 	}
 }

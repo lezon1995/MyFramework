@@ -4,11 +4,6 @@
     {
         RewardChoosePanel panel;
 
-        public override void onCreate()
-        {
-            duration = 1F;
-        }
-
         public override void update(float dt)
         {
             if (panel == null && !isDone)

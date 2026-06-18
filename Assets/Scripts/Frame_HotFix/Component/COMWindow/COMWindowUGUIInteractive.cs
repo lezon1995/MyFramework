@@ -38,6 +38,9 @@ public class COMWindowUGUIInteractive : GameComponent
 			mEventTriggerListener.mOnUp -= onUGUIMouseUp;
 			mEventTriggerListener.mOnEnter -= onUGUIMouseEnter;
 			mEventTriggerListener.mOnExit -= onUGUIMouseLeave;
+			// mEventTriggerListener.mOnMove -= onUGUIMouseMove;
+			// mEventTriggerListener.mOnSelect -= onUGUIMouseSelect;
+			// mEventTriggerListener.mOnUpdateSelect -= onUGUIMouseUpdateSelect;
 		}
 		mMousePointer = null;
 	}
@@ -107,6 +110,9 @@ public class COMWindowUGUIInteractive : GameComponent
 		mEventTriggerListener.mOnUp += onUGUIMouseUp;
 		mEventTriggerListener.mOnEnter += onUGUIMouseEnter;
 		mEventTriggerListener.mOnExit += onUGUIMouseLeave;
+		// mEventTriggerListener.mOnMove += onUGUIMouseMove;
+		// mEventTriggerListener.mOnSelect += onUGUIMouseSelect;
+		// mEventTriggerListener.mOnUpdateSelect += onUGUIMouseUpdateSelect;
 	}
 	protected void onUGUIMouseDown(PointerEventData eventData, GameObject go)
 	{
