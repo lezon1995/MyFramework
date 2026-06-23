@@ -1,17 +1,15 @@
-﻿
+﻿using MarbleHero;
+
 // auto generate classname start
 // generate from:Assets/GameResources/UI/UIPrefab/OverlayMenu.prefab
 // 
-
-using MarbleHero;
-
 public class ExpView : WindowObjectUGUI
 // auto generate classname end
 {
 	// auto generate member start
-	protected myUGUIImageSimple mImgExpBar;
-	protected myUGUIText mTextCurExp;
-	protected myUGUIText mTextMaxExp;
+	protected myUGUIImageSimple expBar;
+	protected myUGUIText curExp;
+	protected myUGUIText maxExp;
 	// auto generate member end
 	
 	float curProgress, targetProgress;
@@ -27,10 +25,9 @@ public class ExpView : WindowObjectUGUI
 	protected override void assignWindowInternal()
 	{
 		// auto generate assignWindowInternal start
-		newObject(out mImgExpBar, "ImgExpBar");
-		newObject(out myUGUIObject exp, "Exp", false);
-		newObject(out mTextCurExp, exp, "TextCurExp");
-		newObject(out mTextMaxExp, exp, "TextMaxExp");
+		newObject(out expBar, "ImgExpBar");
+		newObject(out curExp, "Exp/TextCurExp");
+		newObject(out maxExp, "Exp/TextMaxExp");
 		// auto generate assignWindowInternal end
 	}
 	public override void init()
@@ -55,13 +52,13 @@ public class ExpView : WindowObjectUGUI
 
 			targetProgress = exp.progress;
 			timeElapsed = 0;
-			mTextCurExp.setText(IToS(exp.currentExp));
-			mTextMaxExp.setText(IToS(exp.currentLevelRequiredExp));
+			curExp.setText(IToS(exp.currentExp));
+			maxExp.setText(IToS(exp.currentLevelRequiredExp));
 		}
 
 		timeElapsed = clamp(timeElapsed + dt, 0, tweenDuration);
 		var t = timeElapsed / tweenDuration;
 		var f = lerp(curProgress, targetProgress, t);
-		mImgExpBar.setFillPercent(f);
+		expBar.setFillPercent(f);
 	}
 }

@@ -230,7 +230,9 @@ public class UGUIGeneratorUtility
 		{
 			space(100);
 			label("模板节点:");
-			data.mPoolTemplate = objectField(data.mPoolTemplate, 160);
+			var obj = objectField(data.mPoolTemplate, 160);
+			data.mObject = obj;
+			data.mPoolTemplate = obj;
 			data.mParam0 = getClassNameFromGameObject(data.mPoolTemplate);
 			label("模板参数0:" + data.mParam0, ClassTypeCaches.hasClass(data.mParam0) ? Color.green : Color.red);
 		}
@@ -241,7 +243,9 @@ public class UGUIGeneratorUtility
 		{
 			space(100);
 			label("模板节点:");
-			data.mPoolTemplate = objectField(data.mPoolTemplate, 160);
+			var obj = objectField(data.mPoolTemplate, 160);
+			data.mObject = obj;
+			data.mPoolTemplate = obj;
 			data.mParam0 = getClassNameFromGameObject(data.mPoolTemplate);
 			label("模板参数0:" + data.mParam0, ClassTypeCaches.hasClass(data.mParam0) ? Color.green : Color.red);
 			label("模板根窗口类型:");
@@ -265,7 +269,9 @@ public class UGUIGeneratorUtility
 		{
 			space(100);
 			label("模板节点:");
-			data.mPoolTemplate = objectField(data.mPoolTemplate, 160);
+			var obj = objectField(data.mPoolTemplate, 160);
+			data.mObject = obj;
+			data.mPoolTemplate = obj;
 			data.mParam1 = getClassNameFromGameObject(data.mPoolTemplate);
 			label("模板参数1:" + data.mParam1, ClassTypeCaches.hasClass(data.mParam1) ? Color.green : Color.red);
 		}
@@ -276,7 +282,9 @@ public class UGUIGeneratorUtility
 		using (new GUILayout.HorizontalScope(GUILayout.Width(200)))
 		{
 			space(100);
-			data.mPoolTemplate = objectField(data.mPoolTemplate, 160);
+			var obj = objectField(data.mPoolTemplate, 160);
+			data.mObject = obj;
+			data.mPoolTemplate = obj;
 			if (data.mParam0.isEmpty())
 			{
 				data.mParam0 = typeof(myUGUIObject).ToString();
@@ -647,15 +655,15 @@ public class UGUIGeneratorUtility
 				string nameParam = fullPath != null ? "\"" + fullPath + "\"" : "\"" + gameObjectName + "\"";
 				if (data.mType == "WindowStructPoolMap")
 				{
-					lines.Add(prefix + createVarName + ".assignTemplate" + templateTypeStr + "(" + parentParam + nameParam + ");");
+					lines.Add(prefix + createVarName + ".assignTemplate" + templateTypeStr + "(" + "mRoot, " + nameParam + ");");
 				}
 				else if (data.mType == "WindowPool")
 				{
-					lines.Add(prefix + createVarName + ".assignTemplate(" + parentParam + nameParam + ");");
+					lines.Add(prefix + createVarName + ".assignTemplate(" + "mRoot, " + nameParam + ");");
 				}
 				else
 				{
-					lines.Add(prefix + createVarName + ".assignTemplate" + templateTypeStr + "(" + parentParam + nameParam + ");");
+					lines.Add(prefix + createVarName + ".assignTemplate" + templateTypeStr + "(" + "mRoot, " + nameParam + ");");
 				}
 			}
 		}

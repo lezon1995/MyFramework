@@ -446,6 +446,13 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 	public T newObject<T>(out T obj, myUGUIObject parent, string name, bool showError, bool setParent = false) where T : myUGUIObject, new()
 	{
 		obj = null;
+		// 支持路径格式"ChildA/ChildB/Text",自动为中间节点创建myUGUIObject并建立父子关系
+		if (name.Contains("/"))
+		{
+			obj = newObjectWithPath<T>(parent, name, showError);
+			return obj;
+		}
+
 		GameObject parentObj = parent?.getGameObject();
 		GameObject gameObject;
 		if (parentObj == null)
@@ -480,8 +487,86 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 			obj = newUIObject<T>(parent, mLayout, gameObject, false);
 		else
 			obj = newUIObject<T>(mLayout, gameObject, false);
-			
+
 		return obj;
+	}
+	// 支持路径格式"ChildA/ChildB/Text",为路径上的每个节点创建myUGUIObject并建立父子关系
+	protected T newObjectWithPath<T>(myUGUIObject parent, string path, bool showError) where T : myUGUIObject, new()
+	{
+		string[] names = path.Split('/');
+		myUGUIObject curParent = parent;
+		myUGUIObject lastObj = null;
+		GameObject parentGo = curParent?.getGameObject();
+		for (int i = 0; i < names.Length; i++)
+		{
+			bool isLast = i == names.Length - 1;
+			string curName = names[i];
+
+			// 查找当前段对应的GameObject
+			GameObject curGo = null;
+			if (parentGo == null)
+			{
+				curGo = getRootGameObject(curName, !isLast);
+			}
+			else
+			{
+				Transform childTrans = parentGo.transform.Find(curName);
+				curGo = childTrans?.gameObject;
+				if (curGo == null && !isLast)
+				{
+					logError("路径中找不到节点:" + curName + ", path:" + path + ", layout:" + mLayout.getName());
+					return null;
+				}
+				if (curGo == null && isLast && showError)
+				{
+					logError("找不到物体:" + curName + ", path:" + path + ", layout:" + mLayout.getName());
+					return null;
+				}
+			}
+			if (curGo == null)
+			{
+				return null;
+			}
+
+			// 尝试从布局缓存中获取已存在的myUGUIObject
+			myUGUIObject existUIObj = mLayout.getUIObject(curGo);
+			if (existUIObj != null)
+			{
+				// 存在但类型不一致
+				if (isLast)
+				{
+					T result = existUIObj as T;
+					if (result == null)
+					{
+						logError("已经创建了相同GameObject的UI对象,但是两次创建的类型不一致,第一次创建的类型:" + existUIObj.GetType() + ", 第二次创建的类型:" + typeof(T) + ", name:" + curName + ", path:" + path + ", layout:" + mLayout.getName());
+					}
+					return result;
+				}
+				// 中间节点存在则继续使用
+				curParent = existUIObj;
+				parentGo = curGo;
+				continue;
+			}
+
+			// 为当前节点创建myUGUIObject
+			myUGUIObject newUIObj;
+			if (isLast)
+			{
+				newUIObj = newUIObject<T>(curParent, mLayout, curGo, false);
+			}
+			else
+			{
+				newUIObj = newUIObject<myUGUIObject>(curParent, mLayout, curGo, false);
+			}
+
+			if (isLast)
+			{
+				lastObj = newUIObj;
+			}
+			curParent = newUIObj;
+			parentGo = curGo;
+		}
+		return lastObj as T;
 	}
 	public T newObject<T>(out T obj, myUGUIObject parent, GameObject go) where T : myUGUIObject, new()
 	{

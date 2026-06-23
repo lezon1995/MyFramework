@@ -232,6 +232,9 @@ public class myUGUIObject : Transformable, IMouseEventCollect
 	public List<myUGUIObject> getChildList()			{ return mChildList; }
 	public static void setDefaultClickSound(int sound)	{ mDefaultClickSound = sound; }
 	public static int getDefaultClickSound()			{ return mDefaultClickSound; }
+	public void setAnchoredPosition(Vector2 p){ mRectTransform.anchoredPosition = p; }
+	public Vector2 getAnchoredPosition(){ return mRectTransform.anchoredPosition; }
+
 	public void setWidth(float width)
 	{
 		if (isFloatEqual(mRectTransform.rect.size.x, width))

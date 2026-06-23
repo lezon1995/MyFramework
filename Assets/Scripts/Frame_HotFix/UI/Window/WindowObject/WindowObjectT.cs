@@ -10,7 +10,7 @@ public abstract class WindowObjectT<T> : WindowObjectBase where T : myUGUIObject
 	protected T mRoot;                                  // 根节点
 	protected bool mRootIsFromClone;                    // 根节点是否是克隆来的
 	protected bool mChangePositionAsInvisible;			// 是否使用移动位置来代替隐藏
-	public WindowObjectT(IWindowObjectOwner parent) : base(parent) { }
+	protected WindowObjectT(IWindowObjectOwner parent) : base(parent) { }
 	// 对象真正从内存中销毁时调用
 	public override void destroy()
 	{

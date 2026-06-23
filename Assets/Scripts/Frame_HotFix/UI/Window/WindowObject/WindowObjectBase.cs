@@ -242,4 +242,5 @@ public abstract class WindowObjectBase : ILocalizationCollection, IWindowObjectO
 	// 由于如果让应用层子类都去重写多个assignWindow就会显得很繁琐,而且会有重复代码
 	// 所以应用层子类只需要重写assignWindowInternal,在这里写逻辑即可,然后会在assignWindow中调用assignWindowInternal
 	protected abstract void assignWindowInternal();
+	public static implicit operator bool(WindowObjectBase value) => value != null;
 }

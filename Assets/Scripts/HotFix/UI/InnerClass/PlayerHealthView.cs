@@ -20,8 +20,8 @@ public class PlayerHealthView : WindowObjectUGUI
 	{
 		// auto generate assignWindowInternal start
 		newObject(out healthBar, "HealthOutline/HealthBar");
-		newObject(out curHealth, "Circle/H/TextCurHealth");
-		newObject(out maxHealth, "Circle/H/TextMaxHealth");
+		newObject(out curHealth, "Circle/H2/TextCurHealth");
+		newObject(out maxHealth, "Circle/H2/TextMaxHealth");
 		newObject(out ballCount, "Balls/TextBallCount");
 		// auto generate assignWindowInternal end
 	}

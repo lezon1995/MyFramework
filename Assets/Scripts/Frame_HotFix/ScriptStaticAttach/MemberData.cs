@@ -65,9 +65,15 @@ public class MemberData
 		mType = type;
 		checkRegisterCollider();
 	}
-	public string getGameObjectName() 
+	public string getGameObjectName()
 	{
-		return mObject != null ? mObject.name : "";
+		if (mObject)
+			return mObject.name;
+		
+		if (mPoolTemplate)
+			return mPoolTemplate.name;
+
+		return "";
 	}
 	public bool isValid()
 	{
