@@ -1,10 +1,8 @@
-﻿
+﻿using MarbleHero;
+
 // auto generate classname start
 // generate from:Assets/GameResources/UI/UIPrefab/OverlayMenu.prefab
 // 
-
-using MarbleHero;
-
 public class EnemyHealthView : WindowObjectUGUI
 // auto generate classname end
 {

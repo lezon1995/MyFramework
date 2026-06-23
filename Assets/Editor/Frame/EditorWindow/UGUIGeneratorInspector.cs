@@ -180,7 +180,7 @@ public class UGUIGeneratorInspector : GameInspector
 		foreach (string line in openTxtFileLinesSync(fileFullPath, false).safe())
 		{
 			// 查找是否能获取到生成的源UI文件
-			if (line.startWith("// generate from:") && 
+			if (line.startWith("// generate from:") &&
 				line.rangeFromFirstToEndExcept(':') != prefabName &&
 				!messageYesNo("发现代码文件不是由当前UI界面生成的,是否确认要生成?"))
 			{
@@ -188,13 +188,15 @@ public class UGUIGeneratorInspector : GameInspector
 			}
 		}
 
-		// 成员变量定义的代码
+		// 类声明区域的代码（被 classname 区域包裹）
+		List<string> classnameLines = new();
+		classnameLines.Add("// generate from:" + prefabName);
+		classnameLines.Add("// " + generator.mComment);
+		classnameLines.Add("[ObfuzIgnore(ObfuzScope.TypeName)]");
+		classnameLines.Add("public partial class " + className + " : " + generator.mParentType);
+
+		// 成员变量定义的代码（被 member 区域包裹）
 		List<string> memberDefineList = new();
-		memberDefineList.add("// generate from:" + prefabName);
-		memberDefineList.add("// " + generator.mComment);
-		memberDefineList.add("[ObfuzIgnore(ObfuzScope.TypeName)]");
-		memberDefineList.add("public partial class " + className + " : " + generator.mParentType);
-		memberDefineList.add("{");
 		foreach (MemberData data in generator.mMemberList)
 		{
 			string type = data.getTypeName();
@@ -308,7 +310,13 @@ public class UGUIGeneratorInspector : GameInspector
 			line(ref fileContent, "");
 			line(ref fileContent, $"namespace {F_SCRIPTS_HOTFIX_UI_NAMESPACE};");
 			line(ref fileContent, "");
-			line(ref fileContent, "// auto generate member start");
+			// 类声明区域
+			line(ref fileContent, "// auto generate classname start");
+			line(ref fileContent, classnameLines);
+			line(ref fileContent, "// auto generate classname end");
+			line(ref fileContent, "{");
+			// 成员变量定义区域
+			line(ref fileContent, "\t// auto generate member start");
 			line(ref fileContent, memberDefineList);
 			line(ref fileContent, "\t// auto generate member end");
 			line(ref fileContent, "\tpublic " + className + "()");
@@ -346,8 +354,31 @@ public class UGUIGeneratorInspector : GameInspector
 		}
 		else
 		{
-			// 成员变量定义
+			// codeList 在 findCustomCode 内部初始化,所以需要先声明
 			List<string> codeList = null;
+			// 类声明区域
+			if (findCustomCode(fileFullPath, ref codeList, out int lineStartClassname,
+				(string line) => { return line.endWith("// auto generate classname start"); },
+				(string line) => { return line.endWith("// auto generate classname end"); }, false))
+			{
+				classnameLines.For(str => codeList.Insert(++lineStartClassname, str));
+			}
+			else
+			{
+				// 找不到 classname 区域则找已有的类声明并替换
+				if (codeList.find(item => item.Contains("public partial class " + className + " "), out int classIndex))
+				{
+					// 移除旧类声明行，再逆序插入保持最终顺序正确
+					codeList.RemoveAt(classIndex);
+					int lineStart = classIndex;
+					codeList.Insert(++lineStart, "// auto generate classname start");
+					classnameLines.For(str => codeList.Insert(++lineStart, str));
+					codeList.Insert(++lineStart, "// auto generate classname end");
+					codeList.Insert(++lineStart, "{");
+				}
+			}
+
+			// 成员变量定义区域
 			if (findCustomCode(fileFullPath, ref codeList, out int lineStart0,
 				(string line) => { return line.endWith("// auto generate member start"); },
 				(string line) => { return line.endWith("// auto generate member end"); }, false))
@@ -356,10 +387,10 @@ public class UGUIGeneratorInspector : GameInspector
 			}
 			else
 			{
-				// 找不到就在类的第一行插入
-				if (codeList.find(item=>item.Contains(" class " + className + " "), out int index))
+				// 找不到 member 区域则在类声明之后插入
+				if (codeList.find(item => item.Contains("public partial class " + className + " "), out int classIndex))
 				{
-					int lineStart = index - 2;
+					int lineStart = classIndex + 1;
 					codeList.Insert(++lineStart, "\t// auto generate member start");
 					memberDefineList.For(str => codeList.Insert(++lineStart, str));
 					codeList.Insert(++lineStart, "\t// auto generate member end");
@@ -376,7 +407,7 @@ public class UGUIGeneratorInspector : GameInspector
 			// 找不到就在构造的第一行插入
 			else
 			{
-				bool foundConstructor = codeList.find(item=>item.Contains("public " + className + "()"), out int index);
+				bool foundConstructor = codeList.find(item => item.Contains("public " + className + "()"), out int index);
 				if (foundConstructor)
 				{
 					int lineStart = index + 1;

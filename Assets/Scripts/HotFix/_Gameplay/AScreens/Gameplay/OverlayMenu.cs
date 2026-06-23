@@ -21,9 +21,9 @@ public partial class OverlayMenu
     {
         base.update(dt);
 
-        mExpView?.refresh(dt, player.exp);
-        mPlayerHealthView?.refresh(player);
-        mEnemyHealthView?.refresh(enemy);
+        ExpView?.refresh(dt, player.exp);
+        PlayerHealthView?.refresh(player);
+        EnemyHealthView?.refresh(enemy);
     }
 
     public void hideCombatPanels()

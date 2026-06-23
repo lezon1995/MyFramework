@@ -2,46 +2,42 @@
 
 namespace MarbleHero;
 
-// auto generate member start
+// auto generate classname start
 // generate from:Assets/GameResources/UI/UIPrefab/OverlayMenu.prefab
 // 
 [ObfuzIgnore(ObfuzScope.TypeName)]
 public partial class OverlayMenu : LayoutScript
+// auto generate classname end
 {
-	protected ExpView mExpView;
-	protected RelicsView mRelicsView;
-	protected PlayerHealthView mPlayerHealthView;
-	protected EnemyHealthView mEnemyHealthView;
-	protected EnemyIntentsView mEnemyIntentsView;
+	// auto generate member start
+	protected ExpView ExpView;
+	protected RelicsView RelicsView;
+	protected PlayerHealthView PlayerHealthView;
+	protected EnemyHealthView EnemyHealthView;
+	protected EnemyIntentsView EnemyIntentsView;
 	// auto generate member end
 	
-	public EnemyIntentsView intents => mEnemyIntentsView;
+	public EnemyIntentsView intents => EnemyIntentsView;
+
 	public OverlayMenu()
 	{
 		// auto generate constructor start
-		mExpView = new(this);
-		mRelicsView = new(this);
-		mPlayerHealthView = new(this);
-		mEnemyHealthView = new(this);
-		mEnemyIntentsView = new(this);
+		ExpView = new(this);
+		RelicsView = new(this);
+		PlayerHealthView = new(this);
+		EnemyHealthView = new(this);
+		EnemyIntentsView = new(this);
 		// auto generate constructor end
-		mNeedUpdate = false;
 	}
 	public override void assignWindow()
 	{
 		// auto generate assignWindow start
-		mExpView.assignWindow(mRoot, "Content/Bot/ExpView");
-		mRelicsView.assignWindow(mRoot, "Content/Left/PlayerInfo/RelicsView");
-		mPlayerHealthView.assignWindow(mRoot, "Content/Left/PlayerInfo/PlayerHealthView");
-		mEnemyHealthView.assignWindow(mRoot, "Content/Right/EnemyInfo/V/EnemyHealthView");
-		mEnemyIntentsView.assignWindow(mRoot, "Content/Right/EnemyInfo/V/EnemyIntentsView");
+		ExpView.assignWindow(mRoot, "Content/Bot/ExpView");
+		RelicsView.assignWindow(mRoot, "Content/Left/PlayerInfo/RelicsView");
+		PlayerHealthView.assignWindow(mRoot, "Content/Left/PlayerInfo/PlayerHealthView");
+		EnemyHealthView.assignWindow(mRoot, "Content/Right/EnemyInfo/V/EnemyHealthView");
+		EnemyIntentsView.assignWindow(mRoot, "Content/Right/EnemyInfo/V/EnemyIntentsView");
 		// auto generate assignWindow end
-
-		// intents = new(mIntents);
-		// expBar = new(mExpBar);
-		// relics = new(mRelics);
-		// playerInfo = new(mPlayerInfo);
-		// enemyInfo = new(mEnemyInfo);
 	}
 	public override void init()
 	{
@@ -53,5 +49,4 @@ public partial class OverlayMenu : LayoutScript
 	{
 		base.onGameState();
 	}
-
 }
