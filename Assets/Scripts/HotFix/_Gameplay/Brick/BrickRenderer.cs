@@ -163,6 +163,23 @@ public class BrickRenderer : GameComponent
         brickFlashFrames = 2;
         brickMat.SetFloat(StrongTintFade, 1);
     }
+    
+    public void playFxHeal()
+    {
+        health.transform.localScale = Vector3.one * 1F;
+        Sequence
+            .Create(Tween.Scale(health.transform, endValue: Vector3.one * 1.25F, duration: 0.05F, ease: Ease.OutCubic))
+            .Chain(Tween.Scale(health.transform, endValue: Vector3.one * 1F, duration: 0.05F, ease: Ease.OutCubic));
+
+        fxHit.Play();
+
+        Sequence
+            .Create(Tween.Scale(sprite.transform, endValue: Vector3.one * 0.95F, duration: 0.1F, ease: Ease.OutCubic))
+            .Chain(Tween.Scale(sprite.transform, endValue: Vector3.one * 1F, duration: 0.1F, ease: Ease.OutCubic));
+
+        brickFlashFrames = 2;
+        brickMat.SetFloat(StrongTintFade, 1);
+    }
 
     public void playFxGainBlock()
     {

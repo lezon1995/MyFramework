@@ -38,25 +38,30 @@ public class Opponent : AMonster
             case 1:
                 setMove(1, Intent.BRICK_GENERATE_X);
                 setMove(2, Intent.BRICK_MOVE_DOWN_X);
+                setMove(3, Intent.BRICK_HEALING_X);
                 break;
             case 2:
                 setMove(1, Intent.BRICK_GENERATE_X);
                 setMove(2, Intent.BRICK_MOVE_DOWN_X);
+                setMove(3, Intent.BRICK_HEALING_X);
                 break;
             case 3:
                 setMove(1, Intent.BRICK_GENERATE_X);
                 setMove(2, Intent.BRICK_MOVE_DOWN_X);
+                setMove(3, Intent.BRICK_HEALING_X);
                 // setMove(3, Intent.BRICK_GENERATE_X);
                 break;
             case 4:
                 setMove(1, Intent.BRICK_GENERATE_X);
                 setMove(2, Intent.BRICK_MOVE_DOWN_X);
+                setMove(3, Intent.BRICK_HEALING_X);
                 // setMove(3, Intent.BRICK_GENERATE_X);
                 // setMove(4, Intent.BRICK_MOVE_DOWN_X);
                 break;
             case 5:
                 setMove(1, Intent.BRICK_GENERATE_X);
                 setMove(2, Intent.BRICK_MOVE_DOWN_X);
+                setMove(3, Intent.BRICK_HEALING_X);
                 // setMove(3, Intent.BRICK_GENERATE_X);
                 // setMove(4, Intent.BRICK_MOVE_DOWN_X);
                 // setMove(5, Intent.BRICK_GENERATE_X);
@@ -68,22 +73,16 @@ public class Opponent : AMonster
 
     public override void takeMove(EnemyMoveInfo moveInfo)
     {
-        switch (moveInfo.nextMove)
+        switch (moveInfo.intent)
         {
-            case 1:
+            case Intent.BRICK_GENERATE_X:
                 actionManager.addToBot<BrickGroupGenerateAction>().with(this, createBrickGroup());
                 break;
-            case 2:
+            case Intent.BRICK_HEALING_X:
+                actionManager.addToBot<BrickHealingAction>().with(3, 10);
+                break;
+            case Intent.BRICK_MOVE_DOWN_X:
                 actionManager.addToBot<BrickGroupMoveDownAction>().with(this);
-                break;
-            case 3:
-                actionManager.addToBot<BrickGroupGenerateAction>().with(this, createBrickGroup());
-                break;
-            case 4:
-                actionManager.addToBot<BrickGroupMoveDownAction>().with(this);
-                break;
-            case 5:
-                actionManager.addToBot<BrickGroupGenerateAction>().with(this, createBrickGroup());
                 break;
         }
     }

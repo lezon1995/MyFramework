@@ -6,7 +6,11 @@ using UnityEngine;
 namespace MarbleHero;
 
 [Serializable]
-public partial class Brick : MovableObject, IDamageable<Ball>, IHittable, IReusable
+public partial class Brick : MovableObject
+    , IDamageable
+    , IDamageable<Ball>
+    , IHittable
+    , IReusable
 {
     public override string ToString() => mName;
 
@@ -189,12 +193,15 @@ public partial class Brick : MovableObject, IDamageable<Ball>, IHittable, IReusa
         manager = m;
     }
 
-    public void setHealth(int value)
+    public void setHealth(int value, bool changeColor = true)
     {
         curHealth = value;
         brickRenderer.refreshHealth(curHealth);
-        var sprite = manager.getBrickSpriteByHealth(value);
-        brickRenderer.setBrickSprite(sprite);
+        if (changeColor)
+        {
+            var sprite = manager.getBrickSpriteByHealth(value);
+            brickRenderer.setBrickSprite(sprite);
+        }
     }
 
     public void setInitialHealth(int value)
@@ -296,7 +303,7 @@ public partial class Brick : MovableObject, IDamageable<Ball>, IHittable, IReusa
         return actualDamage > 0;
     }
 
-    public virtual void damage(ref Dmg dmg, GameObject instigator, Ball source, float invincibleTime = 0F, Vector3 direction = default, IDmgCalculator calculator = null)
+    public virtual void takeDamage(ref Dmg dmg, GameObject instigator, Ball source, float invincibleTime = 0F, Vector3 direction = default, IDmgCalculator calculator = null)
     {
         if (!canTakeDamageThisFrame(out _))
             return;
@@ -398,6 +405,66 @@ public partial class Brick : MovableObject, IDamageable<Ball>, IHittable, IReusa
 
                 kill();
                 dmg.isLethal = true;
+            }
+        }
+    }
+
+    public virtual void heal(Heal heal)
+    {
+        if (heal.Healing > 0)
+        {
+            new HealTextEvent(heal, getTransform()).trigger();
+        }
+
+        eventRouter.trigger(new OnHeal());
+
+        if (heal.Healing > 0)
+        {
+            // we decrease the character's health by the damage
+            int preHealth = curHealth;
+            int newHealth = curHealth + (int)heal.Healing;
+            if (newHealth > maxHealth)
+                setMaxHealth(newHealth);
+
+            setHealth(newHealth);
+
+            //造成伤害后处理Source吸血，触发DoDmg
+            // {
+            //     var e = new DoDmgBrick(this, dmg);
+            //     source.eventRouter.trigger(e);
+            //     source.getPlayer().eventRouter.trigger(e);
+            //
+            //     //造成伤害后，触发OnDmg
+            //     eventRouter.trigger(new OnDmg(source, dmg));
+            // }
+
+            // we play our feedback
+            // if (FeedbackIsProportionalToDamage)
+            //     DamageMMFeedbacks.Play(transform.position, damageDealt);
+            // else
+            //     DamageMMFeedbacks.Play(transform.position);
+
+            // we update the health bar
+            // UpdateHealthBar(true);
+
+            brickRenderer.playFxHeal();
+
+            //检测是否回满血
+            if (curHealth >= maxHealth)
+            {
+                curHealth = maxHealth;
+                // if (dmg.hasHitEffect())
+                // {
+                //     var e = new DoAttackKillEffect(source, this, instigator);
+                //     source.eventRouter.trigger(e);
+                //     source.getPlayer().eventRouter.trigger(e);
+                // }
+                //
+                // {
+                //     var e = new DoKillBrick(source, this, instigator);
+                //     source.eventRouter.trigger(e);
+                //     source.getPlayer().eventRouter.trigger(e);
+                // }
             }
         }
     }

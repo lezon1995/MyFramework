@@ -2,8 +2,13 @@
 
 namespace MarbleHero;
 
-public class Border : MovableObject, IHittable
+public class Border : MovableObject
+    , IHittable
+    , IDamageable
+    , IDamageable<Ball>
+    , IEventRouter
 {
+    public IEventRouter eventRouter => this;
     protected SpriteRenderer renderer;
 
     public Border()
@@ -60,6 +65,26 @@ public class Border : MovableObject, IHittable
     }
 
     protected virtual void onBallExit(Ball ball)
+    {
+    }
+
+    public bool canTakeDamageThisFrame(out ResistDamageType resistType)
+    {
+        resistType = ResistDamageType.Invulnerable;
+        return false;
+    }
+
+    public bool kill()
+    {
+        return false;
+    }
+
+    public bool isDead()
+    {
+        return false;
+    }
+
+    public void takeDamage(ref Dmg dmg, GameObject instigator, Ball source, float invincibleTime = 0, Vector3 direction = default, IDmgCalculator calculator = null)
     {
     }
 }

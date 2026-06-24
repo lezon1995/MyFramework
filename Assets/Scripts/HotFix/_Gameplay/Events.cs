@@ -30,9 +30,29 @@ public struct OnHit
 {
 }
 
-public struct OnBallDeath
+public struct OnHeal
 {
 }
+
+public struct OnBallDeath
+{
+    public Ball ball;
+    public OnBallDeath(Ball b)
+    {
+        ball = b;
+    }
+}
+
+public struct OnBallDeathTotally
+{
+    public Ball ball;
+
+    public OnBallDeathTotally(Ball b)
+    {
+        ball = b;
+    }
+}
+
 
 public struct OnBallHitBorderBot
 {

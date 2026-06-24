@@ -6,7 +6,11 @@ using UnityEngine;
 namespace MarbleHero;
 
 [Serializable]
-public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
+public partial class Ball : MovableObject
+    , IDamageable
+    , IDamageable<Brick>
+    , IDamageable<Border>
+    , IReusable
 {
     const float PHYSICS_CAST_DISTANCE = 100F;
     protected Comparison<RaycastHit2D> comparison;
@@ -26,21 +30,38 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
     public Stat crit = 0.1F;
 
 
-    public float curHealth;
+    public int curHealth;
     public bool immuneToDamage;
     public bool invulnerable;
 
     public bool isPenetrable; //是否可穿透砖块
+    public bool isTemp; //是否是临时生成出来的球
     public bool horizontalBorderTeleportable; //是否可在左右边界来回传送
 
-    public void setHealth(float value)
+    public void setInitialHealth(int value)
     {
         curHealth = value;
+        maxHealth = value;
+    }
+
+    public void setHealth(int value)
+    {
+        curHealth = value;
+    }
+
+    public void setMaxHealth(int value)
+    {
+        maxHealth = value;
     }
 
     public void setPenetrable(bool value)
     {
         isPenetrable = value;
+    }
+
+    public void setTemp(bool value)
+    {
+        isTemp = value;
     }
 
     public void setHorizontalBorderTeleportable(bool value)
@@ -53,20 +74,18 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
     protected List<Buff> buffs = new();
     public List<BallPower> powers = new();
 
-    GameObject ballRenderer;
+    BallRenderer ballRenderer;
 
     Collider2D hitCollider;
-
-    // TrailRenderer trailRenderer;
-    SmoothTrail trailRenderer;
 
     APlayer player;
     public Brick collidingBrick;
     public Brick overlappingBrick;
 
     Action<Ball> onDead;
+    BorderToBallDamageModifier borderToBallDamageModifier;
 
-    Vector2 prePos, curPos, targetPos;
+    public Vector2 prePos, curPos, targetPos;
     Vector2 lastDirection;
     Vector2 direction;
     Vector2 hitNormal;
@@ -78,8 +97,10 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
     bool hasBeenCollided;
     public IHittable lastHittable;
     public bool isOverlappingBrick;
+    Timer killTimer;
 
     public void setOnDead(Action<Ball> action) => onDead = action;
+    public void setBorderToBallDamageModifier(BorderToBallDamageModifier m) => borderToBallDamageModifier = m;
     public void setBallType(Type t) => type = t;
     public void setID(long id) => guid = id;
     public Type getType() => type;
@@ -132,13 +153,15 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
         overlappingBrick = null;
         hitCollider = null;
         ballRenderer = null;
-        trailRenderer = null;
         lastHittable = null;
+        borderToBallDamageModifier = null;
+
         lastRadius = 0;
         lastDirection = default;
         enabled = false;
         hasBeenCollided = false;
         isOverlappingBrick = false;
+        killTimer = 0F;
 
         maxHealth = 0;
         minPhysicDamage = maxPhysicDamage = 0;
@@ -148,10 +171,11 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
         dmgRate = 1F;
         crit = 0.1F;
 
-        curHealth = 0F;
+        curHealth = 0;
         immuneToDamage = false;
         invulnerable = false;
         isPenetrable = false;
+        isTemp = false;
         horizontalBorderTeleportable = false;
     }
 
@@ -181,11 +205,12 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
         dmgRate = 1F;
         crit = 0.1F;
 
-        curHealth = 0F;
+        curHealth = 0;
         immuneToDamage = false;
         invulnerable = false;
         isPenetrable = false;
         horizontalBorderTeleportable = false;
+        killTimer = 0F;
 
         this.removeListener<OnBrickColliderChanged>();
 
@@ -201,9 +226,6 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
         instanceID = obj.GetInstanceID();
         curPos = obj.transform.position;
 
-        obj.find(out ballRenderer, "Renderer");
-        obj.find(out trailRenderer);
-
         if (isEditor())
         {
             var debug = getOrAddUnityComponent<BallDebug>();
@@ -214,11 +236,21 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
     protected override void initComponents()
     {
         base.initComponents();
+        addInitComponent(out ballRenderer, true);
     }
 
     public override void update(float elapsedTime)
     {
         base.update(elapsedTime);
+        
+        if (killTimer)
+        {
+            if (killTimer.update(elapsedTime))
+            {
+                var e = new OnBallDeathTotally(this);
+                e.trigger(this);
+            }
+        }
 
         if (!enabled)
             return;
@@ -457,7 +489,7 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
 
     void clearTrail()
     {
-        trailRenderer.clearTrail();
+        ballRenderer.clearTrail();
     }
 
     public void setSpeed(float value)
@@ -470,7 +502,7 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
         lastRadius = radius;
         radius = value;
         var diameter = value * 2F;
-        ballRenderer.transform.localScale = new(diameter, diameter, 1);
+        ballRenderer.setRadius(diameter);
     }
 
     public Circle2 getCircle()
@@ -509,10 +541,19 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
         return damage;
     }
 
-    public virtual bool getSelfDamage(Brick brick, out float selfDamage)
+    public virtual bool getSelfDamage(Brick brick, out int selfDamage)
     {
-        selfDamage = 0F;
-        return false;
+        selfDamage = 1;
+        return true;
+    }
+
+    public virtual bool getSelfDamage(Border border, out int selfDamage)
+    {
+        selfDamage = 1;
+        if (borderToBallDamageModifier == null)
+            return true;
+
+        return borderToBallDamageModifier(ref selfDamage);
     }
 
     public virtual Dmg getHitDmg(Brick brick, Vector2 normal)
@@ -525,6 +566,11 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
         if (randomHit(crit))
             dmg.setCrit();
         return dmg;
+    }
+
+    public virtual Dmg getHitDmg(Border border, Vector2 normal)
+    {
+        return Dmg.trueDmg(0);
     }
 
     public virtual Dmg getSkillDmg(Brick brick)
@@ -576,21 +622,13 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
         if (immuneToDamage)
             return false;
 
-        calculator ??= DmgCalculator.Default;
-        int actualDamage = 1;
-        float damage = dmg.value;
-        var totalDamage = damage;
-
-        float rawBaseDamage = calculator.computeDamageAlgo(dmg.algo, totalDamage, curHealth, maxHealth);
-        float rawCritDamage = calculator.computeDamageCrit(dmg, rawBaseDamage);
-        var rawFinalDamage = calculator.computeDamageRate(dmg, rawCritDamage);
-
-        dmg.setDamageRaw(rawFinalDamage);
+        const int actualDamage = 1;
+        dmg.setDamageRaw(actualDamage);
         dmg.setDamageDealt(actualDamage);
-        return actualDamage > 0;
+        return true;
     }
 
-    public void damage(ref Dmg dmg, GameObject instigator, Brick source, float invincibleTime = 0F, Vector3 direction = default, IDmgCalculator calculator = null)
+    public void takeDamage(ref Dmg dmg, GameObject instigator, Brick source, float invincibleTime = 0F, Vector3 direction = default, IDmgCalculator calculator = null)
     {
         if (!canTakeDamageThisFrame(out _))
             return;
@@ -631,18 +669,70 @@ public partial class Ball : MovableObject, IDamageable<Brick>, IReusable
         }
     }
 
+    public void takeDamage(ref Dmg dmg, GameObject instigator, Border source, float invincibleTime = 0, Vector3 direction = default, IDmgCalculator calculator = null)
+    {
+        if (!canTakeDamageThisFrame(out _))
+            return;
+
+        computeDamageOutput(ref dmg, calculator);
+
+        //设置此次dmg实际造成的伤害，并通知伤害飘字显示
+        {
+            dmg.setDirection(direction);
+        }
+
+        // we decrease the character's health by the damage
+        float preHealth = curHealth;
+        setHealth(curHealth - dmg.damageDealt);
+        // lastDamage = damageDealt;
+        // lastDamageType = dmg.actualType;
+        // lastDamageDirection = direction;
+
+        eventRouter.trigger(new OnHit());
+
+        //造成伤害后处理Source吸血，触发DoDmg
+        {
+            if (!dmg.isSelf)
+            {
+                source.eventRouter.trigger(new DoDmgBall(this, dmg));
+            }
+        }
+
+        //检测是否死亡
+        {
+            if (curHealth <= 0)
+            {
+                curHealth = 0;
+                var isLethal = kill();
+                if (isLethal && !dmg.isSelf)
+                    source.eventRouter.trigger(new DoKillBall(this, instigator));
+            }
+        }
+    }
+    
+    public bool forceKill()
+    {
+        setHealth(0);
+        setEnabled(false);
+        var e = new OnBallDeath(this);
+        e.trigger(this);
+        e.trigger();
+        onDead?.Invoke(this);
+
+        ballRenderer.playFxDead();
+        ballRenderer.setRendererActive(false);
+        ballRenderer.clearTrail();
+
+        killTimer = 1F;
+        return true;
+    }
+
     public bool kill()
     {
         if (immuneToDamage)
             return false;
 
-        setHealth(0);
-
-        eventRouter.trigger(new OnBallDeath());
-
-        onDead?.Invoke(this);
-
-        return true;
+        return forceKill();
     }
 
     public bool isDead()

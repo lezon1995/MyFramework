@@ -208,6 +208,7 @@ namespace MarbleHero
             addRed(new RoundBattery());
             addRed(new UnstableBattery());
             addRed(new ExtremelyUnstableBattery());
+            addRed(new BaseMagazine());
 
             // addRed(new BlackBlood());
             // addRed(new Brimstone());

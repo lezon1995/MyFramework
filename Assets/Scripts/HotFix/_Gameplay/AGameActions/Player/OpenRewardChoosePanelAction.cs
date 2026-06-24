@@ -4,6 +4,16 @@
     {
         RewardChoosePanel panel;
 
+        public override void resetProperty()
+        {
+            base.resetProperty();
+            if (panel)
+            {
+                LT.HIDE<RewardChoosePanel>();
+                panel = null;
+            }
+        }
+
         public override void update(float dt)
         {
             if (panel == null && !isDone)

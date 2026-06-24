@@ -7,7 +7,7 @@ namespace MarbleHero;
 
 public class FTextManager : FrameSystem
     , IEvent<DmgTextEvent>
-// , IEvent<HealTextEvent>
+    , IEvent<HealTextEvent>
 {
     GameObject textParent;
     SafeList<FText> usings = new();
@@ -28,6 +28,7 @@ public class FTextManager : FrameSystem
         initSettings();
 
         this.addListener<DmgTextEvent>();
+        this.addListener<HealTextEvent>();
     }
 
     void initCanvas()
@@ -56,6 +57,7 @@ public class FTextManager : FrameSystem
     {
         base.destroy();
         this.removeListener<DmgTextEvent>();
+        this.removeListener<HealTextEvent>();
     }
 
     public override void update(float elapsedTime)
@@ -209,19 +211,20 @@ public class FTextManager : FrameSystem
         showDamage(e.Target, e.Dmg);
     }
 
-    /*public void onEvent(HealTextEvent e)
+    public void onEvent(HealTextEvent e)
     {
-        ShowHeal(e.Target, e.Heal);
+        showHealing(e.Target, e.Heal);
     }
 
-    public static void ShowHeal(Transform target, Heal heal)
+    public static void showHealing(Transform target, Heal heal)
     {
         new FText.Data($"+{heal.Healing:F0}")
-            .Setting("Heal")
-            .Value(heal.Healing)
-            .Target(target)
-            .ExtraContentSize(Mathf.InverseLerp(50, 1000, heal.Healing) * 1F) //this should be based on the amount of damage
-            .Type(0)
-            .Show();
-    }*/
+            .setSetting("Heal")
+            .setValue(heal.Healing)
+            .setDirection(Vector3.up)
+            .setTarget(target)
+            .setExtraContentSize(Mathf.InverseLerp(50, 1000, heal.Healing) * 1F) //this should be based on the amount of damage
+            .setType(0)
+            .show();
+    }
 }

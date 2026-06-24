@@ -14,6 +14,50 @@ public enum ResistDamageType
     Disabled,
 }
 
+public struct Heal
+{
+    public float Value;
+    public Algos Algo;
+    public float Healing;
+
+    public static Heal Fixed(float value) => new(value, Algos.Fixed);
+    public static Heal CurPct(float value) => new(value, Algos.CurPct);
+    public static Heal LostPct(float value) => new(value, Algos.LostPct);
+    public static Heal AllPct(float value) => new(value, Algos.AllPct);
+
+    public Heal(float value) : this()
+    {
+        Value = value;
+        Algo = Algos.Fixed;
+        Healing = value;
+    }
+
+    public Heal(float value, Algos algo)
+    {
+        Value = value;
+        Algo = algo;
+        Healing = value;
+    }
+
+    public bool IsValid()
+    {
+        return Healing > 0F;
+    }
+
+    public void SetHealing(float value)
+    {
+        Healing = value;
+    }
+
+    public enum Algos
+    {
+        Fixed,
+        CurPct,
+        LostPct,
+        AllPct,
+    }
+}
+
 [Serializable]
 public struct Dmg
 {
@@ -251,12 +295,16 @@ public interface IReusable
     void onRelease();
 }
 
-public interface IDamageable<in Attacker>
+public interface IDamageable
 {
     bool canTakeDamageThisFrame(out ResistDamageType resistType);
-    void damage(ref Dmg dmg, GameObject instigator, Attacker source, float invincibleTime = 0F, Vector3 direction = default, IDmgCalculator calculator = null);
     bool kill();
     bool isDead();
+}
+
+public interface IDamageable<in Attacker>
+{
+    void takeDamage(ref Dmg dmg, GameObject instigator, Attacker source, float invincibleTime = 0F, Vector3 direction = default, IDmgCalculator calculator = null);
 }
 
 public interface IDmgCalculator

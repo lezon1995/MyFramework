@@ -27,9 +27,20 @@ namespace MarbleHero
         ENEMY_SHIELD, //敌人获得护盾
         ENEMY_ATTACK, //敌人直接攻击玩家
 
+        BRICK_HEALING_X, //治疗砖块
+
         BRICK_GENERATE_X, //生成砖块
         BRICK_MOVE_DOWN_X, //向下方移动砖块X格
-        BRICK_MOVE_CENTER_X, //向中心移动砖块X格
+        BRICK_MOVE_TO_CENTER_HORIZONTAL, //所有砖块以水平方向移动到中心
+        BRICK_MOVE_TO_CENTER_VERTICAL, //所有砖块以竖直方向移动到中心
+        BRICK_MOVE_TO_BORDER_TOP, //所有砖块移动到上边界
+        BRICK_MOVE_TO_BORDER_LEFT, //所有砖块移动到左边界
+        BRICK_MOVE_TO_BORDER_RIGHT, //所有砖块移动到右边界
+        BRICK_SHUFFLE_POSITION_X, //X个砖块洗牌重新定位
+        BRICK_SHUFFLE_POSITION_ALL, //所有砖块洗牌重新定位
+        BRICK_KILL_X, //摧毁X个砖块
+        BRICK_KILL_ALL, //摧毁全部砖块
+
         BRICK_EMPOWER_ATTACK_X, //赋能-进攻
         BRICK_EMPOWER_SHIELD_X, //赋能-护盾
         BRICK_EMPOWER_INVINCIBLE_X, //赋能-无敌

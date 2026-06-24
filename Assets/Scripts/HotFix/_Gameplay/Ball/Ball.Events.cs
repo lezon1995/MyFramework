@@ -43,7 +43,6 @@ public partial class Ball : IEventRouter
             var dmg = ball.getHitDmg(brick, normal);
             brick.onHitEnter(ball, normal);
             ball.onHitEnter(brick, normal, out var triggerRegularHit);
-            gameplayManager.handleHitDamage(ball, brick, ref dmg);
 
             collidingBrick = brick;
 
@@ -56,6 +55,8 @@ public partial class Ball : IEventRouter
                 else
                     reflectBounce(normal, true);
             }
+
+            gameplayManager.handleHitBrickDamage(ball, brick, ref dmg);
         }
 
         return true;
@@ -73,23 +74,43 @@ public partial class Ball : IEventRouter
 
     protected virtual bool onHitEnter(BorderTop border, Vector2 normal)
     {
+        var ball = this;
+
         lastHittable = border;
         foreach (var p in powers)
             p.onHitBorder(border);
 
-        player.onBallHitBorderTop(this, border, ref normal);
+        player.onBallHitBorderTop(ball, border, ref normal);
         counters.hit.count();
         hasBeenCollided = true;
         reflectBounce(normal);
+
+        var dmg = ball.getHitDmg(border, normal);
+        gameplayManager.handleHitBorderDamage(ball, border, ref dmg);
         return true;
     }
 
     protected virtual bool onHitEnter(BorderBot border, Vector2 normal)
     {
+        var ball = this;
+
         lastHittable = border;
         bool forceReturn = true;
-        player.onBallHitBorderBot(this, border, normal, ref forceReturn);
-        if (forceReturn == false)
+        player.onBallHitBorderBot(ball, border, normal, ref forceReturn);
+        if (forceReturn)
+        {
+            if (ball.isTemp)
+            {
+                ball.forceKill();
+                return true;
+            }
+
+            if (hasBeenCollided)
+            {
+                player.setBallReturn(ball);
+            }
+        }
+        else
         {
             foreach (var p in powers)
                 p.onHitBorder(border);
@@ -97,16 +118,16 @@ public partial class Ball : IEventRouter
             counters.hit.count();
             reflectBounce(normal);
         }
-        else if (hasBeenCollided)
-        {
-            player.setBallReturn(this);
-        }
 
+        var dmg = ball.getHitDmg(border, normal);
+        gameplayManager.handleHitBorderDamage(ball, border, ref dmg);
         return true;
     }
 
     protected virtual bool onHitEnter(BorderLeft border, Vector2 normal)
     {
+        var ball = this;
+
         lastHittable = border;
         foreach (var p in powers)
             p.onHitBorder(border);
@@ -121,15 +142,19 @@ public partial class Ball : IEventRouter
         }
         else
         {
-            player.onBallHitBorderLeft(this, border, ref normal);
+            player.onBallHitBorderLeft(ball, border, ref normal);
             reflectBounce(normal);
         }
 
+        var dmg = ball.getHitDmg(border, normal);
+        gameplayManager.handleHitBorderDamage(ball, border, ref dmg);
         return true;
     }
 
     protected virtual bool onHitEnter(BorderRight border, Vector2 normal)
     {
+        var ball = this;
+
         lastHittable = border;
         foreach (var p in powers)
             p.onHitBorder(border);
@@ -144,10 +169,12 @@ public partial class Ball : IEventRouter
         }
         else
         {
-            player.onBallHitBorderRight(this, border, ref normal);
+            player.onBallHitBorderRight(ball, border, ref normal);
             reflectBounce(normal);
         }
 
+        var dmg = ball.getHitDmg(border, normal);
+        gameplayManager.handleHitBorderDamage(ball, border, ref dmg);
         return true;
     }
 

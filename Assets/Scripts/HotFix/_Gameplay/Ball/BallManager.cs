@@ -7,6 +7,8 @@ namespace MarbleHero;
 
 // 角色管理器
 public class BallManager : FrameSystem
+    , IEvent<OnBallDeath>
+    , IEvent<OnBallDeathTotally>
 {
     //key: gameObject.GetInstanceID()
     public Dictionary<int, Ball> activeBalls = new(); //发射后运动中的Ball
@@ -18,12 +20,9 @@ public class BallManager : FrameSystem
 
     protected Dictionary<Type, ObjectPool<Ball>> ballPools = new();
 
-    Action<Ball> ballDead;
-
     public BallManager()
     {
         mCreateObject = true;
-        ballDead = onBallDead;
     }
 
     public override void init()
@@ -159,7 +158,11 @@ public class BallManager : FrameSystem
         ball.setSpeed(speed);
         ball.setPhysicDamage(1, 1);
         ball.setMagicDamage(1, 1);
+        ball.setInitialHealth(int.MaxValue);
         ball.onAcquire();
+        
+        ball.eventRouter.addListener<OnBallDeath>(this);
+        ball.eventRouter.addListener<OnBallDeathTotally>(this);
         return ball;
     }
 
@@ -187,7 +190,6 @@ public class BallManager : FrameSystem
         var ball = CLASS<Ball>(type);
         ball.setName($"Ball_{activeBalls.Count + 1}");
         ball.setBallType(type);
-        ball.setOnDead(ballDead);
 
         // 将角色挂接到管理器下
         ball.setID(id);
@@ -201,11 +203,6 @@ public class BallManager : FrameSystem
         ball.init();
         addBallToList(ball);
         return ball;
-    }
-
-    void onBallDead(Ball ball)
-    {
-        releaseBall(ball);
     }
 
     public void releaseBall(Ball ball)
@@ -240,6 +237,9 @@ public class BallManager : FrameSystem
 
         ballUpdateList.remove(ball);
         ballFixedUpdateList.remove(ball);
+        
+        ball.eventRouter.removeListener<OnBallDeath>(this);
+        ball.eventRouter.removeListener<OnBallDeathTotally>(this);
 
         UN_CLASS(ref ball);
     }
@@ -280,5 +280,15 @@ public class BallManager : FrameSystem
     public bool anyActiveBall()
     {
         return activeBalls.Count > 0;
+    }
+
+    public void onEvent(OnBallDeath e)
+    {
+        activeBalls.Remove(e.ball.instanceID);
+    }
+
+    public void onEvent(OnBallDeathTotally e)
+    {
+        releaseBall(e.ball);
     }
 }

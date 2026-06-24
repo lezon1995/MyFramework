@@ -25,7 +25,7 @@ namespace MarbleHero
         {
             List<string> retVal = new();
             // retVal.add(FreeBall.ID);
-            retVal.add(Origami.ID);
+            // retVal.add(Origami.ID);
             // retVal.add(BurlapBag.ID);
             // retVal.add(BrokenTripod.ID);
             // retVal.add(AmmoSupply.ID);
@@ -41,6 +41,7 @@ namespace MarbleHero
             // retVal.add(RoundBattery.ID);
             // retVal.add(UnstableBattery.ID);
             // retVal.add(ExtremelyUnstableBattery.ID);
+            retVal.add(BaseMagazine.ID);
             
             foreach (var relicId in retVal)
                 UnlockTracker.markRelicAsSeen(relicId);

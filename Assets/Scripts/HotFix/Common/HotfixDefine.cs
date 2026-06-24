@@ -19,4 +19,10 @@ public static class HotfixDefine
     public const int BORDER_BOT_LAYER_MASK = 1 << BORDER_BOT_LAYER;
     public const int ALL_BORDER_LAYER_MASK = BORDER_LEFT_LAYER_MASK | BORDER_RIGHT_LAYER_MASK | BORDER_TOP_LAYER_MASK | BORDER_BOT_LAYER_MASK;
     public const int NON_BOT_BORDER_LAYER_MASK = BORDER_LEFT_LAYER_MASK | BORDER_RIGHT_LAYER_MASK | BORDER_TOP_LAYER_MASK;
+
+    public static BorderToBallDamageModifier BALL_IMMUNE_TO_BORDER_DAMAGE_MODIFIER = (ref int damage) =>
+    {
+        damage = 0;
+        return false;
+    };
 }

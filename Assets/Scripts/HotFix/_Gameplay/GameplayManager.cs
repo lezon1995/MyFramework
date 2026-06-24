@@ -24,14 +24,14 @@ public class GameplayManager : FrameSystem
         base.destroy();
     }
 
-    public void handleHitDamage(Ball ball, Brick brick, ref Dmg dmg)
+    public void handleHitBrickDamage(Ball ball, Brick brick, ref Dmg dmg)
     {
         if (brick.canTakeDamageThisFrame(out var resistType))
         {
             foreach (var p in ball.powers)
                 p.onBeforeHandleHitDamage(ball, brick, ref dmg);
 
-            brick.damage(ref dmg, ball.gameObject, ball, 0F, ball.getDirection(), dmgCalculator);
+            brick.takeDamage(ref dmg, ball.gameObject, ball, 0F, ball.getDirection(), dmgCalculator);
             if (dmg.isCrit)
                 ball.onCritHit(brick);
             
@@ -43,17 +43,11 @@ public class GameplayManager : FrameSystem
             switch (resistType)
             {
                 case ResistDamageType.None:
-                    break;
                 case ResistDamageType.Invulnerable:
-                    break;
                 case ResistDamageType.DashInvincible:
-                    break;
                 case ResistDamageType.ImmuneToDamage:
-                    break;
                 case ResistDamageType.Dead:
-                    break;
                 case ResistDamageType.Disabled:
-                    break;
                 case ResistDamageType.Dodged:
                     break;
                 default:
@@ -64,7 +58,42 @@ public class GameplayManager : FrameSystem
         if (ball.getSelfDamage(brick, out var selfDamage))
         {
             var selfDmg = Dmg.trueDmg(selfDamage).setSelf();
-            ball.damage(ref selfDmg, ball.gameObject, brick);
+            ball.takeDamage(ref selfDmg, ball.gameObject, brick);
+        }
+    }
+
+    public void handleHitBorderDamage(Ball ball, Border border, ref Dmg dmg)
+    {
+        if (border.canTakeDamageThisFrame(out var resistType))
+        {
+            border.takeDamage(ref dmg, ball.gameObject, ball, 0F, ball.getDirection(), dmgCalculator);
+            // if (dmg.isCrit)
+            //     ball.onCritHit(border);
+            //
+            // if (dmg.isLethal)
+            //     ball.onHitKill(border);
+        }
+        else
+        {
+            switch (resistType)
+            {
+                case ResistDamageType.None:
+                case ResistDamageType.Invulnerable:
+                case ResistDamageType.DashInvincible:
+                case ResistDamageType.ImmuneToDamage:
+                case ResistDamageType.Dead:
+                case ResistDamageType.Disabled:
+                case ResistDamageType.Dodged:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        if (ball.getSelfDamage(border, out var selfDamage))
+        {
+            var selfDmg = Dmg.trueDmg(selfDamage).setSelf();
+            ball.takeDamage(ref selfDmg, ball.gameObject, border);
         }
     }
 
@@ -75,7 +104,7 @@ public class GameplayManager : FrameSystem
             foreach (var p in ball.powers)
                 p.onBeforeHandleSkillDamage(ball, brick, ref dmg);
             
-            brick.damage(ref dmg, ball.gameObject, ball, 0F, ball.getDirection(), dmgCalculator);
+            brick.takeDamage(ref dmg, ball.gameObject, ball, 0F, ball.getDirection(), dmgCalculator);
             
             if (dmg.isCrit)
                 ball.onCritHit(brick);
@@ -88,17 +117,11 @@ public class GameplayManager : FrameSystem
             switch (resistType)
             {
                 case ResistDamageType.None:
-                    break;
                 case ResistDamageType.Invulnerable:
-                    break;
                 case ResistDamageType.DashInvincible:
-                    break;
                 case ResistDamageType.ImmuneToDamage:
-                    break;
                 case ResistDamageType.Dead:
-                    break;
                 case ResistDamageType.Disabled:
-                    break;
                 case ResistDamageType.Dodged:
                     break;
                 default:
@@ -106,11 +129,12 @@ public class GameplayManager : FrameSystem
             }
         }
 
-        if (ball.getSelfDamage(brick, out var selfDamage))
+        //技能伤害不造成SelfDamage
+        /*if (ball.getSelfDamage(brick, out var selfDamage))
         {
             var selfDmg = Dmg.trueDmg(selfDamage).setSelf();
             ball.damage(ref selfDmg, ball.gameObject, brick);
-        }
+        }*/
     }
 
     public void refreshPhase(int phase)

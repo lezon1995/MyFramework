@@ -14,17 +14,17 @@ public struct DmgTextEvent
     }
 }
 
-// public struct HealTextEvent
-// {
-//     public Heal Heal;
-//     public Transform Target;
-//
-//     public HealTextEvent(Heal heal, Transform target)
-//     {
-//         Heal = heal;
-//         Target = target;
-//     }
-// }
+public struct HealTextEvent
+{
+    public Heal Heal;
+    public Transform Target;
+
+    public HealTextEvent(Heal heal, Transform target)
+    {
+        Heal = heal;
+        Target = target;
+    }
+}
 
 public partial class Brick : IEventRouter
 {

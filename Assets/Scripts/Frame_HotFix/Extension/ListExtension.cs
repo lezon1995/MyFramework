@@ -24,6 +24,95 @@ public static class ListExtension
 		}
 		return list[randomInt(0, list.Count - 1)];
 	}
+	
+	/// <summary>
+    /// 随机获取 count 个元素（不移除）
+    /// </summary>
+    public static void randomTake<T>(this IList<T> list, int count, ref List<T> result, Random random = null)
+    {
+	    if (count < 0)
+		    return;
+
+        if(count > list.Count)
+	        count = list.Count;
+        
+        int n = list.Count;
+
+        // 索引池
+        using var _ = new ListScope<int>(out var indices);
+        for (int i = 0; i < n; i++)
+	        indices.Add(i);
+
+        // 部分 Fisher-Yates
+        for (int i = 0; i < count; i++)
+        {
+            int j;
+            if (random == null)
+	            j = randomInt(i, n - 1);
+            else
+	            j = random.Next(i, n);
+
+            (indices[i], indices[j]) = (indices[j], indices[i]);
+        }
+
+        for (int i = 0; i < count; i++)
+            result.Add(list[indices[i]]);
+    }
+
+    /// <summary>
+    /// 随机获取 count 个元素并从原 List 中移除
+    /// </summary>
+    public static void randomTakeAndRemove<T>(this List<T> list, int count, ref List<T> result, Random random = null)
+    {
+	    if (count < 0)
+		    return;
+
+        if(count > list.Count)
+	        count = list.Count;
+        
+        int n = list.Count;
+
+        // 记录需要删除的索引
+        using var _ = new ListScope2<int>(out var indices,out var selectedIndices);
+        for (int i = 0; i < n; i++)
+	        indices.Add(i);
+
+        // 部分 Fisher-Yates
+        for (int i = 0; i < count; i++)
+        {
+            int j;
+            if (random == null)
+	            j = randomInt(i, n - 1);
+            else
+	            j = random.Next(i, n);
+
+            (indices[i], indices[j]) = (indices[j], indices[i]);
+
+            selectedIndices.Add(indices[i]);
+            result.Add(list[indices[i]]);
+        }
+
+        // 从后往前删除，避免索引变化
+        selectedIndices.Sort((a, b) => b.CompareTo(a));
+
+        foreach (int index in selectedIndices)
+            list.RemoveAt(index);
+    }
+	
+    public static bool tryTakeOne<T>(this List<T> list, out T t, out int remain)
+    {
+	    if (list.Count > 0)
+	    {
+		    t = list.removeAt(0);
+		    remain = list.Count;
+		    return true;
+	    }
+
+	    t = default;
+	    remain = 0;
+	    return false;
+    }
+	
 	public static void setAllDefault<T>(this List<T> list)
 	{
 		if (list.isEmpty())
