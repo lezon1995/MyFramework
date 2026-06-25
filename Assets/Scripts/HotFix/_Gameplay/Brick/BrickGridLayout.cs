@@ -11,26 +11,53 @@ public class BrickGridLayout
     List<Rect> grids = new();
     Dictionary<(int col, int row), Rect> gridDict = new();
 
-    Vector2 size, spacing, padding, offset;
-    int cols, rows;
+    Vector2 size
+    {
+        get => template.size;
+        set => template.size = value;
+    }
+
+    Vector2 spacing
+    {
+        get => template.spacing;
+        set => template.spacing = value;
+    }
+
+    Vector2 padding
+    {
+        get => template.padding;
+        set => template.padding = value;
+    }
+
+    Vector2 offset
+    {
+        get => template.offset;
+        set => template.offset = value;
+    }
+
+    int cols
+    {
+        get => template.cols;
+        set => template.cols = value;
+    }
+
+    int rows
+    {
+        get => template.rows;
+        set => template.rows = value;
+    }
+
+    BrickGridTemplate template;
 
     public BrickGridLayout(Vector2 _size, int _col, int _row)
     {
-        size = _size;
-        cols = _col;
-        rows = _row;
-        spacing = new(0.05F, 0.05F);
-        padding = new(0.05F, 0.05F);
+        template = new(_row, _col, _size);
         getGrids();
     }
 
     public BrickGridLayout(Vector2 _size, int _col, int _row, Vector2 _spacing, Vector2 _padding)
     {
-        size = _size;
-        cols = _col;
-        rows = _row;
-        spacing = _spacing;
-        padding = _padding;
+        template = new(_row, _col, _size, _spacing, _padding);
         getGrids();
     }
 
@@ -208,13 +235,13 @@ public class BrickGridLayout
         return grids.get(0);
     }
 
-    public void setSize(float w, float h) => (size.x, size.y) = (w, h);
-    public void setWidth(float w) => size.x = w;
-    public void setHeight(float h) => size.y = h;
+    public void setSize(float w, float h) => size = new(w, h);
+    public void setWidth(float w) => size = size with { x = w };
+    public void setHeight(float h) => size = size with { y = h };
     public void setRows(int row) => rows = row;
     public void setCols(int col) => cols = col;
-    public void setSpacingX(float x) => spacing.x = x;
-    public void setSpacingY(float y) => spacing.y = y;
+    public void setSpacingX(float x) => spacing = spacing with { x = x };
+    public void setSpacingY(float y) => spacing = spacing with { y = y };
     public void setSpacing(Vector2 s) => spacing = s;
     public void setPadding(Vector2 p) => padding = p;
     public void setOffset(Vector2 o) => offset = o;

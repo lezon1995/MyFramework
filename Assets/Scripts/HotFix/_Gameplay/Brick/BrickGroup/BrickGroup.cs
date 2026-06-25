@@ -1,26 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace MarbleHero;
 
 public abstract class BrickGroup : ClassObject, IEvent<OnBrickDeath>
 {
-    public struct Template
-    {
-        public Rect rect;
-        public int health;
-
-        public Template(Rect _rect, int _health)
-        {
-            rect = _rect;
-            health = _health;
-        }
-    }
-
     public List<Brick> bricks = new();
     protected Action<BrickGroup> onBricksClear;
-    protected List<Template> templates = new();
+    protected List<BrickTemplate> templates = new();
 
     protected BrickManager brickManager;
     protected LevelManager levelManager;
@@ -46,20 +33,16 @@ public abstract class BrickGroup : ClassObject, IEvent<OnBrickDeath>
         base.destroy();
     }
 
-    protected void addBrick(Brick brick)
-    {
-        bricks.Add(brick);
-    }
-
-    protected void removeBrick(Brick brick)
-    {
-        bricks.Remove(brick);
-    }
+    protected void addBrick(Brick brick) => bricks.Add(brick);
+    protected void removeBrick(Brick brick) => bricks.Remove(brick);
 
     public abstract void buildBrickTemplates(int turnCount);
-    public abstract void createBricks(int turnCount);
 
-    public bool tryTakeOne(out Template t, out int remain)
+    public virtual void createBricks(int turnCount)
+    {
+    }
+
+    public bool tryTakeOne(out BrickTemplate t, out int remain)
     {
         if (templates.Count > 0)
         {
@@ -73,9 +56,9 @@ public abstract class BrickGroup : ClassObject, IEvent<OnBrickDeath>
         return false;
     }
 
-    public void createOne(Template t)
+    public void createOne(BrickTemplate t)
     {
-        var brick = brickManager.acquireBrick(t.rect.center, t.rect.size, t.health);
+        var brick = brickManager.acquireBrick(t.position, t.size, t.health);
         // brick.addBlock(10);
         brick.eventRouter.addListener(this);
         addBrick(brick);
@@ -97,7 +80,7 @@ public abstract class BrickGroup : ClassObject, IEvent<OnBrickDeath>
 
     int per1, per2, per3, per4, per5;
 
-    protected abstract int getBrickAverageCount(int turnCount);
+    protected virtual int getBrickAverageCount(int turnCount) => 0;
 
     /// <summary>
     /// Difficulty adjustment for each block according to the number of turns

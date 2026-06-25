@@ -28,6 +28,8 @@ namespace MarbleHero
         ENEMY_ATTACK, //敌人直接攻击玩家
 
         BRICK_HEALING_X, //治疗砖块
+        
+        BRICK_STAGE_INITIALIZATION,//关卡初始化
 
         BRICK_GENERATE_X, //生成砖块
         BRICK_MOVE_DOWN_X, //向下方移动砖块X格

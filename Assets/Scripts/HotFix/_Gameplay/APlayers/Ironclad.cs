@@ -25,7 +25,7 @@ namespace MarbleHero
         {
             List<string> retVal = new();
             // retVal.add(FreeBall.ID);
-            // retVal.add(Origami.ID);
+            retVal.add(Origami.ID);
             // retVal.add(BurlapBag.ID);
             // retVal.add(BrokenTripod.ID);
             // retVal.add(AmmoSupply.ID);

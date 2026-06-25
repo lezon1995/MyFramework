@@ -1,19 +1,25 @@
-﻿using Drawing;
+﻿using System.Linq;
+using Drawing;
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace MarbleHero
 {
     public class LevelEditorManager : MonoBehaviour
     {
+        public StageTemplate Template;
+        
         BrickGridLayout layout;
         public int rows = 10;
         public int cols = 6;
-        public Vector2 size = new(6, 8);
+        public Vector2 size = new(6.0F, 9.4F);
         public Vector2 spacing = new(0.05F, 0.05F);
         public Vector2 padding = new(0.05F, 0.05F);
         public Vector2 levelSize = new(19.2F, 10.8F);
 
         Camera mainCamera;
+
+        SafeHashSet<BrickTemplate> brickTemplates = new();
 
         void Awake()
         {
@@ -21,7 +27,6 @@ namespace MarbleHero
             layout = new(size, cols, rows, spacing, padding);
         }
 
-        [ContextMenu("RefreshLayout")]
         void RefreshLayout(Vector2 offset)
         {
             layout.setRows(rows);
@@ -62,10 +67,61 @@ namespace MarbleHero
                 if (grid.Contains(mousePos))
                 {
                     color = Color.green;
+
+                    if (add)
+                    {
+                        brickTemplates.add(new(grid, 1));
+                    }
+                    else if (remove)
+                    {
+                        brickTemplates.remove(new(grid, 1));
+                    }
                 }
 
                 Draw.ingame.xy.WireRectangle(grid, color);
             }
+
+            using var _ = new SafeHashSetReader<BrickTemplate>(brickTemplates, out var reader);
+            foreach (var template in reader)
+            {
+                Color color = Color.gray6;
+                Draw.ingame.xy.SolidRectangle(template.rect, color);
+                var selectedColor = Color.red;
+                if (template.rect.Contains(mousePos))
+                {
+                    selectedColor = Color.green;
+                }
+
+                Draw.ingame.xy.WireRectangle(template.rect, selectedColor);
+                Draw.ingame.xy.Label2D(template.position, $"{template.health}", 20, LabelAlignment.Center, Color.red);
+                if (template.rect.Contains(mousePos))
+                {
+                    if (remove)
+                    {
+                        brickTemplates.remove(template);
+                    }
+                }
+            }
+        }
+
+        [Button]
+        void SaveToTemplate()
+        {
+            if (Template == null)
+                return;
+
+            Template.bricks = brickTemplates.getMainList().ToArray();
+        }
+        
+        [Button]
+        void LoadFromTemplate()
+        {
+            if (Template == null)
+                return;
+
+            brickTemplates.clear();
+            foreach (var b in Template.bricks)
+                brickTemplates.add(b);
         }
     }
 }

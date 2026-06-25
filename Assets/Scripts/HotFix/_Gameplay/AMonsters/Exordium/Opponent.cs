@@ -28,6 +28,8 @@ public class Opponent : AMonster
             damageList.Add(new DamageInfo(this, A_2_TACKLE_DAMAGE));
         else
             damageList.Add(new DamageInfo(this, TACKLE_DAMAGE));
+
+        rollCounter = -1;
     }
 
     protected override void getMove(int num)
@@ -35,6 +37,9 @@ public class Opponent : AMonster
         var flag = rollCounter % 5 + 1;
         switch (flag)
         {
+            case 0:
+                setMove(1, Intent.BRICK_STAGE_INITIALIZATION);
+                break;
             case 1:
                 setMove(1, Intent.BRICK_GENERATE_X);
                 setMove(2, Intent.BRICK_MOVE_DOWN_X);
@@ -75,6 +80,13 @@ public class Opponent : AMonster
     {
         switch (moveInfo.intent)
         {
+            case Intent.BRICK_STAGE_INITIALIZATION:
+                var group = createBrickGroup<StageTemplateBrickGroup>();
+                var path = $"{GAMEPLAY_PATH}/SO/StageTemplates/StageTemplate.asset";
+                var res = mResourceManager.loadGameResource<StageTemplate>(path);
+                group.with(res);
+                actionManager.addToBot<BrickGroupGenerateAction>().with(this, group);
+                break;
             case Intent.BRICK_GENERATE_X:
                 actionManager.addToBot<BrickGroupGenerateAction>().with(this, createBrickGroup());
                 break;
@@ -82,27 +94,35 @@ public class Opponent : AMonster
                 actionManager.addToBot<BrickHealingAction>().with(3, 10);
                 break;
             case Intent.BRICK_MOVE_DOWN_X:
-                actionManager.addToBot<BrickGroupMoveDownAction>().with(this);
+                // actionManager.addToBot<BrickGroupMoveDownAction>().with(this);
                 break;
         }
     }
+    
+    BrickGroup createBrickGroup<T>() where T : BrickGroup, new()
+    {
+        BrickGroup brickGroup = CLASS<T>();
+        brickGroup.setBrickManager(brickManager);
+        brickGroup.setLevelManager(levelManager);
+        brickGroup.setOnBricksClear(onBrickGroupClear);
+        brickGroups.add(brickGroup);
+        return brickGroup;
+    }
+
+    
 
     BrickGroup createBrickGroup()
     {
         var num = GameActionManager.turn % 4;
         BrickGroup brickGroup = num switch
         {
-            // 0 => CLASS<TopRowRandomBrickGroup>(),
-            // 1 => CLASS<RandomRowRandomBrickGroup>(),
-            // 2 => CLASS<RandomColRandomBrickGroup>(),
-            // 3 => CLASS<RandomAnyEmptyBrickGroup>(),
-            _ => CLASS<TopRowRandomBrickGroup>()
+            // 0 => createBrickGroup<TopRowRandomBrickGroup>(),
+            // 1 => createBrickGroup<RandomRowRandomBrickGroup>(),
+            // 2 => createBrickGroup<RandomColRandomBrickGroup>(),
+            // 3 => createBrickGroup<RandomAnyEmptyBrickGroup>(),
+            _ => createBrickGroup<TopRowRandomBrickGroup>()
         };
 
-        brickGroup.setBrickManager(brickManager);
-        brickGroup.setLevelManager(levelManager);
-        brickGroup.setOnBricksClear(onBrickGroupClear);
-        brickGroups.add(brickGroup);
         return brickGroup;
     }
 

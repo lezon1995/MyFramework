@@ -37,6 +37,11 @@ public class BrickGroupGenerateAction : AGameAction, IArgs<AMonster, BrickGroup>
                     isDone = true;
                 }
             }
+            else
+            {
+                lastOne = true;
+                isDone = true;
+            }
         }
 
         tickDuration(dt);

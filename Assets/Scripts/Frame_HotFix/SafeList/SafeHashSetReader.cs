@@ -10,6 +10,12 @@ public struct SafeHashSetReader<T> : IDisposable
 		mSafeList = list;
 		mReadList = mSafeList.startForeach();
 	}
+	public SafeHashSetReader(SafeHashSet<T> list, out HashSet<T> reader)
+	{
+		mSafeList = list;
+		mReadList = mSafeList.startForeach();
+		reader = mReadList;
+	}
 	public void Dispose()
 	{
 		mSafeList.endForeach();

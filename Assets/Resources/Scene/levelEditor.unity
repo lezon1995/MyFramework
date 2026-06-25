@@ -420,11 +420,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e3edc4d8d024cec8a97a77df77bc155, type: 3}
   m_Name: 
   m_EditorClassIdentifier: HotFix::MarbleHero.LevelEditorManager
+  Template: {fileID: 11400000, guid: a7f55980510b12b4d8aab5b2e2552140, type: 2}
   rows: 10
   cols: 6
   size: {x: 6, y: 8}
   spacing: {x: 0.05, y: 0.05}
   padding: {x: 0.05, y: 0.05}
+  levelSize: {x: 19.2, y: 10.8}
 --- !u!1 &1137042466
 GameObject:
   m_ObjectHideFlags: 0
