@@ -28,10 +28,11 @@ public class GameHotFix : GameHotFixBase<GameHotFix>
         registeFrameSystem<BattleSystem>(com => mBattleSystem = com);
         registeFrameSystem<BallManager>(com => ballManager = com);
         registeFrameSystem<BrickManager>(com => brickManager = com);
-        registeFrameSystem<MarbleHero.LevelManager>(com => levelManager = com);
+        registeFrameSystem<LevelManager>(com => levelManager = com);
         registeFrameSystem<ComboManager>(com => comboManager = com);
         registeFrameSystem<FTextManager>(com => textManager = com);
         registeFrameSystem<GameplayManager>(com => gameplayManager = com);
+        registeFrameSystem<LocalizedStrings>(com => languagePack = com);
     }
     
 	protected override string getAndroidPluginBundleName() { return ANDROID_PLUGIN_BUNDLE_NAME; }

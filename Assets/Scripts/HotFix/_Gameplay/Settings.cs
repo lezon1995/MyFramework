@@ -1,36 +1,35 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace MarbleHero
 {
     public enum GameLanguage
     {
-        ENG,
-        DUT,
-        EPO,
-        PTB,
-        ZHS,
-        ZHT,
-        FIN,
-        FRA,
-        DEU,
-        GRE,
-        IND,
-        ITA,
-        JPN,
-        KOR,
-        NOR,
-        POL,
-        RUS,
-        SPA,
-        SRP,
-        SRB,
-        THA,
-        TUR,
-        UKR,
-        VIE,
-        WWW
+        ENG, //English	英语
+        DUT, //Dutch（旧代码，现在一般用 NLD）	荷兰语
+        EPO, //Esperanto	世界语
+        PTB, //Portuguese (Brazil)	巴西葡萄牙语
+        ZHS, //Chinese Simplified	简体中文
+        ZHT, //Chinese Traditional	繁体中文
+        FIN, //Finnish	芬兰语
+        FRA, //French	法语
+        DEU, //German	德语
+        GRE, //Greek（旧代码，现在一般用 ELL）	希腊语
+        IND, //Indonesian	印度尼西亚语
+        ITA, //Italian	意大利语
+        JPN, //Japanese	日语
+        KOR, //Korean	韩语
+        NOR, //Norwegian	挪威语
+        POL, //Polish	波兰语
+        RUS, //Russian	俄语
+        SPA, //Spanish	西班牙语
+        SRP, //Serbian (Latin) (通常项目里这样约定)	塞尔维亚语（拉丁字母）
+        SRB, //Serbian (Cyrillic) (项目自定义)	塞尔维亚语（西里尔字母）
+        THA, //Thai	泰语
+        TUR, //Turkish	土耳其语
+        UKR, //Ukrainian	乌克兰语
+        VIE, //Vietnamese	越南语
+        WWW // WWW	Unknown / Worldwide / Fallback	通常表示默认语言、国际版或未指定语言（不是 ISO 标准）
     }
 
     /// Framework options. Helps editor methods to put references in the Inspector automatically.

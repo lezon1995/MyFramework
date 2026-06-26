@@ -423,7 +423,7 @@ MonoBehaviour:
   Template: {fileID: 11400000, guid: a7f55980510b12b4d8aab5b2e2552140, type: 2}
   rows: 10
   cols: 6
-  size: {x: 6, y: 8}
+  size: {x: 6, y: 9.4}
   spacing: {x: 0.05, y: 0.05}
   padding: {x: 0.05, y: 0.05}
   levelSize: {x: 19.2, y: 10.8}

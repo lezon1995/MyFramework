@@ -11,42 +11,6 @@ public class BrickGridLayout
     List<Rect> grids = new();
     Dictionary<(int col, int row), Rect> gridDict = new();
 
-    Vector2 size
-    {
-        get => template.size;
-        set => template.size = value;
-    }
-
-    Vector2 spacing
-    {
-        get => template.spacing;
-        set => template.spacing = value;
-    }
-
-    Vector2 padding
-    {
-        get => template.padding;
-        set => template.padding = value;
-    }
-
-    Vector2 offset
-    {
-        get => template.offset;
-        set => template.offset = value;
-    }
-
-    int cols
-    {
-        get => template.cols;
-        set => template.cols = value;
-    }
-
-    int rows
-    {
-        get => template.rows;
-        set => template.rows = value;
-    }
-
     BrickGridTemplate template;
 
     public BrickGridLayout(Vector2 _size, int _col, int _row)
@@ -233,6 +197,42 @@ public class BrickGridLayout
         }
 
         return grids.get(0);
+    }
+
+    Vector2 size
+    {
+        get => template.size;
+        set => template.size = value;
+    }
+
+    Vector2 spacing
+    {
+        get => template.spacing;
+        set => template.spacing = value;
+    }
+
+    Vector2 padding
+    {
+        get => template.padding;
+        set => template.padding = value;
+    }
+
+    Vector2 offset
+    {
+        get => template.offset;
+        set => template.offset = value;
+    }
+
+    int cols
+    {
+        get => template.cols;
+        set => template.cols = value;
+    }
+
+    int rows
+    {
+        get => template.rows;
+        set => template.rows = value;
     }
 
     public void setSize(float w, float h) => size = new(w, h);

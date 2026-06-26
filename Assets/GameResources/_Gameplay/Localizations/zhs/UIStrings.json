@@ -1,0 +1,27 @@
+{
+  "HandCardSelectScreen": {
+    "TEXT": [
+      "确认将牌",
+      "确认将牌"
+    ],
+    "EXTRA_TEXT": [
+      "选择",
+      "张牌来"
+    ],
+    "TEXT_DICT": {
+      "Escape": "ESC",
+      "Forward Delete": "Delete",
+      "Delete": "Backspace（退格键）"
+    }
+  },
+  "InputKeyNames": {
+    "TEXT": [
+      "操作设置",
+      "游戏设置"
+    ],
+    "EXTRA_TEXT": [
+      "返回",
+      "指令"
+    ]
+  }
+}

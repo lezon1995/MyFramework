@@ -2,10 +2,22 @@
 
 namespace MarbleHero;
 
+public enum MainMenuType
+{
+    PLAY, //开始游戏
+    RESUME_GAME, //继续
+    ABANDON_RUN, //放弃当前游戏
+    INFO, //百科大全
+    STAT, //统计内容
+    SETTINGS, //设定
+    PATCH_NOTES, //补丁内容清单
+    QUIT, //退出
+}
+
 public partial class MainMenuScreen
 {
-    // static UIStrings uiStrings = Game.languagePack.getUIString("MainMenuScreen");
-    // public static string[] TEXT = uiStrings.TEXT;
+    static UIStrings uiStrings = languagePack.getUIString("MainMenuScreen");
+    public static string[] TEXT = uiStrings.TEXT;
     static string VERSION_INFO = Game.VERSION_NUM;
     public string newName;
     public bool isDarken;
@@ -75,11 +87,6 @@ public partial class MainMenuScreen
         DOOR_UNLOCK
     }
 
-    void onInit()
-    {
-        setMainMenuButtons();
-    }
-
     public override void onCreate()
     {
         base.onCreate();
@@ -117,22 +124,6 @@ public partial class MainMenuScreen
         abandonedRun = false;
             
         base.destroy();
-    }
-
-    void setMainMenuButtons()
-    {
-        addButton(new ABANDON_RUN());
-        addButton(new RESUME_GAME());
-        addButton(new PLAY());
-        addButton(new STAT());
-        addButton(new INFO());
-        addButton(new SETTINGS());
-        addButton(new QUIT());
-        addButton(new PATCH_NOTES());
-        
-        setShowPlayButton(!Game.characterManager.anySaveFileExists());
-        setShowStatAndInfoButton(!Settings.isShowBuild /* && statsScreen.statScreenUnlocked()*/);
-        setShowQuitAndPatchButton(!Settings.isMobile && !Settings.isConsoleBuild);
     }
 
     public override void update(float dt)
@@ -549,5 +540,72 @@ public partial class MainMenuScreen
     {
         // foreach (MenuButton b in buttons)
         //     b.hide();
+    }
+    
+    protected void onPlayClick()
+    {
+        if (Settings.seed == 0)
+        {
+            setRandomSeed();
+        }
+        else
+        {
+            Settings.seedSet = true;
+        }
+
+        Game.mainMenuScreen.screen = CurScreen.NONE;
+        Game.mainMenuScreen.hideMenuButtons();
+        Game.mainMenuScreen.darken();
+        Game.loadingSave = false;
+        Game.chosenCharacter = APlayer.PlayerClass.IRONCLAD;
+        Game.mainMenuScreen.fadeOut();
+        Game.mainMenuScreen.fadeOutMusic();
+        Settings.isDailyRun = false;
+        Settings.isTrial = false;
+        ModHelper.setModsFalse();
+        ADungeon.generateSeeds();
+
+        // if (Game.steelSeries.isEnabled)
+        // Game.steelSeries.event_character_chosen(Game.chosenCharacter);
+
+        // if (Settings.isDemo || Settings.isPublisherBuild)
+        // {
+        //     BotDataUploader poster = new BotDataUploader();
+        //     poster.setValues(BotDataUploader.GameDataType.DEMO_EMBARK, null, null);
+        //     Thread t = new Thread(poster);
+        //     t.setName("LeaderboardPoster");
+        //     t.start();
+        // }
+        return;
+
+        void setRandomSeed()
+        {
+            long sourceTime = TimeUtility.getNowTimeStampMS();
+            Rand rng = new Rand(sourceTime);
+            Settings.seedSourceTimestamp = sourceTime;
+            Settings.seed = SeedHelper.generateUnoffensiveSeed(rng);
+            Settings.seedSet = false;
+        }
+    }
+    
+    protected void onResumeGameClick()
+    {
+        Game.mainMenuScreen.screen = CurScreen.NONE;
+        Game.mainMenuScreen.hideMenuButtons();
+        Game.mainMenuScreen.darken();
+        Game.loadingSave = true;
+        Game.chosenCharacter = Game.characterManager.loadChosenCharacter().chosenClass;
+        Game.mainMenuScreen.fadeOut();
+        Game.mainMenuScreen.fadeOutMusic();
+        Settings.isDailyRun = false;
+        Settings.isTrial = false;
+        ModHelper.setModsFalse();
+        // if (Game.steelSeries.isEnabled)
+        // Game.steelSeries.event_character_chosen(Game.chosenCharacter);
+    }
+    
+    protected void onQuitClick()
+    {
+        Application.Quit();
     }
 }

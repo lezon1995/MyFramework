@@ -486,11 +486,10 @@ public partial class Ball : MovableObject
         setDirection(direction, exceptMask);
         clearTrail();
     }
+    
+    public void setRendererActive(bool active) => ballRenderer.setRendererActive(active);
 
-    void clearTrail()
-    {
-        ballRenderer.clearTrail();
-    }
+    void clearTrail() => ballRenderer.clearTrail();
 
     public void setSpeed(float value)
     {

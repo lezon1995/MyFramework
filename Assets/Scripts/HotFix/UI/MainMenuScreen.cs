@@ -1,81 +1,126 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Obfuz;
 using UnityEngine;
 
 namespace MarbleHero;
 
-// auto generate member start
+// auto generate classname start
+// generate from:Assets/GameResources/UI/UIPrefab/MainMenuScreen.prefab
+// 
 [ObfuzIgnore(ObfuzScope.TypeName)]
 public partial class MainMenuScreen : LayoutScript
+// auto generate classname end
 {
-	protected myUGUIObject mMenuButtons;
-	protected myUGUIImageSimple mOverlay;
-	protected myUGUIText mDebugText;
-	// auto generate member end
+    // auto generate member start
+    protected myUGUIImageSimple overlay;
+    protected myUGUIText debugText;
+    protected WindowStructPool<MainMenuButton> MainMenuButtonPool;
+    // auto generate member end
 
-	protected Transform buttonsParent;
-	protected Dictionary<MainMenuType, MainMenuButton> buttons = new();
-	
-	public MainMenuScreen()
-	{
-		// auto generate constructor start
-		// auto generate constructor end
-		mNeedUpdate = false;
-	}
-	public override void assignWindow()
-	{
-		// auto generate assignWindow start
-		newObject(out myUGUIObject content, "Content", false);
-		newObject(out mMenuButtons, content, "MenuButtons");
-		newObject(out mOverlay, "Overlay");
-		newObject(out mDebugText, "DebugText");
-		// auto generate assignWindow end
+    protected Dictionary<MainMenuType, MainMenuButton> buttons = new();
 
-		buttonsParent = mMenuButtons.getTransform().Find("V");
-	}
+    public MainMenuScreen()
+    {
+        // auto generate constructor start
+        MainMenuButtonPool = new(this);
+        // auto generate constructor end
+        mNeedUpdate = false;
+    }
 
-	public override void init()
-	{
-		base.init();
-		onInit();
-	}
-	public override void onGameState()
-	{
-		base.onGameState();
-	}
+    public override void assignWindow()
+    {
+        // auto generate assignWindow start
+        newObject(out overlay, "Overlay");
+        newObject(out debugText, "DebugText");
+        MainMenuButtonPool.assignTemplate(mRoot, "Content/MenuButtons/V/MainMenuButton");
+        // auto generate assignWindow end
+    }
 
-	public void addButton(MainMenuButton button)
-	{
-		button.setParent(buttonsParent);
-		buttons[button.type] = button;
-	}
+    public override void init()
+    {
+        base.init();
+        // auto generate init start
+        // auto generate init end
+        setMainMenuButtons();
+    }
 
-	public void setShowPlayButton(bool show)
-	{
-		buttons[MainMenuType.PLAY].setActive(show);
-		buttons[MainMenuType.ABANDON_RUN].setActive(!show);
-		buttons[MainMenuType.RESUME_GAME].setActive(!show);
-	}
+    public override void onGameState()
+    {
+        base.onGameState();
+    }
 
-	public void setShowStatAndInfoButton(bool show)
-	{
-		buttons[MainMenuType.STAT].setActive(show);
-		buttons[MainMenuType.INFO].setActive(show);
-	}
+    public void addButton(MainMenuType type)
+    {
+        var item = MainMenuButtonPool.newItem();
+        item.getRoot().setName(type.ToString());
+        item.setName(type.ToString());
+        switch (type)
+        {
+            case MainMenuType.PLAY:
+                item.setOnClick(onPlayClick);
+                break;
+            case MainMenuType.RESUME_GAME:
+                item.setOnClick(onResumeGameClick);
+                break;
+            case MainMenuType.ABANDON_RUN:
+                break;
+            case MainMenuType.INFO:
+                break;
+            case MainMenuType.STAT:
+                break;
+            case MainMenuType.SETTINGS:
+                break;
+            case MainMenuType.PATCH_NOTES:
+                break;
+            case MainMenuType.QUIT:
+                item.setOnClick(onQuitClick);
+                break;
+        }
+        buttons[type] = item;
+    }
 
-	public void setShowQuitAndPatchButton(bool show)
-	{
-		buttons[MainMenuType.QUIT].setActive(show);
-		buttons[MainMenuType.PATCH_NOTES].setActive(show);
-	}
+    public void setShowPlayButton(bool show)
+    {
+        buttons[MainMenuType.PLAY].setActive(show);
+        buttons[MainMenuType.ABANDON_RUN].setActive(!show);
+        buttons[MainMenuType.RESUME_GAME].setActive(!show);
+    }
 
-	public void setOverlapColor(Color color)
-	{
-		mOverlay.setColor(color);
-	}
+    public void setShowStatAndInfoButton(bool show)
+    {
+        buttons[MainMenuType.STAT].setActive(show);
+        buttons[MainMenuType.INFO].setActive(show);
+    }
 
-	public void setOverlapRaycastTarget(bool b)
-	{
-		mOverlay.setUGUIRaycastTarget(b);
-	}
+    public void setShowQuitAndPatchButton(bool show)
+    {
+        buttons[MainMenuType.QUIT].setActive(show);
+        buttons[MainMenuType.PATCH_NOTES].setActive(show);
+    }
+
+    public void setOverlapColor(Color color)
+    {
+        overlay.setColor(color);
+    }
+
+    public void setOverlapRaycastTarget(bool b)
+    {
+        overlay.setUGUIRaycastTarget(b);
+    }
+
+    void setMainMenuButtons()
+    {
+        addButton(MainMenuType.ABANDON_RUN);
+        addButton(MainMenuType.RESUME_GAME);
+        addButton(MainMenuType.PLAY);
+        addButton(MainMenuType.STAT);
+        addButton(MainMenuType.INFO);
+        addButton(MainMenuType.SETTINGS);
+        addButton(MainMenuType.QUIT);
+        addButton(MainMenuType.PATCH_NOTES);
+
+        setShowPlayButton(!Game.characterManager.anySaveFileExists());
+        setShowStatAndInfoButton(!Settings.isShowBuild /* && statsScreen.statScreenUnlocked()*/);
+        setShowQuitAndPatchButton(!Settings.isMobile && !Settings.isConsoleBuild);
+    }
 }

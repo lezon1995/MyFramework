@@ -15,8 +15,9 @@ public partial class GBH
     public static GameplayManager gameplayManager;
     public static BallManager ballManager;
     public static BrickManager brickManager;
-    public static MarbleHero.LevelManager levelManager;
+    public static LevelManager levelManager;
     public static FTextManager textManager;
+    public static LocalizedStrings languagePack;
 
     public static ComboManager comboManager;
 

@@ -68,12 +68,12 @@ public class CmdLayoutManagerLoad
 		}
 		if (visible)
 		{
-			layout.setVisible(visible);
+			layout.setVisible(true);
 		}
 		// 隐藏时需要设置强制隐藏,不通知脚本,因为通常这种情况只是想后台加载布局
 		else
 		{
-			layout.setVisibleForce(visible);
+			layout.setVisibleForce(false);
 		}
 		// 通知布局管理器布局显示或隐藏
 		mLayoutManager.notifyLayoutVisible(visible, layout);

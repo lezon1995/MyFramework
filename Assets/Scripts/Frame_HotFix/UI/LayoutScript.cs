@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 #if USE_CSHARP_10
 using System.Runtime.CompilerServices;
 #endif
@@ -32,6 +33,8 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 	protected bool mUnuseAllWhenHide = true;                        // 是否在隐藏时将引用的对象池中的对象全部回收
 	protected bool mNeedResetAllChild = true;						// 是否在调用onGameState时,去调用所有一级子节点的reset,默认为true
 	protected LAYOUT_STATE mLayoutState;						// 当前布局所处的渲染状态
+	protected Action mOnHideBegin, mOnHideEnd;
+	protected Action mOnShowBegin, mOnShowEnd;
 	public override void destroy()
 	{
 		base.destroy();
@@ -72,6 +75,10 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 		mUnuseAllWhenHide = true;
 		mNeedResetAllChild = true;
 		mLayoutState = LAYOUT_STATE.NONE;
+		mOnHideBegin = null;
+		mOnHideEnd = null;
+		mOnShowBegin = null;
+		mOnShowEnd = null;
 	}
 	public virtual void setLayout(GameLayout layout) { mLayout = layout; }
 	public virtual bool onESCDown()
@@ -288,6 +295,7 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 		}
 
 		mLayoutState = LAYOUT_STATE.SHOWING;
+		mOnShowBegin?.Invoke();
 	}
 	public virtual void onDrawGizmos() { }
 	public virtual void onHide()
@@ -311,6 +319,7 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 		}
 		mInputSystem?.unlistenKey(this);
 		mLayoutState = LAYOUT_STATE.HIDING;
+		mOnHideBegin?.Invoke();
 	}
 
 	public void setActive(bool active)
@@ -319,13 +328,20 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 		{
 			mLayoutState = LAYOUT_STATE.ACTIVE;
 			mRoot.setActive(true);
+			mOnShowEnd?.Invoke();
 		}
 		else
 		{
 			mLayoutState = LAYOUT_STATE.INACTIVE;
 			mRoot.setActive(false);
+			mOnHideEnd?.Invoke();
 		}
 	}
+
+	public void setOnHideBegin(Action a) => mOnHideBegin = a;
+	public void setOnHideEnd(Action a) => mOnHideEnd = a;
+	public void setOnShowBegin(Action a) => mOnShowBegin = a;
+	public void setOnShowEnd(Action a) => mOnShowEnd = a;
 
 	public bool isHide() => mLayoutState is LAYOUT_STATE.HIDING or LAYOUT_STATE.INACTIVE;
 

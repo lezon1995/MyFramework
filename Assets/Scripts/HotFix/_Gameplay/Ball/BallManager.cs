@@ -159,6 +159,7 @@ public class BallManager : FrameSystem
         ball.setPhysicDamage(1, 1);
         ball.setMagicDamage(1, 1);
         ball.setInitialHealth(int.MaxValue);
+        ball.setRendererActive(true);
         ball.onAcquire();
         
         ball.eventRouter.addListener<OnBallDeath>(this);
