@@ -58,6 +58,41 @@ public static class ListExtension
         for (int i = 0; i < count; i++)
             result.Add(list[indices[i]]);
     }
+	
+	
+	/// <summary>
+	/// 随机获取 count 个元素（不移除）
+	/// </summary>
+	public static void randomTake<T>(this IList<T> list, int count, ref List<T> result, Func<int, int, int> random)
+	{
+		if (count < 0)
+			return;
+
+		if(count > list.Count)
+			count = list.Count;
+        
+		int n = list.Count;
+
+		// 索引池
+		using var _ = new ListScope<int>(out var indices);
+		for (int i = 0; i < n; i++)
+			indices.Add(i);
+
+		// 部分 Fisher-Yates
+		for (int i = 0; i < count; i++)
+		{
+			int j;
+			if (random == null)
+				j = randomInt(i, n - 1);
+			else
+				j = random(i, n);
+
+			(indices[i], indices[j]) = (indices[j], indices[i]);
+		}
+
+		for (int i = 0; i < count; i++)
+			result.Add(list[indices[i]]);
+	}
 
     /// <summary>
     /// 随机获取 count 个元素并从原 List 中移除
@@ -585,6 +620,18 @@ public static class ListExtension
 		{
 			return list;
 		}
+		list.AddRange(other);
+		return list;
+	}
+
+	public static List<T> setRange<T>(this List<T> list, IEnumerable<T> other)
+	{
+		list.Clear();
+		if (other == null || other.Count() == 0)
+		{
+			return list;
+		}
+
 		list.AddRange(other);
 		return list;
 	}

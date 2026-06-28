@@ -74,4 +74,29 @@ public static class FrameBaseExtension
         component = null;
         return false;
     }
+
+    public static bool find<T>(this Transform t, out T component) where T : Component
+    {
+        if (t)
+            return t.TryGetComponent(out component);
+
+        component = null;
+        return false;
+    }
+    
+    public static bool find<T>(this Transform t, out T component, string name) where T : Component
+    {
+        if (t == null)
+        {
+            component = null;
+            return false;
+        }
+
+        var o = getGameObject(name, t.gameObject);
+        if (o)
+            return o.TryGetComponent(out component);
+
+        component = null;
+        return false;
+    }
 }

@@ -36,6 +36,7 @@ namespace MarbleHero
         BRICK_MOVE_TO_CENTER_HORIZONTAL, //所有砖块以水平方向移动到中心
         BRICK_MOVE_TO_CENTER_VERTICAL, //所有砖块以竖直方向移动到中心
         BRICK_MOVE_TO_BORDER_TOP, //所有砖块移动到上边界
+        BRICK_MOVE_TO_BORDER_BOT, //所有砖块移动到下边界
         BRICK_MOVE_TO_BORDER_LEFT, //所有砖块移动到左边界
         BRICK_MOVE_TO_BORDER_RIGHT, //所有砖块移动到右边界
         BRICK_SHUFFLE_POSITION_X, //X个砖块洗牌重新定位

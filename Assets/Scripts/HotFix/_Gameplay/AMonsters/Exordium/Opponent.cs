@@ -34,7 +34,7 @@ public class Opponent : AMonster
 
     protected override void getMove(int num)
     {
-        var flag = rollCounter % 5 + 1;
+        var flag = rollCounter % 4 + 1;
         switch (flag)
         {
             case 0:
@@ -42,34 +42,26 @@ public class Opponent : AMonster
                 break;
             case 1:
                 setMove(1, Intent.BRICK_GENERATE_X);
-                setMove(2, Intent.BRICK_MOVE_DOWN_X);
+                setMove(2, Intent.BRICK_MOVE_TO_BORDER_TOP);
                 setMove(3, Intent.BRICK_HEALING_X);
                 break;
             case 2:
                 setMove(1, Intent.BRICK_GENERATE_X);
-                setMove(2, Intent.BRICK_MOVE_DOWN_X);
+                setMove(2, Intent.BRICK_MOVE_TO_BORDER_RIGHT);
                 setMove(3, Intent.BRICK_HEALING_X);
                 break;
             case 3:
                 setMove(1, Intent.BRICK_GENERATE_X);
-                setMove(2, Intent.BRICK_MOVE_DOWN_X);
+                setMove(2, Intent.BRICK_MOVE_TO_BORDER_BOT);
                 setMove(3, Intent.BRICK_HEALING_X);
                 // setMove(3, Intent.BRICK_GENERATE_X);
                 break;
             case 4:
                 setMove(1, Intent.BRICK_GENERATE_X);
-                setMove(2, Intent.BRICK_MOVE_DOWN_X);
+                setMove(2, Intent.BRICK_MOVE_TO_BORDER_LEFT);
                 setMove(3, Intent.BRICK_HEALING_X);
                 // setMove(3, Intent.BRICK_GENERATE_X);
                 // setMove(4, Intent.BRICK_MOVE_DOWN_X);
-                break;
-            case 5:
-                setMove(1, Intent.BRICK_GENERATE_X);
-                setMove(2, Intent.BRICK_MOVE_DOWN_X);
-                setMove(3, Intent.BRICK_HEALING_X);
-                // setMove(3, Intent.BRICK_GENERATE_X);
-                // setMove(4, Intent.BRICK_MOVE_DOWN_X);
-                // setMove(5, Intent.BRICK_GENERATE_X);
                 break;
         }
 
@@ -95,6 +87,18 @@ public class Opponent : AMonster
                 break;
             case Intent.BRICK_MOVE_DOWN_X:
                 // actionManager.addToBot<BrickGroupMoveDownAction>().with(this);
+                break;
+            case Intent.BRICK_MOVE_TO_BORDER_LEFT:
+                actionManager.addToBot<BrickGroupMoveToBorderAction>().with(levelManager.borderLeft);
+                break;
+            case Intent.BRICK_MOVE_TO_BORDER_RIGHT:
+                actionManager.addToBot<BrickGroupMoveToBorderAction>().with(levelManager.borderRight);
+                break;
+            case Intent.BRICK_MOVE_TO_BORDER_TOP:
+                actionManager.addToBot<BrickGroupMoveToBorderAction>().with(levelManager.borderTop);
+                break;
+            case Intent.BRICK_MOVE_TO_BORDER_BOT:
+                actionManager.addToBot<BrickGroupMoveToBorderAction>().with(levelManager.borderBot);
                 break;
         }
     }

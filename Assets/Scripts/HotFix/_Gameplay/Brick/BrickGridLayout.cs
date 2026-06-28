@@ -47,6 +47,12 @@ public class BrickGridLayout
         else
             gridSize = new(Mathf.Max(0f, usableWidth / cols), Mathf.Max(0f, usableHeight / rows));
     }
+    
+    public Vector2 getCellSize()
+    {
+        getCellSize(out var cellSize);
+        return cellSize;
+    }
 
     public List<Rect> getGrids()
     {
@@ -199,37 +205,37 @@ public class BrickGridLayout
         return grids.get(0);
     }
 
-    Vector2 size
+    public Vector2 size
     {
         get => template.size;
         set => template.size = value;
     }
 
-    Vector2 spacing
+    public Vector2 spacing
     {
         get => template.spacing;
         set => template.spacing = value;
     }
 
-    Vector2 padding
+    public Vector2 padding
     {
         get => template.padding;
         set => template.padding = value;
     }
 
-    Vector2 offset
+    public Vector2 offset
     {
         get => template.offset;
         set => template.offset = value;
     }
 
-    int cols
+    public int cols
     {
         get => template.cols;
         set => template.cols = value;
     }
 
-    int rows
+    public int rows
     {
         get => template.rows;
         set => template.rows = value;

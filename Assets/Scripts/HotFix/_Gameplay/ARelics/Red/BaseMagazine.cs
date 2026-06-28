@@ -11,7 +11,7 @@ namespace MarbleHero;
 public class BaseMagazine : ARelic, IEvent<OnBallDeath>
 {
     public static string ID = "BaseMagazine";
-    List<Ball> tempBalls = new();
+    static List<Ball> tempBalls = new();
 
     public BaseMagazine() : base(ID, "BaseMagazine.png", RelicTier.COMMON, LandingSound.SOLID)
     {

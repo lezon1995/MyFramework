@@ -17,6 +17,7 @@ public partial class OverlayMenu : LayoutScript
 	protected EnemyIntentsView EnemyIntentsView;
 	// auto generate member end
 	
+	public RelicsView relics => RelicsView;
 	public EnemyIntentsView intents => EnemyIntentsView;
 
 	public OverlayMenu()
@@ -48,5 +49,6 @@ public partial class OverlayMenu : LayoutScript
 	public override void onGameState()
 	{
 		base.onGameState();
+		RelicsView.refresh(player.relics);
 	}
 }

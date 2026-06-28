@@ -13,177 +13,63 @@ MonoBehaviour:
   m_Name: StageTemplate
   m_EditorClassIdentifier: HotFix::MarbleHero.StageTemplate
   bricks:
-  - position: {x: -1.4875001, y: 3.3875}
-    size: {x: 0.94166666, y: 0.745}
+  - position: {x: -2.55, y: 3.3999996}
+    size: {x: 0.8, y: 0.79999995}
     health: 1
-  - position: {x: -1.4875001, y: 2.5925}
-    size: {x: 0.94166666, y: 0.745}
+  - position: {x: -1.6999999, y: 3.3999996}
+    size: {x: 0.8, y: 0.79999995}
     health: 1
-  - position: {x: -1.4875001, y: 1.7974999}
-    size: {x: 0.94166666, y: 0.745}
+  - position: {x: -0.8499999, y: 3.3999996}
+    size: {x: 0.8, y: 0.79999995}
     health: 1
-  - position: {x: -1.4875001, y: 1.0025}
-    size: {x: 0.94166666, y: 0.745}
+  - position: {x: -0.8499999, y: 2.5499997}
+    size: {x: 0.8, y: 0.79999995}
     health: 1
-  - position: {x: -1.4875001, y: 0.20749998}
-    size: {x: 0.94166666, y: 0.745}
+  - position: {x: -0.8499999, y: 1.6999997}
+    size: {x: 0.8, y: 0.79999995}
     health: 1
-  - position: {x: -0.49583343, y: 0.20749998}
-    size: {x: 0.94166666, y: 0.745}
+  - position: {x: 0.8500001, y: 3.3999996}
+    size: {x: 0.8, y: 0.79999995}
     health: 1
-  - position: {x: 0.49583325, y: 0.20749998}
-    size: {x: 0.94166666, y: 0.745}
+  - position: {x: 0.8500001, y: 2.5499997}
+    size: {x: 0.8, y: 0.79999995}
     health: 1
-  - position: {x: 1.4875, y: 0.20749998}
-    size: {x: 0.94166666, y: 0.745}
+  - position: {x: 0.8500001, y: 1.6999997}
+    size: {x: 0.8, y: 0.79999995}
     health: 1
-  - position: {x: 1.4875, y: 1.0025}
-    size: {x: 0.94166666, y: 0.745}
+  - position: {x: 1.7000002, y: 3.3999996}
+    size: {x: 0.8, y: 0.79999995}
     health: 1
-  - position: {x: 1.4875, y: 1.7974999}
-    size: {x: 0.94166666, y: 0.745}
+  - position: {x: 2.5500002, y: 3.3999996}
+    size: {x: 0.8, y: 0.79999995}
     health: 1
-  - position: {x: 1.4875, y: 2.5925}
-    size: {x: 0.94166666, y: 0.745}
+  - position: {x: -2.55, y: 1.6999997}
+    size: {x: 0.8, y: 0.79999995}
     health: 1
-  - position: {x: 1.4875, y: 3.3875}
-    size: {x: 0.94166666, y: 0.745}
+  - position: {x: -2.55, y: 0.8499997}
+    size: {x: 0.8, y: 0.79999995}
     health: 1
-  - position: {x: 0.49583325, y: 3.3875}
-    size: {x: 0.94166666, y: 0.745}
+  - position: {x: -2.55, y: -0.00000023841858}
+    size: {x: 0.8, y: 0.79999995}
     health: 1
-  - position: {x: -0.49583343, y: 3.3875}
-    size: {x: 0.94166666, y: 0.745}
+  - position: {x: -1.6999999, y: -0.00000023841858}
+    size: {x: 0.8, y: 0.79999995}
     health: 1
-  - position: {x: -1.4875001, y: -1.3824999}
-    size: {x: 0.94166666, y: 0.745}
+  - position: {x: -0.8499999, y: -0.00000023841858}
+    size: {x: 0.8, y: 0.79999995}
     health: 1
-  - position: {x: -0.49583343, y: -1.3824999}
-    size: {x: 0.94166666, y: 0.745}
+  - position: {x: 0.8500001, y: -0.00000023841858}
+    size: {x: 0.8, y: 0.79999995}
     health: 1
-  - position: {x: 0.49583325, y: -1.3824999}
-    size: {x: 0.94166666, y: 0.745}
+  - position: {x: 1.7000002, y: -0.00000023841858}
+    size: {x: 0.8, y: 0.79999995}
     health: 1
-  - position: {x: 1.4875, y: -1.3824999}
-    size: {x: 0.94166666, y: 0.745}
+  - position: {x: 2.5500002, y: -0.00000023841858}
+    size: {x: 0.8, y: 0.79999995}
     health: 1
-  - position: {x: -1.4875001, y: 4.9775}
-    size: {x: 0.94166666, y: 0.745}
+  - position: {x: 2.5500002, y: 0.8499997}
+    size: {x: 0.8, y: 0.79999995}
     health: 1
-  - position: {x: -0.49583343, y: 4.9775}
-    size: {x: 0.94166666, y: 0.745}
-    health: 1
-  - position: {x: 0.49583325, y: 4.9775}
-    size: {x: 0.94166666, y: 0.745}
-    health: 1
-  - position: {x: 1.4875, y: 4.9775}
-    size: {x: 0.94166666, y: 0.745}
-    health: 1
-  - position: {x: -2.5, y: -2.43}
-    size: {x: 1, y: 0.54}
-    health: 1
-  - position: {x: -1.5, y: -2.43}
-    size: {x: 1, y: 0.54}
-    health: 1
-  - position: {x: -0.5, y: -2.43}
-    size: {x: 1, y: 0.54}
-    health: 1
-  - position: {x: 0.5, y: -2.43}
-    size: {x: 1, y: 0.54}
-    health: 1
-  - position: {x: 1.5, y: -2.43}
-    size: {x: 1, y: 0.54}
-    health: 1
-  - position: {x: 2.5, y: -2.43}
-    size: {x: 1, y: 0.54}
-    health: 1
-  - position: {x: -0.2828571, y: 1.8900001}
-    size: {x: 0.5657143, y: 0.54}
-    health: 1
-  - position: {x: -0.2828571, y: 1.3500001}
-    size: {x: 0.5657143, y: 0.54}
-    health: 1
-  - position: {x: 0.28285724, y: 1.3500001}
-    size: {x: 0.5657143, y: 0.54}
-    health: 1
-  - position: {x: 0.28285724, y: 1.8900001}
-    size: {x: 0.5657143, y: 0.54}
-    health: 1
-  - position: {x: -3.1114285, y: 5.13}
-    size: {x: 0.5657143, y: 0.54}
-    health: 1
-  - position: {x: -3.1114285, y: 4.59}
-    size: {x: 0.5657143, y: 0.54}
-    health: 1
-  - position: {x: -3.1114285, y: 4.05}
-    size: {x: 0.5657143, y: 0.54}
-    health: 1
-  - position: {x: -3.1114285, y: 3.5100002}
-    size: {x: 0.5657143, y: 0.54}
-    health: 1
-  - position: {x: -3.1114285, y: 2.9700003}
-    size: {x: 0.5657143, y: 0.54}
-    health: 1
-  - position: {x: -3.1114285, y: 2.4300003}
-    size: {x: 0.5657143, y: 0.54}
-    health: 1
-  - position: {x: -3.1114285, y: 1.8900001}
-    size: {x: 0.5657143, y: 0.54}
-    health: 1
-  - position: {x: -3.1114285, y: 1.3500001}
-    size: {x: 0.5657143, y: 0.54}
-    health: 1
-  - position: {x: -3.1114285, y: 0.81000006}
-    size: {x: 0.5657143, y: 0.54}
-    health: 1
-  - position: {x: -3.1114285, y: 0.2700001}
-    size: {x: 0.5657143, y: 0.54}
-    health: 1
-  - position: {x: -3.1114285, y: -0.26999995}
-    size: {x: 0.5657143, y: 0.54}
-    health: 1
-  - position: {x: -3.1114285, y: -0.80999994}
-    size: {x: 0.5657143, y: 0.54}
-    health: 1
-  - position: {x: -3.1114285, y: -1.3499999}
-    size: {x: 0.5657143, y: 0.54}
-    health: 1
-  - position: {x: 3.1114287, y: -1.3499999}
-    size: {x: 0.5657143, y: 0.54}
-    health: 1
-  - position: {x: 3.1114287, y: -0.80999994}
-    size: {x: 0.5657143, y: 0.54}
-    health: 1
-  - position: {x: 3.1114287, y: -0.26999995}
-    size: {x: 0.5657143, y: 0.54}
-    health: 1
-  - position: {x: 3.1114287, y: 0.2700001}
-    size: {x: 0.5657143, y: 0.54}
-    health: 1
-  - position: {x: 3.1114287, y: 0.81000006}
-    size: {x: 0.5657143, y: 0.54}
-    health: 1
-  - position: {x: 3.1114287, y: 1.3500001}
-    size: {x: 0.5657143, y: 0.54}
-    health: 1
-  - position: {x: 3.1114287, y: 1.8900001}
-    size: {x: 0.5657143, y: 0.54}
-    health: 1
-  - position: {x: 3.1114287, y: 2.4300003}
-    size: {x: 0.5657143, y: 0.54}
-    health: 1
-  - position: {x: 3.1114287, y: 2.9700003}
-    size: {x: 0.5657143, y: 0.54}
-    health: 1
-  - position: {x: 3.1114287, y: 3.5100002}
-    size: {x: 0.5657143, y: 0.54}
-    health: 1
-  - position: {x: 3.1114287, y: 4.05}
-    size: {x: 0.5657143, y: 0.54}
-    health: 1
-  - position: {x: 3.1114287, y: 4.59}
-    size: {x: 0.5657143, y: 0.54}
-    health: 1
-  - position: {x: 3.1114287, y: 5.13}
-    size: {x: 0.5657143, y: 0.54}
+  - position: {x: 2.5500002, y: 1.6999997}
+    size: {x: 0.8, y: 0.79999995}
     health: 1

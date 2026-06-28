@@ -4,7 +4,7 @@ namespace MarbleHero;
 
 /// <summary>
 /// 奶昔
-/// 球每次反弹球速提高10%
+/// 球每次反弹球速提高5%
 /// </summary>
 public class MilkShake : ARelic
 {
@@ -16,7 +16,7 @@ public class MilkShake : ARelic
 
     public override void onBallReflect(APlayer p, Ball ball, Vector2 normal, bool fromBrick, ref Vector2 reflectDir)
     {
-        ball.speed.increasePct(0.1F);
+        ball.speed.increasePct(0.05F);
     }
 
     public override ARelic makeCopy() => new MilkShake();

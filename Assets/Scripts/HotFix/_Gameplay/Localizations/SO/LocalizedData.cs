@@ -11,7 +11,7 @@ namespace MarbleHero
     public class LocalizedData<T> : SerializedScriptableObject where T : class, new()
     {
         [Button]
-        void Sort()
+        public void Sort()
         {
             Items.Sort((k1, k2) => string.Compare(k1.key, k2.key, StringComparison.Ordinal));
         }
@@ -102,6 +102,32 @@ namespace MarbleHero
             }
             
             Debug.Log("apply this keys to other");
+        }
+        
+        [Button]
+        void LoadFromJson()
+        {
+            var settings = new JsonSerializerSettings();
+            settings.Formatting = Formatting.Indented;
+            settings.NullValueHandling = NullValueHandling.Ignore;
+            var json = File.ReadAllText($"{OutputPath}/{typeof(T).Name}.json");
+            var dict = JsonConvert.DeserializeObject<Dictionary<string, T>>(json, settings);
+            Items.Clear();
+            foreach (var (key, data) in dict)
+            {
+                Items.add(new()
+                {
+                    key = key,
+                    data = data,
+                });
+
+                if (data is ILocalizedStringsSerialized l)
+                {
+                    l.afterDeserialized();
+                }
+            }
+            Sort();
+            Debug.Log(json);
         }
 
         [FolderPath]

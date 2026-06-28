@@ -41,8 +41,8 @@ namespace MarbleHero
             // retVal.add(RoundBattery.ID);
             // retVal.add(UnstableBattery.ID);
             // retVal.add(ExtremelyUnstableBattery.ID);
-            retVal.add(BaseMagazine.ID);
-            
+            // retVal.add(BaseMagazine.ID);
+
             foreach (var relicId in retVal)
                 UnlockTracker.markRelicAsSeen(relicId);
             return retVal;

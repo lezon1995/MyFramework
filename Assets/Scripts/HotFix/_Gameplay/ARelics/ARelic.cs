@@ -45,18 +45,18 @@ namespace MarbleHero
             SOLID
         }
 
-        public ARelic(string setId, string imgName, RelicTier tier, LandingSound sfx)
+        protected ARelic(string setId, string imgName, RelicTier tier, LandingSound sfx)
         {
             relicId = setId;
-            // relicStrings = Game.languagePack.getRelicStrings(relicId);
-            // DESCRIPTIONS = relicStrings.DESCRIPTIONS;
+            relicStrings = languagePack.getRelicStrings(relicId);
+            DESCRIPTIONS = relicStrings.DESCRIPTIONS;
             imgUrl = imgName;
             // ImageMaster.loadRelicImg(setId, imgName);
             // img = ImageMaster.getRelicImg(setId);
             // outlineImg = ImageMaster.getRelicOutlineImg(setId);
-            // name = relicStrings.NAME;
+            name = relicStrings.NAME;
             description = getUpdatedDescription();
-            // flavorText = relicStrings.FLAVOR;
+            flavorText = relicStrings.FLAVOR;
             this.tier = tier;
             landingSFX = sfx;
             assetURL = "images/relics/" + imgName;
@@ -143,7 +143,7 @@ namespace MarbleHero
 
                 UnlockTracker.markRelicAsSeen(relicId);
                 getUpdatedDescription();
-                // ADungeon.topPanel?.adjustRelicHbs();
+                ADungeon.overlayMenu?.relics?.refresh(player.relics);
             }
         }
 

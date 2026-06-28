@@ -95,7 +95,7 @@ public class BrickManager : FrameSystem
             brickSprites[i] = sprite.getResource();
         }
 
-        brickLayout = new(levelManager.getBorderSize(), 6, 10);
+        brickLayout = new(levelManager.getBorderSize(), levelManager.cols, levelManager.rows);
         // var grids = brickGrid.getGrids();
         // for (var i = 0; i < grids.Count; i++)
         // {

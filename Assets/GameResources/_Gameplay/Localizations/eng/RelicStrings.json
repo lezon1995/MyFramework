@@ -1,0 +1,84 @@
+{
+  "AmmoSupply": {
+    "NAME": "AmmoSupply",
+    "FLAVOR": "AmmoSupply",
+    "DESCRIPTIONS": []
+  },
+  "BaseMagazine": {
+    "NAME": "BaseMagazine",
+    "FLAVOR": "BaseMagazine",
+    "DESCRIPTIONS": []
+  },
+  "Blender": {
+    "NAME": "Blender",
+    "FLAVOR": "Blender"
+  },
+  "BrokenTripod": {
+    "NAME": "BrokenTripod",
+    "FLAVOR": "BrokenTripod"
+  },
+  "BurlapBag": {
+    "NAME": "BurlapBag",
+    "FLAVOR": "BurlapBag"
+  },
+  "ExtremelyUnstableBattery": {
+    "NAME": "ExtremelyUnstableBattery",
+    "FLAVOR": "ExtremelyUnstableBattery"
+  },
+  "FishingNets": {
+    "NAME": "FishingNets",
+    "FLAVOR": "FishingNets"
+  },
+  "FreeBall": {
+    "NAME": "FreeBall",
+    "FLAVOR": "FreeBall"
+  },
+  "ImpactHammer": {
+    "NAME": "ImpactHammer",
+    "FLAVOR": "ImpactHammer"
+  },
+  "LakeMirror": {
+    "NAME": "LakeMirror",
+    "FLAVOR": "LakeMirror"
+  },
+  "MilkShake": {
+    "NAME": "MilkShake",
+    "FLAVOR": "MilkShake"
+  },
+  "Origami": {
+    "NAME": "Origami",
+    "FLAVOR": "Origami"
+  },
+  "Rattle": {
+    "NAME": "Rattle",
+    "FLAVOR": "Rattle"
+  },
+  "RhombicDarts": {
+    "NAME": "RhombicDarts",
+    "FLAVOR": "RhombicDarts"
+  },
+  "RoughCelling": {
+    "NAME": "RoughCelling",
+    "FLAVOR": "RoughCelling"
+  },
+  "RoughWall": {
+    "NAME": "RoughWall",
+    "FLAVOR": "RoughWall"
+  },
+  "RoundBattery": {
+    "NAME": "RoundBattery",
+    "FLAVOR": "RoundBattery"
+  },
+  "SideBorderPortal": {
+    "NAME": "SideBorderPortal",
+    "FLAVOR": "SideBorderPortal"
+  },
+  "TacticalShield": {
+    "NAME": "TacticalShield",
+    "FLAVOR": "TacticalShield"
+  },
+  "UnstableBattery": {
+    "NAME": "UnstableBattery",
+    "FLAVOR": "UnstableBattery"
+  }
+}

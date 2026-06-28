@@ -39,8 +39,13 @@ namespace MarbleHero
                     if (remain == 0)
                     {
                         lastOne = true;
-                        // isDone = true;
+                        isDone = true;
                     }
+                }
+                else
+                {
+                    lastOne = true;
+                    isDone = true;
                 }
             }
 

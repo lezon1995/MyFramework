@@ -9,7 +9,7 @@ namespace MarbleHero
         // public static string[] MSG = tutorialStrings.TEXT;
         // public static string[] LABEL = tutorialStrings.LABEL;
         // public static string USED_UP_MSG = MSG[2];
-        // RelicStrings relicStrings;
+        RelicStrings relicStrings;
         public string[] DESCRIPTIONS;
         // public List<PowerTip> tips = new();
         // FloatyEffect f_effect = new FloatyEffect(10.0F, 0.2F);
@@ -22,7 +22,7 @@ namespace MarbleHero
         public static string IMG_DIR = "images/relics/";
         public static string OUTLINE_DIR = "images/relics/outline/";
         static string L_IMG_DIR = "images/largeRelics/";
-        public string imgUrl = "";
+        public string imgUrl;
         public static int RAW_W = 128;
         public static int relicPage = 0;
         static float offsetX = 0.0F;

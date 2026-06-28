@@ -16,12 +16,14 @@ public class LocalizedStrings : FrameSystem
     // static Dictionary<string, PowerStrings> powers;
     static Dictionary<string, CardStrings> cards;
 
-    // static Dictionary<string, RelicStrings> relics;
+    static Dictionary<string, RelicStrings> relics;
+
     // static Dictionary<string, EventStrings> events;
     // static Dictionary<string, PotionStrings> potions;
     // static Dictionary<string, CreditStrings> credits;
     // static Dictionary<string, TutorialStrings> tutorials;
-    // static Dictionary<string, KeywordStrings> keywords;
+    static Dictionary<string, KeywordStrings> keywords;
+
     // static Dictionary<string, ScoreBonusStrings> scoreBonuses;
     // static Dictionary<string, CharacterStrings> characters;
     static Dictionary<string, UIStrings> ui;
@@ -72,12 +74,17 @@ public class LocalizedStrings : FrameSystem
         // var cardRes = mResourceManager.loadGameResource<TextAsset>(cardPath);
         // cards = JsonConvert.DeserializeObject<Dictionary<string, CardStrings>>(cardRes.getResource().text);
 
-        var relicPath = langPackDir + SEP + "relics.json";
+        var relicPath = langPackDir + SEP + "RelicStrings.json";
+        var relicRes = mResourceManager.loadGameResource<TextAsset>(relicPath);
+        relics = JsonConvert.DeserializeObject<Dictionary<string, RelicStrings>>(relicRes.getResource().text);
         var eventPath = langPackDir + SEP + "events.json";
         var potionPath = langPackDir + SEP + "potions.json";
         var creditPath = langPackDir + SEP + "credits.json";
         var tutorialsPath = langPackDir + SEP + "tutorials.json";
-        var keywordsPath = langPackDir + SEP + "keywords.json";
+        var keywordsPath = langPackDir + SEP + "KeywordStrings.json";
+        var keywordRes = mResourceManager.loadGameResource<TextAsset>(keywordsPath);
+        keywords = JsonConvert.DeserializeObject<Dictionary<string, KeywordStrings>>(keywordRes.getResource().text);
+
         var scoreBonusesPath = langPackDir + SEP + "score_bonuses.json";
         var characterPath = langPackDir + SEP + "characters.json";
         var uiPath = langPackDir + SEP + "UIStrings.json";
@@ -152,10 +159,6 @@ public class LocalizedStrings : FrameSystem
         return TutorialStrings.getMockTutorialString();
     }
 
-    public KeywordStrings getKeywordString(string keywordName)
-    {
-        return keywords[keywordName];
-    }
 
     public CharacterStrings getCharacterString(string characterName)
     {
@@ -205,6 +208,14 @@ public class LocalizedStrings : FrameSystem
     }*/
 
 
+    public KeywordStrings getKeywordString(string keywordName)
+    {
+        if (keywords.TryGetValue(keywordName, out var strings))
+            return strings;
+
+        return null;
+    }
+
     public UIStrings getUIString(string uiName)
     {
         if (ui.TryGetValue(uiName, out var strings))
@@ -230,10 +241,13 @@ public class LocalizedStrings : FrameSystem
         return retVal;
     }
 
-    /*public RelicStrings getRelicStrings(string relicName)
+    public RelicStrings getRelicStrings(string relicName)
     {
-        return relics[relicName];
-    }*/
+        if (relics.TryGetValue(relicName, out var strings))
+            return strings;
+
+        return RelicStrings.getMockRelicString();
+    }
 
     static string loadJson(string jsonPath)
     {

@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using Drawing;
 using Sirenix.OdinInspector;
+using UnityEditor;
 using UnityEngine;
 
 namespace MarbleHero
@@ -16,6 +17,10 @@ namespace MarbleHero
         public Vector2 spacing = new(0.05F, 0.05F);
         public Vector2 padding = new(0.05F, 0.05F);
         public Vector2 levelSize = new(19.2F, 10.8F);
+        public Vector2 offset = new(19.2F, 10.8F);
+
+        [ReadOnly]
+        public Vector2 cellSize;
 
         Camera mainCamera;
 
@@ -36,6 +41,7 @@ namespace MarbleHero
             layout.setPadding(padding);
             layout.setOffset(offset);
             layout.getGrids();
+            cellSize = layout.getCellSize();
         }
 
         void Update()
@@ -43,7 +49,7 @@ namespace MarbleHero
             var size = layout.getSize();
             var screenSize = new Vector2(Screen.width, Screen.height) / 100F;
             var topY = size.y / 2F;
-            var offset = new Vector2(0, levelSize.y / 2F - topY);
+            // var offset = new Vector2(0, levelSize.y / 2F - topY);
 
             var (top1, top2) = (new Vector2(-screenSize.x / 2F, topY) + offset, new Vector2(screenSize.x / 2F, topY) + offset);
             var (bot1, bot2) = (new Vector2(-screenSize.x / 2F, -size.y / 2F) + offset, new Vector2(screenSize.x / 2F, -size.y / 2F) + offset);
@@ -111,6 +117,8 @@ namespace MarbleHero
                 return;
 
             Template.bricks = brickTemplates.getMainList().ToArray();
+            EditorUtility.SetDirty(Template);   // 标记资源已修改
+            AssetDatabase.SaveAssets();         // 保存到磁盘
         }
         
         [Button]

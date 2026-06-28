@@ -14,7 +14,7 @@ namespace MarbleHero
         public string[] EXTRA_TEXT;
         public Dictionary<string, string> TEXT_DICT;
 
-        [JsonIgnore]
+        [JsonIgnore] 
         public StringPair[] TEXT_LIST;
 
         public void beforeSerialized()
@@ -25,11 +25,28 @@ namespace MarbleHero
                 TEXT_DICT = null;
         }
 
+        public void afterDeserialized()
+        {
+            if (TEXT_DICT is { Count: > 0 })
+            {
+                TEXT_LIST = TEXT_DICT.Select(pair => new StringPair
+                {
+                    key = pair.Key,
+                    value = pair.Value,
+                }).ToArray();
+            }
+            else
+            {
+                TEXT_LIST = null;
+            }
+        }
+
 
         static UIStrings mock;
+
         public static UIStrings getMockUIString()
         {
-            if (mock !=null)
+            if (mock != null)
                 return mock;
 
             var retVal = new UIStrings();

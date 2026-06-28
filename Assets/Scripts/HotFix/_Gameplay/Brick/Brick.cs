@@ -166,7 +166,7 @@ public partial class Brick : MovableObject
             }
         }
 
-        Draw.ingame.xy.WireRectangle(getRect(), Color.red);
+        // Draw.ingame.xy.WireRectangle(getRect(), Color.red);
     }
 
     public override void fixedUpdate(float elapsedTime)
@@ -196,7 +196,7 @@ public partial class Brick : MovableObject
     public void setHealth(int value, bool changeColor = true)
     {
         curHealth = value;
-        brickRenderer.refreshHealth(curHealth);
+        brickRenderer.refreshHealth(curHealth, maxHealth);
         if (changeColor)
         {
             var sprite = manager.getBrickSpriteByHealth(value);
@@ -207,7 +207,7 @@ public partial class Brick : MovableObject
     public void setInitialHealth(int value)
     {
         curHealth = value;
-        brickRenderer.refreshHealth(curHealth);
+        brickRenderer.refreshHealth(curHealth, maxHealth);
         var sprite = manager.getBrickSpriteByHealth(value);
         brickRenderer.setBrickSprite(sprite);
     }

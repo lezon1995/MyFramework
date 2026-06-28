@@ -2,23 +2,26 @@
 // auto generate classname start
 // generate from:Assets/GameResources/UI/UIPrefab/OverlayMenu.prefab
 // 
+
+using System.Collections.Generic;
+using MarbleHero;
+
 public class RelicsView : WindowObjectUGUI
 // auto generate classname end
 {
 	// auto generate member start
-	protected WindowStructPool<RelicItem> mRelicItemPool;
+	protected WindowStructPool<RelicItem> RelicItemPool;
 	// auto generate member end
 	public RelicsView(IWindowObjectOwner parent) : base(parent)
 	{
 		// auto generate constructor start
-		mRelicItemPool = new(this);
+		RelicItemPool = new(this);
 		// auto generate constructor end
 	}
 	protected override void assignWindowInternal()
 	{
 		// auto generate assignWindowInternal start
-		newObject(out myUGUIObject g, "G", false);
-		mRelicItemPool.assignTemplate(g, "RelicItem");
+		RelicItemPool.assignTemplate(mRoot, "G/RelicItem");
 		// auto generate assignWindowInternal end
 	}
 	public override void init()
@@ -30,5 +33,15 @@ public class RelicsView : WindowObjectUGUI
 	public override void onShow()
 	{
 		base.onShow();
+	}
+
+	public void refresh(List<ARelic> relics)
+	{
+		RelicItemPool.unuseAll();
+		foreach (var relic in relics)
+		{
+			var item = RelicItemPool.newItem();
+			item.refresh(relic);
+		}
 	}
 }

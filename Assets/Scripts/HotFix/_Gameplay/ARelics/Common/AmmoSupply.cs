@@ -8,7 +8,7 @@ public class AmmoSupply : ARelic
 {
     public static string ID = "AmmoSupply";
 
-    public AmmoSupply() : base(ID, "Origami.png", RelicTier.COMMON, LandingSound.SOLID)
+    public AmmoSupply() : base(ID, "AmmoSupply.png", RelicTier.COMMON, LandingSound.SOLID)
     {
     }
 

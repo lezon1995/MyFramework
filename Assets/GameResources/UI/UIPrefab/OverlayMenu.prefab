@@ -4089,7 +4089,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Frame_HotFix::UGUISubGenerator
   mComment: 
   mMemberList:
-  - mObject: {fileID: 0}
+  - mObject: {fileID: 490466274075434111}
     mType: WindowStructPool
     mArrayType: 0
     mArrayLength: 0
@@ -4178,12 +4178,12 @@ MonoBehaviour:
     m_Font: {fileID: 12800000, guid: f4c7fbbb175d5494c8f9be28c615092d, type: 3}
     m_FontSize: 35
     m_FontStyle: 0
-    m_BestFit: 0
+    m_BestFit: 1
     m_MinSize: 2
     m_MaxSize: 46
     m_Alignment: 3
     m_AlignByGeometry: 0
-    m_RichText: 1
+    m_RichText: 0
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1

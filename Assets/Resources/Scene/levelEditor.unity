@@ -427,6 +427,7 @@ MonoBehaviour:
   spacing: {x: 0.05, y: 0.05}
   padding: {x: 0.05, y: 0.05}
   levelSize: {x: 19.2, y: 10.8}
+  offset: {x: 0, y: 0}
 --- !u!1 &1137042466
 GameObject:
   m_ObjectHideFlags: 0

@@ -23,6 +23,8 @@ public class BrickRenderer : GameComponent
     Material brickMat;
     int brickFlashFrames;
 
+    HealthBar healthBar;
+
     public override void init(ComponentOwner owner)
     {
         base.init(owner);
@@ -45,6 +47,10 @@ public class BrickRenderer : GameComponent
             obj.find(out blockAmount, "BlockAmount");
             block.gameObject.SetActive(false);
             blockAmount.gameObject.SetActive(false);
+            if (obj.find(out Transform h, "HealthBar"))
+            {
+                healthBar = new(h);
+            }
         }
     }
 
@@ -80,6 +86,7 @@ public class BrickRenderer : GameComponent
         brickMat = null;
         block = null;
         blockAmount = null;
+        healthBar = null;
         brickFlashFrames = 0;
     }
 
@@ -89,6 +96,7 @@ public class BrickRenderer : GameComponent
         health.gameObject.SetActive(active);
         sprite.gameObject.SetActive(active);
         shadow.gameObject.SetActive(active);
+        healthBar.setActive(active);
     }
 
     public void setBrickSprite(Sprite s)
@@ -103,6 +111,7 @@ public class BrickRenderer : GameComponent
         shadow.size = size;
         block.size = size * 1.08F;
         blockAmount.GetComponent<RectTransform>().sizeDelta = size;
+        healthBar.refreshPositionAndSizeBy(size);
     }
 
     public void setWidth(float width)
@@ -112,6 +121,7 @@ public class BrickRenderer : GameComponent
         shadow.size = size;
         block.size = size * 1.08F;
         blockAmount.GetComponent<RectTransform>().sizeDelta = size;
+        healthBar.refreshPositionAndSizeBy(size);
     }
 
     public void setHeight(float height)
@@ -121,11 +131,13 @@ public class BrickRenderer : GameComponent
         shadow.size = size;
         block.size = size * 1.08F;
         blockAmount.GetComponent<RectTransform>().sizeDelta = size;
+        healthBar.refreshPositionAndSizeBy(size);
     }
 
-    public void refreshHealth(int v)
+    public void refreshHealth(int v, int max)
     {
         health.text = v.ToString();
+        healthBar.refresh(v, max);
     }
 
     public void refreshBlockAmount(int v)
@@ -163,7 +175,7 @@ public class BrickRenderer : GameComponent
         brickFlashFrames = 2;
         brickMat.SetFloat(StrongTintFade, 1);
     }
-    
+
     public void playFxHeal()
     {
         health.transform.localScale = Vector3.one * 1F;
@@ -220,5 +232,54 @@ public class BrickRenderer : GameComponent
     public void playFxDead()
     {
         fxDead.Play();
+    }
+
+    class HealthBar
+    {
+        Transform transform;
+        SpriteRenderer barBack, barFront;
+        TextMeshPro health;
+
+        float barFontOriginalWidth;
+
+        public HealthBar(Transform t)
+        {
+            transform = t;
+            t.find(out barBack, "Back");
+            t.find(out barFront, "Front");
+            t.find(out health, "Health");
+        }
+
+        public void refreshPositionAndSizeBy(Vector2 size)
+        {
+            var localPosition = transform.localPosition;
+            localPosition.y = -size.y * 0.5F;
+            transform.localPosition = localPosition;
+
+            barBack.size = new(size.x + 0.04F, 0.12F);
+            barFront.size = new(size.x, 0.08F);
+            barFontOriginalWidth = barFront.size.x;
+        }
+
+        public void setActive(bool active)
+        {
+            transform.gameObject.SetActive(active);
+        }
+
+        public void refresh(int cur, int max)
+        {
+            health.text = IToS(cur);
+
+            var f = Mathf.Clamp01(((float)cur) / max);
+            var barFrontWidth = barFontOriginalWidth * f;
+            var delta = barFontOriginalWidth - barFrontWidth;
+            var localPosition = barFront.transform.localPosition;
+            localPosition.x = -delta * 0.5F;
+            barFront.transform.localPosition = localPosition;
+
+            var size = barFront.size;
+            size.x = barFrontWidth;
+            barFront.size = size;
+        }
     }
 }

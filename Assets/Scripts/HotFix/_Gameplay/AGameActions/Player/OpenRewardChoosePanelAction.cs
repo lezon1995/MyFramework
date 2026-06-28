@@ -32,12 +32,11 @@ public class OpenRewardChoosePanelAction : AGameAction
             panel = LT.LOAD<RewardChoosePanel>();
             panel.setOnChoose(onChoose);
             panel.setOnHideEnd(onHideEnd);
-            var ranIndex = ADungeon.relicRng.random(0, RelicLibrary.commonList.count() - 1);
-            var relicId1 = RelicLibrary.commonList[ranIndex].relicId;
-            ranIndex = ADungeon.relicRng.random(0, RelicLibrary.commonList.count() - 1);
-            var relicId2 = RelicLibrary.commonList[ranIndex].relicId;
-            ranIndex = ADungeon.relicRng.random(0, RelicLibrary.commonList.count() - 1);
-            var relicId3 = RelicLibrary.commonList[ranIndex].relicId;
+            using var _ = new ListScope<ARelic>(out var list);
+            RelicLibrary.commonList.randomTake(3, ref list, (min, max) => ADungeon.relicRng.random(min, max - 1));
+            var relicId1 = list[0].relicId;
+            var relicId2 = list[1].relicId;
+            var relicId3 = list[2].relicId;
             panel.with(relicId1, relicId2, relicId3);
         }
     }

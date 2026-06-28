@@ -2,6 +2,9 @@
 // auto generate classname start
 // generate from:Assets/GameResources/UI/UIPrefab/OverlayMenu.prefab
 // 
+
+using MarbleHero;
+
 public class RelicItem : WindowRecyclableUGUI
 // auto generate classname end
 {
@@ -28,5 +31,16 @@ public class RelicItem : WindowRecyclableUGUI
 	public override void onShow()
 	{
 		base.onShow();
+	}
+
+	public override void recycle()
+	{
+		base.recycle();
+		mIcon.setSpriteOnly(null);
+	}
+
+	public void refresh(ARelic relic)
+	{
+		mIcon.setSpriteOnly(relic.getSprite());	
 	}
 }
