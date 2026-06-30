@@ -16,13 +16,20 @@ public class MainSceneGaming : SceneProcedure
 
     protected override void onInit(SceneProcedure lastProcedure)
     {
-        gameInstance = new MarbleHero.Game();
+        CLASS(out gameInstance);
         gameInstance.create();
 
         SeedHelper.setSeed("3Q350M8RNTUM4");
 
         balls = CLASS<SafeList<Ball>>();
         mGameFrameworkHotFix.registeOnApplicationPause(onApplicationPause);
+    }
+
+    public override void resetProperty()
+    {
+        base.resetProperty();
+        UN_CLASS(ref balls);
+        UN_CLASS(ref gameInstance);
     }
 
     void onApplicationPause(bool pause)

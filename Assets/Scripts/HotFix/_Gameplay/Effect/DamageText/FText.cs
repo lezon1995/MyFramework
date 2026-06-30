@@ -17,22 +17,45 @@ public interface IText
 
 public class FText : Transformable
 {
-    public int useTimes { get; set; } = -1;
+    public int useTimes = -1;
 
     Image _icon;
-    IText _text;
+    TextMeshProUGUI _tmp;
+    TextTMP _text;
     Transform _content;
     CanvasGroup _canvas;
     Vector2 _rectPos;
     Vector3 _screenPos;
 
+    public override void resetProperty()
+    {
+        base.resetProperty();
+        useTimes = -1;
+        _icon = null;
+        _tmp = null;
+        UN_CLASS(ref _text);
+        _content = null;
+        _canvas = null;
+        _rectPos = default;
+        _screenPos = default;
+        
+        
+        _data = default;
+        _pct = _acuPct = _totalPct = 0;
+        _tempAcu = 0;
+        _timeElapsed = 0;
+        _baseAlpha = 0;
+        _state = State.None;
+    }
+
     public override void setObject(GameObject obj)
     {
         base.setObject(obj);
-        _text = new TextTMP(obj.GetComponentInChildren<TextMeshProUGUI>());
-        _content = obj.transform.Find("Content");
-        _icon = obj.transform.Find("Content/Icon")?.GetComponent<Image>();
-        _canvas = obj.GetComponent<CanvasGroup>();
+        obj.find(out _tmp, "Content/Text");
+        obj.find(out _content, "Content");
+        obj.find(out _icon, "Content/Icon");
+        obj.TryGetComponent(out _canvas);
+        CLASS(out _text).with(_tmp, true);
     }
 
     public void Set(Data data)
@@ -58,16 +81,16 @@ public class FText : Transformable
 
         setContentScale(setting.ContentScale, data.extraContentSize);
 
-        if (data.fontColor != null)
-            _text.color = data.fontColor.Value;
+        if (data.fontColor != default)
+            _text.color = data.fontColor;
         else
             _text.color = setting.FontColors[data.type];
 
-        if (data.outlineColor != null)
-            _text.outlineColor = data.outlineColor.Value;
+        if (data.outlineColor != default)
+            _text.outlineColor = data.outlineColor;
 
-        if (data.outlineSize != null)
-            _text.outlineSize = data.outlineSize.Value;
+        if (data.outlineSize != 0)
+            _text.outlineSize = data.outlineSize;
 
         var result = CheckForReuse(data);
 
@@ -113,7 +136,7 @@ public class FText : Transformable
                 useTimes = data.reuseTimes;
                 break;
             case > 0:
-                //if this is an re-use
+                //if this is a re-use
                 useTimes--;
                 return 2;
             case 0:
@@ -139,7 +162,7 @@ public class FText : Transformable
         Finished,
     }
 
-    Data? _data;
+    Data _data;
     float _pct, _acuPct, _totalPct;
     float _tempAcu;
     float _timeElapsed;
@@ -149,7 +172,7 @@ public class FText : Transformable
     void Setup(Data data)
     {
         _data = data;
-        var conf = _data.Value.setting;
+        var conf = _data.setting;
         var startDuration = conf.StartSequenceDuration;
         var staticDuration = conf.StaticDuration;
         var floatingDuration = conf.FloatingDuration;
@@ -172,10 +195,10 @@ public class FText : Transformable
         if (_state == State.None)
             return;
 
-        if (_data == null)
+        if (!_data.valid)
             return;
 
-        var data = _data.Value;
+        var data = _data;
         var conf = data.setting;
         var startDuration = conf.StartSequenceDuration;
         var staticDuration = conf.StaticDuration;
@@ -335,7 +358,7 @@ public class FText : Transformable
         void toNoneState()
         {
             _state = State.None;
-            _data = null;
+            _data = default;
         }
     }
 
@@ -384,30 +407,32 @@ public class FText : Transformable
             InvertHorizontalDirectionRandomly = 4,
         }
 
-        public int type { get; private set; }
-        public float value { get; private set; }
-        public string text { get; private set; }
-        public Transform target { get; private set; }
-        public Color? fontColor { get; private set; }
-        public float extraContentSize { get; private set; }
-        public int reuseTimes { get; private set; }
-        public float? outlineSize { get; private set; }
-        public Color? outlineColor { get; private set; }
-        public FTextSetting setting { get; private set; }
-        public Action onFinish { get; private set; }
+        public bool valid;
+        public int type;
+        public float value;
+        public string text;
+        public Transform target;
+        public FTextSetting setting;
+        public Color fontColor;
+        public float extraContentSize;
+        public int reuseTimes;
+        public float outlineSize;
+        public Color outlineColor;
+        public Action onFinish;
 
-        public Vector3 initialPos { get; set; }
-        public Vector2 floatDirection { get; set; }
-        public bool invertHorizontalDirection { get; set; }
-        public Vector3 direction { get; private set; }
+        public Vector3 initialPos;
+        public Vector2 floatDirection;
+        public bool invertHorizontalDirection;
+        public Vector3 direction;
 
-        Vector3 position { get; set; }
-        Vector3 offset { get; set; }
-        Flags flag { get; set; }
+        Vector3 position;
+        Vector3 offset;
+        Flags flag;
 
 
         public Data(string content)
         {
+            valid = true;
             type = 0;
             value = 0;
             target = null;
@@ -419,9 +444,9 @@ public class FText : Transformable
             extraContentSize = 0F;
             reuseTimes = 0;
             setting = null;
-            fontColor = null;
-            outlineColor = null;
-            outlineSize = null;
+            fontColor = default;
+            outlineColor = default;
+            outlineSize = 0;
 
             initialPos = default;
             floatDirection = default;
@@ -511,7 +536,7 @@ public class FText : Transformable
         /// <summary>
         /// Set reuses times
         /// Means how many times a text will use the same text instance instead of create a new one
-        /// when the floating text is create for the same target within a short period of time.
+        /// when the floating text is created for the same target within a short period of time.
         /// </summary>
         public Data setReuseTimes(int reuses)
         {

@@ -10,7 +10,16 @@ namespace MarbleHero
         static float POST_ATTACK_WAIT_DUR = 0.1F;
         bool skipWait;
         bool muteSfx;
-        
+
+        public override void resetProperty()
+        {
+            base.resetProperty();
+            damage = null;
+            damageAmount = 0;
+            skipWait = false;
+            muteSfx = false;
+        }
+
         public void onCreate(ACreature _target, DamageInfo info)
         {
             damage = info;

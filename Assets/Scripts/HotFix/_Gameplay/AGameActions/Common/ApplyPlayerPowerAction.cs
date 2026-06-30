@@ -8,6 +8,14 @@ public class ApplyPlayerPowerAction : AGameAction
     float startingDuration;
     int amount;
 
+    public override void resetProperty()
+    {
+        base.resetProperty();
+        powerToApply = null;
+        startingDuration = 0;
+        amount = 0;
+    }
+
     public ApplyPlayerPowerAction(ACreature target, ACreature source, CreaturePower powerToApply, int stackAmount, bool isFast)
     {
         if (Settings.FAST_MODE)

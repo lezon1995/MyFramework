@@ -57,7 +57,7 @@ public class ElectricChainEffect : ALogicEffect, IArgs<Ball, Brick, int>
                 history.add(b);
                 var o = mPrefabPoolManager.createObject(path);
                 list.add(o);
-                if (o.TryGetComponent<LightningBolt2D.LightningBolt2D>(out var bolt))
+                if (o.TryGetComponent<LightningBolt2D>(out var bolt))
                 {
                     bolt.startPoint = history[count.elapsed].getWorldPosition();
                     bolt.endPoint = history[count.elapsed + 1].getWorldPosition();

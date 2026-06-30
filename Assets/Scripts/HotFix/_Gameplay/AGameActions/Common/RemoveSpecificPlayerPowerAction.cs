@@ -18,6 +18,13 @@
             this.powerInstance = powerInstance;
         }
 
+        public override void resetProperty()
+        {
+            base.resetProperty();
+            powerToRemove = null;
+            powerInstance = null;
+        }
+
         public override void update(float dt)
         {
             if (duration.unstarted)

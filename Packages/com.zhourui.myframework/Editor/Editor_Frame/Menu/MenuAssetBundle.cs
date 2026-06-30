@@ -82,7 +82,7 @@ public class MenuAssetBundle
         window.setBundleRootFolder(F_ASSET_BUNDLE_PATH);
     }
     //------------------------------------------------------------------------------------------------------------------------------
-    public static bool packAssetBundle(BuildTarget target, string outputPath, bool showMessageBox)
+    public static bool packAssetBundle(BuildTarget target, string outputPath, bool showMessageBox, bool keepManifest = false)
 	{
 		Debug.Log("打包全部AssetBundle");
 		mIsPackingAssetBundle = true;

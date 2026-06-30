@@ -8,11 +8,9 @@ global using static FrameUtility;
 global using static MathUtility;
 global using static GameDefine;
 global using static HotfixDefine;
+global using static GBR;
 
 using System;
-using System.Reflection;
-using static GameDefine;
-using static GBR;
 using MarbleHero;
 
 public class GameHotFix : GameHotFixBase<GameHotFix>

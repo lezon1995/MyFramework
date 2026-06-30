@@ -14,6 +14,13 @@ public class ComboEffect : Transformable
         obj.find(out spriteOverlay, "SpriteOverlay");
     }
 
+    public override void resetProperty()
+    {
+        base.resetProperty();
+        sprite = null;
+        spriteOverlay = null;
+    }
+
     public void setSprite(Sprite s)
     {
         sprite.sprite = s;

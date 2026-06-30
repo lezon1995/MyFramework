@@ -6,6 +6,8 @@ namespace MarbleHero;
 public class GuideLine : MovableObject
 {
     static int MainTex = Shader.PropertyToID("_MainTex");
+    const float defaultMinShootDirectionLimitAngle = -83F;
+    const float defaultMaxShootDirectionLimitAngle = 83F;
 
     COMMovableObjectDrag movableDrag;
     APlayer player;
@@ -24,20 +26,57 @@ public class GuideLine : MovableObject
     float distance = 10f;
     float minShootDirectionLimitAngle = defaultMinShootDirectionLimitAngle;
     float maxShootDirectionLimitAngle = defaultMaxShootDirectionLimitAngle;
-    const float defaultMinShootDirectionLimitAngle = -83F;
-    const float defaultMaxShootDirectionLimitAngle = 83F;
+
     bool isLine;
     bool isOff;
     Vector3 originalShootPosition, shootPosition;
     Vector3 rawShootDirection, shootDirection;
     Vector3 dragPos;
 
-    public override void onCtor()
+    public GuideLine()
     {
-        base.onCtor();
         dragStartCallback = DragStartCallback;
         dragEndCallback = DragEndCallback;
         dragCallback = DragCallback;
+    }
+
+    public override void resetProperty()
+    {
+        base.resetProperty();
+        movableDrag = null;
+        player = null;
+        lineMat = null;
+        linesGroup = null;
+        lines = null;
+        dots = null;
+        indicatorBall = null;
+        // dragStartCallback = null;
+        // dragEndCallback = null;
+        // dragCallback = null;
+        _mask0 = default;
+        _mask1 = default;
+        _mask2 = default;
+        _mask3 = default;
+        _hit2Mask = default;
+
+        _modeCount = -1;
+        _lineType = -1;
+        
+        distance = 10;
+        minShootDirectionLimitAngle = defaultMinShootDirectionLimitAngle;
+        maxShootDirectionLimitAngle = defaultMaxShootDirectionLimitAngle;
+        isLine = false;
+        isOff = false;
+        originalShootPosition = default;
+        shootPosition = default;
+        rawShootDirection = default;
+        shootDirection = default;
+        dragPos = default;
+    }
+
+    public override void onCtor()
+    {
+        base.onCtor();
     }
 
     public override void init()

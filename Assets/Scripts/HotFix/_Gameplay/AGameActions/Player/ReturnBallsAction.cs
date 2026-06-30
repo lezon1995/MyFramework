@@ -23,7 +23,15 @@ namespace MarbleHero
                 ballStartPos[ball.instanceID] = ball.getWorldPosition();
             }
         }
-        
+
+        public override void resetProperty()
+        {
+            base.resetProperty();
+            targetPosition = default;
+            curve = null;
+            ballStartPos.Clear();
+        }
+
         public void onCreate(Vector3 nextPosition)
         {
             targetPosition = nextPosition;

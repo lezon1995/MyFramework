@@ -10,6 +10,12 @@ public class DungeonMapScreen : ClassObject
         panel = LT.LOAD_HIDE<GameplayPanel>();
     }
 
+    public override void resetProperty()
+    {
+        base.resetProperty();
+        panel = null;
+    }
+
     public override void onCreate()
     {
         base.onCreate();

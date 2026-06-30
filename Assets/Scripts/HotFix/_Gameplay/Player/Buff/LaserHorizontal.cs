@@ -14,6 +14,13 @@ public class LaserHorizontal : Buff, IDoAttackEffect
         comparison = Comparison;
     }
 
+    public override void resetProperty()
+    {
+        base.resetProperty();
+        // comparison = null;
+        triggerPos = default;
+    }
+
     protected float getChance()
     {
         return level switch

@@ -32,6 +32,12 @@ public class Opponent : AMonster
         rollCounter = -1;
     }
 
+    public override void resetProperty()
+    {
+        base.resetProperty();
+        rollCounter = -1;
+    }
+
     protected override void getMove(int num)
     {
         var flag = rollCounter % 4 + 1;

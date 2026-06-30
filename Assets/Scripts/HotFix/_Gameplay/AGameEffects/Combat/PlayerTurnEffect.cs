@@ -5,6 +5,12 @@ public class PlayerTurnEffect : ARenderEffect
     const float DUR = 2.0F;
     string turnMessage;
 
+    public override void resetProperty()
+    {
+        base.resetProperty();
+        turnMessage = null;
+    }
+
     public override void onCreate()
     {
         duration = DUR;

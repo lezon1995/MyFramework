@@ -15,8 +15,8 @@ public class LevelManager : FrameSystem
     protected float curBorderWidth;
     protected float curBorderHeight;
 
-    public int rows = 11;
-    public int cols = 7;
+    public int rows = 12;
+    public int cols = 9;
 
     public override void init()
     {

@@ -5,10 +5,16 @@ using UnityEngine;
 
 namespace MarbleHero
 {
-    public class Game
+    public class Game : ClassObject
     {
         public Game()
         {
+        }
+
+        public override void resetProperty()
+        {
+            base.resetProperty();
+            prevDebugKeyDown = false;
         }
 
         public enum GameMode
@@ -34,7 +40,7 @@ namespace MarbleHero
         public static string nextDungeon;
         public static GameMode mode;
         public static bool isStartingOver;
-        static bool queueCredits;
+        public static bool queueCredits;
         public static bool playCreditsBgm;
         public static bool MUTE_IF_BG;
 

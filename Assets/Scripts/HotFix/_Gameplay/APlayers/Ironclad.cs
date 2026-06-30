@@ -13,6 +13,13 @@ namespace MarbleHero
         Prefs prefs;
         CharStat charStat;
 
+        public override void resetProperty()
+        {
+            base.resetProperty();
+            prefs = null;
+            charStat = null;
+        }
+
         public override void onCtor()
         {
             base.onCtor();
@@ -25,7 +32,7 @@ namespace MarbleHero
         {
             List<string> retVal = new();
             // retVal.add(FreeBall.ID);
-            retVal.add(Origami.ID);
+            // retVal.add(Origami.ID);
             // retVal.add(BurlapBag.ID);
             // retVal.add(BrokenTripod.ID);
             // retVal.add(AmmoSupply.ID);

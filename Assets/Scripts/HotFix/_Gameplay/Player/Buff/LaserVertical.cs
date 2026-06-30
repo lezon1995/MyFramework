@@ -13,6 +13,13 @@ public class LaserVertical : Buff, IDoAttackEffect
     {
         comparison = Comparison;
     }
+    
+    public override void resetProperty()
+    {
+        base.resetProperty();
+        // comparison = null;
+        triggerPos = default;
+    }
 
     protected float getChance()
     {

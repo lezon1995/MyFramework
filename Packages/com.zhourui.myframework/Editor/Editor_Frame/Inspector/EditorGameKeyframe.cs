@@ -5,6 +5,7 @@ using System.Collections.Generic;
 [CustomEditor(typeof(GameKeyframe), true)]
 public class EditorGameKeyframe : GameInspector
 {
+	
     protected override void onGUI()
     {
 		GUILayout.Space(6f);

@@ -11,6 +11,12 @@ public class Border : MovableObject
     public IEventRouter eventRouter => this;
     protected SpriteRenderer renderer;
 
+    public override void resetProperty()
+    {
+        base.resetProperty();
+        renderer = null;
+    }
+
     public Border()
     {
     }

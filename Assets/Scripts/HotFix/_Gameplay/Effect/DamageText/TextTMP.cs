@@ -3,17 +3,27 @@ using UnityEngine;
 
 namespace MarbleHero;
 
-public class TextTMP : IText
+public class TextTMP : ClassObject, IText, IArgs<TextMeshProUGUI, bool>
 {
     static readonly int UnderlayColor = Shader.PropertyToID("_UnderlayColor");
     TextMeshProUGUI _text;
     bool _useUnderlay;
-    float _outlineDivider = 6;
+    float _outlineDivider;
 
-    public TextTMP(TextMeshProUGUI t, bool useUnderlay = true)
+    public override void resetProperty()
+    {
+        base.resetProperty();
+        _text = null;
+        _useUnderlay = false;
+        _outlineDivider = 0F;
+    }
+
+
+    public void onCreate(TextMeshProUGUI t, bool useUnderlay)
     {
         _text = t;
         _useUnderlay = useUnderlay;
+        _outlineDivider = 6F;
     }
 
     public string text

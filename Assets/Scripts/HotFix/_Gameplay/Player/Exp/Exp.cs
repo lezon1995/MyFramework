@@ -27,6 +27,20 @@ public class Exp : ClassObject
     float xpTotal;
     float xpRequired;
 
+    public override void resetProperty()
+    {
+        base.resetProperty();
+        levelUpAction = null;
+        data = null;
+        saveOnQuit = false;
+        saveOnDestroy = false;
+        loadOnStart = false;
+        level = 0;
+        xp = 0;
+        xpTotal = 0;
+        xpRequired = 0;
+    }
+
     public void setData(ExpData d)
     {
         data = d;
