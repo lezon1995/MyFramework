@@ -421,6 +421,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: HotFix::MarbleHero.LevelEditorManager
   Template: {fileID: 11400000, guid: a7f55980510b12b4d8aab5b2e2552140, type: 2}
+  fixedCellSize: 0
+  forcedSquareCell: 0
   rows: 10
   cols: 6
   size: {x: 6, y: 9.4}
@@ -428,6 +430,8 @@ MonoBehaviour:
   padding: {x: 0.05, y: 0.05}
   levelSize: {x: 19.2, y: 10.8}
   offset: {x: 0, y: 0}
+  cellSize: {x: 0, y: 0}
+  cellSideLength: 0.6
 --- !u!1 &1137042466
 GameObject:
   m_ObjectHideFlags: 0
@@ -818,20 +822,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1359808175387987891, guid: 0091dfc71dc225c40883b23e025be31c,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 4080774271730212107, guid: 0091dfc71dc225c40883b23e025be31c,
         type: 3}
       propertyPath: m_Name
       value: Level
-      objectReference: {fileID: 0}
-    - target: {fileID: 4080774271730212107, guid: 0091dfc71dc225c40883b23e025be31c,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5682190227766547388, guid: 0091dfc71dc225c40883b23e025be31c,
         type: 3}

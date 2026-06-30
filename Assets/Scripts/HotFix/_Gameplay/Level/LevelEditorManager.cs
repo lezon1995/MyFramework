@@ -9,8 +9,12 @@ namespace MarbleHero
     public class LevelEditorManager : MonoBehaviour
     {
         public StageTemplate Template;
-        
+
         BrickGridLayout layout;
+
+        public bool fixedCellSize;
+        public bool forcedSquareCell;
+
         public int rows = 10;
         public int cols = 6;
         public Vector2 size = new(6.0F, 9.4F);
@@ -19,8 +23,12 @@ namespace MarbleHero
         public Vector2 levelSize = new(19.2F, 10.8F);
         public Vector2 offset = new(19.2F, 10.8F);
 
+
         [ReadOnly]
         public Vector2 cellSize;
+
+        [ShowIf(nameof(forcedSquareCell))]
+        public float cellSideLength = 0.6F;
 
         Camera mainCamera;
 
@@ -44,6 +52,28 @@ namespace MarbleHero
             cellSize = layout.getCellSize();
         }
 
+        void RefreshLayoutByCellSize(Vector2 offset)
+        {
+            layout.setRows(rows);
+            layout.setCols(cols);
+            
+            if (forcedSquareCell)
+            {
+                cellSize = Vector2.one * cellSideLength;
+            }
+            
+            var _cellSize = cellSize;
+            var newSizeX = padding.x * 2 + _cellSize.x * cols + spacing.x * Mathf.Max(0, cols - 1);
+            var newSizeY = padding.y * 2 + _cellSize.y * rows + spacing.y * Mathf.Max(0, rows - 1);
+            size = new(newSizeX, newSizeY);
+
+            layout.setSize(size.x, size.y);
+            layout.setSpacing(spacing);
+            layout.setPadding(padding);
+            layout.setOffset(offset);
+            layout.getGrids();
+        }
+
         void Update()
         {
             var size = layout.getSize();
@@ -55,7 +85,15 @@ namespace MarbleHero
             var (bot1, bot2) = (new Vector2(-screenSize.x / 2F, -size.y / 2F) + offset, new Vector2(screenSize.x / 2F, -size.y / 2F) + offset);
             var (left1, left2) = (new Vector2(-size.x / 2F, screenSize.y / 2F) + offset, new Vector2(-size.x / 2F, -screenSize.y / 2F) + offset);
             var (right1, right2) = (new Vector2(size.x / 2F, screenSize.y / 2F) + offset, new Vector2(size.x / 2F, -screenSize.y / 2F) + offset);
-            RefreshLayout(offset);
+
+            if (fixedCellSize)
+            {
+                RefreshLayoutByCellSize(offset);
+            }
+            else
+            {
+                RefreshLayout(offset);
+            }
 
             Draw.ingame.xy.Line(top1, top2);
             Draw.ingame.xy.Line(bot1, bot2);
@@ -117,10 +155,10 @@ namespace MarbleHero
                 return;
 
             Template.bricks = brickTemplates.getMainList().ToArray();
-            EditorUtility.SetDirty(Template);   // 标记资源已修改
-            AssetDatabase.SaveAssets();         // 保存到磁盘
+            EditorUtility.SetDirty(Template); // 标记资源已修改
+            AssetDatabase.SaveAssets(); // 保存到磁盘
         }
-        
+
         [Button]
         void LoadFromTemplate()
         {
