@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using static GBH;
+using static GBR;
 using static FrameUtility;
 using static MathUtility;
 
@@ -13,6 +13,12 @@ public class COMCharacterController : GameComponent
 		mPlayer = owner as CharacterGame;
 		mPlayerData = mPlayer.getData();
 	}
+    public override void resetProperty()
+    {
+        base.resetProperty();
+		mPlayer = null;
+		mPlayerData = null;
+    }
 	public override void update(float elapsedTime)
 	{
 		base.update(elapsedTime);

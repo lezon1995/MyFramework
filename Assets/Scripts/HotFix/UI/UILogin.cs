@@ -1,8 +1,9 @@
 ﻿using Obfuz;
 using static FrameUtility;
-using static GBH;
+using static UnityUtility;
+using static GBR;
 
-	// auto generate member start
+// auto generate member start
 // generate from:Assets/GameResources/UI/UIPrefab/UILogin.prefab
 // 登录界面
 [ObfuzIgnore(ObfuzScope.TypeName)]
@@ -28,9 +29,20 @@ public class UILogin : LayoutScript
 	public override void init()
 	{
 		base.init();
+		// auto generate init start
 		mLogin.registeCollider(onLoginClick);
+		// auto generate init end
 		delayCall(() => { mLogin.SEQUENCE(); });
 	}
+    public override void onGameState()
+    {
+        base.onGameState();
+		EDTest data = mExcelTest.query(1);
+		foreach (string item in data.mTestStringList)
+		{
+			log(item);
+		}
+    }
 	public override void update(float elapsedTime)
 	{
 		base.update(elapsedTime);

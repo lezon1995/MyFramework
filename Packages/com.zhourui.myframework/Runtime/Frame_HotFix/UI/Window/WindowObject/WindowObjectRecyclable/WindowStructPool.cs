@@ -1,0 +1,315 @@
+﻿using System;
+using System.Collections.Generic;
+using static UnityUtility;
+using static FrameUtility;
+using static MathUtility;
+using static FrameBaseUtility;
+
+public interface IPoolItem<T>
+{
+	void setData(T data);
+}
+
+// 负责窗口对象池,UsedList是有序的
+[CommonWindowPool]
+public class WindowStructPool<T> : WindowStructPoolBase where T : WindowObjectBase, IRecyclableUI
+{
+	protected List<T> mUnusedItemList = new();		// 未使用列表
+	protected List<T> mUsedItemList = new();		// 正在使用的列表
+	public WindowStructPool(IWindowObjectOwner parent) : base(parent) { }
+	public override void destroy()
+	{
+		base.destroy();
+		unuseAll();
+		mUnusedItemList.For(item => item.destroy());
+		mUnusedItemList.Clear();
+	}
+	public override void init()
+	{
+		base.init();
+		if (mTemplate == null)
+		{
+			logError("mTemplate为空,无法进行初始化,请确保在初始化前就设置好当前对象池的mTemplate,界面:" + mScript.GetType());
+			return;
+		}
+		init(mTemplate.getParent(), typeof(T), true);
+	}
+	public List<T> getUsedList() { return mUsedItemList; }
+	public bool isUsed(T item) { return mUsedItemList.Contains(item); }
+	public void For(Action<T> action)
+	{
+		mUsedItemList.For(action);
+	}
+	public void checkCapacity(int capacity)
+	{
+		newItem(capacity - mUsedItemList.Count);
+	}
+	// 将source从sourcePool中移动到当前池中,inUsed表示移动到当前池以后是处于正在使用的状态还是未使用状态
+	public void moveItem(WindowStructPool<T> sourcePool, T source, bool inUsed)
+	{
+		// 从原来的池中移除
+		sourcePool.mUsedItemList.Remove(source);
+		sourcePool.mUnusedItemList.Remove(source);
+		// 加入新的池中
+		(inUsed ? mUsedItemList : mUnusedItemList).Add(source);
+		source.setParent(mItemParent);
+		// 检查分配ID种子,确保后面池中的已分配ID一定小于分配ID种子
+		mAssignIDSeed = getMax(source.getAssignID(), mAssignIDSeed);
+		source.reassignParent(this);
+	}
+	public T newItem(out T item)
+	{
+		return item = newItem(mItemParent);
+	}
+	public T newItemIf(bool condition)
+	{
+		if (condition)
+		{
+			return newItem(mItemParent);
+		}
+		return null;
+	}
+	// 因为添加窗口可能会影响所有窗口的深度值,所以如果有需求,需要在完成添加窗口以后手动调用对象池的refreshUIDepth()来刷新深度
+	// 如果是调用了自动排列函数,则会在排列函数中自动调用刷新深度,无需再手动调用
+	public T newItem(myUGUIObject parent = null)
+	{
+		if (!mInited)
+		{
+			logError("还未执行初始化,不能newItem");
+			return null;
+		}
+		parent ??= mItemParent;
+		T item;
+		if (mUnusedItemList.Count > 0)
+		{
+			item = mUnusedItemList.popBack();
+			item.setParent(parent, false);
+		}
+		else
+		{
+			item = createInstance<T>(mObjectType, this);
+			item.assignWindow(parent, mTemplate, isEditor() ? mPreName + makeID() : mPreName);
+			item.init();
+			item.postInit();
+		}
+		item.setAssignID(++mAssignIDSeed);
+		item.reset();
+		item.setActive(true);
+		if (mNewItemMoveToLast)
+		{
+			item.setAsLastSibling(false);
+		}
+		return mUsedItemList.add(item);
+	}
+	public void newItem(int count, myUGUIObject parent = null)
+	{
+		if (!mInited)
+		{
+			logError("还未执行初始化,不能newItem");
+			return;
+		}
+		if (count <= 0)
+		{
+			return;
+		}
+		parent ??= mItemParent;
+		int countInPool = mUnusedItemList.Count;
+		int fetchFromPool = getMin(count, countInPool);
+		for (int i = 0; i < fetchFromPool; ++i)
+		{
+			T item = mUnusedItemList[mUnusedItemList.Count - 1 - i];
+			mUsedItemList.add(item);
+			item.setParent(parent, false);
+			item.setAssignID(++mAssignIDSeed);
+			item.reset();
+			item.setActive(true);
+			if (mNewItemMoveToLast)
+			{
+				item.setAsLastSibling(false);
+			}
+		}
+		if (fetchFromPool > 0)
+		{
+			mUnusedItemList.RemoveRange(mUnusedItemList.Count - fetchFromPool, fetchFromPool);
+		}
+		int newCount = clampMin(count - countInPool);
+		for (int i = 0; i < newCount; ++i)
+		{
+			T item = createInstance<T>(mObjectType, this);
+			mUsedItemList.add(item);
+			item.assignWindow(parent, mTemplate, isEditor() ? mPreName + makeID() : mPreName);
+			item.init();
+			item.postInit();
+			item.setAssignID(++mAssignIDSeed);
+			item.reset();
+			item.setActive(true);
+			if (mNewItemMoveToLast)
+			{
+				item.setAsLastSibling(false);
+			}
+		}
+	}
+	public void newItemList<TData>(List<TData> dataList, Action<T, TData> callback)
+	{
+		unuseAll();
+		newItem(dataList.count());
+		int index = 0;
+		foreach (TData data in dataList.safe())
+		{
+			callback(mUsedItemList[index++], data);
+		}
+	}
+	public void newItemListVertical<TData>(List<TData> dataList, Action<T, TData> callback)
+	{
+		unuseAll();
+		newItem(dataList.count());
+		int index = 0;
+		foreach (TData data in dataList.safe())
+		{
+			callback(mUsedItemList[index++], data);
+		}
+		autoGridVertical();
+	}
+	public void newItemListVerticalForDrag<TData>(List<TData> dataList, Action<T, TData> callback)
+	{
+		unuseAll();
+		newItem(dataList.count());
+		int index = 0;
+		foreach (TData data in dataList.safe())
+		{
+			callback(mUsedItemList[index++], data);
+		}
+		autoGridVerticalForDrag();
+	}
+	public void newItemListHorizontal<TData>(List<TData> dataList, Action<T, TData> callback)
+	{
+		unuseAll();
+		newItem(dataList.count());
+		int index = 0;
+		foreach (TData data in dataList.safe())
+		{
+			callback(mUsedItemList[index++], data);
+		}
+		autoGridHorizontal();
+	}
+	public void newItemListHorizontalForDrag<TData>(List<TData> dataList, Action<T, TData> callback)
+	{
+		unuseAll();
+		newItem(dataList.count());
+		int index = 0;
+		foreach (TData data in dataList.safe())
+		{
+			callback(mUsedItemList[index++], data);
+		}
+		autoGridHorizontalForDrag();
+	}
+	public void newItemListAutoGrid<TData>(List<TData> dataList, Action<T, TData> callback, HORIZONTAL_DIRECTION horizontal = HORIZONTAL_DIRECTION.LEFT)
+	{
+		unuseAll();
+		newItem(dataList.count());
+		int index = 0;
+		foreach (TData data in dataList.safe())
+		{
+			callback(mUsedItemList[index++], data);
+		}
+		autoGrid(horizontal);
+	}
+	public void newItemListAutoGridForDrag<TData>(List<TData> dataList, Action<T, TData> callback)
+	{
+		unuseAll();
+		newItem(dataList.count());
+		int index = 0;
+		foreach (TData data in dataList.safe())
+		{
+			callback(mUsedItemList[index++], data);
+		}
+		autoGridForDrag();
+	}
+	public void newItemListAutoGridForDrag(int itemCount, Action<T, int> callback)
+	{
+		unuseAll();
+		newItem(itemCount);
+		int index = 0;
+		for (int i = 0; i < itemCount; ++i)
+		{
+			callback(mUsedItemList[index++], i);
+		}
+		autoGridForDrag();
+	}
+	public override void unuseAll()
+	{
+		if (mUsedItemList.Count == 0)
+		{
+			return;
+		}
+		foreach (T item in mUsedItemList)
+		{
+			item.recycle();
+			item.setActive(false);
+			mUnusedItemList.Add(item);
+		}
+		mUsedItemList.Clear();
+	}
+	public bool unuseItem(ref T item, bool showError = true)
+	{
+		bool result = unuseItem(item, showError);
+		item = null;
+		return result;
+	}
+	public bool unuseItem(T item, bool showError = true)
+	{
+		if (item == null)
+		{
+			return false;
+		}
+		if (item.GetType() != mObjectType)
+		{
+			logError("物体类型与池类型不一致,无法回收,物体类型:" + item.GetType() + ",池类型:" + mObjectType);
+			return false;
+		}
+		if (item.getAssignID() <= 0)
+		{
+			logError("物体已经回收过了,无法重复回收,type:" + item.GetType());
+			return false;
+		}
+		if (!mUsedItemList.Remove(item))
+		{
+			if (showError)
+			{
+				logError("此窗口物体不属于当前窗口物体池,无法回收,type:" + item.GetType());
+			}
+			return false;
+		}
+		item.recycle();
+		item.setActive(false);
+		mUnusedItemList.Add(item);
+		return true;
+	}
+	public void unuseIndex(int index)
+	{
+		unuseRange(index, 1);
+	}
+	// 回收一定下标范围的对象,count小于0表示回收从startIndex到结尾的所有对象
+	public void unuseRange(int startIndex, int count = -1)
+	{
+		int usedCount = mUsedItemList.Count;
+		if (count < 0)
+		{
+			count = usedCount - startIndex;
+		}
+		else
+		{
+			clampMax(ref count, usedCount - startIndex);
+			clampMin(ref count);
+		}
+		for (int i = 0; i < count; ++i)
+		{
+			T item = mUsedItemList[startIndex + i];
+			item.recycle();
+			item.setActive(false);
+			mUnusedItemList.Add(item);
+		}
+		mUsedItemList.RemoveRange(startIndex, count);
+	}
+	public override int getInUseCount() { return mUsedItemList.count(); }
+}
