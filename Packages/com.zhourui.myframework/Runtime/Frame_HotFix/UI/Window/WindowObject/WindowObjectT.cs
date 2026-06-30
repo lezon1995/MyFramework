@@ -3,6 +3,8 @@ using static UnityUtility;
 using static MathUtility;
 using static FrameDefine;
 
+// 用于固定数量类,不能用于回收复用窗口
+// 通常只是用于已经在预设中创建好的窗口,创建对象时不会创建新的节点,也可以选择克隆到指定父节点下
 public abstract class WindowObjectT<T> : WindowObjectBase where T : myUGUIObject, new()
 {
 	protected T mRoot;                                  // 根节点

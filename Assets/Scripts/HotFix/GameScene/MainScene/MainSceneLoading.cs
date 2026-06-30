@@ -1,7 +1,4 @@
-using static FrameUtility;
-using static GBR;
-
-public class MainSceneLoading : SceneProcedure
+﻿public class MainSceneLoading : SceneProcedure
 {
     protected override void onInit(SceneProcedure lastProcedure)
     {
