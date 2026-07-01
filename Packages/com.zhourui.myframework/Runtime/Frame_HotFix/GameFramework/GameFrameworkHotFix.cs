@@ -34,7 +34,8 @@ public class GameFrameworkHotFix : IFramework
 	protected long mFrameIndex;														// 当前帧下标
 	protected int mCurFrameCount;													// 当前已执行的帧数量
 	protected int mFrameRate;														// 当前设置的最大帧率
-	protected int mFPS;																// 当前帧率
+	protected int mFPS;                                                             // 当前帧率
+	protected bool mAllInited;														// 是否所有系统已经初始化完毕,初始化完毕才能执行update
 	protected bool mResourceAvailable;												// 资源是否已经可用
 	protected bool mIsDestroy;														// 框架是否已经被销毁
 	public static Action mOnDestroy;
@@ -50,6 +51,8 @@ public class GameFrameworkHotFix : IFramework
 	public DateTime getFrameStartTime() { return mFrameStartTime; }
 	public long getFrameIndex() { return mFrameIndex; }
 	public float getUnscaledTime() { return mThisFrameUnscaledTime; }
+	public bool isAllInited() { return mAllInited; }
+	public void setAllInited(bool inited) { mAllInited = inited; }
 	public void update(float elapsedTime)
 	{
 		++mFrameIndex;
@@ -65,7 +68,7 @@ public class GameFrameworkHotFix : IFramework
 		elapsedTime = mThisFrameTime;
 		setThisTimeMS(getNowTimeStampMS());
 		mThisFrameUnscaledTime = Time.unscaledDeltaTime;
-		if (mFrameComponentUpdate == null)
+		if (!mAllInited || mFrameComponentUpdate == null)
 		{
 			return;
 		}
@@ -87,7 +90,7 @@ public class GameFrameworkHotFix : IFramework
 	}
 	public void fixedUpdate(float elapsedTime)
 	{
-		if (mFrameComponentUpdate == null)
+		if (!mAllInited || mFrameComponentUpdate == null)
 		{
 			return;
 		}
@@ -109,7 +112,7 @@ public class GameFrameworkHotFix : IFramework
 	}
 	public void lateUpdate(float elapsedTime)
 	{
-		if (mFrameComponentUpdate == null)
+		if (!mAllInited ||mFrameComponentUpdate == null)
 		{
 			return;
 		}
@@ -131,7 +134,7 @@ public class GameFrameworkHotFix : IFramework
 	}
 	public void drawGizmos()
 	{
-		if (mFrameComponentUpdate == null)
+		if (!mAllInited || mFrameComponentUpdate == null)
 		{
 			return;
 		}
@@ -314,7 +317,9 @@ public class GameFrameworkHotFix : IFramework
 		mIsDestroy = false;
 		mStartTime = DateTime.Now;
 		mFrameStartTime = DateTime.Now;
-		DebugManager.instance.enableRuntimeUI = false;
+#if USE_URP
+        DebugManager.instance.enableRuntimeUI = false;
+#endif
 		setFrameRate(GameEntryBase.getInstance().mFrameworkParam.mDefaultFrameRate);
 
 		// 设置默认的日志等级

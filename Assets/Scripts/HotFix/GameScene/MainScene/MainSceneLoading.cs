@@ -1,4 +1,4 @@
-﻿public class MainSceneLoading : SceneProcedure
+public class MainSceneLoading : SceneProcedure
 {
     protected override void onInit(SceneProcedure lastProcedure)
     {

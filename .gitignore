@@ -81,10 +81,18 @@ crashlytics-build.properties
 
 /Assets/MobileDependencyResolver
 /Assets/MobileDependencyResolver.meta
+#TopDownEngine Demos
+/Assets/TopDownEngine/Demos
+/Assets/TopDownEngine/Demos.meta
+
+/Assets/TopDownEngine/ThirdParty/MoreMountains/MMTools/Demos
+/Assets/TopDownEngine/ThirdParty/MoreMountains/MMTools/Demos.meta
 
 #TMP
 /Assets/TextMesh Pro
 /Assets/TextMesh Pro.meta
+/Assets/TopDownEngine/ThirdParty/TextMesh Pro
+/Assets/TopDownEngine/ThirdParty/TextMesh Pro.meta
 
 #Sub Module
 /Assets/TopDownEngine/ThirdParty/MoreMountains/InventoryEngine.meta

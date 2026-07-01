@@ -1,4 +1,5 @@
-﻿/*// auto generate start
+﻿#if USE_SQLITE
+// auto generate start
 using System;
 using static GBR;
 using static FrameBaseHotFix;
@@ -17,4 +18,5 @@ public class SQLiteRegister
 		table = mSQLiteManager.registeTable(typeof(T), dataType, tableName) as T;
 	}
 }
-// auto generate end*/
+// auto generate end
+#endif
