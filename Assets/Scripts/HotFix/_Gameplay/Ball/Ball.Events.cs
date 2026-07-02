@@ -64,6 +64,7 @@ public partial class Ball : IEventRouter
 
     protected virtual bool onHitEnter(Brick brick, Vector2 normal, out bool triggerRegularHit)
     {
+        playHitBrickSfx();
         triggerRegularHit = true;
         foreach (var p in powers)
             p.onHitBrick(brick);
@@ -84,6 +85,7 @@ public partial class Ball : IEventRouter
         counters.hit.count();
         hasBeenCollided = true;
         reflectBounce(normal);
+        playHitBorderSfx();
 
         var dmg = ball.getHitDmg(border, normal);
         gameplayManager.handleHitBorderDamage(ball, border, ref dmg);
@@ -117,6 +119,7 @@ public partial class Ball : IEventRouter
 
             counters.hit.count();
             reflectBounce(normal);
+            playHitBorderSfx();
         }
 
         var dmg = ball.getHitDmg(border, normal);
@@ -144,6 +147,7 @@ public partial class Ball : IEventRouter
         {
             player.onBallHitBorderLeft(ball, border, ref normal);
             reflectBounce(normal);
+            playHitBorderSfx();
         }
 
         var dmg = ball.getHitDmg(border, normal);
@@ -171,6 +175,7 @@ public partial class Ball : IEventRouter
         {
             player.onBallHitBorderRight(ball, border, ref normal);
             reflectBounce(normal);
+            playHitBorderSfx();
         }
 
         var dmg = ball.getHitDmg(border, normal);

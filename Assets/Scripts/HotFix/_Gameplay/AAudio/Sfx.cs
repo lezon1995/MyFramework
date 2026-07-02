@@ -7,9 +7,10 @@ namespace MarbleHero
         static int soundIdGenerator;
         string url;
         int id;
+        bool initialized;
         AudioClip clip;
 
-        public Sfx(string _url, bool preload = false)
+        public Sfx(string _url, bool preload = true)
         {
             id = ++soundIdGenerator;
             if (preload)
@@ -21,9 +22,9 @@ namespace MarbleHero
         public int play(float volume)
         {
             initSound(url);
-            if (clip)
+            if (initialized)
             {
-                // mAudioManager.loadAudio();
+                AT.SOUND_2D(id, volume);
                 // MMSfxEvent.Trigger(clip, id, volume);
             }
 
@@ -33,8 +34,9 @@ namespace MarbleHero
         public int play(float volume, float pitch, float z)
         {
             initSound(url);
-            if (clip)
+            if (initialized)
             {
+                AT.SOUND_2D(id, volume);
                 // MMSfxEvent.Trigger(clip, id, volume, pitch);
             }
 
@@ -44,9 +46,9 @@ namespace MarbleHero
         public int loop(float volume)
         {
             initSound(url);
-            if (clip)
+            if (initialized)
             {
-                // return clip.loop(volume);
+                AT.SOUND_2D(id, true, volume);
             }
 
             return id;
@@ -54,7 +56,7 @@ namespace MarbleHero
 
         public void setVolume(int id, float volume)
         {
-            if (clip)
+            if (initialized)
             {
                 // clip.setVolume(id, volume);
             }
@@ -62,7 +64,7 @@ namespace MarbleHero
 
         public void stop()
         {
-            if (clip)
+            if (initialized)
             {
                 // MMSoundManagerSoundControlEvent.Trigger(MMSoundManagerSoundControlEventTypes.Stop, id);
             }
@@ -70,7 +72,7 @@ namespace MarbleHero
 
         public void stop(int id)
         {
-            if (clip)
+            if (initialized)
             {
                 // MMSoundManagerSoundControlEvent.Trigger(MMSoundManagerSoundControlEventTypes.Stop, id);
             }
@@ -78,16 +80,21 @@ namespace MarbleHero
 
         void initSound(string file)
         {
-            if (clip == null)
-            {
-                // if (file != null)
-                    // clip = mResourceManager.loadGameResource<AudioClip>(file);
+            if (initialized)
+                return;
 
-                // if (clip == null)
-                // {
-                //     log("File: " + url + " was not found.");
-                // }
-            }
+            mAudioManager.registeSoundDefine(id, file);
+            initialized = true;
+            /*if (clip == null)
+            {
+                if (!file.isEmpty())
+                    clip = mResourceManager.loadGameResource<AudioClip>(file);
+
+                if (clip == null)
+                {
+                    log("File: " + url + " was not found.");
+                }
+            }*/
         }
     }
 }

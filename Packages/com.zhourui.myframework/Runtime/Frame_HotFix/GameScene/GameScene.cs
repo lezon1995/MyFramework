@@ -222,4 +222,9 @@ public abstract class GameScene : ComponentOwner
 		}
 		return mSceneProcedureList.add(procedure.GetType(), procedure);
 	}
+
+	public COMGameSceneAudio getAudio()
+	{
+		return getOrAddComponent<COMGameSceneAudio>();
+	}
 }

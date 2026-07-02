@@ -13,63 +13,30 @@ MonoBehaviour:
   m_Name: StageTemplate
   m_EditorClassIdentifier: HotFix::MarbleHero.StageTemplate
   bricks:
-  - position: {x: -2.55, y: 3.3999996}
-    size: {x: 0.8, y: 0.79999995}
+  - position: {x: -2.7, y: 4.3875003}
+    size: {x: 0.675, y: 0.675}
     health: 1
-  - position: {x: -1.6999999, y: 3.3999996}
-    size: {x: 0.8, y: 0.79999995}
+  - position: {x: -2.025, y: 4.3875003}
+    size: {x: 0.675, y: 0.675}
     health: 1
-  - position: {x: -0.8499999, y: 3.3999996}
-    size: {x: 0.8, y: 0.79999995}
+  - position: {x: -1.35, y: 4.3875003}
+    size: {x: 0.675, y: 0.675}
     health: 1
-  - position: {x: -0.8499999, y: 2.5499997}
-    size: {x: 0.8, y: 0.79999995}
+  - position: {x: -2.025, y: 3.0375001}
+    size: {x: 0.675, y: 0.675}
     health: 1
-  - position: {x: -0.8499999, y: 1.6999997}
-    size: {x: 0.8, y: 0.79999995}
+  - position: {x: -1.35, y: 3.0375001}
+    size: {x: 0.675, y: 0.675}
     health: 1
-  - position: {x: 0.8500001, y: 3.3999996}
-    size: {x: 0.8, y: 0.79999995}
+  - position: {x: -0.6750001, y: 3.0375001}
+    size: {x: 0.675, y: 0.675}
     health: 1
-  - position: {x: 0.8500001, y: 2.5499997}
-    size: {x: 0.8, y: 0.79999995}
+  - position: {x: -1.35, y: 1.6875001}
+    size: {x: 0.675, y: 0.675}
     health: 1
-  - position: {x: 0.8500001, y: 1.6999997}
-    size: {x: 0.8, y: 0.79999995}
+  - position: {x: -0.6750001, y: 1.6875001}
+    size: {x: 0.675, y: 0.675}
     health: 1
-  - position: {x: 1.7000002, y: 3.3999996}
-    size: {x: 0.8, y: 0.79999995}
-    health: 1
-  - position: {x: 2.5500002, y: 3.3999996}
-    size: {x: 0.8, y: 0.79999995}
-    health: 1
-  - position: {x: -2.55, y: 1.6999997}
-    size: {x: 0.8, y: 0.79999995}
-    health: 1
-  - position: {x: -2.55, y: 0.8499997}
-    size: {x: 0.8, y: 0.79999995}
-    health: 1
-  - position: {x: -2.55, y: -0.00000023841858}
-    size: {x: 0.8, y: 0.79999995}
-    health: 1
-  - position: {x: -1.6999999, y: -0.00000023841858}
-    size: {x: 0.8, y: 0.79999995}
-    health: 1
-  - position: {x: -0.8499999, y: -0.00000023841858}
-    size: {x: 0.8, y: 0.79999995}
-    health: 1
-  - position: {x: 0.8500001, y: -0.00000023841858}
-    size: {x: 0.8, y: 0.79999995}
-    health: 1
-  - position: {x: 1.7000002, y: -0.00000023841858}
-    size: {x: 0.8, y: 0.79999995}
-    health: 1
-  - position: {x: 2.5500002, y: -0.00000023841858}
-    size: {x: 0.8, y: 0.79999995}
-    health: 1
-  - position: {x: 2.5500002, y: 0.8499997}
-    size: {x: 0.8, y: 0.79999995}
-    health: 1
-  - position: {x: 2.5500002, y: 1.6999997}
-    size: {x: 0.8, y: 0.79999995}
+  - position: {x: 0, y: 1.6875001}
+    size: {x: 0.675, y: 0.675}
     health: 1

@@ -6,6 +6,12 @@ public class ComponentAudio : GameComponent
 {
 	protected AudioSource mAudioSource;		// 音频源
 	protected string mAudioName;			// 音频文件名字
+
+	public void initAudioSource()
+	{
+		assignAudioSource();
+	}
+	
 	public void setLoop(bool loop)
 	{
 		if (mAudioSource != null)

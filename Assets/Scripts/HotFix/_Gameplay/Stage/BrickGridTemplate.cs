@@ -18,8 +18,8 @@ public struct BrickGridTemplate
         rows = _rows;
         cols = _cols;
         size = _size;
-        spacing = new(0.05F, 0.05F);
-        padding = new(0.05F, 0.05F);
+        spacing = Vector2.zero;
+        padding = Vector2.zero;
         offset = Vector2.zero;
     }
     

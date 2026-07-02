@@ -32,6 +32,11 @@ public class AT
 	{
 		CmdMovableObjectVolume.execute(mAudioManager?.getMusicHelper(), start, target, onceLength, 0.0f, keyframe, loop, fadingCallback, fadeDoneCallback);
 	}
+	
+	public static void SOUND_VOLUME(float target)
+	{
+		mAudioManager.setSoundVolume(target);
+	}
 	//------------------------------------------------------------------------------------------------------------------------------
 	// 通过AudioHelper播放音频,MUSIC是背景音乐,一般比较长且大多都是循环的,SOUND是音效,一般很短,且不循环
 	public static void MUSIC(bool unloadCurMusic = true)
@@ -165,6 +170,14 @@ public class AT
 			return null;
 		}
 		return SOUND_2D_Internal(sound, null, volume, false, null);
+	}
+	public static AudioHelper SOUND_2D(int sound, bool loop, float volume)
+	{
+		if (sound == 0)
+		{
+			return null;
+		}
+		return SOUND_2D_Internal(sound, null, volume, loop, null);
 	}
 	public static AudioHelper SOUND_2D(string soundName, float volume)
 	{

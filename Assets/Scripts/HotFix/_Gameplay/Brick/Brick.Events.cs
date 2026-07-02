@@ -32,5 +32,6 @@ public partial class Brick : IEventRouter
 
     public virtual void onHitEnter(Ball ball, Vector2 normal)
     {
+        brickRenderer.playFxHit(normal);
     }
 }

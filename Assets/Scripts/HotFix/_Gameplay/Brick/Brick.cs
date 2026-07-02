@@ -199,17 +199,17 @@ public partial class Brick : MovableObject
         brickRenderer.refreshHealth(curHealth, maxHealth);
         if (changeColor)
         {
-            var sprite = manager.getBrickSpriteByHealth(value);
-            brickRenderer.setBrickSprite(sprite);
+            // var sprite = manager.getBrickSpriteByHealth(value);
+            // brickRenderer.setBrickSprite(sprite);
         }
     }
 
     public void setInitialHealth(int value)
     {
         curHealth = value;
-        brickRenderer.refreshHealth(curHealth, maxHealth);
-        var sprite = manager.getBrickSpriteByHealth(value);
-        brickRenderer.setBrickSprite(sprite);
+        brickRenderer.refreshInitialHealth(curHealth, maxHealth);
+        // var sprite = manager.getBrickSpriteByHealth(value);
+        // brickRenderer.setBrickSprite(sprite);
     }
 
     public void setMaxHealth(int value)
@@ -384,7 +384,7 @@ public partial class Brick : MovableObject
             // we update the health bar
             // UpdateHealthBar(true);
 
-            brickRenderer.playFxHit();
+            brickRenderer.playFxDamage(direction);
 
             //检测是否死亡
             if (curHealth <= 0)
@@ -581,5 +581,10 @@ public partial class Brick : MovableObject
         Rect rect = new(0, 0, width, height);
         rect.center = getWorldPosition();
         return rect;
+    }
+
+    public void setSortingOrder(int order)
+    {
+        brickRenderer.setSortingOrder(order);
     }
 }

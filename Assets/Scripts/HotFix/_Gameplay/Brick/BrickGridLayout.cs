@@ -47,7 +47,7 @@ public class BrickGridLayout
         else
             gridSize = new(Mathf.Max(0f, usableWidth / cols), Mathf.Max(0f, usableHeight / rows));
     }
-    
+
     public Vector2 getCellSize()
     {
         getCellSize(out var cellSize);
@@ -203,6 +203,13 @@ public class BrickGridLayout
         }
 
         return grids.get(0);
+    }
+
+    public int getSortingOrderAtPosY(float y)
+    {
+        var rowIndex = getRowAtPosY(y);
+        var sortingOrder = rows - rowIndex;
+        return sortingOrder;
     }
 
     public Vector2 size

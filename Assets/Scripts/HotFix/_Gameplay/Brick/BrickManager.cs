@@ -131,7 +131,7 @@ public class BrickManager : FrameSystem
         randomBrick = list.get(randomIndex);
         return randomBrick != null;
     }
-    
+
     public bool getRandomActiveBrick(out Brick randomBrick, List<Brick> excepts, Vector2 excludeCenter, float excludeRange = 0F)
     {
         using var _ = new ListScope<Brick>(out var list);
@@ -141,7 +141,7 @@ public class BrickManager : FrameSystem
             foreach (var except in excepts)
                 list.Remove(except);
         }
-        
+
         if (excludeRange > 0F)
         {
             for (var i = list.Count - 1; i >= 0; i--)
@@ -275,8 +275,10 @@ public class BrickManager : FrameSystem
         brick.setWorldPosition(pos);
         brick.setInitialHealth(health);
         brick.setMaxHealth(health);
-        // brick.setSize(1.14F, 0.82F);
         brick.setSize(size);
+        
+        var sortingOrder = brickLayout.getSortingOrderAtPosY(pos.y);
+        brick.setSortingOrder(sortingOrder);
         brick.onAcquire();
 
         activeBrickList.add(brick);
@@ -309,8 +311,7 @@ public class BrickManager : FrameSystem
 
         // 将角色挂接到管理器下
         brick.setID(id);
-
-        var path = $"{GAMEPLAY_PATH}/Prefabs/Play/Brick.prefab";
+        var path = $"{GAMEPLAY_PATH}/Bricks/Brick_1x1.prefab";
         var o = mPrefabPoolManager.createObject(path);
         brick.setManager(this);
         brick.setObject(o);
@@ -324,7 +325,7 @@ public class BrickManager : FrameSystem
 
         brick.eventRouter.addListener<OnBrickDeath>(this);
         brick.eventRouter.addListener<OnBrickDeathTotally>(this);
-        
+
         addBrickToList(brick);
         return brick;
     }
@@ -421,5 +422,37 @@ public class BrickManager : FrameSystem
         }
 
         return false;
+    }
+
+    const int NUMBER = 1000;
+    public void refreshBrickSortingOrder()
+    {
+        using var _ = new ListScope<Brick>(out var list);
+        list.setRange(activeBrickList);
+        list.Sort((b1, b2) =>
+        {
+            var b2Pos = b2.getWorldPosition();
+            var b1Pos = b1.getWorldPosition();
+
+            int b2Y = (int)(b2Pos.y * NUMBER);
+            int b1Y = (int)(b1Pos.y * NUMBER);
+            var result = b2Y.CompareTo(b1Y);
+            if (result == 0)
+            {
+                int b2X = (int)(b2Pos.x * NUMBER);
+                int b1X = (int)(b1Pos.x * NUMBER);
+                return b1X.CompareTo(b2X);
+            }
+
+            return result;
+        });
+
+        for (var i = 0; i < list.Count; i++)
+        {
+            var brick = list[i];
+            var posY = brick.getWorldPosition().y;
+            var sortingOrder = brickLayout.getSortingOrderAtPosY(posY);
+            brick.setSortingOrder(sortingOrder);
+        }
     }
 }

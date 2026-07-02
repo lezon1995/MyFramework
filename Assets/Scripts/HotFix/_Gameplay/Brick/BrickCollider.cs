@@ -40,6 +40,7 @@ public class BrickCollider : GameComponent
 
     public void setSize(float width, float height)
     {
+        return;
         var points = polygon.points;
         var x = width / 2F;
         var y = height / 2F;

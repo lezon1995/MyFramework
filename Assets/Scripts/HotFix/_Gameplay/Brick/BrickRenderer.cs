@@ -1,27 +1,32 @@
-﻿using PrimeTween;
+﻿using System;
+using PrimeTween;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace MarbleHero;
 
 public class BrickRenderer : GameComponent
 {
     static int StrongTintFade = Shader.PropertyToID("_StrongTintFade");
+    static int BrickHit_1 = Animator.StringToHash("BrickHit_1");
+    static int BrickHit_2 = Animator.StringToHash("BrickHit_2");
+    static int BrickHit_3 = Animator.StringToHash("BrickHit_3");
 
     GameObject gameObject;
 
+    Transform root;
     Transform renderer;
-    TextMeshPro health;
-    SpriteRenderer sprite;
-    SpriteRenderer shadow;
-    ParticleSystem fxHit;
-    ParticleSystem fxDead;
+    Animator animator;
+    SortingGroup sortingGroup;
+    SpriteRenderer spriteBlock, spriteUnit, spriteShadow;
+    ParticleSystem fxHit, fxDead;
 
-    SpriteRenderer block;
-    TextMeshPro blockAmount;
+    SpriteRenderer spriteShield;
+    TextMeshPro shieldAmount;
 
-    Material brickMat;
-    int brickFlashFrames;
+    Material matBlock, matUnit;
+    float flashRemainSeconds;
 
     HealthBar healthBar;
 
@@ -32,21 +37,28 @@ public class BrickRenderer : GameComponent
         {
             var obj = brick.gameObject;
             gameObject = obj;
+            obj.find(out animator);
+            obj.find(out sortingGroup);
+            obj.find(out root, "Root");
             obj.find(out renderer, "Renderer");
-            obj.find(out health, "Health");
-            obj.find(out shadow, "Shadow");
+            obj.find(out spriteShadow, "SpriteShadow");
             obj.find(out fxHit, "FxHit");
             obj.find(out fxDead, "FxDead");
 
-            if (obj.find(out sprite, "Sprite"))
+            if (obj.find(out spriteBlock, "SpriteBlock"))
             {
-                brickMat = sprite.material;
+                matBlock = spriteBlock.material;
             }
 
-            obj.find(out block, "Block");
-            obj.find(out blockAmount, "BlockAmount");
-            block.gameObject.SetActive(false);
-            blockAmount.gameObject.SetActive(false);
+            if (obj.find(out spriteUnit, "SpriteUnit"))
+            {
+                matUnit = spriteUnit.material;
+            }
+
+            obj.find(out spriteShield, "Shield");
+            obj.find(out shieldAmount, "ShieldAmount");
+            spriteShield.gameObject.SetActive(false);
+            shieldAmount.gameObject.SetActive(false);
             if (obj.find(out Transform h, "HealthBar"))
             {
                 healthBar = new(h);
@@ -54,18 +66,26 @@ public class BrickRenderer : GameComponent
         }
     }
 
+    public override void update(float elapsedTime)
+    {
+        base.update(elapsedTime);
+
+        healthBar?.update(elapsedTime);
+
+        if (flashRemainSeconds > 0F)
+        {
+            flashRemainSeconds = clampMin(flashRemainSeconds - elapsedTime);
+            if (flashRemainSeconds <= 0)
+            {
+                matBlock.SetFloat(StrongTintFade, 0);
+                matUnit.SetFloat(StrongTintFade, 0);
+            }
+        }
+    }
+
     public override void fixedUpdate(float elapsedTime)
     {
         base.fixedUpdate(elapsedTime);
-
-        if (brickFlashFrames > 0)
-        {
-            brickFlashFrames = clampMin(brickFlashFrames - 1);
-            if (brickFlashFrames <= 0)
-            {
-                brickMat.SetFloat(StrongTintFade, 0);
-            }
-        }
     }
 
     public override void destroy()
@@ -77,156 +97,204 @@ public class BrickRenderer : GameComponent
     {
         base.resetProperty();
         gameObject = null;
+        animator = null;
+        sortingGroup = null;
+        root = null;
         renderer = null;
-        health = null;
-        sprite = null;
-        shadow = null;
+        spriteBlock = null;
+        spriteUnit = null;
+        spriteShadow = null;
         fxHit = null;
         fxDead = null;
-        brickMat = null;
-        block = null;
-        blockAmount = null;
+        matBlock = null;
+        matUnit = null;
+        spriteShield = null;
+        shieldAmount = null;
         healthBar = null;
-        brickFlashFrames = 0;
+        flashRemainSeconds = 0;
     }
 
 
     public void setRendererActive(bool active)
     {
-        health.gameObject.SetActive(active);
-        sprite.gameObject.SetActive(active);
-        shadow.gameObject.SetActive(active);
+        spriteBlock.gameObject.SetActive(active);
+        spriteShadow.gameObject.SetActive(active);
         healthBar.setActive(active);
     }
 
     public void setBrickSprite(Sprite s)
     {
-        sprite.sprite = s;
+        spriteBlock.sprite = s;
     }
 
     public void setSize(float width, float height)
     {
+        return;
         var size = new Vector2(width, height);
-        sprite.size = size;
-        shadow.size = size;
-        block.size = size * 1.08F;
-        blockAmount.GetComponent<RectTransform>().sizeDelta = size;
-        healthBar.refreshPositionAndSizeBy(size);
+        spriteBlock.size = size;
+        spriteShadow.size = size;
+        spriteShield.size = size * 1.08F;
+        shieldAmount.GetComponent<RectTransform>().sizeDelta = size;
     }
 
     public void setWidth(float width)
     {
-        var size = new Vector2(width, sprite.size.y);
-        sprite.size = size;
-        shadow.size = size;
-        block.size = size * 1.08F;
-        blockAmount.GetComponent<RectTransform>().sizeDelta = size;
-        healthBar.refreshPositionAndSizeBy(size);
+        return;
+        var size = new Vector2(width, spriteBlock.size.y);
+        spriteBlock.size = size;
+        spriteShadow.size = size;
+        spriteShield.size = size * 1.08F;
+        shieldAmount.GetComponent<RectTransform>().sizeDelta = size;
     }
 
     public void setHeight(float height)
     {
-        var size = new Vector2(sprite.size.x, height);
-        sprite.size = size;
-        shadow.size = size;
-        block.size = size * 1.08F;
-        blockAmount.GetComponent<RectTransform>().sizeDelta = size;
-        healthBar.refreshPositionAndSizeBy(size);
+        return;
+        var size = new Vector2(spriteBlock.size.x, height);
+        spriteBlock.size = size;
+        spriteShadow.size = size;
+        spriteShield.size = size * 1.08F;
+        shieldAmount.GetComponent<RectTransform>().sizeDelta = size;
     }
 
     public void refreshHealth(int v, int max)
     {
-        health.text = v.ToString();
         healthBar.refresh(v, max);
+    }
+
+    public void refreshInitialHealth(int v, int max)
+    {
+        healthBar.refreshInitial(v, max);
     }
 
     public void refreshBlockAmount(int v)
     {
-        blockAmount.text = v.ToString();
+        shieldAmount.text = v.ToString();
         playFxBlockHit();
     }
 
+    public void setSortingOrder(int v)
+    {
+        sortingGroup.sortingOrder = v;
+    }
+    
     public void playFadeIn()
     {
-        shadow.color = new(1, 1, 1, 0);
-        sprite.color = new(1, 1, 1, 0);
+        root.localPosition = new(0, 0.3F, 0);
 
-        sprite.transform.localScale = Vector3.one;
-        renderer.localPosition = new(0, 0.3F, 0);
-
-        Tween.Alpha(shadow, endValue: 1F, duration: 0.2F, ease: Ease.OutCubic);
-        Tween.Alpha(sprite, endValue: 1F, duration: 0.2F, ease: Ease.OutCubic);
-        Tween.LocalPositionY(renderer, endValue: 0F, duration: 0.2F, ease: Ease.OutCubic);
+        Tween.Alpha(spriteShadow, endValue: 1F, duration: 0.2F, ease: Ease.OutCubic);
+        Tween.LocalPositionY(root, endValue: 0F, duration: 0.2F, ease: Ease.OutCubic);
     }
 
-    public void playFxHit()
+    public void playFxDamage(Vector3 direction)
     {
-        health.transform.localScale = Vector3.one * 1F;
-        Sequence
-            .Create(Tween.Scale(health.transform, endValue: Vector3.one * 1.25F, duration: 0.05F, ease: Ease.OutCubic))
-            .Chain(Tween.Scale(health.transform, endValue: Vector3.one * 1F, duration: 0.05F, ease: Ease.OutCubic));
+        flashRemainSeconds = 0.05F;
+        matBlock.SetFloat(StrongTintFade, 1);
+        matUnit.SetFloat(StrongTintFade, 1);
+    }
 
-        fxHit.Play();
+    public void playFxHit(Vector2 normal)
+    {
+        var dir = determineUnderHitDirection(normal);
+        switch (dir)
+        {
+            case UnderHitDirection.None:
+                break;
+            case UnderHitDirection.Top:
+            case UnderHitDirection.Bot:
+                animator.Play(BrickHit_1, 0, 0F);
+                break;
+            case UnderHitDirection.Left:
+                animator.Play(BrickHit_2, 0, 0F);
+                break;
+            case UnderHitDirection.Right:
+                animator.Play(BrickHit_3, 0, 0F);
+                break;
+            case UnderHitDirection.TopLeft:
+            case UnderHitDirection.BotLeft:
+                animator.Play(BrickHit_2, 0, 0F);
+                break;
+            case UnderHitDirection.TopRight:
+            case UnderHitDirection.BotRight:
+                animator.Play(BrickHit_3, 0, 0F);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+    }
 
-        Sequence
-            .Create(Tween.Scale(sprite.transform, endValue: Vector3.one * 0.95F, duration: 0.1F, ease: Ease.OutCubic))
-            .Chain(Tween.Scale(sprite.transform, endValue: Vector3.one * 1F, duration: 0.1F, ease: Ease.OutCubic));
+    static UnderHitDirection determineUnderHitDirection(Vector2 normal)
+    {
+        UnderHitDirection dir;
+        if (isFloatEqual(normal.x, 0F))
+        {
+            if (normal.y > 0F)
+                dir = UnderHitDirection.Top; //上方受击
+            else
+                dir = UnderHitDirection.Bot; //下方受击
+        }
+        else
+        {
+            if (isFloatEqual(normal.y, 0F))
+            {
+                if (normal.x > 0F)
+                    dir = UnderHitDirection.Right; //右方受击
+                else
+                    dir = UnderHitDirection.Left; //左方受击
+            }
+            else
+            {
+                dir = (normal.x, normal.y) switch
+                {
+                    (> 0, > 0) => UnderHitDirection.TopRight, ////右上受击
+                    (> 0, < 0) => UnderHitDirection.BotRight, ////右下受击
+                    (< 0, < 0) => UnderHitDirection.BotLeft, ////左下受击
+                    (< 0, > 0) => UnderHitDirection.TopLeft, ////左上受击
+                    _ => UnderHitDirection.None
+                };
+            }
+        }
 
-        brickFlashFrames = 2;
-        brickMat.SetFloat(StrongTintFade, 1);
+        return dir;
     }
 
     public void playFxHeal()
     {
-        health.transform.localScale = Vector3.one * 1F;
-        Sequence
-            .Create(Tween.Scale(health.transform, endValue: Vector3.one * 1.25F, duration: 0.05F, ease: Ease.OutCubic))
-            .Chain(Tween.Scale(health.transform, endValue: Vector3.one * 1F, duration: 0.05F, ease: Ease.OutCubic));
-
-        fxHit.Play();
-
-        Sequence
-            .Create(Tween.Scale(sprite.transform, endValue: Vector3.one * 0.95F, duration: 0.1F, ease: Ease.OutCubic))
-            .Chain(Tween.Scale(sprite.transform, endValue: Vector3.one * 1F, duration: 0.1F, ease: Ease.OutCubic));
-
-        brickFlashFrames = 2;
-        brickMat.SetFloat(StrongTintFade, 1);
+        flashRemainSeconds = 0.05F;
+        matBlock.SetFloat(StrongTintFade, 1);
+        matUnit.SetFloat(StrongTintFade, 1);
     }
 
     public void playFxGainBlock()
     {
-        block.gameObject.SetActive(true);
-        blockAmount.gameObject.SetActive(true);
-        block.transform.localScale = Vector3.one * 2F;
-        block.color = new(1F, 1F, 1F, 0F);
-        blockAmount.alpha = 0F;
-        health.alpha = 1F;
+        spriteShield.gameObject.SetActive(true);
+        shieldAmount.gameObject.SetActive(true);
+        spriteShield.transform.localScale = Vector3.one * 2F;
+        spriteShield.color = new(1F, 1F, 1F, 0F);
+        shieldAmount.alpha = 0F;
 
-        Tween.Scale(block.transform, endValue: 1F, duration: 0.2F, ease: Ease.OutCubic);
-        Tween.Alpha(block, endValue: 1F, duration: 0.2F, ease: Ease.OutCubic);
-        Tween.Alpha(blockAmount, endValue: 1F, duration: 0.2F, ease: Ease.OutCubic);
-        Tween.Alpha(health, endValue: 0.5F, duration: 0.2F, ease: Ease.OutCubic);
+        Tween.Scale(spriteShield.transform, endValue: 1F, duration: 0.2F, ease: Ease.OutCubic);
+        Tween.Alpha(spriteShield, endValue: 1F, duration: 0.2F, ease: Ease.OutCubic);
+        Tween.Alpha(shieldAmount, endValue: 1F, duration: 0.2F, ease: Ease.OutCubic);
     }
 
     public void playFxBlockHit()
     {
-        block.transform.localScale = Vector3.one * 1.15F;
+        spriteShield.transform.localScale = Vector3.one * 1.15F;
         Sequence
-            .Create(Tween.Scale(block.transform, endValue: Vector3.one * 0.85F, duration: 0.15F, ease: Ease.OutCubic))
-            .Chain(Tween.Scale(block.transform, endValue: Vector3.one * 1F, duration: 0.15F, ease: Ease.OutCubic));
+            .Create(Tween.Scale(spriteShield.transform, endValue: Vector3.one * 0.85F, duration: 0.15F, ease: Ease.OutCubic))
+            .Chain(Tween.Scale(spriteShield.transform, endValue: Vector3.one * 1F, duration: 0.15F, ease: Ease.OutCubic));
     }
 
     public void playFxLoseBlock()
     {
-        block.transform.localScale = Vector3.one * 1F;
-        block.color = new(1F, 1F, 1F, 1F);
-        blockAmount.alpha = 1F;
-        health.alpha = 0.5F;
+        spriteShield.transform.localScale = Vector3.one * 1F;
+        spriteShield.color = new(1F, 1F, 1F, 1F);
+        shieldAmount.alpha = 1F;
 
-        Tween.Scale(block.transform, endValue: 2F, duration: 0.2F, ease: Ease.OutCubic);
-        Tween.Alpha(block, endValue: 0F, duration: 0.2F, ease: Ease.OutCubic).OnComplete(block, s => s.gameObject.SetActive(false));
-        Tween.Alpha(blockAmount, endValue: 0F, duration: 0.2F, ease: Ease.OutCubic).OnComplete(blockAmount, s => s.gameObject.SetActive(false));
-        Tween.Alpha(health, endValue: 1F, duration: 0.2F, ease: Ease.OutCubic);
+        Tween.Scale(spriteShield.transform, endValue: 2F, duration: 0.2F, ease: Ease.OutCubic);
+        Tween.Alpha(spriteShield, endValue: 0F, duration: 0.2F, ease: Ease.OutCubic).OnComplete(spriteShield, s => s.gameObject.SetActive(false));
+        Tween.Alpha(shieldAmount, endValue: 0F, duration: 0.2F, ease: Ease.OutCubic).OnComplete(shieldAmount, s => s.gameObject.SetActive(false));
     }
 
     public void playFxDead()
@@ -236,29 +304,23 @@ public class BrickRenderer : GameComponent
 
     class HealthBar
     {
-        Transform transform;
-        SpriteRenderer barBack, barFront;
-        TextMeshPro health;
+        static int bufferProgress = Shader.PropertyToID("_BufferProgress");
+        static int foregroundProgress = Shader.PropertyToID("_ForegroundProgress");
 
-        float barFontOriginalWidth;
+        Transform transform;
+        SpriteRenderer barFront;
+        TextMeshPro health;
+        Material mat;
+
+        float currentProgress;
+        float targetProgress;
 
         public HealthBar(Transform t)
         {
             transform = t;
-            t.find(out barBack, "Back");
             t.find(out barFront, "Front");
             t.find(out health, "Health");
-        }
-
-        public void refreshPositionAndSizeBy(Vector2 size)
-        {
-            var localPosition = transform.localPosition;
-            localPosition.y = -size.y * 0.5F;
-            transform.localPosition = localPosition;
-
-            barBack.size = new(size.x + 0.04F, 0.12F);
-            barFront.size = new(size.x, 0.08F);
-            barFontOriginalWidth = barFront.size.x;
+            mat = barFront.material;
         }
 
         public void setActive(bool active)
@@ -271,15 +333,42 @@ public class BrickRenderer : GameComponent
             health.text = IToS(cur);
 
             var f = Mathf.Clamp01(((float)cur) / max);
-            var barFrontWidth = barFontOriginalWidth * f;
-            var delta = barFontOriginalWidth - barFrontWidth;
-            var localPosition = barFront.transform.localPosition;
-            localPosition.x = -delta * 0.5F;
-            barFront.transform.localPosition = localPosition;
-
-            var size = barFront.size;
-            size.x = barFrontWidth;
-            barFront.size = size;
+            mat.SetFloat(foregroundProgress, f);
+            targetProgress = f;
         }
+
+        public void refreshInitial(int cur, int max)
+        {
+            health.text = IToS(cur);
+
+            var f = Mathf.Clamp01(((float)cur) / max);
+            mat.SetFloat(foregroundProgress, f);
+            mat.SetFloat(bufferProgress, f);
+            targetProgress = f;
+            currentProgress = f;
+        }
+
+        public void update(float dt)
+        {
+            if (targetProgress < currentProgress)
+            {
+                var f = lerp(currentProgress, targetProgress, dt * 10F);
+                currentProgress = f;
+                mat.SetFloat(bufferProgress, f);
+            }
+        }
+    }
+
+    enum UnderHitDirection
+    {
+        None,
+        Top,
+        Bot,
+        Left,
+        Right,
+        TopLeft,
+        TopRight,
+        BotLeft,
+        BotRight,
     }
 }
