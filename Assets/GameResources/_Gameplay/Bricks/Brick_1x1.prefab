@@ -5328,6 +5328,7 @@ GameObject:
   - component: {fileID: 974964056938552375}
   - component: {fileID: 7328556129454814211}
   - component: {fileID: 8351306170979192449}
+  - component: {fileID: 6261652187701802809}
   m_Layer: 7
   m_Name: Brick_1x1
   m_TagString: Block
@@ -5441,6 +5442,18 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &6261652187701802809
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3237124602915234066}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 27979c2dab9943c880fe621ff230642e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: HotFix::MarbleHero.BrickAnimationReceiver
 --- !u!1 &4025440000751913080
 GameObject:
   m_ObjectHideFlags: 0

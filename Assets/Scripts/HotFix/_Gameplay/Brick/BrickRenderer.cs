@@ -12,6 +12,9 @@ public class BrickRenderer : GameComponent
     static int BrickHit_1 = Animator.StringToHash("BrickHit_1");
     static int BrickHit_2 = Animator.StringToHash("BrickHit_2");
     static int BrickHit_3 = Animator.StringToHash("BrickHit_3");
+    static int BrickDie_1 = Animator.StringToHash("BrickDie_1");
+    static int BrickDie_2 = Animator.StringToHash("BrickDie_2");
+    static int BrickDie_3 = Animator.StringToHash("BrickDie_3");
 
     GameObject gameObject;
 
@@ -29,6 +32,8 @@ public class BrickRenderer : GameComponent
     float flashRemainSeconds;
 
     HealthBar healthBar;
+    BrickAnimationReceiver receiver;
+    AnimationState curAnimation;
 
     public override void init(ComponentOwner owner)
     {
@@ -38,6 +43,11 @@ public class BrickRenderer : GameComponent
             var obj = brick.gameObject;
             gameObject = obj;
             obj.find(out animator);
+            if (obj.find(out receiver))
+            {
+                receiver.setOnAnimationEnd(onAnimationEnd);
+            }
+
             obj.find(out sortingGroup);
             obj.find(out root, "Root");
             obj.find(out renderer, "Renderer");
@@ -98,6 +108,7 @@ public class BrickRenderer : GameComponent
         base.resetProperty();
         gameObject = null;
         animator = null;
+        receiver = null;
         sortingGroup = null;
         root = null;
         renderer = null;
@@ -112,6 +123,7 @@ public class BrickRenderer : GameComponent
         shieldAmount = null;
         healthBar = null;
         flashRemainSeconds = 0;
+        curAnimation = AnimationState.NONE;
     }
 
 
@@ -119,6 +131,11 @@ public class BrickRenderer : GameComponent
     {
         spriteBlock.gameObject.SetActive(active);
         spriteShadow.gameObject.SetActive(active);
+        healthBar.setActive(active);
+    }
+
+    public void setHealthBar(bool active)
+    {
         healthBar.setActive(active);
     }
 
@@ -177,7 +194,7 @@ public class BrickRenderer : GameComponent
     {
         sortingGroup.sortingOrder = v;
     }
-    
+
     public void playFadeIn()
     {
         root.localPosition = new(0, 0.3F, 0);
@@ -203,20 +220,25 @@ public class BrickRenderer : GameComponent
             case UnderHitDirection.Top:
             case UnderHitDirection.Bot:
                 animator.Play(BrickHit_1, 0, 0F);
+                curAnimation = AnimationState.HITTING;
                 break;
             case UnderHitDirection.Left:
                 animator.Play(BrickHit_2, 0, 0F);
+                curAnimation = AnimationState.HITTING;
                 break;
             case UnderHitDirection.Right:
                 animator.Play(BrickHit_3, 0, 0F);
+                curAnimation = AnimationState.HITTING;
                 break;
             case UnderHitDirection.TopLeft:
             case UnderHitDirection.BotLeft:
                 animator.Play(BrickHit_2, 0, 0F);
+                curAnimation = AnimationState.HITTING;
                 break;
             case UnderHitDirection.TopRight:
             case UnderHitDirection.BotRight:
                 animator.Play(BrickHit_3, 0, 0F);
+                curAnimation = AnimationState.HITTING;
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
@@ -299,8 +321,39 @@ public class BrickRenderer : GameComponent
 
     public void playFxDead()
     {
-        fxDead.Play();
+        if (curAnimation == AnimationState.NONE)
+        {
+            var f = randomFloat(0F, 1F);
+            var die = f < 0.33F ? BrickDie_1 : f < 0.66F ? BrickDie_2 : BrickDie_3;
+            animator.Play(die, 0, 0F);
+            curAnimation = AnimationState.DIED;
+        }
+        else
+        {
+            curAnimation = AnimationState.DYING;
+        }
     }
+
+    void onAnimationEnd()
+    {
+        if (curAnimation == AnimationState.HITTING)
+        {
+            curAnimation = AnimationState.NONE;
+        }
+        else if (curAnimation == AnimationState.DYING)
+        {
+            var f = randomFloat(0F, 1F);
+            var die = f < 0.33F ? BrickDie_1 : f < 0.66F ? BrickDie_2 : BrickDie_3;
+            animator.Play(die, 0, 0F);
+            curAnimation = AnimationState.NONE;
+        }
+        else if (curAnimation == AnimationState.DIED)
+        {
+            fxDead.Play();
+            setRendererActive(false);
+        }
+    }
+
 
     class HealthBar
     {
@@ -325,7 +378,7 @@ public class BrickRenderer : GameComponent
 
         public void setActive(bool active)
         {
-            transform.gameObject.SetActive(active);
+            transform.localScale = active ? Vector3.one : Vector3.zero;
         }
 
         public void refresh(int cur, int max)
@@ -370,5 +423,13 @@ public class BrickRenderer : GameComponent
         TopRight,
         BotLeft,
         BotRight,
+    }
+
+    enum AnimationState
+    {
+        NONE,
+        HITTING,
+        DYING,
+        DIED,
     }
 }

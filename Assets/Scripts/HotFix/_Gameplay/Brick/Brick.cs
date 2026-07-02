@@ -552,7 +552,7 @@ public partial class Brick : MovableObject
         brickCollider.setColliderEnabled(false);
 
         brickRenderer.playFxDead();
-        brickRenderer.setRendererActive(false);
+        brickRenderer.setHealthBar(false);
 
         killTimer = 1F;
         return true;
