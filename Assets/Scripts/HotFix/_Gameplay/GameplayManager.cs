@@ -34,7 +34,7 @@ public class GameplayManager : FrameSystem
             brick.takeDamage(ref dmg, ball.gameObject, ball, 0F, ball.getDirection(), dmgCalculator);
             if (dmg.isCrit)
                 ball.onCritHit(brick);
-            
+
             if (dmg.isLethal)
                 ball.onHitKill(brick);
         }
@@ -99,16 +99,18 @@ public class GameplayManager : FrameSystem
 
     public void handleSkillDamage(Ball ball, Brick brick, ref Dmg dmg)
     {
+        brick.brickRenderer.playFxSkillHit(dmg.direction);
+
         if (brick.canTakeDamageThisFrame(out var resistType))
         {
             foreach (var p in ball.powers)
                 p.onBeforeHandleSkillDamage(ball, brick, ref dmg);
-            
+
             brick.takeDamage(ref dmg, ball.gameObject, ball, 0F, ball.getDirection(), dmgCalculator);
-            
+
             if (dmg.isCrit)
                 ball.onCritHit(brick);
-            
+
             if (dmg.isLethal)
                 ball.onSkillKill(brick);
         }

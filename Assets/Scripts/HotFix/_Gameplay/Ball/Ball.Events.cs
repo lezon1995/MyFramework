@@ -65,6 +65,7 @@ public partial class Ball : IEventRouter
     protected virtual bool onHitEnter(Brick brick, Vector2 normal, out bool triggerRegularHit)
     {
         playHitBrickSfx();
+        playHitBrickVfx();
         triggerRegularHit = true;
         foreach (var p in powers)
             p.onHitBrick(brick);

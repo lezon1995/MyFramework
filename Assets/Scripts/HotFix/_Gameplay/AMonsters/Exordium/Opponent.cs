@@ -47,24 +47,24 @@ public class Opponent : AMonster
                 setMove(1, Intent.BRICK_STAGE_INITIALIZATION);
                 break;
             case 1:
-                // setMove(1, Intent.BRICK_GENERATE_X);
-                // setMove(2, Intent.BRICK_MOVE_TO_BORDER_TOP);
+                setMove(1, Intent.BRICK_GENERATE_X);
+                setMove(2, Intent.BRICK_MOVE_DOWN_X);
                 setMove(3, Intent.BRICK_HEALING_X);
                 break;
             case 2:
-                // setMove(1, Intent.BRICK_GENERATE_X);
-                // setMove(2, Intent.BRICK_MOVE_TO_BORDER_RIGHT);
+                setMove(1, Intent.BRICK_GENERATE_X);
+                setMove(2, Intent.BRICK_MOVE_DOWN_X);
                 setMove(3, Intent.BRICK_HEALING_X);
                 break;
             case 3:
-                // setMove(1, Intent.BRICK_GENERATE_X);
-                // setMove(2, Intent.BRICK_MOVE_TO_BORDER_BOT);
+                setMove(1, Intent.BRICK_GENERATE_X);
+                setMove(2, Intent.BRICK_MOVE_DOWN_X);
                 setMove(3, Intent.BRICK_HEALING_X);
                 // setMove(3, Intent.BRICK_GENERATE_X);
                 break;
             case 4:
-                // setMove(1, Intent.BRICK_GENERATE_X);
-                // setMove(2, Intent.BRICK_MOVE_TO_BORDER_LEFT);
+                setMove(1, Intent.BRICK_GENERATE_X);
+                setMove(2, Intent.BRICK_MOVE_DOWN_X);
                 setMove(3, Intent.BRICK_HEALING_X);
                 // setMove(3, Intent.BRICK_GENERATE_X);
                 // setMove(4, Intent.BRICK_MOVE_DOWN_X);
@@ -89,10 +89,10 @@ public class Opponent : AMonster
                 actionManager.addToBot<BrickGroupGenerateAction>().with(this, createBrickGroup());
                 break;
             case Intent.BRICK_HEALING_X:
-                actionManager.addToBot<BrickHealingAction>().with(3, 10);
+                actionManager.addToBot<BrickHealingAction>().with(3, 1);
                 break;
             case Intent.BRICK_MOVE_DOWN_X:
-                // actionManager.addToBot<BrickGroupMoveDownAction>().with(this);
+                actionManager.addToBot<BrickGroupMoveDownAction>().with(this);
                 break;
             case Intent.BRICK_MOVE_TO_BORDER_LEFT:
                 actionManager.addToBot<BrickGroupMoveToBorderAction>().with(levelManager.borderLeft);

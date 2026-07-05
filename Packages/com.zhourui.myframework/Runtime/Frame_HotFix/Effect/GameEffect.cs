@@ -15,6 +15,7 @@ public class GameEffect : MovableObject
 	protected DateTime mUnuseTime;								// 回收时的时间戳
 	protected string mFilePath;                                 // 特效文件的路径,用于在某些时候获取路径
 	protected float mLifeTimer = -1.0f;                         // 特效生存时间计时器
+	protected float mMaxLifetime;                         // 特效粒子系统中最长的Lifetime
 	protected int mTag;											// 在PrefabPool中的tag
 	protected bool mDefaultIgnoreTimeScale;                     // 创建时是否忽略时间缩放,用于在停止时恢复忽略时间缩放的设置
 	protected bool mExistedObject;                              // 为true表示特效节点是一个已存在的节点,false表示特效是实时加载的一个节点
@@ -38,6 +39,11 @@ public class GameEffect : MovableObject
 				var main = item.main;
 				// 移到屏幕外时,一律暂停更新
 				main.cullingMode = ParticleSystemCullingMode.Pause;
+
+				if (main.loop)
+					mMaxLifetime = float.MaxValue;
+				else
+					mMaxLifetime = getMax(mMaxLifetime, getMax(main.startLifetime.constant, main.startLifetime.constantMax));
 			}
 			// 关掉自动销毁
 			mTrailRenderers.For(trail => trail.autodestruct = false);
@@ -91,6 +97,7 @@ public class GameEffect : MovableObject
 	public void setUnuseTime(DateTime time)		{ mUnuseTime = time; }
 	public void setExistObject(bool exist)		{ mExistedObject = exist; }
 	public void setLifeTime(float time)			{ mLifeTimer = time; }
+	public float getMaxLifeTime()			{ return mMaxLifetime; }
 	public void setFilePath(string path)		{ mFilePath = path; }
 	public void setTag(int tag)					{ mTag = tag; }
 	public void setInEffectPool(bool temp)		{ mIsEffectPool = temp; }
@@ -226,6 +233,7 @@ public class GameEffect : MovableObject
 		mUnuseTime = DateTime.MinValue;
 		mFilePath = null;
 		mLifeTimer = -1.0f;
+		mMaxLifetime = 0f;
 		mTag = 0;
 		mDefaultIgnoreTimeScale = false;
 		mExistedObject = false;

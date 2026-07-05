@@ -146,6 +146,7 @@ namespace MarbleHero
                 // Gdx.graphics.setCursor(Gdx.graphics.newCursor(new Pixmap(Gdx.files. internal ("images/blank.png")), 0, 0));
                 music = new();
                 sound = new();
+                fx = new();
                 screenShake = new(getMainCamera());
 
                 GameDesign.initialize();

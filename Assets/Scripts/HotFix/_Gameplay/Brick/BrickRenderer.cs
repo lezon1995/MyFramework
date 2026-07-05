@@ -9,6 +9,7 @@ namespace MarbleHero;
 public class BrickRenderer : GameComponent
 {
     static int StrongTintFade = Shader.PropertyToID("_StrongTintFade");
+    static int BrickIdle = Animator.StringToHash("BrickIdle");
     static int BrickHit_1 = Animator.StringToHash("BrickHit_1");
     static int BrickHit_2 = Animator.StringToHash("BrickHit_2");
     static int BrickHit_3 = Animator.StringToHash("BrickHit_3");
@@ -16,6 +17,7 @@ public class BrickRenderer : GameComponent
     static int BrickDie_2 = Animator.StringToHash("BrickDie_2");
     static int BrickDie_3 = Animator.StringToHash("BrickDie_3");
 
+    Brick brick;
     GameObject gameObject;
 
     Transform root;
@@ -23,7 +25,6 @@ public class BrickRenderer : GameComponent
     Animator animator;
     SortingGroup sortingGroup;
     SpriteRenderer spriteBlock, spriteUnit, spriteShadow;
-    ParticleSystem fxHit, fxDead;
 
     SpriteRenderer spriteShield;
     TextMeshPro shieldAmount;
@@ -38,8 +39,9 @@ public class BrickRenderer : GameComponent
     public override void init(ComponentOwner owner)
     {
         base.init(owner);
-        if (owner is Brick brick)
+        if (owner is Brick b)
         {
+            brick = b;
             var obj = brick.gameObject;
             gameObject = obj;
             obj.find(out animator);
@@ -52,8 +54,6 @@ public class BrickRenderer : GameComponent
             obj.find(out root, "Root");
             obj.find(out renderer, "Renderer");
             obj.find(out spriteShadow, "SpriteShadow");
-            obj.find(out fxHit, "FxHit");
-            obj.find(out fxDead, "FxDead");
 
             if (obj.find(out spriteBlock, "SpriteBlock"))
             {
@@ -106,6 +106,7 @@ public class BrickRenderer : GameComponent
     public override void resetProperty()
     {
         base.resetProperty();
+        brick = null;
         gameObject = null;
         animator = null;
         receiver = null;
@@ -115,8 +116,6 @@ public class BrickRenderer : GameComponent
         spriteBlock = null;
         spriteUnit = null;
         spriteShadow = null;
-        fxHit = null;
-        fxDead = null;
         matBlock = null;
         matUnit = null;
         spriteShield = null;
@@ -210,6 +209,11 @@ public class BrickRenderer : GameComponent
         matUnit.SetFloat(StrongTintFade, 1);
     }
 
+    public void playFxSkillHit(Vector2 direction)
+    {
+        playFxHit(direction);
+    }
+
     public void playFxHit(Vector2 normal)
     {
         var dir = determineUnderHitDirection(normal);
@@ -268,10 +272,10 @@ public class BrickRenderer : GameComponent
             {
                 dir = (normal.x, normal.y) switch
                 {
-                    (> 0, > 0) => UnderHitDirection.TopRight, ////右上受击
-                    (> 0, < 0) => UnderHitDirection.BotRight, ////右下受击
-                    (< 0, < 0) => UnderHitDirection.BotLeft, ////左下受击
-                    (< 0, > 0) => UnderHitDirection.TopLeft, ////左上受击
+                    (> 0, > 0) => UnderHitDirection.TopRight, //右上受击
+                    (> 0, < 0) => UnderHitDirection.BotRight, //右下受击
+                    (< 0, < 0) => UnderHitDirection.BotLeft, //左下受击
+                    (< 0, > 0) => UnderHitDirection.TopLeft, //左上受击
                     _ => UnderHitDirection.None
                 };
             }
@@ -345,13 +349,19 @@ public class BrickRenderer : GameComponent
             var f = randomFloat(0F, 1F);
             var die = f < 0.33F ? BrickDie_1 : f < 0.66F ? BrickDie_2 : BrickDie_3;
             animator.Play(die, 0, 0F);
-            curAnimation = AnimationState.NONE;
+            curAnimation = AnimationState.DIED;
         }
         else if (curAnimation == AnimationState.DIED)
         {
-            fxDead.Play();
+            playBrickDestroyFx();
             setRendererActive(false);
+            animator.Play(BrickIdle, 0, 0F);
         }
+    }
+
+    protected virtual void playBrickDestroyFx()
+    {
+        fx.play(FxDefine.BRICK_DESTROY, brick.getWorldPosition());
     }
 
 
@@ -367,6 +377,8 @@ public class BrickRenderer : GameComponent
 
         float currentProgress;
         float targetProgress;
+        bool inBufferDelay, inBuffering;
+        Timer bufferDelay;
 
         public HealthBar(Transform t)
         {
@@ -388,6 +400,12 @@ public class BrickRenderer : GameComponent
             var f = Mathf.Clamp01(((float)cur) / max);
             mat.SetFloat(foregroundProgress, f);
             targetProgress = f;
+
+            if (!inBufferDelay && !inBuffering)
+            {
+                bufferDelay = 0.5F;
+                inBufferDelay = true;
+            }
         }
 
         public void refreshInitial(int cur, int max)
@@ -399,14 +417,33 @@ public class BrickRenderer : GameComponent
             mat.SetFloat(bufferProgress, f);
             targetProgress = f;
             currentProgress = f;
+
+            inBufferDelay = false;
+            inBuffering = false;
+            bufferDelay = 0F;
         }
 
         public void update(float dt)
         {
-            if (targetProgress < currentProgress)
+            if (inBufferDelay)
             {
-                var f = lerp(currentProgress, targetProgress, dt * 10F);
+                if (bufferDelay.update(dt))
+                {
+                    inBufferDelay = false;
+                    inBuffering = true;
+                    bufferDelay.kill();
+                }
+            }
+
+            if (targetProgress < currentProgress && inBuffering)
+            {
+                var f = lerp(currentProgress, targetProgress, dt * 5F, 0.01F);
                 currentProgress = f;
+                if (isFloatEqual(f, targetProgress))
+                {
+                    inBuffering = false;
+                }
+
                 mat.SetFloat(bufferProgress, f);
             }
         }

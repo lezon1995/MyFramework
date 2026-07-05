@@ -317,6 +317,15 @@ public static class DictionaryExtension
 		}
 		return value;
 	}
+	public static Value getOrAddNew<Key, Value>(this SafeDictionary<Key, Value> map, Key key) where Value : new()
+	{
+		if (!map.tryGetValue(key, out Value value))
+		{
+			value = new();
+			map.add(key, value);
+		}
+		return value;
+	}
 	public static List<T> getOrAddListPersist<Key, T>(this Dictionary<Key, List<T>> map, Key key)
 	{
 		if (!map.TryGetValue(key, out var value))

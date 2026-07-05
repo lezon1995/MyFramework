@@ -502,7 +502,7 @@ public class EffectManager : FrameSystem
 		}
 		if (effect.isInEffectPool())
 		{
-			logError("需要使用destroyEffectTemp销毁临时特效:" + effect.getFilePath());
+			logWarning("需要使用destroyEffectTemp销毁临时特效:" + effect.getFilePath());
 			return;
 		}
 		// 从mEffectAttachList中移除

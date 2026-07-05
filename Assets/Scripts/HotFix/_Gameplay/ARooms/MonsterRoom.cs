@@ -159,10 +159,10 @@ namespace MarbleHero
                 if (brickDeathQueue.TryDequeue(out var e))
                 {
                     brickDeathTimer = 0.15F;
-                    comboManager.createComboEffect(e.combo, e.deathPosition);
+                    // comboManager.createComboEffect(e.combo, e.deathPosition);
 
                     //Camera shaking
-                    Game.screenShake.shakeCamera(e.combo * 0.01f, 0.15F);
+                    Game.screenShake.shakeCamera(e.combo * 0.005f, 0.15F);
                 }
             }
 

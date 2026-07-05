@@ -6,6 +6,11 @@ public partial class Ball
     {
         sound.play(SoundDefine.BALL_HIT_BRICK_COMMON);
     }
+    
+    protected virtual void playHitBrickVfx()
+    {
+        fx.play(FxDefine.BALL_HIT_BRICK, curPos);
+    }
 
     protected virtual void playHitBorderSfx()
     {

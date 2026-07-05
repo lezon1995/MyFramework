@@ -68,6 +68,11 @@ public class BrickGroupMoveDownAction : AGameAction, IArgs<AMonster>
                 var endRow = bricksRow[i];
                 var (startY, endY) = bricksY[i];
                 brick.setWorldPositionY(endY);
+                
+                var posY = brick.getWorldPosition().y;
+                var sortingOrder = brickManager.brickLayout.getSortingOrderAtPosY(posY);
+                brick.setSortingOrder(sortingOrder);
+
                 if (endRow < 0)
                     brick.kill();
             }

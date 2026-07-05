@@ -9,7 +9,7 @@ using static FrameDefine;
 // 特效池
 public class GameEffectPool
 {
-	protected Dictionary<string, SafeList<GameEffect>> mUnusedEffectList = new();       // key是特效路径,value是未使用的特效列表
+	protected SafeDictionary<string, SafeList<GameEffect>> mUnusedEffectList = new();       // key是特效路径,value是未使用的特效列表
 	protected Dictionary<string, List<GameEffect>> mInusedEffectList = new();           // key是特效路径,value是已使用的特效列表
 	protected float mEffectTimer;														// 检查特效回收时间的计时器
 	protected int mUnuseMaxTime = 60;													// 超过60秒未使用的特效将会被回收
@@ -18,9 +18,11 @@ public class GameEffectPool
 		if (tickTimerLoop(ref mEffectTimer, elapsedTime, 1.0f))
 		{
 			DateTime time = DateTime.Now;
-			foreach (var item in mUnusedEffectList)
+			using var dictReader = new SafeDictionaryReader<string, SafeList<GameEffect>>(mUnusedEffectList);
+			foreach (var (key, safeList) in dictReader.mReadList)
 			{
-				foreach (var effect in item.Value)
+				using var listReader = new SafeListReader<GameEffect>(safeList);
+				foreach (var effect in listReader.mReadList)
 				{
 					if ((time - effect.getUnuseTime()).TotalSeconds > mUnuseMaxTime)
 					{
@@ -49,7 +51,7 @@ public class GameEffectPool
 	public GameEffect getOneEffect(GameObject parent, string nameWithPath, Vector3 pos, bool moveToHide, bool active, float lifeTime)
 	{
 		// 先从未使用列表中获取一个特效
-		if (!mUnusedEffectList.TryGetValue(nameWithPath, out var effectList) || effectList.count() == 0)
+		if (!mUnusedEffectList.tryGetValue(nameWithPath, out var effectList) || effectList.count() == 0)
 		{
 			return null;
 		}

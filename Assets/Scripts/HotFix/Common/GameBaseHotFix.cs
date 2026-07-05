@@ -49,6 +49,7 @@ public class GBR
     public static APlayer player { get; set; }
     public static SoundMaster sound { get; set; }
     public static MusicMaster music { get; set; }
+    public static FxMaster fx { get; set; }
 
     public static ARoom room
     {
