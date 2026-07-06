@@ -193,20 +193,16 @@ public partial class Brick : MovableObject
         manager = m;
     }
 
-    public void setHealth(int value, bool changeColor = true)
+    public void setHealth(int value)
     {
         curHealth = value;
         brickRenderer.refreshHealth(curHealth, maxHealth);
-        if (changeColor)
-        {
-            // var sprite = manager.getBrickSpriteByHealth(value);
-            // brickRenderer.setBrickSprite(sprite);
-        }
     }
 
-    public void setInitialHealth(int value)
+    public void setInitialHealth(int value, int max)
     {
         curHealth = value;
+        maxHealth = max;
         brickRenderer.refreshInitialHealth(curHealth, maxHealth);
         // var sprite = manager.getBrickSpriteByHealth(value);
         // brickRenderer.setBrickSprite(sprite);
@@ -424,7 +420,7 @@ public partial class Brick : MovableObject
             int preHealth = curHealth;
             int newHealth = curHealth + (int)heal.Healing;
             if (newHealth > maxHealth)
-                setMaxHealth(newHealth);
+                newHealth = maxHealth;
 
             setHealth(newHealth);
 

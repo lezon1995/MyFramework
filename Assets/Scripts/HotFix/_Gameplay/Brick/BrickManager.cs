@@ -240,7 +240,7 @@ public class BrickManager : FrameSystem
             pool = new(
                 createFunc: () =>
                 {
-                    return createBrick(type, pos, size, health);
+                    return createBrick(type, pos, size);
                 },
                 actionOnGet: brick =>
                 {
@@ -273,8 +273,8 @@ public class BrickManager : FrameSystem
 
         var brick = pool.Get();
         brick.setWorldPosition(pos);
-        brick.setInitialHealth(health);
         brick.setMaxHealth(health);
+        brick.setInitialHealth(health, health);
         brick.setSize(size);
         
         var sortingOrder = brickLayout.getSortingOrderAtPosY(pos.y);
@@ -285,17 +285,17 @@ public class BrickManager : FrameSystem
         return brick;
     }
 
-    Brick createBrick(Vector2 pos, Vector2 size, int health)
+    Brick createBrick(Vector2 pos, Vector2 size)
     {
-        return createBrick(typeof(Brick), pos, size, health);
+        return createBrick(typeof(Brick), pos, size);
     }
 
-    T createBrick<T>(Vector2 pos, Vector2 size, int health) where T : Brick
+    T createBrick<T>(Vector2 pos, Vector2 size) where T : Brick
     {
-        return createBrick(typeof(T), pos, size, health) as T;
+        return createBrick(typeof(T), pos, size) as T;
     }
 
-    Brick createBrick(Type type, Vector2 pos, Vector2 size, int health)
+    Brick createBrick(Type type, Vector2 pos, Vector2 size)
     {
         var id = generateGUID();
 
@@ -318,8 +318,6 @@ public class BrickManager : FrameSystem
         brick.init();
 
         brick.setWorldPosition(pos);
-        brick.setInitialHealth(health);
-        brick.setMaxHealth(health);
         // brick.setSize(1.14F, 0.82F);
         brick.setSize(size);
 

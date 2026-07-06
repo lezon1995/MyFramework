@@ -200,6 +200,8 @@ public class BrickRenderer : GameComponent
 
         Tween.Alpha(spriteShadow, endValue: 1F, duration: 0.2F, ease: Ease.OutCubic);
         Tween.LocalPositionY(root, endValue: 0F, duration: 0.2F, ease: Ease.OutCubic);
+        
+        animator.Play(BrickIdle, 0, 0F);
     }
 
     public void playFxDamage(Vector3 direction)
@@ -367,25 +369,15 @@ public class BrickRenderer : GameComponent
 
     class HealthBar
     {
-        static int bufferProgress = Shader.PropertyToID("_BufferProgress");
-        static int foregroundProgress = Shader.PropertyToID("_ForegroundProgress");
-
         Transform transform;
-        SpriteRenderer barFront;
+        DamageChunkHealthBarRenderer barRenderer;
         TextMeshPro health;
-        Material mat;
-
-        float currentProgress;
-        float targetProgress;
-        bool inBufferDelay, inBuffering;
-        Timer bufferDelay;
 
         public HealthBar(Transform t)
         {
             transform = t;
-            t.find(out barFront, "Front");
+            t.find(out barRenderer, "Front2");
             t.find(out health, "Health");
-            mat = barFront.material;
         }
 
         public void setActive(bool active)
@@ -398,14 +390,7 @@ public class BrickRenderer : GameComponent
             health.text = IToS(cur);
 
             var f = Mathf.Clamp01(((float)cur) / max);
-            mat.SetFloat(foregroundProgress, f);
-            targetProgress = f;
-
-            if (!inBufferDelay && !inBuffering)
-            {
-                bufferDelay = 0.5F;
-                inBufferDelay = true;
-            }
+            barRenderer.ApplyDamage(f);
         }
 
         public void refreshInitial(int cur, int max)
@@ -413,39 +398,13 @@ public class BrickRenderer : GameComponent
             health.text = IToS(cur);
 
             var f = Mathf.Clamp01(((float)cur) / max);
-            mat.SetFloat(foregroundProgress, f);
-            mat.SetFloat(bufferProgress, f);
-            targetProgress = f;
-            currentProgress = f;
-
-            inBufferDelay = false;
-            inBuffering = false;
-            bufferDelay = 0F;
+            barRenderer.SetProgress(f, f);
+            barRenderer.ClearAllChunks();
+            barRenderer.ApplyToMaterial();
         }
 
         public void update(float dt)
         {
-            if (inBufferDelay)
-            {
-                if (bufferDelay.update(dt))
-                {
-                    inBufferDelay = false;
-                    inBuffering = true;
-                    bufferDelay.kill();
-                }
-            }
-
-            if (targetProgress < currentProgress && inBuffering)
-            {
-                var f = lerp(currentProgress, targetProgress, dt * 5F, 0.01F);
-                currentProgress = f;
-                if (isFloatEqual(f, targetProgress))
-                {
-                    inBuffering = false;
-                }
-
-                mat.SetFloat(bufferProgress, f);
-            }
         }
     }
 

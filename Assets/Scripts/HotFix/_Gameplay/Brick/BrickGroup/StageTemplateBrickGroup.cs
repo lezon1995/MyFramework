@@ -25,7 +25,7 @@ public class StageTemplateBrickGroup : BrickGroup, IArgs<ResourceRef<StageTempla
         for (var i = 0; i < templates.Count; i++)
         {
             var t = templates[i];
-            t.health = 1;
+            t.health = 10;
             templates[i] = t;
         }
     }
