@@ -6,18 +6,18 @@ namespace MarbleHero;
 [Serializable]
 public struct BrickTemplate : IEquatable<BrickTemplate>
 {
+    public static Vector2 cellSize = new(0.675F, 0.675F);
     public Vector2 position;
-    public Vector2 size;
+    public Vector2Int size;
     public int health;
 
-    public Rect rect
+    public Rect rect => getRect();
+
+    public Rect getRect()
     {
-        get
-        {
-            var r = new Rect(position, size);
-            r.center = position;
-            return r;
-        }
+        var offset = new Vector2((size.x - 1) * cellSize.x * 0.5F, (size.y - 1) * cellSize.y * 0.5F);
+        var p = position + offset - size * cellSize * 0.5F;
+        return new(p, size * cellSize);
     }
 
     public BrickTemplate()
@@ -27,14 +27,7 @@ public struct BrickTemplate : IEquatable<BrickTemplate>
         health = 1;
     }
 
-    public BrickTemplate(Rect _rect, int _health)
-    {
-        position = _rect.center;
-        size = _rect.size;
-        health = _health;
-    }
-
-    public BrickTemplate(Vector2 _position, Vector2 _size, int _health)
+    public BrickTemplate(Vector2 _position, Vector2Int _size, int _health)
     {
         position = _position;
         size = _size;

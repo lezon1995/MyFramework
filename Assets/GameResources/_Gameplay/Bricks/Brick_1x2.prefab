@@ -27,7 +27,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.40000004, y: 0.43750006, z: 1}
+  m_LocalScale: {x: 0.40000004, y: 0.43750003, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8623700009192480191}
@@ -417,13 +417,13 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5098559960325705308}
-  - component: {fileID: 9070950118919401953}
+  - component: {fileID: 7600413153680480626}
   - component: {fileID: 974964056938552375}
   - component: {fileID: 7328556129454814211}
   - component: {fileID: 8351306170979192449}
   - component: {fileID: 6261652187701802809}
   m_Layer: 7
-  m_Name: Brick_1x1
+  m_Name: Brick_1x2
   m_TagString: Block
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -445,7 +445,7 @@ Transform:
   - {fileID: 2680391634669396040}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!61 &9070950118919401953
+--- !u!61 &7600413153680480626
 BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -479,7 +479,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0, y: 0.3375}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -489,7 +489,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 0.675, y: 0.675}
+  m_Size: {x: 0.675, y: 1.35}
   m_EdgeRadius: 0
 --- !u!60 &974964056938552375
 PolygonCollider2D:
@@ -537,14 +537,14 @@ PolygonCollider2D:
   m_AutoTiling: 0
   m_Points:
     m_Paths:
-    - - {x: 0.26, y: 0.337}
-      - {x: -0.26, y: 0.337}
-      - {x: -0.337, y: 0.26}
+    - - {x: 0.26, y: 1.007}
+      - {x: -0.26, y: 1.007}
+      - {x: -0.337, y: 0.94}
       - {x: -0.337, y: -0.26}
       - {x: -0.26, y: -0.337}
       - {x: 0.26, y: -0.337}
       - {x: 0.337, y: -0.26}
-      - {x: 0.337, y: 0.26}
+      - {x: 0.337, y: 0.94}
   m_UseDelaunayMesh: 1
 --- !u!210 &7328556129454814211
 SortingGroup:
@@ -706,7 +706,7 @@ SpriteRenderer:
   m_SortingLayer: 2
   m_SortingOrder: 3
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: 55a1b3175ff61a241bbe8db9e3b826bf, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 570051d39c552f049a5db7fadef42e05, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -896,7 +896,7 @@ Transform:
   m_GameObject: {fileID: 5711784307859128996}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0.3375, z: 0}
   m_LocalScale: {x: 0.703125, y: 0.6958763, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -951,7 +951,7 @@ SpriteRenderer:
   m_SortingLayer: 2
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 840929895, guid: 436eb517994af7347835bf082951bffb, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 0d05f5c6c7295ed4191abd39fa6fee80, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -1111,7 +1111,7 @@ Transform:
   m_GameObject: {fileID: 7638508557024894739}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0.3375, z: 0}
   m_LocalScale: {x: 0.703125, y: 0.703125, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1166,7 +1166,7 @@ SpriteRenderer:
   m_SortingLayer: 2
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 1726245097, guid: 3778960f48f9d71408dabfd43c314312, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 0601b7a0a052f1841ae973e80e67b246, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -1425,7 +1425,7 @@ Transform:
   m_GameObject: {fileID: 9104695596117518854}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.17750001, z: 0}
+  m_LocalPosition: {x: 0, y: 0.16, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children:

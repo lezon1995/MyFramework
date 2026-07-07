@@ -61,11 +61,14 @@ public class StageTemplateEditor : Editor
         {
             foreach (var b in template.bricks)
             {
-                if (b.size.x <= 0 || b.size.y <= 0)
+                var size = b.rect.size;
+                if (size.x <= 0 || size.y <= 0)
                     continue;
 
-                var brickMinWorld = new Vector2(b.position.x - b.size.x * 0.5f, b.position.y - b.size.y * 0.5f);
-                var brickMaxWorld = new Vector2(b.position.x + b.size.x * 0.5f, b.position.y + b.size.y * 0.5f);
+                // var brickMinWorld = new Vector2(b.position.x - size.x * 0.5f, b.position.y - size.y * 0.5f);
+                // var brickMaxWorld = new Vector2(b.position.x + size.x * 0.5f, b.position.y + size.y * 0.5f);
+                var brickMinWorld = b.rect.min;
+                var brickMaxWorld = b.rect.max;
 
                 var sMin = WorldToScreen(brickMinWorld, worldBounds, in previewRect);
                 var sMax = WorldToScreen(brickMaxWorld, worldBounds, in previewRect);
@@ -85,13 +88,14 @@ public class StageTemplateEditor : Editor
             Vector2 mouseWorld = ScreenToWorld(e.mousePosition, in previewRect, worldBounds);
             foreach (var b in template.bricks)
             {
-                if (b.size.x <= 0 || b.size.y <= 0)
+                var size = b.rect.size;
+                if (size.x <= 0 || size.y <= 0)
                     continue;
 
-                var brickRect = new Rect(b.position.x - b.size.x * 0.5f, b.position.y - b.size.y * 0.5f, b.size.x, b.size.y);
+                var brickRect = new Rect(b.position.x - size.x * 0.5f, b.position.y - size.y * 0.5f, size.x, size.y);
                 if (brickRect.Contains(mouseWorld))
                 {
-                    var tooltip = $"pos: {b.position}\nsize: {b.size}\nhealth: {b.health}";
+                    var tooltip = $"pos: {b.position}\nsize: {size}\nhealth: {b.health}";
                     var labelPos = e.mousePosition + new Vector2(14, 14);
                     // 防止 tooltip 超出预览区右边界
                     if (labelPos.x + 160 > previewRect.xMax)

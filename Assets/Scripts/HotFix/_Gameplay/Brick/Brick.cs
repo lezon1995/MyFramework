@@ -21,7 +21,7 @@ public partial class Brick : MovableObject
 
     #region Stats
 
-    public float width, height;
+    public Vector2Int size;
     public int maxHealth = 10;
     public int maxHealthStack = 1;
     public float physicResist;
@@ -91,8 +91,6 @@ public partial class Brick : MovableObject
         brickRenderer = null;
         brickCollider = null;
 
-        width = 0F;
-        height = 0F;
         maxHealth = 0;
         maxHealthStack = 0;
         physicResist = 0F;
@@ -103,6 +101,7 @@ public partial class Brick : MovableObject
         curHealthStack = 0;
         immuneToDamage = false;
         invulnerable = false;
+        size = default;
 
         _coroutineState = default;
         _coroutineTimeElapsed = 0F;
@@ -114,15 +113,13 @@ public partial class Brick : MovableObject
     {
         brickCollider.setColliderEnabled(true);
         brickRenderer.setRendererActive(true);
-        brickRenderer.playFadeIn();
+        brickRenderer.playBornAnimation();
     }
 
     public void onRelease()
     {
         UN_CLASS_LIST(powers);
 
-        width = 0F;
-        height = 0F;
         maxHealth = 0;
         maxHealthStack = 0;
         physicResist = 0F;
@@ -166,7 +163,7 @@ public partial class Brick : MovableObject
             }
         }
 
-        // Draw.ingame.xy.WireRectangle(getRect(), Color.red);
+        Draw.ingame.xy.WireRectangle(getRect(), Color.red);
     }
 
     public override void fixedUpdate(float elapsedTime)
@@ -559,25 +556,20 @@ public partial class Brick : MovableObject
         return curHealth <= 0 && maxHealth > 0;
     }
 
-    public void setSize(Vector2 size)
+    public void setSize(Vector2Int _size)
     {
+        size = _size;
         setSize(size.x, size.y);
     }
 
-    public void setSize(float w, float h)
+    void setSize(float w, float h)
     {
-        width = w;
-        height = h;
         brickRenderer.setSize(w, h);
         brickCollider.setSize(w, h);
     }
 
-    public Rect getRect()
-    {
-        Rect rect = new(0, 0, width, height);
-        rect.center = getWorldPosition();
-        return rect;
-    }
+    public Rect getRect() => brickCollider.getRect();
+    public Vector2Int getSize() => size;
 
     public void setSortingOrder(int order)
     {

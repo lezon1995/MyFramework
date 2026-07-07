@@ -18,7 +18,7 @@ public class BrickManager : FrameSystem
     protected SafeList<Brick> brickUpdateList = new(); // 用于更新角色的列表
     protected SafeList<Brick> brickFixedUpdateList = new(); // 需要在FixedUpdate中更新的列表,如果直接使用mBrickGUIDList,会非常慢,而很多时候其实并不需要进行物理更新,所以单独使用一个列表存储
 
-    protected Dictionary<Type, ObjectPool<Brick>> brickPools = new();
+    protected Dictionary<(Type, Vector2Int), ObjectPool<Brick>> brickPools = new();
 
     protected Sprite[] brickSprites;
     public BrickGridLayout brickLayout;
@@ -228,14 +228,14 @@ public class BrickManager : FrameSystem
         return null;
     }
 
-    public Brick acquireBrick(Vector2 pos, Vector2 size, int health)
+    public Brick acquireBrick(Vector2 pos, Vector2Int size, int health)
     {
         return acquireBrick(typeof(Brick), pos, size, health);
     }
 
-    public Brick acquireBrick(Type type, Vector2 pos, Vector2 size, int health)
+    public Brick acquireBrick(Type type, Vector2 pos, Vector2Int size, int health)
     {
-        if (!brickPools.TryGetValue(type, out var pool))
+        if (!brickPools.TryGetValue((type, size), out var pool))
         {
             pool = new(
                 createFunc: () =>
@@ -268,7 +268,7 @@ public class BrickManager : FrameSystem
                 defaultCapacity: 1000,
                 maxSize: 1000);
 
-            brickPools.add(type, pool);
+            brickPools.add((type, size), pool);
         }
 
         var brick = pool.Get();
@@ -276,7 +276,7 @@ public class BrickManager : FrameSystem
         brick.setMaxHealth(health);
         brick.setInitialHealth(health, health);
         brick.setSize(size);
-        
+
         var sortingOrder = brickLayout.getSortingOrderAtPosY(pos.y);
         brick.setSortingOrder(sortingOrder);
         brick.onAcquire();
@@ -285,17 +285,17 @@ public class BrickManager : FrameSystem
         return brick;
     }
 
-    Brick createBrick(Vector2 pos, Vector2 size)
+    Brick createBrick(Vector2 pos, Vector2Int size)
     {
         return createBrick(typeof(Brick), pos, size);
     }
 
-    T createBrick<T>(Vector2 pos, Vector2 size) where T : Brick
+    T createBrick<T>(Vector2 pos, Vector2Int size) where T : Brick
     {
         return createBrick(typeof(T), pos, size) as T;
     }
 
-    Brick createBrick(Type type, Vector2 pos, Vector2 size)
+    Brick createBrick(Type type, Vector2 pos, Vector2Int size)
     {
         var id = generateGUID();
 
@@ -311,14 +311,13 @@ public class BrickManager : FrameSystem
 
         // 将角色挂接到管理器下
         brick.setID(id);
-        var path = $"{GAMEPLAY_PATH}/Bricks/Brick_1x1.prefab";
+        var path = $"{GAMEPLAY_PATH}/Bricks/Brick_{size.x}x{size.y}.prefab";
         var o = mPrefabPoolManager.createObject(path);
         brick.setManager(this);
         brick.setObject(o);
         brick.init();
 
         brick.setWorldPosition(pos);
-        // brick.setSize(1.14F, 0.82F);
         brick.setSize(size);
 
         brick.eventRouter.addListener<OnBrickDeath>(this);
@@ -341,7 +340,7 @@ public class BrickManager : FrameSystem
 
     public void releaseBrick(Brick brick)
     {
-        if (brickPools.TryGetValue(brick.getType(), out var pool))
+        if (brickPools.TryGetValue((brick.getType(), brick.getSize()), out var pool))
         {
             brick.onRelease();
             pool.Release(brick);
@@ -423,6 +422,7 @@ public class BrickManager : FrameSystem
     }
 
     const int NUMBER = 1000;
+
     public void refreshBrickSortingOrder()
     {
         using var _ = new ListScope<Brick>(out var list);

@@ -5,9 +5,8 @@ namespace MarbleHero;
 
 public class BrickGridLayout
 {
-    List<Rect> botRowGrids = new();
-    List<Rect> topRowGrids = new();
-    List<Rect> leftColGrids = new();
+    List<List<Rect>> allRows = new();
+    List<List<Rect>> allCols = new();
     List<Rect> grids = new();
     Dictionary<(int col, int row), Rect> gridDict = new();
 
@@ -78,9 +77,21 @@ public class BrickGridLayout
         // float startY = halfH - padY - cellSize.y * 0.5f;//以左上为坐标轴原点
         float startY = -halfH + padY + cellSize.y * 0.5f; //以左下为坐标轴原点
 
-        botRowGrids.Clear();
-        topRowGrids.Clear();
-        leftColGrids.Clear();
+        if (allRows.Count == 0)
+        {
+            for (int i = 0; i < rows; i++)
+                allRows.add(new());
+        }
+        if (allCols.Count == 0)
+        {
+            for (int i = 0; i < cols; i++)
+                allCols.add(new());
+        }
+
+        foreach (var row in allRows)
+            row.Clear();
+        foreach (var row in allCols)
+            row.Clear();
         for (int row = 0; row < rows; row++)
         {
             // float cy = startY - row * (cellSize.y + spacing.y);//以左上为坐标轴原点
@@ -96,23 +107,16 @@ public class BrickGridLayout
 
                 grids.Add(rect);
                 gridDict[(col, row)] = rect;
-                if (row == 0)
-                    botRowGrids.add(rect);
-                else if (row == rows - 1)
-                    topRowGrids.add(rect);
-
-                if (col == 0)
-                    leftColGrids.add(rect);
+                allRows[row].Add(rect);
+                allCols[col].Add(rect);
             }
         }
 
         return grids;
     }
 
-    public List<Rect> getTopRowGrids()
-    {
-        return topRowGrids;
-    }
+    public List<Rect> getTop1RowGrids() => allRows[^1];
+    public List<Rect> getTop2RowGrids() => allRows[^2];
 
     public void getGridsAtRow(ref List<Rect> list, int row)
     {
@@ -143,20 +147,21 @@ public class BrickGridLayout
 
     public float getPosXAtCol(int col)
     {
-        var rect = botRowGrids.get(col);
+        var rect = allRows[0].get(col);
         return rect.center.x;
     }
 
     public float getPosYAtRow(int row)
     {
+        var leftCol = allCols[0];
         if (row < 0)
         {
-            var rect1 = leftColGrids.get(1);
-            var rect0 = leftColGrids.get(0);
+            var rect1 = leftCol.get(1);
+            var rect0 = leftCol.get(0);
             return rect0.center.y - abs(rect1.center.y - rect0.center.y);
         }
 
-        var rect = leftColGrids.get(row);
+        var rect = leftCol.get(row);
         return rect.center.y;
     }
 
@@ -167,9 +172,10 @@ public class BrickGridLayout
 
     public int getRowAtPosY(float y)
     {
-        for (var row = 0; row < leftColGrids.Count; row++)
+        var leftCol = allCols[0];
+        for (var row = 0; row < leftCol.Count; row++)
         {
-            var rect = leftColGrids[row];
+            var rect = leftCol[row];
             if (rect.yMin <= y && y <= rect.yMax)
             {
                 return row;
@@ -181,9 +187,10 @@ public class BrickGridLayout
 
     public int getColAtPosX(float x)
     {
-        for (var col = 0; col < botRowGrids.Count; col++)
+        var botRow = allRows[0];
+        for (var col = 0; col < botRow.Count; col++)
         {
-            var rect = botRowGrids[col];
+            var rect = botRow[col];
             if (rect.xMin <= x && x <= rect.xMax)
             {
                 return col;

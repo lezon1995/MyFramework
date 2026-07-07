@@ -215,7 +215,7 @@ public class GuideLine : MovableObject
         Vector2 up = shootDirection;
         Vector2 dir = origin - (up * -distance);
 
-        var radius = 0.14F;
+        var radius = 0.10F;
         var hit = Physics2D.CircleCast(origin, radius, up, distance, _mask0);
         if (hit)
         {

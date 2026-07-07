@@ -110,7 +110,7 @@ Material:
     - _BufferProgress: 0.7
     - _BumpScale: 1
     - _ChamferSize: 0.08
-    - _ChunkCount: 3
+    - _ChunkCount: 2
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
     - _Cull: 2

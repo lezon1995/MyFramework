@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Drawing;
 using Sirenix.OdinInspector;
 using UnityEditor;
@@ -34,10 +35,22 @@ namespace MarbleHero
 
         SafeHashSet<BrickTemplate> brickTemplates = new();
 
+        public Vector2Int[] sizeTemplates = new Vector2Int[4]
+        {
+            new(1, 1),
+            new(1, 2),
+            new(2, 1),
+            new(2, 2),
+        };
+
+        public int sizeTemplateIndex;
+        Vector2Int currentSizeTemplate => sizeTemplates[sizeTemplateIndex];
+
         void Awake()
         {
             mainCamera = Camera.main;
             layout = new(size, cols, rows, spacing, padding);
+            sizeTemplateIndex = (int)Mathf.Repeat(sizeTemplateIndex, sizeTemplates.Length);
         }
 
         void RefreshLayout(Vector2 offset)
@@ -56,12 +69,12 @@ namespace MarbleHero
         {
             layout.setRows(rows);
             layout.setCols(cols);
-            
+
             if (forcedSquareCell)
             {
                 cellSize = Vector2.one * cellSideLength;
             }
-            
+
             var _cellSize = cellSize;
             var newSizeX = padding.x * 2 + _cellSize.x * cols + spacing.x * Mathf.Max(0, cols - 1);
             var newSizeY = padding.y * 2 + _cellSize.y * rows + spacing.y * Mathf.Max(0, rows - 1);
@@ -76,6 +89,11 @@ namespace MarbleHero
 
         void Update()
         {
+            if (Input.GetKeyDown(KeyCode.Tab))
+            {
+                sizeTemplateIndex = (int)Mathf.Repeat(sizeTemplateIndex + 1, sizeTemplates.Length);
+            }
+
             var size = layout.getSize();
             var screenSize = new Vector2(Screen.width, Screen.height) / 100F;
             var topY = size.y / 2F;
@@ -112,13 +130,18 @@ namespace MarbleHero
                 {
                     color = Color.green;
 
+                    var t = currentSizeTemplate;
+                    var position = grid.center + new Vector2((t.x - 1) * cellSideLength * 0.5F, (t.y - 1) * cellSideLength * 0.5F) - t * cellSize * 0.5F;
+                    var templateGrid = new Rect(position, t * cellSize);
+                    Draw.ingame.xy.SolidRectangle(templateGrid, color);
+
                     if (add)
                     {
-                        brickTemplates.add(new(grid, 1));
+                        brickTemplates.add(new(grid.center, t, 1));
                     }
                     else if (remove)
                     {
-                        brickTemplates.remove(new(grid, 1));
+                        brickTemplates.remove(new(grid.center, t, 1));
                     }
                 }
 

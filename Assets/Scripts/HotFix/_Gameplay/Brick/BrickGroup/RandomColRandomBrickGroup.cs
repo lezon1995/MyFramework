@@ -47,7 +47,7 @@ public class RandomColRandomBrickGroup : BrickGroup
         foreach (var index in selectIndexes)
         {
             var rect = grids.get(index);
-            templates.add(new(rect, health));
+            templates.add(new(rect.center, new(1, 1), health));
         }
     }
 

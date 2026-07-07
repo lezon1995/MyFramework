@@ -29,7 +29,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: Root/Renderer/SpriteShadow
+    path: Root/Pivot/Renderer/Main/SpriteBlock
   - curve:
       serializedVersion: 2
       m_Curve:
@@ -45,7 +45,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: Root/Renderer/Main/SpriteBlock
+    path: Root/Pivot/Renderer/Main/UnitRoot/SpriteUnit
   - curve:
       serializedVersion: 2
       m_Curve:
@@ -61,29 +61,13 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: Root/Renderer/Main/UnitRoot/SpriteUnit
+    path: Root/Pivot/Shadow
   m_PositionCurves:
   - curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: {x: 0, y: 0.28750002, z: 0}
-        inSlope: {x: 0, y: 0, z: 0}
-        outSlope: {x: 0, y: 0, z: 0}
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: {x: 0.33333334, y: 0.33333334, z: 0.33333334}
-        outWeight: {x: 0.33333334, y: 0.33333334, z: 0.33333334}
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    path: Root/Renderer/SpriteShadow
-  - curve:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
         value: {x: 0, y: 0, z: 0}
         inSlope: {x: 0, y: 0, z: 0}
         outSlope: {x: 0, y: 0, z: 0}
@@ -94,7 +78,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: Root/Renderer/Main/SpriteBlock
+    path: Root/Pivot/Renderer/Main/SpriteBlock
   - curve:
       serializedVersion: 2
       m_Curve:
@@ -110,7 +94,23 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: Root/Renderer/Main/UnitRoot/SpriteUnit
+    path: Root/Pivot/Renderer/Main/UnitRoot/SpriteUnit
+  - curve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: {x: 0, y: 0.28750002, z: 0}
+        inSlope: {x: 0, y: 0, z: 0}
+        outSlope: {x: 0, y: 0, z: 0}
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: {x: 0.33333334, y: 0.33333334, z: 0.33333334}
+        outWeight: {x: 0.33333334, y: 0.33333334, z: 0.33333334}
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    path: Root/Pivot/Shadow
   m_ScaleCurves: []
   m_FloatCurves:
   - serializedVersion: 2
@@ -130,7 +130,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_Color.r
-    path: Root/Renderer/Main/SpriteBlock
+    path: Root/Pivot/Renderer/Main/SpriteBlock
     classID: 212
     script: {fileID: 0}
     flags: 0
@@ -151,7 +151,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_Color.g
-    path: Root/Renderer/Main/SpriteBlock
+    path: Root/Pivot/Renderer/Main/SpriteBlock
     classID: 212
     script: {fileID: 0}
     flags: 0
@@ -172,7 +172,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_Color.b
-    path: Root/Renderer/Main/SpriteBlock
+    path: Root/Pivot/Renderer/Main/SpriteBlock
     classID: 212
     script: {fileID: 0}
     flags: 0
@@ -193,7 +193,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_Color.a
-    path: Root/Renderer/Main/SpriteBlock
+    path: Root/Pivot/Renderer/Main/SpriteBlock
     classID: 212
     script: {fileID: 0}
     flags: 0
@@ -214,7 +214,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_Color.r
-    path: Root/Renderer/Main/UnitRoot/SpriteUnit
+    path: Root/Pivot/Renderer/Main/UnitRoot/SpriteUnit
     classID: 212
     script: {fileID: 0}
     flags: 0
@@ -235,7 +235,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_Color.g
-    path: Root/Renderer/Main/UnitRoot/SpriteUnit
+    path: Root/Pivot/Renderer/Main/UnitRoot/SpriteUnit
     classID: 212
     script: {fileID: 0}
     flags: 0
@@ -256,7 +256,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_Color.b
-    path: Root/Renderer/Main/UnitRoot/SpriteUnit
+    path: Root/Pivot/Renderer/Main/UnitRoot/SpriteUnit
     classID: 212
     script: {fileID: 0}
     flags: 0
@@ -277,7 +277,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_Color.a
-    path: Root/Renderer/Main/UnitRoot/SpriteUnit
+    path: Root/Pivot/Renderer/Main/UnitRoot/SpriteUnit
     classID: 212
     script: {fileID: 0}
     flags: 0
@@ -290,7 +290,7 @@ AnimationClip:
   m_ClipBindingConstant:
     genericBindings:
     - serializedVersion: 2
-      path: 2898031661
+      path: 2836933314
       attribute: 1
       script: {fileID: 0}
       typeID: 4
@@ -299,7 +299,7 @@ AnimationClip:
       isIntCurve: 0
       isSerializeReferenceCurve: 0
     - serializedVersion: 2
-      path: 304690135
+      path: 967680903
       attribute: 1
       script: {fileID: 0}
       typeID: 4
@@ -308,7 +308,7 @@ AnimationClip:
       isIntCurve: 0
       isSerializeReferenceCurve: 0
     - serializedVersion: 2
-      path: 1468115160
+      path: 747432466
       attribute: 1
       script: {fileID: 0}
       typeID: 4
@@ -317,7 +317,7 @@ AnimationClip:
       isIntCurve: 0
       isSerializeReferenceCurve: 0
     - serializedVersion: 2
-      path: 2898031661
+      path: 2836933314
       attribute: 4
       script: {fileID: 0}
       typeID: 4
@@ -326,7 +326,7 @@ AnimationClip:
       isIntCurve: 0
       isSerializeReferenceCurve: 0
     - serializedVersion: 2
-      path: 304690135
+      path: 967680903
       attribute: 4
       script: {fileID: 0}
       typeID: 4
@@ -335,7 +335,7 @@ AnimationClip:
       isIntCurve: 0
       isSerializeReferenceCurve: 0
     - serializedVersion: 2
-      path: 1468115160
+      path: 747432466
       attribute: 4
       script: {fileID: 0}
       typeID: 4
@@ -344,7 +344,7 @@ AnimationClip:
       isIntCurve: 0
       isSerializeReferenceCurve: 0
     - serializedVersion: 2
-      path: 304690135
+      path: 2836933314
       attribute: 2526845255
       script: {fileID: 0}
       typeID: 212
@@ -353,7 +353,7 @@ AnimationClip:
       isIntCurve: 0
       isSerializeReferenceCurve: 0
     - serializedVersion: 2
-      path: 304690135
+      path: 2836933314
       attribute: 4215373228
       script: {fileID: 0}
       typeID: 212
@@ -362,7 +362,7 @@ AnimationClip:
       isIntCurve: 0
       isSerializeReferenceCurve: 0
     - serializedVersion: 2
-      path: 304690135
+      path: 2836933314
       attribute: 2334886179
       script: {fileID: 0}
       typeID: 212
@@ -371,7 +371,7 @@ AnimationClip:
       isIntCurve: 0
       isSerializeReferenceCurve: 0
     - serializedVersion: 2
-      path: 304690135
+      path: 2836933314
       attribute: 304273561
       script: {fileID: 0}
       typeID: 212
@@ -380,7 +380,7 @@ AnimationClip:
       isIntCurve: 0
       isSerializeReferenceCurve: 0
     - serializedVersion: 2
-      path: 1468115160
+      path: 967680903
       attribute: 2526845255
       script: {fileID: 0}
       typeID: 212
@@ -389,7 +389,7 @@ AnimationClip:
       isIntCurve: 0
       isSerializeReferenceCurve: 0
     - serializedVersion: 2
-      path: 1468115160
+      path: 967680903
       attribute: 4215373228
       script: {fileID: 0}
       typeID: 212
@@ -398,7 +398,7 @@ AnimationClip:
       isIntCurve: 0
       isSerializeReferenceCurve: 0
     - serializedVersion: 2
-      path: 1468115160
+      path: 967680903
       attribute: 2334886179
       script: {fileID: 0}
       typeID: 212
@@ -407,7 +407,7 @@ AnimationClip:
       isIntCurve: 0
       isSerializeReferenceCurve: 0
     - serializedVersion: 2
-      path: 1468115160
+      path: 967680903
       attribute: 304273561
       script: {fileID: 0}
       typeID: 212
@@ -454,133 +454,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalPosition.x
-    path: Root/Renderer/SpriteShadow
-    classID: 4
-    script: {fileID: 0}
-    flags: 0
-  - serializedVersion: 2
-    curve:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 0.28750002
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 136
-        weightedMode: 0
-        inWeight: 0.33333334
-        outWeight: 0.33333334
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    attribute: m_LocalPosition.y
-    path: Root/Renderer/SpriteShadow
-    classID: 4
-    script: {fileID: 0}
-    flags: 0
-  - serializedVersion: 2
-    curve:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 136
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    attribute: m_LocalPosition.z
-    path: Root/Renderer/SpriteShadow
-    classID: 4
-    script: {fileID: 0}
-    flags: 0
-  - serializedVersion: 2
-    curve:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 136
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    attribute: localEulerAnglesRaw.x
-    path: Root/Renderer/SpriteShadow
-    classID: 4
-    script: {fileID: 0}
-    flags: 0
-  - serializedVersion: 2
-    curve:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 136
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    attribute: localEulerAnglesRaw.y
-    path: Root/Renderer/SpriteShadow
-    classID: 4
-    script: {fileID: 0}
-    flags: 0
-  - serializedVersion: 2
-    curve:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 136
-        weightedMode: 0
-        inWeight: 0.33333334
-        outWeight: 0.33333334
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    attribute: localEulerAnglesRaw.z
-    path: Root/Renderer/SpriteShadow
-    classID: 4
-    script: {fileID: 0}
-    flags: 0
-  - serializedVersion: 2
-    curve:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 136
-        weightedMode: 0
-        inWeight: 0.33333334
-        outWeight: 0.33333334
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    attribute: m_LocalPosition.x
-    path: Root/Renderer/Main/SpriteBlock
+    path: Root/Pivot/Renderer/Main/SpriteBlock
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -601,7 +475,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalPosition.y
-    path: Root/Renderer/Main/SpriteBlock
+    path: Root/Pivot/Renderer/Main/SpriteBlock
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -622,7 +496,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalPosition.z
-    path: Root/Renderer/Main/SpriteBlock
+    path: Root/Pivot/Renderer/Main/SpriteBlock
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -643,7 +517,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.x
-    path: Root/Renderer/Main/SpriteBlock
+    path: Root/Pivot/Renderer/Main/SpriteBlock
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -664,7 +538,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.y
-    path: Root/Renderer/Main/SpriteBlock
+    path: Root/Pivot/Renderer/Main/SpriteBlock
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -685,7 +559,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.z
-    path: Root/Renderer/Main/SpriteBlock
+    path: Root/Pivot/Renderer/Main/SpriteBlock
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -706,7 +580,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_Color.r
-    path: Root/Renderer/Main/SpriteBlock
+    path: Root/Pivot/Renderer/Main/SpriteBlock
     classID: 212
     script: {fileID: 0}
     flags: 0
@@ -727,7 +601,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_Color.g
-    path: Root/Renderer/Main/SpriteBlock
+    path: Root/Pivot/Renderer/Main/SpriteBlock
     classID: 212
     script: {fileID: 0}
     flags: 0
@@ -748,7 +622,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_Color.b
-    path: Root/Renderer/Main/SpriteBlock
+    path: Root/Pivot/Renderer/Main/SpriteBlock
     classID: 212
     script: {fileID: 0}
     flags: 0
@@ -769,7 +643,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_Color.a
-    path: Root/Renderer/Main/SpriteBlock
+    path: Root/Pivot/Renderer/Main/SpriteBlock
     classID: 212
     script: {fileID: 0}
     flags: 0
@@ -790,7 +664,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalPosition.x
-    path: Root/Renderer/Main/UnitRoot/SpriteUnit
+    path: Root/Pivot/Renderer/Main/UnitRoot/SpriteUnit
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -811,7 +685,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalPosition.y
-    path: Root/Renderer/Main/UnitRoot/SpriteUnit
+    path: Root/Pivot/Renderer/Main/UnitRoot/SpriteUnit
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -832,7 +706,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalPosition.z
-    path: Root/Renderer/Main/UnitRoot/SpriteUnit
+    path: Root/Pivot/Renderer/Main/UnitRoot/SpriteUnit
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -853,7 +727,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.x
-    path: Root/Renderer/Main/UnitRoot/SpriteUnit
+    path: Root/Pivot/Renderer/Main/UnitRoot/SpriteUnit
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -874,7 +748,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.y
-    path: Root/Renderer/Main/UnitRoot/SpriteUnit
+    path: Root/Pivot/Renderer/Main/UnitRoot/SpriteUnit
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -895,7 +769,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.z
-    path: Root/Renderer/Main/UnitRoot/SpriteUnit
+    path: Root/Pivot/Renderer/Main/UnitRoot/SpriteUnit
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -916,7 +790,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_Color.r
-    path: Root/Renderer/Main/UnitRoot/SpriteUnit
+    path: Root/Pivot/Renderer/Main/UnitRoot/SpriteUnit
     classID: 212
     script: {fileID: 0}
     flags: 0
@@ -937,7 +811,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_Color.g
-    path: Root/Renderer/Main/UnitRoot/SpriteUnit
+    path: Root/Pivot/Renderer/Main/UnitRoot/SpriteUnit
     classID: 212
     script: {fileID: 0}
     flags: 0
@@ -958,7 +832,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_Color.b
-    path: Root/Renderer/Main/UnitRoot/SpriteUnit
+    path: Root/Pivot/Renderer/Main/UnitRoot/SpriteUnit
     classID: 212
     script: {fileID: 0}
     flags: 0
@@ -979,8 +853,134 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_Color.a
-    path: Root/Renderer/Main/UnitRoot/SpriteUnit
+    path: Root/Pivot/Renderer/Main/UnitRoot/SpriteUnit
     classID: 212
+    script: {fileID: 0}
+    flags: 0
+  - serializedVersion: 2
+    curve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 136
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    attribute: m_LocalPosition.x
+    path: Root/Pivot/Shadow
+    classID: 4
+    script: {fileID: 0}
+    flags: 0
+  - serializedVersion: 2
+    curve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0.28750002
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 136
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    attribute: m_LocalPosition.y
+    path: Root/Pivot/Shadow
+    classID: 4
+    script: {fileID: 0}
+    flags: 0
+  - serializedVersion: 2
+    curve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 136
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    attribute: m_LocalPosition.z
+    path: Root/Pivot/Shadow
+    classID: 4
+    script: {fileID: 0}
+    flags: 0
+  - serializedVersion: 2
+    curve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 136
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    attribute: localEulerAnglesRaw.x
+    path: Root/Pivot/Shadow
+    classID: 4
+    script: {fileID: 0}
+    flags: 0
+  - serializedVersion: 2
+    curve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 136
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    attribute: localEulerAnglesRaw.y
+    path: Root/Pivot/Shadow
+    classID: 4
+    script: {fileID: 0}
+    flags: 0
+  - serializedVersion: 2
+    curve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 136
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    attribute: localEulerAnglesRaw.z
+    path: Root/Pivot/Shadow
+    classID: 4
     script: {fileID: 0}
     flags: 0
   m_EulerEditorCurves:
@@ -992,7 +992,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.z
-    path: Root/Renderer/Main/SpriteBlock
+    path: Root/Pivot/Renderer/Main/SpriteBlock
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -1004,7 +1004,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.y
-    path: Root/Renderer/Main/SpriteBlock
+    path: Root/Pivot/Renderer/Main/SpriteBlock
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -1016,7 +1016,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.x
-    path: Root/Renderer/Main/SpriteBlock
+    path: Root/Pivot/Renderer/Main/SpriteBlock
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -1028,7 +1028,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.z
-    path: Root/Renderer/SpriteShadow
+    path: Root/Pivot/Renderer/Main/UnitRoot/SpriteUnit
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -1040,7 +1040,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.y
-    path: Root/Renderer/SpriteShadow
+    path: Root/Pivot/Renderer/Main/UnitRoot/SpriteUnit
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -1052,7 +1052,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.x
-    path: Root/Renderer/SpriteShadow
+    path: Root/Pivot/Renderer/Main/UnitRoot/SpriteUnit
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -1064,7 +1064,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.x
-    path: Root/Renderer/Main/UnitRoot/SpriteUnit
+    path: Root/Pivot/Shadow
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -1076,7 +1076,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.y
-    path: Root/Renderer/Main/UnitRoot/SpriteUnit
+    path: Root/Pivot/Shadow
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -1088,7 +1088,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.z
-    path: Root/Renderer/Main/UnitRoot/SpriteUnit
+    path: Root/Pivot/Shadow
     classID: 4
     script: {fileID: 0}
     flags: 0

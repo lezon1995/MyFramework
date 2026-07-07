@@ -4,19 +4,24 @@ namespace MarbleHero;
 
 public class BrickCollider : GameComponent
 {
-    const float offset = 0.06F;
-    GameObject gameObject;
+    Transform transform;
 
-    PolygonCollider2D polygon;
+    BoxCollider2D collider;
+    Vector2 offset, size;
 
     public override void init(ComponentOwner owner)
     {
         base.init(owner);
         if (owner is Brick brick)
         {
-            var obj = brick.gameObject;
-            obj.find(out polygon);
-            gameObject = obj;
+            var obj = brick.transform;
+            if (obj.find(out collider))
+            {
+                offset = collider.offset;
+                size = collider.size;
+            }
+
+            transform = obj;
         }
     }
 
@@ -28,20 +33,22 @@ public class BrickCollider : GameComponent
     public override void resetProperty()
     {
         base.resetProperty();
-        gameObject = null;
-        polygon = null;
+        transform = null;
+        collider = null;
+        offset = default;
+        size = default;
     }
 
     public void setColliderEnabled(bool enabled)
     {
-        polygon.enabled = enabled;
+        collider.enabled = enabled;
         new OnBrickColliderChanged().trigger();
     }
 
     public void setSize(float width, float height)
     {
         return;
-        var points = polygon.points;
+        /*var points = polygon.points;
         var x = width / 2F;
         var y = height / 2F;
         points[0] = new(x - offset, y);
@@ -52,6 +59,12 @@ public class BrickCollider : GameComponent
         points[5] = new(x - offset, -y);
         points[6] = new(x, -(y - offset));
         points[7] = new(x, y - offset);
-        polygon.points = points;
+        polygon.points = points;*/
+    }
+
+    public Rect getRect()
+    {
+        Vector2 pos = transform.position;
+        return new(pos + offset - size * 0.5F, size);
     }
 }

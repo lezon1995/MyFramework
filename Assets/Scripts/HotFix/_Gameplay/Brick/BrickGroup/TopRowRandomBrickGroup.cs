@@ -20,7 +20,7 @@ public class TopRowRandomBrickGroup : BrickGroup
         var health = turnCount;
         int count = getBrickCount(turnCount);
         using var _ = new ListScope2T<Rect, int>(out var grids, out var selectIndexes);
-        grids.setRange(brickManager.brickLayout.getTopRowGrids());
+        grids.setRange(brickManager.brickLayout.getTop2RowGrids());
         for (var i = grids.Count - 1; i >= 0; i--)
         {
             if (brickManager.containsBrickAt(grids[i]))
@@ -33,7 +33,7 @@ public class TopRowRandomBrickGroup : BrickGroup
         foreach (var index in selectIndexes)
         {
             var rect = grids.get(index);
-            templates.add(new(rect, health));
+            templates.add(new(rect.center, new(1, 1), health));
         }
     }
 

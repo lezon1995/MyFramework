@@ -9,6 +9,7 @@ namespace MarbleHero;
 public class BrickRenderer : GameComponent
 {
     static int StrongTintFade = Shader.PropertyToID("_StrongTintFade");
+    static int BrickBorn = Animator.StringToHash("BrickBorn");
     static int BrickIdle = Animator.StringToHash("BrickIdle");
     static int BrickHit_1 = Animator.StringToHash("BrickHit_1");
     static int BrickHit_2 = Animator.StringToHash("BrickHit_2");
@@ -194,14 +195,9 @@ public class BrickRenderer : GameComponent
         sortingGroup.sortingOrder = v;
     }
 
-    public void playFadeIn()
+    public void playBornAnimation()
     {
-        root.localPosition = new(0, 0.3F, 0);
-
-        Tween.Alpha(spriteShadow, endValue: 1F, duration: 0.2F, ease: Ease.OutCubic);
-        Tween.LocalPositionY(root, endValue: 0F, duration: 0.2F, ease: Ease.OutCubic);
-        
-        animator.Play(BrickIdle, 0, 0F);
+        animator.Play(BrickBorn, 0, 0F);
     }
 
     public void playFxDamage(Vector3 direction)
@@ -376,7 +372,7 @@ public class BrickRenderer : GameComponent
         public HealthBar(Transform t)
         {
             transform = t;
-            t.find(out barRenderer, "Front2");
+            t.find(out barRenderer, "HealthBarRenderer");
             t.find(out health, "Health");
         }
 
