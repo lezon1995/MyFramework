@@ -131,10 +131,9 @@ public class BrickRenderer : GameComponent
     {
         spriteBlock.gameObject.SetActive(active);
         spriteShadow.gameObject.SetActive(active);
-        healthBar.setActive(active);
     }
 
-    public void setHealthBar(bool active)
+    public void setHealthBarActive(bool active)
     {
         healthBar.setActive(active);
     }
@@ -198,6 +197,7 @@ public class BrickRenderer : GameComponent
     public void playBornAnimation()
     {
         animator.Play(BrickBorn, 0, 0F);
+        curAnimation = AnimationState.BORN;
     }
 
     public void playFxDamage(Vector3 direction)
@@ -338,7 +338,12 @@ public class BrickRenderer : GameComponent
 
     void onAnimationEnd()
     {
-        if (curAnimation == AnimationState.HITTING)
+        if (curAnimation == AnimationState.BORN)
+        {
+            setHealthBarActive(true);
+            curAnimation = AnimationState.NONE;
+        }
+        else if (curAnimation == AnimationState.HITTING)
         {
             curAnimation = AnimationState.NONE;
         }
@@ -420,6 +425,7 @@ public class BrickRenderer : GameComponent
     enum AnimationState
     {
         NONE,
+        BORN,
         HITTING,
         DYING,
         DIED,

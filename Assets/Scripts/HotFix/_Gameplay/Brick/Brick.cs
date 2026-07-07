@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Drawing;
 using UnityEngine;
 
 namespace MarbleHero;
@@ -113,6 +112,7 @@ public partial class Brick : MovableObject
     {
         brickCollider.setColliderEnabled(true);
         brickRenderer.setRendererActive(true);
+        brickRenderer.setHealthBarActive(false);
         brickRenderer.playBornAnimation();
     }
 
@@ -163,7 +163,7 @@ public partial class Brick : MovableObject
             }
         }
 
-        Draw.ingame.xy.WireRectangle(getRect(), Color.red);
+        // Drawing.Draw.ingame.xy.WireRectangle(getRect(), Color.red);
     }
 
     public override void fixedUpdate(float elapsedTime)
@@ -201,8 +201,6 @@ public partial class Brick : MovableObject
         curHealth = value;
         maxHealth = max;
         brickRenderer.refreshInitialHealth(curHealth, maxHealth);
-        // var sprite = manager.getBrickSpriteByHealth(value);
-        // brickRenderer.setBrickSprite(sprite);
     }
 
     public void setMaxHealth(int value)
@@ -545,7 +543,7 @@ public partial class Brick : MovableObject
         brickCollider.setColliderEnabled(false);
 
         brickRenderer.playFxDead();
-        brickRenderer.setHealthBar(false);
+        brickRenderer.setHealthBarActive(false);
 
         killTimer = 1F;
         return true;

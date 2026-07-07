@@ -49,10 +49,10 @@ namespace MarbleHero
             originalShootPosition = shootPosition = getWorldPosition();
             setOriginalShootPositionX(shootPosition.x);
 
-            // buffs.add(CLASS<LightingStrike>()).setBrickManager(brickManager);
-            // buffs.add(CLASS<LightingStrike3>()).setBrickManager(brickManager);
-            // buffs.add(CLASS<LaserHorizontal>()).setBrickManager(brickManager);
-            // buffs.add(CLASS<LaserVertical>()).setBrickManager(brickManager);
+            // buffs.add(CLASS<LightningStrike>());
+            // buffs.add(CLASS<LightningStrike3>());
+            // buffs.add(CLASS<LaserHorizontal>());
+            // buffs.add(CLASS<LaserVertical>());
 
             ballBuffs.add(typeof(LaserHorizontal));
             ballBuffs.add(typeof(LaserVertical));

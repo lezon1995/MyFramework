@@ -4,7 +4,7 @@ namespace MarbleHero
 {
     public class ShootBallsAction : AGameAction, IArgs<Vector3, Vector3>
     {
-        const float GAP = 0.05F;
+        const float GAP = 0.1F;
 
         Vector3 shootPos, shootDir;
         bool lastOne;

@@ -423,7 +423,7 @@ MonoBehaviour:
   mFrameworkParam:
     mScreenHeight: 0
     mScreenWidth: 0
-    mDefaultFrameRate: 60
+    mDefaultFrameRate: 360
     mEnablePoolStackTrace: 0
     mEnableScriptDebug: 0
     mLoadSource: 0

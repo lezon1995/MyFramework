@@ -27,6 +27,7 @@ public class LightningStrike3 : Buff, IDoAttackKillEffect
         UnityEngine.Pool.ListPool<Brick>.Get(out var list);
         if (brickManager.getRandomActiveBricks(ref list, count, brick))
         {
+            // effectManager.addLogic<ElectricChainEffect>().with(player.activeBalls.get(0), b, 3);
             startTask(list, ball).Forget();
         }
     }
