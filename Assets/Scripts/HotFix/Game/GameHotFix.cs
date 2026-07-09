@@ -19,15 +19,10 @@ public class GameHotFix : GameHotFixBase<GameHotFix>
 	protected override void registerAll()
 	{
 		LayoutRegisterHotFix.registeAll();
-		PacketRegister.registeAll();
-		ExcelRegister.registeAll();
     }
 
     protected override void initFrameSystem()
     {
-        // registeFrameSystem<NetManager>(com => mNetManager = com);
-        registeFrameSystem<DemoSystem>(com => mDemoSystem = com);
-        registeFrameSystem<BattleSystem>(com => mBattleSystem = com);
         registeFrameSystem<BallManager>(com => ballManager = com);
         registeFrameSystem<BrickManager>(com => brickManager = com);
         registeFrameSystem<LevelManager>(com => levelManager = com);
