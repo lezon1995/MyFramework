@@ -1,0 +1,17 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+
+namespace MoreMountains.TopDownEngine
+{
+    [CreateAssetMenu(menuName = "MoreMountains/TopDownEngine/CharacterStatsTemplate", fileName = "CharacterStatsTemplate")]
+    public class CharacterStatsTemplate : StatsTemplate
+    {
+        protected override IEnumerable<string> GetNames()
+        {
+            var values = (Character.Stat[])Enum.GetValues(typeof(Character.Stat));
+            return values.Select(stat => stat.Key());
+        }
+    }
+}

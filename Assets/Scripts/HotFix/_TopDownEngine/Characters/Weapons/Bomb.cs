@@ -1,0 +1,185 @@
+﻿using MoreMountains.Tools;
+using UnityEngine;
+
+namespace MoreMountains.TopDownEngine
+{
+    /// <summary>
+    /// A basic melee weapon class, that will activate a "hurt zone" when the weapon is used
+    /// </summary>
+    [AddComponentMenu("TopDown Engine/Weapons/Bomb")]
+    public class Bomb : TopDownMonoBehaviour
+    {
+        [Header("Explosion")]
+        [Tooltip("the delay before the bomb explodes")]
+        public float TimeBeforeExplosion = 2f;
+
+        [Tooltip("a vfx to instantiate when the bomb explodes")]
+        public GameObject ExplosionEffect;
+
+        [Tooltip("a sound to play when the bomb explodes")]
+        public AudioClip ExplosionSfx;
+
+        [Header("Flicker")]
+        [Tooltip("whether or not the sprite should flicker before explosion")]
+        public bool FlickerSprite = true;
+
+        [Tooltip("the duration before the flicker starts")]
+        public float TimeBeforeFlicker = 1f;
+
+        [Tooltip("the name of the property that should flicker")]
+        public string MaterialPropertyName = "_Color";
+
+        [Header("Damage Area")]
+        [Tooltip("the collider of the damage area")]
+        public Collider2D DamageAreaCollider;
+
+        [Tooltip("the duration of the damage area")]
+        public float DamageAreaActiveDuration = 1f;
+
+        protected float _timeSinceStart;
+        protected Renderer _renderer;
+        protected MMPoolableObject _poolableObject;
+        protected bool _flickering;
+        protected bool _damageAreaActive;
+        protected Color _initialColor;
+        protected Color _flickerColor = new Color32(255, 20, 20, 255);
+        protected MaterialPropertyBlock _propertyBlock;
+
+        /// <summary>
+        /// On enable, we initialize our bomb
+        /// </summary>
+        protected virtual void OnEnable()
+        {
+            Initialization();
+        }
+
+        /// <summary>
+        /// Initializes the bomb
+        /// </summary>
+        protected virtual void Initialization()
+        {
+            if (DamageAreaCollider == null)
+            {
+                Debug.LogWarning("There's no damage area associated to this bomb : " + this.name + ". You should set one via its inspector.");
+                return;
+            }
+
+            DamageAreaCollider.isTrigger = true;
+            DisableDamageArea();
+
+            _propertyBlock = new MaterialPropertyBlock();
+            _renderer = GetComponent<Renderer>();
+            if (_renderer)
+            {
+                if (_renderer.sharedMaterial.HasProperty(MaterialPropertyName))
+                {
+                    _initialColor = _renderer.sharedMaterial.GetColor(MaterialPropertyName);
+                }
+            }
+
+            _poolableObject = GetComponent<MMPoolableObject>();
+            if (_poolableObject)
+            {
+                _poolableObject.LifeTime = 0;
+            }
+
+            _timeSinceStart = 0;
+            _flickering = false;
+            _damageAreaActive = false;
+        }
+
+        /// <summary>
+        /// On update, makes our bomb flicker, activates the damage area and destroys the bomb if needed
+        /// </summary>
+        protected virtual void Update()
+        {
+            _timeSinceStart += Time.deltaTime;
+            // flickering
+            if (_timeSinceStart >= TimeBeforeFlicker)
+            {
+                if (!_flickering && FlickerSprite)
+                {
+                    // We make the bomb's sprite flicker
+                    if (_renderer)
+                    {
+                        Timing.RunCoroutine(MMImage.Flicker(_renderer, _initialColor, _flickerColor, 0.05f, (TimeBeforeExplosion - TimeBeforeFlicker)));
+                    }
+                }
+            }
+
+            // activate damage area
+            if (_timeSinceStart >= TimeBeforeExplosion && !_damageAreaActive)
+            {
+                EnableDamageArea();
+                _renderer.enabled = false;
+                InstantiateExplosionEffect();
+                PlayExplosionSound();
+                _damageAreaActive = true;
+            }
+
+            if (_timeSinceStart >= TimeBeforeExplosion + DamageAreaActiveDuration)
+            {
+                DestroyBomb();
+            }
+        }
+
+        /// <summary>
+        /// Destroys the bomb
+        /// </summary>
+        protected virtual void DestroyBomb()
+        {
+            _renderer.enabled = true;
+            _renderer.GetPropertyBlock(_propertyBlock);
+            _propertyBlock.SetColor(MaterialPropertyName, _initialColor);
+            _renderer.SetPropertyBlock(_propertyBlock);
+            if (_poolableObject)
+            {
+                _poolableObject.Release();
+            }
+            else
+            {
+                Destroy(gameObject);
+            }
+        }
+
+        /// <summary>
+        /// Instantiates a VFX at the bomb's position
+        /// </summary>
+        protected virtual void InstantiateExplosionEffect()
+        {
+            // instantiates the destroy effect
+            if (ExplosionEffect)
+            {
+                GameObject instantiatedEffect = Instantiate(ExplosionEffect, transform.position, transform.rotation);
+                instantiatedEffect.transform.localScale = transform.localScale;
+            }
+        }
+
+        /// <summary>
+        /// Plays a sound on explosion
+        /// </summary>
+        protected virtual void PlayExplosionSound()
+        {
+            if (ExplosionSfx)
+            {
+                MMSoundManagerSoundPlayEvent.Trigger(ExplosionSfx, MMSoundManager.MMSoundManagerTracks.Sfx, this.transform.position);
+            }
+        }
+
+        /// <summary>
+        /// Enables the damage area.
+        /// </summary>
+        protected virtual void EnableDamageArea()
+        {
+            DamageAreaCollider.enabled = true;
+        }
+
+        /// <summary>
+        /// Disables the damage area.
+        /// </summary>
+        protected virtual void DisableDamageArea()
+        {
+            DamageAreaCollider.enabled = false;
+        }
+    }
+}

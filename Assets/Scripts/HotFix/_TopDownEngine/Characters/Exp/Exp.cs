@@ -1,0 +1,184 @@
+using MoreMountains.Tools;
+using Sirenix.OdinInspector;
+using UnityEngine;
+
+namespace MoreMountains.TopDownEngine
+{
+    public class Exp : MonoBehaviour
+    {
+        const string XP = "_Xp";
+        const string LEVEL = "_Level";
+        const string XP_TOTAL = "_XpTotal";
+        const string XP_REQUIRED = "_XpRequired";
+
+        public ExpData Data;
+        public bool saveOnQuit;
+        public bool saveOnDestroy;
+        public bool loadOnStart;
+
+        public int LevelMax => Data.Trait.MaxLevel;
+
+        public int Level;
+        public float Xp;
+        public float XpTotal;
+        public float XpRequired;
+
+        public void SetLevel(int value)
+        {
+            if (Level != value)
+            {
+                var oldLevel = Level;
+                Level = value;
+                new OnLevelChange(oldLevel, value).trigger();
+            }
+        }
+
+        public void SetXpRequired(float value)
+        {
+            XpRequired = value;
+            new OnXpRequiredChange(XpRequired).trigger();
+        }
+
+        public void SetXp(float value)
+        {
+            Xp = value;
+            new OnXpChange(Xp, XpTotal == 0 ? 0 : Xp / XpTotal).trigger();
+        }
+
+        public void SetXpTotal(float value)
+        {
+            XpTotal = value;
+            new OnXpTotalChange(XpTotal).trigger();
+        }
+
+        void Start()
+        {
+            if (loadOnStart)
+            {
+                Load();
+            }
+            else
+            {
+                ResetLevel();
+            }
+        }
+
+        void OnApplicationQuit()
+        {
+            if (saveOnQuit)
+            {
+                Save();
+            }
+        }
+
+        void OnDestroy()
+        {
+            if (saveOnDestroy)
+            {
+                Save();
+            }
+        }
+
+        void UpdateAll(int level, float xpRequired, float xp, float xpTotal)
+        {
+            SetLevel(level);
+            SetXpRequired(xpRequired);
+            SetXp(xp);
+            SetXpTotal(xpTotal);
+        }
+
+        public void Save()
+        {
+            string key = Data.Trait.Key;
+            PlayerPrefs.SetInt(key + LEVEL, Level);
+            PlayerPrefs.SetFloat(key + XP, Xp);
+            PlayerPrefs.SetFloat(key + XP_TOTAL, XpTotal);
+            PlayerPrefs.SetFloat(key + XP_REQUIRED, XpRequired);
+            PlayerPrefs.Save();
+        }
+
+        public void Load()
+        {
+            string key = Data.Trait.Key;
+            if (PlayerPrefs.HasKey(key + LEVEL))
+            {
+                UpdateAll(
+                    PlayerPrefs.GetInt(key + LEVEL),
+                    PlayerPrefs.GetFloat(key + XP_REQUIRED),
+                    PlayerPrefs.GetFloat(key + XP),
+                    PlayerPrefs.GetFloat(key + XP_TOTAL));
+            }
+            else
+            {
+                ResetLevel();
+            }
+        }
+
+
+        [Button]
+        public void AddXp(float delta)
+        {
+            var maxLevel = Data.Trait.MaxLevel;
+            var newXp = Xp + delta;
+            var newXpTotal = XpTotal + delta;
+            var newLevel = Level;
+            var newXpRequired = XpRequired;
+
+            if (Level >= maxLevel)
+                return;
+
+            new OnAddXp(delta).trigger();
+
+            while (newXp >= newXpRequired && newLevel < maxLevel)
+            {
+                newXp -= newXpRequired;
+                newLevel++;
+                newXpRequired = CalculateXpRequiredToNextLevel(newLevel);
+            }
+
+            if (newLevel >= maxLevel)
+            {
+                newXpRequired = CalculateXpRequiredToNextLevel(newLevel);
+                newXp = 0;
+                newXpTotal = CalculateXpTotalToLevel(maxLevel);
+                new OnMaxLevel().trigger();
+            }
+
+            UpdateAll(newLevel, newXpRequired, newXp, newXpTotal);
+        }
+
+        float CalculateXpRequiredToNextLevel(int level)
+        {
+            (int maxLevel, float startXpRequired, float maxLevelXpRequired, AnimationCurve xpCurve) = Data.Trait;
+
+            float t = (float)level / (maxLevel - 1);
+            float curveValue = xpCurve.Evaluate(t);
+            float xpRequired = Mathf.Lerp(startXpRequired, maxLevelXpRequired, curveValue);
+            return xpRequired;
+        }
+
+        float CalculateXpTotalToLevel(int level)
+        {
+            (int maxLevel, float startXpRequired, float maxLevelXpRequired, AnimationCurve xpCurve) = Data.Trait;
+
+            float totalXP = 0;
+
+            for (int i = 1; i <= level; i++)
+            {
+                float t = (float)i / (maxLevel - 1);
+                float curveValue = xpCurve.Evaluate(t);
+                float xpRequiredForLevel = Mathf.Lerp(startXpRequired, maxLevelXpRequired, curveValue);
+                totalXP += xpRequiredForLevel;
+            }
+
+            return totalXP;
+        }
+
+        [Button]
+        public void ResetLevel()
+        {
+            var startXpRequired = Data.Trait.StartXpRequired;
+            UpdateAll(1, startXpRequired, 0, 0);
+        }
+    }
+}

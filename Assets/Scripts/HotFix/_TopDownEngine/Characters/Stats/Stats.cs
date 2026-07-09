@@ -1,0 +1,326 @@
+using System.Collections.Generic;
+using MoreMountains.Tools;
+using Sirenix.OdinInspector;
+using UniStats;
+using UnityEngine;
+namespace MoreMountains.TopDownEngine
+{
+    [AddComponentMenu("TopDown Engine/Character/Core/Stats")]
+    public class Stats : MonoBehaviour
+    {
+        public const string HealthMax = "HealthMax";
+        public const string HealthRegen = "HealthRegen";
+        public const string ManaMax = "ManaMax";
+        public const string ManaRegen = "ManaRegen";
+        public const string AD = "AD";
+        public const string AR = "AR";
+        public const string AD_PT = "AD_PT";
+        public const string AD_PT_Rate = "AD_PT_Rate";
+        public const string AP = "AP";
+        public const string MR = "MR";
+        public const string AP_PT = "AP_PT";
+        public const string AP_PT_Rate = "AP_PT_Rate";
+        public const string AS = "AS";
+        public const string CD = "CD";
+        public const string MS = "MS";
+        public const string CritChance = "CritChance";
+        public const string CritDamage = "CritDamage";
+        public const string DmgRate = "DmgRate";
+        public const string AF = "AF";
+        public const string LS = "LS";
+        public const string Range = "Range";
+
+        public const string AF_Mod = "AdaptiveForceMod";
+
+        public bool Debug;
+
+        [SerializeField] StatsTemplate StatsConfig;
+
+        IStatsTemplate _statsTemplate;
+
+        //自定义数值
+        Dictionary<string, UniStats.Stat> _stats = new();
+
+        public float AF_CoeffAD = 0.6F;
+        public float AF_CoeffAP = 1.0F;
+        public UniStats.Stat StatAD;
+        public UniStats.Stat StatAP;
+        public UniStats.Stat StatAF;
+        MMObservable<bool> IsBonusAdOverAp;
+        bool initialized;
+
+        void Awake()
+        {
+            InitializeStats(StatsConfig);
+            _camera = Camera.main;
+        }
+
+        public void InitializeStats(IStatsTemplate template)
+        {
+            if (template is StatsTemplate statsTemplate)
+            {
+                StatsConfig = statsTemplate;
+            }
+
+            _statsTemplate = template;
+
+            if (_statsTemplate == null)
+                return;
+
+            if (_statsTemplate.useExpression)
+            {
+                foreach (var (statName, initialGetter) in _statsTemplate.configExpressions)
+                {
+                    float ratio = 1F;
+                    if (_statsTemplate.ratios.TryGetValue(statName, out float value))
+                    {
+                        ratio = value;
+                    }
+
+                    if (_stats.TryGetValue(statName, out var stat))
+                    {
+                        stat.Initial = initialGetter();
+                        stat.InitialGetter = initialGetter;
+                        stat.BonusRatio.Initial = ratio;
+                        continue;
+                    }
+
+                    stat = new (initialGetter, ratio);
+                    _stats[statName] = stat;
+                    stat.Event.Add(Action);
+
+                    void Action(float pre, float cur)
+                    {
+                        // UnityEngine.Debug.Log($"{statName} {pre:F2} -> {cur:F2}");
+                    }
+
+                    switch (statName)
+                    {
+                        case AD:
+                            StatAD = stat;
+                            break;
+                        case AP:
+                            StatAP = stat;
+                            break;
+                        case AF:
+                            StatAF = stat;
+                            break;
+                    }
+                }
+            }
+            else
+            {
+                foreach (var (statName, initial) in _statsTemplate.configs)
+                {
+                    float ratio = 1F;
+                    if (_statsTemplate.ratios.TryGetValue(statName, out float value))
+                    {
+                        ratio = value;
+                    }
+
+                    if (_stats.TryGetValue(statName, out var stat))
+                    {
+                        stat.Initial = initial;
+                        stat.InitialGetter = null;
+                        stat.BonusRatio.Initial = ratio;
+                        continue;
+                    }
+
+                    stat = new(initial, ratio);
+                    _stats[statName] = stat;
+                    stat.Event.Add(Action);
+
+                    void Action(float pre, float cur)
+                    {
+                        // UnityEngine.Debug.Log($"{statName} {pre:F2} -> {cur:F2}");
+                    }
+
+                    switch (statName)
+                    {
+                        case AD:
+                            StatAD = stat;
+                            break;
+                        case AP:
+                            StatAP = stat;
+                            break;
+                        case AF:
+                            StatAF = stat;
+                            break;
+                    }
+                }
+            }
+
+            if (initialized)
+                return;
+
+            initialized = true;
+            IsBonusAdOverAp.OnValueChangedTo = CheckIsBonusAdOverAp;
+
+            if (StatAF)
+            {
+                StatAD.AddFlat(StatAF.Select(f => f * AF_CoeffAD), AF_Mod);
+                StatAP.AddFlat(StatAF.Select(f => f * AF_CoeffAP), AF_Mod);
+            }
+
+            void Check(IVar<float> stat)
+            {
+                IsBonusAdOverAp.Value = GetIsBonusAdOverAp();
+            }
+
+            bool GetIsBonusAdOverAp()
+            {
+                return StatAD.PeekBonus(AF_Mod) >= StatAP.Peek(AF_Mod);
+            }
+
+            StatAD.OnChange(Check);
+            StatAP.OnChange(Check);
+
+            if (StatAF)
+            {
+                StatAF.OnChange(var =>
+                {
+                    StatAD.SetDirty();
+                    StatAP.SetDirty();
+                });
+            }
+
+            CheckIsBonusAdOverAp(GetIsBonusAdOverAp());
+        }
+
+        void CheckIsBonusAdOverAp(bool b)
+        {
+            if (b)
+            {
+                StatAD.SetModActive(AF_Mod, true);
+                StatAP.SetModActive(AF_Mod, false);
+            }
+            else
+            {
+                StatAD.SetModActive(AF_Mod, false);
+                StatAP.SetModActive(AF_Mod, true);
+            }
+        }
+
+        public UniStats.Stat GetStat(string key)
+        {
+            if (_stats.TryGetValue(key, out var stat))
+                return stat;
+            return null;
+        }
+
+        public bool GetStat(string key, out UniStats.Stat stat)
+        {
+            return _stats.TryGetValue(key, out stat);
+        }
+
+        public bool TryGetStat(string key, out UniStats.Stat stat)
+        {
+            return _stats.TryGetValue(key, out stat);
+        }
+
+        public void ClearStats()
+        {
+            foreach (var (key, stat) in _stats)
+            {
+                stat.ClearMods();
+            }
+        }
+
+
+        Stack<string> _stackAD = new();
+        Stack<string> _stackAP = new();
+        Stack<string> _stackAF = new();
+
+        [Button]
+        public void AddBonusAD()
+        {
+            _stackAD.Push(StatAD.AddFlat(10));
+        }
+
+        [Button]
+        public void RemoveBonusAD()
+        {
+            if (_stackAD.TryPop(out var key))
+            {
+                StatAD.RemoveMod(key);
+            }
+        }
+
+        [Button]
+        public void AddBonusAP()
+        {
+            _stackAP.Push(StatAP.AddFlat(10));
+        }
+
+        [Button]
+        public void RemoveBonusAP()
+        {
+            if (_stackAP.TryPop(out var key))
+            {
+                StatAP.RemoveMod(key);
+            }
+        }
+
+        [Button]
+        public void AddBonusAF()
+        {
+            if (StatAF)
+            {
+                _stackAF.Push(StatAF.AddFlat(10));
+            }
+        }
+
+        [Button]
+        public void RemoveBonusAF()
+        {
+            if (_stackAF.TryPop(out var key) && StatAF)
+            {
+                StatAF.RemoveMod(key);
+            }
+        }
+
+
+        Camera _camera;
+        int FontSize = 20;
+        float FontGap = 20F;
+
+        void OnGUI()
+        {
+            if (Debug)
+            {
+                var start = transform.position;
+
+                // 定义要显示的文字内容
+                string strAD = $"BonusAD:{StatAD.PeekBonus(AF_Mod)} AD:{StatAD.Value}";
+                string strAP = $"InitialAP:{StatAP.Peek(AF_Mod)} AP:{StatAP.Value}";
+                string strAF = $"AF:{_stats[AF].Value}";
+                string strAS = $"AS:{_stats[AS].Value}";
+
+                // 定义文字的位置和大小
+                Vector2 screenPoint = _camera.WorldToScreenPoint(start);
+                screenPoint.y = Screen.height - screenPoint.y;
+                screenPoint.x = Screen.width - screenPoint.x;
+                Rect rect = new Rect(screenPoint, new Vector2(100, 20));
+                // 在屏幕上绘制文字
+                var guiStyle = new GUIStyle
+                {
+                    fontSize = FontSize,
+                    normal = { textColor = Color.white }
+                };
+                GUI.Label(rect, strAD, guiStyle);
+
+                screenPoint.y += FontGap;
+                rect = new Rect(screenPoint, new Vector2(100, 20));
+                GUI.Label(rect, strAP, guiStyle);
+
+                screenPoint.y += FontGap;
+                rect = new Rect(screenPoint, new Vector2(100, 20));
+                GUI.Label(rect, strAF, guiStyle);
+
+                screenPoint.y += FontGap;
+                rect = new Rect(screenPoint, new Vector2(100, 20));
+                GUI.Label(rect, strAS, guiStyle);
+            }
+        }
+    }
+}
