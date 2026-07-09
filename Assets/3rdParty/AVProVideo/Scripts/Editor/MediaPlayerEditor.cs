@@ -1686,7 +1686,7 @@ namespace RenderHeads.Media.AVProVideo.Editor
 			if (_propStereoPacking != null)
 			{
 				_showMessage_UpdatStereoMaterial = false;
-				if (_propStereoPacking.enumValueIndex != 0 && null == FindObjectOfType<UpdateStereoMaterial>())
+				if (_propStereoPacking.enumValueIndex != 0 && null == FindFirstObjectByType<UpdateStereoMaterial>())
 				{
 					_showMessage_UpdatStereoMaterial = true;
 				}

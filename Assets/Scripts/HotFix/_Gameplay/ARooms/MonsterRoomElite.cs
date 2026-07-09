@@ -1,4 +1,6 @@
-﻿namespace MarbleHero
+﻿using MoreMountains.Tools;
+
+namespace MarbleHero
 {
     public class MonsterRoomElite : MonsterRoom
     {
