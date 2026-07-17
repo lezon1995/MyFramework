@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 
-namespace MarbleHero;
+namespace MoreMountains;
 
 /// <summary>
 /// 造成致命撞击伤害时，对随机其他X个砖块造成连锁闪电攻击。
 /// </summary>
-public class LightningStrike3 : Buff, IDoAttackKillEffect
+public class LightningStrike3 : BuffObject, IDoAttackKillEffect
 {
     protected int getCount()
     {
@@ -42,8 +42,8 @@ public class LightningStrike3 : Buff, IDoAttackKillEffect
                 continue;
 
             var dmg = ball.getSkillDmg(randomBrick);
-            dmg.setCrit();
-            gameplayManager.handleSkillDamage(ball, randomBrick, ref dmg);
+            dmg.Crit();
+            randomBrick.Health.Damage(ref dmg, ball.gameObject, ball.character);
         }
 
         UnityEngine.Pool.ListPool<Brick>.Release(list);

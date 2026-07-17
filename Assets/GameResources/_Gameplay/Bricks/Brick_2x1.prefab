@@ -408,6 +408,37 @@ Transform:
   - {fileID: 8623700009192480191}
   m_Father: {fileID: 5098559960325705308}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2866030020733802444
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 859959086508004618}
+  m_Layer: 7
+  m_Name: BuffContainer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &859959086508004618
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2866030020733802444}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5098559960325705308}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3237124602915234066
 GameObject:
   m_ObjectHideFlags: 0
@@ -417,11 +448,19 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5098559960325705308}
+  - component: {fileID: -6411493073612663454}
   - component: {fileID: 9070950118919401953}
-  - component: {fileID: 974964056938552375}
   - component: {fileID: 7328556129454814211}
   - component: {fileID: 8351306170979192449}
   - component: {fileID: 6261652187701802809}
+  - component: {fileID: 5390172441223820746}
+  - component: {fileID: -880327728585950132}
+  - component: {fileID: 1869582164082399622}
+  - component: {fileID: 6784063828938475265}
+  - component: {fileID: 8240030677337843147}
+  - component: {fileID: -1918126858255336189}
+  - component: {fileID: -1421266774468195594}
+  - component: {fileID: 1681178672596040620}
   m_Layer: 7
   m_Name: Brick_2x1
   m_TagString: Block
@@ -443,8 +482,36 @@ Transform:
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 2680391634669396040}
+  - {fileID: 859959086508004618}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!50 &-6411493073612663454
+Rigidbody2D:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3237124602915234066}
+  m_BodyType: 1
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 1
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDamping: 1
+  m_AngularDamping: 0.05
+  m_GravityScale: 0
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 4
 --- !u!61 &9070950118919401953
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -491,61 +558,6 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1.35, y: 0.675}
   m_EdgeRadius: 0
---- !u!60 &974964056938552375
-PolygonCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3237124602915234066}
-  m_Enabled: 0
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0, y: 0}
-    oldSize: {x: 0, y: 0}
-    newSize: {x: 0, y: 0}
-    adaptiveTilingThreshold: 0
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  m_Points:
-    m_Paths:
-    - - {x: 0.26, y: 0.337}
-      - {x: -0.26, y: 0.337}
-      - {x: -0.337, y: 0.26}
-      - {x: -0.337, y: -0.26}
-      - {x: -0.26, y: -0.337}
-      - {x: 0.26, y: -0.337}
-      - {x: 0.337, y: -0.26}
-      - {x: 0.337, y: 0.26}
-  m_UseDelaunayMesh: 1
 --- !u!210 &7328556129454814211
 SortingGroup:
   m_ObjectHideFlags: 0
@@ -593,6 +605,270 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27979c2dab9943c880fe621ff230642e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: HotFix::MarbleHero.BrickAnimationReceiver
+--- !u!114 &5390172441223820746
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3237124602915234066}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89ee7fe4b0037274d8dba40f605ae049, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: HotFix::MoreMountains.TopDownEngine.TopDownController2D
+  IsPlayer: 0
+  Character: {fileID: -1918126858255336189}
+  Radius: 0.5
+  Mass: 1
+  MaxOverlapRatio: 0.3
+  PushForceWeight: 1
+  SpeedMultiplier: 1
+  KnockbackResistance: 0
+  KnockbackSpreadRatio: 0.5
+  SeparationForce: 10
+  VelocityDamping: 0.9
+  ShowGizmos: 1
+  GizmosColor: {r: 0, g: 1, b: 0, a: 0.3}
+--- !u!114 &-880327728585950132
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3237124602915234066}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 407bc078a544417c9bea6830afd522c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: HotFix::MoreMountains.TopDownEngine.Stats
+  Debug: 0
+  StatsConfig: {fileID: 11400000, guid: 145964dca47f5ff478027cb65c377a2c, type: 2}
+--- !u!114 &1869582164082399622
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3237124602915234066}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ad07cc4f7fc34773a4ed4a5dabea34e6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: HotFix::MoreMountains.TopDownEngine.Buffable
+  BuffParent: {fileID: 859959086508004618}
+  SelfAppliedBuffs: []
+  Buffs: []
+--- !u!114 &6784063828938475265
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3237124602915234066}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 49072b7988e64270b2073ffeb9eece90, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: HotFix::MoreMountains.TopDownEngine.CharacterMovement
+  InitializeOnAwake: 1
+  AbilityStartSfx: {fileID: 0}
+  AbilityInProgressSfx: {fileID: 0}
+  AbilityStopSfx: {fileID: 0}
+  AbilityStartFeedbacks: {fileID: 0}
+  AbilityStopFeedbacks: {fileID: 0}
+  AbilityPermitted: 1
+  BlockingMovementStates: 
+  BlockingConditionStates: 
+  BlockingWeaponStates: 
+  Movement: 0
+  InputAuthorized: 1
+  AnalogInput: 0
+  ScriptDrivenInput: 0
+  WalkSpeed: 6
+  ShouldSetMovement: 1
+  IdleThreshold: 0.05
+  Acceleration: 10
+  Deceleration: 10
+  InterpolateMovementSpeed: 0
+  WalkParticles: []
+  TouchTheGroundParticles: []
+  TouchTheGroundSfx: []
+  _movementSpeed: 0
+  _movement: {x: 0, y: 0}
+  _movementVector: {x: 0, y: 0, z: 0}
+  _currentInput: {x: 0, y: 0}
+  _normalizedInput: {x: 0, y: 0}
+  _lerpedInput: {x: 0, y: 0}
+  _acceleration: 0
+  _walkParticlesPlaying: 0
+--- !u!114 &8240030677337843147
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3237124602915234066}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76891b3b532f84acaaeed44c357bd00c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: HotFix::MoreMountains.TopDownEngine.DamageOnTouch
+  ManuallyColliding: 0
+  TargetLayerMask:
+    serializedVersion: 2
+    m_Bits: 4096
+  TriggerFilter: 192
+  Dmg:
+    Effect: 0
+    Value: 0
+    Type: 0
+    ActualType: 0
+    Algo: 0
+    IsCrit: 0
+    CritRate: 0
+    DmgRate:
+      initial: 0
+      extra: 0
+      multiplier: 0
+      extraMultiplier: 0
+    Self: 0
+    DamageRaw: 0
+    DamageDealt: 0
+    Direction: {x: 0, y: 0, z: 0}
+    TriggerEffect: 0
+    IsLethal: 0
+    HitNormal: {x: 0, y: 0}
+    Mix:
+      On: 0
+      PctAD: 0
+      PctAP: 0
+      PctTrue: 0
+  DamageDirectionMode: 0
+  DamageCausedKnockbackType: 0
+  DamageCausedKnockbackDirection: 0
+  DamageCausedKnockbackForce: {x: 0, y: 0, z: 0}
+  InvincibilityDuration: 0.5
+  DamageTakenHealth: {fileID: 0}
+  DamageTakenEveryTime: 0
+  DamageTakenDamageable: 0
+  DamageTakenNonDamageable: 0
+  DamageTakenKnockbackType: 0
+  DamageTakenKnockbackForce: {x: 0, y: 0, z: 0}
+  DamageTakenInvincibilityDuration: 0
+  BuffOnTouch: {fileID: 0}
+  HitDamageableFeedback: {fileID: 0}
+  HitNonDamageableFeedback: {fileID: 0}
+  HitAnythingFeedback: {fileID: 0}
+  HitDamageableEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  HitNonDamageableEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  HitAnythingEvent:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &-1918126858255336189
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3237124602915234066}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54eb023c8d3a4a79b24e84815a209c45, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: HotFix::MoreMountains.BrickCharacter
+  mNeedUpdate: 1
+  mNeedFixedUpdate: 1
+  CharacterType: 1
+  PlayerID: 
+  CharacterAnimator: {fileID: 0}
+  UseDefaultMecanim: 1
+  RunAnimatorSanityChecks: 0
+  DisableAnimatorLogs: 1
+  Model: {fileID: 0}
+  Health: {fileID: -1421266774468195594}
+  Stats: {fileID: -880327728585950132}
+  Buffable: {fileID: 1869582164082399622}
+  Exp: {fileID: 0}
+  AdditionalAbilityNodes: []
+  CharacterBrain: {fileID: 0}
+  Orientation2D: {fileID: 0}
+  Movement: {fileID: 0}
+  id: 
+  isBloodied: 0
+  gold: 0
+  displayGold: 0
+  isDying: 0
+  isDead: 0
+  halfDead: 0
+  lastDamageTaken: 0
+  type: 0
+  instanceID: 0
+  guid: 0
+  size: {x: 0, y: 0}
+  brickRenderer: {fileID: 0}
+--- !u!114 &-1421266774468195594
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3237124602915234066}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7764ece5ab847c2ad562263520ff125, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: HotFix::MoreMountains.BrickHealth
+  Model: {fileID: 0}
+  InitialHealth: 100
+  InitialHealthDrivenByMaximumHealth: 1
+  MaximumHealth: 100
+  ResetHealthOnEnable: 1
+  BaseHealthRegen: 0
+  BaseAR: 0
+  BaseMR: 0
+  BaseDodgeChance: 0
+  ImmuneToDamage: 0
+  DamageMMFeedbacks: {fileID: 0}
+  FeedbackIsProportionalToDamage: 0
+  PreventTakeSelfDamage: 0
+  ImmuneToKnockback: 0
+  ImmuneToKnockbackIfZeroDamage: 0
+  KnockbackForceMultiplier: 1
+  DestroyOnDeath: 1
+  DelayBeforeDestruction: 1
+  RespawnAtInitialLocation: 0
+  DisableControllerOnDeath: 0
+  DisableModelOnDeath: 1
+  DisableCollisionsOnDeath: 1
+  DisableChildCollisionsOnDeath: 0
+  ChangeLayerOnDeath: 0
+  ChangeLayersRecursivelyOnDeath: 0
+  LayerOnDeath:
+    _layerIndex: 0
+  DeathMMFeedbacks: {fileID: 0}
+  ResetColorOnRevive: 0
+  ColorMaterialPropertyName: _Color
+  UseMaterialPropertyBlocks: 0
+  TargetAnimator: {fileID: 0}
+  DisableAnimatorLogs: 1
+  Character: {fileID: 0}
+--- !u!114 &1681178672596040620
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3237124602915234066}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 002cd3e5f81c4407b5d1765963dc339d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: HotFix::MoreMountains.BrickRenderer
 --- !u!1 &3490370333130838258
 GameObject:
   m_ObjectHideFlags: 0

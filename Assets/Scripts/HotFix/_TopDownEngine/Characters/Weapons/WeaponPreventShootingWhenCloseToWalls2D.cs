@@ -1,7 +1,7 @@
 ﻿using MoreMountains.Tools;
 using UnityEngine;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     /// <summary>
     /// Add this class to a weapon and it'll prevent shooting when close to an obstacle (as defined by the ObstacleLayerMask)

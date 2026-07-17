@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
-namespace MarbleHero;
+namespace MoreMountains;
 
-public class LaserVertical : Buff, IDoAttackEffect
+public class LaserVertical : BuffObject, IDoAttackEffect
 {
     Comparison<RaycastHit2D> comparison;
 
@@ -80,8 +80,8 @@ public class LaserVertical : Buff, IDoAttackEffect
             }
             
             var dmg = ball.getSkillDmg(brick);
-            dmg.setCrit();
-            gameplayManager.handleSkillDamage(ball, brick, ref dmg);
+            dmg.Crit();
+            brick.Health.Damage(ref dmg, ball.gameObject, ball.character);
 
             if (topBricks.Count > 0)
                 startTask(topBricks, ball).Forget();
@@ -101,8 +101,8 @@ public class LaserVertical : Buff, IDoAttackEffect
                 continue;
 
             var dmg = ball.getSkillDmg(brick);
-            dmg.setCrit();
-            gameplayManager.handleSkillDamage(ball, brick, ref dmg);
+            dmg.Crit();
+            brick.Health.Damage(ref dmg, ball.gameObject, ball.character);
         }
 
         UnityEngine.Pool.ListPool<Brick>.Release(list);

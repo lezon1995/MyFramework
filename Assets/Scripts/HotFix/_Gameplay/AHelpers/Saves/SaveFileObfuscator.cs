@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 
-namespace MarbleHero
+namespace MoreMountains
 {
     public class SaveFileObfuscator
     {

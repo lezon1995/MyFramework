@@ -4,10 +4,10 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 #endif
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     /// <summary>
-    /// Add this component to a Weapon and you'll be able to aim it (meaning you'll rotate it)
+    /// Add this component to a Weapon, and you'll be able to aim it (meaning you'll rotate it)
     /// Supported control modes are mouse, primary movement (you aim wherever you direct your character) and secondary movement (using a secondary axis, separate from the movement).
     /// </summary>
     [RequireComponent(typeof(Weapon))]
@@ -28,7 +28,7 @@ namespace MoreMountains.TopDownEngine
 
             base.Initialization();
 
-            if (_weapon.Owner.TryFindAbility<CharacterOrientation2D>(out var orientation))
+            if (_weapon.Owner.FindAbility<CharacterOrientation2D>(out var orientation))
             {
                 _hasOrientation2D = true;
                 _lastNonNullMovement = orientation.CurrentFacingDirection switch
@@ -184,8 +184,7 @@ namespace MoreMountains.TopDownEngine
 
             base.SetCurrentAim(newAim, setAimAsLastNonNullMovement);
 
-            _lastNonNullMovement.x = newAim.x;
-            _lastNonNullMovement.y = newAim.y;
+            _lastNonNullMovement = newAim;
         }
 
         /// <summary>
@@ -387,54 +386,51 @@ namespace MoreMountains.TopDownEngine
         /// </summary>
         protected override void DetermineWeaponRotation()
         {
-            if (_currentAim != Vector3.zero)
-            {
-                if (_direction != Vector3.zero)
-                {
-                    CurrentAngle = Mathf.Atan2(_currentAim.y, _currentAim.x) * Mathf.Rad2Deg;
-                    CurrentAngleAbsolute = Mathf.Atan2(_currentAimAbsolute.y, _currentAimAbsolute.x) * Mathf.Rad2Deg;
-                    if (RotationMode == RotationModes.Strict4Directions || RotationMode == RotationModes.Strict8Directions)
-                    {
-                        CurrentAngle = MMMaths.RoundToClosest(CurrentAngle, _possibleAngleValues);
-                    }
-
-                    if (RotationMode == RotationModes.Strict2Directions)
-                    {
-                        CurrentAngle = 0f;
-                    }
-
-                    // we add our additional angle
-                    CurrentAngle += _additionalAngle;
-
-                    bool flip = false;
-                    // we clamp the angle to the min/max values set in the inspector
-                    if (_hasOrientation2D)
-                    {
-                        if (_weapon.Owner.Orientation2D.IsFacingRight)
-                        {
-                            CurrentAngle = Mathf.Clamp(CurrentAngle, MinimumAngle, MaximumAngle);
-                        }
-                        else
-                        {
-                            CurrentAngle = Mathf.Clamp(CurrentAngle, -MaximumAngle, -MinimumAngle);
-                        }
-
-                        flip = _facingRightLastFrame != _weapon.Owner.Orientation2D.IsFacingRight;
-                        _facingRightLastFrame = _weapon.Owner.Orientation2D.IsFacingRight;
-                    }
-                    else
-                    {
-                        CurrentAngle = Mathf.Clamp(CurrentAngle, MinimumAngle, MaximumAngle);
-                    }
-
-                    _lookRotation = Quaternion.Euler(CurrentAngle * Vector3.forward);
-                    RotateWeapon(_lookRotation, flip);
-                }
-            }
-            else
+            if (_currentAim == Vector3.zero)
             {
                 CurrentAngle = 0f;
                 RotateWeapon(_initialRotation);
+            }
+            else if (_direction != Vector3.zero)
+            {
+                CurrentAngle = Mathf.Atan2(_currentAim.y, _currentAim.x) * Mathf.Rad2Deg;
+                CurrentAngleAbsolute = Mathf.Atan2(_currentAimAbsolute.y, _currentAimAbsolute.x) * Mathf.Rad2Deg;
+                if (RotationMode is RotationModes.Strict4Directions or RotationModes.Strict8Directions)
+                {
+                    CurrentAngle = MMMaths.RoundToClosest(CurrentAngle, _possibleAngleValues);
+                }
+
+                if (RotationMode == RotationModes.Strict2Directions)
+                {
+                    CurrentAngle = 0f;
+                }
+
+                // we add our additional angle
+                CurrentAngle += _additionalAngle;
+
+                bool flip = false;
+                // we clamp the angle to the min/max values set in the inspector
+                if (_hasOrientation2D)
+                {
+                    if (_weapon.Owner.Orientation2D.IsFacingRight)
+                    {
+                        CurrentAngle = Mathf.Clamp(CurrentAngle, MinimumAngle, MaximumAngle);
+                    }
+                    else
+                    {
+                        CurrentAngle = Mathf.Clamp(CurrentAngle, -MaximumAngle, -MinimumAngle);
+                    }
+
+                    flip = _facingRightLastFrame != _weapon.Owner.Orientation2D.IsFacingRight;
+                    _facingRightLastFrame = _weapon.Owner.Orientation2D.IsFacingRight;
+                }
+                else
+                {
+                    CurrentAngle = Mathf.Clamp(CurrentAngle, MinimumAngle, MaximumAngle);
+                }
+
+                _lookRotation = Quaternion.Euler(CurrentAngle * Vector3.forward);
+                RotateWeapon(_lookRotation, flip);
             }
 
             MMDebug.DebugDrawArrow(transform.position, _currentAimAbsolute.normalized, Color.green);
@@ -502,7 +498,7 @@ namespace MoreMountains.TopDownEngine
             if (_reticle == null)
                 return;
 
-            if (_weapon.Owner.ConditionState.Is(Character.Conditions.Paused))
+            if (_weapon.Owner.conditionState.Is(Character.Conditions.Paused))
                 return;
 
             if (ReticleType == ReticleTypes.Scene)

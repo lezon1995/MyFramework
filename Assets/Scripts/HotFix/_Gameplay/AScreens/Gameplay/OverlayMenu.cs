@@ -1,4 +1,4 @@
-﻿namespace MarbleHero;
+﻿namespace MoreMountains;
 
 public partial class OverlayMenu
 {
@@ -21,9 +21,9 @@ public partial class OverlayMenu
     {
         base.update(dt);
 
-        ExpView?.refresh(dt, player.exp);
+        ExpView?.refresh(dt, player.Exp);
         PlayerHealthView?.refresh(player);
-        EnemyHealthView?.refresh(enemy);
+        // EnemyHealthView?.refresh(enemy);
     }
 
     public void hideCombatPanels()

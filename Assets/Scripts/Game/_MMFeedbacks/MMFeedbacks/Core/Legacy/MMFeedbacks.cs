@@ -40,7 +40,7 @@ namespace MoreMountains.Feedbacks
         }
 
         /// a list of MMFeedback to trigger
-        public List<MMFeedback> Feedbacks = new List<MMFeedback>();
+        public List<MMFeedback> Feedbacks = new();
 
         /// the possible initialization modes. If you use Script, you'll have to initialize manually by calling the Initialization method and passing it an owner
         /// Otherwise, you can have this component initialize itself at Awake or Start, and in this case the owner will be the MMFeedbacks itself
@@ -177,10 +177,10 @@ namespace MoreMountains.Feedbacks
         public static bool GlobalMMFeedbacksActive = true;
 
         [HideInInspector]
-        /// whether or not this MMFeedbacks is in debug mode
+        // whether this MMFeedbacks is in debug mode
         public bool DebugActive;
 
-        /// whether or not this MMFeedbacks is playing right now - meaning it hasn't been stopped yet.
+        /// whether this MMFeedbacks is playing right now - meaning it hasn't been stopped yet.
         /// if you don't stop your MMFeedbacks it'll remain true of course
         public bool IsPlaying { get; protected set; }
 
@@ -317,10 +317,9 @@ namespace MoreMountains.Feedbacks
         /// A public method to initialize the feedback, specifying an owner that will be used as the reference for position and hierarchy by feedbacks
         /// </summary>
         /// <param name="owner"></param>
-        /// <param name="feedbacksOwner"></param>
         public virtual void Initialization(GameObject owner)
         {
-            if ((SafeMode == SafeModes.RuntimeOnly) || (SafeMode == SafeModes.Full))
+            if (SafeMode is SafeModes.RuntimeOnly or SafeModes.Full)
             {
                 AutoRepair();
             }

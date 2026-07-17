@@ -3,20 +3,14 @@ using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
 
-namespace MarbleHero
+namespace MoreMountains
 {
-    public class Game : ClassObject
+    public class Game
     {
         public Game()
         {
         }
-
-        public override void resetProperty()
-        {
-            base.resetProperty();
-            prevDebugKeyDown = false;
-        }
-
+        
         public enum GameMode
         {
             SPLASH,

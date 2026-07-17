@@ -1,6 +1,6 @@
 // using MoreMountains.Feedbacks;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     public partial class Buff
     {

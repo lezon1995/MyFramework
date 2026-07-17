@@ -2,7 +2,7 @@
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace MarbleHero
+namespace MoreMountains
 {
     public class SeedHelper
     {

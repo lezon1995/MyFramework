@@ -79,7 +79,7 @@ namespace MoreMountains.Tools
             float _lastButtonUpAt;
 
             public IMButton(string playerID, string buttonID, Action onDown = null, Action onPressed = null, Action onUp = null)
-                : this($"{playerID}_{buttonID}", onDown, onPressed, onUp)
+                : this($"{buttonID}", onDown, onPressed, onUp)
             {
             }
 

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-namespace MarbleHero;
+namespace MoreMountains;
 
 public class FxMaster
 {

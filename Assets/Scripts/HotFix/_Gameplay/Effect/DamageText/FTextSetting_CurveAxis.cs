@@ -1,7 +1,7 @@
-using MarbleHero;
+using MoreMountains;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "FTextSetting", menuName = "MarbleHero/FText Setting/CurveAxis")]
+[CreateAssetMenu(fileName = "FTextSetting", menuName = "MoreMountains/FText Setting/CurveAxis")]
 public class FTextSetting_CurveAxis : FTextSetting
 {
     public override bool CalculateTotalPct => true;

@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using MoreMountains.Tools;
 
-namespace MarbleHero
+namespace MoreMountains
 {
     public enum RoomPhase
     {
@@ -38,7 +37,7 @@ namespace MarbleHero
 
     public record struct OnBattleStart;
 
-    public abstract partial class ARoom : IDisposable
+    public abstract partial class ARoom
     {
         const int BLIZZARD_POTION_MOD_AMT = 10;
 
@@ -72,6 +71,7 @@ namespace MarbleHero
         public bool rewardAllowed = true;
         public bool rewardTime;
         public bool skipMonsterTurn { get; set; }
+        public bool isEndingTurn { get; set; }
         public int baseRareCardChance = 3;
         public int baseUncommonCardChance = 37;
         public int rareCardChance = 3;
@@ -263,7 +263,7 @@ namespace MarbleHero
                         if (player.isEndingTurn)
                             endPlayerTurn();
 
-                        if (enemy && enemy.isEndingTurn)
+                        if (isEndingTurn)
                             endEnemyTurn();
                     }
 
@@ -304,7 +304,7 @@ namespace MarbleHero
                     break;
             }
 
-            player.doUpdate(dt);
+            player.OnUpdate(dt);
         }
 
         public virtual void fixedUpdate(float dt)
@@ -345,7 +345,7 @@ namespace MarbleHero
                     break;
             }
 
-            player.doFixedUpdate(dt);
+            player.OnFixedUpdate(dt);
         }
 
         public void completeRoom()
@@ -456,7 +456,6 @@ namespace MarbleHero
             isFightEnded = false;
 
             player.cardsPlayedThisTurn = 0;
-            player.getGuideLine().guidelineOn();
             player.applyStartOfTurnRelics();
             player.applyStartOfTurnPowers();
 
@@ -466,18 +465,9 @@ namespace MarbleHero
 
             skipMonsterTurn = false;
             actionManager.turnHasEnded = false;
-            actionManager.cardsPlayedThisTurn.Clear();
 
             GameActionManager.totalDiscardedThisTurn = 0;
             GameActionManager.damageReceivedThisTurn = 0;
-
-            if (!player.hasPower("Barricade") && !player.hasPower("Blur"))
-            {
-                if (player.hasRelic("Calipers"))
-                    player.block.loseBlock(15);
-                else
-                    player.block.loseBlock();
-            }
 
             if (!isBattleOver)
             {
@@ -505,14 +495,12 @@ namespace MarbleHero
         {
             isEnemyTurnEnd = false;
             onEnemyTurnStart(GameActionManager.turn);
-            monsters.showIntent();
             actionManager.addToBot<StartEnemyTurnAction>().with(room);
         }
 
         public void endEnemyTurn()
         {
             isEnemyTurnEnd = true;
-            enemy.isEndingTurn = false;
             onEnemyTurnEnd();
         }
 
@@ -729,9 +717,9 @@ namespace MarbleHero
         {
             evt?.Dispose();
 
-            if (monsters != null)
-                foreach (var m in monsters.monsters)
-                    m.dispose();
+            // if (monsters != null)
+                // foreach (var m in monsters.monsters)
+                    // m.dispose();
         }
 
         public virtual void getAllBricks(ref List<Brick> list)

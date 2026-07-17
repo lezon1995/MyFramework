@@ -41,8 +41,7 @@ public struct Stat
         extraMultiplier = 0F
     };
 
-    public static implicit operator float(Stat v)
-    {
-        return (v.initial + v.extra) * (v.multiplier + v.extraMultiplier);
-    }
+    public static implicit operator float(Stat v) => v.value;
+
+    public float value =>  (initial +extra) * (multiplier + extraMultiplier);
 }

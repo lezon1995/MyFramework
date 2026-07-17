@@ -67,19 +67,16 @@ namespace MoreMountains.Tools
         public Transform ForegroundBar;
 
         [Tooltip("the delayed bar that will show when moving from a value to a new, lower value")]
-        [FormerlySerializedAs("DelayedBar")]
         public Transform DelayedBarDecreasing;
 
         [Tooltip("the delayed bar that will show when moving from a value to a new, higher value")]
         public Transform DelayedBarIncreasing;
 
         [MMInspectorGroup("Fill Settings")]
-        [FormerlySerializedAs("StartValue")]
         [Range(0f, 1f)]
         [Tooltip("the local scale or fillAmount value to reach when the value associated to the bar is at 0%")]
         public float MinimumBarFillValue;
 
-        [FormerlySerializedAs("EndValue")]
         [Range(0f, 1f)]
         [Tooltip("the local scale or fillAmount value to reach when the bar is full")]
         public float MaximumBarFillValue = 1f;
@@ -113,7 +110,6 @@ namespace MoreMountains.Tools
         public float LerpForegroundBarSpeedDecreasing = 15f;
 
         [Tooltip("the speed at which to lerp the foreground bar if value is increasing")]
-        [FormerlySerializedAs("LerpForegroundBarSpeed")]
         [MMCondition("LerpForegroundBar", true)]
         public float LerpForegroundBarSpeedIncreasing = 15f;
 
@@ -135,25 +131,20 @@ namespace MoreMountains.Tools
 
         [MMInspectorGroup("Delayed Bar Decreasing")]
         [Tooltip("the delay before the delayed bar moves (in seconds)")]
-        [FormerlySerializedAs("Delay")]
         public float DecreasingDelay = 1f;
 
         [Tooltip("whether or not the delayed bar's animation should lerp")]
-        [FormerlySerializedAs("LerpDelayedBar")]
         public bool LerpDecreasingDelayedBar = true;
 
         [Tooltip("the speed at which to lerp the delayed bar")]
-        [FormerlySerializedAs("LerpDelayedBarSpeed")]
         [MMCondition("LerpDecreasingDelayedBar", true)]
         public float LerpDecreasingDelayedBarSpeed = 15f;
 
         [Tooltip("the duration each update of the foreground bar should take (only if in fixed duration bar fill mode)")]
-        [FormerlySerializedAs("LerpDelayedBarDuration")]
         [MMCondition("LerpDecreasingDelayedBar", true)]
         public float LerpDecreasingDelayedBarDuration = 0.2f;
 
         [Tooltip("the curve to use when animating the delayed bar fill")]
-        [FormerlySerializedAs("LerpDelayedBarCurve")]
         [MMCondition("LerpDecreasingDelayedBar", true)]
         public AnimationCurve LerpDecreasingDelayedBarCurve = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
 
@@ -200,7 +191,6 @@ namespace MoreMountains.Tools
         public Color BumpColor = Color.white;
 
         [Tooltip("the curve to map the bump animation on")]
-        [FormerlySerializedAs("BumpAnimationCurve")]
         public AnimationCurve BumpScaleAnimationCurve = new AnimationCurve(new Keyframe(1, 1), new Keyframe(0.3f, 1.05f), new Keyframe(1, 1));
 
         [Tooltip("the curve to map the bump animation color animation on")]

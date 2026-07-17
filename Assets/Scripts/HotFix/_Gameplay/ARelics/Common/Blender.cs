@@ -1,6 +1,7 @@
-﻿using UnityEngine;
+﻿using UniStats;
+using UnityEngine;
 
-namespace MarbleHero;
+namespace MoreMountains;
 
 /// <summary>
 /// 搅拌机
@@ -16,7 +17,8 @@ public class Blender : ARelic
 
     public override void onBallReflect(APlayer p, Ball ball, Vector2 normal, bool fromBrick, ref Vector2 reflectDir)
     {
-        ball.crit.increase(0.05F);
+        ball.GetStat(Ball.Stat.CritChance, out var stat);
+        stat.AddFlat(0.05F);
     }
 
     public override ARelic makeCopy() => new Blender();

@@ -32,11 +32,11 @@ namespace MoreMountains.Tools
 
     public interface IEventRouter
     {
-        IEventRouter eventRouter { get; }
+        IEventRouter Event { get; }
         void trigger<T>(T e) => EventRouter.get(this).trigger(e);
-        void addAllListener(IEvent o) => EventRouter.get(this).addAllListener(o);
+        void addAllListeners(IEvent o) => EventRouter.get(this).addAllListeners(o);
         void addListener<T>(IEvent<T> listener) where T : struct => EventRouter.get(this).addListener(listener);
-        void removeAllListener(IEvent o) => EventRouter.get(this).removeAllListener(o);
+        void removeAllListeners(IEvent o) => EventRouter.get(this).removeAllListeners(o);
         void removeListener<T>(IEvent<T> listener) where T : struct => EventRouter.get(this).removeListener(listener);
 
         void addListener<T>(Action<T> listener) where T : struct => EventRouter.get(this).addListener(listener);
@@ -83,13 +83,13 @@ namespace MoreMountains.Tools
 
         public static EventRouter get(IEventRouter router)
         {
-            if (!_dict.TryGetValue(router, out var eventRouter))
+            if (!_dict.TryGetValue(router, out var Event))
             {
-                eventRouter = new();
-                _dict.TryAdd(router, eventRouter);
+                Event = new();
+                _dict.TryAdd(router, Event);
             }
 
-            return eventRouter;
+            return Event;
         }
 
         bool exists(Type type, IEvent listener)
@@ -166,7 +166,7 @@ namespace MoreMountains.Tools
         }
 
 
-        public void addAllListener(IEvent listener)
+        public void addAllListeners(IEvent listener)
         {
             tempList.Clear();
             if (!MMEventManager.tryFillListeners(listener, ref tempList))
@@ -181,7 +181,7 @@ namespace MoreMountains.Tools
             tempList.Clear();
         }
 
-        public void removeAllListener(IEvent listener)
+        public void removeAllListeners(IEvent listener)
         {
             tempList.Clear();
             if (!MMEventManager.tryFillListeners(listener, ref tempList))

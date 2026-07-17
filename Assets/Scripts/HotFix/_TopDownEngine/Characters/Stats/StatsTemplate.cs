@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Sirenix.OdinInspector;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     public delegate void ValueModifier(ref float raw);
 

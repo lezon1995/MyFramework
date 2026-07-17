@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 
-namespace MarbleHero
+namespace MoreMountains
 {
-    [CreateAssetMenu(fileName = "LocalizationConfig", menuName = "MarbleHero/LocalizationConfig")]
+    [CreateAssetMenu(fileName = "LocalizationConfig", menuName = "MoreMountains/LocalizationConfig")]
     public class LocalizationConfig : ScriptableObject
     {
     

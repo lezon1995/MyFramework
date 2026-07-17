@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace MarbleHero
+namespace MoreMountains
 {
     [Serializable]
     public class MapRoomNode

@@ -1,9 +1,10 @@
-﻿using MoreMountains.Feedbacks;
+﻿using Drawing;
+using MoreMountains.Feedbacks;
 using MoreMountains.Tools;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     /// <summary>
     /// An abstract class, meant to be extended for 2D and 3D specifics, handling the basics of auto aim. 
@@ -12,19 +13,17 @@ namespace MoreMountains.TopDownEngine
     [RequireComponent(typeof(Weapon))]
     public abstract class WeaponAutoAim : TopDownMonoBehaviour
     {
-        [Header("Layer Masks")]
-        [Tooltip("the layermask on which to look for aim targets")]
+        [Header("Layer Masks")] [Tooltip("the layermask on which to look for aim targets")]
         public LayerMask TargetsMask;
 
         [Tooltip("the layermask on which to look for obstacles")]
         public LayerMask ObstacleMask = LayerManager.Obstacles_Mask;
 
-        [Header("Scan for Targets")]
-        [Tooltip("the radius (in units) around the character within which to search for targets")]
+        [Header("Scan for Targets")] [Tooltip("the radius (in units) around the character within which to search for targets")]
         public float ScanRadius = 15f;
 
         [Tooltip("the size of the boxcast that will be performed to verify line of fire")]
-        public Vector2 LineOfFireBoxcastSize = new Vector2(0.1f, 0.1f);
+        public Vector2 LineOfFireBoxcastSize = new(0.1f, 0.1f);
 
         [Tooltip("the duration (in seconds) between 2 scans for targets")]
         public float DurationBetweenScans = 1f;
@@ -35,42 +34,34 @@ namespace MoreMountains.TopDownEngine
         [Tooltip("if this is true, auto aim scan will only acquire new targets if the owner is in the idle state")]
         public bool OnlyAcquireTargetsIfOwnerIsIdle;
 
-        [Header("Weapon Rotation")]
-        [Tooltip("the rotation mode to apply when a target is found")]
+        [Header("Weapon Rotation")] [Tooltip("the rotation mode to apply when a target is found")]
         public WeaponAim.RotationModes RotationMode;
 
         [Tooltip("if this is true, the auto aim direction will also be passed as the last non null direction, so the weapon will keep aiming in that direction should the target be lost")]
         public bool ApplyAutoAimAsLastDirection = true;
 
-        [Header("Camera Target")]
-        [Tooltip("whether or not this component should take control of the camera target when a camera is found")]
+        [Header("Camera Target")] [Tooltip("whether or not this component should take control of the camera target when a camera is found")]
         public bool MoveCameraTarget = true;
 
-        [Tooltip("the normalized distance (between 0 and 1) at which the camera target should be, on a line going from the weapon owner (0) to the auto aim target (1)")]
-        [Range(0f, 1f)]
+        [Tooltip("the normalized distance (between 0 and 1) at which the camera target should be, on a line going from the weapon owner (0) to the auto aim target (1)")] [Range(0f, 1f)]
         public float CameraTargetDistance = 0.5f;
 
-        [Tooltip("the maximum distance from the weapon owner at which the camera target can be")]
-        [MMCondition("MoveCameraTarget", true)]
+        [Tooltip("the maximum distance from the weapon owner at which the camera target can be")] [MMCondition("MoveCameraTarget", true)]
         public float CameraTargetMaxDistance = 10f;
 
-        [Tooltip("the speed at which to move the camera target")]
-        [MMCondition("MoveCameraTarget", true)]
+        [Tooltip("the speed at which to move the camera target")] [MMCondition("MoveCameraTarget", true)]
         public float CameraTargetSpeed = 5f;
 
-        [Tooltip("if this is true, the camera target will move back to the character if no target is found")]
-        [MMCondition("MoveCameraTarget", true)]
+        [Tooltip("if this is true, the camera target will move back to the character if no target is found")] [MMCondition("MoveCameraTarget", true)]
         public bool MoveCameraToCharacterIfNoTarget;
 
-        [Header("Aim Marker")]
-        [Tooltip("An AimMarker prefab to use to show where this auto aim weapon is aiming")]
+        [Header("Aim Marker")] [Tooltip("An AimMarker prefab to use to show where this auto aim weapon is aiming")]
         public AimMarker AimMarkerPrefab;
 
         [Tooltip("if this is true, the aim marker will be removed when the weapon gets destroyed")]
         public bool DestroyAimMarkerOnWeaponDestroy = true;
 
-        [Header("Feedback")]
-        [Tooltip("A feedback to play when a target is found and we didn't have one already")]
+        [Header("Feedback")] [Tooltip("A feedback to play when a target is found and we didn't have one already")]
         public MMFeedbacks FirstTargetFoundFeedback;
 
         [Tooltip("a feedback to play when we already had a target and just found a new one")]
@@ -79,8 +70,7 @@ namespace MoreMountains.TopDownEngine
         [Tooltip("a feedback to play when no more targets are found, and we just lost our last target")]
         public MMFeedbacks NoMoreTargetsFeedback;
 
-        [Header("Debug")]
-        [Tooltip("whether or not to draw a debug sphere around the weapon to show its aim radius")]
+        [Header("Debug")] [Tooltip("whether or not to draw a debug sphere around the weapon to show its aim radius")]
         public bool DrawDebugRadius = true;
 
         [Tooltip("the current target of the auto aim module")]
@@ -173,7 +163,7 @@ namespace MoreMountains.TopDownEngine
                 if (_isOwnerNull)
                     return true;
 
-                if (_weapon.Owner.MovementState.Not(Character.Motions.Idle))
+                if (_weapon.Owner.motionState.Not(Character.Motions.Idle))
                     return false;
             }
 
@@ -328,12 +318,21 @@ namespace MoreMountains.TopDownEngine
         /// <summary>
         /// Draws a sphere around the weapon to show its auto aim radius
         /// </summary>
-        protected virtual void OnDrawGizmos()
+        public override void DrawGizmos()
         {
             if (DrawDebugRadius)
             {
-                Gizmos.color = Color.yellow;
-                Gizmos.DrawWireSphere(_raycastOrigin, ScanRadius);
+                using (Draw.InLocalSpace(transform))
+                {
+                    if (GizmoContext.InSelection(this))
+                    {
+                        Draw.xy.Circle(Vector3.zero, ScanRadius, Color.yellow);
+                    }
+                    else
+                    {
+                        Draw.xy.Circle(Vector3.zero, ScanRadius, Color.yellow * new Color(1, 1, 1, 0.5f));
+                    }
+                }
             }
         }
 

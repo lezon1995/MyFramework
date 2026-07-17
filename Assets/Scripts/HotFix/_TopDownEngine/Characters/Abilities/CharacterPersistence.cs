@@ -1,7 +1,7 @@
 ﻿using MoreMountains.Tools;
 using UnityEngine;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     /// <summary>
     /// Add this component to a Character, and it'll persist with its exact current state when transitioning to a new scene.
@@ -69,8 +69,8 @@ namespace MoreMountains.TopDownEngine
                     gameObject.SetActive(true);
                     Character character = GetComponentInParent<Character>();
                     character.enabled = true;
-                    character.ConditionState.ChangeState(Character.Conditions.Normal);
-                    character.MovementState.ChangeState(Character.Motions.Idle);
+                    character.conditionState.ChangeState(Character.Conditions.Normal);
+                    character.motionState.ChangeState(Character.Motions.Idle);
                     character.SetInputManager();
                     break;
                 case TopDownEngineEventTypes.LevelStart:

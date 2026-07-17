@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 #endif
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     /// <summary>
     /// Add this component to a WeaponAim, and it'll automatically handle switching its weapon aim control mode to mouse if mouse becomes active.

@@ -31,10 +31,9 @@ namespace MoreMountains.Tools
 
         /// the last known world position of the target
         [MMReadOnly]
-        public Vector3 _lastKnownTargetPosition = Vector3.zero;
+        public Vector3 _lastKnownTargetPosition;
 
         [Header("State")]
-        // whether or not this brain is active
         public bool BrainActive = true;
 
         public bool ResetBrainOnStart = true;
@@ -47,16 +46,16 @@ namespace MoreMountains.Tools
         // the frequency (in seconds) at which to evaluate decisions
         public float DecisionFrequency;
 
-        /// whether or not to randomize the action and decision frequencies
+        /// whether to randomize the action and decision frequencies
         public bool RandomizeFrequencies;
 
         /// the min and max values between which to randomize the action frequency
         [MMVector("min", "max")]
-        public Vector2 RandomActionFrequency = new Vector2(0.5f, 1f);
+        public Vector2 RandomActionFrequency = new(0.5f, 1f);
 
         /// the min and max values between which to randomize the decision frequency
         [MMVector("min", "max")]
-        public Vector2 RandomDecisionFrequency = new Vector2(0.5f, 1f);
+        public Vector2 RandomDecisionFrequency = new(0.5f, 1f);
 
         protected AIDecision[] _decisions;
         protected AIAction[] _actions;
@@ -64,6 +63,16 @@ namespace MoreMountains.Tools
         protected float _lastDecisionsUpdate;
         protected AIState _initialState;
         protected AIState _newState;
+
+        public virtual void SetOwner(GameObject owner)
+        {
+            Owner = owner;
+        }
+        
+        public virtual void SetTarget(Transform target)
+        {
+            Target =  target;
+        }
 
         public virtual AIAction[] GetAttachedActions()
         {
@@ -105,7 +114,7 @@ namespace MoreMountains.Tools
         }
 
         /// <summary>
-        /// On Start we set our first state
+        /// On Start, we set our first state
         /// </summary>
         protected virtual void Start()
         {
@@ -190,10 +199,8 @@ namespace MoreMountains.Tools
         {
             _decisions ??= GetAttachedDecisions();
 
-            foreach (AIDecision decision in _decisions)
-            {
+            foreach (var decision in _decisions)
                 decision.Initialization();
-            }
         }
 
         /// <summary>
@@ -203,10 +210,8 @@ namespace MoreMountains.Tools
         {
             _actions ??= GetAttachedActions();
 
-            foreach (AIAction action in _actions)
-            {
+            foreach (var action in _actions)
                 action.Initialization();
-            }
         }
 
         /// <summary>
@@ -216,16 +221,14 @@ namespace MoreMountains.Tools
         /// <returns></returns>
         protected AIState FindState(string stateName)
         {
-            foreach (AIState state in States)
+            foreach (var state in States)
             {
                 if (state.StateName == stateName)
                     return state;
             }
 
-            if (stateName != "")
-            {
-                Debug.LogError("You're trying to transition to state '" + stateName + "' in " + this.gameObject.name + "'s AI Brain, but no state of this name exists. Make sure your states are named properly, and that your transitions states match existing states.");
-            }
+            if (!string.IsNullOrEmpty(stateName))
+                Debug.LogError("You're trying to transition to state '" + stateName + "' in " + gameObject.name + "'s AI Brain, but no state of this name exists. Make sure your states are named properly, and that your transitions states match existing states.");
 
             return null;
         }

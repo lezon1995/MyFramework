@@ -29,7 +29,6 @@ namespace MoreMountains.Feedbacks
         public float Chance = 100f;
 
         /// a number of timing-related values (delay, repeat, etc)
-        [FormerlySerializedAs("Timing")]
         [Tooltip("a number of timing-related values (delay, repeat, etc)")]
         public MMFeedbackTiming Time;
 

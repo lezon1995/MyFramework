@@ -3,7 +3,7 @@ using MoreMountains.Feedbacks;
 using MoreMountains.Tools;
 using UnityEngine;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     /// <summary>
     /// Add this component to a character and it'll be able to be stunned. To stun a character, simply call its Stun or StunFor methods. You'll find test buttons at the bottom of this component's inspector. You can also use StunZones to stun your characters.
@@ -52,12 +52,12 @@ namespace MoreMountains.TopDownEngine
         public virtual void Stun()
         {
             var state = Character.Conditions.Stunned;
-            if (_previousCondition != state && _condition.Not(state))
+            if (_previousCondition != state && _conditionState.Not(state))
             {
-                _previousCondition = _condition.CurrentState;
+                _previousCondition = _conditionState.CurrentState;
             }
 
-            _condition.ChangeState(state);
+            _conditionState.ChangeState(state);
             _controller.SetMovement(Vector3.zero);
             AbilityStartFeedbacks.Play();
             DetachIK();
@@ -82,11 +82,11 @@ namespace MoreMountains.TopDownEngine
         /// </summary>
         public virtual void ExitStun()
         {
-            if (_condition.Not(Character.Conditions.Stunned))
+            if (_conditionState.Not(Character.Conditions.Stunned))
                 return;
 
             AbilityStopFeedbacks.Play();
-            _condition.ChangeState(_previousCondition);
+            _conditionState.ChangeState(_previousCondition);
             AttachIK();
         }
 
@@ -163,7 +163,7 @@ namespace MoreMountains.TopDownEngine
         /// </summary>
         public override void UpdateAnimator()
         {
-            MMAnimatorExtensions.UpdateAnimatorBool(_animator, _stunnedAnimationParameter, _condition.Is(Character.Conditions.Stunned), _character.AnimatorParameters, _character.RunAnimatorSanityChecks);
+            MMAnimatorExtensions.UpdateAnimatorBool(_animator, _stunnedAnimationParameter, _conditionState.Is(Character.Conditions.Stunned), _character.AnimatorParameters, _character.RunAnimatorSanityChecks);
         }
     }
 }

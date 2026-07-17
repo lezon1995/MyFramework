@@ -17,6 +17,9 @@ namespace MoreMountains.Tools
         /// <param name="type">Type.</param>
         public static bool MMHasParameterOfType(this Animator self, string name, AnimatorControllerParameterType type)
         {
+            if (self == null)
+                return false;
+            
             if (string.IsNullOrEmpty(name))
                 return false;
 

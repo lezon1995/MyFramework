@@ -5,7 +5,7 @@ using Sirenix.OdinInspector;
 using UnityEditor;
 using UnityEngine;
 
-namespace MarbleHero
+namespace MoreMountains
 {
     public class LevelEditorManager : MonoBehaviour
     {

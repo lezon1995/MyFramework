@@ -1,310 +1,10 @@
-﻿using System;
-using UnityEngine;
-
-namespace MarbleHero;
-
-public enum ResistDamageType
-{
-    None,
-    Invulnerable,
-    DashInvincible,
-    ImmuneToDamage,
-    Dodged,
-    Dead,
-    Disabled,
-}
-
-public struct Heal
-{
-    public float Value;
-    public Algos Algo;
-    public float Healing;
-
-    public static Heal Fixed(float value) => new(value, Algos.Fixed);
-    public static Heal CurPct(float value) => new(value, Algos.CurPct);
-    public static Heal LostPct(float value) => new(value, Algos.LostPct);
-    public static Heal AllPct(float value) => new(value, Algos.AllPct);
-
-    public Heal(float value) : this()
-    {
-        Value = value;
-        Algo = Algos.Fixed;
-        Healing = value;
-    }
-
-    public Heal(float value, Algos algo)
-    {
-        Value = value;
-        Algo = algo;
-        Healing = value;
-    }
-
-    public bool IsValid()
-    {
-        return Healing > 0F;
-    }
-
-    public void SetHealing(float value)
-    {
-        Healing = value;
-    }
-
-    public enum Algos
-    {
-        Fixed,
-        CurPct,
-        LostPct,
-        AllPct,
-    }
-}
-
-[Serializable]
-public struct Dmg
-{
-    public Effects effect;
-    public float value;
-    public Types type;
-    public Types actualType;
-    public Algos algo;
-    public bool isCrit;
-    public float critRate;
-    public Stat dmgRate;
-    public bool isSelf;
-    public float damageRaw;
-    public int damageDealt;
-    public bool triggerEffect;
-    public bool isLethal;
-    public Vector3 direction;
-    public Vector2 hitNormal;
-
-    public Mixed mix;
-
-    public static Dmg physicDmg(float value) => new(value, Types.PHYSIC, false);
-    public static Dmg magicDmg(float value) => new(value, Types.MAGIC, false);
-    public static Dmg trueDmg(float value) => new(value, Types.TRUE, false);
-
-    public Dmg(float v, Types t, bool crit)
-    {
-        effect = Effects.Hit;
-        value = v;
-        type = actualType = t;
-        algo = Algos.FIXED;
-        isCrit = crit;
-        critRate = 2F;
-        dmgRate = 1F;
-        damageRaw = 0F;
-        damageDealt = 0;
-        triggerEffect = true;
-        direction = Vector3.zero;
-        hitNormal = Vector2.zero;
-        isSelf = false;
-        isLethal = false;
-        mix = default;
-    }
-
-    public Dmg(float v, Types t, Algos a)
-    {
-        effect = Effects.Hit;
-        value = v;
-        type = actualType = t;
-        algo = a;
-        isCrit = false;
-        critRate = 2F;
-        dmgRate = 1F;
-        damageRaw = 0F;
-        damageDealt = 0;
-        triggerEffect = true;
-        direction = Vector3.zero;
-        hitNormal = Vector2.zero;
-        isSelf = false;
-        isLethal = false;
-        mix = default;
-    }
-
-    public Dmg Fixed()
-    {
-        algo = Algos.FIXED;
-        return this;
-    }
-
-    public Dmg CurPct()
-    {
-        algo = Algos.CUR_PCT;
-        return this;
-    }
-
-    public Dmg LostPct()
-    {
-        algo = Algos.LOST_PCT;
-        return this;
-    }
-
-    public Dmg AllPct()
-    {
-        algo = Algos.ALL_PCT;
-        return this;
-    }
-
-    public Dmg setCrit()
-    {
-        isCrit = true;
-        critRate = 2F;
-        return this;
-    }
-
-    public Dmg setCrit(float critDamage)
-    {
-        isCrit = true;
-        critRate = critDamage;
-        return this;
-    }
-
-    public bool hasHitEffect()
-    {
-        return (effect & Effects.Hit) != 0;
-    }
-
-    public Dmg setHitEffect()
-    {
-        effect = Effects.Hit;
-        return this;
-    }
-
-    public bool hasSkillEffect()
-    {
-        return (effect & Effects.Skill) != 0;
-    }
-
-    public Dmg setSkillEffect()
-    {
-        effect = Effects.Skill;
-        return this;
-    }
-
-    public Dmg addHitEffect()
-    {
-        effect |= Effects.Hit;
-        return this;
-    }
-
-    public Dmg addSkillEffect()
-    {
-        effect |= Effects.Skill;
-        return this;
-    }
-
-    public Dmg setDamageRaw(float damage)
-    {
-        damageRaw = damage;
-        return this;
-    }
-
-    public Dmg setDamageDealt(int damage)
-    {
-        damageDealt = damage;
-        return this;
-    }
-
-    public Dmg setDirection(Vector3 dir)
-    {
-        direction = dir;
-        return this;
-    }
-
-    public Dmg setHitNormal(Vector2 normal)
-    {
-        hitNormal = normal;
-        return this;
-    }
-
-    public Dmg setActualType(Types t)
-    {
-        actualType = t;
-        return this;
-    }
-
-    public Dmg setDmgRate(float rate)
-    {
-        dmgRate = rate;
-        return this;
-    }
-
-    public Dmg addDmgRate(float delta)
-    {
-        dmgRate.increase(delta);
-        return this;
-    }
-
-    public Dmg setSelf()
-    {
-        isSelf = true;
-        return this;
-    }
-
-    public Dmg setTriggerEffect(bool v)
-    {
-        triggerEffect = v;
-        return this;
-    }
-
-    public enum Types
-    {
-        PHYSIC,
-        MAGIC,
-        TRUE,
-    }
-
-    public enum Algos
-    {
-        FIXED,
-        CUR_PCT,
-        LOST_PCT,
-        ALL_PCT,
-    }
-
-    [Flags]
-    public enum Effects
-    {
-        Hit = 1 << 0,
-        Skill = 1 << 1,
-    }
-
-    [Serializable]
-    public struct Mixed
-    {
-        public bool on;
-        public float physicPct;
-        public float magicPct;
-        public float truePct;
-
-        public bool off => !on;
-        public float physicDamageDealt { get; set; }
-        public float magicDamageDealt { get; set; }
-        public float trueDamageDealt { get; set; }
-
-        public int Sum()
-        {
-            return (int)(physicDamageDealt + magicDamageDealt + trueDamageDealt);
-        }
-    }
-}
+﻿namespace MoreMountains;
 
 public interface IReusable
 {
+    bool inUse { get; set; }
     void onAcquire();
     void onRelease();
-}
-
-public interface IDamageable
-{
-    bool canTakeDamageThisFrame(out ResistDamageType resistType);
-    bool kill();
-    bool isDead();
-}
-
-public interface IDamageable<in Attacker>
-{
-    void takeDamage(ref Dmg dmg, GameObject instigator, Attacker source, float invincibleTime = 0F, Vector3 direction = default, IDmgCalculator calculator = null);
 }
 
 public interface IDmgCalculator
@@ -324,41 +24,41 @@ public class DmgCalculator : IDmgCalculator
     {
         return algo switch
         {
-            Dmg.Algos.FIXED => value,
-            Dmg.Algos.CUR_PCT => curHealth * value,
-            Dmg.Algos.LOST_PCT => (maxHealth - curHealth) * value,
-            Dmg.Algos.ALL_PCT => maxHealth * value,
+            Dmg.Algos.Fixed => value,
+            Dmg.Algos.CurPct => curHealth * value,
+            Dmg.Algos.LostPct => (maxHealth - curHealth) * value,
+            Dmg.Algos.AllPct => maxHealth * value,
             _ => value
         };
     }
 
     public float computeDamageCrit(Dmg dmg, float damage)
     {
-        return dmg.isCrit switch
+        return dmg.IsCrit switch
         {
-            true => damage * dmg.critRate,
+            true => damage * dmg.CritRate,
             false => damage,
         };
     }
 
     public int computeDamageRate(Dmg dmg, float damage)
     {
-        return (int)(damage * dmg.dmgRate);
+        return (int)(damage * dmg.DmgRate);
     }
 
     public Dmg.Mixed computeDamageMix(Dmg.Mixed mix, float damage, float physicResist, float magicResist)
     {
-        var physicDmg = mix.physicPct * damage;
+        var physicDmg = mix.PctAD * damage;
         if (physicDmg > 0)
-            mix.physicDamageDealt = computeDamageDefence(Dmg.Types.PHYSIC, physicDmg, physicResist, magicResist);
+            mix.DamageDealtAD = computeDamageDefence(Dmg.Types.AD, physicDmg, physicResist, magicResist);
 
-        var magicDmg = mix.magicPct * damage;
+        var magicDmg = mix.PctAP * damage;
         if (magicDmg > 0)
-            mix.magicDamageDealt = computeDamageDefence(Dmg.Types.MAGIC, magicDmg, physicResist, magicResist);
+            mix.DamageDealtAP = computeDamageDefence(Dmg.Types.AP, magicDmg, physicResist, magicResist);
 
-        var trueDmg = mix.truePct * damage;
+        var trueDmg = mix.PctTrue * damage;
         if (trueDmg > 0)
-            mix.trueDamageDealt = computeDamageDefence(Dmg.Types.TRUE, trueDmg, physicResist, magicResist);
+            mix.DamageDealtTrue = computeDamageDefence(Dmg.Types.True, trueDmg, physicResist, magicResist);
 
         return mix;
     }
@@ -367,9 +67,9 @@ public class DmgCalculator : IDmgCalculator
     {
         return type switch
         {
-            Dmg.Types.PHYSIC => (int)(damage / (physicResist / 100 + 1)),
-            Dmg.Types.MAGIC => (int)(damage / (magicResist / 100 + 1)),
-            Dmg.Types.TRUE => (int)damage,
+            Dmg.Types.AD => (int)(damage / (physicResist / 100 + 1)),
+            Dmg.Types.AP => (int)(damage / (magicResist / 100 + 1)),
+            Dmg.Types.True => (int)damage,
             _ => (int)damage
         };
     }

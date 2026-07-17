@@ -1,9 +1,11 @@
-﻿namespace MarbleHero;
+﻿using UnityEngine;
+
+namespace MoreMountains;
 
 public class BallPower : APower, IArgs<Ball>
 {
     protected Ball owner;
-    
+
     public void onCreate(Ball ball)
     {
         owner = ball;
@@ -22,7 +24,7 @@ public class BallPower : APower, IArgs<Ball>
     public virtual void onLosePower(Ball ball)
     {
     }
-    
+
     public virtual void onBeforeHandleHitDamage(Ball ball, Brick brick, ref Dmg dmg)
     {
     }
@@ -31,11 +33,15 @@ public class BallPower : APower, IArgs<Ball>
     {
     }
 
-    public virtual void onHitBrick(Brick brick)
+    public virtual void onHitBrick(Brick brick, Vector2 hitNormal)
     {
     }
 
     public virtual void onHitBorder(Border border)
+    {
+    }
+
+    public virtual void onHitObstacle(Obstacle obstacle)
     {
     }
 }

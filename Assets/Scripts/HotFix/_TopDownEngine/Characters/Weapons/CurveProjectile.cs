@@ -4,7 +4,7 @@ using MoreMountains.Tools;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     /// <summary>
     /// A thrown object type of projectile, useful for grenades and such
@@ -31,9 +31,9 @@ namespace MoreMountains.TopDownEngine
 
         List<(Vector3, Vector3, Func<Vector3>, float)> _list = new();
 
-        protected override void Awake()
+        protected override void OnAwake()
         {
-            base.Awake();
+            base.OnAwake();
 
             if (_damageOnTouch)
             {
@@ -116,17 +116,17 @@ namespace MoreMountains.TopDownEngine
 
             timeElapsed += dt;
 
-            var lastDirection = CurDirection;
+            var lastDirection = Direction;
             var (begin, mid, end, flyDuration) = _list[bezierPathIndex];
             var t = Mathf.Clamp01(timeElapsed / flyDuration);
             var bezier = new MMBezier(begin, mid, end());
             var position = bezier.GetPoint(t);
 
-            var vector3 = position - transform.position;
+            var dir = position - transform.position;
 
             transform.position = position;
 
-            CurDirection = vector3.normalized;
+            SetDirection(dir.normalized, Quaternion.identity);
 
             if (t >= 1F)
             {

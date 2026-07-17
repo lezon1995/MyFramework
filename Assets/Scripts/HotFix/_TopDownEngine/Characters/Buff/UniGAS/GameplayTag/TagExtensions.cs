@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     public static class TagExtensions
     {

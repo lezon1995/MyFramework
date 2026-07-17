@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace MarbleHero;
+namespace MoreMountains;
 
 public enum PowerType
 {
@@ -95,6 +95,11 @@ public abstract class APower : ClassObject, IComparable<APower>
         updateFlash(dt);
         updateFontScale();
         updateColor();
+        onUpdate(dt);
+    }
+
+    protected virtual void onUpdate(float dt)
+    {
     }
 
     void updateFlash(float dt)
@@ -221,7 +226,7 @@ public abstract class APower : ClassObject, IComparable<APower>
     {
     }
 
-    public virtual void onPlayCard(ACard card, ACreature m)
+    public virtual void onPlayCard(ACard card)
     {
     }
 

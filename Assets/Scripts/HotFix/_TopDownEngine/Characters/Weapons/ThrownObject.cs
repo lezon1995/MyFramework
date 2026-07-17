@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     /// <summary>
     /// A thrown object type of projectile, useful for grenades and such
@@ -35,7 +35,7 @@ namespace MoreMountains.TopDownEngine
         {
             if (!_forceApplied && Direction != Vector3.zero)
             {
-                _throwingForce = Direction * Speed;
+                _throwingForce = Direction * moveSpeed;
                 _rigidBody2D.AddForce(_throwingForce);
                 _forceApplied = true;
             }

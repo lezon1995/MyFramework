@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using PrimeTween;
 using UnityEngine;
-using UnityEngine.Pool;
 
-namespace MarbleHero
+namespace MoreMountains
 {
     public partial class APlayer
     {
@@ -13,39 +11,21 @@ namespace MarbleHero
         public int ballMaxCount = 1;
         public int ballCount = 1;
 
-        protected GuideLine guideLine;
-        public Exp exp;
         public List<Ball> activeBalls = new();
         public Vector3 originalShootPosition, shootPosition;
         public bool isFirstBallReturn;
         public int toClaimRewardCount;
 
-        protected List<Buff> buffs = new();
+        protected List<BuffObject> buffs = new();
         protected List<Type> ballBuffs = new();
 
-        public override void setObject(GameObject obj)
+        protected override void Initialization()
         {
-            base.setObject(obj);
-        }
-
-        public override void init()
-        {
-            base.init();
-            setWorldPositionY(-4.7F);
-
-            guideLine = CLASS<GuideLine>();
-            guideLine.setObject(gameObject.find("GuideLine"));
-            guideLine.setName("GuideLine");
-            guideLine.setPlayer(this);
-            guideLine.init();
-
-            exp = CLASS<Exp>();
-            var path = $"{GAMEPLAY_PATH}/ExpData.asset";
-            var data = mResourceManager.loadGameResource<ExpData>(path);
-            exp.setData(data.getResource());
-            exp.resetLevel();
-            exp.setOnLevelUp(onLevelUp);
-
+            base.Initialization();
+            
+            Exp.ResetLevel();
+            Exp.SetOnLevelUp(onLevelUp);
+            
             originalShootPosition = shootPosition = getWorldPosition();
             setOriginalShootPositionX(shootPosition.x);
 
@@ -62,25 +42,17 @@ namespace MarbleHero
             addListeners();
         }
 
-        public override void destroy()
+        protected override void OnDestroy()
         {
-            base.destroy();
-
-            UN_CLASS(ref guideLine);
-            UN_CLASS(ref exp);
-
             removeListeners();
+            base.OnDestroy();
         }
-
-        public GuideLine getGuideLine() => guideLine;
 
         public void shootBalls(Vector3 pos, Vector3 dir)
         {
             // ballMaxCount++;
             // CtrUI.instance.SetReturnBallButton(true);
             isReturnBall = false;
-            guideLine.setIndicatorBallActive(false);
-            guideLine.guidelineOff();
             actionManager.addToBot<ShootBallsAction>().with(pos, dir);
         }
 
@@ -93,10 +65,6 @@ namespace MarbleHero
         public void setCurrentShootPosition(Vector2 p)
         {
             shootPosition = p;
-            guideLine.setShootPosition(shootPosition, true);
-            guideLine.setIndicatorBallPosition(shootPosition);
-            guideLine.setIndicatorBallActive(true);
-
             // SoundManager.Instance.PlayEffect(SoundList.sound_play_sfx_ball_comback);
         }
 
@@ -105,10 +73,6 @@ namespace MarbleHero
             shootPosition = originalShootPosition;
             shootPosition.x = posX;
             originalShootPosition.x = posX;
-            guideLine.setOriginalShootPosition(originalShootPosition);
-            guideLine.setShootPosition(originalShootPosition, true);
-            guideLine.setIndicatorBallPosition(originalShootPosition);
-            guideLine.setIndicatorBallActive(true);
 
             // SoundManager.Instance.PlayEffect(SoundList.sound_play_sfx_ball_comback);
         }
@@ -117,10 +81,6 @@ namespace MarbleHero
         {
             shootPosition.x += deltaX;
             originalShootPosition.x += deltaX;
-            guideLine.setOriginalShootPosition(originalShootPosition);
-            guideLine.setShootPosition(originalShootPosition, false);
-            guideLine.setIndicatorBallPosition(originalShootPosition);
-            guideLine.setIndicatorBallActive(true);
         }
 
         public void setBallReturn(Ball ball)
@@ -148,7 +108,7 @@ namespace MarbleHero
 
         public void gainExp(int xp)
         {
-            exp.addXp(xp);
+            Exp.AddXp(xp);
         }
 
         protected void onLevelUp()

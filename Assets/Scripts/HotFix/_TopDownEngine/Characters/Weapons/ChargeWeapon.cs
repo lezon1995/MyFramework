@@ -5,7 +5,7 @@ using MoreMountains.Tools;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     /// <summary>
     /// A class used to store the charge properties of the weapons that together make up a charge weapon
@@ -46,7 +46,7 @@ namespace MoreMountains.TopDownEngine
     }
 
     /// <summary>
-    /// Add this component to an object and it'll let you define a sequence of charge steps, each triggering their own unique weapon, complete with options like input modes or conditional releases, hooks for every steps, and more. Useful for Megaman or Zelda like types of charge weapons.
+    /// Add this component to an object, and it'll let you define a sequence of charge steps, each triggering their own unique weapon, complete with options like input modes or conditional releases, hooks for every step, and more. Useful for Megaman or Zelda like types of charge weapons.
     /// </summary>
     [AddComponentMenu("TopDown Engine/Weapons/ChargeWeapon")]
     public class ChargeWeapon : Weapon
@@ -154,7 +154,7 @@ namespace MoreMountains.TopDownEngine
         {
             foreach (var step in Weapons)
             {
-                step.TargetWeapon.SetOwner(Owner, CharacterHandleWeapon);
+                step.TargetWeapon.SetOwner(Owner, HandleWeapon);
                 step.TargetWeapon.Initialization();
                 step.TargetWeapon.InitializeAnimatorParameters();
             }
@@ -163,9 +163,9 @@ namespace MoreMountains.TopDownEngine
         /// <summary>
         /// On update, if we're charging, we process our charge to evaluate the current step
         /// </summary>
-        protected override void Update()
+        protected override void OnUpdate(float dt)
         {
-            base.Update();
+            base.OnUpdate(dt);
             ProcessCharge();
         }
 

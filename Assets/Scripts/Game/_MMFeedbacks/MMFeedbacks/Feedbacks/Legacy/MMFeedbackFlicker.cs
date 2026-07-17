@@ -40,7 +40,6 @@ namespace MoreMountains.Feedbacks
 		public float FlickerDuration = 0.2f;
 		/// the duration of the period for the flicker
 		[Tooltip("the duration of the period for the flicker")]
-		[FormerlySerializedAs("FlickerOctave")] 
 		public float FlickerPeriod = 0.04f;
 		/// the color we should flicker the sprite to 
 		[Tooltip("the color we should flicker the sprite to")]

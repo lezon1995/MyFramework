@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     /// <summary>
     /// Adds this component on a weapon with a WeaponAutoAim (2D or 3D) and it will automatically shoot at targets after an optional delay
@@ -72,7 +72,7 @@ namespace MoreMountains.TopDownEngine
             {
                 if (OnlyAutoShootIfOwnerIsIdle)
                 {
-                    if (_weapon.Owner.MovementState.Not(Character.Motions.Idle))
+                    if (_weapon.Owner.motionState.Not(Character.Motions.Idle))
                         return false;
                 }
 

@@ -4,7 +4,7 @@ using MoreMountains.Tools;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     public abstract partial class Weapon
     {
@@ -53,13 +53,29 @@ namespace MoreMountains.TopDownEngine
             None,
             BasicAttack, //普通攻击
         }
+        
+        public UniStats.Stat GetStat(Stat key)
+        {
+            return Stats == null ? null : Stats.GetStat(key.Key());
+        }
+
+        public bool GetStat(Stat key, out UniStats.Stat stat)
+        {
+            if (Stats == null)
+            {
+                stat = null;
+                return false;
+            }
+
+            return Stats.GetStat(key.Key(), out stat);
+        }
     }
 
     /// <summary>
     /// This base class, meant to be extended (see ProjectileWeapon.cs for an example of that) handles rate of fire (rate of use actually), and ammo reloading
     /// </summary>
     [SelectionBase]
-    public abstract partial class Weapon : MMMonoBehaviour
+    public abstract partial class Weapon : MMMonoBehaviour, IStatsGetter<Weapon.Stat>
     {
         [MMInspectorGroup("ID")]
         [Tooltip("the name of the weapon, only used for debugging")]
@@ -138,7 +154,7 @@ namespace MoreMountains.TopDownEngine
         public float BurstTimeBetweenShots = 0.1f;
 
         [MMInspectorGroup("Magazine")]
-        [Tooltip("whether or not the weapon is magazine based. If it's not, it'll just take its ammo inside a global pool")]
+        [Tooltip("whether the weapon is magazine based. If it's not, it'll just take its ammo inside a global pool")]
         public bool MagazineBased;
 
         [Tooltip("the size of the magazine")]
@@ -323,14 +339,14 @@ namespace MoreMountains.TopDownEngine
 
         public Character Owner { get; private set; }
         public Stats OwnerStats { get; private set; }
-        public CharacterHandleWeapon CharacterHandleWeapon { get; set; }
+        public CharacterHandleWeapon HandleWeapon { get; set; }
 
         [ShowInInspector, ReadOnly]
         [Tooltip("if true, the weapon is flipped right now")]
         public bool Flipped { get; set; }
 
         /// the WeaponAmmo component optionally associated to this weapon
-        public WeaponAmmo WeaponAmmo { get; private set; }
+        public WeaponAmmo WeaponAmmo;
 
         public MMStateMachine<States> State = new();
 
@@ -403,22 +419,22 @@ namespace MoreMountains.TopDownEngine
         public virtual void Initialization()
         {
             Flipped = false;
-            _spriteRenderer = GetComponent<SpriteRenderer>();
-            _comboWeapon = GetComponent<ComboWeapon>();
-            _weaponPreventShooting = GetComponent<WeaponPreventShooting>();
+            TryGetComponent(out _spriteRenderer);
+            TryGetComponent(out _comboWeapon);
+            TryGetComponent(out _weaponPreventShooting);
 
             State.Initialize(gameObject, true, OnStateChange);
             State.ChangeState(States.Idle);
-            WeaponAmmo = GetComponent<WeaponAmmo>();
-            _animatorParameters = new List<HashSet<int>>();
-            _weaponAim = GetComponent<WeaponAim>();
+            TryGetComponent(out WeaponAmmo);
+            _animatorParameters = new();
+            TryGetComponent(out _weaponAim);
             InitializeAnimatorParameters();
 
             if (WeaponAmmo == null)
                 CurrentAmmoLoaded = MagazineSize;
 
             if (Stats == null)
-                Stats = GetComponent<Stats>();
+                TryGetComponent(out Stats);
 
             InitializeFeedbacks();
         }
@@ -458,20 +474,20 @@ namespace MoreMountains.TopDownEngine
             OwnerStats = owner.Stats;
             if (Owner)
             {
-                CharacterHandleWeapon = handleWeapon;
-                _characterMovement = Owner.GetComponent<Character>().FindAbility<CharacterMovement>();
-                _controller = Owner.GetComponent<TopDownController>();
+                HandleWeapon = handleWeapon;
+                Owner.FindAbility(out _characterMovement);
+                _controller = Owner.Controller;
 
-                if (CharacterHandleWeapon && CharacterHandleWeapon.AutomaticallyBindAnimator)
+                if (HandleWeapon && HandleWeapon.AutomaticallyBindAnimator)
                 {
-                    if (CharacterHandleWeapon.CharacterAnimator)
-                        _ownerAnimator = CharacterHandleWeapon.CharacterAnimator;
+                    if (HandleWeapon.CharacterAnimator)
+                        _ownerAnimator = HandleWeapon.CharacterAnimator;
 
                     if (_ownerAnimator == null)
-                        _ownerAnimator = CharacterHandleWeapon.GetComponentInParent<Character>().CharacterAnimator;
+                        _ownerAnimator = HandleWeapon.Character.CharacterAnimator;
 
                     if (_ownerAnimator == null)
-                        _ownerAnimator = CharacterHandleWeapon.GetComponentInParent<Animator>();
+                        _ownerAnimator = HandleWeapon.GetComponentInParent<Animator>();
                 }
             }
 
@@ -488,8 +504,8 @@ namespace MoreMountains.TopDownEngine
 
         protected virtual void OnOwnerStatsSet()
         {
-            var characterAS = OwnerStats.GetStat(Character.Stat.AS.Key());
-            var weaponAS = Stats?.GetStat(Stat.AS.Key());
+            var characterAS = Owner.GetStat(Character.Stat.AS);
+            var weaponAS = GetStat(Stat.AS);
             //Weapon的DelayBeforeUseF = (1 + Character.AS + Weapon.AS) * Weapon.DelayBeforeUseF
             DelayBeforeUseModifier = (ref float raw) =>
             {
@@ -522,8 +538,8 @@ namespace MoreMountains.TopDownEngine
                 raw = currentAttackTotalTime - windupTime;
             };
 
-            var characterAD = OwnerStats.GetStat(Character.Stat.AD.Key());
-            var weaponAD = Stats?.GetStat(Stat.AD.Key());
+            var characterAD = Owner.GetStat(Character.Stat.AD);
+            var weaponAD = GetStat(Stat.AD);
             //Weapon的Damage = (Character.AD + Weapon.AD) * Weapon.AD_Coeff
             DamageModifier = (ref float raw) =>
             {
@@ -599,25 +615,40 @@ namespace MoreMountains.TopDownEngine
             }
         }
 
+        void Update()
+        {
+            OnUpdate(Time.deltaTime);
+        }
+
+        void FixedUpdate()
+        {
+            OnFixedUpdate(Time.fixedDeltaTime);
+        }
+        
+        /// <summary>
+        /// On LateUpdate, processes the weapon state
+        /// </summary>
+        void LateUpdate()
+        {
+            var dt = Time.deltaTime;
+            OnLateUpdate(dt);
+        }
+
         /// <summary>
         /// On Update, we check if the weapon is or should be used
         /// </summary>
-        protected virtual void Update()
+        protected virtual void OnUpdate(float dt)
         {
             FlipWeapon();
             ApplyOffset();
         }
 
-        public virtual void Tick(float dt)
+        protected virtual void OnFixedUpdate(float dt)
         {
         }
-
-        /// <summary>
-        /// On LateUpdate, processes the weapon state
-        /// </summary>
-        protected virtual void LateUpdate()
+        
+        protected virtual void OnLateUpdate(float dt)
         {
-            var dt = Time.deltaTime;
             ProcessWeaponState(dt);
         }
 
@@ -992,11 +1023,11 @@ namespace MoreMountains.TopDownEngine
         public virtual void DetermineWeaponCrit()
         {
             var critChance = 0F;
-            var characterCritChance = OwnerStats?.GetStat(Character.Stat.CritChance.Key());
+            var characterCritChance = Owner.GetStat(Character.Stat.CritChance);
             if (characterCritChance != null)
                 critChance += characterCritChance.Value;
 
-            var weaponCritChance = Stats?.GetStat(Stat.CritChance.Key());
+            var weaponCritChance = GetStat(Stat.CritChance);
             if (weaponCritChance != null)
                 critChance += weaponCritChance.Value;
 
@@ -1018,7 +1049,7 @@ namespace MoreMountains.TopDownEngine
                 return;
 
             var right = transform.right;
-            _controller.Impact(Flipped ? right : -right, RecoilForce);
+            _controller.AddImpact(Flipped ? right : -right, RecoilForce);
         }
 
         /// <summary>
@@ -1361,7 +1392,7 @@ namespace MoreMountains.TopDownEngine
 
             if (Owner)
             {
-                MMAnimatorExtensions.UpdateAnimatorBool(animator, _aliveAnimationParameter, Owner.ConditionState.Not(Character.Conditions.Dead), list, PerformAnimatorSanityChecks);
+                MMAnimatorExtensions.UpdateAnimatorBool(animator, _aliveAnimationParameter, Owner.conditionState.Not(Character.Conditions.Dead), list, PerformAnimatorSanityChecks);
             }
 
             if (_weaponAim)

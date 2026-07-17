@@ -3,7 +3,7 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     public partial class BuffType : SerializedScriptableObject
     {

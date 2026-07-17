@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using MoreMountains.Feedbacks;
 using MoreMountains.Tools;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     /// <summary>
     /// A weapon class aimed specifically at allowing the creation of various projectile weapons, from shotgun to machine gun, via plasma gun or rocket launcher
@@ -14,8 +13,7 @@ namespace MoreMountains.TopDownEngine
     [AddComponentMenu("TopDown Engine/Weapons/ProjectileWeapon")]
     public class ProjectileWeapon : Weapon, IEvent<TopDownEngineEvent>
     {
-        [MMInspectorGroup("Projectiles")]
-        [Tooltip("the offset position at which the projectile will spawn")]
+        [MMInspectorGroup("Projectiles")] [Tooltip("the offset position at which the projectile will spawn")]
         public Vector3 ProjectileSpawnOffset;
 
         [Tooltip("in the absence of a character owner, the default direction of the projectiles")]
@@ -24,8 +22,7 @@ namespace MoreMountains.TopDownEngine
         [Tooltip("the number of projectiles to spawn per shot")]
         public int ProjectilesPerShot = 1;
 
-        [Header("Spawn Transforms")]
-        [Tooltip("a list of transforms that can be used a spawn points, instead of the ProjectileSpawnOffset. Will be ignored if left emtpy")]
+        [Header("Spawn Transforms")] [Tooltip("a list of transforms that can be used a spawn points, instead of the ProjectileSpawnOffset. Will be ignored if left emtpy")]
         public List<Transform> SpawnTransforms = new();
 
         /// a list of modes the spawn transforms can operate on
@@ -38,8 +35,7 @@ namespace MoreMountains.TopDownEngine
         [Tooltip("the selected mode for spawn transforms. Sequential will go through the list sequentially, while Random will pick a random one every shot")]
         public SpawnTransformsModes SpawnTransformsMode = SpawnTransformsModes.Sequential;
 
-        [Header("Spread")]
-        [Tooltip("the spread (in degrees) to apply randomly (or not) on each angle when spawning a projectile")]
+        [Header("Spread")] [Tooltip("the spread (in degrees) to apply randomly (or not) on each angle when spawning a projectile")]
         public Vector3 Spread;
 
         [Tooltip("whether or not the weapon should rotate to align with the spread angle")]
@@ -55,19 +51,15 @@ namespace MoreMountains.TopDownEngine
         [Tooltip("the object pooler used to spawn projectiles, if left empty, this component will try to find one on its game object")]
         public MMObjectPooler ObjectPooler;
 
-        [Header("Spawn Feedbacks")]
-        public List<MMFeedbacks> SpawnFeedbacks = new();
+        [Header("Spawn Feedbacks")] public List<MMFeedbacks> SpawnFeedbacks = new();
 
         protected Vector3 _flippedProjectileSpawnOffset;
         protected Vector3 _randomSpreadDirection;
         protected bool _poolInitialized;
         protected Transform _projectileSpawnTransform;
         protected int _spawnArrayIndex;
-        
-        protected List<Projectile> _projectilesInUsing = new();
 
-        [MMInspectorButton("TestShoot")]
-        public bool TestShootButton;
+        [MMInspectorButton("TestShoot")] public bool TestShootButton;
 
         protected virtual void TestShoot()
         {
@@ -110,19 +102,6 @@ namespace MoreMountains.TopDownEngine
             }
         }
 
-        public override void Tick(float dt)
-        {
-            for (var i = _projectilesInUsing.Count - 1; i >= 0; i--)
-            {
-                var p = _projectilesInUsing[i];
-                p.Tick(dt);
-                if (!p.InUse)
-                {
-                    _projectilesInUsing.RemoveAt(i);
-                }
-            }
-        }
-
         /// <summary>
         /// Called everytime the weapon is used
         /// </summary>
@@ -145,14 +124,11 @@ namespace MoreMountains.TopDownEngine
         public virtual GameObject SpawnProjectile(Vector3 spawnPosition, int projectileIndex, int totalProjectiles, bool triggerObjectActivation = true)
         {
             // we get the next object in the pool and make sure it's not null
-            GameObject nextGameObject = ObjectPooler.GetPooledGameObject();
+            var nextGameObject = ObjectPooler.GetPooledGameObject();
 
             // mandatory checks
             if (nextGameObject == null)
                 return null;
-
-            if (!nextGameObject.TryGetComponent<MMPoolableObject>(out var poolableObject))
-                throw new Exception(gameObject.name + " is trying to spawn objects that don't have a PoolableObject component.");
 
             // we position the object
             nextGameObject.transform.position = spawnPosition;
@@ -167,7 +143,6 @@ namespace MoreMountains.TopDownEngine
             var success = nextGameObject.TryGetComponent<Projectile>(out var projectile);
             if (success)
             {
-                _projectilesInUsing.Add(projectile);
                 projectile.SetWeapon(this);
                 if (Owner)
                 {
@@ -200,29 +175,21 @@ namespace MoreMountains.TopDownEngine
                     }
                 }
 
-                Quaternion spread = Quaternion.Euler(_randomSpreadDirection);
-
+                var spread = Quaternion.Euler(_randomSpreadDirection);
                 if (Owner == null)
                 {
                     projectile.SetDirection(spread * transform.rotation * DefaultProjectileDirection, transform.rotation);
                 }
                 else
                 {
-                    if (Owner.Dimension == Character.Dimensions.Type3D) // if we're in 3D
+                    Vector3 newDirection = spread * transform.right * (Flipped ? -1 : 1);
+                    if (Owner.Orientation2D)
                     {
-                        projectile.SetDirection(spread * transform.forward, transform.rotation);
+                        projectile.SetDirection(newDirection, spread * transform.rotation, Owner.Orientation2D.IsFacingRight);
                     }
-                    else // if we're in 2D
+                    else
                     {
-                        Vector3 newDirection = spread * transform.right * (Flipped ? -1 : 1);
-                        if (Owner.Orientation2D)
-                        {
-                            projectile.SetDirection(newDirection, spread * transform.rotation, Owner.Orientation2D.IsFacingRight);
-                        }
-                        else
-                        {
-                            projectile.SetDirection(newDirection, spread * transform.rotation);
-                        }
+                        projectile.SetDirection(newDirection, spread * transform.rotation);
                     }
                 }
 
@@ -230,11 +197,6 @@ namespace MoreMountains.TopDownEngine
                 {
                     transform.rotation *= spread;
                 }
-            }
-
-            if (triggerObjectActivation)
-            {
-                poolableObject.TriggerOnSpawnComplete();
             }
 
             return nextGameObject;

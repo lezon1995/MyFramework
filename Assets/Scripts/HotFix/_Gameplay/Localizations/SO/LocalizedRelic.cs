@@ -4,9 +4,9 @@ using Sirenix.OdinInspector;
 using UnityEditor;
 using UnityEngine;
 
-namespace MarbleHero
+namespace MoreMountains
 {
-    [CreateAssetMenu(fileName = "LocalizedRelic", menuName = "MarbleHero/Localization/Relic")]
+    [CreateAssetMenu(fileName = "LocalizedRelic", menuName = "MoreMountains/Localization/Relic")]
     public class LocalizedRelic : LocalizedData<RelicStrings>
     {
         [Button]

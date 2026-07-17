@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 
-namespace MarbleHero
+namespace MoreMountains
 {
-    [CreateAssetMenu(fileName = "StageTemplate", menuName = "MarbleHero/StageTemplate")]
+    [CreateAssetMenu(fileName = "StageTemplate", menuName = "MoreMountains/StageTemplate")]
     public class StageTemplate : ScriptableObject
     {
         public BrickTemplate[] bricks;

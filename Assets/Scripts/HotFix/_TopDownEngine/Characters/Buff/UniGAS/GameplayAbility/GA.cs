@@ -15,7 +15,7 @@
 //     这些不是规定, 只是我的建议而已, 你的设计和实现可能是多样的.
 //  */
 //
-// namespace MoreMountains.TopDownEngine
+// namespace MoreMountains
 // {
 //     public partial class GA
 //     {

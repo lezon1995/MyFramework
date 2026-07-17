@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using MoreMountains.Tools;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     /// <summary>
     /// A list of possible events used by the character
@@ -22,7 +22,7 @@ namespace MoreMountains.TopDownEngine
         public MMCharacterEventTypes EventType;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MoreMountains.TopDownEngine.MMCharacterEvent"/> struct.
+        /// Initializes a new instance of the <see cref="MoreMountains.MMCharacterEvent"/> struct.
         /// </summary>
         /// <param name="character">Character.</param>
         /// <param name="eventType">Event type.</param>
@@ -79,35 +79,32 @@ namespace MoreMountains.TopDownEngine
 		public float CurrentHealth;
 		public float DamageCaused;
 		public float PreviousHealth;
-		public List<TypedDamage> TypedDamages; 
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MoreMountains.TopDownEngine.MMDamageTakenEvent"/> struct.
+		/// Initializes a new instance of the <see cref="MoreMountains.MMDamageTakenEvent"/> struct.
 		/// </summary>
 		/// <param name="affectedHealth">Affected Health.</param>
 		/// <param name="instigator">Instigator.</param>
 		/// <param name="currentHealth">Current health.</param>
 		/// <param name="damageCaused">Damage caused.</param>
 		/// <param name="previousHealth">Previous health.</param>
-		public MMDamageTakenEvent(Health affectedHealth, GameObject instigator, float currentHealth, float damageCaused, float previousHealth, List<TypedDamage> typedDamages )
+		public MMDamageTakenEvent(Health affectedHealth, GameObject instigator, float currentHealth, float damageCaused, float previousHealth )
 		{
 			AffectedHealth = affectedHealth;
 			Instigator = instigator;
 			CurrentHealth = currentHealth;
 			DamageCaused = damageCaused;
 			PreviousHealth = previousHealth;
-			TypedDamages = typedDamages;
 		}
 
 		static MMDamageTakenEvent e;
-		public static void Trigger(Health affectedHealth, GameObject instigator, float currentHealth, float damageCaused, float previousHealth, List<TypedDamage> typedDamages )
+		public static void Trigger(Health affectedHealth, GameObject instigator, float currentHealth, float damageCaused, float previousHealth )
 		{
 			e.AffectedHealth = affectedHealth;
 			e.Instigator = instigator;
 			e.CurrentHealth = currentHealth;
 			e.DamageCaused = damageCaused;
 			e.PreviousHealth = previousHealth;
-			e.TypedDamages = typedDamages;
 			MMEventManager.TriggerEvent(e);
 		}
 	}

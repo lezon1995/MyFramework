@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace MarbleHero;
+namespace MoreMountains;
 
 public enum MainMenuType
 {
@@ -28,8 +28,6 @@ public partial class MainMenuScreen
     public bool fadedOut;
     public bool isFadingOut;
     public int windId;
-
-    CharSelectInfo charInfo;
 
     // public TitleBackground bg = new();
     // EarlyAccessPopup eaPopup;
@@ -119,7 +117,6 @@ public partial class MainMenuScreen
         fadedOut = false;
         isFadingOut = false;
         windId = 0;
-        charInfo = null;
         screen = default;
         abandonedRun = false;
             
@@ -225,13 +222,6 @@ public partial class MainMenuScreen
 
         // if (!statsScreen.screenUp)
         // updateRenameArea();
-
-        // if (charInfo != null && charInfo.resumeGame)
-        // {
-        //     deckHb.update();
-        //     if (deckHb.justHovered)
-        //         sound.play("UI_HOVER");
-        // }
 
         if (!isFadingOut)
             handleInput();
@@ -594,7 +584,7 @@ public partial class MainMenuScreen
         Game.mainMenuScreen.hideMenuButtons();
         Game.mainMenuScreen.darken();
         Game.loadingSave = true;
-        Game.chosenCharacter = Game.characterManager.loadChosenCharacter().chosenClass;
+        Game.chosenCharacter = Game.characterManager.loadChosenCharacter();
         Game.mainMenuScreen.fadeOut();
         Game.mainMenuScreen.fadeOutMusic();
         Settings.isDailyRun = false;

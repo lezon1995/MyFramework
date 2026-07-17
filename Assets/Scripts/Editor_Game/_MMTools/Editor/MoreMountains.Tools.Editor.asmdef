@@ -1,7 +1,9 @@
 {
     "name": "MoreMountains.Tools.Editor",
+    "rootNamespace": "",
     "references": [
-        "GUID:4a1cb1490dc4df8409b2580d6b44e75e"
+        "GUID:4a1cb1490dc4df8409b2580d6b44e75e",
+        "GUID:de4e6084e6d474788bb8c799d6b461ec"
     ],
     "includePlatforms": [
         "Editor"
@@ -12,5 +14,6 @@
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],
-    "versionDefines": []
+    "versionDefines": [],
+    "noEngineReferences": false
 }

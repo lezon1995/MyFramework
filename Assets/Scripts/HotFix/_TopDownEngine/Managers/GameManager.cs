@@ -5,7 +5,7 @@ using MoreMountains.Tools;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     /// <summary>
     /// A list of the possible TopDown Engine base events
@@ -56,7 +56,7 @@ namespace MoreMountains.TopDownEngine
         public Character OriginCharacter;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MoreMountains.TopDownEngine.TopDownEngineEvent"/> struct.
+        /// Initializes a new instance of the <see cref="MoreMountains.TopDownEngineEvent"/> struct.
         /// </summary>
         /// <param name="eventType">Event type.</param>
         public TopDownEngineEvent(TopDownEngineEventTypes eventType, Character originCharacter)
@@ -93,7 +93,7 @@ namespace MoreMountains.TopDownEngine
         public int Points;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MoreMountains.TopDownEngine.TopDownEnginePointEvent"/> struct.
+        /// Initializes a new instance of the <see cref="MoreMountains.TopDownEnginePointEvent"/> struct.
         /// </summary>
         /// <param name="pointsMethod">Points method.</param>
         /// <param name="points">Points.</param>

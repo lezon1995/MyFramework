@@ -1,8 +1,9 @@
+using System;
 using MoreMountains.Tools;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     public class Exp : MonoBehaviour
     {
@@ -11,18 +12,42 @@ namespace MoreMountains.TopDownEngine
         const string XP_TOTAL = "_XpTotal";
         const string XP_REQUIRED = "_XpRequired";
 
+        Action LevelUpAction;
+        
         public ExpData Data;
         public bool saveOnQuit;
         public bool saveOnDestroy;
         public bool loadOnStart;
 
         public int LevelMax => Data.Trait.MaxLevel;
+        public int maxLevel => Data.Trait.MaxLevel;
+        public float progress => Xp / XpRequired;
+        public int currentExp => (int)Xp;
+        public int currentLevelRequiredExp => (int)XpRequired;
 
         public int Level;
         public float Xp;
         public float XpTotal;
         public float XpRequired;
 
+        public void SetData(ExpData d)
+        {
+            Data = d;
+
+            for (int i = 0; i < d.Trait.MaxLevel; i++)
+            {
+                var curLevel = i;
+                var nextLevel = i + 1;
+                // Debug.LogError($"从{curLevel}级升到{nextLevel}级需要 {calculateXpRequiredToNextLevel(curLevel)}经验");
+            }
+        }
+
+        
+        public void SetOnLevelUp(Action action)
+        {
+            LevelUpAction = action;
+        }
+        
         public void SetLevel(int value)
         {
             if (Level != value)
@@ -127,13 +152,22 @@ namespace MoreMountains.TopDownEngine
             if (Level >= maxLevel)
                 return;
 
-            new OnAddXp(delta).trigger();
+            if (newXp >= XpRequired && newLevel < maxLevel)
+            {
+                new OnAddXp((int)XpRequired, 1F).trigger();
+            }
+            else
+            {
+                new OnAddXp((int)newXp, newXpRequired == 0 ? 0 : newXp / newXpRequired).trigger();
+            }
 
             while (newXp >= newXpRequired && newLevel < maxLevel)
             {
                 newXp -= newXpRequired;
                 newLevel++;
                 newXpRequired = CalculateXpRequiredToNextLevel(newLevel);
+                new OnLevelUp((int)newXp, newLevel, Mathf.Clamp01(newXp / newXpRequired)).trigger();
+                LevelUpAction?.Invoke();
             }
 
             if (newLevel >= maxLevel)

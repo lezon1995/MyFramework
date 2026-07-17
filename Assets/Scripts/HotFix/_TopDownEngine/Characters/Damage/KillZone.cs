@@ -1,7 +1,7 @@
 using MoreMountains.Tools;
 using UnityEngine;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     /// <summary>
     /// Add this component to an object and it will cause damage to objects that collide with it. 

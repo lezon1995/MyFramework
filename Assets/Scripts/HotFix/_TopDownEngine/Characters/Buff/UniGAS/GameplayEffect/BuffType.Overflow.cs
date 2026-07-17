@@ -1,7 +1,7 @@
 using System;
 using Sirenix.OdinInspector;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     public partial class BuffType : SerializedScriptableObject
     {

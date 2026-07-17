@@ -1,4 +1,4 @@
-﻿namespace MoreMountains.TopDownEngine
+﻿namespace MoreMountains
 {
     public class Buff_Rune_FleetFootwork : Buff
     {

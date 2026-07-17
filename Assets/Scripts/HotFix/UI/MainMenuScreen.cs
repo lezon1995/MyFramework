@@ -2,7 +2,7 @@
 using Obfuz;
 using UnityEngine;
 
-namespace MarbleHero;
+namespace MoreMountains;
 
 // auto generate classname start
 // generate from:Assets/GameResources/UI/UIPrefab/MainMenuScreen.prefab

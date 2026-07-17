@@ -3,7 +3,7 @@ using MoreMountains.Tools;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     /// <summary>
     /// This class manages the mana of an object, pilots its potential mana bar, handles what happens when it costs mana,
@@ -105,14 +105,14 @@ namespace MoreMountains.TopDownEngine
         {
             if (_character && _character.Stats)
             {
-                var mp = _character.Stats.GetStat(Character.Stat.ManaMax.Key());
+                var mp = _character.GetStat(Character.Stat.ManaMax);
                 mp.Event.Add((pre, now) => UpdateManaBar(true));
                 MaximumManaModifier = (ref float raw) =>
                 {
                     raw = mp.Value;
                 };
 
-                var mpRegen = _character.Stats.GetStat(Character.Stat.ManaRegen.Key());
+                var mpRegen = _character.GetStat(Character.Stat.ManaRegen);
                 ManaRegenModifier = (ref float raw) =>
                 {
                     raw = mpRegen.Value;

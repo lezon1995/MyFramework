@@ -4,7 +4,7 @@ using Sirenix.OdinInspector;
 using UniStats;
 using UnityEngine;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     [AddComponentMenu("TopDown Engine/Character/Core/Buffable")]
     [RequireComponent(typeof(Character))]

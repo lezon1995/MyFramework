@@ -1,4 +1,4 @@
-﻿namespace MarbleHero;
+﻿namespace MoreMountains;
 
 /// <summary>
 /// 能量脉冲

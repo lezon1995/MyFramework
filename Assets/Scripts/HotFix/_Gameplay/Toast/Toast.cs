@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace MarbleHero
+namespace MoreMountains
 {
 // State the position of the message on the screen.
     public enum MessageScreenPosition

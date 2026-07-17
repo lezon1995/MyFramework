@@ -3,7 +3,7 @@ using System.Linq;
 using MoreMountains.Feedbacks;
 using UnityEngine;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     /// <summary>
     /// Link this component to a Health component, and it'll be able to process incoming damage through resistances, handling damage reduction/increase, condition changes, movement multipliers, feedbacks and more.

@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
-using UnityEngine;
 
-namespace MarbleHero
+namespace MoreMountains
 {
     public class Ironclad : APlayer
     {
@@ -13,19 +12,10 @@ namespace MarbleHero
         Prefs prefs;
         CharStat charStat;
 
-        public override void resetProperty()
+        protected override void OnAwake()
         {
-            base.resetProperty();
-            prefs = null;
-            charStat = null;
-        }
-
-        public override void onCtor()
-        {
-            base.onCtor();
-            
+            base.OnAwake();
             charStat = new CharStat(this);
-            initializeClass(getLoadout());
         }
 
         public override List<string> getStartingRelics()
@@ -66,15 +56,6 @@ namespace MarbleHero
             // return new Bash();
         }
 
-        public override Color getCardTrailColor()
-        {
-            return new(1.0F, 0.4F, 0.1F, 1.0F);
-        }
-
-        public override CharSelectInfo getLoadout()
-        {
-            return new("", "", 100, 100, 99, 5, this, getStartingRelics(), getStartingDeck(), false);
-        }
 
         public override string getTitle(PlayerClass plyrClass)
         {
@@ -134,11 +115,6 @@ namespace MarbleHero
             prefs = SaveHelper.getPrefs("DataVagabond");
         }
 
-        public override CharStat getCharStat()
-        {
-            return charStat;
-        }
-
         public override int getUnlockedCardCount()
         {
             return UnlockTracker.unlockedRedCardCount;
@@ -154,11 +130,6 @@ namespace MarbleHero
             return CardLibrary.redCards;
         }
 
-        public override bool saveFileExists()
-        {
-            return SaveAndContinue.saveExistsAndNotCorrupted(chosenClass.ToString());
-        }
-
         public override string getWinStreakKey()
         {
             return "win_streak_ironclad";
@@ -168,12 +139,6 @@ namespace MarbleHero
         {
             return "IRONCLAD_CONSECUTIVE_WINS";
         }
-
-        // public override void renderStatScreen(SpriteBatch sb, float screenX, float renderY)
-        // {
-        //     StatsScreen.renderHeader(sb, StatsScreen.NAMES[2], screenX, renderY);
-        //     charStat.render(sb, screenX, renderY);
-        // }
 
         public override void doCharSelectScreenSelectEffect()
         {
@@ -199,41 +164,7 @@ namespace MarbleHero
 
         public override void refreshCharStat()
         {
-            charStat = new CharStat(this);
-        }
-
-        public override APlayer newInstance()
-        {
-            return CLASS<Ironclad>();
-        }
-
-        // public override TextureAtlas.AtlasRegion getOrb()
-        // {
-        //     return ACard.orb_red;
-        // }
-
-        // public override void damage(DamageInfo info)
-        // {
-        //     if (info.owner != null && info.type != DamageInfo.DamageType.THORNS && info.output - currentBlock > 0)
-        //     {
-        //         AnimationState.TrackEntry e = state.setAnimation(0, "Hit", false);
-        //         state.addAnimation(0, "Idle", true, 0.0F);
-        //         e.setTimeScale(0.6F);
-        //     }
-        //
-        //     base.damage(info);
-        // }
-
-        public override string getSpireHeartText()
-        {
-            return null;
-            // return SpireHeart.DESCRIPTIONS[8];
-        }
-
-        public override string getVampireText()
-        {
-            return null;
-            // return Vampires.DESCRIPTIONS[0];
+            charStat = new(this);
         }
     }
 }

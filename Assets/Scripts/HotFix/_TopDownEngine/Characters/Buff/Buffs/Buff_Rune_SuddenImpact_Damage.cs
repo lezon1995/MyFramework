@@ -1,6 +1,6 @@
 ﻿using MoreMountains.Tools;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     public class Buff_Rune_SuddenImpact_Damage : Buff
         , IEvent<DoAttackEffect>
@@ -22,11 +22,11 @@ namespace MoreMountains.TopDownEngine
             var mag = Damage;
             var value = mag.Value(this);
             var dmg = new Dmg(value, mag.DmgType, mag.DmgAlgo);
-            dmg.SetEffect(Dmg.Effects.Ability);
+            dmg.SetEffect(Dmg.Effects.Skill);
 
             Target.RemoveBuffWithType(BuffType, true);
 
-            e.Character.Health.Damage(dmg, gameObject);
+            e.Character.Health.Damage(ref dmg, gameObject);
         }
     }
 }

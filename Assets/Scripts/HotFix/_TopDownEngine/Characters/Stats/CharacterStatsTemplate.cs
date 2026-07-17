@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     [CreateAssetMenu(menuName = "MoreMountains/TopDownEngine/CharacterStatsTemplate", fileName = "CharacterStatsTemplate")]
     public class CharacterStatsTemplate : StatsTemplate

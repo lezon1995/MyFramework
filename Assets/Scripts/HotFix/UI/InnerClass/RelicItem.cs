@@ -3,7 +3,7 @@
 // generate from:Assets/GameResources/UI/UIPrefab/OverlayMenu.prefab
 // 
 
-using MarbleHero;
+using MoreMountains;
 
 public class RelicItem : WindowRecyclableUGUI
 // auto generate classname end

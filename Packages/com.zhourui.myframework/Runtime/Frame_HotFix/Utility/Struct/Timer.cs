@@ -1,4 +1,7 @@
-﻿public struct Timer
+﻿using System;
+
+[Serializable]
+public struct Timer
 {
     public float duration;
     public float elapsed;

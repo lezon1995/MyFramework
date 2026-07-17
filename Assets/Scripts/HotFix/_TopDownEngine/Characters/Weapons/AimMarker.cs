@@ -2,7 +2,7 @@
 using MoreMountains.Tools;
 using UnityEngine;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     /// <summary>
     /// A class used to handle aim markers, (usually circular) visual elements 

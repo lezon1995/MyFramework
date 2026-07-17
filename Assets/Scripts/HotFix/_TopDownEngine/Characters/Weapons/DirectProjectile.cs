@@ -2,7 +2,7 @@
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     [AddComponentMenu("TopDown Engine/Weapons/DirectProjectile")]
     public class DirectProjectile : Projectile
@@ -20,7 +20,7 @@ namespace MoreMountains.TopDownEngine
 
         public override void Movement(float dt)
         {
-            var deltaLength = Speed * dt;
+            var deltaLength = moveSpeed * dt;
             var reachEnd = false;
             _movement = Direction * deltaLength;
 
@@ -33,7 +33,6 @@ namespace MoreMountains.TopDownEngine
                 reachEnd = true;
             }
 
-            CurDirection = Direction;
             transform.Translate(_movement, Space.World);
 
             // We apply the acceleration to increase the speed

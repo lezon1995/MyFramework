@@ -1,15 +1,16 @@
 ﻿using System.Collections.Generic;
+using Drawing;
 using MoreMountains.Tools;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     /// <summary>
     /// Projectile class to be used along with projectile weapons
     /// </summary>
     [AddComponentMenu("TopDown Engine/Weapons/Projectile")]
-    public class Projectile : MMPoolableObject
+    public class Projectile : MainActorBehaviour
         , IEvent<OnDeath>
     {
         public enum UpdateModes
@@ -25,51 +26,53 @@ namespace MoreMountains.TopDownEngine
             Up
         }
 
-        [Header("Movement")]
-        [Tooltip("if true, the projectile will rotate at initialization towards its rotation")]
+        [Header("Movement")] [Tooltip("if true, the projectile will rotate at initialization towards its rotation")]
         public bool FaceDirection = true;
 
         [Tooltip("if true, the projectile will rotate towards movement")]
         public bool FaceMovement;
 
-        [Tooltip("if FaceMovement is true, the projectile's vector specified below will be aligned to the movement vector, usually you'll want to go with Forward in 3D, Right in 2D")]
-        [ShowIf(nameof(FaceMovement))]
-        public MovementVectors MovementVector = MovementVectors.Forward;
+        public bool ManuallyColliding;
 
-        public UpdateModes UpdateMode = UpdateModes.FixedUpdate;
+        [Tooltip("if FaceMovement is true, the projectile's vector specified below will be aligned to the movement vector, usually you'll want to go with Forward in 3D, Right in 2D")] [ShowIf(nameof(FaceMovement))]
+        public MovementVectors MovementVector = MovementVectors.Forward;
 
         [Tooltip("the speed of the object (relative to the level's speed), 米/秒")]
         public UnitLength Speed;
+
+        public ValueModifier SpeedModifier { get; set; }
+
+        public float moveSpeed
+        {
+            get
+            {
+                float speed = Speed;
+                return SpeedModifier.SafeInvoke(ref speed);
+            }
+        }
 
         [Tooltip("the acceleration of the object over time. Starts accelerating on enable.")]
         public float Acceleration;
 
         [Tooltip("the current direction of the object")]
-        public Vector3 Direction = Vector3.left;
-
-        [ReadOnly, ShowInInspector]
-        public Vector3 CurDirection { get; set; }
-
-        [Tooltip("if set to true, the spawner can change the direction of the object. If not the one set in its inspector will be used.")]
-        public bool DirectionCanBeChangedBySpawner = true;
+        public Vector3 Direction;
 
         [Tooltip("the flip factor to apply if and when the projectile is mirrored")]
-        public Vector3 FlipValue = new Vector3(-1, 1, 1);
+        public Vector3 FlipValue = new(-1, 1, 1);
 
         [Tooltip("set this to true if your projectile's model (or sprite) is facing right, false otherwise")]
         public bool ProjectileIsFacingRight = true;
 
-        [Header("Spawn")]
-        [MMInformation("Here you can define an initial delay (in seconds) during which this object won't take or cause damage. This delay starts when the object gets enabled. You can also define whether the projectiles should damage their owner (think rockets and the likes) or not")]
-        [Tooltip("the initial delay during which the projectile can't be destroyed")]
-        public float InitialInvulnerabilityDuration;
+        [Header("Spawn")] [MMInformation("Here you can define an initial delay (in seconds) during which this object won't take or cause damage. This delay starts when the object gets enabled. You can also define whether the projectiles should damage their owner (think rockets and the likes) or not")] [Tooltip("the initial delay during which the projectile can't be destroyed")]
+        public float InitialInvincibleDuration;
 
         [Tooltip("should the projectile damage its owner?")]
         public bool DamageOwner;
 
-        public DamageOnTouch TargetDamageOnTouch => _damageOnTouch;
+        public DamageOnTouch DamageOnTouch => _damageOnTouch;
         public Weapon SourceWeapon => _weapon;
         public GameObject Owner => _owner;
+        protected Stats Stats => _stats;
 
         protected Weapon _weapon;
         protected GameObject _owner;
@@ -79,26 +82,31 @@ namespace MoreMountains.TopDownEngine
         protected float _initialSpeed;
         protected SpriteRenderer _spriteRenderer;
         protected DamageOnTouch _damageOnTouch;
-        protected Collider _collider;
         protected Collider2D _collider2D;
-        protected Rigidbody _rigidBody;
+        protected bool _hasCollider2D;
         protected Rigidbody2D _rigidBody2D;
+        protected bool _hasRigidBody2D;
         protected bool _facingRightInitially;
         protected bool _initialFlipX;
         protected Vector3 _startPosition;
         protected Vector3 _initialLocalScale;
         protected Vector3 _initialDirection;
+        public Vector3 prePos, curPos, correctPos;
+        protected RaycastHit2D willPassingThroughHit;
+        protected bool willPassingThroughThisFrame;
         protected bool _shouldMove = true;
         protected Health _health;
+        protected Stats _stats;
         protected bool _spawnerIsFacingRight;
 
-        CoroutineHandle coroutineInvulnerability;
+        CoroutineHandle coroutineInvincible;
 
         /// <summary>
         /// On awake, we store the initial speed of the object 
         /// </summary>
-        protected virtual void Awake()
+        protected override void OnAwake()
         {
+            base.OnAwake();
             _facingRightInitially = ProjectileIsFacingRight;
             _initialSpeed = Speed;
             if (TryGetComponent(out _health))
@@ -106,25 +114,27 @@ namespace MoreMountains.TopDownEngine
                 _health.Event.addListener(this);
             }
 
-            TryGetComponent(out _collider);
-            TryGetComponent(out _collider2D);
+            _hasCollider2D = TryGetComponent(out _collider2D);
             if (TryGetComponent(out _spriteRenderer))
             {
                 _initialFlipX = _spriteRenderer.flipX;
             }
 
             TryGetComponent(out _damageOnTouch);
-            TryGetComponent(out _rigidBody);
-            TryGetComponent(out _rigidBody2D);
-
+            TryGetComponent(out _stats);
+            _hasRigidBody2D = TryGetComponent(out _rigidBody2D);
             _initialLocalScale = transform.localScale;
+            OnStatsSet();
+        }
+
+        protected virtual void OnStatsSet()
+        {
         }
 
         /// <summary>
         /// Handles the projectile's initial invincibility
         /// </summary>
-        /// <returns>The invulnerability.</returns>
-        protected virtual IEnumerator<float> InitialInvulnerability()
+        protected virtual IEnumerator<float> InitialInvincible()
         {
             var damageOnTouch = _damageOnTouch;
             if (damageOnTouch == null)
@@ -139,7 +149,7 @@ namespace MoreMountains.TopDownEngine
                 damageOnTouch.AddIgnore(_weapon.Owner.gameObject);
             }
 
-            yield return Timing.WaitForSeconds(InitialInvulnerabilityDuration);
+            yield return Timing.WaitForSeconds(InitialInvincibleDuration);
             if (DamageOwner)
             {
                 damageOnTouch.RemoveIgnore(_weapon.Owner.gameObject);
@@ -162,24 +172,25 @@ namespace MoreMountains.TopDownEngine
             _shouldMove = true;
             _damageOnTouch?.InitializeFeedbacks();
 
-            if (_collider) _collider.enabled = true;
-            if (_collider2D) _collider2D.enabled = true;
-            InUse = true;
+            if (_hasCollider2D)
+                _collider2D.enabled = true;
+
+            inUse = true;
         }
 
         /// <summary>
         /// On FixedUpdate(), we move the object based on the level's speed and the object's speed, and apply acceleration
         /// </summary>
-        protected virtual void FixedUpdate()
+        protected override void FixedUpdate()
         {
-            if (UpdateMode == UpdateModes.FixedUpdate)
+            if (mNeedFixedUpdate)
             {
                 var dt = Time.fixedDeltaTime;
-                Tick(dt);
+                OnFixedUpdate(dt);
             }
         }
 
-        public void Tick(float dt)
+        public override void OnFixedUpdate(float dt)
         {
             if (_shouldMove)
             {
@@ -187,9 +198,13 @@ namespace MoreMountains.TopDownEngine
 
                 if (FaceMovement)
                 {
-                    FaceMovementDirection(CurDirection);
+                    FaceMovementDirection(Direction);
                 }
             }
+        }
+
+        protected virtual void CollidingManually(RaycastHit2D hit)
+        {
         }
 
         /// <summary>
@@ -197,17 +212,25 @@ namespace MoreMountains.TopDownEngine
         /// </summary>
         public virtual void Movement(float dt)
         {
-            _movement = Direction * (Speed * dt);
-            CurDirection = Direction;
-            //transform.Translate(_movement,Space.World);
-            if (_rigidBody)
-                _rigidBody.MovePosition(transform.position + _movement);
+            _movement = Direction * (moveSpeed * dt);
 
-            if (_rigidBody2D)
+            if (_hasRigidBody2D)
+            {
+                prePos = transform.position;
                 _rigidBody2D.MovePosition(transform.position + _movement);
+            }
 
             // We apply the acceleration to increase the speed
             Speed += Acceleration * dt;
+        }
+
+        public virtual void MovementTo(Vector3 pos)
+        {
+            if (_hasRigidBody2D)
+            {
+                prePos = transform.position;
+                _rigidBody2D.MovePosition(pos);
+            }
         }
 
         /// <summary>
@@ -218,8 +241,7 @@ namespace MoreMountains.TopDownEngine
         {
             _spawnerIsFacingRight = spawnerIsFacingRight;
 
-            if (DirectionCanBeChangedBySpawner)
-                Direction = newDirection;
+            Direction = newDirection;
 
             if (ProjectileIsFacingRight != spawnerIsFacingRight)
                 Flip();
@@ -235,7 +257,7 @@ namespace MoreMountains.TopDownEngine
             }
         }
 
-        void FaceMovementDirection(Vector3 newDirection)
+        protected void FaceMovementDirection(Vector3 newDirection)
         {
             switch (MovementVector)
             {
@@ -280,6 +302,10 @@ namespace MoreMountains.TopDownEngine
         public virtual void SetWeapon(Weapon newWeapon)
         {
             _weapon = newWeapon;
+            if (_weapon && _weapon.Stats)
+            {
+                
+            }
         }
 
         /// <summary>
@@ -291,7 +317,7 @@ namespace MoreMountains.TopDownEngine
             if (target)
             {
                 _target = target;
-                _targetHealth = target.GetComponent<Health>();
+                target.TryGetComponent(out _targetHealth);
             }
             else
             {
@@ -339,10 +365,11 @@ namespace MoreMountains.TopDownEngine
         /// </summary>
         public virtual void StopAt()
         {
-            if (_collider) _collider.enabled = false;
-            if (_collider2D) _collider2D.enabled = false;
+            if (_hasCollider2D)
+                _collider2D.enabled = false;
+
             _shouldMove = false;
-            InUse = false;
+            inUse = false;
         }
 
         /// <summary>
@@ -354,7 +381,7 @@ namespace MoreMountains.TopDownEngine
         }
 
         /// <summary>
-        /// On enable, we trigger a short invulnerability
+        /// On enable, we trigger a short invincible
         /// </summary>
         protected override void OnEnable()
         {
@@ -362,18 +389,20 @@ namespace MoreMountains.TopDownEngine
 
             Initialization();
 
-            Timing.KillCoroutines(ref coroutineInvulnerability);
+            Timing.KillCoroutines(ref coroutineInvincible);
 
-            if (InitialInvulnerabilityDuration > 0)
-                coroutineInvulnerability = Timing.RunCoroutine(InitialInvulnerability());
+            if (InitialInvincibleDuration > 0)
+                coroutineInvincible = Timing.RunCoroutine(InitialInvincible());
 
             _startPosition = transform.position;
         }
 
-        protected virtual void OnDestroy()
+        protected override void OnDestroy()
         {
             if (_health)
                 _health.Event.removeListener(this);
+
+            base.OnDestroy();
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using MoreMountains.Tools;
 using UnityEngine;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     /// <summary>
     /// A basic melee weapon class, that will activate a "hurt zone" when the weapon is used
@@ -77,7 +77,7 @@ namespace MoreMountains.TopDownEngine
                 }
             }
 
-            _poolableObject = GetComponent<MMPoolableObject>();
+            TryGetComponent(out _poolableObject);
             if (_poolableObject)
             {
                 _poolableObject.LifeTime = 0;

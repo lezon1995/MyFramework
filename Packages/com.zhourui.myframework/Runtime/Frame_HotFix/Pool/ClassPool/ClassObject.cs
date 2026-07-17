@@ -9,6 +9,7 @@ public class ClassObject : IEquatable<ClassObject>, IEventListener, IResetProper
 	protected long mAssignID;						// 重新分配时的ID,每次分配都会设置一个新的唯一执行ID
 	protected bool mHasDestroy;						// 当前对象是否已经被回收
 	protected bool mPendingDestroy;					// 当前对象是否正在回收中
+	public bool inUse;					//标记当前对象是否在使用中
 	public ClassObject()
 	{
 		mHasDestroy = true;
@@ -19,6 +20,7 @@ public class ClassObject : IEquatable<ClassObject>, IEventListener, IResetProper
 		mAssignID = 0;
 		mHasDestroy = true;
 		mPendingDestroy = false;
+		inUse = false;
 		// mObjectInstanceID不重置
 		// mObjectInstanceID = 0
 	}

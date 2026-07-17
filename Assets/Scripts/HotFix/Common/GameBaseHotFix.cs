@@ -1,4 +1,4 @@
-using MarbleHero;
+using MoreMountains;
 
 // 这个类的添加是方便代码的书写
 // 因为使用很频繁所以简写为GBH,全称为GameBaseHotFix
@@ -52,6 +52,7 @@ public class GBR
 
     public static MapRoomNode mapNode => ADungeon.getCurrMapNode();
     public static MonsterGroup monsters => room.monsters;
-    public static AMonster enemy => room?.monsters?.main;
     public static MetricData metricData { get; set; }
+    public static ResourceManager resource => mResourceManager;
+    public static PrefabPoolManager prefabPool => mPrefabPoolManager;
 }

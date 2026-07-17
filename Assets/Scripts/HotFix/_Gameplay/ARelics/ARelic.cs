@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace MarbleHero
+namespace MoreMountains
 {
     [Serializable]
     public abstract partial class ARelic : IComparable<ARelic>
@@ -214,7 +214,7 @@ namespace MarbleHero
             isObtained = true;
         }
 
-        public void onPlayCard(ACard c, AMonster m)
+        public void onPlayCard(ACard c)
         {
         }
 
@@ -518,6 +518,10 @@ namespace MarbleHero
         }
 
         public virtual void onBallHitBrick(APlayer p, Ball ball, Brick brick, Vector2 normal, ref bool triggerRegularHit)
+        {
+        }
+
+        public virtual void onBallHitObstacle(APlayer p, Ball ball, Obstacle obstacle, ref Vector2 normal)
         {
         }
 

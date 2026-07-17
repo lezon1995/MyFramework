@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     public static class StatKey
     {
@@ -58,6 +58,8 @@ namespace MoreMountains.TopDownEngine
                 Character.Stat.AF => Stats.AF,
                 Character.Stat.LS => Stats.LS,
                 Character.Stat.Range => Stats.Range,
+                Character.Stat.DodgeChance => Stats.DodgeChance,
+                Character.Stat.BallisticSpeed => Stats.BallisticSpeed,
                 _ => throw new ArgumentOutOfRangeException(nameof(stat), stat, null)
             };
         }
@@ -77,6 +79,20 @@ namespace MoreMountains.TopDownEngine
                 Weapon.Stat.Scale => "Scale",
                 Weapon.Stat.Duration => "Duration",
                 Weapon.Stat.Count => "Count",
+                _ => throw new ArgumentOutOfRangeException(nameof(stat), stat, null)
+            };
+        }
+        
+        public static string Key(this Ball.Stat stat)
+        {
+            return stat switch
+            {
+                Ball.Stat.AD => "AD",
+                Ball.Stat.AP => "AP",
+                Ball.Stat.MS => "MS",
+                Ball.Stat.CritChance => "CritChance",
+                Ball.Stat.CritDamage => "CritDamage",
+                Ball.Stat.DmgRate => "DmgRate",
                 _ => throw new ArgumentOutOfRangeException(nameof(stat), stat, null)
             };
         }

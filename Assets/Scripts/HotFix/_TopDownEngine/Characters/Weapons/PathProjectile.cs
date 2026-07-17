@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     /// <summary>
     /// A thrown object type of projectile, useful for grenades and such
@@ -8,9 +8,9 @@ namespace MoreMountains.TopDownEngine
     [AddComponentMenu("TopDown Engine/Weapons/PathProjectile")]
     public class PathProjectile : Projectile
     {
-        protected override void Awake()
+        protected override void OnAwake()
         {
-            base.Awake();
+            base.OnAwake();
 
             if (_damageOnTouch)
             {
@@ -23,13 +23,11 @@ namespace MoreMountains.TopDownEngine
             if (_target == null)
                 return;
 
-            transform.position = Vector3.MoveTowards(transform.position, _target.position, dt * Speed);
+            transform.position = Vector3.MoveTowards(transform.position, _target.position, dt * moveSpeed);
 
-            var vector3 = _target.position - transform.position;
-            
-            CurDirection = vector3.normalized;
-            
-            if (vector3.sqrMagnitude == 0F)
+            var dir = _target.position - transform.position;
+            SetDirection(dir.normalized, Quaternion.identity);
+            if (dir.sqrMagnitude == 0F)
             {
                 _damageOnTouch.ForceColliding(_target.gameObject);
             }

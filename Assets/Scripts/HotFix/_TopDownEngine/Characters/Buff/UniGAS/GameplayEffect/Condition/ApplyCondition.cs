@@ -1,6 +1,6 @@
 using Sirenix.OdinInspector;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     public abstract class ApplyCondition : SerializedScriptableObject
     {

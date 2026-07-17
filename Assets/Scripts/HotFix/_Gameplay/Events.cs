@@ -1,7 +1,7 @@
 ﻿using MoreMountains.Tools;
 using UnityEngine;
 
-namespace MarbleHero;
+namespace MoreMountains;
 
 public struct DoHitEffect
 {
@@ -25,14 +25,6 @@ public struct DoSkillEffect
         ball = b1;
         brick = b2;
     }
-}
-
-public struct OnHit
-{
-}
-
-public struct OnHeal
-{
 }
 
 public struct OnBallDeath
@@ -109,7 +101,7 @@ public struct DoDmgBall
     }
 }
 
-public struct OnDmg
+/*public struct OnDmg
 {
     public Ball ball;
     public Dmg dmg;
@@ -119,7 +111,7 @@ public struct OnDmg
         ball = b;
         dmg = d;
     }
-}
+}*/
 
 public struct DoAttackKillEffect
 {

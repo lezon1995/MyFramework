@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace MarbleHero
+namespace MoreMountains
 {
     /// <summary>
     /// 血条着色器属性枚举，对应 Shader 中的 Property 名称

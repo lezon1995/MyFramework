@@ -1,7 +1,7 @@
 using Obfuz;
 using UnityEngine;
 
-namespace MarbleHero;
+namespace MoreMountains;
 
 // auto generate member start
 [ObfuzIgnore(ObfuzScope.TypeName)]

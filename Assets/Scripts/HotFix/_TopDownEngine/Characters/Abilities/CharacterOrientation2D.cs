@@ -3,7 +3,7 @@ using MoreMountains.Tools;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     /// <summary>
     /// Add this ability to a character, and it'll rotate or flip to face the direction of movement or the weapon's, or both, or none
@@ -158,7 +158,7 @@ namespace MoreMountains.TopDownEngine
         /// <param name="dt"></param>
         public override void OnUpdate(float dt)
         {
-            if (_condition.Not(Character.Conditions.Normal))
+            if (_conditionState.Not(Character.Conditions.Normal))
                 return;
 
             if (AbilityUnauthorized)

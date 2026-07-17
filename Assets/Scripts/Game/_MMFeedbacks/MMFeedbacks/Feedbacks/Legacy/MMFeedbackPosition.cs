@@ -51,7 +51,6 @@ namespace MoreMountains.Feedbacks
 		/// the value to remap the curve's 1 value to
 		[Tooltip("the value to remap the curve's 1 value to")]
 		[MMFEnumCondition("Mode", (int)Modes.AlongCurve)]
-		[FormerlySerializedAs("CurveMultiplier")]
 		public float RemapCurveOne = 1f;
 		/// if this is true, the x position will be animated
 		[Tooltip("if this is true, the x position will be animated")]

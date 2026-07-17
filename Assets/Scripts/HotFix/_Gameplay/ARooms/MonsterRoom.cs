@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using MoreMountains.Tools;
 
-namespace MarbleHero
+namespace MoreMountains
 {
     public record struct OnPlayerEnterBattleRoom;
 
@@ -112,9 +112,6 @@ namespace MarbleHero
 
         protected override void onPlayerCompletedRewardGold()
         {
-            if (monsters.haveMonstersEscaped())
-                return;
-
             Game.monstersSlain++;
             log("Monsters Slain " + Game.monstersSlain);
 
@@ -129,10 +126,7 @@ namespace MarbleHero
 
         protected override int onPlayerCompletedGetPotionChance()
         {
-            if (!monsters.haveMonstersEscaped())
-                return 40 + blizzardPotionMod;
-
-            return 0;
+            return 40 + blizzardPotionMod;
         }
 
         public override void update(float dt)
@@ -146,10 +140,7 @@ namespace MarbleHero
         {
             foreach (var m in monsters.monsters)
             {
-                foreach (var group in m.brickGroups)
-                {
-                    list.addRange(group.bricks);
-                }
+                list.add(m as Brick);
             }
         }
 

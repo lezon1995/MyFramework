@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace MarbleHero
+namespace MoreMountains
 {
     /// <summary>
     /// 单次受击产生的 DamageChunk
@@ -146,27 +146,28 @@ namespace MarbleHero
         /// <summary>
         /// 直接设置前景和缓冲进度
         /// </summary>
-        /// <param name="foreground">实际血量 [0,1]</param>
-        /// <param name="buffer">缓冲血量 [0,1]</param>
-        public void SetProgress(float foreground, float buffer)
+        /// <param name="curPct">实际血量 [0,1]</param>
+        /// <param name="bufferPct">缓冲血量 [0,1]</param>
+        public void SetProgress(float curPct)
         {
-            ForegroundProgress = foreground;
+            ForegroundProgress = curPct;
+            ClearAllChunks();
         }
 
         /// <summary>
         /// 扣血：前景立即减少，产生一个新的 DamageChunk。
         /// </summary>
-        /// <param name="currentHP">扣血后的实际血量 [0,1]</param>
+        /// <param name="curHpPct">扣血后的实际血量 [0,1]</param>
         /// <param name="chunkColor">此次受击的 chunk 颜色（可传 null 使用默认灰色）</param>
-        public void ApplyDamage(float currentHP, Color? chunkColor = null)
+        public void ApplyDamage(float curHpPct, Color? chunkColor = null)
         {
             float prevForeground = _foregroundProgress;
-            ForegroundProgress = currentHP;
+            ForegroundProgress = curHpPct;
 
-            if (currentHP < prevForeground)
+            if (curHpPct < prevForeground)
             {
                 CreateChunk(
-                    currentHP, // start = 受击瞬间的前景值
+                    curHpPct, // start = 受击瞬间的前景值
                     prevForeground, // end = 受击瞬间的缓冲值（当前缓冲，不是目标缓冲）
                     chunkColor ?? _defaultChunkColor
                 );

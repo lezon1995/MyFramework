@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using UnityEngine;
 
-namespace MarbleHero;
+namespace MoreMountains;
 
 public class LocalizedStrings : FrameSystem
 {
@@ -71,24 +71,24 @@ public class LocalizedStrings : FrameSystem
         var monsterPath = langPackDir + SEP + "monsters.json";
         var powerPath = langPackDir + SEP + "powers.json";
         var cardPath = langPackDir + SEP + "cards";
-        // var cardRes = mResourceManager.loadGameResource<TextAsset>(cardPath);
+        // var cardRes = res.loadGameResource<TextAsset>(cardPath);
         // cards = JsonConvert.DeserializeObject<Dictionary<string, CardStrings>>(cardRes.getResource().text);
 
         var relicPath = langPackDir + SEP + "RelicStrings.json";
-        var relicRes = mResourceManager.loadGameResource<TextAsset>(relicPath);
+        var relicRes = resource.loadGameResource<TextAsset>(relicPath);
         relics = JsonConvert.DeserializeObject<Dictionary<string, RelicStrings>>(relicRes.getResource().text);
         var eventPath = langPackDir + SEP + "events.json";
         var potionPath = langPackDir + SEP + "potions.json";
         var creditPath = langPackDir + SEP + "credits.json";
         var tutorialsPath = langPackDir + SEP + "tutorials.json";
         var keywordsPath = langPackDir + SEP + "KeywordStrings.json";
-        var keywordRes = mResourceManager.loadGameResource<TextAsset>(keywordsPath);
+        var keywordRes = resource.loadGameResource<TextAsset>(keywordsPath);
         keywords = JsonConvert.DeserializeObject<Dictionary<string, KeywordStrings>>(keywordRes.getResource().text);
 
         var scoreBonusesPath = langPackDir + SEP + "score_bonuses.json";
         var characterPath = langPackDir + SEP + "characters.json";
         var uiPath = langPackDir + SEP + "UIStrings.json";
-        var uiRes = mResourceManager.loadGameResource<TextAsset>(uiPath);
+        var uiRes = resource.loadGameResource<TextAsset>(uiPath);
         ui = JsonConvert.DeserializeObject<Dictionary<string, UIStrings>>(uiRes.getResource().text);
 
         // PERIOD = (getUIString("Period")).TEXT[0];

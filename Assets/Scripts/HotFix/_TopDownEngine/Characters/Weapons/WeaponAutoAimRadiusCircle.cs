@@ -1,7 +1,7 @@
 using MoreMountains.Tools;
 using UnityEngine;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     /// <summary>
     /// This class will automatically draw a circle to match the radius of the auto aim weapon if there's one

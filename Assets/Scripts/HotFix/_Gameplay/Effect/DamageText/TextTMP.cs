@@ -1,7 +1,7 @@
 ﻿using TMPro;
 using UnityEngine;
 
-namespace MarbleHero;
+namespace MoreMountains;
 
 public class TextTMP : ClassObject, IText, IArgs<TextMeshProUGUI, bool>
 {

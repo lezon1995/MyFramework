@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using MoreMountains.Tools;
 using UnityEngine;
 
-namespace MarbleHero
+namespace MoreMountains
 {
     public abstract class AEvent : IDisposable
     {
@@ -472,7 +472,7 @@ namespace MarbleHero
 
         public void Dispose()
         {
-            if (img != null)
+            if (img)
             {
                 log("Disposed event img asset");
                 // img.dispose();

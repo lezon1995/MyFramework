@@ -1,9 +1,9 @@
-using MarbleHero;
+using MoreMountains;
 using UnityEngine;
 
-// namespace MarbleHero;
+// namespace MoreMountains;
 
-[CreateAssetMenu(fileName = "FTextSetting", menuName = "MarbleHero/FText Setting/FTextSetting")]
+[CreateAssetMenu(fileName = "FTextSetting", menuName = "MoreMountains/FText Setting/FTextSetting")]
 public class FTextSetting : ScriptableObject
 {
     public virtual bool CalculateTotalPct => false;

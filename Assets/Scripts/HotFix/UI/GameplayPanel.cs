@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using MarbleHero;
+using MoreMountains;
 using MoreMountains.Tools;
 using Obfuz;
 using PrimeTween;
@@ -118,7 +118,7 @@ public class GameplayPanel : LayoutScript
             else if (xpChange != null)
             {
                 var e = xpChange.Value;
-                refreshCurXp(e.Xp);
+                refreshCurXp((int)e.Xp);
                 refreshExpBar(e.Ratio);
 
                 xpChange = null;

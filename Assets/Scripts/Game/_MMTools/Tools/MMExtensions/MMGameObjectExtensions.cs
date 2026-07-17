@@ -9,7 +9,7 @@ namespace MoreMountains.Tools
     /// </summary>
     public static class GameObjectExtensions
     {
-        static List<Component> m_ComponentCache = new List<Component>();
+        static List<Component> m_ComponentCache = new();
 
         /// <summary>
         /// Grabs a component without allocating memory uselessly
@@ -45,6 +45,36 @@ namespace MoreMountains.Tools
             Component component = m_ComponentCache.Count > 0 ? m_ComponentCache[0] : null;
             m_ComponentCache.Clear();
             return component as T;
+        }
+
+        public static bool TryGetComponentInParent<T>(this Component @this, out T component, bool includeInactive = true) where T : Component
+        {
+	        component = @this.gameObject.GetComponentInParent<T>(includeInactive);
+            return component != null;
+        }
+
+        public static bool TryGetComponentInChildren<T>(this Component @this, out T component, bool includeInactive = true) where T : Component
+        {
+	        component = @this.gameObject.GetComponentInChildren<T>(includeInactive);
+            return component != null;
+        }
+
+        public static void TryGetComponentsInChildren<T>(this Component @this, ref List<T> components, bool includeInactive = true, bool clearFirst = false) where T : Component
+        {
+	        if (clearFirst)
+		        components.Clear();
+	        
+	        var children = @this.GetComponentsInChildren<T>(includeInactive);
+	        components.AddRange(children);
+        }
+
+        public static void TryGetComponentsInChildren<T>(this GameObject @this, ref List<T> components, bool includeInactive = true, bool clearFirst = false) where T : Component
+        {
+	        if (clearFirst)
+		        components.Clear();
+
+	        var children = @this.GetComponentsInChildren<T>(includeInactive);
+	        components.AddRange(children);
         }
 
 		/// <summary>

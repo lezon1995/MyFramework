@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
-namespace MarbleHero;
+namespace MoreMountains;
 
 public class FTextManager : FrameSystem
     , IEvent<DmgTextEvent>
@@ -48,8 +48,8 @@ public class FTextManager : FrameSystem
 
     void initSettings()
     {
-        var damage = mResourceManager.loadGameResource<FTextSetting>($"{GAMEPLAY_PATH}/FTextSetting_Damage.asset");
-        var damage_Crit = mResourceManager.loadGameResource<FTextSetting>($"{GAMEPLAY_PATH}/FTextSetting_Damage_Crit.asset");
+        var damage = resource.loadGameResource<FTextSetting>($"{GAMEPLAY_PATH}/FTextSetting_Damage.asset");
+        var damage_Crit = resource.loadGameResource<FTextSetting>($"{GAMEPLAY_PATH}/FTextSetting_Damage_Crit.asset");
         settings.add("Damage", damage.getResource());
         settings.add("Damage_Crit", damage_Crit.getResource());
     }
@@ -116,7 +116,7 @@ public class FTextManager : FrameSystem
             text = CLASS<FText>();
             text.setName("FText");
             var path = $"{GAMEPLAY_PATH}/FTextTMP.prefab";
-            var o = mPrefabPoolManager.createObject(path, true, textParent);
+            var o = prefabPool.createObject(path, true, textParent);
             text.setObject(o);
         }
 
@@ -143,66 +143,66 @@ public class FTextManager : FrameSystem
 
     public static void showDamage(Transform target, Dmg dmg)
     {
-        if (dmg.isSelf)
+        if (dmg.Self)
             return;
 
-        var setting = dmg.isCrit ? "Damage_Crit" : "Damage";
+        var setting = dmg.IsCrit ? "Damage_Crit" : "Damage";
 
-        var mix = dmg.mix;
-        if (mix.off)
+        var mix = dmg.Mix;
+        if (mix.Off)
         {
-            new FText.Data($"{dmg.damageDealt:F0}")
+            new FText.Data($"{dmg.DamageDealt:F0}")
                 .setSetting(setting)
-                .setValue(dmg.damageDealt)
-                .setDirection(dmg.direction)
+                .setValue(dmg.DamageDealt)
+                .setDirection(dmg.Direction)
                 .setTarget(target)
                 .setOffset(Random.insideUnitCircle * 0.25F)
-                .setExtraContentSize(Mathf.InverseLerp(50, 1000, dmg.damageDealt) * 1F) //this should be based on the amount of damage
-                .setType((int)dmg.actualType)
+                .setExtraContentSize(Mathf.InverseLerp(50, 1000, dmg.DamageDealt) * 1F) //this should be based on the amount of damage
+                .setType((int)dmg.ActualType)
                 .show();
 
             return;
         }
 
-        var damage = mix.physicDamageDealt;
+        var damage = mix.DamageDealtAD;
         if ((int)damage > 0)
         {
             new FText.Data($"{damage:F0}")
                 .setSetting(setting)
                 .setValue(damage)
-                .setDirection(dmg.direction)
+                .setDirection(dmg.Direction)
                 .setTarget(target)
                 .setOffset(Random.insideUnitCircle * 0.25F)
-                .setExtraContentSize(Mathf.InverseLerp(50, 1000, dmg.damageDealt) * 1F) //this should be based on the amount of damage
-                .setType((int)Dmg.Types.PHYSIC)
+                .setExtraContentSize(Mathf.InverseLerp(50, 1000, dmg.DamageDealt) * 1F) //this should be based on the amount of damage
+                .setType((int)Dmg.Types.AD)
                 .show();
         }
 
-        damage = mix.magicDamageDealt;
+        damage = mix.DamageDealtAP;
         if ((int)damage > 0)
         {
             new FText.Data($"{damage:F0}")
                 .setSetting(setting)
                 .setValue(damage)
-                .setDirection(dmg.direction)
+                .setDirection(dmg.Direction)
                 .setTarget(target)
                 .setOffset(Random.insideUnitCircle * 0.25F)
-                .setExtraContentSize(Mathf.InverseLerp(50, 1000, dmg.damageDealt) * 1F) //this should be based on the amount of damage
-                .setType((int)Dmg.Types.MAGIC)
+                .setExtraContentSize(Mathf.InverseLerp(50, 1000, dmg.DamageDealt) * 1F) //this should be based on the amount of damage
+                .setType((int)Dmg.Types.AP)
                 .show();
         }
 
-        damage = mix.trueDamageDealt;
+        damage = mix.DamageDealtTrue;
         if ((int)damage > 0)
         {
             new FText.Data($"{damage:F0}")
                 .setSetting(setting)
                 .setValue(damage)
-                .setDirection(dmg.direction)
+                .setDirection(dmg.Direction)
                 .setTarget(target)
                 .setOffset(Random.insideUnitCircle * 0.25F)
-                .setExtraContentSize(Mathf.InverseLerp(50, 1000, dmg.damageDealt) * 1F) //this should be based on the amount of damage
-                .setType((int)Dmg.Types.TRUE)
+                .setExtraContentSize(Mathf.InverseLerp(50, 1000, dmg.DamageDealt) * 1F) //this should be based on the amount of damage
+                .setType((int)Dmg.Types.True)
                 .show();
         }
     }

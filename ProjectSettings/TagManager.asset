@@ -5,6 +5,8 @@ TagManager:
   serializedVersion: 3
   tags:
   - NoClick
+  - Block
+  - Ball
   layers:
   - Default
   - TransparentFX
@@ -18,10 +20,10 @@ TagManager:
   - BorderRight
   - BorderTop
   - BorderBot
-  - 
-  - 
-  - 
-  - 
+  - Character
+  - Ground
+  - Obstacle
+  - Border
   - 
   - 
   - 
@@ -51,8 +53,26 @@ TagManager:
   - name: Ball
     uniqueID: 1541850065
     locked: 0
-  - name: Fx
+  - name: Character
     uniqueID: 3627435115
+    locked: 0
+  - name: 
+    uniqueID: 3999875501
+    locked: 0
+  - name: 
+    uniqueID: 3794205185
+    locked: 0
+  - name: 
+    uniqueID: 2000580507
+    locked: 0
+  - name: 
+    uniqueID: 2481314421
+    locked: 0
+  - name: 
+    uniqueID: 1837248269
+    locked: 0
+  - name: Fx
+    uniqueID: 1171060913
     locked: 0
   m_RenderingLayers:
   - Default

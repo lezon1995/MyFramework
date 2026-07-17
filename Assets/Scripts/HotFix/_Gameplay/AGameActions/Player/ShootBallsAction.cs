@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace MarbleHero
+namespace MoreMountains
 {
     public class ShootBallsAction : AGameAction, IArgs<Vector3, Vector3>
     {
@@ -37,7 +37,7 @@ namespace MarbleHero
             {
                 if (player.ballCount > 0)
                 {
-                    var ball = ballManager.acquireBall(shootPos, 0.10F, shootDir, 8F);
+                    var ball = ballManager.acquireBall(shootPos, shootDir);
                     if (player.ballCount == player.ballMaxCount)
                     {
                         // ball.isFirst = true;

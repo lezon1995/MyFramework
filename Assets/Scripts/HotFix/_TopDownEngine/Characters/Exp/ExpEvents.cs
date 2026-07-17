@@ -1,9 +1,29 @@
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     public struct OnAddXp
     {
-        public float Xp;
-        public OnAddXp(float xp) => Xp = xp;
+        public int Xp;
+        public float Ratio;
+
+        public OnAddXp(int xp, float ratio)
+        {
+            Xp = xp;
+            Ratio = ratio;
+        }
+    }
+    
+    public struct OnLevelUp
+    {
+        public int Xp;
+        public int Level;
+        public float Ratio;
+
+        public OnLevelUp(int xp, int level, float ratio)
+        {
+            Xp = xp;
+            Level = level;
+            Ratio = ratio;
+        }
     }
 
     public struct OnXpTotalChange

@@ -6,16 +6,14 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
-    /// the possible ways to add knockback : noKnockback, which won't do anything, set force, or add force
     public enum KnockbackStyles
     {
         None,
         AddForce
     }
 
-    /// the possible knockback directions
     public enum KnockbackDirections
     {
         BasedOnOwnerPosition,
@@ -24,10 +22,6 @@ namespace MoreMountains.TopDownEngine
         BasedOnScriptDirection
     }
 
-    /// <summary>
-    /// Add this component to an object, and it will cause damage to objects that collide with it. 
-    /// </summary>
-    [AddComponentMenu("TopDown Engine/Character/Damage/DamageOnTouch")]
     public class DamageOnTouch : MMMonoBehaviour
     {
         [Flags]
@@ -47,16 +41,17 @@ namespace MoreMountains.TopDownEngine
         /// the possible ways to determine damage directions
         public enum DamageDirections
         {
-            BasedOnOwnerPosition,
             BasedOnVelocity,
+            BasedOnOwnerPosition,
             BasedOnScriptDirection
         }
 
-        public const TriggerMask AllowedTrigger = TriggerMask.OnTriggerEnter | TriggerMask.OnTriggerEnter2D;
+        public const TriggerMask AllowedTrigger = TriggerMask.OnTriggerEnter2D | TriggerMask.OnTriggerStay2D;
 
         [MMInspectorGroup("Targets")]
-        [MMInformation("This component will make your object cause damage to objects that collide with it. Here you can define what layers will be affected by the damage (for a standard enemy, choose Player), how much damage to give, and how much force should be applied to the object that gets the damage on hit. You can also specify how long the post-hit invincibility should last (in seconds).")]
-        [Tooltip("the layers that will be damaged by this object")]
+        public bool ManuallyColliding;
+        
+        [MMInspectorGroup("Targets")] [Tooltip("the layers that will be damaged by this object")]
         public LayerMask TargetLayerMask;
 
         [ShowInInspector, ReadOnly]
@@ -71,31 +66,24 @@ namespace MoreMountains.TopDownEngine
         public Dmg Dmg;
         public Func<Dmg> DmgGetter { get; set; }
 
-        [Tooltip("a list of typed damage definitions that will be applied on top of the base damage")]
-        public List<TypedDamage> TypedDamages;
-
         [Tooltip("how to determine the damage direction passed to the Health damage method, usually you'll use velocity for moving damage areas (projectiles) and owner position for melee weapons")]
-        public DamageDirections DamageDirectionMode = DamageDirections.BasedOnVelocity;
+        public DamageDirections DamageDirectionMode;
 
-        [Header("Knockback")]
-        [Tooltip("the type of knockback to apply when causing damage")]
-        public KnockbackStyles DamageCausedKnockbackType = KnockbackStyles.AddForce;
+        [Header("Knockback")] [Tooltip("the type of knockback to apply when causing damage")]
+        public KnockbackStyles DamageCausedKnockbackType;
 
         [Tooltip("The direction to apply the knockback ")]
-        public KnockbackDirections DamageCausedKnockbackDirection = KnockbackDirections.BasedOnOwnerPosition;
+        public KnockbackDirections DamageCausedKnockbackDirection;
 
         [Tooltip("The force to apply to the object that gets damaged - this force will be rotated based on your knockback direction mode. So for example in 3D if you want to be pushed back the opposite direction, focus on the z component, with a force of 0,0,20 for example")]
-        public Vector3 DamageCausedKnockbackForce = new Vector3(10, 10, 10);
+        public Vector3 DamageKnockbackForce = new(2, 0, 0);
+        
+        public Vector3 LethalDamageKnockbackForce = new(1, 0, 0);
 
-        [Header("Invincibility")]
-        [Tooltip("The duration of the invincibility frames after the hit (in seconds)")]
+        [Header("Invincibility")] [Tooltip("The duration of the invincibility frames after the hit (in seconds)")]
         public float InvincibilityDuration;
 
-        [MMInspectorGroup("Damage Taken")]
-        [MMInformation("After having applied the damage to whatever it collided with, you can have this object hurt itself. " +
-                       "A bullet will explode after hitting a wall for example. Here you can define how much damage it'll take every time it hits something, " +
-                       "or only when hitting something that's damageable, or non damageable. Note that this object will need a Health component too for this to be useful.")]
-        [Tooltip("The Health component on which to apply damage taken. If left empty, will attempt to grab one on this object.")]
+        [MMInspectorGroup("Damage Taken")] [Tooltip("The Health component on which to apply damage taken. If left empty, will attempt to grab one on this object.")]
         public Health DamageTakenHealth;
 
         [Tooltip("The amount of damage taken every time, whether what we collide with is damageable or not")]
@@ -116,11 +104,9 @@ namespace MoreMountains.TopDownEngine
         [Tooltip("The duration of the invincibility frames after the hit (in seconds)")]
         public float DamageTakenInvincibilityDuration;
 
-        [MMInspectorGroup("Buff On Touch")]
-        public BuffOnTouch BuffOnTouch;
+        [MMInspectorGroup("Buff On Touch")] public BuffOnTouch BuffOnTouch;
 
-        [MMInspectorGroup("Feedbacks")]
-        public MMFeedbacks HitDamageableFeedback;
+        [MMInspectorGroup("Feedbacks")] public MMFeedbacks HitDamageableFeedback;
         public MMFeedbacks HitNonDamageableFeedback;
         public MMFeedbacks HitAnythingFeedback;
 
@@ -138,13 +124,9 @@ namespace MoreMountains.TopDownEngine
         protected Vector3 _knockbackForceApplied;
         protected CircleCollider2D _circleCollider2D;
         protected BoxCollider2D _boxCollider2D;
-        protected SphereCollider _sphereCollider;
-        protected BoxCollider _boxCollider;
         protected Color _gizmosColor;
         protected Vector3 _gizmoSize;
         protected Vector3 _gizmoOffset;
-        protected Transform _gizmoTransform;
-        protected bool _twoD;
         protected bool _initializedFeedbacks;
         protected Vector3 _positionLastFrame;
         protected Vector3 _knockbackScriptDirection;
@@ -180,6 +162,8 @@ namespace MoreMountains.TopDownEngine
             InitializeGizmos();
             InitializeColliders();
             InitializeFeedbacks();
+
+            BindStats();
         }
 
         /// <summary>
@@ -188,6 +172,20 @@ namespace MoreMountains.TopDownEngine
         protected virtual void GrabComponents()
         {
             Owner = gameObject;
+            if (DamageTakenHealth == null)
+                TryGetComponent(out DamageTakenHealth);
+
+            if (BuffOnTouch == null)
+                TryGetComponent(out BuffOnTouch);
+
+            TryGetComponent(out _topDownController);
+            TryGetComponent(out _boxCollider2D);
+            TryGetComponent(out _circleCollider2D);
+            _lastDamagePosition = transform.position;
+        }
+
+        protected virtual void BindStats()
+        {
             if (Owner.TryGetComponent<Stats>(out var stats))
             {
                 DmgGetter = () => Dmg.AD(stats.GetStat(Character.Stat.AD.Key()).Value);
@@ -196,19 +194,6 @@ namespace MoreMountains.TopDownEngine
             {
                 DmgGetter = () => Dmg;
             }
-
-            if (DamageTakenHealth == null)
-                DamageTakenHealth = GetComponent<Health>();
-
-            if (BuffOnTouch == null)
-                BuffOnTouch = GetComponent<BuffOnTouch>();
-
-            _topDownController = GetComponent<TopDownController>();
-            _boxCollider = GetComponent<BoxCollider>();
-            _sphereCollider = GetComponent<SphereCollider>();
-            _boxCollider2D = GetComponent<BoxCollider2D>();
-            _circleCollider2D = GetComponent<CircleCollider2D>();
-            _lastDamagePosition = transform.position;
         }
 
         /// <summary>
@@ -216,23 +201,10 @@ namespace MoreMountains.TopDownEngine
         /// </summary>
         protected virtual void InitializeColliders()
         {
-            _twoD = _boxCollider2D || _circleCollider2D;
             if (_boxCollider2D)
             {
                 SetGizmoOffset(_boxCollider2D.offset);
                 _boxCollider2D.isTrigger = true;
-            }
-
-            if (_boxCollider)
-            {
-                SetGizmoOffset(_boxCollider.center);
-                _boxCollider.isTrigger = true;
-            }
-
-            if (_sphereCollider)
-            {
-                SetGizmoOffset(_sphereCollider.center);
-                _sphereCollider.isTrigger = true;
             }
 
             if (_circleCollider2D)
@@ -264,14 +236,6 @@ namespace MoreMountains.TopDownEngine
             ClearIgnore();
         }
 
-        /// <summary>
-        /// On validate we ensure our inspector is in sync
-        /// </summary>
-        protected virtual void OnValidate()
-        {
-            TriggerFilter &= AllowedTrigger;
-        }
-
         #endregion
 
         #region Gizmos
@@ -291,10 +255,8 @@ namespace MoreMountains.TopDownEngine
         /// <param name="newGizmoSize"></param>
         public virtual void SetGizmoSize(Vector3 newGizmoSize)
         {
-            _boxCollider2D = GetComponent<BoxCollider2D>();
-            _boxCollider = GetComponent<BoxCollider>();
-            _sphereCollider = GetComponent<SphereCollider>();
-            _circleCollider2D = GetComponent<CircleCollider2D>();
+            TryGetComponent(out _boxCollider2D);
+            TryGetComponent(out _circleCollider2D);
             _gizmoSize = newGizmoSize;
         }
 
@@ -302,10 +264,6 @@ namespace MoreMountains.TopDownEngine
         {
             if (_boxCollider2D)
                 _boxCollider2D.enabled = active;
-            if (_boxCollider)
-                _boxCollider.enabled = active;
-            if (_sphereCollider)
-                _sphereCollider.enabled = active;
             if (_circleCollider2D)
                 _circleCollider2D.enabled = active;
         }
@@ -341,22 +299,6 @@ namespace MoreMountains.TopDownEngine
                     Gizmos.DrawSphere((Vector2)_gizmoOffset, _circleCollider2D.radius);
                 else
                     Gizmos.DrawWireSphere((Vector2)_gizmoOffset, _circleCollider2D.radius);
-            }
-
-            if (_boxCollider)
-            {
-                if (_boxCollider.enabled)
-                    MMDebug.DrawGizmoCube(transform, _gizmoOffset, _boxCollider.size, false);
-                else
-                    MMDebug.DrawGizmoCube(transform, _gizmoOffset, _boxCollider.size, true);
-            }
-
-            if (_sphereCollider)
-            {
-                if (_sphereCollider.enabled)
-                    Gizmos.DrawSphere(transform.position, _sphereCollider.radius);
-                else
-                    Gizmos.DrawWireSphere(transform.position, _sphereCollider.radius);
             }
         }
 
@@ -431,11 +373,8 @@ namespace MoreMountains.TopDownEngine
             if (dt != 0F)
             {
                 _velocity = (_lastPosition - transform.position) / dt;
-
                 if (Vector3.Distance(_lastDamagePosition, transform.position) > 0.5f)
-                {
                     _lastDamagePosition = transform.position;
-                }
 
                 _lastPosition = transform.position;
             }
@@ -449,11 +388,8 @@ namespace MoreMountains.TopDownEngine
             switch (DamageDirectionMode)
             {
                 case DamageDirections.BasedOnOwnerPosition:
-                    var direction = _colliderHealth.transform.position - Owner.transform.position;
-                    if (_twoD)
-                        direction.z = 0;
-
-                    _damageDirection = direction;
+                    _damageDirection = _colliderHealth.transform.position - Owner.transform.position;
+                    _damageDirection.z = 0;
                     break;
                 case DamageDirections.BasedOnVelocity:
                     _damageDirection = transform.position - _lastDamagePosition;
@@ -470,48 +406,26 @@ namespace MoreMountains.TopDownEngine
 
         #region CollisionDetection
 
-        /// <summary>
-        /// When a collision with the player is triggered, we give damage to the player and knock it back
-        /// </summary>
-        /// <param name="collider">what's colliding with the object.</param>
-        public virtual void OnTriggerStay2D(Collider2D collider)
+        public virtual void OnTriggerStay2D(Collider2D c)
         {
+            if (ManuallyColliding)
+                return;
+            
             if (0 == (TriggerFilter & TriggerMask.OnTriggerStay2D))
                 return;
-            Colliding(collider.gameObject);
+
+            Colliding(c.gameObject);
         }
 
-        /// <summary>
-        /// On trigger enter 2D, we call our colliding endpoint
-        /// </summary>
-        /// <param name="collider"></param>S
-        public virtual void OnTriggerEnter2D(Collider2D collider)
+        public virtual void OnTriggerEnter2D(Collider2D c)
         {
+            if (ManuallyColliding)
+                return;
+            
             if (0 == (TriggerFilter & TriggerMask.OnTriggerEnter2D))
                 return;
-            Colliding(collider.gameObject);
-        }
 
-        /// <summary>
-        /// On trigger stay, we call our colliding endpoint
-        /// </summary>
-        /// <param name="collider"></param>
-        public virtual void OnTriggerStay(Collider collider)
-        {
-            if (0 == (TriggerFilter & TriggerMask.OnTriggerStay))
-                return;
-            Colliding(collider.gameObject);
-        }
-
-        /// <summary>
-        /// On trigger enter, we call our colliding endpoint
-        /// </summary>
-        /// <param name="collider"></param>
-        public virtual void OnTriggerEnter(Collider collider)
-        {
-            if (0 == (TriggerFilter & TriggerMask.OnTriggerEnter))
-                return;
-            Colliding(collider.gameObject);
+            Colliding(c.gameObject);
         }
 
         #endregion
@@ -552,7 +466,6 @@ namespace MoreMountains.TopDownEngine
                 HitNonDamageableEvent?.Invoke(target);
             }
 
-
             OnAnyCollision(target);
             HitAnythingEvent?.Invoke(target);
             HitAnythingFeedback.Play(transform.position);
@@ -561,8 +474,6 @@ namespace MoreMountains.TopDownEngine
         /// <summary>
         /// Checks whether damage should be applied this frame
         /// </summary>
-        /// <param name="target"></param>
-        /// <returns></returns>
         protected virtual bool EvaluateAvailability(GameObject target)
         {
             // if we're inactive, we do nothing
@@ -587,7 +498,6 @@ namespace MoreMountains.TopDownEngine
         /// <summary>
         /// Describes what happens when colliding with a damageable object
         /// </summary>
-        /// <param name="health">Health.</param>
         protected virtual void OnCollideWithDamageable(Health health)
         {
             if (health.CanTakeDamageThisFrame(out var resistDamageType))
@@ -595,16 +505,17 @@ namespace MoreMountains.TopDownEngine
                 // if what we're colliding with is a TopDownController, we apply a knockback force
                 if (!health.TryGetComponent(out _colliderTopDownController))
                 {
-                    _colliderTopDownController = health.GetComponentInParent<TopDownController>();
+                    health.TryGetComponentInParent(out _colliderTopDownController);
                 }
 
                 HitDamageableFeedback.Play(transform.position);
                 HitDamageableEvent?.Invoke(_colliderHealth);
 
                 // we apply the damage to the thing we've collided with
-                ApplyKnockback(DmgGetter(), TypedDamages);
+                var dmg = DmgGetter();
                 DetermineDamageDirection();
-                _colliderHealth.Damage(DmgGetter(), gameObject, Source, InvincibilityDuration, _damageDirection, TypedDamages);
+                _colliderHealth.Damage(ref dmg, gameObject, Source, InvincibilityDuration, _damageDirection);
+                ApplyKnockback(dmg);
             }
             else
             {
@@ -612,7 +523,7 @@ namespace MoreMountains.TopDownEngine
                 {
                     case ResistDamageType.None:
                         break;
-                    case ResistDamageType.Invulnerable:
+                    case ResistDamageType.Invincible:
                         break;
                     case ResistDamageType.DashInvincible:
                         health.Character.Event.trigger(new DoDashDodge());
@@ -638,21 +549,24 @@ namespace MoreMountains.TopDownEngine
         /// <summary>
         /// Applies knockback if needed
         /// </summary>
-        protected virtual void ApplyKnockback(Dmg damage, List<TypedDamage> typedDamages)
+        protected virtual void ApplyKnockback(Dmg damage)
         {
-            if (ShouldApplyKnockback(damage, typedDamages))
+            if (ShouldApplyKnockback(damage))
             {
-                _knockbackForce = DamageCausedKnockbackForce * _colliderHealth.KnockbackForceMultiplier;
-                _knockbackForce = _colliderHealth.ComputeKnockbackForce(_knockbackForce, typedDamages);
-
-                if (_twoD)
-                    ApplyKnockback2D();
+                Vector3 force;
+                if (damage.IsLethal)
+                    force = LethalDamageKnockbackForce;
                 else
-                    ApplyKnockback3D();
+                    force = DamageKnockbackForce;
+
+                _knockbackForce = force * _colliderHealth.KnockbackForceMultiplier;
+                _knockbackForce = _colliderHealth.ComputeKnockbackForce(_knockbackForce);
+
+                ApplyKnockback2D();
 
                 if (DamageCausedKnockbackType == KnockbackStyles.AddForce)
                 {
-                    _colliderTopDownController.Impact(_knockbackForce.normalized, _knockbackForce.magnitude);
+                    _colliderTopDownController.AddImpact(_knockbackForce.normalized, _knockbackForce.magnitude);
                 }
             }
         }
@@ -661,21 +575,18 @@ namespace MoreMountains.TopDownEngine
         /// Determines whether knockback should be applied
         /// </summary>
         /// <returns></returns>
-        protected virtual bool ShouldApplyKnockback(Dmg damage, List<TypedDamage> typedDamages)
+        protected virtual bool ShouldApplyKnockback(Dmg damage)
         {
-            if (_colliderHealth.ImmuneToKnockbackIfZeroDamage && !_colliderHealth.ComputeDamageOutput(ref damage, out _, out _, typedDamages))
+            if (_colliderHealth.ImmuneToKnockbackIfZeroDamage && !_colliderHealth.ComputeDamageOutput(ref damage))
                 return false;
 
             if (!_colliderTopDownController)
                 return false;
 
-            if (DamageCausedKnockbackForce == Vector3.zero)
+            if (_colliderHealth.Invincible)
                 return false;
 
-            if (_colliderHealth.Invulnerable)
-                return false;
-
-            return _colliderHealth.CanGetKnockback(typedDamages);
+            return _colliderHealth.CanGetKnockback();
         }
 
         /// <summary>
@@ -686,37 +597,12 @@ namespace MoreMountains.TopDownEngine
             switch (DamageCausedKnockbackDirection)
             {
                 case KnockbackDirections.BasedOnSpeed:
-                    var totalVelocity = _colliderTopDownController.Speed + _velocity;
+                    var totalVelocity = _colliderTopDownController.Velocity + _velocity;
                     _knockbackForce = Vector3.RotateTowards(_knockbackForce, totalVelocity.normalized, 10f, 0f);
                     break;
                 case KnockbackDirections.BasedOnOwnerPosition:
                     _relativePosition = _colliderTopDownController.transform.position - Owner.transform.position;
                     _knockbackForce = Vector3.RotateTowards(_knockbackForce, _relativePosition.normalized, 10f, 0f);
-                    break;
-                case KnockbackDirections.BasedOnDirection:
-                    var direction = transform.position - _positionLastFrame;
-                    _knockbackForce = direction * _knockbackForce.magnitude;
-                    break;
-                case KnockbackDirections.BasedOnScriptDirection:
-                    _knockbackForce = _knockbackScriptDirection * _knockbackForce.magnitude;
-                    break;
-            }
-        }
-
-        /// <summary>
-        /// Applies knockback if we're in a 3D context
-        /// </summary>
-        protected virtual void ApplyKnockback3D()
-        {
-            switch (DamageCausedKnockbackDirection)
-            {
-                case KnockbackDirections.BasedOnSpeed:
-                    var totalVelocity = _colliderTopDownController.Speed + _velocity;
-                    _knockbackForce = _knockbackForce * totalVelocity.magnitude;
-                    break;
-                case KnockbackDirections.BasedOnOwnerPosition:
-                    _relativePosition = _colliderTopDownController.transform.position - Owner.transform.position;
-                    _knockbackForce = Quaternion.LookRotation(_relativePosition) * _knockbackForce;
                     break;
                 case KnockbackDirections.BasedOnDirection:
                     var direction = transform.position - _positionLastFrame;
@@ -761,13 +647,14 @@ namespace MoreMountains.TopDownEngine
             if (DamageTakenHealth)
             {
                 _damageDirection = Vector3.up;
-                DamageTakenHealth.Damage(Dmg.True(damage).SetSelf(), gameObject, Source, DamageTakenInvincibilityDuration, _damageDirection);
+                var dmg = Dmg.True(damage).SetSelf();
+                DamageTakenHealth.Damage(ref dmg, gameObject, Source, DamageTakenInvincibilityDuration, _damageDirection);
             }
 
             // if what we're colliding with is a TopDownController, we apply a knockback force
             if (_topDownController && _colliderTopDownController)
             {
-                Vector3 totalVelocity = _colliderTopDownController.Speed + _velocity;
+                Vector3 totalVelocity = _colliderTopDownController.Velocity + _velocity;
                 Vector3 knockbackForce = Vector3.RotateTowards(DamageTakenKnockbackForce, totalVelocity.normalized, 10f, 0f);
 
                 if (DamageTakenKnockbackType == KnockbackStyles.AddForce)
@@ -784,17 +671,19 @@ namespace MoreMountains.TopDownEngine
         public Effects Effect;
         public float Value;
         public Types Type;
-        public Types ActualType { get; set; }
+        public Types ActualType;
         public Algos Algo;
         public bool IsCrit;
         public float CritRate;
-        public float DmgRate;
-        public bool Self { get; set; }
-        public float DamageRaw { get; set; }
-        public float DamageDealt { get; set; }
-        public Vector3 Direction { get; set; }
-
-        public Mixed Mix { get; set; }
+        public Stat DmgRate;
+        public bool Self;
+        public float DamageRaw;
+        public int DamageDealt;
+        public Vector3 Direction;
+        public bool TriggerEffect;
+        public bool IsLethal;
+        public Vector2 HitNormal;
+        public Mixed Mix;
 
         public static Dmg AD(float value) => new(value, Types.AD, false);
         public static Dmg AP(float value) => new(value, Types.AP, false);
@@ -812,10 +701,13 @@ namespace MoreMountains.TopDownEngine
             CritRate = 2F;
             DmgRate = 1F;
             DamageRaw = 0F;
-            DamageDealt = 0F;
+            DamageDealt = 0;
             Direction = Vector3.zero;
             Self = false;
             Mix = default;
+            TriggerEffect = true;
+            HitNormal = Vector2.zero;
+            IsLethal = false;
         }
 
         public Dmg(float value, Types type, Algos algo)
@@ -829,10 +721,13 @@ namespace MoreMountains.TopDownEngine
             CritRate = 2F;
             DmgRate = 1F;
             DamageRaw = 0F;
-            DamageDealt = 0F;
+            DamageDealt = 0;
             Direction = Vector3.zero;
             Self = false;
             Mix = default;
+            TriggerEffect = true;
+            HitNormal = Vector2.zero;
+            IsLethal = false;
         }
 
         public bool IsAdaptive() => Type == Types.Adaptive;
@@ -881,13 +776,60 @@ namespace MoreMountains.TopDownEngine
             return this;
         }
 
+        public bool hasAttackEffect()
+        {
+            return (Effect & Effects.Attack) != 0;
+        }
+
+        public Dmg setAttackEffect()
+        {
+            Effect = Effects.Attack;
+            return this;
+        }
+
+        public bool hasSkillEffect()
+        {
+            return (Effect & Effects.Skill) != 0;
+        }
+
+        public Dmg setSkillEffect()
+        {
+            Effect = Effects.Skill;
+            return this;
+        }
+
+        public Dmg addAttackEffect()
+        {
+            Effect |= Effects.Attack;
+            return this;
+        }
+
+        public Dmg addSkillEffect()
+        {
+            Effect |= Effects.Skill;
+            return this;
+        }
+
+
+        public Dmg setHitNormal(Vector2 normal)
+        {
+            HitNormal = normal;
+            return this;
+        }
+
+        public Dmg setTriggerEffect(bool v)
+        {
+            TriggerEffect = v;
+            return this;
+        }
+
         public Dmg SetDamageRaw(float damage)
         {
             DamageRaw = damage;
             return this;
         }
 
-        public Dmg SetDamageDealt(float damage)
+        public Dmg SetDamageDealt(int damage)
         {
             DamageDealt = damage;
             return this;
@@ -908,6 +850,12 @@ namespace MoreMountains.TopDownEngine
         public Dmg SetDmgRate(float rate)
         {
             DmgRate = rate;
+            return this;
+        }
+
+        public Dmg addDmgRate(float delta)
+        {
+            DmgRate.increase(delta);
             return this;
         }
 
@@ -933,10 +881,11 @@ namespace MoreMountains.TopDownEngine
             AllPct,
         }
 
+        [Flags]
         public enum Effects
         {
-            Attack,
-            Ability,
+            Attack = 1 << 0,
+            Skill = 1 << 1,
         }
 
         [Serializable]

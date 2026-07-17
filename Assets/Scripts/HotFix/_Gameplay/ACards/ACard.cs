@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace MarbleHero
+namespace MoreMountains
 {
     [Serializable]
     public partial class ACard : IComparable<ACard>

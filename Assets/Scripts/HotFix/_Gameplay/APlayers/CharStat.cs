@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace MarbleHero
+namespace MoreMountains
 {
     public class CharStat
     {

@@ -5,7 +5,7 @@ using MoreMountains.Tools;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     /// <summary>
     /// Add this class to a character so it can use weapons
@@ -123,7 +123,7 @@ namespace MoreMountains.TopDownEngine
         /// </summary>
         public virtual void Setup()
         {
-            _character = GetComponentInParent<Character>();
+            this.TryGetComponentInParent(out _character);
 
             _weaponModels.Clear();
             var weaponModels = _character.GetComponentsInChildren<WeaponModel>();
@@ -162,7 +162,7 @@ namespace MoreMountains.TopDownEngine
         /// </summary>
         protected virtual void HandleCharacterState()
         {
-            if (_condition.Not(Character.Conditions.Normal))
+            if (_conditionState.Not(Character.Conditions.Normal))
             {
                 ShootStop();
             }
@@ -190,7 +190,7 @@ namespace MoreMountains.TopDownEngine
             if (AbilityUnauthorized)
                 return;
 
-            if (_condition.Not(Character.Conditions.Normal))
+            if (_conditionState.Not(Character.Conditions.Normal))
                 return;
 
             if (CurrentWeapon == null)
@@ -222,7 +222,7 @@ namespace MoreMountains.TopDownEngine
                 ShootStart();
             }
 
-            if (input.ReloadButton.IsDown())
+            if (input.ReloadButton != null && input.ReloadButton.IsDown())
             {
                 Reload();
             }
@@ -281,7 +281,7 @@ namespace MoreMountains.TopDownEngine
             if (CurrentWeapon == null)
                 return;
 
-            if (_condition.Not(Character.Conditions.Normal))
+            if (_conditionState.Not(Character.Conditions.Normal))
                 return;
 
             //  if we've decided to buffer input, and if the weapon is in use right now

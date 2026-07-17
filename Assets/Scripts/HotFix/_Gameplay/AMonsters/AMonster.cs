@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using MoreMountains.Tools;
 
-namespace MarbleHero
+namespace MoreMountains
 {
     public enum Intent
     {
@@ -65,129 +65,54 @@ namespace MarbleHero
         BOSS
     }
 
-    public record struct OnOpPlayerHealthChanged;
 
-    public record struct OnOpPlayerIntentCreated;
-
-    public record struct OnOpPlayerTakeTurn;
-
-    public abstract partial class AMonster : ACreature
+    public abstract class AMonster : ACreature
     {
+        public override bool isPlayer => false;
         const float DEATH_TIME = 1.8F;
-        const float ESCAPE_TIME = 3.0F;
 
         public static string[] MOVES;
         public static string[] DIALOG;
 
-        public List<int> moveHistory = new();
-        public List<DamageInfo> damageList = new();
-        public List<BrickGroup> brickGroups = new();
-        public EnemyMoveInfoGroup moveInfoGroup;
-        protected Action<BrickGroup> onBrickGroupClear;
 
-        public bool isEndingTurn { get; set; }
-
-        public bool isEscapeNext, escaped;
         public EnemyType type;
-        public Intent intent;
-        public int nextMove;
-        public string moveName;
 
-        int intentDmg = -1;
-        int intentBaseDmg = -1;
-        int intentMultiAmt;
-        bool isMultiDmg;
-        Timer deathTimer, escapeTimer;
+        Timer deathTimer;
         bool tintFadeOutCalled;
 
-        public override int currentHealth
+        protected override void OnAwake()
         {
-            get => _health;
-            set
-            {
-                if (_health == value)
-                    return;
-                _health = value;
-                new OnOpPlayerHealthChanged().trigger();
-            }
-        }
-
-
-        public override void onCtor()
-        {
-            base.onCtor();
-            onBrickGroupClear = releaseBrickGroup;
+            base.OnAwake();
             block = new MonsterBlock(this);
         }
 
-        public override void onCreate()
+        protected override void Initialization()
         {
-            base.onCreate();
-
-            moveInfoGroup = CLASS<EnemyMoveInfoGroup>();
+            base.Initialization();
         }
 
-        public override void destroy()
+        public override void onAcquire()
         {
-            base.destroy();
-
-            UN_CLASS(ref moveInfoGroup);
+            base.onAcquire();
         }
 
-        public AMonster(string _name, string _id, int _maxHealth, bool ignoreBlights = false)
+        public override void onRelease()
         {
-            isPlayer = false;
-            name = _name;
-            id = _id;
-            _healthMax = _maxHealth;
-            if (ModHelper.isModEnabled("MonsterHunter"))
-                _health = (int)(_health * 1.5F);
-
-            _health = _maxHealth;
-            refreshIntentHbLocation();
+            base.onRelease();
         }
 
-        void releaseBrickGroup(BrickGroup group)
+        public override void OnUpdate(float dt)
         {
-            brickGroups.Remove(group);
-            UN_CLASS(group);
-        }
-
-        public void refreshIntentHbLocation()
-        {
-            // intentHb.move(hb.cX + intentOffsetX, hb.cY + hb_h / 2.0F + INTENT_HB_W / 2.0F);
-        }
-
-        public override void doUpdate(float dt)
-        {
-            base.doUpdate(dt);
+            base.OnUpdate(dt);
             foreach (var p in powers)
                 p.updateParticles();
 
             updateDeathAnimation(dt);
-            updateEscapeAnimation(dt);
             // updateIntent(dt);
             // tint.update();
         }
 
-        public override void heal(ref int healAmount)
-        {
-            if (isDying)
-                return;
-
-            foreach (var p in powers)
-                healAmount = p.onHeal(healAmount);
-
-            currentHealth = clamp(currentHealth + healAmount, 0, maxHealth);
-
-            if (healAmount > 0)
-            {
-                // ADungeon.effectList.Add(new HealEffect(hb.cX - animX, hb.cY, healAmount));
-                // healthBarUpdatedEvent();
-            }
-        }
-
-        public override bool isDeadOrEscaped() => isDying || halfDead || isEscaping;
+        public override bool isDeadOrEscaped() => isDying || halfDead;
 
         public override void damage(DamageInfo info)
         {
@@ -195,7 +120,7 @@ namespace MarbleHero
                 info.output = 1;
 
             int damageAmount = info.output;
-            if (isDying || isEscaping)
+            if (isDying)
                 return;
 
             if (damageAmount < 0)
@@ -265,15 +190,7 @@ namespace MarbleHero
 
             if (currentHealth <= 0)
             {
-                die();
-                if (monsters is { areMonstersBasicallyDead: true })
-                {
-                    actionManager.cleanCardQueue();
-                    // ADungeon.effectList.Add(new DeckPoofEffect(64.0F * Settings.scale, 64.0F * Settings.scale, true));
-                    // ADungeon.effectList.Add(new DeckPoofEffect(Settings.WIDTH - 64.0F * Settings.scale, 64.0F * Settings.scale, false));
-                    // ADungeon.overlayMenu.hideCombatPanels();
-                }
-
+                // die();
                 if (block.currentBlock > 0)
                 {
                     block.loseBlock();
@@ -284,21 +201,7 @@ namespace MarbleHero
 
         public void initMoves()
         {
-            rollMove();
             // healthBarUpdatedEvent();
-        }
-
-        protected void setHp(int minHp, int maxHp)
-        {
-            _health = ADungeon.monsterHpRng.random(minHp, maxHp);
-            if (ModHelper.isModEnabled("MonsterHunter"))
-                _health = (int)(_health * 1.5F);
-            _healthMax = _health;
-        }
-
-        protected void setHp(int hp)
-        {
-            setHp(hp, hp);
         }
 
         void updateDeathAnimation(float dt)
@@ -320,81 +223,8 @@ namespace MarbleHero
                 if (monsters is { areMonstersDead: true } && !room.isBattleOver && !room.cannotLose)
                     room.endBattle();
 
-                dispose();
                 powers.Clear();
             }
-        }
-
-        void updateEscapeAnimation(float dt)
-        {
-            bool finished = false;
-            if (escapeTimer)
-            {
-                finished = escapeTimer.update(dt);
-            }
-
-            if (finished)
-            {
-                escaped = true;
-                if (monsters is { areMonstersDead: true } && !room.isBattleOver && !room.cannotLose)
-                    room.endBattle();
-            }
-        }
-
-        public override void dispose()
-        {
-            base.dispose();
-        }
-
-        public void escapeNext()
-        {
-            isEscapeNext = true;
-        }
-
-        public void deathReact()
-        {
-        }
-
-        public void escape()
-        {
-            // hideHealthBar();
-            isEscaping = true;
-            escapeTimer = ESCAPE_TIME;
-        }
-
-        public void die() => die(true);
-
-        public void die(bool triggerRelics)
-        {
-            if (isDying)
-                return;
-
-            isDying = true;
-            if (currentHealth <= 0 && triggerRelics)
-            {
-                foreach (var p in powers)
-                    p.onDeath();
-            }
-
-            if (triggerRelics)
-            {
-                foreach (var r in player.relics)
-                    r.onMonsterDeath(this);
-            }
-
-            if (monsters is { areMonstersBasicallyDead: true })
-            {
-                // ADungeon.overlayMenu.endTurnButton.disable();
-            }
-
-            currentHealth = 0;
-
-            if (!Settings.FAST_MODE)
-                deathTimer += DEATH_TIME;
-            else
-                deathTimer++;
-
-            // StatsScreen.incrementEnemySlain();
         }
 
         public void usePreBattleAction()
@@ -403,7 +233,7 @@ namespace MarbleHero
 
         public void useUniversalPreBattleAction()
         {
-            actionManager.addToBot<DisplayMovesAction>().with(this);
+            // actionManager.addToBot<DisplayMovesAction>().with(this);
             
             // if (ModHelper.isModEnabled("Lethality"))
             // actionManager.addToBot(new ApplyPowerAction(this, this, new StrengthPower(this, 3), 3));
@@ -415,57 +245,7 @@ namespace MarbleHero
             // actionManager.addToBot(new ApplyPowerAction(this, this, new SlowPower(this, 0)));
         }
 
-        void calculateDamage(out int realIntentDmg, int dmg)
-        {
-            var target = player;
-            float tmp = dmg;
-            if (Settings.isEndless)
-            {
-                // float mod = player.getBlight("DeadlyEnemies").effectFloat();
-                // tmp *= mod;
-            }
-
-            foreach (var p in powers)
-                tmp = p.atDamageGive(tmp, DamageInfo.DamageType.NORMAL);
-
-            foreach (var p in target.powers)
-                tmp = p.atDamageReceive(tmp, DamageInfo.DamageType.NORMAL);
-
-            foreach (var p in powers)
-                tmp = p.atDamageFinalGive(tmp, DamageInfo.DamageType.NORMAL);
-
-            foreach (var p in target.powers)
-                tmp = p.atDamageFinalReceive(tmp, DamageInfo.DamageType.NORMAL);
-
-            dmg = floor(tmp);
-            if (dmg < 0)
-                dmg = 0;
-
-            realIntentDmg = dmg;
-        }
-
         public void applyPowers()
-        {
-            foreach (DamageInfo dmg in damageList)
-                dmg.applyPowers(this, player);
-
-            foreach (var info in moveInfoGroup.moveInfos)
-            {
-                if (info.baseDamage > -1)
-                    calculateDamage(out intentDmg, info.baseDamage);
-            }
-
-            // intentImg = getIntentImg();
-            // updateIntentTip();
-        }
-
-        public void removeSurroundedPower()
-        {
-            // if (hasPower("BackAttack"))
-            // actionManager.addToTop(new RemoveSpecificPowerAction(this, null, "BackAttack"));
-        }
-
-        public void changeState(string stateName)
         {
         }
 
@@ -576,146 +356,12 @@ namespace MarbleHero
             return data;
         }
 
-        public int getIntentDmg() => intentDmg;
-
-        public int getIntentBaseDmg() => intentBaseDmg;
-
-        public void setIntentBaseDmg(int amount) => intentBaseDmg = amount;
-
         public virtual void takeTurn()
         {
         }
 
         public virtual void takeMove(EnemyMoveInfo moveInfo)
         {
-        }
-
-        protected virtual void getMove(int paramInt)
-        {
-        }
-
-        public void createIntent()
-        {
-            var moveInfo = moveInfoGroup.moveInfos[0];
-            setCurMoveInfo(moveInfo);
-
-            // intentImg = getIntentImg();
-            // intentBg = getIntentBg();
-            // intentAlpha = 0.0F;
-            // intentAlphaTarget = 1.0F;
-            // intentParticleTimer = 0.5F;
-            // updateIntentTip();
-
-            new OnOpPlayerIntentCreated().trigger();
-            onIntentCreated(moveInfoGroup);
-        }
-
-        public void setCurMoveInfo(EnemyMoveInfo moveInfo)
-        {
-            intent = moveInfo.intent;
-            nextMove = moveInfo.nextMove;
-            intentBaseDmg = moveInfo.baseDamage;
-            if (moveInfo.baseDamage > -1)
-            {
-                calculateDamage(out intentDmg, intentBaseDmg);
-                if (moveInfo.isMultiDamage)
-                {
-                    intentMultiAmt = moveInfo.multiplier;
-                    isMultiDmg = true;
-                }
-                else
-                {
-                    intentMultiAmt = -1;
-                    isMultiDmg = false;
-                }
-            }
-        }
-
-        protected virtual void onIntentCreated(EnemyMoveInfoGroup group)
-        {
-        }
-
-        public void setMove(string _moveName, int _nextMove, Intent _intent, int _baseDamage, int _multiplier, bool _isMultiDamage)
-        {
-            moveName = _moveName;
-            if (_nextMove != -1)
-                moveHistory.Add(_nextMove);
-
-            moveInfoGroup.addMove(_nextMove, _intent, _baseDamage, _multiplier, _isMultiDamage);
-        }
-
-        public void setMove(int _nextMove, Intent _intent, int _baseDamage, int _multiplier, bool _isMultiDamage)
-        {
-            setMove(null, _nextMove, _intent, _baseDamage, _multiplier, _isMultiDamage);
-        }
-
-        public void setMove(int _nextMove, Intent _intent, int _baseDamage)
-        {
-            setMove(null, _nextMove, _intent, _baseDamage, 0, false);
-        }
-
-        public void setMove(string _moveName, int _nextMove, Intent _intent, int _baseDamage)
-        {
-            setMove(_moveName, _nextMove, _intent, _baseDamage, 0, false);
-        }
-
-        public void setMove(string _moveName, int _nextMove, Intent _intent)
-        {
-            switch (_intent)
-            {
-                case Intent.ATTACK:
-                case Intent.ATTACK_BUFF:
-                case Intent.ATTACK_DEFEND:
-                case Intent.ATTACK_DEBUFF:
-                    // for (int i = 0; i < 8; i++)
-                    // {
-                    //     ADungeon.effectsQueue.Add(new TextAboveCreatureEffect(
-                    //         MathUtils.random(Settings.WIDTH * 0.25F, Settings.WIDTH * 0.75F),
-                    //         MathUtils.random(Settings.HEIGHT * 0.25F, Settings.HEIGHT * 0.75F), "ENEMY MOVE " + moveName + " IS SET INCORRECTLY! REPORT TO DEV", Color.red));
-                    // }
-
-                    log("ENEMY MOVE " + _moveName + " IS SET INCORRECTLY! REPORT TO DEV");
-                    break;
-            }
-
-            setMove(_moveName, _nextMove, _intent, -1, 0, false);
-        }
-
-        public void setMove(int _nextMove, Intent _intent)
-        {
-            setMove(null, _nextMove, _intent, -1, 0, false);
-        }
-
-        public virtual void rollMove()
-        {
-            moveInfoGroup.resetMoveIndexCounter();
-            getMove(ADungeon.aiRng.random(99));
-        }
-
-        protected bool lastMove(int _move)
-        {
-            return moveHistory.Count switch
-            {
-                0 => false,
-                _ => moveHistory[^1] == _move
-            };
-        }
-
-        protected bool lastMoveBefore(int _move)
-        {
-            return moveHistory.Count switch
-            {
-                0 or < 2 => false,
-                _ => moveHistory[^2] == _move
-            };
-        }
-
-        protected bool lastTwoMoves(int _move)
-        {
-            if (moveHistory.Count < 2)
-                return false;
-
-            return moveHistory[^1] == _move && moveHistory[^2] == _move;
         }
 
         public override void applyEndOfTurnTriggers()

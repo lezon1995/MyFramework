@@ -22,11 +22,11 @@ namespace MoreMountains.Tools
         /// Returns true if gameObject is within layermask
         /// </summary>
         /// <param name="mask"></param>
-        /// <param name="gameobject"></param>
+        /// <param name="obj"></param>
         /// <returns></returns>
-        public static bool MMContains(this LayerMask mask, GameObject gameobject)
+        public static bool MMContains(this LayerMask mask, GameObject obj)
         {
-            return (mask.value & (1 << gameobject.layer)) > 0;
+            return (mask.value & (1 << obj.layer)) > 0;
         }
     }
 }

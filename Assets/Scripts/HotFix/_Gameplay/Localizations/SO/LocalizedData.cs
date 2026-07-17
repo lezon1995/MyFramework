@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace MarbleHero
+namespace MoreMountains
 {
     public class LocalizedData<T> : SerializedScriptableObject where T : class, new()
     {

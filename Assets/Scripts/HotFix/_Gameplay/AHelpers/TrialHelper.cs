@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace MarbleHero
+namespace MoreMountains
 {
     public static class TrialHelper
     {

@@ -59,7 +59,6 @@ namespace MoreMountains.Feedbacks
 		public float RemapCurveZero = 1f;
 		/// the value to remap the curve's 1 value to
 		[Tooltip("the value to remap the curve's 1 value to")]
-		[FormerlySerializedAs("Multiplier")]
 		public float RemapCurveOne = 2f;
 		/// how much should be added to the curve
 		[Tooltip("how much should be added to the curve")]

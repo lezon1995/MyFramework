@@ -1,144 +1,107 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
-namespace MarbleHero
+namespace MoreMountains
 {
+    public class PlayerInfo
+    {
+        public Prefs prefs;
+        public CharStat stat;
+    }
+
     public class CharacterManager
     {
-        static List<APlayer> masterCharacterList = new();
+        static Dictionary<APlayer.PlayerClass, PlayerInfo> masterCharacterList = new();
 
         public CharacterManager()
         {
             if (masterCharacterList.Count == 0)
             {
-                masterCharacterList.Add(CLASS<Ironclad>());
+                masterCharacterList.Add(APlayer.PlayerClass.IRONCLAD, new PlayerInfo());
                 // masterCharacterList.Add(new TheSilent(Game.playerName));
                 // masterCharacterList.Add(new Defect(Game.playerName));
                 // masterCharacterList.Add(new Watcher(Game.playerName));
             }
             else
             {
-                foreach (APlayer c in masterCharacterList)
-                    c.loadPrefs();
-            }
-        }
-
-        public APlayer setChosenCharacter(APlayer.PlayerClass c)
-        {
-            foreach (APlayer character in masterCharacterList)
-            {
-                if (character.chosenClass == c)
+                foreach (var (k, v) in masterCharacterList)
                 {
-                    player = character;
-                    return character;
+                    v.prefs = SaveHelper.getPrefs("DataVagabond");
                 }
             }
-
-            logError("The character " + c + " does not exist in the CharacterManager's master character list");
-            return null;
         }
+
 
         public bool anySaveFileExists()
         {
-            foreach (APlayer character in masterCharacterList)
+            foreach (var (k, v) in masterCharacterList)
             {
-                if (character.saveFileExists())
+                if (SaveAndContinue.saveExistsAndNotCorrupted(k.ToString()))
                     return true;
             }
 
             return false;
         }
 
-        public APlayer loadChosenCharacter()
+        public APlayer.PlayerClass loadChosenCharacter()
         {
-            foreach (APlayer character in masterCharacterList)
+            foreach (var (k, v) in masterCharacterList)
             {
-                if (character.saveFileExists())
+                if (SaveAndContinue.saveExistsAndNotCorrupted(k.ToString()))
                 {
-                    player = character;
-                    return character;
+                    return k;
                 }
             }
 
             log("No character save file was found!");
-            return null;
+            return APlayer.PlayerClass.IRONCLAD;
         }
 
         public List<CharStat> getAllCharacterStats()
         {
             List<CharStat> allCharStats = new();
-            foreach (APlayer c in masterCharacterList)
-                allCharStats.Add(c.getCharStat());
+            foreach (var  (k, v)  in masterCharacterList)
+                allCharStats.Add(v.stat);
             return allCharStats;
         }
 
         public void refreshAllCharStats()
         {
-            foreach (APlayer c in masterCharacterList)
-                c.refreshCharStat();
+            foreach (var (k, v) in masterCharacterList)
+                v.stat = new CharStat((APlayer)null);
         }
 
         public List<Prefs> getAllPrefs()
         {
             List<Prefs> allPrefs = new();
-            foreach (APlayer c in masterCharacterList)
-                allPrefs.Add(c.getPrefs());
+            foreach (var  (k, v)  in masterCharacterList)
+                allPrefs.Add(v.prefs);
             return allPrefs;
         }
 
-        public APlayer getRandomCharacter(Rand rng)
+        public APlayer.PlayerClass getRandomCharacter(Rand rng)
         {
-            int index = rng.random(masterCharacterList.Count - 1);
-            return masterCharacterList[index];
+            var playerClasses = masterCharacterList.Keys.ToArray();
+            int index = rng.random(playerClasses.Length - 1);
+            return playerClasses[index];
         }
 
         public APlayer recreateCharacter(APlayer.PlayerClass p)
         {
-            foreach (APlayer old in masterCharacterList)
+            foreach (var (k,v) in masterCharacterList)
             {
-                if (old.chosenClass == p)
+                if (k == p)
                 {
-                    APlayer newPlayer = old.newInstance();
-                    var idx = masterCharacterList.IndexOf(old);
-                    masterCharacterList[idx] = newPlayer;
-                    destroyPlayer(old);
-                    
-                    newPlayer.setName(Game.playerName);
-                    var path = $"{GAMEPLAY_PATH}/Player.prefab";
-                    var o = mPrefabPoolManager.createObject(path);
-                    newPlayer.setObject(o);
-                    newPlayer.init();
+                    var path = $"{GAMEPLAY_PATH}/Characters/MyCharacter.prefab";
+                    var o = prefabPool.createObject(path);
+                    o.TryGetComponent(out APlayer newPlayer);
+                    newPlayer.setName($"PlayerCharacter");
                     log("Successfully recreated " + newPlayer.chosenClass);
                     return newPlayer;
                 }
             }
 
             return null;
-        }
-        
-        public void destroyPlayer(APlayer p)
-        {
-            if (p == null)
-                return;
-
-            mPrefabPoolManager.destroyObject(p.gameObject, false);
-            UN_CLASS(ref p);
-        }
-
-        public APlayer getCharacter(APlayer.PlayerClass c)
-        {
-            foreach (APlayer character in masterCharacterList)
-            {
-                if (character.chosenClass == c)
-                    return character;
-            }
-
-            logError("The character " + c + " does not exist in the CharacterManager's master character list");
-            return null;
-        }
-
-        public List<APlayer> getAllCharacters()
-        {
-            return masterCharacterList;
         }
     }
 }

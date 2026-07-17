@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     [Serializable]
     public struct WeaponModelBindings

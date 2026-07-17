@@ -1,14 +1,12 @@
-﻿namespace MarbleHero
+﻿namespace MoreMountains
 {
     public struct MonsterQueueItem
     {
         public AMonster monster;
-        public EnemyMoveInfo moveInfo;
 
-        public MonsterQueueItem(AMonster m, EnemyMoveInfo info)
+        public MonsterQueueItem(AMonster m)
         {
             monster = m;
-            moveInfo = info;
         }
     }
 }

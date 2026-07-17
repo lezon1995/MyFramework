@@ -1,4 +1,6 @@
-﻿namespace MarbleHero;
+﻿using UnityEngine;
+
+namespace MoreMountains;
 
 /// <summary>
 /// 球撞击{0}次触发{1}次Effect
@@ -18,7 +20,7 @@ public class BallHitCountTriggerElectricChainPower : BallPower, IArgs<int>
         countdown = default;
     }
 
-    public override void onHitBrick(Brick brick)
+    public override void onHitBrick(Brick brick, Vector2 normal)
     {
         if (countdown.update())
         {

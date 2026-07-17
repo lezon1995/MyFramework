@@ -1,11 +1,12 @@
-﻿using UnityEngine;
+﻿using Drawing;
+using UnityEngine;
 
 namespace MoreMountains.Tools
 {
     /// <summary>
     /// Decisions are components that will be evaluated by transitions, every frame, and will return true or false. Examples include time spent in a state, distance to a target, or object detection within an area.  
     /// </summary>
-    public abstract class AIDecision : MonoBehaviour
+    public abstract class AIDecision : MonoBehaviourGizmos
     {
         [Tooltip("a label you can set to organize your AI Decisions, not used by anything else")]
         public string Label;

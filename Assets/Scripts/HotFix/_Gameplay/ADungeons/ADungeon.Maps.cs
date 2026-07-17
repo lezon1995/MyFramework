@@ -2,7 +2,7 @@
 using MoreMountains.Tools;
 using UnityEngine;
 
-namespace MarbleHero
+namespace MoreMountains
 {
     public record struct OnNextRoomTransition;
 
@@ -701,9 +701,9 @@ namespace MarbleHero
             if (currMapNode != null && room != null)
             {
                 room.Dispose();
-                if (room.monsters != null)
-                    foreach (var monster in room.monsters.monsters)
-                        monster.dispose();
+                // if (room.monsters != null)
+                    // foreach (var monster in room.monsters.monsters)
+                        // monster.dispose();
             }
 
             prevMapNode = null;

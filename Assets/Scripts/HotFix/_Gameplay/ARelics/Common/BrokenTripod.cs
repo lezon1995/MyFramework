@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace MarbleHero;
+namespace MoreMountains;
 
 /// <summary>
 /// 破损的鼎

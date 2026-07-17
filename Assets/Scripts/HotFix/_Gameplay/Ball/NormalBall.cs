@@ -1,4 +1,4 @@
-﻿namespace MarbleHero;
+﻿namespace MoreMountains;
 
 public class NormalBall : Ball
 {

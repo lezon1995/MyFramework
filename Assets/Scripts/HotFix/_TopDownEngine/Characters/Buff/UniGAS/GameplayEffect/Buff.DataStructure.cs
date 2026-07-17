@@ -3,7 +3,7 @@ using Sirenix.OdinInspector;
 using UniStats;
 using UnityEngine;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     public partial class Buff
     {

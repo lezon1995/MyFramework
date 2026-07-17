@@ -1,9 +1,9 @@
-﻿// namespace MarbleHero;
+﻿// namespace MoreMountains;
 //
 // /// <summary>
 // /// 造成撞击伤害时，有X概率对随机1个其他砖块造成连锁闪电攻击。
 // /// </summary>
-// public class LightningStrike : Buff, IDoAttackEffect
+// public class LightningStrike : BuffObject, IDoAttackEffect
 // {
 //     protected float getChance()
 //     {

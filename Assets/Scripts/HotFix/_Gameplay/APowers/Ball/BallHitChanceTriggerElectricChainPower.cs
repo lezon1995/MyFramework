@@ -1,41 +1,44 @@
-﻿namespace MarbleHero;
+﻿using UnityEngine;
 
-/// <summary>
-/// 球撞击{0}次触发{1}次Effect
-/// </summary>
-public class BallHitChanceTriggerElectricChainPower : BallPower, IArgs<float, bool>
+namespace MoreMountains
 {
-    float chance;
-    bool onlyBrick;
-
-    public void onCreate(float c, bool b)
+    /// <summary>
+    /// 球撞击{0}次触发{1}次Effect
+    /// </summary>
+    public class BallHitChanceTriggerElectricChainPower : BallPower, IArgs<float, bool>
     {
-        chance = c;
-        onlyBrick = b;
-    }
+        float chance;
+        bool onlyBrick;
 
-    public override void resetProperty()
-    {
-        base.resetProperty();
-        chance = 0F;
-        onlyBrick = false;
-    }
-
-    public override void onHitBrick(Brick brick)
-    {
-        if (randomHit(chance))
+        public void onCreate(float c, bool b)
         {
-            effectManager.addLogic<ElectricChainEffect>().with(owner, brick, 2);
+            chance = c;
+            onlyBrick = b;
         }
-    }
 
-    public override void onHitBorder(Border border)
-    {
-        if (!onlyBrick && randomHit(chance))
+        public override void resetProperty()
         {
-            if (brickManager.getRandomActiveBrick(out var brick))
+            base.resetProperty();
+            chance = 0F;
+            onlyBrick = false;
+        }
+
+        public override void onHitBrick(Brick brick, Vector2 normal)
+        {
+            if (randomHit(chance))
             {
                 effectManager.addLogic<ElectricChainEffect>().with(owner, brick, 2);
+            }
+        }
+
+        public override void onHitBorder(Border border)
+        {
+            if (!onlyBrick && randomHit(chance))
+            {
+                if (brickManager.getRandomActiveBrick(out var brick))
+                {
+                    effectManager.addLogic<ElectricChainEffect>().with(owner, brick, 2);
+                }
             }
         }
     }

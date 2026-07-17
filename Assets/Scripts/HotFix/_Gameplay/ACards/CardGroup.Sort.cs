@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MarbleHero
+namespace MoreMountains
 {
     public partial class CardGroup
     {

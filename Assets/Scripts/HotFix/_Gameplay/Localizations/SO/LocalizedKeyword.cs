@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 
-namespace MarbleHero
+namespace MoreMountains
 {
-    [CreateAssetMenu(fileName = "LocalizedKeyword", menuName = "MarbleHero/Localization/Keyword")]
+    [CreateAssetMenu(fileName = "LocalizedKeyword", menuName = "MoreMountains/Localization/Keyword")]
     public class LocalizedKeyword : LocalizedData<KeywordStrings>
     {
 

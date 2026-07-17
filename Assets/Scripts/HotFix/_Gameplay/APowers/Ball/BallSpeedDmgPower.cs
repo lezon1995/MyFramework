@@ -1,4 +1,4 @@
-﻿namespace MarbleHero;
+﻿namespace MoreMountains;
 
 /// <summary>
 /// 球的撞击伤害随球的额外速度提升而提升
@@ -28,7 +28,8 @@ public class BallSpeedDmgPower : BallPower, IArgs<float, float>
 
     public override void onBeforeHandleHitDamage(Ball ball, Brick brick, ref Dmg dmg)
     {
-        var share = ball.speed.extraMultiplier / speedStandard;
+        ball.GetStat(Ball.Stat.MS, out var stat);
+        var share = stat.BonusPct.Value / speedStandard;
         var extraDmgRate = dmgRateStandard * share;
         dmg.addDmgRate(extraDmgRate);
     }

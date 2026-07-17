@@ -1,6 +1,6 @@
-﻿namespace MarbleHero;
+﻿namespace MoreMountains;
 
-public class BallCounters : ClassObject
+public class BallCounters : IResetProperty
 {
     public HitCounter hit = new();
     public ReflectCounter reflect = new();
@@ -11,9 +11,8 @@ public class BallCounters : ClassObject
     public SkillKillCounter skillKill = new();
     public PenetrateBrickCounter penetrateBrick = new();
 
-    public override void resetProperty()
+    public void resetProperty()
     {
-        base.resetProperty();
         hit.reset();
         reflect.reset();
         critHit.reset();

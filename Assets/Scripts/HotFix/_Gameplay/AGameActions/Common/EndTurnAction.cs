@@ -1,4 +1,4 @@
-﻿namespace MarbleHero
+﻿namespace MoreMountains
 {
     public class EndTurnAction : AGameAction
     {
@@ -102,7 +102,7 @@
             actionManager.addToBot<WaitAction>().with(END_TURN_WAIT_DURATION);
             if (!room.skipMonsterTurn)
                 actionManager.addToBot<MonsterStartTurnAction>();
-            actionManager.monsterAttacksQueued = false;
+            // actionManager.monsterAttacksQueued = false;
             isDone = true;
         }
     }

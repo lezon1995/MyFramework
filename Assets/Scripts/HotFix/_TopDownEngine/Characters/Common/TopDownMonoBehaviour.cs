@@ -1,6 +1,6 @@
 ﻿using MoreMountains.Tools;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     /// <summary>
     /// The TopDownMonoBehaviour class is a base class for all TopDownEngine classes.

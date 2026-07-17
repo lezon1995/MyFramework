@@ -1,6 +1,6 @@
 ﻿using MoreMountains.Tools;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     public class Buff_Rune_AbsorbLife : Buff, IEvent<DoKill>
     {

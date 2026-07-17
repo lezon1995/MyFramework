@@ -5,7 +5,7 @@ using UnityEditorInternal;
 using System;
 using System.Reflection;
 
-namespace MarbleHero
+namespace MoreMountains
 {
     [CustomEditor(typeof(LightningBolt2D))]
     public class LightningBolt2DEditor : Editor

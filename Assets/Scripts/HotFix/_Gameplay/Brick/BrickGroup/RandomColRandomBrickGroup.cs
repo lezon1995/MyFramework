@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace MarbleHero;
+namespace MoreMountains;
 
 /// <summary>
 /// 在随机列的空位置生成砖块

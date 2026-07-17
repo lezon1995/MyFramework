@@ -1,6 +1,6 @@
 ﻿using MoreMountains.Tools;
 
-namespace MarbleHero
+namespace MoreMountains
 {
     public class MonsterRoomBoss : MonsterRoom
     {

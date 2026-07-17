@@ -1,11 +1,11 @@
 ﻿using MoreMountains.Tools;
 using UnityEngine;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     [RequireComponent(typeof(Weapon))]
     public abstract class WeaponAim : TopDownMonoBehaviour
-        // , IEvent<TopDownEngineEvent>
+        , IEvent<TopDownEngineEvent>
     {
         /// the list of possible control modes
         public enum AimControls
@@ -182,7 +182,7 @@ namespace MoreMountains.TopDownEngine
         /// </summary>
         protected virtual void Initialization()
         {
-            _weapon = GetComponent<Weapon>();
+            TryGetComponent(out _weapon);
             _mainCamera = Camera.main;
 
             switch (RotationMode)
@@ -277,7 +277,7 @@ namespace MoreMountains.TopDownEngine
                 return;
 
             // if the rotation speed is == 0, we have instant rotation
-            if ((WeaponRotationSpeed == 0f) || forceInstant)
+            if (WeaponRotationSpeed == 0f || forceInstant)
             {
                 transform.rotation = newRotation;
             }
@@ -407,7 +407,7 @@ namespace MoreMountains.TopDownEngine
             }
         }
 
-        /*public void onEvent(TopDownEngineEvent e)
+        public void onEvent(TopDownEngineEvent e)
         {
             switch (e.EventType)
             {
@@ -416,14 +416,14 @@ namespace MoreMountains.TopDownEngine
                     Initialization();
                     break;
             }
-        }*/
+        }
 
         /// <summary>
         /// On enable we start listening for events
         /// </summary>
         protected virtual void OnEnable()
         {
-            // this.addListener<TopDownEngineEvent>();
+            this.addListener<TopDownEngineEvent>();
         }
 
         /// <summary>
@@ -431,7 +431,7 @@ namespace MoreMountains.TopDownEngine
         /// </summary>
         protected virtual void OnDisable()
         {
-            // this.removeListener<TopDownEngineEvent>();
+            this.removeListener<TopDownEngineEvent>();
         }
     }
 }

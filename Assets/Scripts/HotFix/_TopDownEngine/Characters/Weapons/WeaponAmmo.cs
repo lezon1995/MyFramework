@@ -4,7 +4,7 @@ using MoreMountains.Tools;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     [RequireComponent(typeof(Weapon))]
     [AddComponentMenu("TopDown Engine/Weapons/WeaponAmmo")]
@@ -43,17 +43,17 @@ namespace MoreMountains.TopDownEngine
 
         protected virtual void Start()
         {
-            _weapon = GetComponent<Weapon>();
-            // foreach (var inventory in FindObjectsOfType<Inventory>())
-            // {
-            //     if (inventory.PlayerID == _weapon.Owner.PlayerID)
-            //     {
-            //         if (AmmoInventory == null && inventory.name == AmmoInventoryName)
-            //         {
-            //             AmmoInventory = inventory;
-            //         }
-            //     }
-            // }
+            TryGetComponent(out _weapon);
+            foreach (var inventory in FindObjectsByType<Inventory>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+            {
+                if (inventory.PlayerID == _weapon.Owner.PlayerID)
+                {
+                    if (AmmoInventory == null && inventory.name == AmmoInventoryName)
+                    {
+                        AmmoInventory = inventory;
+                    }
+                }
+            }
 
             if (ShouldLoadOnStart)
             {
@@ -131,8 +131,8 @@ namespace MoreMountains.TopDownEngine
         /// </summary>
         public virtual void FillWeaponWithAmmo()
         {
-            // if (AmmoInventory)
-                // RefreshCurrentAmmoAvailable();
+            if (AmmoInventory)
+                RefreshCurrentAmmoAvailable();
 
             if (_ammoItem == null)
             {
@@ -169,8 +169,8 @@ namespace MoreMountains.TopDownEngine
         /// </summary>
         public virtual void EmptyMagazine()
         {
-            // if (AmmoInventory)
-                // RefreshCurrentAmmoAvailable();
+            if (AmmoInventory)
+                RefreshCurrentAmmoAvailable();
 
             if (_ammoItem == null || AmmoInventory == null)
                 return;
@@ -275,7 +275,7 @@ namespace MoreMountains.TopDownEngine
         protected virtual void OnEnable()
         {
             this.addListener<MMStateChangeEvent<Weapon.States>>();
-            // this.addListener<InventoryEvent>();
+            this.addListener<InventoryEvent>();
             this.addListener<MMGameEvent>();
         }
 
@@ -285,7 +285,7 @@ namespace MoreMountains.TopDownEngine
         protected virtual void OnDisable()
         {
             this.removeListener<MMStateChangeEvent<Weapon.States>>();
-            // this.removeListener<InventoryEvent>();
+            this.removeListener<InventoryEvent>();
             this.removeListener<MMGameEvent>();
         }
     }

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace MarbleHero
+namespace MoreMountains
 {
     public class MonsterHelper
     {
@@ -175,7 +175,10 @@ namespace MarbleHero
 
         public static MonsterGroup getEncounter(string key)
         {
-            return new MonsterGroup(CLASS<Opponent>());
+            // var path = $"{GAMEPLAY_PATH}/Characters/OpCharacter.prefab";
+            // var o = prefabPool.createObject(path);
+            // o.TryGetComponent(out Opponent newPlayer);
+            return new MonsterGroup();
 
             /*
             switch (key)

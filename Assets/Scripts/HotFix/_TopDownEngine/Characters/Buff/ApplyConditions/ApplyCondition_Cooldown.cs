@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace MoreMountains.TopDownEngine.ApplyConditions
+namespace MoreMountains.ApplyConditions
 {
     [CreateAssetMenu(menuName = "TopDown Engine/Character/Buff/ApplyConditions/Cooldown", fileName = "AC-Cooldown")]
     public class ApplyCondition_Cooldown : ApplyCondition

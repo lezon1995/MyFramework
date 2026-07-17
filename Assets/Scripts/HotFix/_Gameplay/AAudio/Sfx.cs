@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace MarbleHero
+namespace MoreMountains
 {
     public class Sfx
     {
@@ -88,7 +88,7 @@ namespace MarbleHero
             /*if (clip == null)
             {
                 if (!file.isEmpty())
-                    clip = mResourceManager.loadGameResource<AudioClip>(file);
+                    clip = res.loadGameResource<AudioClip>(file);
 
                 if (clip == null)
                 {

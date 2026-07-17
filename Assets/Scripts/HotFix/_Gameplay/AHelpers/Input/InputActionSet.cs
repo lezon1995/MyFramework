@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace MarbleHero
+namespace MoreMountains
 {
     public class InputActionSet
     {

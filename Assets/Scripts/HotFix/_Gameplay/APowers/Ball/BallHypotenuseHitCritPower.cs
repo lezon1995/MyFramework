@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace MarbleHero;
+namespace MoreMountains;
 
 /// <summary>
 /// 球撞击砖块斜边暴击
@@ -14,7 +14,7 @@ public class BallHypotenuseHitCritPower : BallPower
 
     public override void onBeforeHandleHitDamage(Ball ball, Brick brick, ref Dmg dmg)
     {
-        var normal = dmg.hitNormal;
+        var normal = dmg.HitNormal;
         if (normal == up)
             return;
         if (normal == down)
@@ -24,6 +24,6 @@ public class BallHypotenuseHitCritPower : BallPower
         if (normal == right)
             return;
 
-        dmg.setCrit();
+        dmg.Crit();
     }
 }

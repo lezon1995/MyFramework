@@ -1,6 +1,7 @@
-﻿using UnityEngine;
+﻿using UniStats;
+using UnityEngine;
 
-namespace MarbleHero;
+namespace MoreMountains;
 
 /// <summary>
 /// 奶昔
@@ -16,7 +17,8 @@ public class MilkShake : ARelic
 
     public override void onBallReflect(APlayer p, Ball ball, Vector2 normal, bool fromBrick, ref Vector2 reflectDir)
     {
-        ball.speed.increasePct(0.05F);
+        ball.GetStat(Ball.Stat.MS, out var stat);
+        stat.AddPct(0.05F);
     }
 
     public override ARelic makeCopy() => new MilkShake();

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace MarbleHero;
+namespace MoreMountains;
 
 public partial class GameActionManager
 {
@@ -23,7 +23,6 @@ public partial class GameActionManager
     public bool hasControl = true;
     public bool turnHasEnded { get; set; }
     public bool usingCard { get; set; }
-    public bool monsterAttacksQueued { get; set; } = true;
     public static int totalDiscardedThisTurn { get; set; }
     public static int damageReceivedThisTurn { get; set; }
     public static int damageReceivedThisCombat { get; set; }
@@ -204,9 +203,6 @@ public partial class GameActionManager
         if (checkCardQueue())
             return;
 
-        if (checkMonsterAttacksQueue())
-            return;
-
         if (checkMonsterQueue())
             return;
 
@@ -257,43 +253,16 @@ public partial class GameActionManager
             return false;
 
         var m = item.monster;
-        var moveInfo = item.moveInfo;
-        if (!m.isDeadOrEscaped() || m.halfDead)
-        {
-            if (moveInfo.intent != Intent.NONE)
-            {
-                addToBot<ShowMoveNameAction>().with(m, moveInfo);
-                addToBot<IntentFlashAction>().with(m, moveInfo);
-            }
-
-            m.setCurMoveInfo(moveInfo);
-            m.takeMove(moveInfo);
-        }
-
         if (monsterQueue.Count == 0)
         {
             m.takeTurn();
             m.applyTurnPowers();
-            m.isEndingTurn = true;
+            room.isEndingTurn = true;
 
             addToBot<WaitAction>().with(0.5F);
             addToBot<StartPlayerTurnAction>().with(room);
         }
 
-        return true;
-    }
-
-    bool checkMonsterAttacksQueue()
-    {
-        if (monsterAttacksQueued)
-            return false;
-
-        monsterAttacksQueued = true;
-
-        if (room.skipMonsterTurn)
-            return true;
-
-        room.monsters.queueMonsters();
         return true;
     }
 
@@ -316,18 +285,14 @@ public partial class GameActionManager
         }
 
         bool canPlay = false;
-        var monster = monsters.main;
         if (toPlay != null)
         {
             canPlay = true;
             foreach (var power in player.powers)
-                power.onPlayCard(toPlay, monster);
-
-            foreach (var power in monsters.main.powers)
-                power.onPlayCard(toPlay, monster);
+                power.onPlayCard(toPlay);
 
             foreach (var relic in player.relics)
-                relic.onPlayCard(toPlay, monster);
+                relic.onPlayCard(toPlay);
 
             player.cardsPlayedThisTurn++;
             cardsPlayedThisTurn.Add(toPlay);

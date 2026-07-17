@@ -1,7 +1,7 @@
 ﻿using Drawing;
 using UnityEngine;
 
-namespace MarbleHero;
+namespace MoreMountains;
 
 public class BrickDebug : MonoBehaviour
 {

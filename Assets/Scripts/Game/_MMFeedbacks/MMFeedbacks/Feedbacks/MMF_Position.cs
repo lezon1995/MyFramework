@@ -73,7 +73,6 @@ namespace MoreMountains.Feedbacks
 		/// the value to remap the curve's 1 value to
 		[Tooltip("the value to remap the curve's 1 value to")]
 		[MMFEnumCondition("Mode", (int)Modes.AlongCurve)]
-		[FormerlySerializedAs("CurveMultiplier")]
 		public float RemapCurveOne = 1f;
 		/// in randomize remap mode, the value to remap the curve's 1 value to (randomized between this and RemapCurveOne)
 		[Tooltip("in randomize remap mode, the value to remap the curve's 1 value to (randomized between this and RemapCurveOne)")]

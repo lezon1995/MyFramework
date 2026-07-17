@@ -4,7 +4,7 @@ using MoreMountains.Tools;
 using UnityEngine;
 using UnityEngine.Audio;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     /// <summary>
     /// a class to save sound settings (music on or off, sfx on or off)

@@ -1,4 +1,4 @@
-﻿namespace MarbleHero;
+﻿namespace MoreMountains;
 
 public interface IDoAttackEffect
 {
@@ -22,7 +22,7 @@ public interface IHitEnterBrick
     void onDoAttack(APlayer player, Ball ball, Brick brick);
 }
 
-public class Buff : ClassObject
+public class BuffObject : ClassObject
 {
     protected int level = 1;
 

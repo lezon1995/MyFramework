@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace MarbleHero
+namespace MoreMountains
 {
     public class GameDataStringBuilder
     {

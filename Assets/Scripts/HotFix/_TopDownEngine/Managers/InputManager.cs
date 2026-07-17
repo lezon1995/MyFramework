@@ -3,7 +3,7 @@ using MoreMountains.Tools;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     /// <summary>
     /// This persistent singleton handles the inputs and sends commands to the player.
@@ -12,6 +12,7 @@ namespace MoreMountains.TopDownEngine
     /// See https://docs.unity3d.com/Manual/class-ScriptExecution.html for more details
     /// </summary>
     [AddComponentMenu("TopDown Engine/Managers/InputManager")]
+    [DefaultExecutionOrder(-100)]
     public class InputManager : MMSingleton<InputManager>
     {
         [Title("Settings")]
@@ -84,24 +85,15 @@ namespace MoreMountains.TopDownEngine
         public bool SmoothMovement = true;
 
         [Tooltip("the minimum horizontal and vertical value you need to reach to trigger movement on an analog controller (joystick for example)")]
-        public Vector2 Threshold = new Vector2(0.1f, 0.4f);
+        public Vector2 Threshold = new(0.1f, 0.4f);
 
         [Title("Camera Rotation")]
         [MMInformation("Here you can decide whether or not camera rotation should impact your input. That can be useful in, for example, a 3D isometric game, if you want 'up' to mean some other direction than Vector3.up/forward.")]
         [Tooltip("if this is true, any directional input coming into this input manager will be rotated to align with the current camera orientation")]
         public bool RotateInputBasedOnCameraDirection;
 
-        /// the jump button, used for jumps and validation
-        public virtual MMInput.IMButton JumpButton { get; protected set; }
-
-        /// the run button
-        public virtual MMInput.IMButton RunButton { get; protected set; }
-
         /// the dash button
         public virtual MMInput.IMButton DashButton { get; protected set; }
-
-        /// the crouch button
-        public virtual MMInput.IMButton CrouchButton { get; protected set; }
 
         /// the shoot button
         public virtual MMInput.IMButton ShootButton { get; protected set; }
@@ -112,7 +104,6 @@ namespace MoreMountains.TopDownEngine
         /// the shoot button
         public virtual MMInput.IMButton SecondaryShootButton { get; protected set; }
 
-        /// the reload button
         public virtual MMInput.IMButton ReloadButton { get; protected set; }
 
         /// the pause button
@@ -120,12 +111,6 @@ namespace MoreMountains.TopDownEngine
 
         /// the time control button
         public virtual MMInput.IMButton TimeControlButton { get; protected set; }
-
-        /// the button used to switch character (either via model or prefab switch)
-        public virtual MMInput.IMButton SwitchCharacterButton { get; protected set; }
-
-        /// the switch weapon button
-        public virtual MMInput.IMButton SwitchWeaponButton { get; protected set; }
 
         /// the shoot axis, used as a button (non-analogic)
         public virtual MMInput.States ShootAxis { get; protected set; }
@@ -254,18 +239,13 @@ namespace MoreMountains.TopDownEngine
         {
             var list = ButtonList;
             var id = PlayerID;
-            list.Add(JumpButton = new(id, "Jump", JumpButtonDown, JumpButtonPressed, JumpButtonUp));
-            list.Add(RunButton = new(id, "Run", RunButtonDown, RunButtonPressed, RunButtonUp));
             list.Add(InteractButton = new(id, "Interact", InteractButtonDown, InteractButtonPressed, InteractButtonUp));
             list.Add(DashButton = new(id, "Dash", DashButtonDown, DashButtonPressed, DashButtonUp));
-            list.Add(CrouchButton = new(id, "Crouch", CrouchButtonDown, CrouchButtonPressed, CrouchButtonUp));
             list.Add(SecondaryShootButton = new(id, "SecondaryShoot", SecondaryShootButtonDown, SecondaryShootButtonPressed, SecondaryShootButtonUp));
             list.Add(ShootButton = new(id, "Shoot", ShootButtonDown, ShootButtonPressed, ShootButtonUp));
-            list.Add(ReloadButton = new(id, "Reload", ReloadButtonDown, ReloadButtonPressed, ReloadButtonUp));
-            list.Add(SwitchWeaponButton = new(id, "SwitchWeapon", SwitchWeaponButtonDown, SwitchWeaponButtonPressed, SwitchWeaponButtonUp));
-            list.Add(PauseButton = new(id, "Pause", PauseButtonDown, PauseButtonPressed, PauseButtonUp));
-            list.Add(TimeControlButton = new(id, "TimeControl", TimeControlButtonDown, TimeControlButtonPressed, TimeControlButtonUp));
-            list.Add(SwitchCharacterButton = new(id, "SwitchCharacter", SwitchCharacterButtonDown, SwitchCharacterButtonPressed, SwitchCharacterButtonUp));
+            // list.Add(ReloadButton = new(id, "Reload", ReloadButtonDown, ReloadButtonPressed, ReloadButtonUp));
+            // list.Add(PauseButton = new(id, "Pause", PauseButtonDown, PauseButtonPressed, PauseButtonUp));
+            // list.Add(TimeControlButton = new(id, "TimeControl", TimeControlButtonDown, TimeControlButtonPressed, TimeControlButtonUp));
         }
 
         /// <summary>
@@ -273,13 +253,13 @@ namespace MoreMountains.TopDownEngine
         /// </summary>
         protected virtual void InitializeAxis()
         {
-            _axisHorizontal = PlayerID + "_Horizontal";
-            _axisVertical = PlayerID + "_Vertical";
-            _axisSecondaryHorizontal = PlayerID + "_SecondaryHorizontal";
-            _axisSecondaryVertical = PlayerID + "_SecondaryVertical";
-            _axisShoot = PlayerID + "_ShootAxis";
-            _axisShootSecondary = PlayerID + "_SecondaryShootAxis";
-            _axisCamera = PlayerID + "_CameraRotationAxis";
+            _axisHorizontal = "Horizontal";
+            _axisVertical = "Vertical";
+            _axisSecondaryHorizontal = "SecondaryHorizontal";
+            _axisSecondaryVertical = "SecondaryVertical";
+            _axisShoot = "ShootAxis";
+            _axisShootSecondary = "SecondaryShootAxis";
+            _axisCamera = "CameraRotationAxis";
         }
 
         /// <summary>
@@ -384,15 +364,9 @@ namespace MoreMountains.TopDownEngine
             if (!IsMobile && InputDetectionActive)
             {
                 if (SmoothMovement)
-                {
-                    _primaryMovement.x = Input.GetAxis(_axisHorizontal);
-                    _primaryMovement.y = Input.GetAxis(_axisVertical);
-                }
+                    _primaryMovement = new(Input.GetAxis(_axisHorizontal), Input.GetAxis(_axisVertical));
                 else
-                {
-                    _primaryMovement.x = Input.GetAxisRaw(_axisHorizontal);
-                    _primaryMovement.y = Input.GetAxisRaw(_axisVertical);
-                }
+                    _primaryMovement = new(Input.GetAxisRaw(_axisHorizontal), Input.GetAxisRaw(_axisVertical));
 
                 _primaryMovement = ApplyCameraRotation(_primaryMovement);
             }
@@ -449,8 +423,7 @@ namespace MoreMountains.TopDownEngine
         {
             if (IsMobile && InputDetectionActive)
             {
-                _primaryMovement.x = movement.x;
-                _primaryMovement.y = movement.y;
+                _primaryMovement = movement;
             }
 
             _primaryMovement = ApplyCameraRotation(_primaryMovement);
@@ -464,8 +437,7 @@ namespace MoreMountains.TopDownEngine
         {
             if (IsMobile && InputDetectionActive)
             {
-                _secondaryMovement.x = movement.x;
-                _secondaryMovement.y = movement.y;
+                _secondaryMovement = movement;
             }
 
             _secondaryMovement = ApplyCameraRotation(_secondaryMovement);
@@ -584,18 +556,9 @@ namespace MoreMountains.TopDownEngine
             }
         }
 
-        public virtual void JumpButtonDown() => JumpButton.State.ChangeState(MMInput.States.Down);
-        public virtual void JumpButtonPressed() => JumpButton.State.ChangeState(MMInput.States.Pressed);
-        public virtual void JumpButtonUp() => JumpButton.State.ChangeState(MMInput.States.Up);
         public virtual void DashButtonDown() => DashButton.State.ChangeState(MMInput.States.Down);
         public virtual void DashButtonPressed() => DashButton.State.ChangeState(MMInput.States.Pressed);
         public virtual void DashButtonUp() => DashButton.State.ChangeState(MMInput.States.Up);
-        public virtual void CrouchButtonDown() => CrouchButton.State.ChangeState(MMInput.States.Down);
-        public virtual void CrouchButtonPressed() => CrouchButton.State.ChangeState(MMInput.States.Pressed);
-        public virtual void CrouchButtonUp() => CrouchButton.State.ChangeState(MMInput.States.Up);
-        public virtual void RunButtonDown() => RunButton.State.ChangeState(MMInput.States.Down);
-        public virtual void RunButtonPressed() => RunButton.State.ChangeState(MMInput.States.Pressed);
-        public virtual void RunButtonUp() => RunButton.State.ChangeState(MMInput.States.Up);
         public virtual void ReloadButtonDown() => ReloadButton.State.ChangeState(MMInput.States.Down);
         public virtual void ReloadButtonPressed() => ReloadButton.State.ChangeState(MMInput.States.Pressed);
         public virtual void ReloadButtonUp() => ReloadButton.State.ChangeState(MMInput.States.Up);
@@ -614,11 +577,5 @@ namespace MoreMountains.TopDownEngine
         public virtual void TimeControlButtonDown() => TimeControlButton.State.ChangeState(MMInput.States.Down);
         public virtual void TimeControlButtonPressed() => TimeControlButton.State.ChangeState(MMInput.States.Pressed);
         public virtual void TimeControlButtonUp() => TimeControlButton.State.ChangeState(MMInput.States.Up);
-        public virtual void SwitchWeaponButtonDown() => SwitchWeaponButton.State.ChangeState(MMInput.States.Down);
-        public virtual void SwitchWeaponButtonPressed() => SwitchWeaponButton.State.ChangeState(MMInput.States.Pressed);
-        public virtual void SwitchWeaponButtonUp() => SwitchWeaponButton.State.ChangeState(MMInput.States.Up);
-        public virtual void SwitchCharacterButtonDown() => SwitchCharacterButton.State.ChangeState(MMInput.States.Down);
-        public virtual void SwitchCharacterButtonPressed() => SwitchCharacterButton.State.ChangeState(MMInput.States.Pressed);
-        public virtual void SwitchCharacterButtonUp() => SwitchCharacterButton.State.ChangeState(MMInput.States.Up);
     }
 }

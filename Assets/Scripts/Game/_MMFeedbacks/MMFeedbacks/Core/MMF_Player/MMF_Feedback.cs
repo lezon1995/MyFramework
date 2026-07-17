@@ -49,7 +49,6 @@ namespace MoreMountains.Feedbacks
         [Tooltip("use this color to customize the background color of the feedback in the MMF_Player's list")]
         public Color DisplayColor = Color.black;
 
-        [FormerlySerializedAs("Timing")]
         [Tooltip("a number of timing-related values (delay, repeat, etc)")]
         public MMFeedbackTiming Time;
 

@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
-namespace MarbleHero;
+namespace MoreMountains;
 
 public interface IText
 {

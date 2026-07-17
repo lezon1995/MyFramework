@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace MarbleHero;
+namespace MoreMountains;
 
 // 角色管理器
 public class ComboManager : FrameSystem
@@ -30,7 +30,7 @@ public class ComboManager : FrameSystem
         {
             var id = (i + 1) * 10;
             var path = $"{GAMEPLAY_PATH}/Sprites/Play/_Combo/combo_{id}.png";
-            var sprite = mResourceManager.loadGameResource<Sprite>(path);
+            var sprite = resource.loadGameResource<Sprite>(path);
             comboSprites[i] = sprite.getResource();
         }
     }
@@ -40,7 +40,7 @@ public class ComboManager : FrameSystem
         var e = CLASS<ComboEffect>();
 
         var path = $"{GAMEPLAY_PATH}/Prefabs/ComboEffect.prefab";
-        var o = mPrefabPoolManager.createObject(path);
+        var o = prefabPool.createObject(path);
         e.setObject(o);
         e.setName($"ComboEffect_{comboCount * 10}");
         e.setWorldPosition(pos);
@@ -59,7 +59,7 @@ public class ComboManager : FrameSystem
         if (effect == null)
             return;
 
-        mPrefabPoolManager.destroyObject(effect.gameObject, false);
+        prefabPool.destroyObject(effect.gameObject, false);
 
         UN_CLASS(ref effect);
     }

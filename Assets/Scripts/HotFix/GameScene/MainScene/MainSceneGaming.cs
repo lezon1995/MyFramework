@@ -1,4 +1,4 @@
-using MarbleHero;
+using MoreMountains;
 using UnityEngine;
 using static FrameUtility;
 using static FrameBaseHotFix;
@@ -10,26 +10,23 @@ using static LT;
 /// </summary>
 public class MainSceneGaming : SceneProcedure
 {
-    MarbleHero.Game gameInstance;
-
-    protected SafeList<Ball> balls;
+    MoreMountains.Game gameInstance;
 
     protected override void onInit(SceneProcedure lastProcedure)
     {
-        CLASS(out gameInstance);
+        gameInstance = new();
         gameInstance.create();
 
         SeedHelper.setSeed("3Q350M8RNTUM4");
 
-        balls = CLASS<SafeList<Ball>>();
         mGameFrameworkHotFix.registeOnApplicationPause(onApplicationPause);
     }
 
     public override void resetProperty()
     {
         base.resetProperty();
-        UN_CLASS(ref balls);
-        UN_CLASS(ref gameInstance);
+        gameInstance.dispose();
+        gameInstance = null;
     }
 
     void onApplicationPause(bool pause)
@@ -44,24 +41,6 @@ public class MainSceneGaming : SceneProcedure
     {
         base.onUpdate(elapsedTime);
 
-        if (isKeyCurrentDown(KeyCode.I))
-        {
-            using var a = new SafeListReader<Ball>(balls);
-            foreach (var ball in a.mReadList)
-            {
-                var v = Random.insideUnitCircle;
-                ball.setDirection(v);
-            }
-        }
-
-        if (isKeyCurrentDown(KeyCode.A))
-        {
-            var mousePosition = getMousePosition();
-            var worldPos = screenToWorld(mousePosition, false);
-            var ball = ballManager.acquireBall(worldPos, 0.10F, Random.insideUnitCircle, 6F, true);
-            balls.add(ball);
-        }
-
         if (isKeyCurrentDown(KeyCode.B))
         {
             var mousePosition = getMousePosition();
@@ -70,53 +49,6 @@ public class MainSceneGaming : SceneProcedure
             // var brick = brickManager.showBrick(worldPos, new(1.14F, 0.82F), 20);
             var brick = brickManager.acquireBrick(rect.center, new(1,1), 20);
             // balls.add(ball);
-        }
-
-        if (isKeyCurrentDown(KeyCode.Keypad1))
-        {
-            var mousePosition = getMousePosition();
-            var worldPos = screenToWorld(mousePosition, false);
-            var rect = brickManager.brickLayout.getRectAtPos(worldPos);
-            foreach (var (id, brick) in brickManager.getActiveBricks())
-            {
-                if (brick.getRect().Contains(worldPos))
-                {
-                    brick.addBlock(5);
-                    break;
-                }
-            }
-        }
-
-        if (isKeyCurrentDown(KeyCode.Keypad2))
-        {
-            var mousePosition = getMousePosition();
-            var worldPos = screenToWorld(mousePosition, false);
-            var rect = brickManager.brickLayout.getRectAtPos(worldPos);
-            foreach (var (id, brick) in brickManager.getActiveBricks())
-            {
-                if (brick.getRect().Contains(worldPos))
-                {
-                    brick.removeBlock(5);
-                    break;
-                }
-            }
-        }
-
-        if (isKeyCurrentDown(KeyCode.Keypad6))
-        {
-            brickManager.getRandomActiveBrick(out var b);
-            effectManager.addLogic<ElectricChainEffect>().with(player.activeBalls.get(0), b, 3);
-        }
-
-        if (isKeyCurrentDown(KeyCode.R))
-        {
-            player.returnBall();
-        }
-
-        if (isKeyCurrentDown(KeyCode.P))
-        {
-            var phase = gameplayManager.curPhase;
-            gameplayManager.refreshPhase((phase % 4) + 1);
         }
 
         gameInstance.update(elapsedTime);
@@ -134,7 +66,6 @@ public class MainSceneGaming : SceneProcedure
         mGameFrameworkHotFix.unregisteOnApplicationPause(onApplicationPause);
         gameInstance.dispose();
         gameInstance = null;
-        balls.clear();
         ballManager?.destroyAllBall();
     }
 }

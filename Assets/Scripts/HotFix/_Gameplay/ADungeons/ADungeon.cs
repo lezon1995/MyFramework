@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace MarbleHero
+namespace MoreMountains
 {
     //当前显示页面
     public enum CurrentScreen
@@ -198,12 +198,12 @@ namespace MarbleHero
             if (ascensionLevel >= 5)
             {
                 var healAmount = round((player.maxHealth - player.currentHealth) * 0.75F);
-                player.heal(ref healAmount, false);
+                player.Health.ReceiveHealth(new(healAmount), null, player);
             }
             else
             {
                 var healAmount = player.maxHealth;
-                player.heal(ref healAmount, false);
+                player.Health.ReceiveHealth(new(healAmount), null, player);
             }
 
             // if (floorNum > 1)

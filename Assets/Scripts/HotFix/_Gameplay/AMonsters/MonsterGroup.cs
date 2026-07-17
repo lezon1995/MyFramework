@@ -1,18 +1,17 @@
 ﻿using System.Collections.Generic;
 
-namespace MarbleHero
+namespace MoreMountains
 {
     public class MonsterGroup
     {
         public List<AMonster> monsters = new();
-        public AMonster main => monsters[0];
 
         public MonsterGroup(AMonster[] input)
         {
             monsters.AddRange(input);
         }
 
-        public MonsterGroup(AMonster m) : this(new[] { m })
+        public MonsterGroup()
         {
         }
 
@@ -27,12 +26,6 @@ namespace MarbleHero
         public void add(AMonster m) => monsters.Add(m);
         public void addMonster(AMonster m) => monsters.Add(m);
         public void addSpawnedMonster(AMonster m) => monsters.Insert(0, m);
-
-        public void showIntent()
-        {
-            foreach (var m in monsters)
-                m.createIntent();
-        }
 
         public void init()
         {
@@ -60,7 +53,7 @@ namespace MarbleHero
             {
                 foreach (var m in monsters)
                 {
-                    if (m.isDead || m.escaped)
+                    if (m.isDead)
                         continue;
 
                     return false;
@@ -76,7 +69,7 @@ namespace MarbleHero
             {
                 foreach (var m in monsters)
                 {
-                    if (m.isDying || m.isEscaping)
+                    if (m.isDying)
                         continue;
 
                     return false;
@@ -90,7 +83,7 @@ namespace MarbleHero
         {
             foreach (var m in monsters)
             {
-                if (m.isDying || m.isEscaping)
+                if (m.isDying)
                     continue;
 
                 if (!m.hasPower("Barricade"))
@@ -112,174 +105,10 @@ namespace MarbleHero
             return null;
         }
 
-        public void queueMonsters()
-        {
-            foreach (var m in monsters)
-            {
-                if (m.isDeadOrEscaped() && !m.halfDead)
-                    continue;
-
-                for (var i = 0; i < m.moveInfoGroup.moveInfos.Count; i++)
-                {
-                    var info = m.moveInfoGroup.moveInfos[i];
-                    actionManager.addMonsterQueueItem(new(m, info));
-                }
-
-                m.moveInfoGroup.moveInfos.Clear();
-            }
-        }
-
-        public bool haveMonstersEscaped()
-        {
-            foreach (var m in monsters)
-            {
-                if (m.escaped)
-                    continue;
-
-                return false;
-            }
-
-            return true;
-        }
-
-        public bool isMonsterEscaping()
-        {
-            foreach (var m in monsters)
-                if (m.nextMove == 99)
-                    return true;
-
-            return false;
-        }
-
-        public bool hasMonsterEscaped()
-        {
-            foreach (var m in monsters)
-                if (m.isEscaping)
-                    return true;
-
-            return _dungeon is TheCity;
-        }
-
-        public AMonster getRandomMonster() => getRandomMonster(null, false);
-
-        public AMonster getRandomMonster(bool aliveOnly) => getRandomMonster(null, aliveOnly);
-
-        public AMonster getRandomMonster(AMonster exception, bool aliveOnly, Rand rng)
-        {
-            if (areMonstersBasicallyDead)
-                return null;
-
-            if (exception == null)
-            {
-                if (aliveOnly)
-                {
-                    List<AMonster> arrayList = new();
-                    foreach (var m in monsters)
-                    {
-                        if (!m.halfDead && !m.isDying && !m.isEscaping)
-                            arrayList.Add(m);
-                    }
-
-                    if (arrayList.Count <= 0)
-                        return null;
-
-                    return arrayList[rng.random(0, arrayList.Count - 1)];
-                }
-
-                return monsters[rng.random(0, monsters.Count - 1)];
-            }
-
-            if (monsters.Count == 1)
-                return monsters[0];
-
-            if (aliveOnly)
-            {
-                List<AMonster> arrayList = new();
-                foreach (var m in monsters)
-                {
-                    if (m.halfDead || m.isDying || m.isEscaping || exception == m)
-                        continue;
-
-                    arrayList.Add(m);
-                }
-
-                if (arrayList.Count == 0)
-                    return null;
-
-                return arrayList[rng.random(0, arrayList.Count - 1)];
-            }
-
-            List<AMonster> tmp = new();
-            foreach (var m in monsters)
-            {
-                if (exception != m)
-                    tmp.Add(m);
-            }
-
-            return tmp[rng.random(0, tmp.Count - 1)];
-        }
-
-        public AMonster getRandomMonster(AMonster exception, bool aliveOnly)
-        {
-            if (areMonstersBasicallyDead)
-                return null;
-
-            if (exception == null)
-            {
-                if (aliveOnly)
-                {
-                    List<AMonster> arrayList = new();
-                    foreach (var m in monsters)
-                    {
-                        if (m.halfDead || m.isDying || m.isEscaping)
-                            continue;
-
-                        arrayList.Add(m);
-                    }
-
-                    if (arrayList.Count <= 0)
-                        return null;
-
-                    return arrayList[MathUtils.random(0, arrayList.Count - 1)];
-                }
-
-                return monsters[MathUtils.random(0, monsters.Count - 1)];
-            }
-
-            if (monsters.Count == 1)
-                return monsters[0];
-
-            if (aliveOnly)
-            {
-                List<AMonster> arrayList = new();
-                foreach (var m in monsters)
-                {
-                    if (m.halfDead || m.isDying || m.isEscaping || exception == m)
-                        continue;
-
-                    arrayList.Add(m);
-                }
-
-                if (arrayList.Count == 0)
-                    return null;
-
-                return arrayList[MathUtils.random(0, arrayList.Count - 1)];
-            }
-
-            List<AMonster> tmp = new();
-            foreach (var m in monsters)
-            {
-                if (exception != m)
-                    tmp.Add(m);
-            }
-
-            return tmp[MathUtils.random(0, tmp.Count - 1)];
-        }
-
         public void update(float dt)
         {
             foreach (var m in monsters)
-                m.doUpdate(dt);
+                m.OnUpdate(dt);
         }
 
         public void updateAnimations(float dt)
@@ -293,17 +122,11 @@ namespace MarbleHero
             return ADungeon.lastCombatMetricKey == "Shield and Spear" && monsters[1].isDying;
         }
 
-        public void escape()
-        {
-            foreach (var m in monsters)
-                m.escape();
-        }
-
         public void applyEndOfTurnPowers()
         {
             foreach (var m in monsters)
             {
-                if (m.isDying || m.isEscaping)
+                if (m.isDying)
                     continue;
 
                 m.applyEndOfTurnTriggers();
@@ -314,20 +137,12 @@ namespace MarbleHero
 
             foreach (var m in monsters)
             {
-                if (m.isDying || m.isEscaping)
+                if (m.isDying)
                     continue;
 
                 foreach (var p in m.powers)
                     p.atEndOfRound();
             }
-        }
-
-        public List<string> getMonsterNames()
-        {
-            List<string> arr = new();
-            foreach (var m in monsters)
-                arr.Add(m.id);
-            return arr;
         }
     }
 }

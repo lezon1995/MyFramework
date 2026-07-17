@@ -10,6 +10,14 @@ public struct SafeListReader<T> : IDisposable
 		mSafeList = list;
 		mReadList = mSafeList.startForeach();
 	}
+	
+	public SafeListReader(SafeList<T> list, out List<T> reader)
+	{
+		mSafeList = list;
+		mReadList = mSafeList.startForeach();
+		reader = mReadList;
+	}
+	
 	public void Dispose()
 	{
 		mSafeList.endForeach();

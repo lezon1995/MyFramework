@@ -1,6 +1,6 @@
 ﻿// using Extensions;
 //
-// namespace MoreMountains.TopDownEngine
+// namespace MoreMountains
 // {
 //     public partial class GASpec
 //     {

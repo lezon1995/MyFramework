@@ -4,7 +4,7 @@ using MoreMountains.Tools;
 using UnityEngine;
 using UnityEngine.Pool;
 
-namespace MarbleHero;
+namespace MoreMountains;
 
 // 角色管理器
 public class BallManager : FrameSystem
@@ -16,8 +16,6 @@ public class BallManager : FrameSystem
     protected Dictionary<int, Ball> inactiveBalls = new(); //回到底板后待发射的Ball
     protected Dictionary<Type, Dictionary<long, Ball>> ballTypeList = new(); // 角色分类列表
     protected Dictionary<long, Ball> ballGUIDList = new(); // 角色ID索引表
-    protected SafeList<Ball> ballUpdateList = new(); // 用于更新角色的列表
-    protected SafeList<Ball> ballFixedUpdateList = new(); // 需要在FixedUpdate中更新的列表,如果直接使用mBallGUIDList,会非常慢,而很多时候其实并不需要进行物理更新,所以单独使用一个列表存储
 
     protected Dictionary<Type, ObjectPool<Ball>> ballPools = new();
 
@@ -37,49 +35,21 @@ public class BallManager : FrameSystem
         destroyAllBall();
         ballTypeList = null;
         ballGUIDList = null;
-        ballFixedUpdateList = null;
     }
 
     public override void update(float elapsedTime)
     {
         base.update(elapsedTime);
-        using var a = new SafeListReader<Ball>(ballUpdateList);
-        foreach (var ball in a.mReadList)
-        {
-            if (ball && ball.isActiveInHierarchy())
-            {
-                var dt = !ball.isIgnoreTimeScale() ? elapsedTime : Time.unscaledDeltaTime;
-                ball.update(dt);
-            }
-        }
     }
 
     public override void lateUpdate(float elapsedTime)
     {
         base.lateUpdate(elapsedTime);
-        using var a = new SafeListReader<Ball>(ballUpdateList);
-        foreach (var ball in a.mReadList)
-        {
-            if (ball && ball.isActiveInHierarchy())
-            {
-                var dt = !ball.isIgnoreTimeScale() ? elapsedTime : Time.unscaledDeltaTime;
-                ball.lateUpdate(dt);
-            }
-        }
     }
 
     public override void fixedUpdate(float elapsedTime)
     {
         base.fixedUpdate(elapsedTime);
-        using var a = new SafeListReader<Ball>(ballFixedUpdateList);
-        foreach (var ball in a.mReadList)
-        {
-            if (ball && ball.isActiveInHierarchy())
-            {
-                var dt = !ball.isIgnoreTimeScale() ? elapsedTime : Time.fixedUnscaledDeltaTime;
-                ball.fixedUpdate(dt);
-            }
-        }
     }
 
     public Ball getBall(long id)
@@ -112,25 +82,33 @@ public class BallManager : FrameSystem
     {
         return ballTypeList.get(type);
     }
-
-    public Ball acquireBall(Vector2 pos, float radius, Vector2 direction, float speed, bool checkBorderBot = false)
+    
+    public Ball acquireBall()
     {
-        return acquireBall(typeof(Ball), pos, radius, direction, speed, checkBorderBot);
+        return acquireBall(typeof(Ball), Vector2.zero, Vector2.up);
+    }
+    
+    public Ball acquireBall(Vector2 pos)
+    {
+        return acquireBall(typeof(Ball), pos, Vector2.up);
     }
 
-    public Ball acquireBall(Type type, Vector2 pos, float radius, Vector2 direction, float speed, bool checkBorderBot = false)
+    public Ball acquireBall(Vector2 pos, Vector2 direction)
+    {
+        return acquireBall(typeof(Ball), pos, direction);
+    }
+
+    public Ball acquireBall(Type type, Vector2 pos, Vector2 direction)
     {
         if (!ballPools.TryGetValue(type, out var pool))
         {
             pool = new(
-                createFunc: () => { return createBall(type, pos, radius, direction, speed); },
+                createFunc: () => createBall(type),
                 actionOnGet: ball =>
                 {
                     ball.setActive(true);
                     ball.setEnabled(true);
 
-                    ballUpdateList.add(ball);
-                    ballFixedUpdateList.add(ball);
                     activeBalls[ball.instanceID] = ball;
                     inactiveBalls.Remove(ball.instanceID);
                 },
@@ -139,14 +117,12 @@ public class BallManager : FrameSystem
                     ball.setActive(false);
                     ball.setEnabled(false);
 
-                    ballUpdateList.remove(ball);
-                    ballFixedUpdateList.remove(ball);
                     activeBalls.Remove(ball.instanceID);
                     inactiveBalls[ball.instanceID] = ball;
                 },
-                actionOnDestroy: ball => { destroyBall(ball); },
+                actionOnDestroy: destroyBall,
                 collectionCheck: true,
-                defaultCapacity: 100,
+                defaultCapacity: 10,
                 maxSize: 100);
 
             ballPools.add(type, pool);
@@ -154,32 +130,21 @@ public class BallManager : FrameSystem
 
         var ball = pool.Get();
         ball.setTeleportPosition(pos, BORDER_BOT_LAYER_MASK);
-        ball.setRadius(radius);
-        ball.setShootDirection(direction, checkBorderBot);
-        ball.setSpeed(speed);
-        ball.setPhysicDamage(1, 1);
-        ball.setMagicDamage(1, 1);
+        ball.setShootDirection(direction);
         ball.setInitialHealth(int.MaxValue);
         ball.setRendererActive(true);
         ball.onAcquire();
         
-        ball.eventRouter.addListener<OnBallDeath>(this);
-        ball.eventRouter.addListener<OnBallDeathTotally>(this);
+        ball.Event.addListener<OnBallDeath>(this);
+        ball.Event.addListener<OnBallDeathTotally>(this);
         return ball;
     }
 
+    Ball createBall() => createBall(typeof(Ball));
 
-    Ball createBall(Vector2 pos, float radius, Vector2 direction, float speed)
-    {
-        return createBall(typeof(Ball), pos, radius, direction, speed);
-    }
+    T createBall<T>() where T : Ball => createBall(typeof(T)) as T;
 
-    T createBall<T>(Vector2 pos, float radius, Vector2 direction, float speed) where T : Ball
-    {
-        return createBall(typeof(T), pos, radius, direction, speed) as T;
-    }
-
-    Ball createBall(Type type, Vector2 pos, float radius, Vector2 direction, float speed)
+    Ball createBall(Type type)
     {
         var id = generateGUID();
 
@@ -189,39 +154,31 @@ public class BallManager : FrameSystem
             return null;
         }
 
-        var ball = CLASS<Ball>(type);
+        var path = $"{GAMEPLAY_PATH}/Balls/Ball_0.prefab";
+        var o = prefabPool.createObject(path);
+        o.TryGetComponent(out Ball ball);
         ball.setName($"Ball_{activeBalls.Count + 1}");
         ball.setBallType(type);
-
         // 将角色挂接到管理器下
         ball.setID(id);
-
-        var path = $"{GAMEPLAY_PATH}/Prefabs/Play/Ball_0.prefab";
-        var o = mPrefabPoolManager.createObject(path);
-        ball.setObject(o);
         ball.setPlayer(player);
         ball.setEnabled(true);
-
-        ball.init();
         addBallToList(ball);
         return ball;
     }
 
-    public void releaseBall(Ball ball)
-    {
-        if (ballPools.TryGetValue(ball.getType(), out var pool))
+        public void releaseBall(Ball ball)
         {
-            ball.onRelease();
-            pool.Release(ball);
+            if (ballPools.TryGetValue(ball.getType(), out var pool))
+            {
+                ball.onRelease();
+                pool.Release(ball);
+            }
         }
-    }
 
     public void destroyAllBall()
     {
-        UN_CLASS_LIST(ballGUIDList);
         ballTypeList.Clear();
-        ballUpdateList.clear();
-        ballFixedUpdateList.clear();
     }
 
     void destroyBall(Ball ball)
@@ -229,7 +186,7 @@ public class BallManager : FrameSystem
         if (ball == null)
             return;
 
-        mPrefabPoolManager.destroyObject(ball.gameObject, false);
+        prefabPool.destroyObject(ball.gameObject, false);
 
         long guid = ball.getGUID();
         // 从角色分类列表中移除
@@ -237,13 +194,8 @@ public class BallManager : FrameSystem
         // 从ID索引表中移除
         ballGUIDList.Remove(guid);
 
-        ballUpdateList.remove(ball);
-        ballFixedUpdateList.remove(ball);
-        
-        ball.eventRouter.removeListener<OnBallDeath>(this);
-        ball.eventRouter.removeListener<OnBallDeathTotally>(this);
-
-        UN_CLASS(ref ball);
+        ball.Event.removeListener<OnBallDeath>(this);
+        ball.Event.removeListener<OnBallDeathTotally>(this);
     }
 
     public void destroyBallList<T>(List<T> characterList) where T : Ball
@@ -255,12 +207,8 @@ public class BallManager : FrameSystem
             ballTypeList.get(ball.getType())?.Remove(guid);
             // 从ID索引表中移除
             ballGUIDList.Remove(guid);
-
-            ballUpdateList.remove(ball);
-            ballFixedUpdateList.remove(ball);
         }
 
-        UN_CLASS_LIST(characterList);
     }
 
     //------------------------------------------------------------------------------------------------------------------------------

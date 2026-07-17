@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using MoreMountains.Tools;
 using Sirenix.OdinInspector;
 using UnityEngine;
-using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     public partial class Character
     {
@@ -40,6 +39,8 @@ namespace MoreMountains.TopDownEngine
             AF, //Adaptive Force
             LS, //Life Steal
             Range, //Attack Range
+            DodgeChance, //Dodge Chance
+            BallisticSpeed, //Ballistic Speed
         }
 
         /// The possible Movement States the character can be in. These usually correspond to their own class, 
@@ -47,15 +48,9 @@ namespace MoreMountains.TopDownEngine
         public enum Motions
         {
             Idle,
-            Falling,
             Walking,
             Running,
-            Crouching,
-            Crawling,
             Dashing,
-            Jumping,
-            Pushing,
-            FallingDownHole
         }
 
         /// The possible character conditions
@@ -77,12 +72,6 @@ namespace MoreMountains.TopDownEngine
             South
         }
 
-        public enum Dimensions
-        {
-            Type2D,
-            Type3D
-        }
-
         [Flags]
         public enum ComponentFlags
         {
@@ -101,7 +90,8 @@ namespace MoreMountains.TopDownEngine
     /// </summary>
     [SelectionBase]
     [AddComponentMenu("TopDown Engine/Character/Core/Character")]
-    public partial class Character : MonoBehaviour, IEventRouter
+    public partial class Character : MainActorBehaviour
+        , IEventRouter
         , IEvent<OnRevive>
         , IEvent<OnDeath>
         , IEvent<OnHit>
@@ -111,76 +101,70 @@ namespace MoreMountains.TopDownEngine
         , IEvent<OnCombat>
         , IEvent<OnWindup>
         , IEvent<DoKill>
+        , IStatsGetter<Character.Stat>
     {
-        public Dimensions Dimension { get; set; }
         public ComponentFlags Flags { get; set; }
 
-        [TitleGroup("Base")]
-        public Types CharacterType = Types.AI;
+        [TitleGroup("Base")] public Types CharacterType = Types.AI;
 
-        [TitleGroup("Base")]
-        public string PlayerID;
+        [TitleGroup("Base")] public string PlayerID;
 
-        [TitleGroup("Base")]
-        public bool TickDrivenBySelf = true;
-
-        [TitleGroup("Animator")]
-        [Tooltip("the character animator, that this class and all abilities should update parameters on")]
+        [TitleGroup("Animator")] [Tooltip("the character animator, that this class and all abilities should update parameters on")]
         public Animator CharacterAnimator;
 
-        [TitleGroup("Animator")]
-        [Tooltip("Set this to false if you want to implement your own animation system")]
+        [TitleGroup("Animator")] [Tooltip("Set this to false if you want to implement your own animation system")]
         public bool UseDefaultMecanim = true;
 
-        [TitleGroup("Animator")]
-        [Tooltip("If this is true, sanity checks will be performed to make sure animator parameters exist before updating them. Turning this to false will increase performance but will throw errors if you're trying to update non existing parameters. Make sure your animator has the required parameters.")]
+        [TitleGroup("Animator")] [Tooltip("If this is true, sanity checks will be performed to make sure animator parameters exist before updating them. Turning this to false will increase performance but will throw errors if you're trying to update non existing parameters. Make sure your animator has the required parameters.")]
         public bool RunAnimatorSanityChecks;
 
-        [TitleGroup("Animator")]
-        [Tooltip("if this is true, animator logs for the associated animator will be turned off to avoid potential spam")]
+        [TitleGroup("Animator")] [Tooltip("if this is true, animator logs for the associated animator will be turned off to avoid potential spam")]
         public bool DisableAnimatorLogs = true;
 
-        [TitleGroup("Bindings")]
-        [FormerlySerializedAs("CharacterModel")]
-        [Tooltip("the 'model' (can be any gameobject) used to manipulate the character. Ideally it's separated (and nested) from the collider/TopDown controller/abilities, to avoid messing with collisions.")]
+        [TitleGroup("Bindings")] [Tooltip("the 'model' (can be any game object) used to manipulate the character. Ideally it's separated (and nested) from the collider/TopDown controller/abilities, to avoid messing with collisions.")]
         public GameObject Model;
 
-        [TitleGroup("Bindings")]
-        [FormerlySerializedAs("CharacterHealth")]
-        [Tooltip("the Health script associated to this Character, will be grabbed automatically if left empty")]
+        [TitleGroup("Bindings")] [Tooltip("the Health script associated to this Character, will be grabbed automatically if left empty")]
         public Health Health;
 
-        [TitleGroup("Bindings")]
-        [Tooltip("the Stats script associated to this Character, will be grabbed automatically if left empty")]
+        [TitleGroup("Bindings")] [Tooltip("the Stats script associated to this Character, will be grabbed automatically if left empty")]
         public Stats Stats;
 
-        [TitleGroup("Bindings")]
-        [Tooltip("the Buffable script associated to this Character, will be grabbed automatically if left empty")]
+        [TitleGroup("Bindings")] [Tooltip("the Buffable script associated to this Character, will be grabbed automatically if left empty")]
         public Buffable Buffable;
 
-        [TitleGroup("Bindings")]
-        [Tooltip("the Exp script associated to this Character, will be grabbed automatically if left empty")]
+        [TitleGroup("Bindings")] [Tooltip("the Exp script associated to this Character, will be grabbed automatically if left empty")]
         public Exp Exp;
 
-        [TitleGroup("Bindings")]
-        [Tooltip("A list of gameObjects (usually nested under the Character) under which to search for additional abilities")]
+        [TitleGroup("Bindings")] [Tooltip("A list of gameObjects (usually nested under the Character) under which to search for additional abilities")]
         public List<GameObject> AdditionalAbilityNodes;
 
-        [TitleGroup("Bindings")]
-        [Tooltip("The brain currently associated with this character, if it's an Advanced AI. By default the engine will pick the one on this object, but you can attach another one if you'd like")]
+        [TitleGroup("Bindings")] [Tooltip("The brain currently associated with this character, if it's an Advanced AI. By default the engine will pick the one on this object, but you can attach another one if you'd like")]
         public AIBrain CharacterBrain;
 
-        public MMStateMachine<Motions> MovementState;
-        public MMStateMachine<Conditions> ConditionState;
+        public MMStateMachine<Motions> motionState;
+        public MMStateMachine<Conditions> conditionState;
 
-        public IEventRouter Event => eventRouter;
-        public IEventRouter eventRouter => this;
+        public IEventRouter Event => this;
         public virtual InputManager Input { get; protected set; }
         public virtual Animator Animator { get; protected set; }
         public virtual HashSet<int> AnimatorParameters { get; protected set; }
-        public virtual CharacterOrientation2D Orientation2D { get; protected set; }
+        public CharacterOrientation2D Orientation2D;
+        public CharacterMovement Movement;
         public virtual GameObject CameraTarget { get; protected set; }
         public virtual Vector3 CameraDirection { get; protected set; }
+
+        public virtual TopDownController Controller
+        {
+            get
+            {
+                if (_controller == null)
+                    TryGetComponent(out _controller);
+
+                return _controller;
+            }
+        }
+
         public OnCombat Combat;
         public bool InCombat => Combat.IsOn;
 
@@ -229,13 +213,10 @@ namespace MoreMountains.TopDownEngine
         /// <summary>
         /// Initializes this instance of the character
         /// </summary>
-        protected virtual void Awake()
+        protected override void OnAwake()
         {
+            base.OnAwake();
             Initialization();
-        }
-
-        protected virtual void Start()
-        {
         }
 
         /// <summary>
@@ -243,45 +224,41 @@ namespace MoreMountains.TopDownEngine
         /// </summary>
         protected virtual void Initialization()
         {
-            if (TryGetComponent<TopDownController2D>(out _))
-            {
-                Dimension = Dimensions.Type2D;
-            }
-
             // we initialize our state machines
-            MovementState = new(gameObject);
-            ConditionState = new(gameObject);
+            motionState = new(gameObject);
+            conditionState = new(gameObject);
 
             // we get the current input manager
             SetInputManager();
 
             // we store our components for further use 
-            _controller = GetComponent<TopDownController>();
+            TryGetComponent(out _controller);
 
             if (Health == null)
-                Health = GetComponent<Health>();
+                TryGetComponent(out Health);
 
             if (Stats == null)
-                Stats = GetComponent<Stats>();
+                TryGetComponent(out Stats);
 
             if (Buffable == null)
-                Buffable = GetComponent<Buffable>();
+                TryGetComponent(out Buffable);
 
             if (Buffable)
                 Flags |= ComponentFlags.Buffable;
 
             if (Exp == null)
-                Exp = GetComponent<Exp>();
+                TryGetComponent(out Exp);
 
             CacheAbilitiesAtInit();
 
             if (CharacterBrain == null)
-                CharacterBrain = GetComponent<AIBrain>();
+                TryGetComponent(out CharacterBrain);
 
             if (CharacterBrain)
-                CharacterBrain.Owner = gameObject;
+                CharacterBrain.SetOwner(gameObject);
 
-            Orientation2D = FindAbility<CharacterOrientation2D>();
+            FindAbility(out Orientation2D);
+            FindAbility(out Movement);
 
             AssignAnimator();
 
@@ -294,7 +271,7 @@ namespace MoreMountains.TopDownEngine
 
             Combat.Character = this;
 
-            // TopDownEngineEvent.Trigger(TopDownEngineEventTypes.CharacterInitialized, this);
+            TopDownEngineEvent.Trigger(TopDownEngineEventTypes.CharacterInitialized, this);
         }
 
         /// <summary>
@@ -328,12 +305,7 @@ namespace MoreMountains.TopDownEngine
                 // we add the ones from the nodes
                 for (var i = 0; i < list.Count; i++)
                 {
-                    var node = list[i];
-                    var abilities = node.GetComponentsInChildren<CharacterAbility>();
-                    foreach (var ability in abilities)
-                    {
-                        _characterAbilities.Add(ability);
-                    }
+                    list[i].TryGetComponentsInChildren(ref _characterAbilities);
                 }
             }
 
@@ -407,7 +379,7 @@ namespace MoreMountains.TopDownEngine
             return null;
         }
 
-        public bool TryFindAbility<T>(out T result) where T : CharacterAbility
+        public bool FindAbility<T>(out T result) where T : CharacterAbility
         {
             CacheAbilitiesAtInit();
 
@@ -442,7 +414,7 @@ namespace MoreMountains.TopDownEngine
             return null;
         }
 
-        public bool TryFindAbility(string abilityName, out CharacterAbility foundAbility)
+        public bool FindAbility(string abilityName, out CharacterAbility foundAbility)
         {
             CacheAbilitiesAtInit();
 
@@ -487,16 +459,9 @@ namespace MoreMountains.TopDownEngine
             if (_animatorInitialized && !forceAssignation)
                 return;
 
-            AnimatorParameters = new HashSet<int>();
+            AnimatorParameters = new();
 
-            if (CharacterAnimator)
-            {
-                Animator = CharacterAnimator;
-            }
-            else
-            {
-                Animator = GetComponent<Animator>();
-            }
+            Animator = CharacterAnimator ? CharacterAnimator : GetComponent<Animator>();
 
             if (Animator)
             {
@@ -552,7 +517,7 @@ namespace MoreMountains.TopDownEngine
                     if (!string.IsNullOrEmpty(PlayerID))
                     {
                         Input = null;
-                        foreach (var input in FindObjectsOfType<InputManager>())
+                        foreach (var input in FindObjectsByType<InputManager>(FindObjectsSortMode.None))
                         {
                             if (input.PlayerID == PlayerID)
                                 Input = input;
@@ -610,33 +575,19 @@ namespace MoreMountains.TopDownEngine
         /// <summary>
         /// We do this every frame. This is separate from Update for more flexibility.
         /// </summary>
-        public void Tick(float dt)
+        public override void OnFixedUpdate(float dt)
         {
+            base.OnFixedUpdate(dt);
             OnTickBefore(dt);
             OnTick(dt);
         }
 
-        void Update()
-        {
-            var dt = Time.deltaTime;
-            OnUpdate(dt);
-        }
-
-        void FixedUpdate()
-        {
-            if (TickDrivenBySelf)
-            {
-                var dt = Time.fixedDeltaTime;
-                Tick(dt);
-            }
-        }
-
-
         /// <summary>
         /// We do this every frame. This is separate from Update for more flexibility.
         /// </summary>
-        void OnUpdate(float dt)
+        public override void OnUpdate(float dt)
         {
+            base.OnUpdate(dt);
             // we process our abilities
             UpdateAbilitiesBefore();
             UpdateAbilities(dt);
@@ -677,12 +628,12 @@ namespace MoreMountains.TopDownEngine
             if (UseDefaultMecanim && Animator)
             {
                 MMAnimatorExtensions.UpdateAnimatorBool(Animator, _groundedAnimationParameter, _controller.Grounded, AnimatorParameters, RunAnimatorSanityChecks);
-                MMAnimatorExtensions.UpdateAnimatorBool(Animator, _aliveAnimationParameter, ConditionState.Not(Conditions.Dead), AnimatorParameters, RunAnimatorSanityChecks);
+                MMAnimatorExtensions.UpdateAnimatorBool(Animator, _aliveAnimationParameter, conditionState.Not(Conditions.Dead), AnimatorParameters, RunAnimatorSanityChecks);
                 MMAnimatorExtensions.UpdateAnimatorFloat(Animator, _currentSpeedAnimationParameter, _controller.CurrentMovement.magnitude, AnimatorParameters, RunAnimatorSanityChecks);
                 MMAnimatorExtensions.UpdateAnimatorFloat(Animator, _xSpeedAnimationParameter, _controller.CurrentMovement.x, AnimatorParameters, RunAnimatorSanityChecks);
                 MMAnimatorExtensions.UpdateAnimatorFloat(Animator, _ySpeedAnimationParameter, _controller.CurrentMovement.y, AnimatorParameters, RunAnimatorSanityChecks);
                 MMAnimatorExtensions.UpdateAnimatorFloat(Animator, _zSpeedAnimationParameter, _controller.CurrentMovement.z, AnimatorParameters, RunAnimatorSanityChecks);
-                MMAnimatorExtensions.UpdateAnimatorBool(Animator, _idleAnimationParameter, MovementState.Is(Motions.Idle), AnimatorParameters, RunAnimatorSanityChecks);
+                MMAnimatorExtensions.UpdateAnimatorBool(Animator, _idleAnimationParameter, motionState.Is(Motions.Idle), AnimatorParameters, RunAnimatorSanityChecks);
                 MMAnimatorExtensions.UpdateAnimatorFloat(Animator, _randomAnimationParameter, _animatorRandomNumber, AnimatorParameters, RunAnimatorSanityChecks);
                 MMAnimatorExtensions.UpdateAnimatorFloat(Animator, _xVelocityAnimationParameter, _controller.Velocity.x, AnimatorParameters, RunAnimatorSanityChecks);
                 MMAnimatorExtensions.UpdateAnimatorFloat(Animator, _yVelocityAnimationParameter, _controller.Velocity.y, AnimatorParameters, RunAnimatorSanityChecks);
@@ -728,6 +679,14 @@ namespace MoreMountains.TopDownEngine
             }
         }
 
+        public virtual void SetColliderEnabled(bool enable)
+        {
+            if (enable)
+                _controller.CollisionsOn();
+            else
+                _controller.CollisionsOff();
+        }
+
         public virtual void RespawnAt(Vector3 spawnPosition, FacingDirections facingDirection)
         {
             transform.position = spawnPosition;
@@ -735,7 +694,7 @@ namespace MoreMountains.TopDownEngine
             gameObject.SetActive(true);
 
             // we raise it from the dead (if it was dead)
-            ConditionState.ChangeState(Conditions.Normal);
+            conditionState.ChangeState(Conditions.Normal);
 
             // we make it handle collisions again
             _controller.enabled = true;
@@ -749,7 +708,7 @@ namespace MoreMountains.TopDownEngine
             {
                 Health.StoreInitialPosition();
                 Health.ResetHealthToMaxHealth();
-                Health.Revive();
+                Health.Resurrect();
             }
 
             if (CharacterBrain)
@@ -758,7 +717,7 @@ namespace MoreMountains.TopDownEngine
             }
 
             // facing direction
-            if (TryFindAbility<CharacterOrientation2D>(out var orientation2D))
+            if (FindAbility<CharacterOrientation2D>(out var orientation2D))
             {
                 orientation2D.InitialFacingDirection = facingDirection;
                 orientation2D.Face(facingDirection);
@@ -797,58 +756,6 @@ namespace MoreMountains.TopDownEngine
         }
 
         /// <summary>
-        /// Use this method to change the character's condition for a specified duration, and resetting it afterwards.
-        /// You can also use this to disable gravity for a while, and optionally reset forces too.
-        /// </summary>
-        /// <param name="newCondition"></param>
-        /// <param name="duration"></param>
-        /// <param name="resetControllerForces"></param>
-        /// <param name="disableGravity"></param>
-        public virtual void ChangeCharacterConditionTemporarily(Conditions newCondition, float duration, bool resetControllerForces, bool disableGravity)
-        {
-            if (_conditionChangeCoroutine != default)
-            {
-                Timing.KillCoroutines(_conditionChangeCoroutine);
-            }
-
-            _conditionChangeCoroutine = Timing.RunCoroutine(ChangeCharacterConditionTemporarilyCo(newCondition, duration, resetControllerForces, disableGravity));
-        }
-
-        /// <summary>
-        /// CoroutineHandle handling the temporary change of condition mandated by ChangeCharacterConditionTemporarily
-        /// </summary>
-        /// <param name="newCondition"></param>
-        /// <param name="duration"></param>
-        /// <param name="resetControllerForces"></param>
-        /// <param name="disableGravity"></param>
-        /// <returns></returns>
-        protected virtual IEnumerator<float> ChangeCharacterConditionTemporarilyCo(Conditions newCondition, float duration, bool resetControllerForces, bool disableGravity)
-        {
-            if (_lastState != newCondition && ConditionState.Not(newCondition))
-            {
-                _lastState = ConditionState.CurrentState;
-            }
-
-            ConditionState.ChangeState(newCondition);
-            if (resetControllerForces)
-            {
-                _controller.SetMovement(Vector2.zero);
-            }
-
-            if (disableGravity && _controller)
-            {
-                _controller.GravityActive = false;
-            }
-
-            yield return Timing.WaitForSeconds(duration);
-            ConditionState.ChangeState(_lastState);
-            if (disableGravity && _controller)
-            {
-                _controller.GravityActive = true;
-            }
-        }
-
-        /// <summary>
         /// Stores the associated camera direction
         /// </summary>
         public virtual void SetCameraDirection(Vector3 direction)
@@ -863,7 +770,7 @@ namespace MoreMountains.TopDownEngine
         {
             _controller.SetGravityActive(false);
             _controller.SetMovement(Vector2.zero);
-            ConditionState.ChangeState(Conditions.Frozen);
+            conditionState.ChangeState(Conditions.Frozen);
         }
 
         /// <summary>
@@ -871,10 +778,10 @@ namespace MoreMountains.TopDownEngine
         /// </summary>
         public virtual void UnFreeze()
         {
-            if (ConditionState.CurrentState == Conditions.Frozen)
+            if (conditionState.CurrentState == Conditions.Frozen)
             {
                 _controller.SetGravityActive(true);
-                ConditionState.ChangeState(Conditions.Normal);
+                conditionState.ChangeState(Conditions.Normal);
             }
         }
 
@@ -930,11 +837,7 @@ namespace MoreMountains.TopDownEngine
                 CharacterBrain.enabled = false;
             }
 
-            if (MovementState.Not(Motions.FallingDownHole))
-            {
-                MovementState.ChangeState(Motions.Idle);
-            }
-
+            motionState.ChangeState(Motions.Idle);
             onDeath?.Invoke(this);
         }
 
@@ -1005,7 +908,7 @@ namespace MoreMountains.TopDownEngine
         /// <summary>
         /// OnEnable, we register our OnRevive event
         /// </summary>
-        protected virtual void OnEnable()
+        protected override void OnEnable()
         {
             if (Health)
             {
@@ -1025,12 +928,14 @@ namespace MoreMountains.TopDownEngine
 
             Event.addListener<OnCombat>(this);
             Event.addListener<OnWindup>(this);
+            
+            base.OnEnable();
         }
 
         /// <summary>
         /// OnDisable, we unregister our OnRevive event
         /// </summary>
-        protected virtual void OnDisable()
+        protected override void OnDisable()
         {
             if (Health)
             {
@@ -1044,12 +949,30 @@ namespace MoreMountains.TopDownEngine
 
             Event.removeListener<OnCombat>(this);
             Event.removeListener<OnWindup>(this);
+            base.OnDisable();
         }
 
-        protected virtual void OnDestroy()
+        protected override void OnDestroy()
         {
             if (Stats)
                 Stats.ClearStats();
+            base.OnDestroy();
+        }
+
+        public UniStats.Stat GetStat(Stat key)
+        {
+            return Stats == null ? null : Stats.GetStat(key.Key());
+        }
+
+        public bool GetStat(Stat key, out UniStats.Stat stat)
+        {
+            if (Stats == null)
+            {
+                stat = null;
+                return false;
+            }
+
+            return Stats.GetStat(key.Key(), out stat);
         }
     }
 }

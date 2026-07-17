@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using MoreMountains.Tools;
-using Sirenix.OdinInspector;
 using UniStats;
 using UnityEngine;
-namespace MoreMountains.TopDownEngine
+
+namespace MoreMountains
 {
     [AddComponentMenu("TopDown Engine/Character/Core/Stats")]
     public class Stats : MonoBehaviour
@@ -29,6 +29,8 @@ namespace MoreMountains.TopDownEngine
         public const string AF = "AF";
         public const string LS = "LS";
         public const string Range = "Range";
+        public const string DodgeChance = "DodgeChance";
+        public const string BallisticSpeed = "BallisticSpeed";
 
         public const string AF_Mod = "AdaptiveForceMod";
 
@@ -41,8 +43,8 @@ namespace MoreMountains.TopDownEngine
         //自定义数值
         Dictionary<string, UniStats.Stat> _stats = new();
 
-        public float AF_CoeffAD = 0.6F;
-        public float AF_CoeffAP = 1.0F;
+        const float AF_CoeffAD = 0.6F;
+        const float AF_CoeffAP = 1.0F;
         public UniStats.Stat StatAD;
         public UniStats.Stat StatAP;
         public UniStats.Stat StatAF;
@@ -52,7 +54,6 @@ namespace MoreMountains.TopDownEngine
         void Awake()
         {
             InitializeStats(StatsConfig);
-            _camera = Camera.main;
         }
 
         public void InitializeStats(IStatsTemplate template)
@@ -223,103 +224,6 @@ namespace MoreMountains.TopDownEngine
             foreach (var (key, stat) in _stats)
             {
                 stat.ClearMods();
-            }
-        }
-
-
-        Stack<string> _stackAD = new();
-        Stack<string> _stackAP = new();
-        Stack<string> _stackAF = new();
-
-        [Button]
-        public void AddBonusAD()
-        {
-            _stackAD.Push(StatAD.AddFlat(10));
-        }
-
-        [Button]
-        public void RemoveBonusAD()
-        {
-            if (_stackAD.TryPop(out var key))
-            {
-                StatAD.RemoveMod(key);
-            }
-        }
-
-        [Button]
-        public void AddBonusAP()
-        {
-            _stackAP.Push(StatAP.AddFlat(10));
-        }
-
-        [Button]
-        public void RemoveBonusAP()
-        {
-            if (_stackAP.TryPop(out var key))
-            {
-                StatAP.RemoveMod(key);
-            }
-        }
-
-        [Button]
-        public void AddBonusAF()
-        {
-            if (StatAF)
-            {
-                _stackAF.Push(StatAF.AddFlat(10));
-            }
-        }
-
-        [Button]
-        public void RemoveBonusAF()
-        {
-            if (_stackAF.TryPop(out var key) && StatAF)
-            {
-                StatAF.RemoveMod(key);
-            }
-        }
-
-
-        Camera _camera;
-        int FontSize = 20;
-        float FontGap = 20F;
-
-        void OnGUI()
-        {
-            if (Debug)
-            {
-                var start = transform.position;
-
-                // 定义要显示的文字内容
-                string strAD = $"BonusAD:{StatAD.PeekBonus(AF_Mod)} AD:{StatAD.Value}";
-                string strAP = $"InitialAP:{StatAP.Peek(AF_Mod)} AP:{StatAP.Value}";
-                string strAF = $"AF:{_stats[AF].Value}";
-                string strAS = $"AS:{_stats[AS].Value}";
-
-                // 定义文字的位置和大小
-                Vector2 screenPoint = _camera.WorldToScreenPoint(start);
-                screenPoint.y = Screen.height - screenPoint.y;
-                screenPoint.x = Screen.width - screenPoint.x;
-                Rect rect = new Rect(screenPoint, new Vector2(100, 20));
-                // 在屏幕上绘制文字
-                var guiStyle = new GUIStyle
-                {
-                    fontSize = FontSize,
-                    normal = { textColor = Color.white }
-                };
-                GUI.Label(rect, strAD, guiStyle);
-
-                screenPoint.y += FontGap;
-                rect = new Rect(screenPoint, new Vector2(100, 20));
-                GUI.Label(rect, strAP, guiStyle);
-
-                screenPoint.y += FontGap;
-                rect = new Rect(screenPoint, new Vector2(100, 20));
-                GUI.Label(rect, strAF, guiStyle);
-
-                screenPoint.y += FontGap;
-                rect = new Rect(screenPoint, new Vector2(100, 20));
-                GUI.Label(rect, strAS, guiStyle);
             }
         }
     }

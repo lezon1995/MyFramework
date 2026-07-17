@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MarbleHero
+namespace MoreMountains
 {
     [Serializable]
     public partial class CardGroup

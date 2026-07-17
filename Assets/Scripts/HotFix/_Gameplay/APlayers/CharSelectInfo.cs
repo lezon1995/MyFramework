@@ -1,16 +1,12 @@
 ﻿using System.Collections.Generic;
-using System.Text;
 
-namespace MarbleHero
+namespace MoreMountains
 {
     public class CharSelectInfo
     {
         public string name;
         public string flavorText;
-        public string hp;
         public int gold;
-        public int currentHp;
-        public int maxHp;
         public int cardDraw;
         public int floorNum;
         public string levelName;
@@ -22,13 +18,10 @@ namespace MarbleHero
         public bool resumeGame;
         public bool isHardMode;
 
-        public CharSelectInfo(string _name, string _flavorText, int _currentHp, int _maxHp, int _gold, int _cardDraw, APlayer _player, List<string> _relics, List<string> _deck, bool _resumeGame)
+        public CharSelectInfo(string _name, string _flavorText, int _gold, int _cardDraw, APlayer _player, List<string> _relics, List<string> _deck, bool _resumeGame)
         {
             name = _name;
             flavorText = _flavorText;
-            currentHp = _currentHp;
-            maxHp = _maxHp;
-            hp = _currentHp + "/" + _maxHp;
             gold = _gold;
             cardDraw = _cardDraw;
             relics = _relics;
@@ -39,8 +32,8 @@ namespace MarbleHero
                 setDeck();
         }
 
-        public CharSelectInfo(string _name, string fText, int _currentHp, int _maxHp, int _gold, int _cardDraw, APlayer _player, List<string> _relics, List<string> _deck, long _saveDate, int _floorNum, string _levelName, bool _isHardMode)
-            : this(_name, fText, _currentHp, _maxHp, _gold, _cardDraw, _player, _relics, _deck, true)
+        public CharSelectInfo(string _name, string fText, int _gold, int _cardDraw, APlayer _player, List<string> _relics, List<string> _deck, long _saveDate, int _floorNum, string _levelName, bool _isHardMode)
+            : this(_name, fText, _gold, _cardDraw, _player, _relics, _deck, true)
         {
             isHardMode = _isHardMode;
             saveDate = _saveDate;

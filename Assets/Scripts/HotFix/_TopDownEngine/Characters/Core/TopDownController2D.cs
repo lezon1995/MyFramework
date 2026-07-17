@@ -1,23 +1,62 @@
-﻿using MoreMountains.Tools;
-using Sirenix.OdinInspector;
+﻿using System;
 using UnityEngine;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
-    /// <summary>
-    /// a controller to move a rigidbody2D and collider2D around in top-down view
-    /// </summary>
-    [AddComponentMenu("TopDown Engine/Character/Core/TopDown Controller 2D")]
     public class TopDownController2D : TopDownController
     {
-        // [ShowInInspector]
-        // [Tooltip("whether or not the character is above a hole right now")]
-        // public bool OverHole { get; set; }
+        [Header("体积参数")]
+        [Tooltip("碰撞半径（当作圆形碰撞体）")]
+        public float Radius = 0.5f;
 
-        public override Vector3 ColliderCenter => (Vector2)transform.position + ColliderOffset;
-        public override Vector3 ColliderBottom => (Vector2)transform.position + ColliderOffset + Vector2.down * ColliderBounds.extents.y;
-        public override Vector3 ColliderTop => (Vector2)transform.position + ColliderOffset + Vector2.up * ColliderBounds.extents.y;
-        // public override bool OnMovingPlatform => _movingPlatform;
+        [Tooltip("质量，影响碰撞时谁推谁动")]
+        [Range(0.1f, 10f)]
+        public float Mass = 1f;
+
+        [Tooltip("最大可重叠程度（0-1），0表示完全不能重叠，0.5表示可以重叠一半")]
+        [Range(0f, 1f)]
+        public float MaxOverlapRatio = 0.3f;
+
+        [Tooltip("推力权重，当两个物体互相推挤时，优先级")]
+        [Range(0f, 10f)]
+        public float PushForceWeight = 1f;
+
+        [Tooltip("移动速度倍率")]
+        [Range(0.1f, 5f)]
+        public float SpeedMultiplier = 1f;
+
+        [Header("击退参数")]
+        [Tooltip("击退抗性，0表示完全不受击退，1表示正常受击退")]
+        [Range(0f, 1f)]
+        public float KnockbackResistance;
+
+        [Tooltip("击退被其他怪物分担的比率（0-1）")]
+        [Range(0f, 1f)]
+        public float KnockbackSpreadRatio = 0.5f;
+
+        [Header("阻力参数")]
+        [Tooltip("位置修正速度，越大越快分开重叠的物体")]
+        [Range(0f, 50f)]
+        public float SeparationForce = 10f;
+
+        [Tooltip("速度阻力，用于平滑移动")]
+        [Range(0f, 1f)]
+        public float VelocityDamping = 0.9f;
+
+        [Header("调试")]
+        [Tooltip("显示碰撞范围")]
+        public bool ShowGizmos = true;
+
+        [Tooltip("调试文字颜色")]
+        public Color GizmosColor = new(0, 1, 0, 0.3f);
+
+        // 运行时数据
+        [NonSerialized] public Vector2 Position;
+        [NonSerialized] public Vector2 ExternalForce;
+        [NonSerialized] public bool IsRegistered;
+        public float MaxOverlapDistance => Radius * 2f * MaxOverlapRatio;// 计算实际可重叠的最大距离
+        public float EffectiveRadius => Radius * (1f - MaxOverlapRatio);// 计算有效半径（考虑最大重叠）
+        public float CollisionMass => Mass * PushForceWeight;// 碰撞质量（考虑推力权重）
 
         public override Vector3 MovingPlatformSpeed
         {
@@ -30,28 +69,17 @@ namespace MoreMountains.TopDownEngine
             }
         }
 
-        [Tooltip("the layer mask to consider as ground")]
-        public LayerMask GroundLayerMask = LayerManager.Ground_Mask;
-
-        // [Tooltip("the layer mask to consider as holes")]
-        // public LayerMask HoleLayerMask = LayerManager.Hole_Mask;
-
-        [Tooltip("the layer to consider as obstacles (will prevent movement)")]
-        public LayerMask ObstaclesLayerMask = LayerManager.Obstacles_Mask;
-
         public Vector2 ColliderSize
         {
             get
             {
                 if (_boxCollider) return _boxCollider.size;
-                if (_capsuleCollider) return _capsuleCollider.size;
                 if (_circleCollider) return Vector2.one * _circleCollider.radius;
                 return Vector2.zero;
             }
             set
             {
                 if (_boxCollider) _boxCollider.size = value;
-                if (_capsuleCollider) _capsuleCollider.size = value;
                 if (_circleCollider) _circleCollider.radius = value.x;
             }
         }
@@ -61,185 +89,121 @@ namespace MoreMountains.TopDownEngine
             get
             {
                 if (_boxCollider) return _boxCollider.offset;
-                if (_capsuleCollider) return _capsuleCollider.offset;
                 if (_circleCollider) return _circleCollider.offset;
                 return Vector2.zero;
             }
             set
             {
                 if (_boxCollider) _boxCollider.offset = value;
-                if (_capsuleCollider) _capsuleCollider.offset = value;
                 if (_circleCollider) _circleCollider.offset = value;
             }
         }
 
-        public Bounds ColliderBounds
-        {
-            get
-            {
-                if (_boxCollider) return _boxCollider.bounds;
-                if (_capsuleCollider) return _capsuleCollider.bounds;
-                if (_circleCollider) return _circleCollider.bounds;
-                return new Bounds();
-            }
-        }
+        public BoxCollider2D boxCollider => _boxCollider;
 
-        protected Rigidbody2D _rigidBody;
         protected BoxCollider2D _boxCollider;
-        protected CapsuleCollider2D _capsuleCollider;
         protected CircleCollider2D _circleCollider;
         protected Vector2 _originalColliderSize;
         protected Vector3 _originalColliderCenter;
-        protected Vector3 _originalSizeRaycastOrigin;
-        protected Vector3 _orientedMovement;
-        protected Collider2D _groundedTest;
-        // protected Collider2D _holeTestMin;
-        // protected Collider2D _holeTestMax;
-        // protected MovingPlatform2D _movingPlatform;
-        protected Vector3 _movingPlatformPositionLastFrame;
 
-        // collision detection
-        protected RaycastHit2D _raycastUp;
-        protected RaycastHit2D _raycastDown;
-        protected RaycastHit2D _raycastLeft;
-        protected RaycastHit2D _raycastRight;
+        protected RaycastHit2D _raycastUp,_raycastDown, _raycastLeft, _raycastRight;
 
-        /// <summary>
-        /// On awake we grab our components
-        /// </summary>
         protected override void Awake()
         {
             base.Awake();
-            _rigidBody = GetComponent<Rigidbody2D>();
-            _boxCollider = GetComponent<BoxCollider2D>();
-            _capsuleCollider = GetComponent<CapsuleCollider2D>();
-            _circleCollider = GetComponent<CircleCollider2D>();
+            TryGetComponent(out _boxCollider);
+            TryGetComponent(out _circleCollider);
             _originalColliderSize = ColliderSize;
             _originalColliderCenter = ColliderOffset;
+            
+            Position = transform.position;
+            Velocity = Vector2.zero;
+            ExternalForce = Vector2.zero;
+        }
+
+        protected override void OnEnable()
+        {
+            base.OnEnable();
+            VolumeManager.Instance.Register(this);
+        }
+
+        protected override void OnDisable()
+        {
+            base.OnDisable();
+            VolumeManager.Instance.Unregister(this);
         }
 
         /// <summary>
-        /// Determines whether or not this character is grounded
+        /// Determines whether this character is grounded
         /// </summary>
         protected override void CheckIfGrounded()
         {
-            _groundedTest = Physics2D.OverlapPoint(transform.position, GroundLayerMask);
-            // _holeTestMin = Physics2D.OverlapPoint(ColliderBounds.min, HoleLayerMask);
-            // _holeTestMax = Physics2D.OverlapPoint(ColliderBounds.max, HoleLayerMask);
-            Grounded = _groundedTest;
-            // OverHole = _holeTestMin && _holeTestMax;
+            Grounded = true;
             JustGotGrounded = !_groundedLastFrame && Grounded;
             _groundedLastFrame = Grounded;
         }
 
-        /// <summary>
-        /// On update we determine our acceleration
-        /// </summary>
         protected override void Update()
         {
             base.Update();
-            Velocity = (_rigidBody.transform.position - _positionLastFrame) / Time.deltaTime;
-            Acceleration = (Velocity - VelocityLastFrame) / Time.deltaTime;
+            Position = transform.position;
         }
 
-        /// <summary>
-        /// On late update, we apply an impact
-        /// </summary>
         protected override void LateUpdate()
         {
             base.LateUpdate();
-            VelocityLastFrame = Velocity;
-            ComputeSpeed();
+            var dt = Time.deltaTime;
+            ApplyVelocity(dt);
         }
-
+        
         /// <summary>
-        /// Handles the friction, still a work in progress (todo)
+        /// 施加速度到位置
         /// </summary>
-        protected override void HandleFriction()
+        protected virtual void ApplyVelocity(float dt)
         {
-            // if (SurfaceModifierBelow == null)
-            {
-                Friction = 0f;
-                AddedForce = Vector3.zero;
-            }
-            // else
-            // {
-            //     Friction = SurfaceModifierBelow.Friction;
-            //
-            //     if (AddedForce.y != 0F)
-            //     {
-            //         AddForce(AddedForce);
-            //     }
-            //
-            //     AddedForce = new Vector3(AddedForce.x, 0F, AddedForce.z);
-            //     AddedForce = SurfaceModifierBelow.AddedForce;
-            // }
+            Position += (Vector2)Velocity * dt;
+            transform.position = Position;
         }
 
-        /// <summary>
-        /// On fixed update, we move our rigidbody 
-        /// </summary>
         protected override void FixedUpdate()
         {
             base.FixedUpdate();
 
-            ApplyImpact();
-
-            if (FreeMovement)
+            if (IsPlayer)
             {
-                switch (Friction)
-                {
-                    case > 1:
-                        CurrentMovement /= Friction;
-                        break;
-                    case > 0 and < 1:
-                        // if we have a low friction (ice, marbles...) we lerp the speed accordingly
-                        CurrentMovement = Vector3.Lerp(Speed, CurrentMovement, Time.fixedDeltaTime * Friction);
-                        break;
-                }
-
-                Vector2 newMovement = _rigidBody.position + (Vector2)(CurrentMovement + AddedForce) * Time.fixedDeltaTime;
-
-                // if (OnMovingPlatform)
-                //     newMovement += (Vector2)_movingPlatform.CurrentSpeed * Time.fixedDeltaTime;
-
-                _rigidBody.MovePosition(newMovement);
+                Vector2 targetVel = CurrentMovement;
+                Velocity = Vector2.Lerp(Velocity, targetVel, Time.fixedDeltaTime * 10f);
+                Position += (Vector2)Velocity * Time.fixedDeltaTime;
+                transform.position = Position;
             }
-
-            _lastPosition = transform.position;
+            else
+            {
+                Position += (Vector2)Velocity * Time.fixedDeltaTime;
+                transform.position = Position;
+            }
         }
 
         /// <summary>
         /// Another way to add a force of the specified force and direction
         /// </summary>
-        /// <param name="direction"></param>
-        /// <param name="force"></param>
-        public override void Impact(Vector3 direction, float force)
+        public override void AddImpact(Vector3 direction, float force)
         {
-            direction = direction.normalized;
-            _impact += direction.normalized * force;
-        }
+            if (force <= 0) 
+                return;
 
-        /// <summary>
-        /// Applies the current impact
-        /// </summary>
-        protected virtual void ApplyImpact()
-        {
-            if (_impact.magnitude > 0.2f)
+            float reducedForce = force * (1f - KnockbackResistance);
+            if (reducedForce > 0)
             {
-                _rigidBody.AddForce(_impact);
+                Velocity += direction.normalized * reducedForce;
             }
-
-            _impact = Vector3.Lerp(_impact, Vector3.zero, 5f * Time.deltaTime);
         }
 
         /// <summary>
         /// Adds a force of the specified vector
         /// </summary>
-        /// <param name="movement"></param>
-        public override void AddForce(Vector3 movement)
+        public override void AddForce(Vector3 force)
         {
-            Impact(movement.normalized, movement.magnitude);
+            ExternalForce += (Vector2)force;
         }
 
         /// <summary>
@@ -250,22 +214,17 @@ namespace MoreMountains.TopDownEngine
         {
             movement.y = movement.z;
             movement.z = 0;
-            _orientedMovement = movement;
             CurrentMovement = movement;
         }
 
-        /// <summary>
-        /// Tries to move to the specified position
-        /// </summary>
-        /// <param name="newPosition"></param>
         public override void MovePosition(Vector3 newPosition)
         {
-            _rigidBody.MovePosition(newPosition);
+            Position = newPosition;
         }
 
         public override void SetPosition(Vector3 newPosition)
         {
-            _rigidBody.position = newPosition;
+            Position = newPosition;
         }
 
         /// <summary>
@@ -317,7 +276,6 @@ namespace MoreMountains.TopDownEngine
         /// <param name="state"></param>
         public override void SetKinematic(bool state)
         {
-            _rigidBody.bodyType = state ? RigidbodyType2D.Kinematic : RigidbodyType2D.Dynamic;
         }
 
         /// <summary>
@@ -326,7 +284,6 @@ namespace MoreMountains.TopDownEngine
         public override void CollisionsOn()
         {
             if (_boxCollider) _boxCollider.enabled = true;
-            if (_capsuleCollider) _capsuleCollider.enabled = true;
             if (_circleCollider) _circleCollider.enabled = true;
         }
 
@@ -336,66 +293,8 @@ namespace MoreMountains.TopDownEngine
         public override void CollisionsOff()
         {
             if (_boxCollider) _boxCollider.enabled = false;
-            if (_capsuleCollider) _capsuleCollider.enabled = false;
             if (_circleCollider) _circleCollider.enabled = false;
         }
-
-        /// <summary>
-        /// Performs a cardinal collision check and stores collision objects information
-        /// </summary>
-        /// <param name="distance"></param>
-        /// <param name="offset"></param>
-        public override void DetectObstacles(float distance, Vector3 offset)
-        {
-            if (!PerformCardinalObstacleRaycastDetection)
-                return;
-
-            CollidingWithCardinalObstacle = false;
-            _raycastRight = MMDebug.RayCast(transform.position + offset, Vector3.right, distance, ObstaclesLayerMask, Color.yellow, true);
-            if (_raycastRight.collider)
-            {
-                DetectedObstacleRight = _raycastRight.collider.gameObject;
-                CollidingWithCardinalObstacle = true;
-            }
-            else
-            {
-                DetectedObstacleRight = null;
-            }
-
-            _raycastLeft = MMDebug.RayCast(transform.position + offset, Vector3.left, distance, ObstaclesLayerMask, Color.yellow, true);
-            if (_raycastLeft.collider)
-            {
-                DetectedObstacleLeft = _raycastLeft.collider.gameObject;
-                CollidingWithCardinalObstacle = true;
-            }
-            else
-            {
-                DetectedObstacleLeft = null;
-            }
-
-            _raycastUp = MMDebug.RayCast(transform.position + offset, Vector3.up, distance, ObstaclesLayerMask, Color.yellow, true);
-            if (_raycastUp.collider)
-            {
-                DetectedObstacleUp = _raycastUp.collider.gameObject;
-                CollidingWithCardinalObstacle = true;
-            }
-            else
-            {
-                DetectedObstacleUp = null;
-            }
-
-            _raycastDown = MMDebug.RayCast(transform.position + offset, Vector3.down, distance, ObstaclesLayerMask, Color.yellow, true);
-            if (_raycastDown.collider)
-            {
-                DetectedObstacleDown = _raycastDown.collider.gameObject;
-                CollidingWithCardinalObstacle = true;
-            }
-            else
-            {
-                DetectedObstacleDown = null;
-            }
-        }
-
 
         /// <summary>
         /// On reset, we reset our rb's velocity
@@ -403,10 +302,19 @@ namespace MoreMountains.TopDownEngine
         public override void Reset()
         {
             base.Reset();
-            if (_rigidBody)
-            {
-                _rigidBody.linearVelocity = Vector2.zero;
-            }
+        }
+        
+        protected virtual void OnDrawGizmosSelected()
+        {
+            if (!ShowGizmos)
+                return;
+
+            Gizmos.color = GizmosColor;
+            Gizmos.DrawWireSphere(transform.position, Radius);
+
+            Color overlapColor = new Color(1, 0, 0, 0.2f);
+            Gizmos.color = overlapColor;
+            Gizmos.DrawWireSphere(transform.position, Radius * (1f - MaxOverlapRatio));
         }
     }
 }

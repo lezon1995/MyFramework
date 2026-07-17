@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 
-namespace MarbleHero
+namespace MoreMountains
 {
-    [CreateAssetMenu(fileName = "GameDesign", menuName = "MarbleHero/GameDesign", order = 0)]
+    [CreateAssetMenu(fileName = "GameDesign", menuName = "MoreMountains/GameDesign", order = 0)]
     public class GameDesign : ScriptableObject
     {
         public float globalExpCoefficient = 1F; //全局经验倍率
@@ -60,7 +60,7 @@ namespace MarbleHero
         public static void initialize()
         {
             var path = $"{GAMEPLAY_PATH}/GameDesign.asset";
-            gameDesign = mResourceManager.loadGameResource<GameDesign>(path).getResource();
+            gameDesign = resource.loadGameResource<GameDesign>(path).getResource();
         }
     }
 }

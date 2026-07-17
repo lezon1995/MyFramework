@@ -1,4 +1,4 @@
-﻿namespace MarbleHero;
+﻿namespace MoreMountains;
 
 public class PlayerTurnEffect : ARenderEffect
 {
@@ -28,7 +28,6 @@ public class PlayerTurnEffect : ARenderEffect
         }
 
         sound.play("TURN_EFFECT");
-        monsters.showIntent();
     }
 
     public override bool update(float dt)

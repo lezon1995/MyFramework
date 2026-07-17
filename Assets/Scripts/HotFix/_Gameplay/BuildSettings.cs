@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using UnityEngine;
 
-namespace MarbleHero
+namespace MoreMountains
 {
     public class BuildSettings
     {

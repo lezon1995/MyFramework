@@ -1,7 +1,7 @@
 ﻿using System;
 using Sirenix.OdinInspector;
 
-namespace MarbleHero
+namespace MoreMountains
 {
     [Serializable]
     public class StringPair

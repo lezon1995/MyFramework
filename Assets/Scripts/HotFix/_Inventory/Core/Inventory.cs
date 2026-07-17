@@ -62,9 +62,13 @@ namespace MoreMountains.InventoryEngine
                 var oldItem = this[index];
                 if (newItem == oldItem)
                     return;
+
                 Content.Set(index, newItem);
-                if (oldItem) oldItem.RemoveFrom(this, PlayerID);
-                if (newItem) newItem.AddTo(this, PlayerID);
+                if (oldItem) 
+                    oldItem.RemoveFrom(this, PlayerID);
+
+                if (newItem) 
+                    newItem.AddTo(this, PlayerID);
             }
         }
 
@@ -153,7 +157,7 @@ namespace MoreMountains.InventoryEngine
         public virtual bool AddItem(InventoryItem item, int quantity)
         {
             // if the item to add is null, we do nothing and exit
-            if (item == null)
+            if (item.IsNull())
             {
                 Debug.LogWarning(name + " : The item you want to add to the inventory is null");
                 return false;

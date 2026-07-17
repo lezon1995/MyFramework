@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
+using Drawing;
 using UnityEngine;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     /// <summary>
     /// The 2D version of the WeaponAutoAim, meant to be used on objects equipped with a WeaponAim2D.
@@ -24,7 +25,7 @@ namespace MoreMountains.TopDownEngine
         protected RaycastHit2D _hit;
 
         /// <summary>
-        /// On init we grab our orientation to be able to detect facing direction
+        /// On init, we grab our orientation to be able to detect facing direction
         /// </summary>
         protected override void Initialization()
         {
@@ -32,7 +33,7 @@ namespace MoreMountains.TopDownEngine
             _orientation2D = _weapon.Owner.GetComponent<Character>()?.FindAbility<CharacterOrientation2D>();
             _initialized = true;
             _results = new Collider2D[OverlapMaximum];
-            _potentialTargets = new List<Transform>();
+            _potentialTargets = new();
         }
 
         /// <summary>
@@ -46,7 +47,11 @@ namespace MoreMountains.TopDownEngine
 
             Target = null;
 
-            int numberOfResults = Physics2D.OverlapCircleNonAlloc(_raycastOrigin, ScanRadius, _results, TargetsMask);
+            var filter = new ContactFilter2D();
+            filter.useTriggers = true;
+            filter.useLayerMask = true;
+            filter.SetLayerMask(TargetsMask);
+            int numberOfResults = Physics2D.OverlapCircle(_raycastOrigin, ScanRadius, filter, _results);
             // if there are no targets around, we exit
             if (numberOfResults == 0)
             {
@@ -115,6 +120,23 @@ namespace MoreMountains.TopDownEngine
             else
             {
                 _raycastOrigin = transform.position + DetectionOriginOffset;
+            }
+        }
+        public override void DrawGizmos()
+        {
+            if (DrawDebugRadius)
+            {
+                using (Draw.InLocalSpace(transform))
+                {
+                    if (GizmoContext.InSelection(this))
+                    {
+                        Draw.xy.Circle(Vector3.zero, ScanRadius, Color.yellow);
+                    }
+                    else
+                    {
+                        Draw.xy.Circle(Vector3.zero, ScanRadius, Color.yellow * new Color(1, 1, 1, 0.5f));
+                    }
+                }
             }
         }
     }

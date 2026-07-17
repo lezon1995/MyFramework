@@ -34,7 +34,6 @@ namespace MoreMountains.Feedbacks
 		[MMFInspectorGroup("Instantiate Object", true, 37, true)]
 		/// the object to instantiate
 		[Tooltip("the object to instantiate")]
-		[FormerlySerializedAs("VfxToInstantiate")]
 		public GameObject GameObjectToInstantiate;
 
 		[MMFInspectorGroup("Position", true, 39)]
@@ -57,7 +56,6 @@ namespace MoreMountains.Feedbacks
 		public Vector3 TargetPosition;
 		/// the position offset at which to instantiate the object
 		[Tooltip("the position offset at which to instantiate the object")]
-		[FormerlySerializedAs("VfxPositionOffset")]
 		public Vector3 PositionOffset;
 
 		/// if this is true, instantiation position will be randomized between RandomizeMin and RandomizeMax 
@@ -80,12 +78,10 @@ namespace MoreMountains.Feedbacks
 		[MMFInspectorGroup("Object Pool", true, 40)]
 		/// whether or not we should create automatically an object pool for this object
 		[Tooltip("whether or not we should create automatically an object pool for this object")]
-		[FormerlySerializedAs("VfxCreateObjectPool")]
 		public bool CreateObjectPool;
 		/// the initial and planned size of this object pool
 		[Tooltip("the initial and planned size of this object pool")]
 		[MMFCondition("CreateObjectPool", true)]
-		[FormerlySerializedAs("VfxObjectPoolSize")]
 		public int ObjectPoolSize = 5;
 		/// whether or not to create a new pool even if one already exists for that same prefab
 		[Tooltip("whether or not to create a new pool even if one already exists for that same prefab")]

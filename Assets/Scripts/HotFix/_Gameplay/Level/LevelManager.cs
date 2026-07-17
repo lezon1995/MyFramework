@@ -1,7 +1,7 @@
 ﻿using PrimeTween;
 using UnityEngine;
 
-namespace MarbleHero;
+namespace MoreMountains;
 
 public class LevelManager : FrameSystem
 {

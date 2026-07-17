@@ -3,7 +3,7 @@ using MoreMountains.Feedbacks;
 using MoreMountains.Tools;
 using UnityEngine;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     /// <summary>
     /// Used by the DamageResistanceProcessor, this class defines the resistance versus a certain type of damage. 

@@ -1,52 +1,44 @@
 ﻿using UnityEngine;
 
-namespace MarbleHero;
-
-public class BallRenderer : GameComponent
+namespace MoreMountains
 {
-    // TrailRenderer trailRenderer;
-    GameObject renderer;
-    SmoothTrail trailRenderer;
-    
-    ParticleSystem fxDead;
-    
-    public override void init(ComponentOwner owner)
+    [RequireComponent(typeof(Ball))]
+    public class BallRenderer : MonoBehaviour
     {
-        base.init(owner);
-        if (owner is Ball ball)
+        // TrailRenderer trailRenderer;
+        Ball ball;
+        GameObject renderer;
+        SmoothTrail trailRenderer;
+    
+        ParticleSystem fxDead;
+
+        void Awake()
         {
+            TryGetComponent(out ball);
             var obj = ball.gameObject;
             obj.find(out renderer, "Renderer");
             obj.find(out trailRenderer);
             obj.find(out fxDead, "FxDead");
         }
-    }
     
-    public override void resetProperty()
-    {
-        base.resetProperty();
-        renderer = null;
-        trailRenderer = null;
-        fxDead = null;
-    }
-    
-    public void setRendererActive(bool active)
-    {
-        renderer.gameObject.SetActive(active);
-    }
+        public void setRendererActive(bool active)
+        {
+            renderer.gameObject.SetActive(active);
+        }
 
-    public void playFxDead()
-    {
-        fxDead.Play();
-    }
+        public void playFxDead()
+        {
+            fxDead.Play();
+        }
 
-    public void clearTrail()
-    {
-        trailRenderer.clearTrail();
-    }
+        public void clearTrail()
+        {
+            trailRenderer.clearTrail();
+        }
 
-    public void setRadius(float diameter)
-    {
-        renderer.transform.localScale = new(diameter, diameter, 1);
+        public void setRadius(float diameter)
+        {
+            renderer.transform.localScale = new(diameter, diameter, 1);
+        }
     }
 }

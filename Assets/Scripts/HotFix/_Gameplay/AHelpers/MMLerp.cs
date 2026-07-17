@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MarbleHero
+namespace MoreMountains
 {
     public static class MMLerp
     {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using MoreMountains.Tools;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     public class Buff_Rune_DarkHarvest : Buff, IEvent<DoAttackEffect>
     {
@@ -54,8 +54,8 @@ namespace MoreMountains.TopDownEngine
             if (value > 0)
             {
                 var dmg = new Dmg(value, mag.DmgType, mag.DmgAlgo);
-                dmg.SetEffect(Dmg.Effects.Ability);
-                health.Damage(dmg, gameObject, source: Target.Character);
+                dmg.SetEffect(Dmg.Effects.Skill);
+                health.Damage(ref dmg, gameObject, source: Target.Character);
             }
 
             Timing.RunCoroutine(DelayIncreaseStack());

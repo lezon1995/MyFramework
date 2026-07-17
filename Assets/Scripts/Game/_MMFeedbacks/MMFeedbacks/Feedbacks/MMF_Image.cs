@@ -62,7 +62,6 @@ namespace MoreMountains.Feedbacks
 		public Color InstantColor;
 		/// whether or not that Image should be turned off on start
 		[Tooltip("whether or not that Image should be turned off on start")]
-		[FormerlySerializedAs("StartsOff")]
 		public bool DisableOnInit = false;
 		/// if this is true, the target will be enabled when this feedback gets played
 		[Tooltip("if this is true, the target will be enabled when this feedback gets played")] 

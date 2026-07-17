@@ -1,12 +1,11 @@
 ﻿using System.Collections.Generic;
 
-namespace MarbleHero
+namespace MoreMountains
 {
-    public abstract partial class ACreature : MovableObject
+    public abstract class ACreature : Character
     {
-        public string name;
         public string id;
-        public bool isPlayer;
+        public abstract bool isPlayer { get; }
         public bool isBloodied;
 
         public int gold;
@@ -14,67 +13,47 @@ namespace MarbleHero
         public bool isDying;
         public bool isDead;
         public bool halfDead;
-        public bool isEscaping;
 
         float healthHideTimer;
         public int lastDamageTaken;
-        public int _health;
 
         public virtual int currentHealth
         {
-            get => _health;
-            set => _health = value;
+            get => (int)Health.CurrentHealth;
+            set => Health.SetHealth(value, RefreshHealthBarType.Immediately);
         }
 
-        public float currentHealthPct => (float)_health / _healthMax;
-
-        public int _healthMax;
+        public float currentHealthPct => Health.HealthPct;
 
         public virtual int maxHealth
         {
-            get => _healthMax;
-            set => _healthMax = value;
+            get => (int)Health.MaximumHealth;
+            set => Health.SetHealth(currentHealth, value, RefreshHealthBarType.Immediately);
         }
 
         public ABlock block;
 
         public List<CreaturePower> powers = new();
         public List<ARelic> relics = new();
-
-        public override void setName(string name)
+        
+        protected TopDownController2D _controller2D;
+        
+        public TopDownController2D Controller2D
         {
-            this.name = name;
-            base.setName(name);
+            get
+            {
+                if (_controller2D == null)
+                    TryGetComponent(out _controller2D);
+
+                return _controller2D;
+            }
         }
 
-        #region MaxHp
-
-        public void increaseMaxHp(int amount, bool showEffect)
+        protected override void Initialization()
         {
-            if (amount < 0)
-                log("Why are we decreasing health with increaseMaxHealth()?");
-            maxHealth += amount;
-            // ADungeon.effectsQueue.add(new TextAboveCreatureEffect(hb.cX - animX, hb.cY, TEXT[2] + amount, Settings.GREEN_TEXT_COLOR));
-            heal(ref amount, true);
-            // healthBarUpdatedEvent();
+            base.Initialization();
+            _controller2D = _controller as TopDownController2D;
         }
-
-        public void decreaseMaxHealth(int amount)
-        {
-            if (amount < 0)
-                log("Why are we increasing health with decreaseMaxHealth()?");
-
-            maxHealth -= amount;
-            if (maxHealth <= 1)
-                maxHealth = 1;
-
-            if (currentHealth > maxHealth)
-                currentHealth = maxHealth;
-
-            // healthBarUpdatedEvent();
-        }
-
-        #endregion
 
         #region Damage & Heal
 
@@ -82,44 +61,7 @@ namespace MarbleHero
         {
         }
 
-        public virtual void heal(ref int healAmount, bool showEffect)
-        {
-            if (isDying)
-                return;
 
-            foreach (var r in player.relics)
-            {
-                if (isPlayer)
-                    healAmount = r.onPlayerHeal(healAmount);
-            }
-
-            foreach (var p in powers)
-                healAmount = p.onHeal(healAmount);
-
-            currentHealth += healAmount;
-            if (currentHealth > maxHealth)
-                currentHealth = maxHealth;
-
-            if (currentHealth > maxHealth / 2.0F && isBloodied)
-            {
-                isBloodied = false;
-                foreach (var r in player.relics)
-                    r.onNotBloodied();
-            }
-
-            if (healAmount > 0)
-            {
-                if (showEffect && isPlayer)
-                {
-                    // ADungeon.topPanel.panelHealEffect();
-                    // ADungeon.effectsQueue.add(new HealEffect(hb.cX - animX, hb.cY, healAmount));
-                }
-
-                // healthBarUpdatedEvent();
-            }
-        }
-
-        public virtual void heal(ref int amount) => heal(ref amount, true);
 
         #endregion
 
@@ -257,20 +199,6 @@ namespace MarbleHero
 
         #endregion
 
-        public sealed override void update(float elapsedTime)
-        {
-            base.update(elapsedTime);
-        }
-
-        public sealed override void fixedUpdate(float elapsedTime)
-        {
-            base.fixedUpdate(elapsedTime);
-        }
-
-        public virtual void doUpdate(float dt) => update(dt);
-
-        public virtual void doFixedUpdate(float dt) => fixedUpdate(dt);
-
         public void addRelic(ARelic relic)
         {
             relic.owner = this;
@@ -284,7 +212,5 @@ namespace MarbleHero
         }
 
         public virtual bool isDeadOrEscaped() => isDying || halfDead;
-
-        public static implicit operator bool(ACreature self) => self != null;
     }
 }

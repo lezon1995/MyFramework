@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using MoreMountains.Tools;
 
-namespace MarbleHero;
+namespace MoreMountains;
 
 public abstract class BrickGroup : ClassObject, IEvent<OnBrickDeath>
 {
@@ -61,7 +61,7 @@ public abstract class BrickGroup : ClassObject, IEvent<OnBrickDeath>
     {
         var brick = brickManager.acquireBrick(t.position, t.size, t.health);
         // brick.addBlock(10);
-        brick.eventRouter.addListener(this);
+        brick.Event.addListener(this);
         addBrick(brick);
     }
 
@@ -71,7 +71,7 @@ public abstract class BrickGroup : ClassObject, IEvent<OnBrickDeath>
 
     public void onEvent(OnBrickDeath e)
     {
-        e.brick.eventRouter.removeListener(this);
+        e.brick.Event.removeListener(this);
         removeBrick(e.brick);
         if (bricks.isEmpty())
         {

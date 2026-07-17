@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     public partial class Buff
     {

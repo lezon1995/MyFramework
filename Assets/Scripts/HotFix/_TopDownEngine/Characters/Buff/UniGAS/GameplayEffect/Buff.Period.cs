@@ -1,6 +1,6 @@
 using MoreMountains.Feedbacks;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     public partial class Buff
     {
@@ -167,7 +167,7 @@ namespace MoreMountains.TopDownEngine
                 if (value > 0)
                 {
                     var dmg = new Dmg(value, mag.DmgType, mag.DmgAlgo);
-                    Target.Health.Damage(dmg, gameObject, source: Source.Character);
+                    Target.Health.Damage(ref dmg, gameObject, source: Source.Character);
                 }
             }
 

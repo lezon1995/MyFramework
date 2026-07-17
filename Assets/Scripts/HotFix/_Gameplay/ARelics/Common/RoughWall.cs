@@ -1,7 +1,7 @@
 ﻿using Drawing;
 using UnityEngine;
 
-namespace MarbleHero;
+namespace MoreMountains;
 
 /// <summary>
 /// 粗糙的墙壁

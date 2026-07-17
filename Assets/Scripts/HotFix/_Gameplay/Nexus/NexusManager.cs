@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace MarbleHero;
+namespace MoreMountains;
 
 // 角色管理器
 public class NexusManager : FrameSystem
@@ -83,7 +83,7 @@ public class NexusManager : FrameSystem
         nexus.setID(id);
 
         var path = $"{GAMEPLAY_PATH}/{name}.prefab";
-        var o = mPrefabPoolManager.createObject(path);
+        var o = prefabPool.createObject(path);
         nexus.setObject(o);
 
         nexus.init();
@@ -100,7 +100,7 @@ public class NexusManager : FrameSystem
         if (nexus == null)
             return;
 
-        mPrefabPoolManager.destroyObject(nexus.gameObject, false);
+        prefabPool.destroyObject(nexus.gameObject, false);
         UN_CLASS(ref nexus);
     }
 }

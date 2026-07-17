@@ -1,4 +1,4 @@
-﻿namespace MarbleHero;
+﻿namespace MoreMountains;
 
 /// <summary>
 /// 结算阶段
@@ -43,8 +43,6 @@ public class SettlementPhase : APhase
 
     void SettleWin()
     {
-        actionManager.addToBot<WaitAction>().with(0.2F);
-        actionManager.addToBot<DamageAction>().with(enemy, new DamageInfo(player, 1));
         actionManager.addToBot<WaitAction>().with(0.2F);
         actionManager.addToBot<DealClaimRewardsAction>();
     }

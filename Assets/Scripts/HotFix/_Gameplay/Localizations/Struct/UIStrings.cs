@@ -4,7 +4,7 @@ using System.Linq;
 using Newtonsoft.Json;
 using Sirenix.OdinInspector;
 
-namespace MarbleHero
+namespace MoreMountains
 {
     [Serializable]
     [HideReferenceObjectPicker]

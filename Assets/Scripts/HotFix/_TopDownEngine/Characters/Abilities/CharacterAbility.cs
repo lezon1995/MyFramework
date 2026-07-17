@@ -4,7 +4,7 @@ using MoreMountains.Feedbacks;
 using MoreMountains.Tools;
 using UnityEngine;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     /// <summary>
     /// A class meant to be overridden that handles a character's ability. 
@@ -49,7 +49,7 @@ namespace MoreMountains.TopDownEngine
                     {
                         for (int i = 0; i < motions.Length; i++)
                         {
-                            if (motions[i] == _character.MovementState.CurrentState)
+                            if (motions[i] == _character.motionState.CurrentState)
                                 return false;
                         }
                     }
@@ -59,7 +59,7 @@ namespace MoreMountains.TopDownEngine
                     {
                         for (int i = 0; i < conditions.Length; i++)
                         {
-                            if (conditions[i] == _character.ConditionState.CurrentState)
+                            if (conditions[i] == _character.conditionState.CurrentState)
                                 return false;
                         }
                     }
@@ -83,6 +83,16 @@ namespace MoreMountains.TopDownEngine
         }
 
         public bool AbilityInitialized => _abilityInitialized;
+        public Character Character
+        {
+            get
+            {
+                if (_character == null)
+                    this.TryGetComponentInParent(out _character);
+
+                return _character;
+            }
+        }
 
         public event Action OnAbilityStart;
         public event Action OnAbilityStop;
@@ -97,21 +107,17 @@ namespace MoreMountains.TopDownEngine
         protected InputManager _inputManager;
         protected Animator _animator;
         protected SpriteRenderer _spriteRenderer;
-        protected MMStateMachine<Character.Motions> _movement => _character.MovementState;
-        protected MMStateMachine<Character.Conditions> _condition => _character.ConditionState;
+        protected MMStateMachine<Character.Motions> _motionState => _character.motionState;
+        protected MMStateMachine<Character.Conditions> _conditionState => _character.conditionState;
         protected AudioSource _abilityInProgressSfx;
         protected bool _abilityInitialized;
-        protected float _verticalInput;
-        protected float _horizontalInput;
+        protected Vector2 _curInput;
         protected bool _startFeedbackIsPlaying;
         protected List<CharacterHandleWeapon> _handleWeaponList = new();
 
         /// This method is only used to display a help box text at the beginning of the ability's inspector
         public virtual string HelpBoxText() => null;
 
-        /// <summary>
-        /// On awake we proceed to pre initializing our ability
-        /// </summary>
         protected void Awake()
         {
         }
@@ -129,11 +135,11 @@ namespace MoreMountains.TopDownEngine
         /// </summary>
         protected virtual void Initialization()
         {
-            _character = GetComponentInParent<Character>();
-            _stats = GetComponentInParent<Stats>();
-            _controller = GetComponentInParent<TopDownController>();
-            _controller2D = GetComponentInParent<TopDownController2D>();
-            _spriteRenderer = GetComponentInParent<SpriteRenderer>();
+            this.TryGetComponentInParent(out _character);
+            this.TryGetComponentInParent(out _stats);
+            this.TryGetComponentInParent(out _controller);
+            this.TryGetComponentInParent(out _controller2D);
+            this.TryGetComponentInParent(out _spriteRenderer);
             
             _characterMovement = _character.FindAbility<CharacterMovement>();
 
@@ -201,8 +207,7 @@ namespace MoreMountains.TopDownEngine
             if (_inputManager)
             {
                 var movement = _inputManager.PrimaryMovement;
-                _horizontalInput = movement.x;
-                _verticalInput = movement.y;
+                _curInput = movement;
                 HandleInput();
             }
         }
@@ -219,8 +224,7 @@ namespace MoreMountains.TopDownEngine
         /// </summary>
         public void ResetInput()
         {
-            _horizontalInput = 0f;
-            _verticalInput = 0f;
+            _curInput = Vector2.zero;
         }
 
         /// <summary>

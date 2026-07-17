@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace MarbleHero;
+namespace MoreMountains;
 
 [Serializable]
 public struct BrickGridTemplate

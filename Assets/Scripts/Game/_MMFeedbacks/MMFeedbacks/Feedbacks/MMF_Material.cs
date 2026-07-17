@@ -36,7 +36,7 @@ namespace MoreMountains.Feedbacks
 		[Tooltip("the renderer to change material on")]
 		public Renderer TargetRenderer;
 		/// the list of material indexes we want to change on the target renderer. If left empty, will only target the material at index 0 
-		[FormerlySerializedAs("MaterialIndexes")] [Tooltip("the list of material indexes we want to change on the target renderer. If left empty, will only target the material at index 0")]
+		[Tooltip("the list of material indexes we want to change on the target renderer. If left empty, will only target the material at index 0")]
 		public int[] RendererMaterialIndexes;
         
 		[MMFInspectorGroup("Material Change", true, 33)]

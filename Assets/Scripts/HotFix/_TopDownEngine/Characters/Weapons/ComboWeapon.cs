@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     /// <summary>
     /// Add this component to an object containing multiple weapons and it'll turn it into a ComboWeapon, allowing you to chain attacks from all the different weapons
@@ -138,7 +138,7 @@ namespace MoreMountains.TopDownEngine
 
         public virtual void ProceedToNextWeapon()
         {
-            OwnerCharacterHandleWeapon = Weapons[_currentWeaponIndex].CharacterHandleWeapon;
+            OwnerCharacterHandleWeapon = Weapons[_currentWeaponIndex].HandleWeapon;
 
             if (OwnerCharacterHandleWeapon)
             {
@@ -194,7 +194,7 @@ namespace MoreMountains.TopDownEngine
             {
                 if (i != _currentWeaponIndex)
                 {
-                    Weapons[i].SetOwner(Weapons[_currentWeaponIndex].Owner, Weapons[_currentWeaponIndex].CharacterHandleWeapon);
+                    Weapons[i].SetOwner(Weapons[_currentWeaponIndex].Owner, Weapons[_currentWeaponIndex].HandleWeapon);
                     Weapons[i].Initialization();
                     Weapons[i].WeaponCurrentlyActive = false;
                 }

@@ -1,10 +1,10 @@
-using System.Collections.Generic;
+using System;
 using MoreMountains.Feedbacks;
 using MoreMountains.Tools;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     public struct Heal
     {
@@ -16,6 +16,13 @@ namespace MoreMountains.TopDownEngine
         public static Heal CurPct(float value) => new(value, Algos.CurPct);
         public static Heal LostPct(float value) => new(value, Algos.LostPct);
         public static Heal AllPct(float value) => new(value, Algos.AllPct);
+
+        public Heal(float value) : this()
+        {
+            Value = value;
+            Algo = Algos.Fixed;
+            Healing = value;
+        }
 
         public Heal(float value, Algos algo)
         {
@@ -46,11 +53,22 @@ namespace MoreMountains.TopDownEngine
     public enum ResistDamageType
     {
         None,
-        Invulnerable,
+        Invincible,
         DashInvincible,
         ImmuneToDamage,
+        Dodged,
         Dead,
         Disabled,
+    }
+
+    public enum RefreshHealthBarType
+    {
+        Immediately,
+        ReceiveDamage,
+        ReceiveHealing,
+        Killed,
+        Born,
+        Resurrect,
     }
 
     /// <summary>
@@ -58,10 +76,9 @@ namespace MoreMountains.TopDownEngine
     /// and what happens when it dies.
     /// </summary>
     [AddComponentMenu("TopDown Engine/Character/Core/Health")]
-    public class Health : TopDownMonoBehaviour, IEventRouter
+    public class Health : TopDownMonoBehaviour, IEventRouter, IReusable
     {
-        [MMInspectorGroup("Bindings")]
-        [Tooltip("the model to disable (if set so)")]
+        [MMInspectorGroup("Bindings")] [Tooltip("the model to disable (if set so)")]
         public GameObject Model;
 
         [MMInspectorGroup("Status")]
@@ -73,12 +90,13 @@ namespace MoreMountains.TopDownEngine
 
         [ShowInInspector, ReadOnly]
         [Tooltip("If this is true, this object can't take damage at this time")]
-        public bool Invulnerable { get; set; }
+        public bool Invincible { get; set; }
 
         public bool DashInvincible { get; set; }
 
-        [MMInspectorGroup("Health")]
-        public float InitialHealth = 10;
+        public bool IsTotallyDead { get; set; }
+
+        [MMInspectorGroup("Health")] public float InitialHealth = 10;
 
         public bool InitialHealthDrivenByMaximumHealth;
 
@@ -98,8 +116,7 @@ namespace MoreMountains.TopDownEngine
         [Tooltip("if this is true, health values will be reset everytime this character is enabled (usually at the start of a scene)")]
         public bool ResetHealthOnEnable = true;
 
-        [MMInspectorGroup("Health Regen")]
-        [Tooltip("the base amount of health regen (receive health X per 1 second)")]
+        [MMInspectorGroup("Health Regen")] [Tooltip("the base amount of health regen (receive health X per 1 second)")]
         public float BaseHealthRegen;
 
         public ValueModifier HealthRegenModifier { get; set; }
@@ -113,8 +130,7 @@ namespace MoreMountains.TopDownEngine
             }
         }
 
-        [MMInspectorGroup("Defence")]
-        [Tooltip("基础护甲（AD防御）")]
+        [MMInspectorGroup("Defence")] [Tooltip("基础护甲（AD防御）")]
         public float BaseAR;
 
         public ValueModifier AR_Modifier { get; set; }
@@ -128,8 +144,7 @@ namespace MoreMountains.TopDownEngine
             }
         }
 
-        [Tooltip("基础魔抗（AP防御）")]
-        public float BaseMR;
+        [Tooltip("基础魔抗（AP防御）")] public float BaseMR;
 
         public ValueModifier MR_Modifier { get; set; }
 
@@ -141,10 +156,22 @@ namespace MoreMountains.TopDownEngine
                 return MR_Modifier.SafeInvoke(ref value);
             }
         }
+        
+        
+        [Tooltip("基础闪避率")] public float BaseDodgeChance;
 
-        [MMInspectorGroup("Damage")]
-        [MMInformation("Here you can specify an effect and a sound FX to instantiate when the object gets damaged, and also how long the object should flicker when hit (only works for sprites).")]
-        [Tooltip("whether or not this Health object can be damaged")]
+        public ValueModifier DodgeChance_Modifier { get; set; }
+
+        public float DodgeChance
+        {
+            get
+            {
+                var value = BaseDodgeChance;
+                return DodgeChance_Modifier.SafeInvoke(ref value);
+            }
+        }
+
+        [MMInspectorGroup("Damage")] [MMInformation("Here you can specify an effect and a sound FX to instantiate when the object gets damaged, and also how long the object should flicker when hit (only works for sprites).")] [Tooltip("whether or not this Health object can be damaged")]
         public bool ImmuneToDamage;
 
         [Tooltip("the feedback to play when getting damage")]
@@ -156,8 +183,7 @@ namespace MoreMountains.TopDownEngine
         [Tooltip("if you set this to true, other objects damaging this one won't take any self damage")]
         public bool PreventTakeSelfDamage;
 
-        [MMInspectorGroup("Knockback")]
-        [Tooltip("whether or not this object is immune to damage knockback")]
+        [MMInspectorGroup("Knockback")] [Tooltip("whether or not this object is immune to damage knockback")]
         public bool ImmuneToKnockback;
 
         [Tooltip("whether or not this object is immune to damage knockback if the damage received is zero")]
@@ -166,9 +192,7 @@ namespace MoreMountains.TopDownEngine
         [Tooltip("a multiplier applied to the incoming knockback forces. 0 will cancel all knockback, 0.5 will cut it in half, 1 will have no effect, 2 will double the knockback force, etc")]
         public float KnockbackForceMultiplier = 1f;
 
-        [MMInspectorGroup("Death")]
-        [MMInformation("Here you can set an effect to instantiate when the object dies, a force to apply to it (topdown controller required), how many points to add to the game score, and where the character should respawn (for non-player characters only).")]
-        [Tooltip("whether or not this object should get destroyed on death")]
+        [MMInspectorGroup("Death")] [MMInformation("Here you can set an effect to instantiate when the object dies, a force to apply to it (topdown controller required), how many points to add to the game score, and where the character should respawn (for non-player characters only).")] [Tooltip("whether or not this object should get destroyed on death")]
         public bool DestroyOnDeath = true;
 
         [Tooltip("the time (in seconds) before the character is destroyed or disabled")]
@@ -204,19 +228,13 @@ namespace MoreMountains.TopDownEngine
         [Tooltip("if this is true, color will be reset on revive")]
         public bool ResetColorOnRevive = true;
 
-        [Tooltip("the name of the property on your renderer's shader that defines its color")]
-        [MMCondition("ResetColorOnRevive", true)]
+        [Tooltip("the name of the property on your renderer's shader that defines its color")] [MMCondition("ResetColorOnRevive", true)]
         public string ColorMaterialPropertyName = "_Color";
 
         [Tooltip("if this is true, this component will use material property blocks instead of working on an instance of the material.")]
         public bool UseMaterialPropertyBlocks;
 
-        [MMInspectorGroup("Damage Resistance")]
-        [Tooltip("a DamageResistanceProcessor this Health will use to process damage when it's received")]
-        public DamageResistanceProcessor TargetDamageResistanceProcessor;
-
-        [MMInspectorGroup("Animator")]
-        [Tooltip("the target animator to pass a Death animation parameter to. The Health component will try to auto bind this if left empty")]
+        [MMInspectorGroup("Animator")] [Tooltip("the target animator to pass a Death animation parameter to. The Health component will try to auto bind this if left empty")]
         public Animator TargetAnimator;
 
         /// if this is true, animator logs for the associated animator will be turned off to avoid potential spam
@@ -226,17 +244,15 @@ namespace MoreMountains.TopDownEngine
         public float LastDamage { get; set; }
         public Dmg.Types LastDamageType { get; set; }
         public Vector3 LastDamageDirection { get; set; }
-        public Character Character { get; set; }
+        public Character Character;
         public bool Initialized => _initialized;
         public IEventRouter Event => this;
-        public IEventRouter eventRouter => this;
 
         protected Vector3 _initialPosition;
         protected Renderer _renderer;
         protected CharacterMovement _characterMovement;
         protected TopDownController _controller;
 
-        protected MMHealthBar _healthBar;
         protected Collider2D _collider2D;
         protected CharacterController _characterController;
         protected bool _initialized;
@@ -244,18 +260,56 @@ namespace MoreMountains.TopDownEngine
         protected int _initialLayer;
         protected MaterialPropertyBlock _propertyBlock;
 
-        float _timeElapsed;
+        protected float _timeElapsed;
 
-        enum CoroutineState
+        protected enum CoroutineState
         {
             None,
             DamageEnabled,
             DestroyObject
         }
 
-        CoroutineState _coroutineState;
-        float _coroutineTimeElapsed;
-        float _invincibleTime;
+        protected CoroutineState _coroutineState;
+        protected float _coroutineTimeElapsed;
+        protected float _invincibleTime;
+
+        /*
+        CanTakeDamage canTakeDamage;
+        public void SetCanTakeDamage(CanTakeDamage d) => canTakeDamage = d;
+
+        BeforeCalculateDamage beforeCalculateDamage;
+        public void SetBeforeCalculateDamage(BeforeCalculateDamage d) => beforeCalculateDamage = d;
+
+        DoCritAttack doCritAttack;
+        public void SetDoCritAttack(DoCritAttack d) => doCritAttack = d;
+
+        DoCritSkill doCritSkill;
+        public void SetDoCritSkill(DoCritSkill d) => doCritSkill = d;
+
+        BeforeApplyDamage beforeApplyDamage;
+        public void SetBeforeApplyDamage(BeforeApplyDamage d) => beforeApplyDamage = d;
+
+        DoDmgEffect doDmgEffect;
+        public void SetDoDmgEffect(DoDmgEffect d) => doDmgEffect = d;
+
+        AfterApplyDamage afterApplyDamage;
+        public void SetAfterApplyDamage(AfterApplyDamage d) => afterApplyDamage = d;
+
+        DoLethalDmgEffect doLethalDmgEffect;
+        public void SetDoLethalDmgEffect(DoLethalDmgEffect d) => doLethalDmgEffect = d;
+
+        OnKilled onKilled;
+        public void SetOnKilled(OnKilled d) => onKilled = d;
+
+        RefreshHealthBar refreshHealthBar;
+        public void SetRefreshHealthBar(RefreshHealthBar d) => refreshHealthBar = d;
+
+        RefreshHealthBarByDamage refreshHealthBarByDamage;
+        public void SetRefreshHealthBarByDamage(RefreshHealthBarByDamage d) => refreshHealthBarByDamage = d;
+
+        RefreshHealthBarByHealing refreshHealthBarByHealing;
+        public void SetRefreshHealthBarByHealing(RefreshHealthBarByHealing d) => refreshHealthBarByHealing = d;
+        */
 
         #region Initialization
 
@@ -265,11 +319,11 @@ namespace MoreMountains.TopDownEngine
         protected virtual void Awake()
         {
             Initialization();
-            InitializeCurrentHealth();
+            InitializeCurrentHealth(RefreshHealthBarType.Born);
         }
 
         /// <summary>
-        /// On Start we grab our animator
+        /// On Start, we grab our animator
         /// </summary>
         protected virtual void Start()
         {
@@ -277,9 +331,34 @@ namespace MoreMountains.TopDownEngine
             BindStats();
         }
 
-        void Update()
+        protected void Update()
         {
-            var dt = Time.deltaTime;
+        }
+
+        protected void FixedUpdate()
+        {
+            if (IsTotallyDead)
+                return;
+
+            var dt = Time.fixedDeltaTime;
+            UpdateCoroutineState(dt);
+
+            if (IsDead())
+                return;
+
+            _timeElapsed += dt;
+            if (_timeElapsed >= 0.5F)
+            {
+                _timeElapsed = 0F;
+                if (healthRegen == 0)
+                    return;
+
+                ReceiveHealth(Heal.Fixed(healthRegen), source: Character);
+            }
+        }
+
+       protected void UpdateCoroutineState(float dt)
+        {
             switch (_coroutineState)
             {
                 case CoroutineState.DamageEnabled:
@@ -287,7 +366,7 @@ namespace MoreMountains.TopDownEngine
                     if (_coroutineTimeElapsed > _invincibleTime)
                     {
                         _coroutineTimeElapsed = 0F;
-                        Invulnerable = false;
+                        Invincible = false;
                         _coroutineState = CoroutineState.None;
                     }
 
@@ -305,43 +384,21 @@ namespace MoreMountains.TopDownEngine
             }
         }
 
-        void FixedUpdate()
-        {
-            if (IsDead())
-                return;
-
-            var dt = Time.fixedDeltaTime;
-            _timeElapsed += dt;
-            if (_timeElapsed >= 0.5F)
-            {
-                _timeElapsed = 0F;
-                if (healthRegen == 0)
-                    return;
-
-                ReceiveHealth(Heal.Fixed(healthRegen), source: Character);
-            }
-        }
-
         /// <summary>
         /// Grabs useful components, enables damage and gets the initial color
         /// </summary>
         public virtual void Initialization()
         {
-            Character = GetComponentInParent<Character>();
+            this.TryGetComponentInParent(out Character);
 
             if (Model)
-            {
                 Model.SetActive(true);
-            }
 
-            if (GetComponentInParent<Renderer>())
-            {
-                _renderer = GetComponentInParent<Renderer>();
-            }
+            this.TryGetComponentInParent(out _renderer);
 
             if (Character)
             {
-                _characterMovement = Character.FindAbility<CharacterMovement>();
+                Character.FindAbility(out _characterMovement);
                 if (Character.Model)
                 {
                     if (Character.Model.GetComponentInChildren<Renderer>())
@@ -355,7 +412,7 @@ namespace MoreMountains.TopDownEngine
             {
                 if (UseMaterialPropertyBlocks && _propertyBlock == null)
                 {
-                    _propertyBlock = new MaterialPropertyBlock();
+                    _propertyBlock = new();
                 }
 
                 if (ResetColorOnRevive)
@@ -379,10 +436,9 @@ namespace MoreMountains.TopDownEngine
 
             _initialLayer = gameObject.layer;
 
-            _healthBar = GetComponentInParent<MMHealthBar>();
-            _controller = GetComponentInParent<TopDownController>();
-            _characterController = GetComponentInParent<CharacterController>();
-            _collider2D = GetComponentInParent<Collider2D>();
+            this.TryGetComponentInParent(out _controller);
+            this.TryGetComponentInParent(out _characterController);
+            this.TryGetComponentInParent(out _collider2D);
 
             DamageMMFeedbacks.Initialize(gameObject);
             DeathMMFeedbacks.Initialize(gameObject);
@@ -423,12 +479,12 @@ namespace MoreMountains.TopDownEngine
                 }
                 else
                 {
-                    TargetAnimator = GetComponent<Animator>();
+                    TryGetComponent(out TargetAnimator);
                 }
             }
             else
             {
-                TargetAnimator = GetComponent<Animator>();
+                TryGetComponent(out TargetAnimator);
             }
         }
 
@@ -436,32 +492,23 @@ namespace MoreMountains.TopDownEngine
         {
             if (Character && Character.Stats)
             {
-                var hp = Character.Stats.GetStat(Character.Stat.HealthMax.Key());
-                hp.Event.Add((pre, now) => UpdateHealthBar(true));
-                MaximumHealthModifier = (ref float raw) =>
-                {
-                    raw = hp.Value;
-                };
+                var hp = Character.GetStat(Character.Stat.HealthMax);
+                hp.Event.Add((pre, now) => RefreshHealthBar(true));
+                MaximumHealthModifier = (ref float raw) => { raw = hp.Value; };
 
-                var hpRegen = Character.Stats.GetStat(Character.Stat.HealthRegen.Key());
-                HealthRegenModifier = (ref float raw) =>
-                {
-                    raw = hpRegen.Value;
-                };
+                var hpRegen = Character.GetStat(Character.Stat.HealthRegen);
+                HealthRegenModifier = (ref float raw) => { raw = hpRegen.Value; };
 
-                var ar = Character.Stats.GetStat(Character.Stat.AR.Key());
-                AR_Modifier = (ref float raw) =>
-                {
-                    raw = ar.Value;
-                };
+                var ar = Character.GetStat(Character.Stat.AR);
+                AR_Modifier = (ref float raw) => { raw = ar.Value; };
 
-                var mr = Character.Stats.GetStat(Character.Stat.MR.Key());
-                MR_Modifier = (ref float raw) =>
-                {
-                    raw = mr.Value;
-                };
+                var mr = Character.GetStat(Character.Stat.MR);
+                MR_Modifier = (ref float raw) => { raw = mr.Value; };
 
-                InitializeCurrentHealth();
+                var dodgeChance = Character.GetStat(Character.Stat.DodgeChance);
+                DodgeChance_Modifier = (ref float raw) => { raw = dodgeChance.Value; };
+
+                InitializeCurrentHealth(RefreshHealthBarType.Born);
             }
         }
 
@@ -476,10 +523,10 @@ namespace MoreMountains.TopDownEngine
         /// <summary>
         /// Initializes health to either initial or current values
         /// </summary>
-        public virtual void InitializeCurrentHealth()
+        public virtual void InitializeCurrentHealth(RefreshHealthBarType type)
         {
             var initialHealth = InitialHealthDrivenByMaximumHealth ? maximumHealth : InitialHealth;
-            SetHealth(initialHealth);
+            SetHealth(initialHealth, type);
         }
 
         /// <summary>
@@ -488,13 +535,13 @@ namespace MoreMountains.TopDownEngine
         protected virtual void OnEnable()
         {
             if (ResetHealthOnEnable)
-                InitializeCurrentHealth();
+                InitializeCurrentHealth(RefreshHealthBarType.Resurrect);
 
             if (TargetAnimator)
                 TargetAnimator.SetTrigger("Idle");
 
             if (IsDead())
-                DoRevive();
+                DoResurrect();
 
             DamageEnabled();
         }
@@ -521,10 +568,9 @@ namespace MoreMountains.TopDownEngine
                 return false;
             }
 
-            // if the object is invulnerable, we do nothing and exit
-            if (Invulnerable)
+            if (Invincible)
             {
-                type = ResistDamageType.Invulnerable;
+                type = ResistDamageType.Invincible;
                 return false;
             }
 
@@ -539,6 +585,12 @@ namespace MoreMountains.TopDownEngine
             {
                 type = ResistDamageType.Dead;
                 return false;
+            }
+            
+            if (DodgeChance>0 && randomHit(DodgeChance))
+            {
+                type = ResistDamageType.Dodged;
+                return false; 
             }
 
             type = ResistDamageType.None;
@@ -560,7 +612,7 @@ namespace MoreMountains.TopDownEngine
         /// <param name="direction">The direction of damage.</param>
         /// <param name="typedDamages"></param>
         /// <returns>is lethal damage</returns>
-        public virtual void Damage(Dmg dmg, GameObject instigator, Character source = null, float invincibleTime = 0F, Vector3 direction = default, List<TypedDamage> typedDamages = null)
+        public virtual void Damage(ref Dmg dmg, GameObject instigator, Character source = null, float invincibleTime = 0F, Vector3 direction = default, IDmgCalculator calculator = null)
         {
             if (!CanTakeDamageThisFrame(out _))
                 return;
@@ -586,61 +638,57 @@ namespace MoreMountains.TopDownEngine
                     }
                 }
             }
-
-            ComputeDamageOutput(ref dmg, out var damageDealt, out var damageRaw, typedDamages, true);
+            
+            ComputeDamageOutput(ref dmg, calculator);
 
             //设置此次dmg实际造成的伤害，并通知伤害飘字显示
             {
-                dmg.SetDamageRaw(damageRaw);
-                dmg.SetDamageDealt(damageDealt);
                 dmg.SetDirection(direction);
 
-                if ((int)dmg.DamageDealt > 0)
-                {
+                if (dmg.DamageDealt > 0)
                     new DmgTextEvent(dmg, transform).trigger();
-                }
             }
 
             //触发本次伤害所造成的攻击特效/技能特效
+            if (dmg.TriggerEffect && source && !dmg.Self)
             {
-                if (source && !dmg.Self)
+                if (dmg.hasAttackEffect())
                 {
-                    switch (dmg.Effect)
-                    {
-                        case Dmg.Effects.Attack:
-                            source.Event.trigger(new DoAttackEffect(Character));
-                            break;
-                        case Dmg.Effects.Ability:
-                            source.Event.trigger(new DoAbilityEffect(Character));
-                            break;
-                    }
+                    var e = new DoAttackEffect(Character);
+                    source.Event.trigger(e);
+                }
+
+                if (dmg.hasSkillEffect())
+                {
+                    var e = new DoAbilityEffect(Character);
+                    source.Event.trigger(e);
                 }
             }
 
-            // we decrease the character's health by the damage
-            float preHealth = CurrentHealth;
-            SetHealth(CurrentHealth - damageDealt);
-            LastDamage = damageDealt;
-            LastDamageType = dmg.ActualType;
-            LastDamageDirection = direction;
-
             Event.trigger(new OnHit());
 
-            // we prevent the character from colliding with Projectiles, Player and Enemies
-            if (invincibleTime > 0)
+            if (dmg.DamageDealt > 0)
             {
-                DamageDisabled();
-                _coroutineTimeElapsed = 0F;
-                _coroutineState = CoroutineState.DamageEnabled;
-                _invincibleTime = invincibleTime;
-                // Timing.RunCoroutine(DamageEnabled(invincibleTime));
-            }
+                // we decrease the character's health by the damage
+                float preHealth = CurrentHealth;
+                SetHealth(CurrentHealth - dmg.DamageDealt, RefreshHealthBarType.ReceiveDamage);
+                LastDamage = dmg.DamageDealt;
+                LastDamageType = dmg.ActualType;
+                LastDamageDirection = direction;
 
-            // we trigger a damage taken event
-            MMDamageTakenEvent.Trigger(this, instigator, CurrentHealth, damageDealt, preHealth, typedDamages);
+                // we prevent the character from colliding with Projectiles, Player and Enemies
+                if (invincibleTime > 0)
+                {
+                    DamageDisabled();
+                    _coroutineTimeElapsed = 0F;
+                    _coroutineState = CoroutineState.DamageEnabled;
+                    _invincibleTime = invincibleTime;
+                }
 
-            //造成伤害后处理Source吸血，触发DoDmg
-            {
+                // we trigger a damage taken event
+                MMDamageTakenEvent.Trigger(this, instigator, CurrentHealth, dmg.DamageDealt, preHealth);
+
+                //造成伤害后处理Source吸血，触发DoDmg
                 if (source && !dmg.Self)
                 {
                     if (dmg.Effect == Dmg.Effects.Attack)
@@ -654,39 +702,27 @@ namespace MoreMountains.TopDownEngine
 
                     source.Health.Event.trigger(new DoDmg(Character, dmg));
                 }
-            }
 
-            //造成伤害后，触发OnDmg
-            {
+                //造成伤害后，触发OnDmg
                 if (Character && !dmg.Self)
                     Event.trigger(new OnDmg(source, dmg));
-            }
 
-            // we update our animator
-            if (TargetAnimator)
-                TargetAnimator.SetTrigger("Damage");
-
-            // we play our feedback
-            if (FeedbackIsProportionalToDamage)
-                DamageMMFeedbacks.Play(transform.position, damageDealt);
-            else
-                DamageMMFeedbacks.Play(transform.position);
-
-            // we update the health bar
-            UpdateHealthBar(true);
-
-            // we process any condition state change
-            ComputeCharacterConditionStateChanges(typedDamages);
-            ComputeCharacterMovementMultipliers(typedDamages);
-
-            //检测是否死亡
-            {
+                // we play our feedback
+                if (FeedbackIsProportionalToDamage)
+                    DamageMMFeedbacks.Play(transform.position, dmg.DamageDealt);
+                else
+                    DamageMMFeedbacks.Play(transform.position);
+                
+                //检测是否死亡
                 if (CurrentHealth <= 0)
                 {
                     CurrentHealth = 0;
+                    
                     var isLethal = Kill();
                     if (source && isLethal && !dmg.Self)
                         source.Health.Event.trigger(new DoKill(Character, instigator));
+
+                    dmg.IsLethal = isLethal;
                 }
             }
         }
@@ -694,65 +730,37 @@ namespace MoreMountains.TopDownEngine
         /// <summary>
         /// Returns the damage this health should take after processing potential resistances
         /// </summary>
-        public virtual bool ComputeDamageOutput(ref Dmg dmg, out float actualDamage, out float rawFinalDamage, List<TypedDamage> typedDamages = null, bool damageApplied = false)
+        public virtual bool ComputeDamageOutput(ref Dmg dmg, IDmgCalculator calculator = null)
         {
-            actualDamage = 0F;
-            rawFinalDamage = 0F;
-            if (Invulnerable)
+            float actualDamage;
+            if (Invincible)
                 return false;
 
             if (ImmuneToDamage)
                 return false;
 
-            float damage = dmg.Value;
-            float totalDamage = 0F;
-            // we process our damage through our potential resistances
-            if (TargetDamageResistanceProcessor)
-            {
-                if (TargetDamageResistanceProcessor.isActiveAndEnabled)
-                {
-                    totalDamage = TargetDamageResistanceProcessor.ProcessDamage(damage, typedDamages, damageApplied);
-                }
-            }
-            else
-            {
-                totalDamage = damage;
-                if (typedDamages != null)
-                {
-                    foreach (var typedDamage in typedDamages)
-                    {
-                        totalDamage += typedDamage.DamageCaused;
-                    }
-                }
-            }
+            calculator ??= DmgCalculator.Default;
 
-            float rawBaseDamage = ComputeDamageAlgo(dmg.Algo, totalDamage);
-            float rawCritDamage = ComputeDamageCrit(dmg, rawBaseDamage);
-            rawFinalDamage = ComputeDamageRate(dmg, rawCritDamage);
+            float damage = dmg.Value;
+            float totalDamage = damage;
+
+            float rawBaseDamage = calculator.computeDamageAlgo(dmg.Algo, totalDamage, CurrentHealth, maximumHealth);
+            float rawCritDamage = calculator.computeDamageCrit(dmg, rawBaseDamage);
+            float rawFinalDamage = calculator.computeDamageRate(dmg, rawCritDamage);
 
             if (dmg.Mix.On)
             {
-                dmg.Mix = ComputeDamageMix(dmg.Mix, rawFinalDamage);
+                dmg.Mix = calculator.computeDamageMix(dmg.Mix, rawFinalDamage, AR, MR);
                 actualDamage = dmg.Mix.Sum();
             }
             else
             {
-                actualDamage = ComputeDamageDefence(dmg.ActualType, rawFinalDamage);
+                actualDamage = calculator.computeDamageDefence(dmg.ActualType, rawFinalDamage, AR, MR);
             }
 
+            dmg.SetDamageRaw(rawFinalDamage);
+            dmg.SetDamageDealt((int)actualDamage);
             return actualDamage > 0;
-        }
-
-        protected virtual float ComputeDamageAlgo(Dmg.Algos algo, float value)
-        {
-            return algo switch
-            {
-                Dmg.Algos.Fixed => value,
-                Dmg.Algos.CurPct => CurrentHealth * value,
-                Dmg.Algos.LostPct => (maximumHealth - CurrentHealth) * value,
-                Dmg.Algos.AllPct => maximumHealth * value,
-                _ => value
-            };
         }
 
         protected virtual float ComputeHealAlgo(Heal.Algos algo, float value)
@@ -767,137 +775,23 @@ namespace MoreMountains.TopDownEngine
             };
         }
 
-        protected virtual float ComputeDamageCrit(Dmg dmg, float damage)
-        {
-            return dmg.IsCrit switch
-            {
-                true => damage * dmg.CritRate,
-                false => damage,
-            };
-        }
-
-        protected virtual float ComputeDamageRate(Dmg dmg, float damage)
-        {
-            return damage * dmg.DmgRate;
-        }
-
-        protected virtual Dmg.Mixed ComputeDamageMix(Dmg.Mixed mix, float damage)
-        {
-            var dmgAD = mix.PctAD * damage;
-            if (dmgAD > 0)
-                mix.DamageDealtAD = ComputeDamageDefence(Dmg.Types.AD, dmgAD);
-
-            var dmgAP = mix.PctAP * damage;
-            if (dmgAP > 0)
-                mix.DamageDealtAP = ComputeDamageDefence(Dmg.Types.AP, dmgAP);
-
-            var dmgTrue = mix.PctTrue * damage;
-            if (dmgTrue > 0)
-                mix.DamageDealtTrue = ComputeDamageDefence(Dmg.Types.True, dmgTrue);
-
-            return mix;
-        }
-
-        protected virtual float ComputeDamageDefence(Dmg.Types type, float damage)
-        {
-            return type switch
-            {
-                Dmg.Types.AD => damage / (AR / 100 + 1),
-                Dmg.Types.AP => damage / (MR / 100 + 1),
-                Dmg.Types.True => damage,
-                _ => damage
-            };
-        }
-
-        /// <summary>
-        /// Goes through resistances and applies condition state changes if needed
-        /// </summary>
-        /// <param name="typedDamages"></param>
-        protected virtual void ComputeCharacterConditionStateChanges(List<TypedDamage> typedDamages)
-        {
-            if (typedDamages == null || Character == null)
-                return;
-
-            foreach (TypedDamage typedDamage in typedDamages)
-            {
-                if (typedDamage.ForceCharacterCondition)
-                {
-                    if (TargetDamageResistanceProcessor)
-                    {
-                        if (TargetDamageResistanceProcessor.isActiveAndEnabled)
-                        {
-                            if (TargetDamageResistanceProcessor.CheckPreventCharacterConditionChange(typedDamage.AssociatedDamageType))
-                            {
-                                continue;
-                            }
-                        }
-                    }
-
-                    Character.ChangeCharacterConditionTemporarily(typedDamage.ForcedCondition, typedDamage.ForcedConditionDuration, typedDamage.ResetControllerForces, typedDamage.DisableGravity);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Goes through the resistance list and applies movement multipliers if needed
-        /// </summary>
-        /// <param name="typedDamages"></param>
-        protected virtual void ComputeCharacterMovementMultipliers(List<TypedDamage> typedDamages)
-        {
-            if (typedDamages == null)
-                return;
-
-            if (Character == null)
-                return;
-
-            foreach (TypedDamage typedDamage in typedDamages)
-            {
-                if (typedDamage.ApplyMovementMultiplier)
-                {
-                    if (TargetDamageResistanceProcessor)
-                    {
-                        if (TargetDamageResistanceProcessor.isActiveAndEnabled)
-                        {
-                            if (TargetDamageResistanceProcessor.CheckPreventMovementModifier(typedDamage.AssociatedDamageType))
-                            {
-                                continue;
-                            }
-                        }
-                    }
-
-                    _characterMovement?.ApplyMovementMultiplier(typedDamage.MovementMultiplier, typedDamage.MovementMultiplierDuration);
-                }
-            }
-        }
-
         /// <summary>
         /// Determines a new knockback force by processing it through resistances
         /// </summary>
         /// <param name="knockbackForce"></param>
-        /// <param name="typedDamages"></param>
         /// <returns></returns>
-        public virtual Vector3 ComputeKnockbackForce(Vector3 knockbackForce, List<TypedDamage> typedDamages = null)
+        public virtual Vector3 ComputeKnockbackForce(Vector3 knockbackForce)
         {
-            return TargetDamageResistanceProcessor == null ? knockbackForce : TargetDamageResistanceProcessor.ProcessKnockbackForce(knockbackForce, typedDamages);
+            return knockbackForce;
         }
 
         /// <summary>
         /// Returns true if this Health can get knockbacked, false otherwise
         /// </summary>
-        /// <param name="typedDamages"></param>
         /// <returns></returns>
-        public virtual bool CanGetKnockback(List<TypedDamage> typedDamages)
+        public virtual bool CanGetKnockback()
         {
             if (ImmuneToKnockback)
-                return false;
-
-            if (!TargetDamageResistanceProcessor)
-                return true;
-
-            if (!TargetDamageResistanceProcessor.isActiveAndEnabled)
-                return true;
-
-            if (TargetDamageResistanceProcessor.CheckPreventKnockback(typedDamages))
                 return false;
 
             return true;
@@ -914,11 +808,11 @@ namespace MoreMountains.TopDownEngine
             if (Character)
             {
                 // we set its dead state to true
-                Character.ConditionState.ChangeState(Character.Conditions.Dead);
+                Character.conditionState.ChangeState(Character.Conditions.Dead);
                 Character.Reset();
             }
 
-            SetHealth(0);
+            SetHealth(0, RefreshHealthBarType.Killed);
 
             // we prevent further damage
             DamageDisabled();
@@ -931,10 +825,12 @@ namespace MoreMountains.TopDownEngine
             // we make it ignore the collisions from now on
             if (DisableCollisionsOnDeath)
             {
-                if (_collider2D) _collider2D.enabled = false;
+                if (_collider2D)
+                    _collider2D.enabled = false;
 
                 // if we have a controller, removes collisions, restores parameters for a potential respawn, and applies a death force
-                if (_controller) _controller.CollisionsOff();
+                if (_controller)
+                    _controller.CollisionsOff();
 
                 if (DisableChildCollisionsOnDeath)
                 {
@@ -969,7 +865,6 @@ namespace MoreMountains.TopDownEngine
             {
                 _coroutineTimeElapsed = 0F;
                 _coroutineState = CoroutineState.DestroyObject;
-                // Timing.RunCoroutine(CoDestroyObject(DelayBeforeDestruction), gameObject);
             }
             else
                 DestroyObject();
@@ -980,20 +875,20 @@ namespace MoreMountains.TopDownEngine
         /// <summary>
         /// Revive this object.
         /// </summary>
-        public virtual void Revive()
+        public virtual void Resurrect()
         {
             if (!_initialized)
                 return;
 
-            DoRevive();
+            DoResurrect();
 
             Initialization();
-            InitializeCurrentHealth();
+            InitializeCurrentHealth(RefreshHealthBarType.Resurrect);
             Event.trigger(new OnRevive());
             MMLifeCycleEvent.Trigger(this, MMLifeCycleEventTypes.Revive);
         }
 
-        void DoRevive()
+        protected void DoResurrect()
         {
             if (DisableChildCollisionsOnDeath)
             {
@@ -1023,7 +918,7 @@ namespace MoreMountains.TopDownEngine
             }
 
             if (Character)
-                Character.ConditionState?.ChangeState(Character.Conditions.Normal);
+                Character.conditionState?.ChangeState(Character.Conditions.Normal);
 
             if (ResetColorOnRevive && _renderer)
             {
@@ -1041,15 +936,6 @@ namespace MoreMountains.TopDownEngine
 
             if (RespawnAtInitialLocation)
                 transform.position = _initialPosition;
-
-            if (_healthBar)
-                _healthBar.Initialization();
-        }
-
-        IEnumerator<float> CoDestroyObject(float duration)
-        {
-            yield return Timing.WaitForSeconds(duration);
-            DestroyObject();
         }
 
         /// <summary>
@@ -1064,6 +950,8 @@ namespace MoreMountains.TopDownEngine
                 else
                     gameObject.SetActive(false);
             }
+
+            IsTotallyDead = true;
         }
 
         #region HealthManipulationAPIs
@@ -1071,11 +959,56 @@ namespace MoreMountains.TopDownEngine
         /// <summary>
         /// Sets the current health to the specified new value, and updates the health bar
         /// </summary>
-        /// <param name="newValue"></param>
-        public virtual void SetHealth(float newValue)
+        public virtual void SetHealth(float curHealth, RefreshHealthBarType type)
         {
-            CurrentHealth = newValue;
-            UpdateHealthBar(false);
+            CurrentHealth = curHealth;
+            switch (type)
+            {
+                case RefreshHealthBarType.Immediately:
+                    RefreshHealthBar(false);
+                    break;
+                case RefreshHealthBarType.ReceiveDamage:
+                    RefreshHealthBarByDamage();
+                    break;
+                case RefreshHealthBarType.ReceiveHealing:
+                    RefreshHealthBarByHeal();
+                    break;
+                case RefreshHealthBarType.Killed:
+                    RefreshHealthBar(false);
+                    break;
+                case RefreshHealthBarType.Born:
+                    RefreshHealthBar(false);
+                    break;
+                case RefreshHealthBarType.Resurrect:
+                    RefreshHealthBar(false);
+                    break;
+            }
+        }
+
+        public virtual void SetHealth(float curHealth, float maxHealth, RefreshHealthBarType type)
+        {
+            CurrentHealth = curHealth;
+            MaximumHealth = maxHealth;
+            switch (type)
+            {
+                case RefreshHealthBarType.Immediately:
+                    RefreshHealthBar(false);
+                    break;
+                case RefreshHealthBarType.ReceiveDamage:
+                    RefreshHealthBarByDamage();
+                    break;
+                case RefreshHealthBarType.ReceiveHealing:
+                    RefreshHealthBarByHeal();
+                    break;
+                case RefreshHealthBarType.Killed:
+                    RefreshHealthBar(false);
+                    break;
+                case RefreshHealthBarType.Born:
+                    RefreshHealthBar(false);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(type), type, null);
+            }
         }
 
         /// <summary>
@@ -1115,8 +1048,7 @@ namespace MoreMountains.TopDownEngine
                 new HealTextEvent(heal, transform).trigger();
             }
 
-            SetHealth(newHealth);
-            UpdateHealthBar(true);
+            SetHealth(newHealth, RefreshHealthBarType.ReceiveHealing);
 
             if (heal.IsValid())
             {
@@ -1132,16 +1064,19 @@ namespace MoreMountains.TopDownEngine
         /// </summary>
         public virtual void ResetHealthToMaxHealth()
         {
-            SetHealth(maximumHealth);
+            SetHealth(maximumHealth, RefreshHealthBarType.Resurrect);
         }
 
-        /// <summary>
-        /// Forces a refresh of the character's health bar
-        /// </summary>
-        public virtual void UpdateHealthBar(bool show)
+        public virtual void RefreshHealthBar(bool show)
         {
-            if (_healthBar)
-                _healthBar.UpdateBar(CurrentHealth, 0f, maximumHealth, show);
+        }
+
+        public virtual void RefreshHealthBarByDamage()
+        {
+        }
+
+        public virtual void RefreshHealthBarByHeal()
+        {
         }
 
         #endregion
@@ -1153,7 +1088,7 @@ namespace MoreMountains.TopDownEngine
         /// </summary>
         public virtual void DamageDisabled()
         {
-            Invulnerable = true;
+            Invincible = true;
         }
 
         /// <summary>
@@ -1161,7 +1096,7 @@ namespace MoreMountains.TopDownEngine
         /// </summary>
         public virtual void DamageEnabled()
         {
-            Invulnerable = false;
+            Invincible = false;
         }
 
         /// <summary>
@@ -1172,16 +1107,19 @@ namespace MoreMountains.TopDownEngine
             DashInvincible = value;
         }
 
-        /// <summary>
-        /// makes the character able to take damage again after the specified delay
-        /// </summary>
-        /// <returns>The layer collision.</returns>
-        IEnumerator<float> DamageEnabled(float delay)
+        #endregion
+
+        public bool inUse { get; set; }
+        public virtual void onAcquire()
         {
-            yield return Timing.WaitForSeconds(delay);
-            Invulnerable = false;
+            inUse = true;
+            IsTotallyDead = false;
         }
 
-        #endregion
+        public virtual void onRelease()
+        {
+            inUse = false;
+            
+        }
     }
 }

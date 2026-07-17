@@ -1,10 +1,9 @@
-﻿using System.Collections.Generic;
-using MoreMountains.Feedbacks;
+﻿using MoreMountains.Feedbacks;
 using MoreMountains.Tools;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     public class HitscanWeapon : Weapon
     {
@@ -15,8 +14,7 @@ namespace MoreMountains.TopDownEngine
             ThreeD
         }
 
-        [MMInspectorGroup("Hitscan Spawn")]
-        [Tooltip("the offset position at which the projectile will spawn")]
+        [MMInspectorGroup("Hitscan Spawn")] [Tooltip("the offset position at which the projectile will spawn")]
         public Vector3 ProjectileSpawnOffset = Vector3.zero;
 
         [Tooltip("the spread (in degrees) to apply randomly (or not) on each angle when spawning a projectile")]
@@ -32,8 +30,7 @@ namespace MoreMountains.TopDownEngine
         [Tooltip("the projectile's spawn position")]
         public Vector3 SpawnPosition { get; set; }
 
-        [MMInspectorGroup("Hitscan")]
-        [Tooltip("whether this hitscan should work in 2D or 3D")]
+        [MMInspectorGroup("Hitscan")] [Tooltip("whether this hitscan should work in 2D or 3D")]
         public Modes Mode = Modes.ThreeD;
 
         [Tooltip("the layer(s) on which to hitscan ray should collide")]
@@ -45,25 +42,19 @@ namespace MoreMountains.TopDownEngine
         [Tooltip("the duration of the invincibility after a hit (to prevent instant death in the case of rapid fire)")]
         public float DamageCausedInvincibilityDuration = 0.2f;
 
-        [Tooltip("a list of typed damage definitions that will be applied on top of the base damage")]
-        public List<TypedDamage> TypedDamages;
-
-        [MMInspectorGroup("Knockback")]
-        [Tooltip("the type of knockback to apply when causing damage")]
+        [MMInspectorGroup("Knockback")] [Tooltip("the type of knockback to apply when causing damage")]
         public KnockbackStyles DamageCausedKnockbackType = KnockbackStyles.None;
 
         [Tooltip("The force to apply to the object that gets damaged")]
         public Vector3 DamageCausedKnockbackForce = new Vector3(10, 10, 10);
 
-        [MMInspectorGroup("Hit Damageable")]
-        [Tooltip("a MMFeedbacks to move to the position of the hit and to play when hitting something with a Health component")]
+        [MMInspectorGroup("Hit Damageable")] [Tooltip("a MMFeedbacks to move to the position of the hit and to play when hitting something with a Health component")]
         public MMFeedbacks HitDamageable;
 
         [Tooltip("a particle system to move to the position of the hit and to play when hitting something with a Health component")]
         public ParticleSystem DamageableImpactParticles;
 
-        [MMInspectorGroup("Hit Non Damageable")]
-        [Tooltip("a MMFeedbacks to move to the position of the hit and to play when hitting something without a Health component")]
+        [MMInspectorGroup("Hit Non Damageable")] [Tooltip("a MMFeedbacks to move to the position of the hit and to play when hitting something without a Health component")]
         public MMFeedbacks HitNonDamageable;
 
         [Tooltip("a particle system to move to the position of the hit and to play when hitting something without a Health component")]
@@ -87,8 +78,7 @@ namespace MoreMountains.TopDownEngine
         protected RaycastHit2D _hit2D { get; set; }
         protected Vector3 _origin { get; set; }
 
-        [MMInspectorButton("TestShoot")]
-        public bool TestShootButton;
+        [MMInspectorButton("TestShoot")] public bool TestShootButton;
 
         protected virtual void TestShoot()
         {
@@ -147,15 +137,7 @@ namespace MoreMountains.TopDownEngine
             }
 
             Quaternion spread = Quaternion.Euler(_randomSpreadDirection);
-
-            if (Owner.Dimension == Character.Dimensions.Type3D)
-            {
-                _randomSpreadDirection = spread * transform.forward;
-            }
-            else
-            {
-                _randomSpreadDirection = spread * transform.right * (Flipped ? -1 : 1);
-            }
+            _randomSpreadDirection = spread * transform.right * (Flipped ? -1 : 1);
 
             if (RotateWeaponOnSpread)
             {
@@ -227,7 +209,8 @@ namespace MoreMountains.TopDownEngine
                 // hit damageable
                 _damageDirection = (_hitObject.transform.position - transform.position).normalized;
 
-                _health.Damage(Dmg, gameObject, Owner, DamageCausedInvincibilityDuration, _damageDirection, TypedDamages);
+                var dmg = Dmg;
+                _health.Damage(ref dmg, gameObject, Owner, DamageCausedInvincibilityDuration, _damageDirection);
 
                 if (HitDamageable)
                 {
@@ -274,7 +257,7 @@ namespace MoreMountains.TopDownEngine
                 if (_hitObject.TryGetComponent(out _knockbackTopDownController))
                 {
                     _knockbackForce = DamageCausedKnockbackForce * _health.KnockbackForceMultiplier;
-                    _knockbackForce = _health.ComputeKnockbackForce(_knockbackForce, TypedDamages);
+                    _knockbackForce = _health.ComputeKnockbackForce(_knockbackForce);
                     switch (Mode)
                     {
                         case Modes.ThreeD:
@@ -287,13 +270,13 @@ namespace MoreMountains.TopDownEngine
                             break;
                     }
 
-                    _knockbackTopDownController.Impact(_knockbackForce.normalized, _knockbackForce.magnitude);
+                    _knockbackTopDownController.AddImpact(_knockbackForce.normalized, _knockbackForce.magnitude);
                 }
             }
         }
 
         /// <summary>
-        /// Determines the spawn position based on the spawn offset and whether or not the weapon is flipped
+        /// Determines the spawn position based on the spawn offset and whether the weapon is flipped
         /// </summary>
         public virtual void DetermineSpawnPosition()
         {

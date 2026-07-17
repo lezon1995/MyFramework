@@ -2,7 +2,7 @@
 using MoreMountains.Tools;
 using UnityEngine;
 
-namespace MarbleHero;
+namespace MoreMountains;
 
 /// <summary>
 /// 基础弹匣
@@ -24,11 +24,11 @@ public class BaseMagazine : ARelic, IEvent<OnBallDeath>
             return;
         
         var ranDir = randomDirectionInCone(normal, 60);
-        var tempBall = ballManager.acquireBall(ball.curPos, ball.radius, ranDir, ball.speed, true);
+        var tempBall = ballManager.acquireBall(ball.curPos, ranDir);
         tempBall.setInitialHealth(1);
         tempBall.setBorderToBallDamageModifier(BALL_IMMUNE_TO_BORDER_DAMAGE_MODIFIER);
         tempBall.setTemp(true);
-        tempBall.eventRouter.addListener(this);
+        tempBall.Event.addListener(this);
         tempBalls.add(tempBall);
     }
 
@@ -53,7 +53,7 @@ public class BaseMagazine : ARelic, IEvent<OnBallDeath>
     public void onEvent(OnBallDeath e)
     {
         var ball = e.ball;
-        ball.eventRouter.removeListener(this);
+        ball.Event.removeListener(this);
         tempBalls.Remove(ball);
     }
 }

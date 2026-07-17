@@ -5,7 +5,7 @@ public class MainSceneLoading : SceneProcedure
         // changeProcedure<MainSceneLogin>();
         brickManager.load();
         comboManager.load();
-        mPrefabPoolManager.setTimerInterval(60);
+        prefabPool.setTimerInterval(60);
         
         changeProcedure<MainSceneGaming>();
     }

@@ -4,7 +4,7 @@ using MoreMountains.Tools;
 using UnityEngine;
 using UnityEngine.Pool;
 
-namespace MarbleHero;
+namespace MoreMountains;
 
 // 角色管理器
 public class BrickManager : FrameSystem
@@ -16,12 +16,9 @@ public class BrickManager : FrameSystem
     protected List<Brick> activeBrickList = new();
     protected Dictionary<Type, Dictionary<long, Brick>> brickTypeList = new(); // 角色分类列表
     protected Dictionary<long, Brick> brickGUIDList = new(); // 角色ID索引表
-    protected SafeList<Brick> brickUpdateList = new(); // 用于更新角色的列表
-    protected SafeList<Brick> brickFixedUpdateList = new(); // 需要在FixedUpdate中更新的列表,如果直接使用mBrickGUIDList,会非常慢,而很多时候其实并不需要进行物理更新,所以单独使用一个列表存储
 
     protected Dictionary<(Type, Vector2Int), ObjectPool<Brick>> brickPools = new();
 
-    protected Sprite[] brickSprites;
     public BrickGridLayout brickLayout;
 
     public BrickManager()
@@ -40,69 +37,21 @@ public class BrickManager : FrameSystem
         destroyAllBrick();
         brickTypeList = null;
         brickGUIDList = null;
-        brickFixedUpdateList = null;
     }
 
     public override void update(float elapsedTime)
     {
         base.update(elapsedTime);
-        using var a = new SafeListReader<Brick>(brickUpdateList);
-        foreach (var brick in a.mReadList)
-        {
-            if (brick && brick.isActiveInHierarchy())
-            {
-                var dt = !brick.isIgnoreTimeScale() ? elapsedTime : Time.unscaledDeltaTime;
-                brick.update(dt);
-            }
-        }
-    }
-
-    public override void lateUpdate(float elapsedTime)
-    {
-        base.lateUpdate(elapsedTime);
-        using var a = new SafeListReader<Brick>(brickUpdateList);
-        foreach (var brick in a.mReadList)
-        {
-            if (brick && brick.isActiveInHierarchy())
-            {
-                var dt = !brick.isIgnoreTimeScale() ? elapsedTime : Time.unscaledDeltaTime;
-                brick.lateUpdate(dt);
-            }
-        }
     }
 
     public override void fixedUpdate(float elapsedTime)
     {
         base.fixedUpdate(elapsedTime);
-        using var a = new SafeListReader<Brick>(brickFixedUpdateList);
-        foreach (var brick in a.mReadList)
-        {
-            if (brick && brick.isActiveInHierarchy())
-            {
-                var dt = !brick.isIgnoreTimeScale() ? elapsedTime : Time.fixedUnscaledDeltaTime;
-                brick.fixedUpdate(dt);
-            }
-        }
     }
 
     public void load()
     {
-        brickSprites = new Sprite[26];
-
-        for (int i = 0; i < brickSprites.Length; i++)
-        {
-            var path = $"{GAMEPLAY_PATH}/Sprites/Play/_Blocks/box_{i}.png";
-            var sprite = mResourceManager.loadGameResource<Sprite>(path);
-            brickSprites[i] = sprite.getResource();
-        }
-
         brickLayout = new(levelManager.getBorderSize(), levelManager.cols, levelManager.rows);
-        // var grids = brickGrid.getGrids();
-        // for (var i = 0; i < grids.Count; i++)
-        // {
-        //     var grid = grids[i];
-        //     createBrick<NormalBrick>("Brick", grid.center, grid.size, 60);
-        // }
     }
 
     public Brick getBrick(long id)
@@ -200,35 +149,6 @@ public class BrickManager : FrameSystem
         return brickTypeList.get(type);
     }
 
-    public Sprite getBrickSprite(int index)
-    {
-        if (brickSprites.tryGet(index, out var sprite))
-            return sprite;
-
-        return null;
-    }
-
-    public Sprite getBrickSpriteByHealth(int health)
-    {
-        int value = health;
-        int count = brickSprites.Length;
-        int index;
-        int v = clampMin(value - 1) / count;
-        if (v == 0)
-        {
-            index = clampMin(value - 1) % count;
-        }
-        else
-        {
-            index = (value - 2) % (count - 1) + 1;
-        }
-
-        if (brickSprites.tryGet(index, out var sprite))
-            return sprite;
-
-        return null;
-    }
-
     public Brick acquireBrick(Vector2 pos, Vector2Int size, int health)
     {
         return acquireBrick(typeof(Brick), pos, size, health);
@@ -239,32 +159,20 @@ public class BrickManager : FrameSystem
         if (!brickPools.TryGetValue((type, size), out var pool))
         {
             pool = new(
-                createFunc: () =>
-                {
-                    return createBrick(type, pos, size);
-                },
+                createFunc: () => createBrick(type, size),
                 actionOnGet: brick =>
                 {
                     brick.setActive(true);
                     // brick.setEnabled(true);
-
-                    brickUpdateList.add(brick);
-                    brickFixedUpdateList.add(brick);
                     activeBricks[brick.instanceID] = brick;
                 },
                 actionOnRelease: brick =>
                 {
                     brick.setActive(false);
                     // brick.setEnabled(false);
-
-                    brickUpdateList.remove(brick);
-                    brickFixedUpdateList.remove(brick);
                     activeBricks.Remove(brick.instanceID);
                 },
-                actionOnDestroy: brick =>
-                {
-                    destroyBrick(brick);
-                },
+                actionOnDestroy: destroyBrick,
                 collectionCheck: true,
                 defaultCapacity: 1000,
                 maxSize: 1000);
@@ -275,8 +183,7 @@ public class BrickManager : FrameSystem
         var brick = pool.Get();
         brick.setWorldPosition(pos);
         brick.setMaxHealth(health);
-        brick.setInitialHealth(health, health);
-        brick.setSize(size);
+        brick.setBornHealth(health, health);
 
         var sortingOrder = brickLayout.getSortingOrderAtPosY(pos.y);
         brick.setSortingOrder(sortingOrder);
@@ -286,17 +193,11 @@ public class BrickManager : FrameSystem
         return brick;
     }
 
-    Brick createBrick(Vector2 pos, Vector2Int size)
-    {
-        return createBrick(typeof(Brick), pos, size);
-    }
+    Brick createBrick(Vector2Int size) => createBrick(typeof(Brick), size);
 
-    T createBrick<T>(Vector2 pos, Vector2Int size) where T : Brick
-    {
-        return createBrick(typeof(T), pos, size) as T;
-    }
+    T createBrick<T>(Vector2Int size) where T : Brick => createBrick(typeof(T), size) as T;
 
-    Brick createBrick(Type type, Vector2 pos, Vector2Int size)
+    Brick createBrick(Type type, Vector2Int size)
     {
         var id = generateGUID();
 
@@ -306,23 +207,14 @@ public class BrickManager : FrameSystem
             return null;
         }
 
-        var brick = CLASS<Brick>(type);
-        brick.setName($"Brick_{activeBricks.Count + 1}");
-        brick.setBrickType(type);
-
-        // 将角色挂接到管理器下
-        brick.setID(id);
         var path = $"{GAMEPLAY_PATH}/Bricks/Brick_{size.x}x{size.y}.prefab";
-        var o = mPrefabPoolManager.createObject(path);
-        brick.setManager(this);
-        brick.setObject(o);
-        brick.init();
+        var o = prefabPool.createObject(path);
+        o.TryGetComponent<Brick>(out var brick);
+        brick.setName($"Brick_{activeBricks.Count + 1}");
+        brick.setID(id);
 
-        brick.setWorldPosition(pos);
-        brick.setSize(size);
-
-        brick.eventRouter.addListener<OnBrickDeath>(this);
-        brick.eventRouter.addListener<OnBrickDeathTotally>(this);
+        brick.Event.addListener<OnBrickDeath>(this);
+        brick.Event.addListener<OnBrickDeathTotally>(this);
 
         addBrickToList(brick);
         return brick;
@@ -350,10 +242,7 @@ public class BrickManager : FrameSystem
 
     public void destroyAllBrick()
     {
-        UN_CLASS_LIST(brickGUIDList);
         brickTypeList.Clear();
-        brickUpdateList.clear();
-        brickFixedUpdateList.clear();
     }
 
     void destroyBrick(Brick brick)
@@ -361,20 +250,16 @@ public class BrickManager : FrameSystem
         if (brick == null)
             return;
 
-        mPrefabPoolManager.destroyObject(brick.gameObject, false);
+        prefabPool.destroyObject(brick.gameObject, false);
 
         long guid = brick.getGUID();
         // 从角色分类列表中移除
         brickTypeList.get(brick.getType())?.Remove(guid);
         // 从ID索引表中移除
         brickGUIDList.Remove(guid);
-        brickUpdateList.remove(brick);
-        brickFixedUpdateList.remove(brick);
 
-        brick.eventRouter.removeListener<OnBrickDeath>(this);
-        brick.eventRouter.removeListener<OnBrickDeathTotally>(this);
-
-        UN_CLASS(ref brick);
+        brick.Event.removeListener<OnBrickDeath>(this);
+        brick.Event.removeListener<OnBrickDeathTotally>(this);
     }
 
     public void destroyBrickList<T>(List<T> characterList) where T : Brick
@@ -386,11 +271,7 @@ public class BrickManager : FrameSystem
             brickTypeList.get(brick.getType())?.Remove(guid);
             // 从ID索引表中移除
             brickGUIDList.Remove(guid);
-            brickUpdateList.remove(brick);
-            brickFixedUpdateList.remove(brick);
         }
-
-        UN_CLASS_LIST(characterList);
     }
 
     //------------------------------------------------------------------------------------------------------------------------------

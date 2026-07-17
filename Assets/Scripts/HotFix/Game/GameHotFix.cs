@@ -11,7 +11,7 @@ global using static HotfixDefine;
 global using static GBR;
 
 using System;
-using MarbleHero;
+using MoreMountains;
 
 public class GameHotFix : GameHotFixBase<GameHotFix>
 {

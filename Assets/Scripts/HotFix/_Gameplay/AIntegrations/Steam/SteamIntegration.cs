@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 
-namespace MarbleHero;
+namespace MoreMountains;
 
 public class SteamIntegration : IPublisherIntegration
 {

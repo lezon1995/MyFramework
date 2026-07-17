@@ -3,7 +3,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Pool;
 
-namespace MarbleHero;
+namespace MoreMountains;
 
 public class BrickGroupMoveToBorderAction : AGameAction, IArgs<Border>
 {

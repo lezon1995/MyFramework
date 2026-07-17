@@ -3,7 +3,7 @@ using MoreMountains.Tools;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     /// <summary>
     /// A class used to store and define typed damage impact : damage caused, condition or movement speed changes, etc

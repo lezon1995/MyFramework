@@ -1,7 +1,7 @@
-using MarbleHero;
+using MoreMountains;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "FTextSetting", menuName = "MarbleHero/FText Setting/RandomAxis")]
+[CreateAssetMenu(fileName = "FTextSetting", menuName = "MoreMountains/FText Setting/RandomAxis")]
 public class FTextSetting_RandomAxis : FTextSetting
 {
     public Vector2 XFloatRange = new Vector2(-1, 1);

@@ -2,7 +2,7 @@ using System;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     [CreateAssetMenu(menuName = "TopDown Engine/Character/Exp/ExpData", fileName = "ExpData")]
     public class ExpData : SerializedScriptableObject

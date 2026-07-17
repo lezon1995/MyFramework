@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace MarbleHero;
+namespace MoreMountains;
 
 public class BrickHealingAction : AGameAction, IArgs<int, int>
 {

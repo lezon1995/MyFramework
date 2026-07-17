@@ -1,6 +1,7 @@
-﻿using UnityEngine;
+﻿using UniStats;
+using UnityEngine;
 
-namespace MarbleHero;
+namespace MoreMountains;
 
 /// <summary>
 /// 拨浪鼓
@@ -18,7 +19,8 @@ public class Rattle : ARelic
     {
         if (fromBrick)
         {
-            ball.crit.increase(0.1F);
+            ball.GetStat(Ball.Stat.CritChance, out var stat);
+            stat.AddFlat(0.1F);
         }
     }
 

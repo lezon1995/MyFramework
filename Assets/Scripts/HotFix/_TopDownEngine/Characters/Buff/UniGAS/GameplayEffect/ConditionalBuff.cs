@@ -1,6 +1,6 @@
 using System;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     [Serializable]
     public class ConditionalBuff

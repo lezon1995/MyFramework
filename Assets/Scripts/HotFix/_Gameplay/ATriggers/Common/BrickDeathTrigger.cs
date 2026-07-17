@@ -1,4 +1,4 @@
-﻿namespace MarbleHero;
+﻿namespace MoreMountains;
 
 /// <summary>
 /// 砖块摧毁时（无论是因为撞击还是技能）

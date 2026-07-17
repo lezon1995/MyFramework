@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace MarbleHero
+namespace MoreMountains
 {
     /// <summary>
     /// Control of the message that is created within the ToastNotification Hierarchy.

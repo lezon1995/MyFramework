@@ -1,4 +1,4 @@
-﻿namespace MoreMountains.TopDownEngine
+﻿namespace MoreMountains
 {
     /// <summary>
     /// An abstract class used to define additional conditions on a weapon to prevent it from firing

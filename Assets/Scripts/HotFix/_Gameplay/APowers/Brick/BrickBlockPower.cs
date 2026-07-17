@@ -1,4 +1,4 @@
-﻿namespace MarbleHero;
+﻿namespace MoreMountains;
 
 public class BrickBlockPower : BrickPower, IArgs<Brick, int>
 {
@@ -38,7 +38,7 @@ public class BrickBlockPower : BrickPower, IArgs<Brick, int>
 
     public override void onBeforeApplyDamage(Brick brick, Ball ball, ref Dmg dmg)
     {
-        block.decrementBlock(ref dmg.damageDealt);
+        block.decrementBlock(ref dmg.DamageDealt);
         brick.brickRenderer.refreshBlockAmount(block.currentBlock);
         if (block.currentBlock > 0)
         {

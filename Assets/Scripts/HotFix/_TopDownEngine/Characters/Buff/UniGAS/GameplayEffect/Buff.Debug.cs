@@ -2,7 +2,7 @@ using UnityEngine;
 
 #if UNITY_EDITOR
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     public partial class Buff
     {

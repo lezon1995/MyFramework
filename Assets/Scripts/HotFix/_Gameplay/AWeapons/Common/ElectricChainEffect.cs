@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-namespace MarbleHero;
+namespace MoreMountains;
 
 /// <summary>
 /// 连锁电流
@@ -39,7 +39,7 @@ public class ElectricChainEffect : ALogicEffect, IArgs<Ball, Brick, int>
         history.Clear();
         for (var i = list.Count - 1; i >= 0; i--)
         {
-            mPrefabPoolManager.destroyObject(list[i], false);
+            prefabPool.destroyObject(list[i], false);
             list.RemoveAt(i);
         }
     }
@@ -55,7 +55,7 @@ public class ElectricChainEffect : ALogicEffect, IArgs<Ball, Brick, int>
             if (brickManager.getRandomActiveBrick(out var b, history, excludePos, 1.5F))
             {
                 history.add(b);
-                var o = mPrefabPoolManager.createObject(path);
+                var o = prefabPool.createObject(path);
                 list.add(o);
                 if (o.TryGetComponent<LightningBolt2D>(out var bolt))
                 {
@@ -66,7 +66,7 @@ public class ElectricChainEffect : ALogicEffect, IArgs<Ball, Brick, int>
                     //Generate lightnings once, based on your configuration
                     bolt.FireOnce();
                     var dmg = ball.getSkillDmg(b);
-                    gameplayManager.handleSkillDamage(ball, b, ref dmg);
+                    b.Health.Damage(ref dmg, ball.gameObject, ball.character);
                 }
 
                 if (count.update())

@@ -3,7 +3,7 @@ using MoreMountains.Feedbacks;
 using MoreMountains.Tools;
 using UnityEngine;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     /// <summary>
     /// A basic melee weapon class, that will activate a "hurt zone" when the weapon is used
@@ -67,7 +67,8 @@ namespace MoreMountains.TopDownEngine
         public LayerMask TargetLayerMask;
 
         public KnockbackStyles Knockback;
-        public Vector3 KnockbackForce = new Vector3(10, 2, 0);
+        public Vector3 KnockbackForce = new(10, 2, 0);
+        public Vector3 LethalKnockbackForce = new(10, 2, 0);
         public KnockbackDirections KnockbackDirection;
         public float InvincibilityDuration = 0.5f;
 
@@ -181,7 +182,8 @@ namespace MoreMountains.TopDownEngine
             damageOnTouch.TargetLayerMask = TargetLayerMask;
             damageOnTouch.DamageDirectionMode = DamageOnTouch.DamageDirections.BasedOnOwnerPosition;
             damageOnTouch.DamageCausedKnockbackType = Knockback;
-            damageOnTouch.DamageCausedKnockbackForce = KnockbackForce;
+            damageOnTouch.DamageKnockbackForce = KnockbackForce;
+            damageOnTouch.LethalDamageKnockbackForce = LethalKnockbackForce;
             damageOnTouch.DamageCausedKnockbackDirection = KnockbackDirection;
             damageOnTouch.InvincibilityDuration = InvincibilityDuration;
             damageOnTouch.HitDamageableFeedback = HitDamageableFeedback;

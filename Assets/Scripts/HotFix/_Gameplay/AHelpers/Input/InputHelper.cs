@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace MarbleHero
+namespace MoreMountains
 {
     public class InputHelper
     {
@@ -83,8 +83,8 @@ namespace MarbleHero
                 if (Settings.isControllerMode)
                     leaveControllerMode();
 
-                if (Settings.isDebug)
-                    log("Clicked: (" + mX + "," + mY + ")");
+                // if (Settings.isDebug)
+                    // log("Clicked: (" + mX + "," + mY + ")");
             }
             else if ((isPrevMouseDown && !isMouseDown) || touchUp)
             {

@@ -4,7 +4,7 @@ using UnityEditor;
 #endif
 using UnityEngine;
 
-namespace MarbleHero
+namespace MoreMountains
 {
     [ExecuteInEditMode]
     public class LightningBolt2D : MonoBehaviour

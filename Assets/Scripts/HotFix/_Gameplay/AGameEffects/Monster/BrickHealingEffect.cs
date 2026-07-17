@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace MarbleHero;
+namespace MoreMountains;
 
 /// <summary>
 /// Brick治疗效果
@@ -33,14 +33,14 @@ public class BrickHealingEffect : ALogicEffect, IArgs<Brick, int>
     public override void destroy()
     {
         base.destroy();
-        mPrefabPoolManager.destroyObject(healingFx, false);
+        prefabPool.destroyObject(healingFx, false);
     }
 
     public override bool fixedUpdate(float dt)
     {
         if (duration.unstarted)
         {
-            healingFx = mPrefabPoolManager.createObject(path);
+            healingFx = prefabPool.createObject(path);
             healingFx.transform.position = brick.gameObject.transform.position;
             brick.heal(new(healingAmount));
         }

@@ -1,4 +1,4 @@
-﻿namespace MarbleHero;
+﻿namespace MoreMountains;
 
 public class PlayerBlock : ABlock
 {
@@ -20,9 +20,6 @@ public class PlayerBlock : ABlock
                 p.onGainedBlock(tmp);
 
         bool effect = currentBlock == 0;
-
-        foreach (var p in enemy.powers)
-            tmp = p.onPlayerGainedBlock(tmp);
 
         currentBlock += floor(tmp);
         if (currentBlock >= 99)
