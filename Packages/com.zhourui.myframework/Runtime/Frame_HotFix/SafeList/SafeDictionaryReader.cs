@@ -10,6 +10,14 @@ public struct SafeDictionaryReader<Key, Value> : IDisposable
 		mSafeList = list;
 		mReadList = mSafeList.startForeach();
 	}
+	
+	public SafeDictionaryReader(SafeDictionary<Key, Value> list, out Dictionary<Key, Value> reader)
+	{
+		mSafeList = list;
+		mReadList = mSafeList.startForeach();
+		reader = mReadList;
+	}
+
 	public void Dispose()
 	{
 		mSafeList.endForeach();

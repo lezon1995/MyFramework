@@ -107,16 +107,13 @@ namespace MoreMountains
         protected InputManager _inputManager;
         protected Animator _animator;
         protected SpriteRenderer _spriteRenderer;
-        protected MMStateMachine<Character.Motions> _motionState => _character.motionState;
-        protected MMStateMachine<Character.Conditions> _conditionState => _character.conditionState;
+        protected MMStateMachine<Character.Motions> _motionState => _character?.motionState;
+        protected MMStateMachine<Character.Conditions> _conditionState => _character?.conditionState;
         protected AudioSource _abilityInProgressSfx;
         protected bool _abilityInitialized;
         protected Vector2 _curInput;
         protected bool _startFeedbackIsPlaying;
         protected List<CharacterHandleWeapon> _handleWeaponList = new();
-
-        /// This method is only used to display a help box text at the beginning of the ability's inspector
-        public virtual string HelpBoxText() => null;
 
         protected void Awake()
         {
@@ -141,7 +138,7 @@ namespace MoreMountains
             this.TryGetComponentInParent(out _controller2D);
             this.TryGetComponentInParent(out _spriteRenderer);
             
-            _characterMovement = _character.FindAbility<CharacterMovement>();
+            _character.FindAbility(out _characterMovement);
 
             _model = _character.Model;
             _health = _character.Health;

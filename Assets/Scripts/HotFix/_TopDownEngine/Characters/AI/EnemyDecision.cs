@@ -4,7 +4,7 @@ namespace MoreMountains
 {
     public abstract class EnemyDecision : AIDecision
     {
-        protected Brick _character;
+        protected Brick brick;
 
         protected override void Awake()
         {
@@ -14,7 +14,7 @@ namespace MoreMountains
         public override void Initialization()
         {
             base.Initialization();
-            this.TryGetComponentInParent(out _character);
+            this.TryGetComponentInParent(out brick);
         }
     }
 }

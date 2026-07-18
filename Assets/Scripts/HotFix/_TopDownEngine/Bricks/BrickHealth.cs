@@ -50,7 +50,7 @@ namespace MoreMountains
         {
             if (dmg.hasSkillEffect())
                 brick.brickRenderer.playFxSkillHit(dmg.Direction);
-            
+
             if (!CanTakeDamageThisFrame(out _))
                 return;
 
@@ -149,15 +149,6 @@ namespace MoreMountains
                 LastDamageType = dmg.ActualType;
                 LastDamageDirection = direction;
 
-                // we prevent the character from colliding with Projectiles, Player and Enemies
-                if (invincibleTime > 0)
-                {
-                    DamageDisabled();
-                    _coroutineTimeElapsed = 0F;
-                    _coroutineState = CoroutineState.DamageEnabled;
-                    _invincibleTime = invincibleTime;
-                }
-
                 // we trigger a damage taken event
                 MMDamageTakenEvent.Trigger(this, instigator, CurrentHealth, dmg.DamageDealt, preHealth);
 
@@ -231,6 +222,15 @@ namespace MoreMountains
 
                     dmg.IsLethal = isLethal;
                 }
+
+                // we prevent the character from colliding with Projectiles, Player and Enemies
+                if (invincibleTime > 0 && !dmg.IsLethal)
+                {
+                    DamageDisabled();
+                    _coroutineTimeElapsed = 0F;
+                    _coroutineState = CoroutineState.DamageEnabled;
+                    _invincibleTime = invincibleTime;
+                }
             }
         }
 
@@ -243,7 +243,7 @@ namespace MoreMountains
             var healing = ComputeHealAlgo(heal.Algo, heal.Value);
             if (healing <= 0F)
                 return;
-            
+
             foreach (var p in brick.powers)
                 healing = p.onHeal((int)healing);
 
@@ -283,21 +283,14 @@ namespace MoreMountains
 
         public override bool Kill()
         {
-            if (ImmuneToDamage)
-                return false;
-
-            if (Character)
-            {
-                // we set its dead state to true
-                Character.conditionState.ChangeState(Character.Conditions.Dead);
-                Character.Reset();
-            }
+            brick.conditionState.ChangeState(Character.Conditions.Dead);
+            brick.Reset();
 
             SetHealth(0, RefreshHealthBarType.Killed);
-            
+
             foreach (var p in brick.powers)
                 p.onDeath();
-            
+
             foreach (var r in player.relics)
                 r.onMonsterDeath(brick);
 
@@ -312,47 +305,22 @@ namespace MoreMountains
                 brick.brickRenderer.setHealthBarActive(false);
             }
 
-
-            // we prevent further damage
-            DamageDisabled();
-
             DeathMMFeedbacks.Play(transform.position);
 
             // we make it ignore the collisions from now on
             if (DisableCollisionsOnDeath)
             {
-                if (_collider2D)
-                    _collider2D.enabled = false;
+                _collider2D.enabled = false;
 
                 // if we have a controller, removes collisions, restores parameters for a potential respawn, and applies a death force
-                if (_controller)
-                    _controller.CollisionsOff();
-
-                if (DisableChildCollisionsOnDeath)
-                {
-                    foreach (var c in GetComponentsInChildren<Collider2D>())
-                        c.enabled = false;
-                }
-            }
-
-            if (ChangeLayerOnDeath)
-            {
-                var layer = LayerOnDeath.LayerIndex;
-                gameObject.layer = layer;
-                if (ChangeLayersRecursivelyOnDeath)
-                {
-                    transform.ChangeLayersRecursively(layer);
-                }
+                _controller.CollisionsOff();
             }
 
             Event.trigger(new OnDeath());
             MMLifeCycleEvent.Trigger(this, MMLifeCycleEventTypes.Death);
 
-            if (DisableControllerOnDeath && _controller)
+            if (DisableControllerOnDeath)
                 _controller.enabled = false;
-
-            if (DisableControllerOnDeath && _characterController)
-                _characterController.enabled = false;
 
             if (DisableModelOnDeath && Model)
                 Model.SetActive(false);
@@ -365,11 +333,15 @@ namespace MoreMountains
             else
                 DestroyObject();
 
+            _controller.IntentVelocity = Vector3.zero;
+            brick.Controller2D.UnregisterToVolumeManager();
             return true;
         }
 
         protected override void DestroyObject()
         {
+            brick.brickRenderer.ResetToIdle();
+
             var e = new OnBrickDeathTotally(brick);
             e.trigger(brick);
 

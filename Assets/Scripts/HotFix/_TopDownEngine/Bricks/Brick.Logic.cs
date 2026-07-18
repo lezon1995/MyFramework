@@ -39,29 +39,17 @@ namespace MoreMountains
             base.onRelease();
         }
 
-        public void setBornHealth(int value, int max)
-        {
-            Health.SetHealth(value, max, RefreshHealthBarType.Born);
-        }
-
-        public void setMaxHealth(int value)
-        {
-            Health.MaximumHealth = value;
-        }
-
         public void heal(Heal heal)
         {
             Health.ReceiveHealth(heal, null, this);
         }
 
         public virtual bool kill() => Health.Kill();
-
-        public bool isDead()
-        {
-            return Health.IsDead();
-        }
+        public bool IsDead() => Health.IsDead();
+        public bool IsDeadTotally() => Health.IsDeadTotally;
 
         public Vector2Int getSize() => size;
+        public void setSize(Vector2Int v) => size = v;
 
         public void setSortingOrder(int order)
         {

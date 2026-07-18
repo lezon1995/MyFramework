@@ -121,6 +121,9 @@ namespace MoreMountains
 
     public struct OnRevive
     {
+        public OnRevive()
+        {
+        }
     }
 
     public struct OnDeath

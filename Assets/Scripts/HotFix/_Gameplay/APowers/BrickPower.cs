@@ -2,9 +2,9 @@
 
 namespace MoreMountains;
 
-public class BrickPower : APower, IArgs<Brick>
+public class BrickPower : CreaturePower, IArgs<Brick>
 {
-    protected Brick owner;
+    protected new Brick owner;
     
     public void onCreate(Brick ball)
     {

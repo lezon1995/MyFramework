@@ -88,6 +88,17 @@ public struct DoDmgBrick
         dmg = d;
     }
 }
+public struct DoDmgPlayer
+{
+    public APlayer player;
+    public Dmg dmg;
+
+    public DoDmgPlayer(APlayer b, Dmg d)
+    {
+        player = b;
+        dmg = d;
+    }
+}
 
 public struct DoDmgBall
 {

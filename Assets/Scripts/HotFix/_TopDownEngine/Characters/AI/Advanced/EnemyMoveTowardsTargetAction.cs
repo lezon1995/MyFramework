@@ -32,6 +32,12 @@ namespace MoreMountains
 
         public override void PerformAction()
         {
+            if (brick.IsDead())
+            {
+                _movement.SetMovement(Vector2.zero);
+                return;
+            }
+
             Move();
         }
 
@@ -71,8 +77,8 @@ namespace MoreMountains
             Vector2 desiredVelocity = _direction.normalized * _movement._movementSpeed;
             
             // 平滑过渡到期望速度（保留原有速度，让 VolumeManager 处理碰撞反应）
-            var velocity = Vector2.Lerp(_controller.Velocity, desiredVelocity, Time.deltaTime * 5f);
-            _controller.Velocity = velocity;
+            var velocity = Vector2.Lerp(_controller.IntentVelocity, desiredVelocity, Time.deltaTime * 5f);
+            _controller.IntentVelocity = velocity;
             _movement.SetMovement(_direction);
         }
 

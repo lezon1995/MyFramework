@@ -30,7 +30,7 @@ namespace MoreMountains
         TextMeshPro shieldAmount;
 
         Material matBlock, matUnit;
-        float flashRemainSeconds;
+        Timer flashRemainSeconds;
 
         HealthBar healthBar;
         BrickAnimationReceiver receiver;
@@ -40,7 +40,7 @@ namespace MoreMountains
         {
             if (brick)
                 return;
-            
+
             TryGetComponent(out brick);
             var obj = brick.gameObject;
             obj.find(out animator);
@@ -82,14 +82,11 @@ namespace MoreMountains
         {
             healthBar?.update(elapsedTime);
 
-            if (flashRemainSeconds > 0F)
+            if (flashRemainSeconds.update(elapsedTime))
             {
-                flashRemainSeconds = clampMin(flashRemainSeconds - elapsedTime);
-                if (flashRemainSeconds <= 0)
-                {
-                    matBlock.SetFloat(StrongTintFade, 0);
-                    matUnit.SetFloat(StrongTintFade, 0);
-                }
+                matBlock.SetFloat(StrongTintFade, 0);
+                matUnit.SetFloat(StrongTintFade, 0);
+                flashRemainSeconds.kill();
             }
         }
 
@@ -127,7 +124,7 @@ namespace MoreMountains
 
         public void playFxDamage(Vector3 direction)
         {
-            flashRemainSeconds = 0.05F;
+            flashRemainSeconds = 0.1F;
             matBlock.SetFloat(StrongTintFade, 1);
             matUnit.SetFloat(StrongTintFade, 1);
         }
@@ -283,7 +280,6 @@ namespace MoreMountains
             {
                 playBrickDestroyFx();
                 setRendererActive(false);
-                animator.Play(BrickIdle, 0, 0F);
             }
         }
 
@@ -364,6 +360,12 @@ namespace MoreMountains
             HITTING,
             DYING,
             DIED,
+        }
+
+        public void ResetToIdle()
+        {
+            animator.Play(BrickIdle, 0, 0F);
+            animator.Update(0);
         }
     }
 }

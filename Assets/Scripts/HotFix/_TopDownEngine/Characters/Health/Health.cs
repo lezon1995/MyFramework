@@ -94,7 +94,7 @@ namespace MoreMountains
 
         public bool DashInvincible { get; set; }
 
-        public bool IsTotallyDead { get; set; }
+        public bool IsDeadTotally { get; set; }
 
         [MMInspectorGroup("Health")] public float InitialHealth = 10;
 
@@ -156,8 +156,8 @@ namespace MoreMountains
                 return MR_Modifier.SafeInvoke(ref value);
             }
         }
-        
-        
+
+
         [Tooltip("基础闪避率")] public float BaseDodgeChance;
 
         public ValueModifier DodgeChance_Modifier { get; set; }
@@ -245,6 +245,7 @@ namespace MoreMountains
         public Dmg.Types LastDamageType { get; set; }
         public Vector3 LastDamageDirection { get; set; }
         public Character Character;
+        public bool hasCharacter { get; set; }
         public bool Initialized => _initialized;
         public IEventRouter Event => this;
 
@@ -254,7 +255,6 @@ namespace MoreMountains
         protected TopDownController _controller;
 
         protected Collider2D _collider2D;
-        protected CharacterController _characterController;
         protected bool _initialized;
         protected Color _initialColor;
         protected int _initialLayer;
@@ -272,44 +272,6 @@ namespace MoreMountains
         protected CoroutineState _coroutineState;
         protected float _coroutineTimeElapsed;
         protected float _invincibleTime;
-
-        /*
-        CanTakeDamage canTakeDamage;
-        public void SetCanTakeDamage(CanTakeDamage d) => canTakeDamage = d;
-
-        BeforeCalculateDamage beforeCalculateDamage;
-        public void SetBeforeCalculateDamage(BeforeCalculateDamage d) => beforeCalculateDamage = d;
-
-        DoCritAttack doCritAttack;
-        public void SetDoCritAttack(DoCritAttack d) => doCritAttack = d;
-
-        DoCritSkill doCritSkill;
-        public void SetDoCritSkill(DoCritSkill d) => doCritSkill = d;
-
-        BeforeApplyDamage beforeApplyDamage;
-        public void SetBeforeApplyDamage(BeforeApplyDamage d) => beforeApplyDamage = d;
-
-        DoDmgEffect doDmgEffect;
-        public void SetDoDmgEffect(DoDmgEffect d) => doDmgEffect = d;
-
-        AfterApplyDamage afterApplyDamage;
-        public void SetAfterApplyDamage(AfterApplyDamage d) => afterApplyDamage = d;
-
-        DoLethalDmgEffect doLethalDmgEffect;
-        public void SetDoLethalDmgEffect(DoLethalDmgEffect d) => doLethalDmgEffect = d;
-
-        OnKilled onKilled;
-        public void SetOnKilled(OnKilled d) => onKilled = d;
-
-        RefreshHealthBar refreshHealthBar;
-        public void SetRefreshHealthBar(RefreshHealthBar d) => refreshHealthBar = d;
-
-        RefreshHealthBarByDamage refreshHealthBarByDamage;
-        public void SetRefreshHealthBarByDamage(RefreshHealthBarByDamage d) => refreshHealthBarByDamage = d;
-
-        RefreshHealthBarByHealing refreshHealthBarByHealing;
-        public void SetRefreshHealthBarByHealing(RefreshHealthBarByHealing d) => refreshHealthBarByHealing = d;
-        */
 
         #region Initialization
 
@@ -335,9 +297,9 @@ namespace MoreMountains
         {
         }
 
-        protected void FixedUpdate()
+        protected virtual void FixedUpdate()
         {
-            if (IsTotallyDead)
+            if (IsDeadTotally)
                 return;
 
             var dt = Time.fixedDeltaTime;
@@ -357,7 +319,7 @@ namespace MoreMountains
             }
         }
 
-       protected void UpdateCoroutineState(float dt)
+        protected void UpdateCoroutineState(float dt)
         {
             switch (_coroutineState)
             {
@@ -366,7 +328,7 @@ namespace MoreMountains
                     if (_coroutineTimeElapsed > _invincibleTime)
                     {
                         _coroutineTimeElapsed = 0F;
-                        Invincible = false;
+                        DamageEnabled();
                         _coroutineState = CoroutineState.None;
                     }
 
@@ -389,7 +351,7 @@ namespace MoreMountains
         /// </summary>
         public virtual void Initialization()
         {
-            this.TryGetComponentInParent(out Character);
+            hasCharacter = this.TryGetComponentInParent(out Character);
 
             if (Model)
                 Model.SetActive(true);
@@ -437,7 +399,6 @@ namespace MoreMountains
             _initialLayer = gameObject.layer;
 
             this.TryGetComponentInParent(out _controller);
-            this.TryGetComponentInParent(out _characterController);
             this.TryGetComponentInParent(out _collider2D);
 
             DamageMMFeedbacks.Initialize(gameObject);
@@ -586,11 +547,11 @@ namespace MoreMountains
                 type = ResistDamageType.Dead;
                 return false;
             }
-            
-            if (DodgeChance>0 && randomHit(DodgeChance))
+
+            if (DodgeChance > 0 && randomHit(DodgeChance))
             {
                 type = ResistDamageType.Dodged;
-                return false; 
+                return false;
             }
 
             type = ResistDamageType.None;
@@ -638,7 +599,7 @@ namespace MoreMountains
                     }
                 }
             }
-            
+
             ComputeDamageOutput(ref dmg, calculator);
 
             //设置此次dmg实际造成的伤害，并通知伤害飘字显示
@@ -676,15 +637,6 @@ namespace MoreMountains
                 LastDamageType = dmg.ActualType;
                 LastDamageDirection = direction;
 
-                // we prevent the character from colliding with Projectiles, Player and Enemies
-                if (invincibleTime > 0)
-                {
-                    DamageDisabled();
-                    _coroutineTimeElapsed = 0F;
-                    _coroutineState = CoroutineState.DamageEnabled;
-                    _invincibleTime = invincibleTime;
-                }
-
                 // we trigger a damage taken event
                 MMDamageTakenEvent.Trigger(this, instigator, CurrentHealth, dmg.DamageDealt, preHealth);
 
@@ -712,17 +664,26 @@ namespace MoreMountains
                     DamageMMFeedbacks.Play(transform.position, dmg.DamageDealt);
                 else
                     DamageMMFeedbacks.Play(transform.position);
-                
+
                 //检测是否死亡
                 if (CurrentHealth <= 0)
                 {
                     CurrentHealth = 0;
-                    
+
                     var isLethal = Kill();
                     if (source && isLethal && !dmg.Self)
                         source.Health.Event.trigger(new DoKill(Character, instigator));
 
                     dmg.IsLethal = isLethal;
+                }
+                
+                // we prevent the character from colliding with Projectiles, Player and Enemies
+                if (invincibleTime > 0 && !dmg.IsLethal)
+                {
+                    DamageDisabled();
+                    _coroutineTimeElapsed = 0F;
+                    _coroutineState = CoroutineState.DamageEnabled;
+                    _invincibleTime = invincibleTime;
                 }
             }
         }
@@ -814,9 +775,6 @@ namespace MoreMountains
 
             SetHealth(0, RefreshHealthBarType.Killed);
 
-            // we prevent further damage
-            DamageDisabled();
-
             DeathMMFeedbacks.Play(transform.position);
 
             if (TargetAnimator)
@@ -855,9 +813,6 @@ namespace MoreMountains
             if (DisableControllerOnDeath && _controller)
                 _controller.enabled = false;
 
-            if (DisableControllerOnDeath && _characterController)
-                _characterController.enabled = false;
-
             if (DisableModelOnDeath && Model)
                 Model.SetActive(false);
 
@@ -888,7 +843,7 @@ namespace MoreMountains
             MMLifeCycleEvent.Trigger(this, MMLifeCycleEventTypes.Revive);
         }
 
-        protected void DoResurrect()
+        protected virtual void DoResurrect()
         {
             if (DisableChildCollisionsOnDeath)
             {
@@ -906,9 +861,6 @@ namespace MoreMountains
                     transform.ChangeLayersRecursively(_initialLayer);
                 }
             }
-
-            if (_characterController)
-                _characterController.enabled = true;
 
             if (_controller)
             {
@@ -951,7 +903,7 @@ namespace MoreMountains
                     gameObject.SetActive(false);
             }
 
-            IsTotallyDead = true;
+            IsDeadTotally = true;
         }
 
         #region HealthManipulationAPIs
@@ -959,7 +911,7 @@ namespace MoreMountains
         /// <summary>
         /// Sets the current health to the specified new value, and updates the health bar
         /// </summary>
-        public virtual void SetHealth(float curHealth, RefreshHealthBarType type)
+        public virtual void SetHealth(float curHealth, RefreshHealthBarType type = RefreshHealthBarType.Immediately)
         {
             CurrentHealth = curHealth;
             switch (type)
@@ -985,7 +937,7 @@ namespace MoreMountains
             }
         }
 
-        public virtual void SetHealth(float curHealth, float maxHealth, RefreshHealthBarType type)
+        public virtual void SetHealth(float curHealth, float maxHealth, RefreshHealthBarType type = RefreshHealthBarType.Immediately)
         {
             CurrentHealth = curHealth;
             MaximumHealth = maxHealth;
@@ -1110,16 +1062,16 @@ namespace MoreMountains
         #endregion
 
         public bool inUse { get; set; }
+
         public virtual void onAcquire()
         {
             inUse = true;
-            IsTotallyDead = false;
+            IsDeadTotally = false;
         }
 
         public virtual void onRelease()
         {
             inUse = false;
-            
         }
     }
 }

@@ -6,7 +6,6 @@ namespace MoreMountains
 {
     public partial class Ball : BouncyProjectile
         , IStatsGetter<Ball.Stat>
-        , IBallKnockbackSource
     {
         public enum Stat
         {
@@ -75,7 +74,18 @@ namespace MoreMountains
         public override void reset()
         {
             base.reset();
+            collidingBrick = null;
+            overlappingBrick = null;
+            hasCorrectPosThisFixedUpdate = false;
+            movementDelta = 0;
+            lastRadius = 0;
+            enabled = false;
+            hasBeenCollided = false;
+            delayCounter = 0;
+            lastHittable = null;
+            isOverlappingBrick = false;
             IsRecollecting = false;
+            ResetIgnoredToHitBricks();
         }
 
         public override void SetOwner(GameObject newOwner)
@@ -219,6 +229,12 @@ namespace MoreMountains
                                 var hitDir = hit.point - (Vector2)curPos;
                                 if (Vector2.Dot(Direction, hitDir) < 0)
                                     continue;
+                                
+                                if (hit.collider.TryGetComponent(out Brick brick))
+                                {
+                                    if (IsTheBrickBeingIgnoredToHit(brick))
+                                        continue;
+                                }
 
                                 break;
                             }
@@ -266,6 +282,21 @@ namespace MoreMountains
 
             EvaluateHit2D(hit);
         }
+        
+        SafeDictionary<Brick, MTimer> brickHitTimers = new();
+
+        public bool IsTheBrickBeingIgnoredToHit(Brick brick)
+        {
+            return brickHitTimers.containsKey(brick);
+        }
+
+        public void ResetIgnoredToHitBricks()
+        {
+            foreach (var (brick, timer) in brickHitTimers)
+                timer.release();
+
+            brickHitTimers.clear();
+        }
 
         protected override void CollidingManually(RaycastHit2D hit)
         {
@@ -282,6 +313,11 @@ namespace MoreMountains
                 case LayerManager.Brick:
                     if (c.TryGetComponent(out Brick brick))
                     {
+                        if (IsTheBrickBeingIgnoredToHit(brick))
+                        {
+                            return;
+                        }
+                        
                         lastHittable = brick;
                         var hitDmg = getHitDmg(brick, normal);
                         brick.onHitEnter(ball, normal);
@@ -295,6 +331,9 @@ namespace MoreMountains
                         }
 
                         DamageOnTouch.Colliding(brick, hitDmg);
+
+                        ResetIgnoredToHitBricks();
+                        brickHitTimers.add(brick, 0.2F);
                     }
 
                     break;
@@ -383,21 +422,6 @@ namespace MoreMountains
             float angle = Vector2.Angle(Direction, reflectDir);
             SetDirection(reflectDir, Quaternion.identity);
             _bouncesLeft--;
-        }
-
-        public float GetKnockbackForce()
-        {
-            return 10F;
-        }
-
-        public Vector2 GetKnockbackDirection()
-        {
-            return Direction;
-        }
-
-        public bool IsChainKnockbackEnabled()
-        {
-            return true;
         }
     }
 }

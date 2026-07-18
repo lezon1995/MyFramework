@@ -635,9 +635,9 @@ namespace MoreMountains
                 MMAnimatorExtensions.UpdateAnimatorFloat(Animator, _zSpeedAnimationParameter, _controller.CurrentMovement.z, AnimatorParameters, RunAnimatorSanityChecks);
                 MMAnimatorExtensions.UpdateAnimatorBool(Animator, _idleAnimationParameter, motionState.Is(Motions.Idle), AnimatorParameters, RunAnimatorSanityChecks);
                 MMAnimatorExtensions.UpdateAnimatorFloat(Animator, _randomAnimationParameter, _animatorRandomNumber, AnimatorParameters, RunAnimatorSanityChecks);
-                MMAnimatorExtensions.UpdateAnimatorFloat(Animator, _xVelocityAnimationParameter, _controller.Velocity.x, AnimatorParameters, RunAnimatorSanityChecks);
-                MMAnimatorExtensions.UpdateAnimatorFloat(Animator, _yVelocityAnimationParameter, _controller.Velocity.y, AnimatorParameters, RunAnimatorSanityChecks);
-                MMAnimatorExtensions.UpdateAnimatorFloat(Animator, _zVelocityAnimationParameter, _controller.Velocity.z, AnimatorParameters, RunAnimatorSanityChecks);
+                MMAnimatorExtensions.UpdateAnimatorFloat(Animator, _xVelocityAnimationParameter, _controller.IntentVelocity.x, AnimatorParameters, RunAnimatorSanityChecks);
+                MMAnimatorExtensions.UpdateAnimatorFloat(Animator, _yVelocityAnimationParameter, _controller.IntentVelocity.y, AnimatorParameters, RunAnimatorSanityChecks);
+                MMAnimatorExtensions.UpdateAnimatorFloat(Animator, _zVelocityAnimationParameter, _controller.IntentVelocity.z, AnimatorParameters, RunAnimatorSanityChecks);
 
                 foreach (var ability in _characterAbilities)
                 {
@@ -687,7 +687,7 @@ namespace MoreMountains
                 _controller.CollisionsOff();
         }
 
-        public virtual void RespawnAt(Vector3 spawnPosition, FacingDirections facingDirection)
+        public virtual void RespawnAt(Vector3 spawnPosition, FacingDirections facingDirection = FacingDirections.South)
         {
             transform.position = spawnPosition;
 
@@ -714,6 +714,7 @@ namespace MoreMountains
             if (CharacterBrain)
             {
                 CharacterBrain.enabled = true;
+                CharacterBrain.ResetBrain();
             }
 
             // facing direction

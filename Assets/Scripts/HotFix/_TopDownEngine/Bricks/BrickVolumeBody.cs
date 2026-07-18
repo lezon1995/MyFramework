@@ -167,7 +167,7 @@ namespace MoreMountains
             // 将击退速度同步到实体速度
             if (_body != null)
             {
-                _body.Velocity += (Vector3)_knockbackVelocity;
+                ((TopDownController)_body).IntentVelocity += (Vector3)_knockbackVelocity;
             }
         }
 

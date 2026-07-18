@@ -479,7 +479,8 @@ namespace MoreMountains
 
             foreach (var entity in _registeredEntities)
             {
-                if (entity == null) continue;
+                if (entity == null) 
+                    continue;
 
                 // 获取潜在碰撞体
                 GetPotentialColliders(entity);
@@ -519,12 +520,14 @@ namespace MoreMountains
             {
                 for (int j = i + 1; j < count; j++)
                 {
-                    if (_collisionCheckCount >= MaxCollisionChecksPerFrame) return;
+                    if (_collisionCheckCount >= MaxCollisionChecksPerFrame) 
+                        return;
 
                     var entityA = _registeredEntities[i];
                     var entityB = _registeredEntities[j];
 
-                    if (entityA == null || entityB == null) continue;
+                    if (entityA == null || entityB == null) 
+                        continue;
 
                     ProcessPairCollision(entityA, entityB, dt);
                     _collisionCheckCount++;
@@ -545,7 +548,8 @@ namespace MoreMountains
                 CalculateSoftRepulsion(a, b, result, dt);
             }
 
-            if (!result.IsColliding) return;
+            if (!result.IsColliding) 
+                return;
 
             _collisionResults.Add(result);
 
@@ -589,15 +593,19 @@ namespace MoreMountains
             float repulsionRadius = (a.Radius + b.Radius) * SoftRepulsionDistanceRatio;
 
             // 超出软排斥范围，无作用
-            if (result.CenterDistance >= repulsionRadius) return;
-            if (result.CenterDistance < 0.001f) return;
+            if (result.CenterDistance >= repulsionRadius) 
+                return;
+
+            if (result.CenterDistance < 0.001f) 
+                return;
 
             // 计算排斥强度（0-1之间，距离越近越强）
             float strength = 1f - (result.CenterDistance / repulsionRadius);
-            strength = strength * strength; // 平方曲线让近距离排斥更明显
+            strength *= strength; // 平方曲线让近距离排斥更明显
 
             float totalMass = a.CollisionMass + b.CollisionMass;
-            if (totalMass <= 0) return;
+            if (totalMass <= 0) 
+                return;
 
             // 质量大的排斥小，质量小的排斥大（与分离方向相反）
             float ratioA = b.CollisionMass / totalMass;
@@ -617,9 +625,9 @@ namespace MoreMountains
             }
             else
             {
-                // 作用在速度上（更平滑，符合物理直觉）
-                a.Velocity -= (Vector3)repelDir * (repelForce * ratioA);
-                b.Velocity += (Vector3)repelDir * (repelForce * ratioB);
+                // 作用在意图速度上（更平滑，符合物理直觉）
+                a.IntentVelocity -= (Vector3)repelDir * (repelForce * ratioA);
+                b.IntentVelocity += (Vector3)repelDir * (repelForce * ratioB);
             }
         }
 
@@ -655,7 +663,8 @@ namespace MoreMountains
             float overlap = result.Overlap;
             if (overlap < 0.01f) return;
 
-            Vector2 relativeVel = a.Velocity - b.Velocity;
+            // 挤压作用在"总速度"上（包括意图和击退），因为挤压需要反映真实的相对运动
+            Vector2 relativeVel = a.TotalVelocity - b.TotalVelocity;
             float relativeSpeed = relativeVel.magnitude;
 
             if (relativeSpeed < 0.01f) return;
@@ -675,8 +684,9 @@ namespace MoreMountains
 
             Vector2 squeezeDir = -result.Direction;
 
-            a.Velocity += (Vector3)squeezeDir * (squeezeA * 0.5f);
-            b.Velocity += (Vector3)squeezeDir * (squeezeB * 0.5f);
+            // 挤压结果加在意图速度上（影响后续的 AI 决策）
+            a.IntentVelocity += (Vector3)squeezeDir * (squeezeA * 0.5f);
+            b.IntentVelocity += (Vector3)squeezeDir * (squeezeB * 0.5f);
         }
 
         #endregion

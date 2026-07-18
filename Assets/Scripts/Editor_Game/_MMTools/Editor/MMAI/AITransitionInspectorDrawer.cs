@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 namespace MoreMountains.Tools
@@ -55,7 +56,7 @@ namespace MoreMountains.Tools
         }
 
 #endif
-
+        List<AIDecision> decisions = new();
         /// <summary>
         /// Draws a selector letting the user pick any decision associated with the AIBrain this transition is on
         /// </summary>
@@ -64,10 +65,11 @@ namespace MoreMountains.Tools
         protected virtual void DrawSelectionDropdown(Rect position, SerializedProperty prop)
         {
             var thisDecision = (AIDecision)prop.objectReferenceValue;
-            AIDecision[] decisions = ((AIBrain)prop.serializedObject.targetObject).GetAttachedDecisions();
+            decisions.Clear();
+             ((AIBrain)prop.serializedObject.targetObject).GetAttachedDecisions(ref decisions);
             int selected = 0;
             int i = 1;
-            string[] options = new string[decisions.Length + 1];
+            string[] options = new string[decisions.Count + 1];
             options[0] = "None";
             foreach (AIDecision decision in decisions)
             {

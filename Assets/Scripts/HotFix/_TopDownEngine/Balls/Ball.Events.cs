@@ -132,7 +132,7 @@ namespace MoreMountains
             {
                 if (ball.isTemp)
                 {
-                    ball.forceKill();
+                    ball.Health.Kill();
                     return true;
                 }
 

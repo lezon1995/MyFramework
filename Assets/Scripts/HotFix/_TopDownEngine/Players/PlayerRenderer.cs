@@ -1,5 +1,4 @@
-﻿using System;
-using PrimeTween;
+﻿using PrimeTween;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -10,27 +9,19 @@ namespace MoreMountains
     public class PlayerRenderer : MonoBehaviour
     {
         static int StrongTintFade = Shader.PropertyToID("_StrongTintFade");
-        static int BrickBorn = Animator.StringToHash("BrickBorn");
-        static int BrickIdle = Animator.StringToHash("BrickIdle");
-        static int BrickHit_1 = Animator.StringToHash("BrickHit_1");
-        static int BrickHit_2 = Animator.StringToHash("BrickHit_2");
-        static int BrickHit_3 = Animator.StringToHash("BrickHit_3");
-        static int BrickDie_1 = Animator.StringToHash("BrickDie_1");
-        static int BrickDie_2 = Animator.StringToHash("BrickDie_2");
-        static int BrickDie_3 = Animator.StringToHash("BrickDie_3");
+        static int VibrateFade = Shader.PropertyToID("_VibrateFade");
 
         APlayer player;
 
         Transform root;
-        Animator animator;
         SortingGroup sortingGroup;
-        SpriteRenderer spriteBlock, spriteUnit, spriteShadow;
+        SpriteRenderer spriteUnit, spriteShadow;
 
         SpriteRenderer spriteShield;
         TextMeshPro shieldAmount;
 
-        Material matBlock, matUnit;
-        float flashRemainSeconds;
+        Material matUnit;
+        Timer flashRemainSeconds;
 
         HealthBar healthBar;
         BrickAnimationReceiver receiver;
@@ -40,10 +31,9 @@ namespace MoreMountains
         {
             if (player)
                 return;
-            
+
             TryGetComponent(out player);
             var obj = player.gameObject;
-            obj.find(out animator);
             if (obj.find(out receiver))
             {
                 receiver.setOnAnimationEnd(onAnimationEnd);
@@ -52,11 +42,6 @@ namespace MoreMountains
             obj.find(out sortingGroup);
             obj.find(out root, "Root");
             obj.find(out spriteShadow, "SpriteShadow");
-
-            if (obj.find(out spriteBlock, "SpriteBlock"))
-            {
-                matBlock = spriteBlock.material;
-            }
 
             if (obj.find(out spriteUnit, "SpriteUnit"))
             {
@@ -82,20 +67,17 @@ namespace MoreMountains
         {
             healthBar?.update(elapsedTime);
 
-            if (flashRemainSeconds > 0F)
+            if (flashRemainSeconds.update(elapsedTime))
             {
-                flashRemainSeconds = clampMin(flashRemainSeconds - elapsedTime);
-                if (flashRemainSeconds <= 0)
-                {
-                    matBlock.SetFloat(StrongTintFade, 0);
-                    matUnit.SetFloat(StrongTintFade, 0);
-                }
+                matUnit.SetFloat(StrongTintFade, 0F);
+                matUnit.SetFloat(VibrateFade, 0F);
+                flashRemainSeconds.kill();
             }
         }
 
         public void setRendererActive(bool active)
         {
-            spriteBlock.gameObject.SetActive(active);
+            spriteUnit.gameObject.SetActive(active);
             spriteShadow.gameObject.SetActive(active);
         }
 
@@ -121,15 +103,14 @@ namespace MoreMountains
 
         public void playBornAnimation()
         {
-            animator.Play(BrickBorn, 0, 0F);
             curAnimation = AnimationState.BORN;
         }
 
         public void playFxDamage(Vector3 direction)
         {
-            flashRemainSeconds = 0.05F;
-            matBlock.SetFloat(StrongTintFade, 1);
-            matUnit.SetFloat(StrongTintFade, 1);
+            flashRemainSeconds = 0.15F;
+            matUnit.SetFloat(StrongTintFade, 1F);
+            matUnit.SetFloat(VibrateFade, 1F);
         }
 
         public void playFxSkillHit(Vector2 direction)
@@ -139,78 +120,11 @@ namespace MoreMountains
 
         public void playFxHit(Vector2 normal)
         {
-            var dir = determineUnderHitDirection(normal);
-            switch (dir)
-            {
-                case UnderHitDirection.None:
-                    break;
-                case UnderHitDirection.Top:
-                case UnderHitDirection.Bot:
-                    animator.Play(BrickHit_1, 0, 0F);
-                    curAnimation = AnimationState.HITTING;
-                    break;
-                case UnderHitDirection.Left:
-                    animator.Play(BrickHit_2, 0, 0F);
-                    curAnimation = AnimationState.HITTING;
-                    break;
-                case UnderHitDirection.Right:
-                    animator.Play(BrickHit_3, 0, 0F);
-                    curAnimation = AnimationState.HITTING;
-                    break;
-                case UnderHitDirection.TopLeft:
-                case UnderHitDirection.BotLeft:
-                    animator.Play(BrickHit_2, 0, 0F);
-                    curAnimation = AnimationState.HITTING;
-                    break;
-                case UnderHitDirection.TopRight:
-                case UnderHitDirection.BotRight:
-                    animator.Play(BrickHit_3, 0, 0F);
-                    curAnimation = AnimationState.HITTING;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
-
-        static UnderHitDirection determineUnderHitDirection(Vector2 normal)
-        {
-            UnderHitDirection dir;
-            if (isFloatEqual(normal.x, 0F))
-            {
-                if (normal.y > 0F)
-                    dir = UnderHitDirection.Top; //上方受击
-                else
-                    dir = UnderHitDirection.Bot; //下方受击
-            }
-            else
-            {
-                if (isFloatEqual(normal.y, 0F))
-                {
-                    if (normal.x > 0F)
-                        dir = UnderHitDirection.Right; //右方受击
-                    else
-                        dir = UnderHitDirection.Left; //左方受击
-                }
-                else
-                {
-                    dir = (normal.x, normal.y) switch
-                    {
-                        (> 0, > 0) => UnderHitDirection.TopRight, //右上受击
-                        (> 0, < 0) => UnderHitDirection.BotRight, //右下受击
-                        (< 0, < 0) => UnderHitDirection.BotLeft, //左下受击
-                        (< 0, > 0) => UnderHitDirection.TopLeft, //左上受击
-                        _ => UnderHitDirection.None
-                    };
-                }
-            }
-
-            return dir;
         }
 
         public void playFxHeal()
         {
             flashRemainSeconds = 0.05F;
-            matBlock.SetFloat(StrongTintFade, 1);
             matUnit.SetFloat(StrongTintFade, 1);
         }
 
@@ -251,8 +165,6 @@ namespace MoreMountains
             if (curAnimation == AnimationState.NONE)
             {
                 var f = randomFloat(0F, 1F);
-                var die = f < 0.33F ? BrickDie_1 : f < 0.66F ? BrickDie_2 : BrickDie_3;
-                animator.Play(die, 0, 0F);
                 curAnimation = AnimationState.DIED;
             }
             else
@@ -275,15 +187,12 @@ namespace MoreMountains
             else if (curAnimation == AnimationState.DYING)
             {
                 var f = randomFloat(0F, 1F);
-                var die = f < 0.33F ? BrickDie_1 : f < 0.66F ? BrickDie_2 : BrickDie_3;
-                animator.Play(die, 0, 0F);
                 curAnimation = AnimationState.DIED;
             }
             else if (curAnimation == AnimationState.DIED)
             {
                 playBrickDestroyFx();
                 setRendererActive(false);
-                animator.Play(BrickIdle, 0, 0F);
             }
         }
 
@@ -344,18 +253,6 @@ namespace MoreMountains
             }
         }
 
-        enum UnderHitDirection
-        {
-            None,
-            Top,
-            Bot,
-            Left,
-            Right,
-            TopLeft,
-            TopRight,
-            BotLeft,
-            BotRight,
-        }
 
         enum AnimationState
         {

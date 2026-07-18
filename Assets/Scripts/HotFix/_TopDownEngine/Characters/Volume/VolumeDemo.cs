@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+/*using System.Collections.Generic;
 using UnityEngine;
 
 namespace MoreMountains
@@ -215,29 +215,22 @@ namespace MoreMountains
                 // 将意图转换为期望速度
                 Vector2 desiredVelocity = intent.normalized * MonsterSpeed;
 
-                // 平滑过渡到期望速度（保留原有速度，让 VolumeManager 处理碰撞反应）
-                monster.Velocity = Vector2.Lerp(monster.Velocity, desiredVelocity, Time.deltaTime * 5f);
+                // 平滑过渡到意图速度（注意：这是 IntentVelocity，不会被击退污染）
+                monster.IntentVelocity = Vector2.Lerp(monster.IntentVelocity, desiredVelocity, Time.deltaTime * 5f);
             }
         }
 
         protected virtual void FixedUpdate()
         {
-            // 玩家移动
+            // 玩家移动：玩家分支在 TopDownController2D.FixedUpdate 已经处理了 IntentVelocity，
+            // 这里只需要把 WASD 输入传给 CurrentMovement
             if (_player != null)
             {
-                Vector2 targetVel = _playerMoveInput * PlayerSpeed;
-                _player.Velocity = Vector2.Lerp(_player.Velocity, targetVel, Time.fixedDeltaTime * 10f);
-                _player.Position += (Vector2)_player.Velocity * Time.fixedDeltaTime;
-                _player.transform.position = _player.Position;
+                _player.SetMovement(_playerMoveInput * PlayerSpeed);
             }
 
-            // 怪物移动（应用速度到位置）
-            foreach (var monster in _monsters)
-            {
-                if (monster == null) continue;
-                monster.Position += (Vector2)monster.Velocity * Time.fixedDeltaTime;
-                monster.transform.position = monster.Position;
-            }
+            // 怪物移动：总速度 = 意图速度 + 击退速度，由 LateUpdate 自动应用
+            // 这里不需要手动设置位置，因为 TopDownController2D.LateUpdate 会处理
         }
 
         protected virtual void OnGUI()
@@ -317,7 +310,8 @@ namespace MoreMountains
             if (_player != null)
             {
                 _player.Position = Vector2.zero;
-                _player.Velocity = Vector2.zero;
+                _player.IntentVelocity = Vector2.zero;
+                _player.KnockbackVelocity = Vector2.zero;
                 _player.transform.position = Vector3.zero;
             }
 
@@ -325,7 +319,8 @@ namespace MoreMountains
             {
                 if (monster == null) continue;
                 monster.Position = Random.insideUnitCircle * 10f;
-                monster.Velocity = Vector2.zero;
+                monster.IntentVelocity = Vector2.zero;
+                monster.KnockbackVelocity = Vector2.zero;
                 monster.transform.position = monster.Position;
             }
         }
@@ -361,4 +356,4 @@ namespace MoreMountains
             }
         }
     }
-}
+}*/

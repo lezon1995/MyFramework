@@ -104,11 +104,11 @@ GameObject:
   - component: {fileID: 5298713422270032604}
   - component: {fileID: 3985728042684224026}
   - component: {fileID: 2450780915621248536}
-  - component: {fileID: -874916841148913097}
   - component: {fileID: -887841229496338292}
   - component: {fileID: -957879275564897863}
   - component: {fileID: 7955953674840904570}
   - component: {fileID: 6113060020924977352}
+  - component: {fileID: 7506332256038837395}
   m_Layer: 6
   m_Name: Ball_0
   m_TagString: Untagged
@@ -129,7 +129,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 5122250723159572038}
+  - {fileID: 7420201439780709741}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!50 &-4242985322097259492
@@ -336,52 +336,6 @@ LineRenderer:
   m_UseWorldSpace: 1
   m_Loop: 0
   m_ApplyActiveColorSpace: 1
---- !u!114 &-874916841148913097
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6794589263685341046}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 01754710d9f92ec4d9a21b81f5682667, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: HotFix::MoreMountains.TopDownEngine.Health
-  Model: {fileID: 0}
-  InitialHealth: 10
-  InitialHealthDrivenByMaximumHealth: 0
-  MaximumHealth: 10
-  ResetHealthOnEnable: 1
-  BaseHealthRegen: 0
-  BaseAR: 0
-  BaseMR: 0
-  BaseDodgeChance: 0
-  ImmuneToDamage: 0
-  DamageMMFeedbacks: {fileID: 0}
-  FeedbackIsProportionalToDamage: 0
-  PreventTakeSelfDamage: 0
-  ImmuneToKnockback: 0
-  ImmuneToKnockbackIfZeroDamage: 0
-  KnockbackForceMultiplier: 1
-  DestroyOnDeath: 1
-  DelayBeforeDestruction: 0
-  RespawnAtInitialLocation: 0
-  DisableControllerOnDeath: 1
-  DisableModelOnDeath: 1
-  DisableCollisionsOnDeath: 1
-  DisableChildCollisionsOnDeath: 0
-  ChangeLayerOnDeath: 0
-  ChangeLayersRecursivelyOnDeath: 0
-  LayerOnDeath:
-    _layerIndex: 0
-  DeathMMFeedbacks: {fileID: 0}
-  ResetColorOnRevive: 1
-  ColorMaterialPropertyName: _Color
-  UseMaterialPropertyBlocks: 0
-  TargetAnimator: {fileID: 0}
-  DisableAnimatorLogs: 1
-  Character: {fileID: 0}
 --- !u!114 &-887841229496338292
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -426,10 +380,11 @@ MonoBehaviour:
   isTemp: 0
   horizontalBorderTeleportable: 0
   usePhysics: 1
+  ballRenderer: {fileID: 0}
   targetPos: {x: 0, y: 0, z: 0}
   isOverlappingBrick: 0
   character: {fileID: 0}
-  _circleCollider: {fileID: 0}
+  _circleCollider: {fileID: 5298713422270032604}
   RepositionRigidbodyIfHitTrigger: 1
   RepositionRigidbodyIfHitNonTrigger: 1
 --- !u!114 &-957879275564897863
@@ -477,9 +432,10 @@ MonoBehaviour:
   DamageDirectionMode: 0
   DamageCausedKnockbackType: 1
   DamageCausedKnockbackDirection: 3
-  DamageCausedKnockbackForce: {x: 3, y: 0, z: 0}
+  DamageKnockbackForce: {x: 2, y: 0, z: 0}
+  LethalDamageKnockbackForce: {x: 5, y: 0, z: 0}
   InvincibilityDuration: 0
-  DamageTakenHealth: {fileID: -874916841148913097}
+  DamageTakenHealth: {fileID: 7506332256038837395}
   DamageTakenEveryTime: 0
   DamageTakenDamageable: 0
   DamageTakenNonDamageable: 0
@@ -525,6 +481,84 @@ MonoBehaviour:
   m_EditorClassIdentifier: HotFix::MoreMountains.Stats
   Debug: 0
   StatsConfig: {fileID: 11400000, guid: b2e411f365f96d24f8ad790bcf218186, type: 2}
+--- !u!114 &7506332256038837395
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6794589263685341046}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 467f190fcc1f4ebf87c4974ebeff5568, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: HotFix::MoreMountains.BallHealth
+  Model: {fileID: 7153978691015391763}
+  InitialHealth: 1
+  InitialHealthDrivenByMaximumHealth: 0
+  MaximumHealth: 1
+  ResetHealthOnEnable: 1
+  BaseHealthRegen: 0
+  BaseAR: 0
+  BaseMR: 0
+  BaseDodgeChance: 0
+  ImmuneToDamage: 0
+  DamageMMFeedbacks: {fileID: 0}
+  FeedbackIsProportionalToDamage: 0
+  PreventTakeSelfDamage: 0
+  ImmuneToKnockback: 0
+  ImmuneToKnockbackIfZeroDamage: 0
+  KnockbackForceMultiplier: 1
+  DestroyOnDeath: 1
+  DelayBeforeDestruction: 1
+  RespawnAtInitialLocation: 0
+  DisableControllerOnDeath: 1
+  DisableModelOnDeath: 1
+  DisableCollisionsOnDeath: 1
+  DisableChildCollisionsOnDeath: 0
+  ChangeLayerOnDeath: 0
+  ChangeLayersRecursivelyOnDeath: 0
+  LayerOnDeath:
+    _layerIndex: 0
+  DeathMMFeedbacks: {fileID: 0}
+  ResetColorOnRevive: 0
+  ColorMaterialPropertyName: _Color
+  UseMaterialPropertyBlocks: 0
+  TargetAnimator: {fileID: 0}
+  DisableAnimatorLogs: 1
+  Character: {fileID: 0}
+--- !u!1 &7153978691015391763
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7420201439780709741}
+  m_Layer: 0
+  m_Name: Model
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7420201439780709741
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7153978691015391763}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 5122250723159572038}
+  m_Father: {fileID: 5222326528845246713}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7856991761346332477
 GameObject:
   m_ObjectHideFlags: 0
@@ -549,11 +583,11 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7856991761346332477}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.28, y: 0.28, z: 0.28}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 868290077174734681}
-  m_Father: {fileID: 5222326528845246713}
+  m_Father: {fileID: 7420201439780709741}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

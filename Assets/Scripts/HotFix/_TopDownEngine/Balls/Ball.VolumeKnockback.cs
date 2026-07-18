@@ -23,7 +23,7 @@ namespace MoreMountains
         /// <summary>
         /// 当球击退一个怪物时，触发链式击退
         /// </summary>
-        public static void TriggerChainKnockbackOnHit(this Ball ball, Vector2 hitNormal)
+        /*public static void TriggerChainKnockbackOnHit(this Ball ball, Vector2 hitNormal)
         {
             if (ball == null || VolumeManager.Instance == null)
                 return;
@@ -48,19 +48,19 @@ namespace MoreMountains
                     VolumeManager.Instance.ApplyKnockback(body, knockbackDir, knockbackForce);
                 }
             }
-        }
+        }*/
 
         /// <summary>
         /// 当球对怪物造成伤害时，同时施打击退
         /// </summary>
-        public static void ApplyKnockbackWithDamage(this Ball ball, Brick brick, Vector2 hitNormal)
+        /*public static void ApplyKnockbackWithDamage(this Ball ball, Brick brick, Vector2 hitNormal)
         {
             if (ball == null || brick == null) 
                 return;
 
             // 触发链式击退
             ball.TriggerChainKnockbackOnHit(hitNormal);
-        }
+        }*/
     }
 
     /// <summary>

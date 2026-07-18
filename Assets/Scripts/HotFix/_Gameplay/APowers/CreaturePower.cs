@@ -4,9 +4,9 @@ public class CreaturePower : APower, IArgs<ACreature>
 {
     protected ACreature owner;
     
-    public void onCreate(ACreature ball)
+    public void onCreate(ACreature creature)
     {
-        owner = ball;
+        owner = creature;
     }
 
     public override void resetProperty()
@@ -14,17 +14,7 @@ public class CreaturePower : APower, IArgs<ACreature>
         base.resetProperty();
         owner = null;
     }
-
-    public virtual int onPlayerGainedBlock(float blockAmount)
-    {
-        return floor(blockAmount);
-    }
-
-    public virtual int onPlayerGainedBlock(int blockAmount)
-    {
-        return blockAmount;
-    }
-
+    
     public virtual int onMonsterGainedBlock(float blockAmount)
     {
         return floor(blockAmount);

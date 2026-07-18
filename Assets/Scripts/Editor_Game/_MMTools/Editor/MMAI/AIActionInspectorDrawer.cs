@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 namespace MoreMountains.Tools
@@ -33,6 +34,7 @@ namespace MoreMountains.Tools
 
 #endif
 
+        List<AIAction> actions = new();
         /// <summary>
         /// Draws a selector letting the user pick any action associated with the AIBrain this action is on
         /// </summary>
@@ -41,15 +43,17 @@ namespace MoreMountains.Tools
         protected virtual void DrawSelectionDropdown(Rect position, SerializedProperty prop)
         {
             AIAction thisAction = prop.objectReferenceValue as AIAction;
-            AIAction[] actions = (prop.serializedObject.targetObject as AIBrain).GetAttachedActions();
+            
+            actions.Clear();
+             (prop.serializedObject.targetObject as AIBrain).GetAttachedActions(ref actions);
             int selected = 0;
             int i = 1;
-            string[] options = new string[actions.Length + 1];
+            string[] options = new string[actions.Count + 1];
             options[0] = "None";
             foreach (AIAction action in actions)
             {
                 string name = string.IsNullOrEmpty(action.Label) ? action.GetType().Name : action.Label;
-                options[i] = i.ToString() + " - " + name;
+                options[i] = i + " - " + name;
                 if (action == thisAction)
                 {
                     selected = i;

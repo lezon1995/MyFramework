@@ -74,7 +74,6 @@ namespace MoreMountains
         public static string[] MOVES;
         public static string[] DIALOG;
 
-
         public EnemyType type;
 
         Timer deathTimer;
@@ -110,6 +109,14 @@ namespace MoreMountains
             updateDeathAnimation(dt);
             // updateIntent(dt);
             // tint.update();
+            
+            
+        }
+
+        public override void OnFixedUpdate(float dt)
+        {
+            base.OnFixedUpdate(dt);
+            
         }
 
         public override bool isDeadOrEscaped() => isDying || halfDead;

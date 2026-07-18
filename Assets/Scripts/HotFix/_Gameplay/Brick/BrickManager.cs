@@ -149,12 +149,12 @@ public class BrickManager : FrameSystem
         return brickTypeList.get(type);
     }
 
-    public Brick acquireBrick(Vector2 pos, Vector2Int size, int health)
+    public Brick acquireBrick(Vector2 pos, Vector2Int size)
     {
-        return acquireBrick(typeof(Brick), pos, size, health);
+        return acquireBrick(typeof(Brick), pos, size);
     }
 
-    public Brick acquireBrick(Type type, Vector2 pos, Vector2Int size, int health)
+    public Brick acquireBrick(Type type, Vector2 pos, Vector2Int size)
     {
         if (!brickPools.TryGetValue((type, size), out var pool))
         {
@@ -182,12 +182,11 @@ public class BrickManager : FrameSystem
 
         var brick = pool.Get();
         brick.setWorldPosition(pos);
-        brick.setMaxHealth(health);
-        brick.setBornHealth(health, health);
 
         var sortingOrder = brickLayout.getSortingOrderAtPosY(pos.y);
         brick.setSortingOrder(sortingOrder);
         brick.onAcquire();
+        brick.RespawnAt(pos);
 
         activeBrickList.add(brick);
         return brick;
@@ -211,6 +210,7 @@ public class BrickManager : FrameSystem
         var o = prefabPool.createObject(path);
         o.TryGetComponent<Brick>(out var brick);
         brick.setName($"Brick_{activeBricks.Count + 1}");
+        brick.setSize(size);
         brick.setID(id);
 
         brick.Event.addListener<OnBrickDeath>(this);

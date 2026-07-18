@@ -45,9 +45,9 @@ public class MainSceneGaming : SceneProcedure
         {
             var mousePosition = getMousePosition();
             var worldPos = screenToWorld(mousePosition, false);
-            var rect = brickManager.brickLayout.getRectAtPos(worldPos);
+            // var rect = brickManager.brickLayout.getRectAtPos(worldPos);
             // var brick = brickManager.showBrick(worldPos, new(1.14F, 0.82F), 20);
-            var brick = brickManager.acquireBrick(rect.center, new(1,1), 20);
+            var brick = brickManager.acquireBrick(worldPos, new(1,1));
             // balls.add(ball);
         }
 

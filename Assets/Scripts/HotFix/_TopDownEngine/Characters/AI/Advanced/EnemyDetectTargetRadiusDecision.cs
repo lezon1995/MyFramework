@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Drawing;
 using MoreMountains.Tools;
 using UnityEngine;
@@ -16,39 +17,30 @@ namespace MoreMountains
             Raycast
         }
 
-        /// the radius to search our target in
         [Tooltip("the radius to search our target in")]
         public float Radius = 3f;
 
-        /// the center of the search circle
         [Tooltip("the center of the search circle")]
         public Vector3 DetectionOriginOffset;
 
-        /// the layer(s) to search our target on
         [Tooltip("the layer(s) to search our target on")]
         public LayerMask TargetLayer;
 
-        /// whether to look for obstacles
         [Tooltip("whether or not to look for obstacles")]
         public bool ObstacleDetection = true;
 
-        /// the layer(s) to look for obstacles on
         [Tooltip("the layer(s) to look for obstacles on")]
         public LayerMask ObstacleMask = LayerManager.Obstacles_Mask;
 
-        /// the method to use to detect obstacles
         [Tooltip("the method to use to detect obstacles")]
         public ObstaclesDetectionModes ObstaclesDetectionMode = ObstaclesDetectionModes.Raycast;
 
-        /// if this is true, this AI will be able to consider itself (or its children) a target
         [Tooltip("if this is true, this AI will be able to consider itself (or its children) a target")]
         public bool CanTargetSelf;
 
-        /// the frequency (in seconds) at which to check for obstacles
         [Tooltip("the frequency (in seconds) at which to check for obstacles")]
         public float TargetCheckFrequency = 1f;
 
-        /// the maximum amount of targets the overlap detection can acquire
         [Tooltip("the maximum amount of targets the overlap detection can acquire")]
         public int OverlapMaximum = 10;
 
@@ -60,10 +52,16 @@ namespace MoreMountains
         protected bool _init;
         protected Vector2 _boxcastDirection;
         protected Collider2D[] _results;
-        protected List<Transform> _potentialTargets;
+        protected List<Transform> _potentialTargets = new();
         protected float _lastTargetCheckTimestamp;
         protected bool _lastReturnValue;
         protected RaycastHit2D _hit;
+        Comparison<Transform> comparison;
+
+        public EnemyDetectTargetRadiusDecision()
+        {
+            comparison = Comparison;
+        }
 
         /// <summary>
         /// On init, we grab our Character component
@@ -71,12 +69,17 @@ namespace MoreMountains
         public override void Initialization()
         {
             base.Initialization();
-            _potentialTargets = new();
-            _character?.FindAbility(out _orientation2D);
-            this.TryGetComponentInParent(out _collider);
+            _potentialTargets.Clear();
+
+            if (_orientation2D == null)
+                brick.FindAbility(out _orientation2D);
+
+            if (_collider == null)
+                this.TryGetComponentInParent(out _collider);
+
             _gizmoColor.a = 0.25f;
             _init = true;
-            _results = new Collider2D[OverlapMaximum];
+            _results ??= new Collider2D[OverlapMaximum];
         }
 
         /// <summary>
@@ -85,6 +88,9 @@ namespace MoreMountains
         /// <returns></returns>
         public override bool Decide()
         {
+            if (brick.IsDead())
+                return false;
+
             return DetectTarget();
         }
 
@@ -163,13 +169,18 @@ namespace MoreMountains
 
         protected virtual void SortTargetsByDistance()
         {
-            _potentialTargets.Sort((a, b) =>
-            {
-                if (a == null || b == null)
-                    return 0;
+            _potentialTargets.Sort(comparison);
+        }
 
-                return Vector2.Distance(transform.position, a.transform.position).CompareTo(Vector2.Distance(transform.position, b.transform.position));
-            });
+        int Comparison(Transform a, Transform b)
+        {
+            if (a == null || b == null)
+                return 0;
+
+            var selfPos = transform.position;
+            var dist1 = Vector2.SqrMagnitude(selfPos - a.transform.position);
+            var dist2 = Vector2.SqrMagnitude(selfPos - b.transform.position);
+            return dist1.CompareTo(dist2);
         }
 
         protected virtual void ComputeRaycastOrigin()

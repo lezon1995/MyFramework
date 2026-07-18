@@ -34,6 +34,13 @@ namespace MoreMountains
         [Range(0f, 1f)]
         public float KnockbackSpreadRatio = 0.5f;
 
+        [Tooltip("击退速度的衰减率（每秒），越大衰减越快，0=不衰减")]
+        [Range(0f, 20f)]
+        public float KnockbackDecay = 4f;
+
+        [Tooltip("击退速度阈值，小于此值直接清零")]
+        public float KnockbackCutoffThreshold = 0.05f;
+
         [Header("阻力参数")]
         [Tooltip("位置修正速度，越大越快分开重叠的物体")]
         [Range(0f, 50f)]
@@ -54,9 +61,17 @@ namespace MoreMountains
         [NonSerialized] public Vector2 Position;
         [NonSerialized] public Vector2 ExternalForce;
         [NonSerialized] public bool IsRegistered;
+
+
+
         public float MaxOverlapDistance => Radius * 2f * MaxOverlapRatio;// 计算实际可重叠的最大距离
         public float EffectiveRadius => Radius * (1f - MaxOverlapRatio);// 计算有效半径（考虑最大重叠）
         public float CollisionMass => Mass * PushForceWeight;// 碰撞质量（考虑推力权重）
+
+        /// <summary>
+        /// 当前总速度 = 意图速度 + 击退速度
+        /// </summary>
+        public Vector2 TotalVelocity => IntentVelocity + KnockbackVelocity;
 
         public override Vector3 MovingPlatformSpeed
         {
@@ -106,8 +121,6 @@ namespace MoreMountains
         protected Vector2 _originalColliderSize;
         protected Vector3 _originalColliderCenter;
 
-        protected RaycastHit2D _raycastUp,_raycastDown, _raycastLeft, _raycastRight;
-
         protected override void Awake()
         {
             base.Awake();
@@ -117,19 +130,27 @@ namespace MoreMountains
             _originalColliderCenter = ColliderOffset;
             
             Position = transform.position;
-            Velocity = Vector2.zero;
+            base.IntentVelocity = Vector2.zero;
             ExternalForce = Vector2.zero;
         }
 
         protected override void OnEnable()
         {
             base.OnEnable();
-            VolumeManager.Instance.Register(this);
         }
 
         protected override void OnDisable()
         {
             base.OnDisable();
+        }
+
+        public void RegisterToVolumeManager()
+        {
+            VolumeManager.Instance.Register(this);
+        }
+
+        public void UnregisterToVolumeManager()
+        {
             VolumeManager.Instance.Unregister(this);
         }
 
@@ -153,15 +174,39 @@ namespace MoreMountains
         {
             base.LateUpdate();
             var dt = Time.deltaTime;
+            DecayKnockback(dt);
             ApplyVelocity(dt);
         }
-        
+
         /// <summary>
-        /// 施加速度到位置
+        /// 衰减击退速度
+        /// </summary>
+        protected virtual void DecayKnockback(float dt)
+        {
+            if (KnockbackDecay <= 0) 
+                return;
+
+            if (KnockbackVelocity.sqrMagnitude < 0.0001f) 
+                return;
+
+            // 指数衰减
+            float decayFactor = Mathf.Exp(-KnockbackDecay * dt);
+            KnockbackVelocity *= decayFactor;
+
+            // 阈值清零
+            if (KnockbackVelocity.magnitude < KnockbackCutoffThreshold)
+            {
+                KnockbackVelocity = Vector2.zero;
+            }
+        }
+
+        /// <summary>
+        /// 施加速度到位置（速度 = 意图速度 + 击退速度）
         /// </summary>
         protected virtual void ApplyVelocity(float dt)
         {
-            Position += (Vector2)Velocity * dt;
+            Vector2 totalVel = TotalVelocity;
+            Position += totalVel * dt;
             transform.position = Position;
         }
 
@@ -171,20 +216,24 @@ namespace MoreMountains
 
             if (IsPlayer)
             {
-                Vector2 targetVel = CurrentMovement;
-                Velocity = Vector2.Lerp(Velocity, targetVel, Time.fixedDeltaTime * 10f);
-                Position += (Vector2)Velocity * Time.fixedDeltaTime;
+                // 玩家：意图速度由 CurrentMovement 提供，平滑过渡
+                IntentVelocity = Vector2.Lerp(IntentVelocity, CurrentMovement, Time.fixedDeltaTime * 10f);
+                Vector2 totalVel = IntentVelocity + KnockbackVelocity;
+                Position += totalVel * Time.fixedDeltaTime;
                 transform.position = Position;
             }
             else
             {
-                Position += (Vector2)Velocity * Time.fixedDeltaTime;
+                // 怪物：意图速度由 AI 控制，这里只应用总速度
+                Vector2 totalVel = IntentVelocity + KnockbackVelocity;
+                Position += totalVel * Time.fixedDeltaTime;
                 transform.position = Position;
             }
         }
 
         /// <summary>
         /// Another way to add a force of the specified force and direction
+        /// 击退力会加到独立的 KnockbackVelocity 字段，会随时间衰减
         /// </summary>
         public override void AddImpact(Vector3 direction, float force)
         {
@@ -194,7 +243,7 @@ namespace MoreMountains
             float reducedForce = force * (1f - KnockbackResistance);
             if (reducedForce > 0)
             {
-                Velocity += direction.normalized * reducedForce;
+                KnockbackVelocity += direction.normalized * reducedForce;
             }
         }
 
@@ -302,6 +351,8 @@ namespace MoreMountains
         public override void Reset()
         {
             base.Reset();
+            IntentVelocity = Vector2.zero;
+            KnockbackVelocity = Vector2.zero;
         }
         
         protected virtual void OnDrawGizmosSelected()

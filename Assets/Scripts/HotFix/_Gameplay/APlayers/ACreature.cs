@@ -61,9 +61,19 @@ namespace MoreMountains
         {
         }
 
-
-
         #endregion
+
+        public override void onAcquire()
+        {
+            base.onAcquire();
+            _controller2D.RegisterToVolumeManager();
+        }
+
+        public override void onRelease()
+        {
+            _controller2D.UnregisterToVolumeManager();
+            base.onRelease();
+        }
 
         #region Events
 

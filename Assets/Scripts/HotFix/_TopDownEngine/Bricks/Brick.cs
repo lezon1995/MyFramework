@@ -7,12 +7,15 @@ namespace MoreMountains
     {
         protected BoxCollider2D boxCollider;
         protected Vector2 colliderOffset, colliderSize;
+        protected DamageOnTouch damageOnTouch;
 
         protected override void OnAwake()
         {
             base.OnAwake();
             instanceID = GetInstanceID();
             TryGetComponent(out brickRenderer);
+            TryGetComponent(out damageOnTouch);
+            damageOnTouch.SetOwner(gameObject);
             brickRenderer.Awake();
         }
 

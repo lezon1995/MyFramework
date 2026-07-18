@@ -97,6 +97,7 @@ namespace MoreMountains
                     o.TryGetComponent(out APlayer newPlayer);
                     newPlayer.setName($"PlayerCharacter");
                     log("Successfully recreated " + newPlayer.chosenClass);
+                    newPlayer.onAcquire();
                     return newPlayer;
                 }
             }

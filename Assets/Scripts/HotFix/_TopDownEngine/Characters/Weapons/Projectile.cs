@@ -73,6 +73,7 @@ namespace MoreMountains
         public Weapon SourceWeapon => _weapon;
         public GameObject Owner => _owner;
         protected Stats Stats => _stats;
+        protected Health Health => _health;
 
         protected Weapon _weapon;
         protected GameObject _owner;

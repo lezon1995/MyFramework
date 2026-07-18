@@ -97,7 +97,7 @@ public class LaserHorizontal : BuffObject, IDoAttackEffect
         {
             await UniTask.WaitForSeconds(0.02F, delayTiming: PlayerLoopTiming.FixedUpdate);
             var brick = list[i];
-            if (brick.isDead())
+            if (brick.IsDead())
                 continue;
 
             var dmg = ball.getSkillDmg(brick);

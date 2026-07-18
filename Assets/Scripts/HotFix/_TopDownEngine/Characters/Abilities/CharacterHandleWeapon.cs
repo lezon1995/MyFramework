@@ -16,16 +16,6 @@ namespace MoreMountains
     [AddComponentMenu("TopDown Engine/Character/Abilities/CharacterHandleWeapon")]
     public class CharacterHandleWeapon : CharacterAbility
     {
-        public override string HelpBoxText()
-        {
-            return "This component will allow your character to pickup and use weapons. " +
-                   "What the weapon will do is defined in the Weapon classes. " +
-                   "This just describes the behaviour of the 'hand' holding the weapon, " +
-                   "not the weapon itself. Here you can set an initial weapon for your character to start with, " +
-                   "allow weapon pickup, and specify a weapon attachment" +
-                   " (a transform inside of your character, could be just an empty child gameobject, or a subpart of your model.";
-        }
-
         [Header("Weapon")]
         [Tooltip("the initial weapon owned by the character")]
         public Weapon InitialWeapon;

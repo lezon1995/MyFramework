@@ -57,8 +57,8 @@ namespace MoreMountains.Tools
         [MMVector("min", "max")]
         public Vector2 RandomDecisionFrequency = new(0.5f, 1f);
 
-        protected AIDecision[] _decisions;
-        protected AIAction[] _actions;
+        protected List<AIDecision> _decisions = new();
+        protected List<AIAction> _actions = new();
         protected float _lastActionsUpdate;
         protected float _lastDecisionsUpdate;
         protected AIState _initialState;
@@ -74,16 +74,16 @@ namespace MoreMountains.Tools
             Target =  target;
         }
 
-        public virtual AIAction[] GetAttachedActions()
+        public virtual void GetAttachedActions(ref List<AIAction> actions)
         {
-            AIAction[] actions = GetComponentsInChildren<AIAction>();
-            return actions;
+            actions.Clear();
+            GetComponentsInChildren(true, actions);
         }
 
-        public virtual AIDecision[] GetAttachedDecisions()
+        public virtual void GetAttachedDecisions(ref List<AIDecision> decisions)
         {
-            AIDecision[] decisions = GetComponentsInChildren<AIDecision>();
-            return decisions;
+            decisions.Clear();
+            GetComponentsInChildren(true, decisions);
         }
 
         protected virtual void OnEnable()
@@ -100,12 +100,10 @@ namespace MoreMountains.Tools
         protected virtual void Awake()
         {
             foreach (var state in States)
-            {
                 state.SetBrain(this);
-            }
 
-            _decisions = GetAttachedDecisions();
-            _actions = GetAttachedActions();
+            GetAttachedDecisions(ref _decisions);
+            GetAttachedActions(ref _actions);
             if (RandomizeFrequencies)
             {
                 ActionsFrequency = Random.Range(RandomActionFrequency.x, RandomActionFrequency.y);
@@ -197,7 +195,7 @@ namespace MoreMountains.Tools
         /// </summary>
         protected virtual void InitializeDecisions()
         {
-            _decisions ??= GetAttachedDecisions();
+            GetAttachedDecisions(ref _decisions);
 
             foreach (var decision in _decisions)
                 decision.Initialization();
@@ -208,7 +206,7 @@ namespace MoreMountains.Tools
         /// </summary>
         protected virtual void InitializeActions()
         {
-            _actions ??= GetAttachedActions();
+            GetAttachedActions(ref _actions);
 
             foreach (var action in _actions)
                 action.Initialization();

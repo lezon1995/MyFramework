@@ -21,9 +21,6 @@ namespace MoreMountains
             Strict8Directions
         }
 
-        /// the current reference movement speed
-        public virtual float MovementSpeed { get; set; }
-
         /// if this is true, movement will be forbidden (as well as flip)
         public virtual bool MovementForbidden { get; set; }
 
@@ -73,7 +70,7 @@ namespace MoreMountains
         public bool InterpolateMovementSpeed;
 
         public virtual float MovementSpeedMaxMultiplier { get; set; } = float.MaxValue;
-        private float _movementSpeedMultiplier;
+        float _movementSpeedMultiplier = 1;
 
         /// the multiplier to apply to the horizontal movement
         public float MovementSpeedMultiplier
@@ -115,7 +112,6 @@ namespace MoreMountains
         protected override void Initialization()
         {
             base.Initialization();
-            ResetAbility();
         }
 
         protected override void OnBindStats()
@@ -131,9 +127,6 @@ namespace MoreMountains
         /// </summary>
         public override void ResetAbility()
         {
-            base.ResetAbility();
-            MovementSpeed = walkSpeed;
-
             _motionState?.ChangeState(Character.Motions.Idle);
 
             MovementSpeedMultiplier = 1f;
@@ -407,7 +400,6 @@ namespace MoreMountains
         /// </summary>
         public virtual void ResetSpeed()
         {
-            MovementSpeed = walkSpeed;
         }
 
         /// <summary>

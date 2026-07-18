@@ -19,7 +19,7 @@ namespace MoreMountains
         public bool endTurnQueued { get; set; }
 
         public static List<string> customMods;
-        
+        public new List<PlayerPower> powers = new();
         public PlayerRenderer playerRenderer;
 
         protected override void OnAwake()

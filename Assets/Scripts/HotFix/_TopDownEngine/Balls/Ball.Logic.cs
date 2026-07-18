@@ -50,13 +50,12 @@ namespace MoreMountains
         protected List<Buff> buffs = new();
         public List<BallPower> powers = new();
 
-        BallRenderer ballRenderer;
+        public BallRenderer ballRenderer;
 
         APlayer player;
         Brick collidingBrick;
         Brick overlappingBrick;
 
-        Action<Ball> onDead;
         BorderToBallDamageModifier borderToBallDamageModifier;
 
         public Vector3 targetPos;
@@ -73,9 +72,7 @@ namespace MoreMountains
 
         public IHittable lastHittable;
         public bool isOverlappingBrick;
-        Timer killTimer;
 
-        public void setOnDead(Action<Ball> action) => onDead = action;
         public void setBorderToBallDamageModifier(BorderToBallDamageModifier m) => borderToBallDamageModifier = m;
         public void setBallType(Type t) => type = t;
         public void setID(long id) => guid = id;
@@ -91,7 +88,6 @@ namespace MoreMountains
         {
             base.onAcquire();
             this.addListener<OnBrickColliderChanged>();
-            reset();
         }
 
         public override void onRelease()
@@ -108,7 +104,6 @@ namespace MoreMountains
             removeAllPowers();
 
             horizontalBorderTeleportable = false;
-            killTimer = 0F;
 
             reset();
             this.removeListener<OnBrickColliderChanged>();
@@ -121,15 +116,6 @@ namespace MoreMountains
         public override void OnUpdate(float dt)
         {
             base.OnUpdate(dt);
-
-            if (killTimer)
-            {
-                if (killTimer.update(dt))
-                {
-                    var e = new OnBallDeathTotally(this);
-                    e.trigger(this);
-                }
-            }
 
             if (!enabled)
                 return;
@@ -167,6 +153,16 @@ namespace MoreMountains
 
         public override void OnFixedUpdate(float dt)
         {
+            using var _ = new SafeDictionaryReader<Brick, MTimer>(brickHitTimers, out var reader);
+            foreach (var (brick, timer) in reader)
+            {
+                if (timer.update(dt))
+                {
+                    brickHitTimers.remove(brick);
+                    timer.release();
+                }
+            }
+
             if (!_shouldMove)
                 return;
 
@@ -174,21 +170,35 @@ namespace MoreMountains
             {
                 if (ManuallyColliding)
                 {
-                    if (willPassingThroughThisFrame && curPos == correctPos)
+                    if (collidingBrick)
                     {
-                        willPassingThroughThisFrame = false;
-                        correctPos = Vector3.zero;
-                        CollidingManually(willPassingThroughHit);
-                        willPassingThroughHit = default;
-                        return;
+                        if (willPassingThroughThisFrame)
+                        {
+                            CollidingManually(willPassingThroughHit);
+                            willPassingThroughThisFrame = false;
+                            correctPos = Vector3.zero;
+                            willPassingThroughHit = default;
+                        }
+                    }
+                    else
+                    {
+                        if (willPassingThroughThisFrame && curPos == correctPos)
+                        {
+                            CollidingManually(willPassingThroughHit);
+                            willPassingThroughThisFrame = false;
+                            correctPos = Vector3.zero;
+                            willPassingThroughHit = default;
+                            return;
+                        }
                     }
                 }
 
-                // if (collidingBrick)
-                // {
-                //     Movement(dt);
-                // }
-                // else
+                if (collidingBrick)
+                {
+                    willPassingThroughThisFrame = CheckWillPassingThrough(dt, BounceLayers, out correctPos, out willPassingThroughHit);
+                    Movement(dt);
+                }
+                else
                 {
                     willPassingThroughThisFrame = CheckWillPassingThrough(dt, BounceLayers, out correctPos, out willPassingThroughHit);
                     if (willPassingThroughThisFrame)
@@ -496,12 +506,10 @@ namespace MoreMountains
             _rigidBody2D.MovePosition(pos);
             setPosition(pos);
             setDirection(Direction, exceptMask);
-            clearTrail();
+            ballRenderer.clearTrail();
         }
 
         public void setRendererActive(bool active) => ballRenderer.setRendererActive(active);
-
-        void clearTrail() => ballRenderer.clearTrail();
 
         public void setRadius(float value)
         {
@@ -602,23 +610,6 @@ namespace MoreMountains
             GetStat(Stat.DmgRate, out var stat);
             dmg.SetDmgRate(stat.Value);
             return dmg;
-        }
-
-        public bool forceKill()
-        {
-            setHealth(0);
-            setEnabled(false);
-            var e = new OnBallDeath(this);
-            e.trigger(this);
-            e.trigger();
-            onDead?.Invoke(this);
-
-            ballRenderer.playFxDead();
-            ballRenderer.setRendererActive(false);
-            ballRenderer.clearTrail();
-
-            killTimer = 1F;
-            return true;
         }
 
         /*public void returnBall(Vector3 nextPosition)

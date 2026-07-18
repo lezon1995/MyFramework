@@ -12,11 +12,6 @@ namespace MoreMountains
     [AddComponentMenu("TopDown Engine/Character/Abilities/CharacterStun")]
     public class CharacterStun : CharacterAbility
     {
-        public override string HelpBoxText()
-        {
-            return "Add this component to a character and it'll be able to be stunned. To stun a character, simply call its Stun or StunFor methods. You'll find test buttons at the bottom of this component's inspector. You can also use StunZones to stun your characters.";
-        }
-
         [Header("IK")]
         [Tooltip("a weapon IK to pilot when stunned")]
         public WeaponIK BoundWeaponIK;

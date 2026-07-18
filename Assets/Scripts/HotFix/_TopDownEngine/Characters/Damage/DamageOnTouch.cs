@@ -597,7 +597,7 @@ namespace MoreMountains
             switch (DamageCausedKnockbackDirection)
             {
                 case KnockbackDirections.BasedOnSpeed:
-                    var totalVelocity = _colliderTopDownController.Velocity + _velocity;
+                    var totalVelocity = _colliderTopDownController.IntentVelocity + _velocity;
                     _knockbackForce = Vector3.RotateTowards(_knockbackForce, totalVelocity.normalized, 10f, 0f);
                     break;
                 case KnockbackDirections.BasedOnOwnerPosition:
@@ -654,7 +654,7 @@ namespace MoreMountains
             // if what we're colliding with is a TopDownController, we apply a knockback force
             if (_topDownController && _colliderTopDownController)
             {
-                Vector3 totalVelocity = _colliderTopDownController.Velocity + _velocity;
+                Vector3 totalVelocity = _colliderTopDownController.IntentVelocity + _velocity;
                 Vector3 knockbackForce = Vector3.RotateTowards(DamageTakenKnockbackForce, totalVelocity.normalized, 10f, 0f);
 
                 if (DamageTakenKnockbackType == KnockbackStyles.AddForce)

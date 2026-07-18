@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace MoreMountains
 {
@@ -11,7 +10,10 @@ namespace MoreMountains
     {
         public bool IsPlayer;
         public Character Character;
-        public Vector3 Velocity { get; set; }
+        // 意图速度（由 AI / 玩家输入控制，每帧持续施加）
+        public Vector3 IntentVelocity { get; set; }
+        // 击退速度（击退产生，独立于意图，会随时间衰减）
+        public Vector3 KnockbackVelocity{ get; set; }
         public bool Grounded { get; set; }
         public bool JustGotGrounded { get; set; }
         public Vector3 CurrentMovement { get; set; }
@@ -163,7 +165,7 @@ namespace MoreMountains
         public virtual void Reset()
         {
             _impact = Vector3.zero;
-            Velocity = Vector3.zero;
+            IntentVelocity = Vector3.zero;
             Grounded = true;
             JustGotGrounded = false;
             CurrentMovement = Vector3.zero;

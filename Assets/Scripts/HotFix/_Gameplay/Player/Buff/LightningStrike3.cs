@@ -38,7 +38,7 @@ public class LightningStrike3 : BuffObject, IDoAttackKillEffect
         {
             await UniTask.WaitForSeconds(0.1F, delayTiming: PlayerLoopTiming.FixedUpdate);
             var randomBrick = list[i];
-            if (randomBrick.isDead())
+            if (randomBrick.IsDead())
                 continue;
 
             var dmg = ball.getSkillDmg(randomBrick);
