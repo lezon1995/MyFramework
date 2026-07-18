@@ -8,6 +8,7 @@ namespace MoreMountains
         protected BoxCollider2D boxCollider;
         protected Vector2 colliderOffset, colliderSize;
         protected DamageOnTouch damageOnTouch;
+        public new BrickStats Stats => stats as BrickStats;
 
         protected override void OnAwake()
         {

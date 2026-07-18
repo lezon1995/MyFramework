@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using MoreMountains.Tools;
+using UnityEngine;
 
 namespace MoreMountains
 {
@@ -7,19 +8,27 @@ namespace MoreMountains
 
     public partial class MonsterRoom : ARoom, IEvent<OnBrickDeath>
     {
+        public const float COMBAT_WAIT_TIME = 0.1F;
         public override RoomType Type => RoomType.MONSTER;
 
         // public DiscardPileViewScreen discardPileViewScreen = new DiscardPileViewScreen();
-        public const float COMBAT_WAIT_TIME = 0.1F;
-        Timer brickDeathTimer;
         protected static Queue<OnBrickDeath> brickDeathQueue = new();
+        Timer brickDeathTimer;
+
+        public WaveGameMode waveGameMode;
+        public WaveLevelConfig waveLevelConfig;
 
         public MonsterRoom()
         {
-            _phases[RoomPhaseType.PLAYER_TURN] = new PlayerTurnPhase(this);
-            _phases[RoomPhaseType.ENEMY_TURN] = new EnemyTurnPhase(this);
-            _phases[RoomPhaseType.FIGHTING] = new FightingPhase(this);
-            _phases[RoomPhaseType.SETTLEMENT] = new SettlementPhase(this);
+            _phases[RoomPhaseType.SELECT_CHARACTER] = new SelectCharacterPhase(this);
+            _phases[RoomPhaseType.SELECT_WEAPON] = new SelectWeaponPhase(this);
+            _phases[RoomPhaseType.SELECT_DIFFICULTY] = new SelectDifficultyPhase(this);
+            _phases[RoomPhaseType.PREPARE] = new PreparePhase(this);
+            _phases[RoomPhaseType.BATTLE] = new BattlePhase(this);
+            _phases[RoomPhaseType.BATTLE_PASS_CLEANUP] = new BattlePassCleanupPhase(this);
+            _phases[RoomPhaseType.LEVEL_UP_REWARD] = new LevelUpRewardPhase(this);
+            _phases[RoomPhaseType.SHOPPING] = new ShoppingPhase(this);
+            _phases[RoomPhaseType.GAME_SETTLEMENT] = new GameSettlementPhase(this);
         }
 
         public override void onPlayerEntry()
@@ -36,6 +45,18 @@ namespace MoreMountains
             waitTimer = COMBAT_WAIT_TIME;
             new OnPlayerEnterBattleRoom().trigger();
             this.addListener();
+
+            loadWaveManager();
+        }
+
+        void loadWaveManager()
+        {
+            string path1 = $"{GAMEPLAY_PATH}/Levels/WaveGameMode.prefab";
+            string path2 = $"{GAMEPLAY_PATH}/Levels/WaveLevelConfig.asset";
+            var res = resource.loadGameResource<WaveGameMode>(path1);
+            waveGameMode = Object.Instantiate(res.getResource());
+            waveLevelConfig = resource.loadGameResource<WaveLevelConfig>(path2);
+            waveGameMode.StartGame(waveLevelConfig);
         }
 
         public override void onPlayerExit()
@@ -47,7 +68,7 @@ namespace MoreMountains
         protected override void onEnemyTurnStart(int turn)
         {
             base.onEnemyTurnStart(turn);
-            nextPhase(RoomPhaseType.ENEMY_TURN);
+            // nextPhase(PhaseType.ENEMY_TURN);
         }
 
         protected override void onEnemyTurnEnd()
@@ -58,7 +79,7 @@ namespace MoreMountains
         protected override void onPlayerTurnStart(int turn)
         {
             base.onPlayerTurnStart(turn);
-            nextPhase(RoomPhaseType.PLAYER_TURN);
+            // nextPhase(PhaseType.PLAYER_TURN);
         }
 
         protected override void onPlayerTurnEnd()
@@ -68,7 +89,13 @@ namespace MoreMountains
 
         public override void onCombatFightStart()
         {
-            nextPhase(RoomPhaseType.FIGHTING);
+            // nextPhase(PhaseType.FIGHTING);
+        }
+
+        protected override void changePhase(RoomPhaseType type)
+        {
+            base.changePhase(type);
+            nextPhase(type);
         }
 
         public void onEvent(OnBrickDeath e)
@@ -87,7 +114,7 @@ namespace MoreMountains
 
         protected override void onFightPhaseEnd()
         {
-            nextPhase(RoomPhaseType.SETTLEMENT);
+            // nextPhase(PhaseType.SETTLEMENT);
         }
 
         public override void dropReward()

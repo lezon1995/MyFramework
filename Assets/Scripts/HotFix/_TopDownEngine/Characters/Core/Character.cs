@@ -128,7 +128,8 @@ namespace MoreMountains
         public Health Health;
 
         [TitleGroup("Bindings")] [Tooltip("the Stats script associated to this Character, will be grabbed automatically if left empty")]
-        public Stats Stats;
+        public Stats Stats => stats;
+        public Stats stats;
 
         [TitleGroup("Bindings")] [Tooltip("the Buffable script associated to this Character, will be grabbed automatically if left empty")]
         public Buffable Buffable;
@@ -238,7 +239,7 @@ namespace MoreMountains
                 TryGetComponent(out Health);
 
             if (Stats == null)
-                TryGetComponent(out Stats);
+                TryGetComponent(out stats);
 
             if (Buffable == null)
                 TryGetComponent(out Buffable);

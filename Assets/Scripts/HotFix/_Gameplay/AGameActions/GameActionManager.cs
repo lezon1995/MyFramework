@@ -177,10 +177,27 @@ public partial class GameActionManager
         switch (phase)
         {
             case Phase.WAITING_ON_USER:
+                getNextAction();
                 return;
             case Phase.EXECUTING_ACTIONS:
                 if (currentAction is { isDone: false })
+                {
                     currentAction.fixedUpdate(dt);
+                }
+                else
+                {
+                    UN_CLASS(ref currentAction);
+
+                    getNextAction();
+                    if (currentAction == null && room.inCombat() && !usingCard)
+                    {
+                        phase = Phase.WAITING_ON_USER;
+                        hasControl = false;
+                    }
+
+                    usingCard = false;
+                }
+
                 return;
         }
     }
@@ -354,6 +371,7 @@ public partial class GameActionManager
     }
 
     public bool isEmpty() => actions.Count == 0;
+    public bool anyAction() => actions.Count > 0;
 
     public void clearNextRoomCombatActions()
     {

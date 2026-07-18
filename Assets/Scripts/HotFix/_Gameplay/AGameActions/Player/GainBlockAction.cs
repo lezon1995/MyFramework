@@ -32,7 +32,7 @@ public class GainBlockAction : AGameAction
 
     public override void update(float dt)
     {
-        if (!target.isDying && !target.isDead && duration.unstarted)
+        if (!target.isDying && target.IsAlive() && duration.unstarted)
         {
             // effectManager.effectList.add(new FlashAtkImgEffect(target.hb.cX, target.hb.cY, AttackEffect.SHIELD));
             target.block.addBlock(blockAmount);

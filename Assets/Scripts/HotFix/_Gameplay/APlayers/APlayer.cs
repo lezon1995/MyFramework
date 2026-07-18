@@ -21,6 +21,7 @@ namespace MoreMountains
         public static List<string> customMods;
         public new List<PlayerPower> powers = new();
         public PlayerRenderer playerRenderer;
+        public new PlayerStats Stats => stats as PlayerStats;
 
         protected override void OnAwake()
         {

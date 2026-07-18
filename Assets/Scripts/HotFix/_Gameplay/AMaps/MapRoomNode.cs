@@ -251,5 +251,7 @@ namespace MoreMountains
                 foreach (FlameAnimationEffect e in fEffects)
                     e.render(sb, scale);
         }*/
+        
+        public static implicit operator bool(MapRoomNode self) => self != null;
     }
 }

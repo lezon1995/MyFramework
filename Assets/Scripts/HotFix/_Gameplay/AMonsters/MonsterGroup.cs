@@ -53,7 +53,7 @@ namespace MoreMountains
             {
                 foreach (var m in monsters)
                 {
-                    if (m.isDead)
+                    if (m.IsDead())
                         continue;
 
                     return false;

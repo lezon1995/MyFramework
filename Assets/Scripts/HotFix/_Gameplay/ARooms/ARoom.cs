@@ -29,10 +29,15 @@ namespace MoreMountains
     public enum RoomPhaseType
     {
         NONE,
-        PLAYER_TURN,
-        ENEMY_TURN,
-        FIGHTING,
-        SETTLEMENT,
+        SELECT_CHARACTER,//角色选择
+        SELECT_WEAPON,//武器选择
+        SELECT_DIFFICULTY,//难度选择
+        PREPARE,//战前准备阶段，通常是等个几秒介绍一下接下来可能出现的怪物
+        BATTLE,//战斗阶段
+        BATTLE_PASS_CLEANUP,//战后舞台清理阶段
+        LEVEL_UP_REWARD,//升级奖励阶段
+        SHOPPING,//购物阶段
+        GAME_SETTLEMENT,//对局结算阶段
     }
 
     public record struct OnBattleStart;
@@ -42,8 +47,10 @@ namespace MoreMountains
         const int BLIZZARD_POTION_MOD_AMT = 10;
 
         public abstract RoomType Type { get; }
-        public RoomPhaseType RoomPhaseType { get; set; }
-        public bool inPlayerTurn => RoomPhaseType == RoomPhaseType.PLAYER_TURN;
+        public RoomPhaseType LastPhase { get; set; }
+        public RoomPhaseType CurPhase { get; set; }
+        public RoomPhaseType ToPhase { get; set; }
+        public bool inPlayerTurn => CurPhase == RoomPhaseType.BATTLE;
 
         // public List<AbstractPotion> potions = new();
         public List<ARelic> relics = new();
@@ -53,8 +60,8 @@ namespace MoreMountains
         public RoomPhase phase = RoomPhase.COMBAT;
         public AEvent evt;
         public MonsterGroup monsters { get; set; }
-        protected Timer endBattleTimer;
-        protected Timer rewardPopOutTimer = 1.0F;
+        public Timer endBattleTimer;
+        public Timer rewardPopOutTimer = 1.0F;
         public Timer waitTimer;
         protected string mapSymbol;
 
@@ -85,6 +92,12 @@ namespace MoreMountains
         public virtual void onPlayerExit()
         {
             log($"onPlayerExit Room {GetType().Name}");
+        }
+
+        protected virtual void changePhase(RoomPhaseType type)
+        {
+            LastPhase = CurPhase;
+            CurPhase = type;
         }
 
         protected virtual void onPlayerTurnStart(int turn)
@@ -236,13 +249,16 @@ namespace MoreMountains
                     if (waitTimer)
                     {
                         bool finished = false;
-                        if (actionManager.currentAction || !actionManager.isEmpty())
+                        if (actionManager.currentAction || actionManager.anyAction())
                             actionManager.update(dt);
                         else
                             finished = waitTimer.update(dt);
 
                         if (finished)
-                            startBattle();
+                        {
+                            // startBattle();
+                            startGame();
+                        }
                     }
                     else
                     {
@@ -265,6 +281,11 @@ namespace MoreMountains
 
                         if (isEndingTurn)
                             endEnemyTurn();
+                        
+                        if (CurPhase != ToPhase)
+                        {
+                            changePhase(ToPhase);
+                        }
                     }
 
                     if (isBattleOver && actionManager.isEmpty())
@@ -317,7 +338,7 @@ namespace MoreMountains
                     if (waitTimer)
                     {
                         effectManager.fixedUpdateLogic(dt);
-                        if (actionManager.currentAction || !actionManager.isEmpty())
+                        if (actionManager.currentAction || actionManager.anyAction())
                             actionManager.fixedUpdate(dt);
                     }
                     else
@@ -425,23 +446,46 @@ namespace MoreMountains
             new OnBattleStart().trigger();
         }
 
+        public void startGame()
+        {
+            effectManager.addRender<GameStartEffect>();
+            ToPhase = RoomPhaseType.SELECT_CHARACTER;
+        }
+
+        public void enter_SelectCharacter()
+        {
+        }
+        public void enter_SelectWeapon()
+        {
+        }
+        public void enter_SelectDifficulty()
+        {
+        }
+        public void enter_Prepare()
+        {
+        }
+        public void enter_Battle()
+        {
+        }
+        public void enter_BattlePassCleanup()
+        {
+        }
+        public void enter_LevelUpReward()
+        {
+        }
+        public void enter_Shopping()
+        {
+        }
+        public void enter_GameSettlement()
+        {
+        }
+        public void endGame()
+        {
+        }
+
         public void startGameTurn()
         {
             GameActionManager.turn.increment();
-            //All clear check
-            // if (CtrUI.instance._ComboEffectText.isAllClear)
-            {
-                GameActionManager.isAllClear = true;
-                // CtrUI.instance._ComboEffectText.isAllClear = false;
-            }
-            // else
-            {
-                // CtrUI.instance._ComboEffectText.allClearCount = 0;
-                GameActionManager.isAllClear = false;
-            }
-
-            // CtrUI.instance.NextTurnReady();
-
             GameActionManager.turnScore = 0;
             GameActionManager.turnExp = 0;
             GameActionManager.turnCombo = 0;
@@ -725,5 +769,7 @@ namespace MoreMountains
         public virtual void getAllBricks(ref List<Brick> list)
         {
         }
+        
+        public static implicit operator bool(ARoom self) => self != null;
     }
 }

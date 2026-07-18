@@ -514,13 +514,13 @@ GameObject:
   - component: {fileID: 8351306170979192449}
   - component: {fileID: 6261652187701802809}
   - component: {fileID: 2818374056244836854}
-  - component: {fileID: 7602336728680988996}
   - component: {fileID: 6908168709781622830}
   - component: {fileID: 4974602454753544919}
   - component: {fileID: 2333341911503691088}
   - component: {fileID: 5216136249549037948}
   - component: {fileID: 3999621008680008478}
   - component: {fileID: -308229551276199987}
+  - component: {fileID: 5029812722850174626}
   m_Layer: 7
   m_Name: Brick_2x2
   m_TagString: Block
@@ -686,24 +686,12 @@ MonoBehaviour:
   SpeedMultiplier: 1
   KnockbackResistance: 0
   KnockbackSpreadRatio: 0.5
+  KnockbackDecay: 4
+  KnockbackCutoffThreshold: 0.05
   SeparationForce: 10
   VelocityDamping: 0.9
   ShowGizmos: 1
   GizmosColor: {r: 0, g: 1, b: 0, a: 0.3}
---- !u!114 &7602336728680988996
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3237124602915234066}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 407bc078a544417c9bea6830afd522c2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: HotFix::MoreMountains.TopDownEngine.Stats
-  Debug: 0
-  StatsConfig: {fileID: 11400000, guid: 145964dca47f5ff478027cb65c377a2c, type: 2}
 --- !u!114 &6908168709781622830
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -807,7 +795,8 @@ MonoBehaviour:
   DamageDirectionMode: 0
   DamageCausedKnockbackType: 0
   DamageCausedKnockbackDirection: 0
-  DamageCausedKnockbackForce: {x: 0, y: 0, z: 0}
+  DamageKnockbackForce: {x: 2, y: 0, z: 0}
+  LethalDamageKnockbackForce: {x: 1, y: 0, z: 0}
   InvincibilityDuration: 0.5
   DamageTakenHealth: {fileID: 0}
   DamageTakenEveryTime: 0
@@ -851,7 +840,7 @@ MonoBehaviour:
   DisableAnimatorLogs: 1
   Model: {fileID: 0}
   Health: {fileID: 3999621008680008478}
-  Stats: {fileID: 7602336728680988996}
+  stats: {fileID: 5029812722850174626}
   Buffable: {fileID: 6908168709781622830}
   Exp: {fileID: 0}
   AdditionalAbilityNodes: []
@@ -929,6 +918,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 002cd3e5f81c4407b5d1765963dc339d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: HotFix::MoreMountains.BrickRenderer
+--- !u!114 &5029812722850174626
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3237124602915234066}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74ccf41fd29c4eb5917d8ecc1ddbd8ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: HotFix::MoreMountains.BrickStats
+  Debug: 0
+  StatsConfig: {fileID: 11400000, guid: 145964dca47f5ff478027cb65c377a2c, type: 2}
 --- !u!1 &3490370333130838258
 GameObject:
   m_ObjectHideFlags: 0

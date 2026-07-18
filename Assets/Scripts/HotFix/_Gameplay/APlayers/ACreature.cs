@@ -221,6 +221,8 @@ namespace MoreMountains
             relics[slot] = relic;
         }
 
+        public bool IsDead() => Health.IsDead();
+        public bool IsAlive() => Health.IsAlive();
         public virtual bool isDeadOrEscaped() => isDying || halfDead;
     }
 }

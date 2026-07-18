@@ -47,8 +47,8 @@ GameObject:
   - component: {fileID: 3643635927955792360}
   - component: {fileID: 1864776208260843582}
   - component: {fileID: 5502210496497539059}
+  - component: {fileID: 1019497140884200779}
   - component: {fileID: 3735136462623606009}
-  - component: {fileID: 6343112153531158745}
   - component: {fileID: 5333265564447251252}
   - component: {fileID: 5170665694383965172}
   - component: {fileID: 7556249983709510983}
@@ -215,7 +215,7 @@ MonoBehaviour:
   DisableAnimatorLogs: 1
   Model: {fileID: 1997364199477008}
   Health: {fileID: 3735136462623606009}
-  Stats: {fileID: 6343112153531158745}
+  stats: {fileID: 1019497140884200779}
   Buffable: {fileID: 5333265564447251252}
   Exp: {fileID: 5170665694383965172}
   AdditionalAbilityNodes:
@@ -321,6 +321,20 @@ MonoBehaviour:
   _lerpedInput: {x: 0, y: 0}
   _acceleration: 0
   _walkParticlesPlaying: 0
+--- !u!114 &1019497140884200779
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1790328835693532}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ad5660961a8043088dc511b33eaf629d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: HotFix::MoreMountains.PlayerStats
+  Debug: 0
+  StatsConfig: {fileID: 11400000, guid: a11a8c894f4a1334c976a4126633c04e, type: 2}
 --- !u!114 &3735136462623606009
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -367,20 +381,6 @@ MonoBehaviour:
   TargetAnimator: {fileID: 0}
   DisableAnimatorLogs: 1
   Character: {fileID: 0}
---- !u!114 &6343112153531158745
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1790328835693532}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 407bc078a544417c9bea6830afd522c2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: HotFix::MoreMountains.TopDownEngine.Stats
-  Debug: 0
-  StatsConfig: {fileID: 11400000, guid: a11a8c894f4a1334c976a4126633c04e, type: 2}
 --- !u!114 &5333265564447251252
 MonoBehaviour:
   m_ObjectHideFlags: 0

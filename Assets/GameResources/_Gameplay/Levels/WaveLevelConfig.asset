@@ -1,0 +1,142 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79c1d4a3d0ce4ecd956b30d01a12c946, type: 3}
+  m_Name: WaveLevelConfig
+  m_EditorClassIdentifier: HotFix::MoreMountains.WaveLevelConfig
+  levelName: Default Level
+  levelDescription: "\u9ED8\u8BA4\u5173\u5361\u914D\u7F6E\u4ECB\u7ECD"
+  waves:
+  - waveNumber: 1
+    waveName: Wave 1
+    duration: 30
+    clearStrategy: 0
+    availableMonsters:
+    - monsterId: Test1
+      enemyType: 0
+      spawnWeight: 1
+      baseSpawnInterval: 3
+      forceSpawnOnce: 0
+    - monsterId: Test2
+      enemyType: 1
+      spawnWeight: 1.09
+      baseSpawnInterval: 3
+      forceSpawnOnce: 0
+    maxActiveMonsters: 10
+    minActiveMonsters: 3
+    defeatAllMaxTotalSpawn: 0
+    healthScaling: 1
+    damageScaling: 1
+    speedScaling: 1
+    defenseScaling: 1
+    normalMonsterWeight: 70
+    eliteMonsterWeight: 25
+    bossMonsterWeight: 5
+    bossMonsterId: 
+    bossSpawnTime: 30
+    enableSmartSpawning: 1
+    denseRadius: 5
+    sparseThreshold: 1
+    edgeBias: 0.8
+  - waveNumber: 2
+    waveName: Wave 2
+    duration: 30
+    clearStrategy: 0
+    availableMonsters:
+    - monsterId: Test1
+      enemyType: 0
+      spawnWeight: 1
+      baseSpawnInterval: 3
+      forceSpawnOnce: 0
+    - monsterId: Test2
+      enemyType: 0
+      spawnWeight: 1
+      baseSpawnInterval: 3
+      forceSpawnOnce: 0
+    maxActiveMonsters: 20
+    minActiveMonsters: 5
+    defeatAllMaxTotalSpawn: 0
+    healthScaling: 1
+    damageScaling: 1
+    speedScaling: 1
+    defenseScaling: 1
+    normalMonsterWeight: 70
+    eliteMonsterWeight: 25
+    bossMonsterWeight: 5
+    bossMonsterId: 
+    bossSpawnTime: 30
+    enableSmartSpawning: 1
+    denseRadius: 5
+    sparseThreshold: 1
+    edgeBias: 0.8
+  - waveNumber: 3
+    waveName: Wave 3
+    duration: 60
+    clearStrategy: 0
+    availableMonsters:
+    - monsterId: Test1
+      enemyType: 0
+      spawnWeight: 1
+      baseSpawnInterval: 3
+      forceSpawnOnce: 0
+    maxActiveMonsters: 20
+    minActiveMonsters: 5
+    defeatAllMaxTotalSpawn: 0
+    healthScaling: 1
+    damageScaling: 1
+    speedScaling: 1
+    defenseScaling: 1
+    normalMonsterWeight: 70
+    eliteMonsterWeight: 25
+    bossMonsterWeight: 5
+    bossMonsterId: 
+    bossSpawnTime: 30
+    enableSmartSpawning: 1
+    denseRadius: 5
+    sparseThreshold: 1
+    edgeBias: 0.8
+  - waveNumber: 4
+    waveName: Wave 4
+    duration: 60
+    clearStrategy: 0
+    availableMonsters:
+    - monsterId: Test1
+      enemyType: 0
+      spawnWeight: 1
+      baseSpawnInterval: 3
+      forceSpawnOnce: 0
+    maxActiveMonsters: 20
+    minActiveMonsters: 5
+    defeatAllMaxTotalSpawn: 0
+    healthScaling: 1
+    damageScaling: 1
+    speedScaling: 1
+    defenseScaling: 1
+    normalMonsterWeight: 70
+    eliteMonsterWeight: 25
+    bossMonsterWeight: 5
+    bossMonsterId: 
+    bossSpawnTime: 30
+    enableSmartSpawning: 1
+    denseRadius: 5
+    sparseThreshold: 1
+    edgeBias: 0.8
+  globalMaxActiveMonsters: 20
+  globalMinActiveMonsters: 5
+  globalBaseSpawnInterval: 2
+  globalHealthScalingPerWave: 1.145
+  globalDamageScalingPerWave: 1.12
+  globalSpeedScalingPerWave: 1.05
+  globalDefenseScalingPerWave: 1.1
+  spawnAreaLeft: -9.6
+  spawnAreaRight: 9.6
+  spawnAreaTop: 5.4
+  spawnAreaBottom: -5.4

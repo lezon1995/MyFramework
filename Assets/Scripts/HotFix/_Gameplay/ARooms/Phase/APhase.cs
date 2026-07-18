@@ -7,6 +7,7 @@ namespace MoreMountains;
 public abstract class APhase : IDisposable
 {
     protected MonsterRoom _room;
+    protected WaveGameMode wave => _room.waveGameMode;
     protected float timeElapsed;
 
     protected APhase(MonsterRoom room)

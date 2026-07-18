@@ -7,13 +7,8 @@ namespace MoreMountains
         public APhase curPhase;
         protected Dictionary<RoomPhaseType, APhase> _phases = new();
 
-        void nextPhase(RoomPhaseType type)
+        protected void nextPhase(RoomPhaseType type)
         {
-            RoomPhaseType = type;
-            if (type == RoomPhaseType.PLAYER_TURN)
-            {
-            }
-
             curPhase?.onEnd();
             var last = curPhase;
             curPhase = _phases[type];

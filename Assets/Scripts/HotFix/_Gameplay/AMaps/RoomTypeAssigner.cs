@@ -9,7 +9,7 @@ namespace MoreMountains
         {
             foreach (var node in row)
             {
-                if (node.room != null)
+                if (node.room)
                     continue;
 
                 try
@@ -66,7 +66,7 @@ namespace MoreMountains
             };
             foreach (MapRoomNode siblingNode in siblings)
             {
-                if (siblingNode.room != null && applicableRooms.Contains(roomToBeSet.GetType()) && roomToBeSet.GetType() == siblingNode.room.GetType())
+                if (siblingNode.room && applicableRooms.Contains(roomToBeSet.GetType()) && roomToBeSet.GetType() == siblingNode.room.GetType())
                     return true;
             }
 

@@ -10,12 +10,6 @@ namespace MoreMountains
         protected Texture img;
         // public RoomEventDialog roomEventText = new RoomEventDialog();
         // public GenericEventDialog imageEventText = new GenericEventDialog();
-        protected float drawX;
-        protected float drawY;
-        protected float imgWidth;
-        protected float imgHeight;
-        protected Color imgColor = Color.white;
-        // protected Hitbox hb = null;
         public float panelAlpha;
         public bool hideAlpha = false;
         public bool hasFocus;
@@ -49,8 +43,6 @@ namespace MoreMountains
         protected void initializeImage(string imgUrl, float x, float y)
         {
             // img = ImageMaster.loadImage(imgUrl);
-            drawX = x;
-            drawY = y;
             // imgWidth = img.getWidth() * Settings.xScale;
             // imgHeight = img.getHeight() * Settings.scale;
         }

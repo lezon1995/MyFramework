@@ -560,7 +560,12 @@ namespace MoreMountains
 
         public bool IsDead()
         {
-            return CurrentHealth <= 0 && InitialHealth != 0;
+            return CurrentHealth <= 0;
+        }
+        
+        public bool IsAlive()
+        {
+            return CurrentHealth > 0;
         }
 
         /// <summary>
@@ -637,15 +642,12 @@ namespace MoreMountains
                 LastDamageType = dmg.ActualType;
                 LastDamageDirection = direction;
 
-                // we trigger a damage taken event
-                MMDamageTakenEvent.Trigger(this, instigator, CurrentHealth, dmg.DamageDealt, preHealth);
-
                 //造成伤害后处理Source吸血，触发DoDmg
                 if (source && !dmg.Self)
                 {
                     if (dmg.Effect == Dmg.Effects.Attack)
                     {
-                        if (source.Stats && source.Stats.TryGetStat(Stats.LS, out var lifeSteal))
+                        if (source.GetStat(Character.Stat.LS, out var lifeSteal))
                         {
                             var healing = lifeSteal.Value * dmg.DamageDealt;
                             source.Health.ReceiveHealth(Heal.Fixed(healing), source: source);
@@ -808,7 +810,6 @@ namespace MoreMountains
             }
 
             Event.trigger(new OnDeath());
-            MMLifeCycleEvent.Trigger(this, MMLifeCycleEventTypes.Death);
 
             if (DisableControllerOnDeath && _controller)
                 _controller.enabled = false;
@@ -840,7 +841,6 @@ namespace MoreMountains
             Initialization();
             InitializeCurrentHealth(RefreshHealthBarType.Resurrect);
             Event.trigger(new OnRevive());
-            MMLifeCycleEvent.Trigger(this, MMLifeCycleEventTypes.Revive);
         }
 
         protected virtual void DoResurrect()

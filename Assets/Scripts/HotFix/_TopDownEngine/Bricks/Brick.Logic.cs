@@ -45,7 +45,6 @@ namespace MoreMountains
         }
 
         public virtual bool kill() => Health.Kill();
-        public bool IsDead() => Health.IsDead();
         public bool IsDeadTotally() => Health.IsDeadTotally;
 
         public Vector2Int getSize() => size;

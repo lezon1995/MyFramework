@@ -144,7 +144,7 @@ namespace MoreMountains
             data._fallElapsed = 0f;
             data._fallProgress = 0f;
 
-            Debug.Log($"[GravityBody] 捕获！入射角={angleDeg:F1}°，" + $"sin={data._sinAngle:F3}，坠落时间={data._fallDuration:F2}s，" + $"entry半径={data._entryRadius:F2}，tangent={data._tangent}");
+            // Debug.Log($"[GravityBody] 捕获！入射角={angleDeg:F1}°，" + $"sin={data._sinAngle:F3}，坠落时间={data._fallDuration:F2}s，" + $"entry半径={data._entryRadius:F2}，tangent={data._tangent}");
             capturedList.add(data);
             capturedBalls.add(ball);
         }

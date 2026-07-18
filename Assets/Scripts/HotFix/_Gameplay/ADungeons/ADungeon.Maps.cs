@@ -80,7 +80,7 @@ namespace MoreMountains
                 for (int i = 0; i < 5; i++)
                 {
                     var node = map[curNode.y][i];
-                    if (node.room != null)
+                    if (node.room)
                     {
                         currMapNode = node;
                         room = node.room;
@@ -627,7 +627,7 @@ namespace MoreMountains
                 setCurrMapNode(nextRoom);
             }
 
-            if (room != null && !isLoadingPostCombatSave)
+            if (room && !isLoadingPostCombatSave)
             {
                 foreach (var relic in player.relics)
                     relic.justEnteredRoom(room);
@@ -698,7 +698,7 @@ namespace MoreMountains
             ModHelper.setModsFalse();
             floorNum = 0;
             actNum = 0;
-            if (currMapNode != null && room != null)
+            if (currMapNode && room)
             {
                 room.Dispose();
                 // if (room.monsters != null)

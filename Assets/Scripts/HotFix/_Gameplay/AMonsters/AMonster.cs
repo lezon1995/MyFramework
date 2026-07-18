@@ -379,5 +379,10 @@ namespace MoreMountains
                 power.atEndOfTurn(false);
             }
         }
+
+        public void die()
+        {
+            Health.Kill();
+        }
     }
 }

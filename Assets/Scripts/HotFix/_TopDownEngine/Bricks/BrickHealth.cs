@@ -149,9 +149,6 @@ namespace MoreMountains
                 LastDamageType = dmg.ActualType;
                 LastDamageDirection = direction;
 
-                // we trigger a damage taken event
-                MMDamageTakenEvent.Trigger(this, instigator, CurrentHealth, dmg.DamageDealt, preHealth);
-
                 //造成伤害后处理Source吸血，触发DoDmg
                 if (source && !dmg.Self)
                 {
@@ -317,7 +314,6 @@ namespace MoreMountains
             }
 
             Event.trigger(new OnDeath());
-            MMLifeCycleEvent.Trigger(this, MMLifeCycleEventTypes.Death);
 
             if (DisableControllerOnDeath)
                 _controller.enabled = false;
