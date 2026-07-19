@@ -723,10 +723,11 @@ namespace MoreMountains
             // 定期检查并清理死亡怪物
             for (int i = ActiveMonsters.Count - 1; i >= 0; i--)
             {
-                if (ActiveMonsters[i] == null || ActiveMonsters[i].IsDead())
+                var monster = ActiveMonsters[i];
+                if (monster == null || monster.IsDead())
                 {
                     // 问题3修复：当怪物死亡时，更新击杀计数
-                    if (ActiveMonsters[i] != null && ActiveMonsters[i].IsDead())
+                    if (monster && monster.IsDead())
                     {
                         WaveKillCount++;
                     }
@@ -736,7 +737,8 @@ namespace MoreMountains
 
             for (int i = ActiveBosses.Count - 1; i >= 0; i--)
             {
-                if (ActiveBosses[i] == null || ActiveBosses[i].IsDead())
+                var boss = ActiveBosses[i];
+                if (boss == null || boss.IsDead())
                 {
                     ActiveBosses.RemoveAt(i);
                 }
@@ -775,7 +777,18 @@ namespace MoreMountains
                 return true;
             }
 
-            // 其他失败条件可以在这里添加
+            // 如果是击败所有敌人或击败Boss策略，且设置了持续时间
+            // 则超时也视为失败
+            if (CurWave.clearStrategy == WaveClearStrategy.DefeatAllMonsters ||
+                CurWave.clearStrategy == WaveClearStrategy.DefeatBoss)
+            {
+                // 如果设置了超时时间
+                if (CurWave.duration > 0 && WaveTimeRemaining <= 0)
+                {
+                    return true;
+                }
+            }
+
             return false;
         }
 
@@ -984,10 +997,11 @@ namespace MoreMountains
         {
             for (int i = ActiveMonsters.Count - 1; i >= 0; i--)
             {
-                if (ActiveMonsters[i] == null || ActiveMonsters[i].IsDead())
+                var monster = ActiveMonsters[i];
+                if (monster == null || monster.IsDead())
                 {
                     // 问题3修复：确保死亡时更新击杀计数
-                    if (ActiveMonsters[i] != null)
+                    if (monster)
                     {
                         WaveKillCount++;
                     }
