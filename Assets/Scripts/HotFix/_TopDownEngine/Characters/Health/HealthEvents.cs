@@ -25,4 +25,16 @@ namespace MoreMountains
             Target = target;
         }
     }
+
+    public struct GainCoinTextEvent
+    {
+        public int Value;
+        public Transform Target;
+
+        public GainCoinTextEvent(int v, Transform target)
+        {
+            Value = v;
+            Target = target;
+        }
+    }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using MoreMountains.Tools;
 using UnityEngine;
 using UnityEngine.UI;
@@ -9,12 +10,35 @@ namespace MoreMountains;
 public class FTextManager : FrameSystem
     , IEvent<DmgTextEvent>
     , IEvent<HealTextEvent>
+    , IEvent<GainCoinTextEvent>
 {
     GameObject textParent;
-    SafeList<FText> usings = new();
-    List<FText> unused = new();
-    Dictionary<Transform, FText> reusedTexts = new();
-    Dictionary<string, FTextSetting> settings = new();
+
+    Dictionary<TextType, SafeList<FText>> usings = new()
+    {
+        { TextType.Damage, new() },
+        { TextType.DamageCrit, new() },
+        { TextType.Healing, new() },
+        { TextType.GainCoin, new() },
+    };
+
+    Dictionary<TextType, List<FText>> unused = new()
+    {
+        { TextType.Damage, new() },
+        { TextType.DamageCrit, new() },
+        { TextType.Healing, new() },
+        { TextType.GainCoin, new() },
+    };
+
+    Dictionary<TextType, Dictionary<Transform, FText>> reusedTexts = new()
+    {
+        { TextType.Damage, new() },
+        { TextType.DamageCrit, new() },
+        { TextType.Healing, new() },
+        { TextType.GainCoin, new() },
+    };
+
+    Dictionary<TextType, FTextSetting> settings = new();
 
     public FTextManager()
     {
@@ -30,6 +54,7 @@ public class FTextManager : FrameSystem
 
         this.addListener<DmgTextEvent>();
         this.addListener<HealTextEvent>();
+        this.addListener<GainCoinTextEvent>();
     }
 
     void initCanvas()
@@ -50,8 +75,12 @@ public class FTextManager : FrameSystem
     {
         var damage = resource.loadGameResource<FTextSetting>($"{GAMEPLAY_PATH}/FTextSetting_Damage.asset");
         var damage_Crit = resource.loadGameResource<FTextSetting>($"{GAMEPLAY_PATH}/FTextSetting_Damage_Crit.asset");
-        settings.add("Damage", damage.getResource());
-        settings.add("Damage_Crit", damage_Crit.getResource());
+        var healing = resource.loadGameResource<FTextSetting>($"{GAMEPLAY_PATH}/FTextSetting_Healing.asset");
+        var gainCoin = resource.loadGameResource<FTextSetting>($"{GAMEPLAY_PATH}/FTextSetting_GainCoin.asset");
+        settings.add(TextType.Damage, damage.getResource());
+        settings.add(TextType.DamageCrit, damage_Crit.getResource());
+        settings.add(TextType.Healing, healing.getResource());
+        settings.add(TextType.GainCoin, gainCoin.getResource());
     }
 
     public override void destroy()
@@ -59,26 +88,30 @@ public class FTextManager : FrameSystem
         base.destroy();
         this.removeListener<DmgTextEvent>();
         this.removeListener<HealTextEvent>();
+        this.removeListener<GainCoinTextEvent>();
     }
 
     public override void update(float elapsedTime)
     {
         base.update(elapsedTime);
 
-        using var a = new SafeListReader<FText>(usings);
-        foreach (var text in a.mReadList)
+        foreach (var (type, _usings) in usings)
         {
-            if (text && text.isActiveInHierarchy())
+            using var a = new SafeListReader<FText>(_usings);
+            foreach (var text in a.mReadList)
             {
-                var dt = !text.isIgnoreTimeScale() ? elapsedTime : Time.unscaledDeltaTime;
-                text.update(dt);
+                if (text && text.isActiveInHierarchy())
+                {
+                    var dt = !text.isIgnoreTimeScale() ? elapsedTime : Time.unscaledDeltaTime;
+                    text.update(dt);
+                }
             }
         }
     }
 
-    public FTextSetting getSetting(string settingName)
+    public FTextSetting getSetting(TextType type)
     {
-        settings.TryGetValue(settingName, out var setting);
+        settings.TryGetValue(type, out var setting);
         return setting;
     }
 
@@ -91,10 +124,11 @@ public class FTextManager : FrameSystem
 
     FText getText(FText.Data data)
     {
+        var type = data.textType;
         FText text;
         if (data.reuseTimes is > 0 or -2 && data.target)
         {
-            if (reusedTexts.TryGetValue(data.target, out text))
+            if (reusedTexts[type].TryGetValue(data.target, out text))
             {
                 switch (text.useTimes)
                 {
@@ -107,38 +141,45 @@ public class FTextManager : FrameSystem
             }
         }
 
-        if (unused.any())
+        if (unused[type].any())
         {
-            text = unused.popBack();
+            text = unused[type].popBack();
         }
         else
         {
             text = CLASS<FText>();
-            text.setName("FText");
-            var path = $"{GAMEPLAY_PATH}/FTextTMP.prefab";
+            string path = type switch
+            {
+                TextType.Damage => $"{GAMEPLAY_PATH}/FText_Damage.prefab",
+                TextType.DamageCrit => $"{GAMEPLAY_PATH}/FText_Damage.prefab",
+                TextType.Healing => $"{GAMEPLAY_PATH}/FText_Healing.prefab",
+                TextType.GainCoin => $"{GAMEPLAY_PATH}/FText_GainCoin.prefab",
+                _ => throw new ArgumentOutOfRangeException()
+            };
+            text.setName($"FText_{type}");
             var o = prefabPool.createObject(path, true, textParent);
             text.setObject(o);
         }
 
-        usings.add(text);
+        usings[type].add(text);
         return text;
     }
 
-    public void release(FText text)
+    public void release(TextType type, FText text)
     {
         text.Clear();
-        usings.remove(text);
-        unused.add(text);
+        usings[type].remove(text);
+        unused[type].add(text);
     }
 
     public void addToReused(FText text, FText.Data data)
     {
-        reusedTexts.TryAdd(data.target, text);
+        reusedTexts[data.textType].TryAdd(data.target, text);
     }
 
     public void removeFromReused(FText.Data data)
     {
-        reusedTexts.Remove(data.target);
+        reusedTexts[data.textType].Remove(data.target);
     }
 
     public static void showDamage(Transform target, Dmg dmg)
@@ -146,18 +187,17 @@ public class FTextManager : FrameSystem
         if (dmg.Self)
             return;
 
-        var setting = dmg.IsCrit ? "Damage_Crit" : "Damage";
-
+        var type = dmg.IsCrit ? TextType.DamageCrit : TextType.Damage;
         var mix = dmg.Mix;
         if (mix.Off)
         {
-            new FText.Data($"{dmg.DamageDealt:F0}")
-                .setSetting(setting)
+            new FText.Data($"{dmg.DamageDealt:F0}", type)
+                .setSetting(type)
                 .setValue(dmg.DamageDealt)
                 .setDirection(dmg.Direction)
                 .setTarget(target)
-                .setOffset(Random.insideUnitCircle * 0.25F)
-                .setExtraContentSize(Mathf.InverseLerp(50, 1000, dmg.DamageDealt) * 1F) //this should be based on the amount of damage
+                .setOffset(Random.insideUnitCircle * 0.15F)
+                .setExtraContentSize(Mathf.InverseLerp(50, 1000, dmg.DamageDealt) * 0.25F) //this should be based on the amount of damage
                 .setType((int)dmg.ActualType)
                 .show();
 
@@ -167,13 +207,13 @@ public class FTextManager : FrameSystem
         var damage = mix.DamageDealtAD;
         if ((int)damage > 0)
         {
-            new FText.Data($"{damage:F0}")
-                .setSetting(setting)
+            new FText.Data($"{damage:F0}", type)
+                .setSetting(type)
                 .setValue(damage)
                 .setDirection(dmg.Direction)
                 .setTarget(target)
-                .setOffset(Random.insideUnitCircle * 0.25F)
-                .setExtraContentSize(Mathf.InverseLerp(50, 1000, dmg.DamageDealt) * 1F) //this should be based on the amount of damage
+                .setOffset(Random.insideUnitCircle * 0.15F)
+                .setExtraContentSize(Mathf.InverseLerp(50, 1000, dmg.DamageDealt) * 0.25F) //this should be based on the amount of damage
                 .setType((int)Dmg.Types.AD)
                 .show();
         }
@@ -181,13 +221,13 @@ public class FTextManager : FrameSystem
         damage = mix.DamageDealtAP;
         if ((int)damage > 0)
         {
-            new FText.Data($"{damage:F0}")
-                .setSetting(setting)
+            new FText.Data($"{damage:F0}", type)
+                .setSetting(type)
                 .setValue(damage)
                 .setDirection(dmg.Direction)
                 .setTarget(target)
-                .setOffset(Random.insideUnitCircle * 0.25F)
-                .setExtraContentSize(Mathf.InverseLerp(50, 1000, dmg.DamageDealt) * 1F) //this should be based on the amount of damage
+                .setOffset(Random.insideUnitCircle * 0.15F)
+                .setExtraContentSize(Mathf.InverseLerp(50, 1000, dmg.DamageDealt) * 0.25F) //this should be based on the amount of damage
                 .setType((int)Dmg.Types.AP)
                 .show();
         }
@@ -195,17 +235,32 @@ public class FTextManager : FrameSystem
         damage = mix.DamageDealtTrue;
         if ((int)damage > 0)
         {
-            new FText.Data($"{damage:F0}")
-                .setSetting(setting)
+            new FText.Data($"{damage:F0}", type)
+                .setSetting(type)
                 .setValue(damage)
                 .setDirection(dmg.Direction)
                 .setTarget(target)
-                .setOffset(Random.insideUnitCircle * 0.25F)
-                .setExtraContentSize(Mathf.InverseLerp(50, 1000, dmg.DamageDealt) * 1F) //this should be based on the amount of damage
+                .setOffset(Random.insideUnitCircle * 0.15F)
+                .setExtraContentSize(Mathf.InverseLerp(50, 1000, dmg.DamageDealt) * 0.25F) //this should be based on the amount of damage
                 .setType((int)Dmg.Types.True)
                 .show();
         }
     }
+
+    public static void showGainCoin(Transform target, int coin)
+    {
+        const TextType TYPE = TextType.GainCoin;
+        new FText.Data($"+ {coin}", TYPE)
+            .setSetting(TYPE)
+            .setValue(coin)
+            .setDirection(Vector3.up)
+            .setTarget(target)
+            .setOffset(new(0, 0.65F, 0))
+            .setExtraContentSize(0F) //this should be based on the amount of damage
+            .setType(0)
+            .show();
+    }
+
 
     public void onEvent(DmgTextEvent e)
     {
@@ -217,14 +272,20 @@ public class FTextManager : FrameSystem
         showHealing(e.Target, e.Heal);
     }
 
+    public void onEvent(GainCoinTextEvent e)
+    {
+        showGainCoin(e.Target, e.Value);
+    }
+
     public static void showHealing(Transform target, Heal heal)
     {
-        new FText.Data($"+{heal.Healing:F0}")
-            .setSetting("Heal")
+        const TextType TYPE = TextType.Healing;
+        new FText.Data($"+{heal.Healing:F0}", TYPE)
+            .setSetting(TYPE)
             .setValue(heal.Healing)
             .setDirection(Vector3.up)
             .setTarget(target)
-            .setExtraContentSize(Mathf.InverseLerp(50, 1000, heal.Healing) * 1F) //this should be based on the amount of damage
+            .setExtraContentSize(Mathf.InverseLerp(50, 1000, heal.Healing) * 0.25F) //this should be based on the amount of damage
             .setType(0)
             .show();
     }

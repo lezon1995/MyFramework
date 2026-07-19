@@ -1,5 +1,6 @@
 using System;
 using MoreMountains.Tools;
+using UnityEngine;
 
 namespace MoreMountains
 {
@@ -36,6 +37,13 @@ namespace MoreMountains
         public float BounceDecayRatio = 0.6f;
 
         /// <summary>
+        /// 掉落每段动画的缓动曲线（默认 EaseOutCubic）
+        /// 控制每段贝塞尔曲线的 t 输入：t = MMTween.Evaluate(linearT, BounceCurve)
+        /// 影响金币在每段中的位置、视觉高度、缩放统一缓动
+        /// </summary>
+        public MMTween.MMTweenCurve BounceCurve = MMTween.MMTweenCurve.EaseOutCubic;
+
+        /// <summary>
         /// 椭圆长半轴 - 即3D正圆半径 R
         /// 等于落点的水平距离（X方向投影）。
         /// 即"在XY平面上，从起点到最远落点的距离"。
@@ -63,17 +71,32 @@ namespace MoreMountains
         public float BounceSpreadAngle = -1f; // -1 表示使用 DirectionSpreadAngle
 
         /// <summary>
+        /// 障碍物层（金币最终落点不能穿越的层，例如墙壁、地面边缘）
+        /// 用于 Physics2D.CircleCast 裁剪最终落点
+        /// 设为 0 表示不启用障碍物检测
+        /// </summary>
+        public LayerMask ObstacleLayers = 0;
+
+        /// <summary>
+        /// 金币碰撞半径（用于 CircleCast 半径）
+        /// 让金币的中心 + 半径不会穿进障碍物
+        /// </summary>
+        public float CoinRadius = 0.16f;
+
+        /// <summary>
         /// 创建默认配置
         /// </summary>
         public static CoinDropConfig Default => new()
         {
-            DropDuration = 0.5f,
+            DropDuration = 0.6f,
             BounceCount = 2,
             BounceDecayRatio = 0.6f,
-            HorizontalSpread = 1.5f,
-            DropHeight = 1.2f,
+            HorizontalSpread = 1.3f,
+            DropHeight = 1.3f,
             DirectionSpreadAngle = 30f,
             BounceSpreadAngle = -1f, // 使用 DirectionSpreadAngle
+            ObstacleLayers = LayerManager.Obstacles_Mask,
+            CoinRadius = 0.14F,
         };
 
         /// <summary>
@@ -88,6 +111,8 @@ namespace MoreMountains
             DropHeight = 0.8f,
             DirectionSpreadAngle = 20f,
             BounceSpreadAngle = -1f,
+            ObstacleLayers = LayerManager.Obstacles_Mask,
+            CoinRadius = 0.14F,
         };
 
         /// <summary>
@@ -102,6 +127,8 @@ namespace MoreMountains
             DropHeight = 1.6f,
             DirectionSpreadAngle = 45f,
             BounceSpreadAngle = -1f,
+            ObstacleLayers = LayerManager.Obstacles_Mask,
+            CoinRadius = 0.14F,
         };
 
         /// <summary>
@@ -116,6 +143,8 @@ namespace MoreMountains
             DropHeight = 2.0f,
             DirectionSpreadAngle = 40f,
             BounceSpreadAngle = -1f,
+            ObstacleLayers = LayerManager.Obstacles_Mask,
+            CoinRadius = 0.14F,
         };
     }
 
@@ -150,10 +179,10 @@ namespace MoreMountains
         /// </summary>
         public static CoinPickupConfig Default => new()
         {
-            PickupDuration = 0.3f,
+            PickupDuration = 0.5f,
             PickupCurve = MMTween.MMTweenCurve.EaseOutCubic,
-            RotationDegrees = 720f,
-            MinScale = 0.3f
+            RotationDegrees = 0F,
+            MinScale = 1.0f
         };
 
         /// <summary>
@@ -161,10 +190,10 @@ namespace MoreMountains
         /// </summary>
         public static CoinPickupConfig Quick => new()
         {
-            PickupDuration = 0.2f,
+            PickupDuration = 0.3f,
             PickupCurve = MMTween.MMTweenCurve.EaseOutQuadratic,
-            RotationDegrees = 540f,
-            MinScale = 0.2f
+            RotationDegrees = 0F,
+            MinScale = 1.0f
         };
 
         /// <summary>
@@ -172,10 +201,10 @@ namespace MoreMountains
         /// </summary>
         public static CoinPickupConfig Fancy => new()
         {
-            PickupDuration = 0.5f,
+            PickupDuration = 0.8f,
             PickupCurve = MMTween.MMTweenCurve.EaseInOutCubic,
-            RotationDegrees = 1080f,
-            MinScale = 0.4f
+            RotationDegrees = 0F,
+            MinScale = 1.0f
         };
     }
 }

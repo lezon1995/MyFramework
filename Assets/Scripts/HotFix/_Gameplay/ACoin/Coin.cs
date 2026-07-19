@@ -1,3 +1,4 @@
+using MoreMountains.Tools;
 using UnityEngine;
 
 namespace MoreMountains
@@ -13,6 +14,7 @@ namespace MoreMountains
     public class Coin : MonoBehaviour
     {
         #region Properties
+
         /// <summary>
         /// 金币当前状态
         /// </summary>
@@ -37,10 +39,13 @@ namespace MoreMountains
         /// 实例ID（用于管理器索引）
         /// </summary>
         public int instanceID => _instanceID;
+
         protected int _instanceID;
+
         #endregion
 
         #region Private Fields - Animation State
+
         // 掉落动画状态
         float _dropTimer;
         int _currentBounceIndex;
@@ -70,23 +75,29 @@ namespace MoreMountains
 
         // 拾取动画状态
         Vector2 _pickupStartPos;
-        Vector2 _pickupTargetPos;
+        Transform _pickupTarget;
         float _pickupTimer;
         float _pickupDuration;
         float _pickupRotationDegrees;
         float _pickupMinScale;
+        MMTween.MMTweenCurve _pickupCurve;
+
         #endregion
 
         #region Components
+
         Transform _transformCache;
-        SpriteRenderer _spriteRenderer;
+        public SpriteRenderer _spriteRenderer;
+
         #endregion
 
         #region Lifecycle
+
         void Awake()
         {
             _transformCache = transform;
-            TryGetComponent(out _spriteRenderer);
+            if (_spriteRenderer == null)
+                TryGetComponent(out _spriteRenderer);
             _instanceID = gameObject.GetInstanceID();
         }
 
@@ -128,6 +139,7 @@ namespace MoreMountains
                 _transformCache.localRotation = Quaternion.identity;
             }
         }
+
         #endregion
 
         #region Public Methods
@@ -190,12 +202,12 @@ namespace MoreMountains
         /// <summary>
         /// 尝试开始拾取动画
         /// </summary>
-        public bool TryStartPickup(Vector2 targetPos)
+        public bool TryStartPickup(Transform targetTransform)
         {
             if (State != CoinState.Grounded)
                 return false;
 
-            initPickupAnimation(_transformCache.position, targetPos);
+            initPickupAnimation(_transformCache.position, targetTransform);
             State = CoinState.BeingCollected;
             return true;
         }
@@ -239,11 +251,14 @@ namespace MoreMountains
                 return;
 
             _pickupTimer += dt;
-            float t = _pickupDuration > 0f ? Mathf.Clamp01(_pickupTimer / _pickupDuration) : 1f;
+            float linearT = _pickupDuration > 0f ? Mathf.Clamp01(_pickupTimer / _pickupDuration) : 1f;
+
+            // 应用 PickupCurve 曲线（默认 EaseOutCubic）：让位置、缩放、旋转同步缓动
+            float t = MMTween.Evaluate(linearT, _pickupCurve);
 
             // 单段抛物线：从起始位置飞向目标位置
-            Vector2 midPoint = (_pickupStartPos + _pickupTargetPos) * 0.5f;
-            Vector2 toTarget = _pickupTargetPos - _pickupStartPos;
+            Vector2 midPoint = (_pickupStartPos + (Vector2)_pickupTarget.position) * 0.5f;
+            Vector2 toTarget = (Vector2)_pickupTarget.position - _pickupStartPos;
             float dist = toTarget.magnitude;
 
             // 控制点：垂直于运动方向偏移以形成弧线（模拟抛物线）
@@ -259,7 +274,7 @@ namespace MoreMountains
                 midPoint += Vector2.up * 0.5f;
             }
 
-            Vector2 newPos = evaluateQuadraticBezier(_pickupStartPos, midPoint, _pickupTargetPos, t);
+            Vector2 newPos = evaluateQuadraticBezier(_pickupStartPos, midPoint, _pickupTarget.position, t);
 
             // 拾取过程中金币会缩小并旋转
             float scaleMultiplier = Mathf.Lerp(1f, _pickupMinScale, t);
@@ -280,7 +295,7 @@ namespace MoreMountains
             }
 
             // 拾取动画完成
-            if (t >= 1f)
+            if (t >= 0.8f)
             {
                 onPickupComplete();
             }
@@ -323,33 +338,36 @@ namespace MoreMountains
         ///
         /// 关键设计：
         /// - 最终落点 P_final = DropPoint + direction × 椭圆交点距离（严格在椭圆边上）
-        /// - 总路径 = DropPoint → P_final 连线
-        /// - 中间反弹点按几何衰减分布在连线上（不在 X 轴上）：
-        ///     比例 = 1, decay, decay², decay³, ...
-        ///     归一化后: r_i = decay^i / (1 + decay + decay² + ...)
-        ///     中间点 P_i = DropPoint + pathDir × 累计距离（保持 pathDir 方向，Y 按 pathDir 自然变化）
-        /// - 路径总长 = DropPoint 到 P_final 的距离
-        /// - 每段高度 verticalRadius[i] = DropHeight × decay^i（按 BounceDecayRatio 衰减）
+        /// - 障碍物裁剪：如果 P_final 在障碍物之外（射线方向被墙挡住），用 CircleCast 检测障碍物交点，
+        ///   实际 P_final 取 obstacleHit（不超出椭圆边界，但不超过障碍物）
+        /// - 总路径 = DropPoint → P_final 连线（裁剪后可能不再是 direction 方向，但仍在 DropPoint → 椭圆方向附近）
+        /// - 中间反弹点按几何衰减分布在连线上
+        /// - 每段高度 verticalRadius[i] = DropHeight × decay^i
         /// </summary>
         void precomputeDropPath(Vector2 direction)
         {
-            int totalSegments = Mathf.Max(0, _dropConfig.BounceCount) + 1; // 第一段 + N 段反弹
-            int totalPoints = totalSegments + 1; // 起 + 中间 + 终
+            int totalSegments = Mathf.Max(0, _dropConfig.BounceCount) + 1;
+            int totalPoints = totalSegments + 1;
 
             _segmentPositions = new Vector2[totalPoints];
             _segmentHeights = new float[totalSegments];
 
-            // === 1. 计算最终落点 P_final ===
+            // === 1. 计算椭圆上的理论最终落点 P_theoretical ===
             float a = _dropConfig.HorizontalSpread;
             float b = _dropConfig.DropHeight;
             float ellipseR = CoinEllipseScatter.RayEllipseIntersectionDistance(direction, a, b);
-            Vector2 P_final = _startPos + direction.normalized * ellipseR;
+            Vector2 P_theoretical = _startPos + direction.normalized * ellipseR;
 
-            // === 2. 计算总路径方向和长度 ===
+            // === 2. 障碍物裁剪 ===
+            // 沿 direction 方向 CircleCast 从 DropPoint 出发，检测是否撞到 ObstacleLayers 上的物体
+            // 如果撞到，用交点作为 P_final（避免金币穿过墙壁）
+            Vector2 P_final = clipLandingByObstacle(_startPos, direction, P_theoretical);
+
+            // === 3. 计算总路径方向和长度 ===
             Vector2 totalOffset = P_final - _startPos;
             float totalDistance = totalOffset.magnitude;
 
-            // 如果总距离太小（direction 落在椭圆内部或者几乎为零），所有中间点都重叠到 DropPoint
+            // 如果总距离太小，所有中间点都重叠到 DropPoint
             if (totalDistance < 0.0001f)
             {
                 _segmentPositions[0] = _startPos;
@@ -358,22 +376,22 @@ namespace MoreMountains
                     _segmentPositions[i] = _startPos;
                 for (int i = 0; i < totalSegments; i++)
                     _segmentHeights[i] = _dropConfig.DropHeight;
+                _finalLandingPos = _startPos;
                 return;
             }
 
-            Vector2 pathDir = totalOffset / totalDistance; // 从 DropPoint 到 P_final 的单位方向
+            Vector2 pathDir = totalOffset / totalDistance;
 
-            // === 3. 计算每段高度（按 BounceDecayRatio 衰减）===
+            // === 4. 计算每段高度（按 BounceDecayRatio 衰减）===
             float decay = Mathf.Clamp01(_dropConfig.BounceDecayRatio);
             for (int i = 0; i < totalSegments; i++)
             {
                 _segmentHeights[i] = _dropConfig.DropHeight * Mathf.Pow(decay, i);
             }
 
-            // === 4. 计算各段端点在连线上的位置（严格在 pathDir 方向上，不强制改 Y）===
+            // === 5. 计算各段端点在连线上的位置 ===
             _segmentPositions[0] = _startPos;
 
-            // 几何分布：每段水平位移 = d × decay^i / Σdecay^j
             float sumRatio = 0f;
             for (int i = 0; i < totalSegments; i++)
                 sumRatio += Mathf.Pow(decay, i);
@@ -381,22 +399,61 @@ namespace MoreMountains
 
             float segmentLength = totalDistance / sumRatio;
 
-            // 累计距离，按等比数列计算每段终点
             float accumulated = 0f;
             for (int i = 0; i < totalSegments; i++)
             {
                 accumulated += segmentLength * Mathf.Pow(decay, i);
-                // 第 i 段终点：在连线上、Y 按 pathDir 自然变化（不再强制改 Y）
-                // 即：如果 direction 有 Y 分量，中间点也会沿 Y 推进
                 Vector2 point = _startPos + pathDir * accumulated;
                 _segmentPositions[i + 1] = point;
             }
 
-            // 强制最后一点 = P_final（确保数值精度下也在椭圆上）
             _segmentPositions[totalPoints - 1] = P_final;
-
-            // 保存最终精确位置（椭圆上）
             _finalLandingPos = P_final;
+        }
+
+        /// <summary>
+        /// 障碍物裁剪：从 startPos 沿 direction 方向 CircleCast（考虑金币半径），
+        /// 如果撞到 ObstacleLayers 上的物体且距离 > epsilon，把 P_theoretical 裁剪到碰撞点
+        /// </summary>
+        /// <remarks>
+        /// 行为说明：
+        /// - 起点处的 Collider 不会被命中（Unity CircleCast 规则：origin 在 Collider 内时不注册命中）
+        /// - hit.distance = 圆形探针从起点到碰撞点的移动距离
+        /// - 探针半径 = CoinRadius，确保金币中心 + 半径 不会穿进障碍物
+        /// - 如果 P_theoretical 没有被障碍物挡住（hit = 空 或 距离 > theoreticalDistance），
+        ///   返回 P_theoretical（保持原椭圆落点）
+        /// </remarks>
+        Vector2 clipLandingByObstacle(Vector2 startPos, Vector2 direction, Vector2 P_theoretical)
+        {
+            int obstacleMask = _dropConfig.ObstacleLayers;
+            if (obstacleMask == 0)
+                return P_theoretical;
+
+            Vector2 normDir = direction.sqrMagnitude > 0.0001f ? direction.normalized : Vector2.up;
+            float theoreticalDistance = (P_theoretical - startPos).magnitude;
+
+            // 探针半径 = 金币碰撞体半径
+            float radius = Mathf.Max(0.01f, _dropConfig.CoinRadius);
+
+            // CircleCast 从起点朝理论落点方向检测
+            RaycastHit2D hit = Physics2D.CircleCast(
+                startPos,
+                radius,
+                normDir,
+                theoreticalDistance,
+                obstacleMask);
+
+            // 起点处的 Collider 会被 CircleCast 忽略（origin 在 Collider 内时不命中），
+            // 但为安全起见，忽略极近距离的命中
+            const float minHitDistance = 0.05f;
+            if (hit.collider != null && hit.distance >= minHitDistance && hit.distance < theoreticalDistance)
+            {
+                // 圆心停在 hit.distance 位置（探针外缘刚好接触障碍物表面，金币边缘贴紧障碍物）
+                Vector2 clipCenter = startPos + normDir * hit.distance;
+                return clipCenter;
+            }
+
+            return P_theoretical;
         }
 
         /// <summary>
@@ -467,14 +524,15 @@ namespace MoreMountains
         /// <summary>
         /// 初始化拾取动画
         /// </summary>
-        void initPickupAnimation(Vector2 startPos, Vector2 targetPos)
+        void initPickupAnimation(Vector2 startPos, Transform targetTransform)
         {
             _pickupStartPos = startPos;
-            _pickupTargetPos = targetPos;
+            _pickupTarget = targetTransform;
             _pickupTimer = 0f;
             _pickupDuration = _pickupConfig.PickupDuration;
             _pickupRotationDegrees = _pickupConfig.RotationDegrees;
             _pickupMinScale = _pickupConfig.MinScale;
+            _pickupCurve = _pickupConfig.PickupCurve;
         }
 
         /// <summary>
@@ -494,8 +552,8 @@ namespace MoreMountains
         {
             float oneMinusT = 1f - t;
             return oneMinusT * oneMinusT * p0
-                 + 2f * oneMinusT * t * p1
-                 + t * t * p2;
+                   + 2f * oneMinusT * t * p1
+                   + t * t * p2;
         }
 
         #endregion

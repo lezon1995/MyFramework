@@ -10,39 +10,36 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 52f795f5273942f3b7966286d2961ef9, type: 3}
-  m_Name: FTextSetting_Damage_Crit
+  m_Name: FTextSetting_Healing
   m_EditorClassIdentifier: HotFix::FTextSetting_CurveAxis
   FontColors:
   - {r: 1, g: 0.4226309, b: 0, a: 1}
   - {r: 0, g: 0.7294118, b: 1, a: 1}
   - {r: 1, g: 1, b: 1, a: 1}
-  Icons:
-  - {fileID: 21300000, guid: 774e20dacd0072548960c051d831f211, type: 3}
-  - {fileID: 21300000, guid: 73798ad0418dcf64e96ea2d52554d348, type: 3}
-  - {fileID: 21300000, guid: d8ae7331a7e89464d8a01bb75d58e8bc, type: 3}
-  ContentScale: 1.5
-  StartSequenceDuration: 0.12
-  StaticDuration: 0.2
-  FloatingDuration: 0.3
-  FinishSequenceDuration: 0
+  Icons: []
+  ContentScale: 1.25
+  StartSequenceDuration: 0.1
+  StaticDuration: 0
+  FloatingDuration: 0.7
+  FinishSequenceDuration: 0.15
   StartScaleCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 3
+      value: 0.5
       inSlope: 0
-      outSlope: -2
-      tangentMode: 65
+      outSlope: 0
+      tangentMode: 0
       weightedMode: 0
       inWeight: 0
       outWeight: 0
     - serializedVersion: 3
       time: 1
       value: 1
-      inSlope: -2
+      inSlope: -0.035119124
       outSlope: -0.035119124
-      tangentMode: 5
+      tangentMode: 0
       weightedMode: 0
       inWeight: 0.073791444
       outWeight: 0
@@ -110,8 +107,17 @@ MonoBehaviour:
       inWeight: 0
       outWeight: 0
     - serializedVersion: 3
-      time: 1
-      value: 0
+      time: 0.5015706
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1.001648
+      value: 0.5021912
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -152,17 +158,26 @@ MonoBehaviour:
       time: 0.0000018442515
       value: -0.022435896
       inSlope: -27.682047
-      outSlope: -14.9775915
-      tangentMode: 65
+      outSlope: -27.682047
+      tangentMode: 0
       weightedMode: 0
       inWeight: 0
       outWeight: 0.1949941
     - serializedVersion: 3
+      time: 0.419287
+      value: -28.143154
+      inSlope: -35.156166
+      outSlope: -35.156166
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.15504648
+      outWeight: 0.115632415
+    - serializedVersion: 3
       time: 1
-      value: -15
-      inSlope: -14.9775915
+      value: -45
+      inSlope: -29.267578
       outSlope: -29.267578
-      tangentMode: 5
+      tangentMode: 0
       weightedMode: 0
       inWeight: 0.12580639
       outWeight: 0
@@ -175,20 +190,29 @@ MonoBehaviour:
     - serializedVersion: 3
       time: 0
       value: 0
-      inSlope: 15
-      outSlope: 15
-      tangentMode: 34
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
       weightedMode: 0
       inWeight: 0
-      outWeight: 0.33333334
+      outWeight: 0
     - serializedVersion: 3
-      time: 1
-      value: 15
-      inSlope: 15
-      outSlope: 15
-      tangentMode: 34
+      time: 0.3611691
+      value: 27.299536
+      inSlope: 10.933371
+      outSlope: 10.933371
+      tangentMode: 0
       weightedMode: 0
       inWeight: 0.33333334
+      outWeight: 0.082206726
+    - serializedVersion: 3
+      time: 1.000022
+      value: -19.73756
+      inSlope: -59.448593
+      outSlope: -59.448593
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.025420956
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2

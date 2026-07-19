@@ -15,6 +15,14 @@ public interface IText
     public Color outlineColor { get; set; }
 }
 
+public enum TextType
+{
+    Damage,
+    DamageCrit,
+    Healing,
+    GainCoin
+}
+
 public class FText : Transformable
 {
     public int useTimes = -1;
@@ -313,7 +321,7 @@ public class FText : Transformable
             useTimes = -1;
             setActive(false);
 
-            textManager.release(this);
+            textManager.release(_data.textType, this);
             toNoneState();
         }
 
@@ -408,6 +416,7 @@ public class FText : Transformable
         }
 
         public bool valid;
+        public TextType textType;
         public int type;
         public float value;
         public string text;
@@ -430,9 +439,10 @@ public class FText : Transformable
         Flags flag;
 
 
-        public Data(string content)
+        public Data(string content, TextType t)
         {
             valid = true;
+            textType = t;
             type = 0;
             value = 0;
             target = null;
@@ -544,9 +554,9 @@ public class FText : Transformable
             return this;
         }
 
-        public Data setSetting(string settingName)
+        public Data setSetting(TextType t)
         {
-            setting = textManager.getSetting(settingName);
+            setting = textManager.getSetting(t);
             return this;
         }
 

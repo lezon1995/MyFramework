@@ -300,15 +300,18 @@ namespace MoreMountains
         public event Action<VolumeCollisionEvent> OnCollisionDetected;
         public event Action<KnockbackEvent> OnKnockbackApplied;
 
+        /// <summary>
+        /// Statics initialization to support enter play modes
+        /// </summary>
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        protected static void InitializeStatics()
+        {
+            _instance = null;
+        }
+        
         protected override void Awake()
         {
             base.Awake();
-            if (Instance != null && Instance != this)
-            {
-                Destroy(gameObject);
-                return;
-            }
-            _instance = this;
             InitializeSpatialHash();
         }
 

@@ -149,7 +149,7 @@ GameObject:
   - component: {fileID: 1349822499584374759}
   - component: {fileID: 1306130394031295918}
   m_Layer: 5
-  m_Name: FTextTMP
+  m_Name: FText_Damage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

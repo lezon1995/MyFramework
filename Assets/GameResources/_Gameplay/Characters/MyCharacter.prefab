@@ -53,6 +53,7 @@ GameObject:
   - component: {fileID: 5170665694383965172}
   - component: {fileID: 7556249983709510983}
   - component: {fileID: 4979159710220304118}
+  - component: {fileID: 2073084441764008224}
   m_Layer: 12
   m_Name: MyCharacter
   m_TagString: Player
@@ -468,6 +469,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f352bf3fdca4b81ac34b85428387c3b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: HotFix::MoreMountains.PlayerRenderer
+--- !u!114 &2073084441764008224
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1790328835693532}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f4bfb2b5dfb44708ba80fad84e8b6d8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: HotFix::MoreMountains.CoinPickerAdapter
+  coinManager: {fileID: 0}
+  PickupRangeOverride: 2
+  AutoPickupInterval: 0.1
+  AutoPickupEnabled: 1
 --- !u!1 &1997364199477008
 GameObject:
   m_ObjectHideFlags: 0

@@ -10,14 +10,14 @@ namespace MoreMountains
     /// </summary>
     public enum WaveState
     {
-        Idle,           // 空闲/未开始
-        Preparing,      // 准备阶段
-        Active,         // 波次进行中
-        Clearing,       // 清理阶段（等待剩余怪物死亡）
+        Idle, // 空闲/未开始
+        Preparing, // 准备阶段
+        Active, // 波次进行中
+        Clearing, // 清理阶段（等待剩余怪物死亡）
         RewardSelecting, // 奖励选择阶段
-        Completed,      // 波次完成
-        Failed,         // 波次失败
-        AllCleared      // 全部波次通关
+        Completed, // 波次完成
+        Failed, // 波次失败
+        AllCleared // 全部波次通关
     }
 
     /// <summary>
@@ -25,9 +25,9 @@ namespace MoreMountains
     /// </summary>
     public enum GameResult
     {
-        Victory,        // 胜利
-        Defeat,         // 失败
-        None            // 未定
+        Victory, // 胜利
+        Defeat, // 失败
+        None // 未定
     }
 
     /// <summary>
@@ -36,6 +36,7 @@ namespace MoreMountains
     public class WaveManager : MonoBehaviour
     {
         #region Properties
+
         /// <summary>
         /// 当前关卡配置
         /// </summary>
@@ -135,9 +136,11 @@ namespace MoreMountains
         /// 是否处于奖励选择阶段
         /// </summary>
         public bool IsInRewardSelection => State == WaveState.RewardSelecting;
+
         #endregion
 
         #region Private Fields
+
         float _spawnTimer;
         float _waveTimer;
         float _bossSpawnTimer;
@@ -152,9 +155,11 @@ namespace MoreMountains
         // 问题2修复：击败所有怪物策略的最大生成数量
         int _waveMaxTotalSpawn;
         int _waveCurrentTotalSpawn;
+
         #endregion
 
         #region Events
+
         public event Action<WaveConfig> OnWaveStart;
         public event Action<WaveConfig> OnWaveComplete;
         public event Action<WaveConfig, GameResult> OnWaveFailed;
@@ -167,6 +172,7 @@ namespace MoreMountains
         public event Action<float> OnWaveTimeUpdate;
         public event Action OnRewardSelectionStarted;
         public event Action OnRewardSelectionEnded;
+
         #endregion
 
         void Awake()
@@ -174,7 +180,7 @@ namespace MoreMountains
             _spawnRandom = new();
         }
 
-        
+
         public void Update()
         {
             var dt = Time.deltaTime;
@@ -385,7 +391,7 @@ namespace MoreMountains
         /// </summary>
         public void RegisterExternalMonster(AMonster monster, SpawnEnemyType type)
         {
-            if (monster == null) 
+            if (monster == null)
                 return;
 
             ActiveMonsters.Add(monster);
@@ -400,7 +406,7 @@ namespace MoreMountains
         /// </summary>
         public void UnregisterMonster(AMonster monster)
         {
-            if (monster == null) 
+            if (monster == null)
                 return;
 
             ActiveMonsters.Remove(monster);
@@ -435,7 +441,7 @@ namespace MoreMountains
         }
 
         List<Vector3> sparsePositions = new();
-        
+
         /// <summary>
         /// 获取智能生成位置（基于现有怪物密度）
         /// </summary>
@@ -484,8 +490,8 @@ namespace MoreMountains
             int bossCount = ActiveBosses.Count(b => b.IsAlive());
 
             float totalWeight = CurWave.normalMonsterWeight +
-                               CurWave.eliteMonsterWeight +
-                               CurWave.bossMonsterWeight;
+                                CurWave.eliteMonsterWeight +
+                                CurWave.bossMonsterWeight;
 
             // 根据当前分布动态调整权重
             float normalWeight = CurWave.normalMonsterWeight;
@@ -613,6 +619,7 @@ namespace MoreMountains
                     monster.die();
                 }
             }
+
             ActiveMonsters.Clear();
             ActiveBosses.Clear();
         }
@@ -647,7 +654,7 @@ namespace MoreMountains
 
         void SetState(WaveState newState)
         {
-            if (State == newState) 
+            if (State == newState)
                 return;
 
             var oldState = State;
@@ -730,7 +737,9 @@ namespace MoreMountains
                     if (monster && monster.IsDead())
                     {
                         WaveKillCount++;
+                        OnMonsterKilled?.Invoke(monster);
                     }
+
                     ActiveMonsters.RemoveAt(i);
                 }
             }
@@ -740,6 +749,12 @@ namespace MoreMountains
                 var boss = ActiveBosses[i];
                 if (boss == null || boss.IsDead())
                 {
+                    if (boss && boss.IsDead())
+                    {
+                        WaveKillCount++;
+                        OnMonsterKilled?.Invoke(boss);
+                    }
+
                     ActiveBosses.RemoveAt(i);
                 }
             }
@@ -747,7 +762,7 @@ namespace MoreMountains
 
         bool CheckWinCondition()
         {
-            if (CurWave == null) 
+            if (CurWave == null)
                 return false;
 
             switch (CurWave.clearStrategy)
@@ -984,7 +999,7 @@ namespace MoreMountains
         void ApplyScalingToMonster(AMonster monster)
         {
             // 应用属性增长到怪物
-            if (monster == null) 
+            if (monster == null)
                 return;
 
             // TODO: 根据项目的属性系统实现
@@ -1004,7 +1019,9 @@ namespace MoreMountains
                     if (monster)
                     {
                         WaveKillCount++;
+                        OnMonsterKilled?.Invoke(monster);
                     }
+
                     ActiveMonsters.RemoveAt(i);
                 }
             }
@@ -1051,8 +1068,8 @@ namespace MoreMountains
         {
             Reset();
         }
-        
-        
+
+
         void OnGUI()
         {
             var m = this;

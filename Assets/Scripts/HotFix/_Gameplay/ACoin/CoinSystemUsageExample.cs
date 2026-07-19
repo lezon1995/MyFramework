@@ -171,7 +171,7 @@ namespace MoreMountains
             coinManager.AutoPickupEnabled = false;
 
             // 在特定时机（例如玩家按键）手动触发拾取
-            coinManager.TryPickupCoinsInRange(player.transform.position);
+            coinManager.TryPickupCoinsInRange(player.transform);
         }
         #endregion
 

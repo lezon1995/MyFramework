@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace MoreMountains
 {
@@ -10,31 +11,11 @@ namespace MoreMountains
     [Serializable]
     public class MonsterCoinDropConfig
     {
-        /// <summary>
-        /// 怪物类型标识（"normal", "elite", "boss", 或者具体怪物ID）
-        /// </summary>
-        public string monsterTypeId;
-
-        /// <summary>
-        /// 最小掉落金币数量
-        /// </summary>
-        public int minCoinCount = 1;
-
-        /// <summary>
-        /// 最大掉落金币数量
-        /// </summary>
-        public int maxCoinCount = 3;
-
-        /// <summary>
-        /// 每枚金币的价值
-        /// </summary>
-        public int coinValue = 1;
-
-        /// <summary>
-        /// 掉落概率（0-1）
-        /// </summary>
-        [Range(0f, 1f)]
-        public float dropChance = 1f;
+        public string monsterTypeId; // 怪物类型标识（"normal", "elite", "boss", 或者具体怪物ID）
+        public int minCoinCount = 1; // 最小掉落金币数量
+        public int maxCoinCount = 3; // 最大掉落金币数量
+        public int coinValue = 1; // 每枚金币的价值
+        [Range(0f, 1f)] public float dropChance = 1f; // 掉落概率（0-1）
 
         /// <summary>
         /// 掉落时的方向（相对于玩家）
@@ -44,25 +25,20 @@ namespace MoreMountains
         /// </summary>
         public DropDirectionType dropDirection = DropDirectionType.AwayFromPlayer;
 
-        /// <summary>
-        /// 掉落动画配置（null则使用全局配置）
-        /// </summary>
-        public CoinDropConfig dropConfigOverride;
+        public CoinDropConfig dropConfigOverride; // 掉落动画配置（null则使用全局配置）
+        public CoinPickupConfig pickupConfigOverride; // 拾取动画配置（null则使用全局配置）
 
-        /// <summary>
-        /// 拾取动画配置（null则使用全局配置）
-        /// </summary>
-        public CoinPickupConfig pickupConfigOverride;
+        public Vector3 CustomDropDirection { get; set; }
 
         /// <summary>
         /// 计算本次击杀应该掉落的金币数（基于概率）
         /// </summary>
         public int RollCoinCount()
         {
-            if (UnityEngine.Random.value > dropChance)
+            if (Random.value > dropChance)
                 return 0;
 
-            return UnityEngine.Random.Range(minCoinCount, maxCoinCount + 1);
+            return Random.Range(minCoinCount, maxCoinCount + 1);
         }
 
         /// <summary>
@@ -74,15 +50,18 @@ namespace MoreMountains
             {
                 case DropDirectionType.AwayFromPlayer:
                     Vector2 away = monsterPos - playerPos;
-                    return away.sqrMagnitude < 0.0001f ? UnityEngine.Random.insideUnitCircle.normalized : away.normalized;
+                    return away.sqrMagnitude < 0.0001f ? Random.insideUnitCircle.normalized : away.normalized;
 
                 case DropDirectionType.TowardPlayer:
                     Vector2 toward = playerPos - monsterPos;
-                    return toward.sqrMagnitude < 0.0001f ? UnityEngine.Random.insideUnitCircle.normalized : toward.normalized;
+                    return toward.sqrMagnitude < 0.0001f ? Random.insideUnitCircle.normalized : toward.normalized;
 
                 case DropDirectionType.Random:
+                    return Random.insideUnitCircle.normalized;
+                case DropDirectionType.Custom:
+                    return CustomDropDirection;
                 default:
-                    return UnityEngine.Random.insideUnitCircle.normalized;
+                    return Random.insideUnitCircle.normalized;
             }
         }
     }
@@ -92,9 +71,10 @@ namespace MoreMountains
     /// </summary>
     public enum DropDirectionType
     {
-        AwayFromPlayer,   // 远离玩家
-        TowardPlayer,     // 朝向玩家
-        Random            // 随机
+        AwayFromPlayer, // 远离玩家
+        TowardPlayer, // 朝向玩家
+        Random, // 随机
+        Custom // 自定义
     }
 
     /// <summary>
@@ -113,7 +93,7 @@ namespace MoreMountains
             maxCoinCount = 2,
             coinValue = 1,
             dropChance = 1f,
-            dropDirection = DropDirectionType.AwayFromPlayer
+            dropDirection = DropDirectionType.Custom
         };
 
         /// <summary>
@@ -134,6 +114,7 @@ namespace MoreMountains
                 if (config.monsterTypeId == monsterTypeId)
                     return config;
             }
+
             return defaultConfig;
         }
 
@@ -153,6 +134,7 @@ namespace MoreMountains
                     return;
                 }
             }
+
             monsterConfigs.Add(config);
         }
 
@@ -164,7 +146,7 @@ namespace MoreMountains
             var table = new CoinDropTable();
 
             // 普通怪物配置
-            table.AddConfig(new MonsterCoinDropConfig
+            table.AddConfig(new()
             {
                 monsterTypeId = "normal",
                 minCoinCount = 1,
@@ -175,7 +157,7 @@ namespace MoreMountains
             });
 
             // 精英怪配置
-            table.AddConfig(new MonsterCoinDropConfig
+            table.AddConfig(new()
             {
                 monsterTypeId = "elite",
                 minCoinCount = 3,
@@ -186,7 +168,7 @@ namespace MoreMountains
             });
 
             // Boss配置
-            table.AddConfig(new MonsterCoinDropConfig
+            table.AddConfig(new()
             {
                 monsterTypeId = "boss",
                 minCoinCount = 10,
@@ -220,8 +202,7 @@ namespace MoreMountains
             if (manager == null)
                 return;
 
-            if (config == null)
-                config = manager.DropConfig;
+            config ??= manager.DropConfig;
             float spread = config.DirectionSpreadAngle;
 
             Vector2 baseDir = direction.sqrMagnitude > 0.0001f ? direction.normalized : Vector2.up;
@@ -229,7 +210,7 @@ namespace MoreMountains
             for (int i = 0; i < count; i++)
             {
                 // 每个金币方向在 baseDir 附近随机偏移，落点 = 方向射线与椭圆边界交点
-                float angle = UnityEngine.Random.Range(-spread, spread);
+                float angle = Random.Range(-spread, spread);
                 Quaternion rotation = Quaternion.AngleAxis(angle, Vector3.forward);
                 Vector2 scatteredDir = rotation * baseDir;
 
@@ -263,7 +244,7 @@ namespace MoreMountains
             for (int i = 0; i < coinCount; i++)
             {
                 // 每个金币方向在 baseDir 附近随机偏移，落点 = 方向射线与椭圆边界交点
-                float angle = UnityEngine.Random.Range(-spread, spread);
+                float angle = Random.Range(-spread, spread);
                 Quaternion rotation = Quaternion.AngleAxis(angle, Vector3.forward);
                 Vector2 scatteredDir = rotation * baseDir;
 
@@ -343,6 +324,7 @@ namespace MoreMountains
                 float angle = t * Mathf.PI * 2f;
                 points[i] = center + new Vector2(a * Mathf.Cos(angle), b * Mathf.Sin(angle));
             }
+
             return points;
         }
     }

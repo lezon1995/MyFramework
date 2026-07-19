@@ -45,6 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8c1d2e3f4b5c6d7e8f9a0b1c2d3e4f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: HotFix::MoreMountains.Coin
+  _spriteRenderer: {fileID: 4283729684423405902}
 --- !u!1 &7842177882220249186
 GameObject:
   m_ObjectHideFlags: 0

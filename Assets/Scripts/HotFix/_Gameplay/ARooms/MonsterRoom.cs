@@ -17,6 +17,8 @@ namespace MoreMountains
 
         public WaveGameMode waveGameMode;
         public WaveLevelConfig waveLevelConfig;
+        
+        public CoinManager coinManager;
 
         public MonsterRoom()
         {
@@ -47,6 +49,7 @@ namespace MoreMountains
             this.addListener();
 
             loadWaveManager();
+            loadCoinManager();
         }
 
         void loadWaveManager()
@@ -57,6 +60,17 @@ namespace MoreMountains
             waveGameMode = Object.Instantiate(res.getResource());
             waveLevelConfig = resource.loadGameResource<WaveLevelConfig>(path2);
             waveGameMode.StartGame(waveLevelConfig);
+        }
+
+        void loadCoinManager()
+        {
+            string path1 = $"{GAMEPLAY_PATH}/Coin/CoinManager.prefab";
+            var res = resource.loadGameResource<CoinManager>(path1);
+            coinManager = Object.Instantiate(res.getResource());
+            if (player.gameObject.TryGetComponent(out CoinPickerAdapter adapter))
+            {
+                adapter.SetCoinManager(coinManager);
+            }
         }
 
         public override void onPlayerExit()

@@ -54,6 +54,7 @@ namespace MoreMountains
 
             var monsterTypeId = GetMonsterTypeId(e.Monster);
             var dropConfig = DropTable.GetConfig(monsterTypeId);
+            dropConfig.CustomDropDirection = e.Monster.Health.LastDamageDirection;
 
             // 计算掉落方向（基于怪物到玩家的方向）
             Vector2 monsterPos = e.Monster.transform.position;

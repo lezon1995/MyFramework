@@ -17,7 +17,7 @@ namespace MoreMountains
         /// <summary>
         /// 拾取范围覆盖（小于0则使用全局设置）
         /// </summary>
-        public float PickupRangeOverride = -1f;
+        public float PickupRangeOverride = 2f;
 
         /// <summary>
         /// 自动检测间隔（秒）- 玩家位置每帧都检测，但触发拾取的最小间隔
@@ -53,25 +53,25 @@ namespace MoreMountains
 
         void Awake()
         {
-            _player = GetComponent<APlayer>();
+            TryGetComponent(out _player);
         }
 
         void OnEnable()
         {
-            if (coinManager != null)
+            if (coinManager)
                 coinManager.RegisterPicker(this);
         }
 
         void OnDisable()
         {
-            if (coinManager != null)
+            if (coinManager)
                 coinManager.UnregisterPicker(this);
         }
 
         void Start()
         {
             // 延迟注册，确保CoinManager已初始化
-            if (coinManager != null)
+            if (coinManager)
                 coinManager.RegisterPicker(this);
         }
 
@@ -86,7 +86,7 @@ namespace MoreMountains
                 _autoPickupTimer = 0f;
 
                 float range = PickupRangeOverride > 0 ? PickupRangeOverride : coinManager.PickupRange;
-                coinManager.TryPickupCoinsInRange(_player.transform.position, range);
+                coinManager.TryPickupCoinsInRange(_player.transform, range);
             }
         }
 
@@ -94,16 +94,18 @@ namespace MoreMountains
 
         #region APicker Implementation
 
-        public Vector3 Position => _player != null ? _player.transform.position : transform.position;
+        public Vector3 Position => _player ? _player.transform.position : transform.position;
 
         public void OnGoldCollected(int amount)
         {
             TotalGoldCollected += amount;
-            if (_player != null)
+            if (_player)
                 _player.gainGold(amount);
 
             OnGoldCollectedEvent?.Invoke(amount);
             new OnGoldPickedUp_S(this, amount, Position).trigger();
+
+            new GainCoinTextEvent(amount, transform).trigger();
         }
 
         #endregion
@@ -119,7 +121,7 @@ namespace MoreMountains
                 return;
 
             float range = PickupRangeOverride > 0 ? PickupRangeOverride : coinManager.PickupRange;
-            coinManager.TryPickupCoinsInRange(_player.transform.position, range);
+            coinManager.TryPickupCoinsInRange(_player.transform, range);
         }
 
         /// <summary>
@@ -131,5 +133,14 @@ namespace MoreMountains
         }
 
         #endregion
+
+        public void SetCoinManager(CoinManager mgr)
+        {
+            coinManager = mgr;
+            if (mgr)
+            {
+                mgr.RegisterPicker(this);
+            }
+        }
     }
 }

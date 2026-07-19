@@ -158,8 +158,7 @@ namespace MoreMountains
         /// <returns>生成的金币对象</returns>
         public Coin DropCoin(Vector2 position, Vector2 dropDirection, int value = 1, CoinDropConfig config = null)
         {
-            if (config == null)
-                config = DropConfig;
+            config ??= DropConfig;
 
             var coin = acquireCoin();
             if (coin == null)
@@ -182,8 +181,7 @@ namespace MoreMountains
             if (count <= 0 || valuePerCoin <= 0)
                 return;
 
-            if (config == null)
-                config = DropConfig;
+            config ??= DropConfig;
 
             float spread = config.DirectionSpreadAngle;
             Vector2 baseDir = dropDirection.sqrMagnitude > 0.0001f ? dropDirection.normalized : Vector2.up;
@@ -206,8 +204,7 @@ namespace MoreMountains
             if (totalValue <= 0 || coinsPerDrop <= 0)
                 return;
 
-            if (config == null)
-                config = DropConfig;
+            config ??= DropConfig;
 
             int remaining = totalValue;
             int coinValue = Mathf.Max(1, totalValue / coinsPerDrop);
@@ -288,9 +285,9 @@ namespace MoreMountains
         /// <summary>
         /// 获取范围内可拾取的金币
         /// </summary>
-        public List<Coin> GetCoinsInPickupRange(Vector2 center, float rangeOverride = -1f)
+        public void GetCoinsInPickupRange(Vector2 center, ref List<Coin> result, float rangeOverride = -1f)
         {
-            var result = new List<Coin>();
+            result.Clear();
             float range = rangeOverride > 0 ? rangeOverride : PickupRange;
             float rangeSq = range * range;
 
@@ -308,33 +305,32 @@ namespace MoreMountains
                     }
                 }
             }
-
-            return result;
         }
 
         /// <summary>
         /// 尝试拾取范围内的金币（只启动拾取动画，金币实际到账在动画结束后）
         /// </summary>
         /// <returns>启动拾取的金币总价值（仅作通知用，实际到账在动画完成后）</returns>
-        public int TryPickupCoinsInRange(Vector2 playerPosition)
+        public int TryPickupCoinsInRange(Transform target)
         {
-            return TryPickupCoinsInRange(playerPosition, PickupRange);
+            return TryPickupCoinsInRange(target, PickupRange);
         }
 
         /// <summary>
         /// 尝试拾取范围内的金币（指定范围）
         /// </summary>
-        public int TryPickupCoinsInRange(Vector2 playerPosition, float range)
+        public int TryPickupCoinsInRange(Transform targetTransform, float range)
         {
             if (!AutoPickupEnabled)
                 return 0;
 
             int totalValue = 0;
-            var coinsToPickup = GetCoinsInPickupRange(playerPosition, range);
+            using var _ = new ListScope<Coin>(out var coinsToPickup);
+            GetCoinsInPickupRange(targetTransform.position, ref coinsToPickup, range);
 
             foreach (var coin in coinsToPickup)
             {
-                if (coin != null && coin.TryStartPickup(playerPosition))
+                if (coin && coin.TryStartPickup(targetTransform))
                 {
                     totalValue += coin.Value;
                 }
@@ -346,12 +342,12 @@ namespace MoreMountains
         /// <summary>
         /// 手动拾取单个金币
         /// </summary>
-        public bool PickupCoin(Coin coin, Vector2 playerPosition)
+        public bool PickupCoin(Coin coin, Transform target)
         {
             if (coin == null || coin.State != CoinState.Grounded)
                 return false;
 
-            return coin.TryStartPickup(playerPosition);
+            return coin.TryStartPickup(target);
         }
 
         #endregion
@@ -423,7 +419,7 @@ namespace MoreMountains
             if (!coinPools.TryGetValue(typeof(Coin), out var pool))
             {
                 pool = new ObjectPool<Coin>(
-                    createFunc: () => createCoin(),
+                    createFunc: createCoin,
                     actionOnGet: coin =>
                     {
                         coin.gameObject.SetActive(true);
@@ -491,7 +487,7 @@ namespace MoreMountains
             }
             else
             {
-                UnityEngine.Object.Destroy(coin.gameObject);
+                Destroy(coin.gameObject);
             }
         }
 
