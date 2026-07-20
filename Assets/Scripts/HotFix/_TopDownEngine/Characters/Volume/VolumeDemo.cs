@@ -51,6 +51,19 @@ namespace MoreMountains
         [Tooltip("怪物随机扰动力（徘徊，AI 意图）")]
         public float MonsterWanderForce = 0.5f;
 
+        [Header("边界碰撞体设置")]
+        [Tooltip("是否在演示中创建边界碰撞体")]
+        public bool CreateBoundaryColliders = true;
+
+        [Tooltip("边界厚度")]
+        public float BoundaryThickness = 1f;
+
+        [Tooltip("地图边界范围")]
+        public float MapBoundarySize = 10f;
+
+        [Tooltip("边界颜色")]
+        public Color BoundaryColor = new(0.3f, 0.8f, 0.3f, 0.5f);
+
         [Header("击退设置")]
         [Tooltip("启用链式击退")]
         public bool EnableChainKnockback = true;
@@ -75,6 +88,7 @@ namespace MoreMountains
         // 运行时
         private TopDownController2D _player;
         private readonly List<TopDownController2D> _monsters = new();
+        private readonly List<GameObject> _boundaryWalls = new();
         private Vector2 _playerMoveInput;
 
         // 预制体颜色
@@ -115,6 +129,9 @@ namespace MoreMountains
             VolumeManager.ChainKnockbackRadiusMultiplier = ChainKnockbackRangeMultiplier;
             VolumeManager.ShowAllGizmos = ShowMonsterRadius;
 
+            // 创建边界墙
+            CreateBoundaryWalls();
+
             // 创建玩家和怪物
             CreatePlayer();
             CreateMonsters();
@@ -136,6 +153,7 @@ namespace MoreMountains
             _player.MaxOverlapRatio = PlayerMaxOverlapRatio;
             _player.GizmosColor = PlayerColor;
 
+            // 移除旧的边界配置（现在由 VolumeCollider 处理）
             VolumeManager.Register(_player);
         }
 
@@ -149,7 +167,9 @@ namespace MoreMountains
 
         protected virtual TopDownController2D CreateMonster(int index)
         {
-            Vector2 spawnPos = Random.insideUnitCircle * 10f;
+            // 在边界内随机位置生成
+            float halfSize = MapBoundarySize - 2f; // 留出边界厚度
+            Vector2 spawnPos = Random.insideUnitCircle * halfSize;
 
             var go = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             go.name = $"VolumeDemo_Monster_{index}";
@@ -171,6 +191,37 @@ namespace MoreMountains
             _monsters.Add(body);
 
             return body;
+        }
+
+        /// <summary>
+        /// 创建边界墙（上下左右四个 BoxCollider）
+        /// </summary>
+        protected virtual void CreateBoundaryWalls()
+        {
+            if (!CreateBoundaryColliders) return;
+
+            float size = MapBoundarySize;
+            float thick = BoundaryThickness;
+
+            // 创建四个边界墙
+            CreateBoundaryWall("Wall_Top", new Vector2(0, size + thick * 0.5f), new Vector2(size * 2 + thick * 2, thick));
+            CreateBoundaryWall("Wall_Bottom", new Vector2(0, -size - thick * 0.5f), new Vector2(size * 2 + thick * 2, thick));
+            CreateBoundaryWall("Wall_Left", new Vector2(-size - thick * 0.5f, 0), new Vector2(thick, size * 2));
+            CreateBoundaryWall("Wall_Right", new Vector2(size + thick * 0.5f, 0), new Vector2(thick, size * 2));
+        }
+
+        protected virtual void CreateBoundaryWall(string name, Vector2 position, Vector2 size)
+        {
+            var go = new GameObject(name);
+            go.transform.position = position;
+
+            var col = go.AddComponent<BoxCollider2D>();
+            col.size = size;
+
+            var volumeCol = go.AddComponent<VolumeCollider>();
+            volumeCol.GizmosColor = BoundaryColor;
+
+            _boundaryWalls.Add(go);
         }
 
         protected virtual void Update()
@@ -307,6 +358,8 @@ namespace MoreMountains
 
         protected virtual void ResetPositions()
         {
+            float halfSize = MapBoundarySize - 2f;
+
             if (_player != null)
             {
                 _player.Position = Vector2.zero;
@@ -318,7 +371,10 @@ namespace MoreMountains
             foreach (var monster in _monsters)
             {
                 if (monster == null) continue;
-                monster.Position = Random.insideUnitCircle * 10f;
+
+                // 在边界内随机位置
+                Vector2 offset = Random.insideUnitCircle * halfSize;
+                monster.Position = offset;
                 monster.IntentVelocity = Vector2.zero;
                 monster.KnockbackVelocity = Vector2.zero;
                 monster.transform.position = monster.Position;
@@ -333,6 +389,17 @@ namespace MoreMountains
                 foreach (var monster in _monsters)
                 {
                     if (monster != null) VolumeManager.Unregister(monster);
+                }
+
+                // 注销边界墙
+                foreach (var wall in _boundaryWalls)
+                {
+                    if (wall != null)
+                    {
+                        var vc = wall.GetComponent<VolumeCollider>();
+                        if (vc != null) VolumeManager.UnregisterSolidCollider(vc);
+                        Destroy(wall);
+                    }
                 }
             }
 

@@ -17,7 +17,7 @@ MonoBehaviour:
   waves:
   - waveNumber: 1
     waveName: Wave 1
-    duration: 30
+    duration: 60
     clearStrategy: 0
     availableMonsters:
     - monsterId: Test1
@@ -30,8 +30,8 @@ MonoBehaviour:
       spawnWeight: 1.09
       baseSpawnInterval: 3
       forceSpawnOnce: 0
-    maxActiveMonsters: 10
-    minActiveMonsters: 3
+    maxActiveMonsters: 30
+    minActiveMonsters: 10
     defeatAllMaxTotalSpawn: 0
     healthScaling: 1
     damageScaling: 1
@@ -43,12 +43,12 @@ MonoBehaviour:
     bossMonsterId: 
     bossSpawnTime: 30
     enableSmartSpawning: 1
-    denseRadius: 5
+    denseRadius: 2
     sparseThreshold: 1
-    edgeBias: 0.8
+    edgeBias: 0.7
   - waveNumber: 2
     waveName: Wave 2
-    duration: 30
+    duration: 60
     clearStrategy: 0
     availableMonsters:
     - monsterId: Test1
@@ -61,8 +61,8 @@ MonoBehaviour:
       spawnWeight: 1
       baseSpawnInterval: 3
       forceSpawnOnce: 0
-    maxActiveMonsters: 20
-    minActiveMonsters: 5
+    maxActiveMonsters: 35
+    minActiveMonsters: 8
     defeatAllMaxTotalSpawn: 0
     healthScaling: 1
     damageScaling: 1
@@ -76,7 +76,7 @@ MonoBehaviour:
     enableSmartSpawning: 1
     denseRadius: 5
     sparseThreshold: 1
-    edgeBias: 0.8
+    edgeBias: 0.7
   - waveNumber: 3
     waveName: Wave 3
     duration: 60
@@ -87,8 +87,8 @@ MonoBehaviour:
       spawnWeight: 1
       baseSpawnInterval: 3
       forceSpawnOnce: 0
-    maxActiveMonsters: 20
-    minActiveMonsters: 5
+    maxActiveMonsters: 40
+    minActiveMonsters: 10
     defeatAllMaxTotalSpawn: 0
     healthScaling: 1
     damageScaling: 1
@@ -102,7 +102,7 @@ MonoBehaviour:
     enableSmartSpawning: 1
     denseRadius: 5
     sparseThreshold: 1
-    edgeBias: 0.8
+    edgeBias: 0.7
   - waveNumber: 4
     waveName: Wave 4
     duration: 60
@@ -113,8 +113,8 @@ MonoBehaviour:
       spawnWeight: 1
       baseSpawnInterval: 3
       forceSpawnOnce: 0
-    maxActiveMonsters: 20
-    minActiveMonsters: 5
+    maxActiveMonsters: 40
+    minActiveMonsters: 15
     defeatAllMaxTotalSpawn: 0
     healthScaling: 1
     damageScaling: 1
@@ -128,10 +128,10 @@ MonoBehaviour:
     enableSmartSpawning: 1
     denseRadius: 5
     sparseThreshold: 1
-    edgeBias: 0.8
-  globalMaxActiveMonsters: 20
-  globalMinActiveMonsters: 5
-  globalBaseSpawnInterval: 2
+    edgeBias: 0.7
+  globalMaxActiveMonsters: 400
+  globalMinActiveMonsters: 10
+  globalBaseSpawnInterval: 1
   globalHealthScalingPerWave: 1.145
   globalDamageScalingPerWave: 1.12
   globalSpeedScalingPerWave: 1.05

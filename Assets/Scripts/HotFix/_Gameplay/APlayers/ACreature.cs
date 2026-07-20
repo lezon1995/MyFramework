@@ -19,7 +19,7 @@ namespace MoreMountains
 
         public virtual int currentHealth
         {
-            get => (int)Health.CurrentHealth;
+            get => Health.CurrentHealth;
             set => Health.SetHealth(value, RefreshHealthBarType.Immediately);
         }
 
@@ -27,7 +27,7 @@ namespace MoreMountains
 
         public virtual int maxHealth
         {
-            get => (int)Health.MaximumHealth;
+            get => Health.MaximumHealth;
             set => Health.SetHealth(currentHealth, value, RefreshHealthBarType.Immediately);
         }
 
@@ -66,12 +66,10 @@ namespace MoreMountains
         public override void onAcquire()
         {
             base.onAcquire();
-            _controller2D.RegisterToVolumeManager();
         }
 
         public override void onRelease()
         {
-            _controller2D.UnregisterToVolumeManager();
             base.onRelease();
         }
 

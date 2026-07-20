@@ -8,23 +8,23 @@ namespace MoreMountains
 {
     public struct Heal
     {
-        public float Value;
+        public int Value;
         public Algos Algo;
-        public float Healing;
+        public int Healing;
 
-        public static Heal Fixed(float value) => new(value, Algos.Fixed);
-        public static Heal CurPct(float value) => new(value, Algos.CurPct);
-        public static Heal LostPct(float value) => new(value, Algos.LostPct);
-        public static Heal AllPct(float value) => new(value, Algos.AllPct);
+        public static Heal Fixed(int value) => new(value, Algos.Fixed);
+        public static Heal CurPct(int value) => new(value, Algos.CurPct);
+        public static Heal LostPct(int value) => new(value, Algos.LostPct);
+        public static Heal AllPct(int value) => new(value, Algos.AllPct);
 
-        public Heal(float value) : this()
+        public Heal(int value) : this()
         {
             Value = value;
             Algo = Algos.Fixed;
             Healing = value;
         }
 
-        public Heal(float value, Algos algo)
+        public Heal(int value, Algos algo)
         {
             Value = value;
             Algo = algo;
@@ -36,7 +36,7 @@ namespace MoreMountains
             return Healing > 0F;
         }
 
-        public void SetHealing(float value)
+        public void SetHealing(int value)
         {
             Healing = value;
         }
@@ -84,9 +84,9 @@ namespace MoreMountains
         [MMInspectorGroup("Status")]
         [ShowInInspector, ReadOnly]
         [Tooltip("the current health of the character")]
-        public float CurrentHealth { get; set; }
+        public int CurrentHealth { get; set; }
 
-        public float HealthPct => CurrentHealth / maximumHealth;
+        public float HealthPct => (float)CurrentHealth / maximumHealth;
 
         [ShowInInspector, ReadOnly]
         [Tooltip("If this is true, this object can't take damage at this time")]
@@ -96,20 +96,20 @@ namespace MoreMountains
 
         public bool IsDeadTotally { get; set; }
 
-        [MMInspectorGroup("Health")] public float InitialHealth = 10;
+        [MMInspectorGroup("Health")] public int InitialHealth = 10;
 
         public bool InitialHealthDrivenByMaximumHealth;
 
-        public float MaximumHealth = 10;
+        public int MaximumHealth = 10;
 
         public ValueModifier MaximumHealthModifier { get; set; }
 
-        public float maximumHealth
+        public int maximumHealth
         {
             get
             {
-                var maxHealth = MaximumHealth;
-                return MaximumHealthModifier.SafeInvoke(ref maxHealth);
+                var maxHealth = (float)MaximumHealth;
+                return (int)MaximumHealthModifier.SafeInvoke(ref maxHealth);
             }
         }
 
@@ -198,9 +198,6 @@ namespace MoreMountains
         [Tooltip("the time (in seconds) before the character is destroyed or disabled")]
         public float DelayBeforeDestruction;
 
-        [Tooltip("if this is set to false, the character will respawn at the location of its death, otherwise it'll be moved to its initial position (when the scene started)")]
-        public bool RespawnAtInitialLocation;
-
         [Tooltip("if this is true, the controller will be disabled on death")]
         public bool DisableControllerOnDeath = true;
 
@@ -249,7 +246,6 @@ namespace MoreMountains
         public bool Initialized => _initialized;
         public IEventRouter Event => this;
 
-        protected Vector3 _initialPosition;
         protected Renderer _renderer;
         protected CharacterMovement _characterMovement;
         protected TopDownController _controller;
@@ -315,7 +311,7 @@ namespace MoreMountains
                 if (healthRegen == 0)
                     return;
 
-                ReceiveHealth(Heal.Fixed(healthRegen), source: Character);
+                ReceiveHealth(Heal.Fixed((int)healthRegen), source: Character);
             }
         }
 
@@ -404,7 +400,6 @@ namespace MoreMountains
             DamageMMFeedbacks.Initialize(gameObject);
             DeathMMFeedbacks.Initialize(gameObject);
 
-            StoreInitialPosition();
             _initialized = true;
             _timeElapsed = 0F;
 
@@ -474,20 +469,12 @@ namespace MoreMountains
         }
 
         /// <summary>
-        /// Stores the initial position for further use
-        /// </summary>
-        public virtual void StoreInitialPosition()
-        {
-            _initialPosition = transform.position;
-        }
-
-        /// <summary>
         /// Initializes health to either initial or current values
         /// </summary>
         public virtual void InitializeCurrentHealth(RefreshHealthBarType type)
         {
             var initialHealth = InitialHealthDrivenByMaximumHealth ? maximumHealth : InitialHealth;
-            SetHealth(initialHealth, type);
+            SetHealth((int)initialHealth, type);
         }
 
         /// <summary>
@@ -650,7 +637,7 @@ namespace MoreMountains
                         if (source.GetStat(Character.Stat.LS, out var lifeSteal))
                         {
                             var healing = lifeSteal.Value * dmg.DamageDealt;
-                            source.Health.ReceiveHealth(Heal.Fixed(healing), source: source);
+                            source.Health.ReceiveHealth(Heal.Fixed((int)healing), source: source);
                         }
                     }
 
@@ -721,12 +708,12 @@ namespace MoreMountains
                 actualDamage = calculator.computeDamageDefence(dmg.ActualType, rawFinalDamage, AR, MR);
             }
 
-            dmg.SetDamageRaw(rawFinalDamage);
+            dmg.SetDamageRaw((int)rawFinalDamage);
             dmg.SetDamageDealt((int)actualDamage);
             return actualDamage > 0;
         }
 
-        protected virtual float ComputeHealAlgo(Heal.Algos algo, float value)
+        protected virtual int ComputeHealAlgo(Heal.Algos algo, int value)
         {
             return algo switch
             {
@@ -885,9 +872,6 @@ namespace MoreMountains
                     _renderer.material.SetColor(ColorMaterialPropertyName, _initialColor);
                 }
             }
-
-            if (RespawnAtInitialLocation)
-                transform.position = _initialPosition;
         }
 
         /// <summary>
@@ -911,7 +895,7 @@ namespace MoreMountains
         /// <summary>
         /// Sets the current health to the specified new value, and updates the health bar
         /// </summary>
-        public virtual void SetHealth(float curHealth, RefreshHealthBarType type = RefreshHealthBarType.Immediately)
+        public virtual void SetHealth(int curHealth, RefreshHealthBarType type = RefreshHealthBarType.Immediately)
         {
             CurrentHealth = curHealth;
             switch (type)
@@ -937,7 +921,7 @@ namespace MoreMountains
             }
         }
 
-        public virtual void SetHealth(float curHealth, float maxHealth, RefreshHealthBarType type = RefreshHealthBarType.Immediately)
+        public virtual void SetHealth(int curHealth, int maxHealth, RefreshHealthBarType type = RefreshHealthBarType.Immediately)
         {
             CurrentHealth = curHealth;
             MaximumHealth = maxHealth;
@@ -979,9 +963,9 @@ namespace MoreMountains
             if (healing <= 0F)
                 return;
 
-            float newHealth;
-            float actualHealing;
-            float maxHealth = maximumHealth;
+            int newHealth;
+            int actualHealing;
+            int maxHealth = maximumHealth;
 
             if (CurrentHealth + healing <= maxHealth)
             {
@@ -1000,7 +984,7 @@ namespace MoreMountains
                 new HealTextEvent(heal, transform).trigger();
             }
 
-            SetHealth(newHealth, RefreshHealthBarType.ReceiveHealing);
+            SetHealth((int)newHealth, RefreshHealthBarType.ReceiveHealing);
 
             if (heal.IsValid())
             {

@@ -22,7 +22,7 @@ namespace MoreMountains
             var damage = e.Dmg.DamageDealt;
             var coeff = HealCoeff.Value(this);
             var heal = damage * coeff;
-            Target.Health.ReceiveHealth(Heal.Fixed(heal));
+            Target.Health.ReceiveHealth(Heal.Fixed((int)heal));
         }
     }
 }

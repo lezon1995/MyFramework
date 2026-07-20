@@ -17,6 +17,7 @@ namespace MoreMountains
             TryGetComponent(out brickRenderer);
             TryGetComponent(out damageOnTouch);
             damageOnTouch.SetOwner(gameObject);
+            brickRenderer.setOnBornAnimationComplete(OnBornCompleted);
             brickRenderer.Awake();
         }
 
@@ -27,7 +28,7 @@ namespace MoreMountains
             colliderOffset = boxCollider.offset;
             colliderSize = boxCollider.size;
         }
-        
+
         protected override void OnEnable()
         {
             base.OnEnable();
@@ -52,6 +53,33 @@ namespace MoreMountains
 
         protected override void UpdateAnimators()
         {
+        }
+
+        public override void onEvent(OnRevive e)
+        {
+            CharacterBrain.enabled = true;
+        }
+
+        public override void RespawnAt(Vector3 spawnPosition, FacingDirections facingDirection = FacingDirections.South)
+        {
+            _controller.SetPosition(spawnPosition);
+            setWorldPosition(spawnPosition);
+
+            conditionState.ChangeState(Conditions.Normal);
+
+            _controller.enabled = true;
+            _controller.Reset();
+
+            Reset();
+            UnFreeze();
+
+            if (Health)
+            {
+                Health.ResetHealthToMaxHealth();
+                Health.Resurrect();
+            }
+
+            CharacterBrain.enabled = true;
         }
 
         public override void OnUpdate(float dt)

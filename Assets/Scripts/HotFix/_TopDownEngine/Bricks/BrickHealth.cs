@@ -45,6 +45,28 @@ namespace MoreMountains
             brick.brickRenderer.refreshHealthByHealing((int)CurrentHealth, (int)maximumHealth);
         }
 
+        public override void Resurrect()
+        {
+            if (!_initialized)
+                return;
+
+            DoResurrect();
+
+            Initialization();
+            InitializeCurrentHealth(RefreshHealthBarType.Resurrect);
+            Event.trigger(new OnRevive());
+        }
+
+        protected override void DoResurrect()
+        {
+            if (DisableChildCollisionsOnDeath)
+            {
+                _collider2D.enabled = true;
+            }
+
+            Character.conditionState?.ChangeState(Character.Conditions.Normal);
+        }
+
 
         public override void Damage(ref Dmg dmg, GameObject instigator, Character source = null, float invincibleTime = 0F, Vector3 direction = default, IDmgCalculator calculator = null)
         {
@@ -157,7 +179,7 @@ namespace MoreMountains
                         if (source.Stats && source.Stats.TryGetStat(Stats.LS, out var lifeSteal))
                         {
                             var healing = lifeSteal.Value * dmg.DamageDealt;
-                            source.Health.ReceiveHealth(Heal.Fixed(healing), source: source);
+                            source.Health.ReceiveHealth(Heal.Fixed((int)healing), source: source);
                         }
                     }
 
@@ -244,9 +266,9 @@ namespace MoreMountains
             foreach (var p in brick.powers)
                 healing = p.onHeal((int)healing);
 
-            float newHealth;
-            float actualHealing;
-            float maxHealth = maximumHealth;
+            int newHealth;
+            int actualHealing;
+            int maxHealth = maximumHealth;
 
             if (CurrentHealth + healing <= maxHealth)
             {
@@ -265,7 +287,7 @@ namespace MoreMountains
                 new HealTextEvent(heal, transform).trigger();
             }
 
-            SetHealth(newHealth, RefreshHealthBarType.ReceiveHealing);
+            SetHealth((int)newHealth, RefreshHealthBarType.ReceiveHealing);
 
             if (heal.IsValid())
             {

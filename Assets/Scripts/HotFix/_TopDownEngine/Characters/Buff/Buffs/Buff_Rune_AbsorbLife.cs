@@ -19,7 +19,7 @@ namespace MoreMountains
         public void onEvent(DoKill e)
         {
             var value = Healing.Value(this);
-            Target.Health.ReceiveHealth(Heal.Fixed(value));
+            Target.Health.ReceiveHealth(Heal.Fixed((int)value));
         }
     }
 }

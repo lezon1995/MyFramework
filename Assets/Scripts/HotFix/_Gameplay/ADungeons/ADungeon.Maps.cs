@@ -70,6 +70,7 @@ namespace MoreMountains
             // var souls = room.souls;
             prevMapNode = currMapNode;
             prevMapNode?.room?.onPlayerExit();
+            prevMapNode?.room?.onRoomUninitialize();
 
             room?.Dispose();
             currMapNode = curNode;
@@ -646,6 +647,7 @@ namespace MoreMountains
                 else
                     Game.publisherIntegration?.setRichPresenceDisplayPlaying(floorNum, player.getLocalizedCharacterName());
 
+                room.onRoomInitialize();
                 room.onPlayerEntry();
             }
 

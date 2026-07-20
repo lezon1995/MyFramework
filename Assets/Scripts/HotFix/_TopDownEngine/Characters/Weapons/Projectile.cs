@@ -331,7 +331,7 @@ namespace MoreMountains
         /// Sets the damage caused by the projectile's DamageOnTouch to the specified value
         /// </summary>
         /// <param name="baseDamage"></param>
-        public virtual void SetDamage(float baseDamage)
+        public virtual void SetDamage(int baseDamage)
         {
             if (_damageOnTouch)
                 _damageOnTouch.Dmg.Value = baseDamage;

@@ -21,6 +21,7 @@ public class GameEntryBase : MonoBehaviour
 		// 每当Transform组件更改时是否自动将变换更改与物理系统同步
 		// Physics.simulationMode = SimulationMode.Script;
 		// Physics.autoSyncTransforms = true;
+		Application.runInBackground = true;
 		AppDomain.CurrentDomain.UnhandledException += unhandledException;
 		BuglyForwarder.init();
 		setMainThreadID(Thread.CurrentThread.ManagedThreadId);

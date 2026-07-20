@@ -799,7 +799,7 @@ MonoBehaviour:
   Target: {fileID: 0}
   _lastKnownTargetPosition: {x: 0, y: 0, z: 0}
   BrainActive: 1
-  ResetBrainOnStart: 1
+  ResetBrainOnStart: 0
   ResetBrainOnEnable: 0
   ActionsFrequency: 0
   DecisionFrequency: 0
@@ -820,12 +820,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: HotFix::MoreMountains.TopDownEngine.EnemyDetectTargetRadiusDecision
   Label: 
-  Radius: 5
+  Radius: 15
   DetectionOriginOffset: {x: 0, y: 0, z: 0}
   TargetLayer:
     serializedVersion: 2
     m_Bits: 4096
-  ObstacleDetection: 1
+  ObstacleDetection: 0
   ObstacleMask:
     serializedVersion: 2
     m_Bits: 16384
@@ -881,7 +881,6 @@ MonoBehaviour:
   KnockbackForceMultiplier: 1
   DestroyOnDeath: 1
   DelayBeforeDestruction: 1
-  RespawnAtInitialLocation: 0
   DisableControllerOnDeath: 0
   DisableModelOnDeath: 1
   DisableCollisionsOnDeath: 1

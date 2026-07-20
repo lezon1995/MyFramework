@@ -53,7 +53,7 @@ namespace MoreMountains
             var value = mag.Value(this);
             if (value > 0)
             {
-                var dmg = new Dmg(value, mag.DmgType, mag.DmgAlgo);
+                var dmg = new Dmg((int)value, mag.DmgType, mag.DmgAlgo);
                 dmg.SetEffect(Dmg.Effects.Skill);
                 health.Damage(ref dmg, gameObject, source: Target.Character);
             }

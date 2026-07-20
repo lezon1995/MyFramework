@@ -35,6 +35,7 @@ namespace MoreMountains
         HealthBar healthBar;
         BrickAnimationReceiver receiver;
         AnimationState curAnimation;
+        Action onBornAnimationComplete;
 
         public void Awake()
         {
@@ -88,6 +89,11 @@ namespace MoreMountains
                 matUnit.SetFloat(StrongTintFade, 0);
                 flashRemainSeconds.kill();
             }
+        }
+
+        public void setOnBornAnimationComplete(Action a)
+        {
+            onBornAnimationComplete = a;
         }
 
         public void setRendererActive(bool active)
@@ -262,8 +268,8 @@ namespace MoreMountains
         {
             if (curAnimation == AnimationState.BORN)
             {
-                setHealthBarActive(true);
                 curAnimation = AnimationState.NONE;
+                onBornAnimationComplete?.Invoke();
             }
             else if (curAnimation == AnimationState.HITTING)
             {

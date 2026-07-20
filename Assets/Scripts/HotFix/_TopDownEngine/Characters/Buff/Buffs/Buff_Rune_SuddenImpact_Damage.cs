@@ -21,7 +21,7 @@ namespace MoreMountains
         {
             var mag = Damage;
             var value = mag.Value(this);
-            var dmg = new Dmg(value, mag.DmgType, mag.DmgAlgo);
+            var dmg = new Dmg((int)value, mag.DmgType, mag.DmgAlgo);
             dmg.SetEffect(Dmg.Effects.Skill);
 
             Target.RemoveBuffWithType(BuffType, true);

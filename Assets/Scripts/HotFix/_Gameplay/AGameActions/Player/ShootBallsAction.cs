@@ -37,7 +37,7 @@ namespace MoreMountains
             {
                 if (player.ballCount > 0)
                 {
-                    var ball = ballManager.acquireBall(shootPos, shootDir);
+                    var ball = ballManager.acquireBall(BallType.Normal, shootPos, shootDir);
                     if (player.ballCount == player.ballMaxCount)
                     {
                         // ball.isFirst = true;

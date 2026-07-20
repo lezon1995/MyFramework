@@ -17,7 +17,7 @@ MonoBehaviour:
   - {r: 0, g: 0.7294118, b: 1, a: 1}
   - {r: 1, g: 1, b: 1, a: 1}
   Icons: []
-  ContentScale: 1.25
+  ContentScale: 0.8
   StartSequenceDuration: 0.1
   StaticDuration: 0
   FloatingDuration: 0.7

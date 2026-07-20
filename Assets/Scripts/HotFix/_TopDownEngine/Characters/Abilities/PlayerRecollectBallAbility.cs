@@ -48,7 +48,7 @@ namespace MoreMountains
             if (canRecollectedBalls.ContainsKey(other) && ball.inUse)
             {
                 canRecollectedBalls.Remove(other);
-                Capture(ball);
+                RecollectBall(ball);
             }
         }
 
@@ -103,9 +103,10 @@ namespace MoreMountains
         /// <summary>
         /// 进入引力范围的瞬间：计算入射角 → 查表得到坠落时间 → 锁定所有轨迹参数。
         /// </summary>
-        void Capture(Ball ball)
+        public void RecollectBall(Ball ball, float collectDuration = 0F)
         {
             ball.IsRecollecting = true;
+            ball.SetColliderEnabled(false);
             ball.setEnabled(false);
 
             CLASS(out CaptureData data);
@@ -132,7 +133,11 @@ namespace MoreMountains
 
             // 坠落时间：angle=0 → minDuration，angle=90 → maxDuration
             float t = angleDeg / 90f;
-            data._fallDuration = Mathf.Lerp(minCollectDuration, maxCollectDuration, t);
+            
+            if (isFloatZero(collectDuration))
+                collectDuration = Mathf.Lerp(minCollectDuration, maxCollectDuration, t);
+
+            data._fallDuration = collectDuration;
 
             // 切向单位向量：在 XY 平面内与 entry 半径方向垂直
             // -normal 始终指向 entry 点，即物体进入的那一侧（而不是行星中心）

@@ -181,8 +181,6 @@ public class BrickManager : FrameSystem
         }
 
         var brick = pool.Get();
-        brick.setWorldPosition(pos);
-
         var sortingOrder = brickLayout.getSortingOrderAtPosY(pos.y);
         brick.setSortingOrder(sortingOrder);
         brick.onAcquire();

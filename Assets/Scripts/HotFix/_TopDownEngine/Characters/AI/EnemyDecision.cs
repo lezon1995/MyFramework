@@ -10,11 +10,12 @@ namespace MoreMountains
         {
             base.Awake();
         }
-        
+
         public override void Initialization()
         {
             base.Initialization();
-            this.TryGetComponentInParent(out brick);
+            if (brick == null)
+                this.TryGetComponentInParent(out brick);
         }
     }
 }

@@ -14,12 +14,12 @@
 
         protected virtual void playHitBorderSfx()
         {
-            sound.play(SoundDefine.BALL_HIT_BORDER_COMMON);
+            // sound.play(SoundDefine.BALL_HIT_BRICK_COMMON);
         }
 
         protected virtual void playHitObstacleSfx()
         {
-            sound.play(SoundDefine.BALL_HIT_BORDER_COMMON);
+            // sound.play(SoundDefine.BALL_HIT_BRICK_COMMON);
         }
     }
 }

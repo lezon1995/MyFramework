@@ -166,7 +166,7 @@ namespace MoreMountains
                 var value = mag.Value(this);
                 if (value > 0)
                 {
-                    var dmg = new Dmg(value, mag.DmgType, mag.DmgAlgo);
+                    var dmg = new Dmg((int)value, mag.DmgType, mag.DmgAlgo);
                     Target.Health.Damage(ref dmg, gameObject, source: Source.Character);
                 }
             }
@@ -177,7 +177,7 @@ namespace MoreMountains
                 var value = mag.Value(this);
                 if (value > 0)
                 {
-                    var heal = new Heal(value, mag.HealAlgo);
+                    var heal = new Heal((int)value, mag.HealAlgo);
                     Target.Health.ReceiveHealth(heal, source: Target.Character);
                 }
             }

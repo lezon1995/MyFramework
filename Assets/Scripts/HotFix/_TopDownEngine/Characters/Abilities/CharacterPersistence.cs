@@ -74,8 +74,6 @@ namespace MoreMountains
                     character.SetInputManager();
                     break;
                 case TopDownEngineEventTypes.LevelStart:
-                    _health?.StoreInitialPosition();
-
                     break;
                 case TopDownEngineEventTypes.RespawnComplete:
                     Initialized = true;

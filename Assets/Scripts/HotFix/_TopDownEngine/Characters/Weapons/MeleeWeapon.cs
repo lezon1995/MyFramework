@@ -16,8 +16,6 @@ namespace MoreMountains
         {
             Box2D,
             Circle2D,
-            Box,
-            Sphere
         }
 
         public enum Modes
@@ -36,11 +34,11 @@ namespace MoreMountains
 
         [Tooltip("the offset to apply to the damage area (from the weapon's attachment position")]
         [MMEnumCondition(nameof(Mode), (int)Modes.Generated)]
-        public Vector3 AreaOffset = new Vector3(1, 0);
+        public Vector3 AreaOffset = new(1, 0);
 
         [Tooltip("the size of the damage area")]
         [MMEnumCondition(nameof(Mode), (int)Modes.Generated)]
-        public Vector3 AreaSize = new Vector3(1, 1);
+        public Vector3 AreaSize = new(1, 1);
 
         [Tooltip("the trigger filters this melee weapon should apply damage on (by default, it'll apply damage on everything, but you can change this to only apply when targets enter the area, for example)")]
         [MMEnumCondition(nameof(Mode), (int)Modes.Generated)]
@@ -72,13 +70,10 @@ namespace MoreMountains
         public KnockbackDirections KnockbackDirection;
         public float InvincibilityDuration = 0.5f;
 
-        protected Collider _damageAreaCollider;
         protected Collider2D _damageAreaCollider2D;
         protected bool _attackInProgress;
         protected CircleCollider2D _circleCollider2D;
         protected BoxCollider2D _boxCollider2D;
-        protected BoxCollider _boxCollider;
-        protected SphereCollider _sphereCollider;
         protected DamageOnTouch _damageOnTouch;
         protected GameObject _damageArea;
 
@@ -107,7 +102,6 @@ namespace MoreMountains
             if (Mode == Modes.Existing && ExistingDamageArea)
             {
                 _damageArea = ExistingDamageArea.gameObject;
-                _damageAreaCollider = _damageArea.GetComponent<Collider>();
                 _damageAreaCollider2D = _damageArea.GetComponent<Collider2D>();
                 _damageOnTouch = ExistingDamageArea;
                 return;
@@ -143,20 +137,6 @@ namespace MoreMountains
                     _damageAreaCollider2D = _circleCollider2D;
                     _damageAreaCollider2D.isTrigger = true;
                     break;
-                case Shapes.Box:
-                    _boxCollider = _damageArea.AddComponent<BoxCollider>();
-                    _boxCollider.center = AreaOffset;
-                    _boxCollider.size = AreaSize;
-                    _damageAreaCollider = _boxCollider;
-                    _damageAreaCollider.isTrigger = true;
-                    break;
-                case Shapes.Sphere:
-                    _sphereCollider = _damageArea.AddComponent<SphereCollider>();
-                    _sphereCollider.transform.position = transform.position + transform.rotation * AreaOffset;
-                    _sphereCollider.radius = AreaSize.x / 2;
-                    _damageAreaCollider = _sphereCollider;
-                    _damageAreaCollider.isTrigger = true;
-                    break;
             }
 
             switch (DamageAreaShape)
@@ -164,14 +144,8 @@ namespace MoreMountains
                 case Shapes.Box2D:
                 case Shapes.Circle2D:
                     var rigidBody2D = _damageArea.AddComponent<Rigidbody2D>();
-                    rigidBody2D.isKinematic = true;
+                    rigidBody2D.bodyType = RigidbodyType2D.Kinematic;
                     rigidBody2D.sleepMode = RigidbodySleepMode2D.NeverSleep;
-                    break;
-                case Shapes.Box:
-                case Shapes.Sphere:
-                    var rigidBody = _damageArea.AddComponent<Rigidbody>();
-                    rigidBody.isKinematic = true;
-                    rigidBody.gameObject.AddComponent<MMRagdollerIgnore>();
                     break;
             }
 
@@ -230,9 +204,6 @@ namespace MoreMountains
         {
             if (_damageAreaCollider2D)
                 _damageAreaCollider2D.enabled = true;
-
-            if (_damageAreaCollider)
-                _damageAreaCollider.enabled = true;
         }
 
 
@@ -243,9 +214,6 @@ namespace MoreMountains
         {
             if (_damageAreaCollider2D)
                 _damageAreaCollider2D.enabled = false;
-
-            if (_damageAreaCollider)
-                _damageAreaCollider.enabled = false;
         }
 
         /// <summary>
@@ -257,24 +225,18 @@ namespace MoreMountains
                 DrawGizmos();
         }
 
-        protected virtual void DrawGizmos()
+        public override void DrawGizmos()
         {
             if (Mode == Modes.Existing)
                 return;
 
             switch (DamageAreaShape)
             {
-                case Shapes.Box:
-                    Gizmos.DrawWireCube(transform.position + AreaOffset, AreaSize);
-                    break;
                 case Shapes.Circle2D:
                     Gizmos.DrawWireSphere(transform.position + AreaOffset, AreaSize.x / 2);
                     break;
                 case Shapes.Box2D:
                     MMDebug.DrawGizmoRectangle(transform.position + AreaOffset, AreaSize, Color.red);
-                    break;
-                case Shapes.Sphere:
-                    Gizmos.DrawWireSphere(transform.position + AreaOffset, AreaSize.x / 2);
                     break;
             }
         }

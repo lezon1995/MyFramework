@@ -36,7 +36,7 @@ namespace MoreMountains
 
         [Header("Foreground (Actual HP)")]
         [SerializeField]
-        Color _foregroundColor = new Color(0.9f, 0.15f, 0.15f, 1f);
+        Color _foregroundColor = new(0.9f, 0.15f, 0.15f, 1f);
 
         [Range(0f, 1f)]
         [SerializeField]
@@ -58,7 +58,7 @@ namespace MoreMountains
 
         [Header("Chunk Colors")]
         [SerializeField]
-        Color _defaultChunkColor = new Color(0.78f, 0.78f, 0.78f, 1f);
+        Color _defaultChunkColor = new(0.78f, 0.78f, 0.78f, 1f);
 
         [Header("Chunk Animation")]
         [Tooltip("Chunk 透明度从 1.0 衰减到 0 的总时长（秒）")]

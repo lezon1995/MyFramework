@@ -87,13 +87,13 @@ namespace MoreMountains
         public Health DamageTakenHealth;
 
         [Tooltip("The amount of damage taken every time, whether what we collide with is damageable or not")]
-        public float DamageTakenEveryTime;
+        public int DamageTakenEveryTime;
 
         [Tooltip("The amount of damage taken when colliding with a damageable object")]
-        public float DamageTakenDamageable;
+        public int DamageTakenDamageable;
 
         [Tooltip("The amount of damage taken when colliding with something that is not damageable")]
-        public float DamageTakenNonDamageable;
+        public int DamageTakenNonDamageable;
 
         [Tooltip("the type of knockback to apply when taking damage")]
         public KnockbackStyles DamageTakenKnockbackType = KnockbackStyles.None;
@@ -188,7 +188,7 @@ namespace MoreMountains
         {
             if (Owner.TryGetComponent<Stats>(out var stats))
             {
-                DmgGetter = () => Dmg.AD(stats.GetStat(Character.Stat.AD.Key()).Value);
+                DmgGetter = () => Dmg.AD((int)stats.GetStat(Character.Stat.AD.Key()).Value);
             }
             else
             {
@@ -622,7 +622,7 @@ namespace MoreMountains
         /// </summary>
         protected virtual void OnCollideWithNonDamageable()
         {
-            float selfDamage = DamageTakenEveryTime + DamageTakenNonDamageable;
+            int selfDamage = DamageTakenEveryTime + DamageTakenNonDamageable;
             if (selfDamage > 0)
             {
                 SelfDamage(selfDamage);
@@ -642,7 +642,7 @@ namespace MoreMountains
         /// Applies damage to itself
         /// </summary>
         /// <param name="damage">Damage.</param>
-        protected virtual void SelfDamage(float damage)
+        protected virtual void SelfDamage(int damage)
         {
             if (DamageTakenHealth)
             {
@@ -669,7 +669,7 @@ namespace MoreMountains
     public struct Dmg
     {
         public Effects Effect;
-        public float Value;
+        public int Value;
         public Types Type;
         public Types ActualType;
         public Algos Algo;
@@ -677,7 +677,7 @@ namespace MoreMountains
         public float CritRate;
         public Stat DmgRate;
         public bool Self;
-        public float DamageRaw;
+        public int DamageRaw;
         public int DamageDealt;
         public Vector3 Direction;
         public bool TriggerEffect;
@@ -685,12 +685,12 @@ namespace MoreMountains
         public Vector2 HitNormal;
         public Mixed Mix;
 
-        public static Dmg AD(float value) => new(value, Types.AD, false);
-        public static Dmg AP(float value) => new(value, Types.AP, false);
-        public static Dmg True(float value) => new(value, Types.True, false);
-        public static Dmg Adaptive(float value) => new(value, Types.Adaptive, false);
+        public static Dmg AD(int value) => new(value, Types.AD, false);
+        public static Dmg AP(int value) => new(value, Types.AP, false);
+        public static Dmg True(int value) => new(value, Types.True, false);
+        public static Dmg Adaptive(int value) => new(value, Types.Adaptive, false);
 
-        public Dmg(float value, Types type, bool isCrit)
+        public Dmg(int value, Types type, bool isCrit)
         {
             Effect = Effects.Attack;
             Value = value;
@@ -700,7 +700,7 @@ namespace MoreMountains
             IsCrit = isCrit;
             CritRate = 2F;
             DmgRate = 1F;
-            DamageRaw = 0F;
+            DamageRaw = 0;
             DamageDealt = 0;
             Direction = Vector3.zero;
             Self = false;
@@ -710,7 +710,7 @@ namespace MoreMountains
             IsLethal = false;
         }
 
-        public Dmg(float value, Types type, Algos algo)
+        public Dmg(int value, Types type, Algos algo)
         {
             Effect = Effects.Attack;
             Value = value;
@@ -720,7 +720,7 @@ namespace MoreMountains
             IsCrit = false;
             CritRate = 2F;
             DmgRate = 1F;
-            DamageRaw = 0F;
+            DamageRaw = 0;
             DamageDealt = 0;
             Direction = Vector3.zero;
             Self = false;
@@ -823,7 +823,7 @@ namespace MoreMountains
             return this;
         }
 
-        public Dmg SetDamageRaw(float damage)
+        public Dmg SetDamageRaw(int damage)
         {
             DamageRaw = damage;
             return this;
@@ -897,9 +897,9 @@ namespace MoreMountains
             public float PctTrue;
 
             public bool Off => !On;
-            public float DamageDealtAD { get; set; }
-            public float DamageDealtAP { get; set; }
-            public float DamageDealtTrue { get; set; }
+            public int DamageDealtAD { get; set; }
+            public int DamageDealtAP { get; set; }
+            public int DamageDealtTrue { get; set; }
 
             public float Sum()
             {

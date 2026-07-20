@@ -155,9 +155,9 @@ namespace MoreMountains
             foreach (var p in player.powers)
                 healing = p.onHeal((int)healing);
 
-            float newHealth;
-            float actualHealing;
-            float maxHealth = maximumHealth;
+            int newHealth;
+            int actualHealing;
+            int maxHealth = maximumHealth;
 
             if (CurrentHealth + healing <= maxHealth)
             {
@@ -176,7 +176,7 @@ namespace MoreMountains
                 new HealTextEvent(heal, transform).trigger();
             }
 
-            SetHealth(newHealth, RefreshHealthBarType.ReceiveHealing);
+            SetHealth((int)newHealth, RefreshHealthBarType.ReceiveHealing);
             
             if (CurrentHealth > maxHealth / 2F && player.isBloodied)
             {

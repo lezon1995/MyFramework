@@ -12,8 +12,10 @@ namespace MoreMountains
         {
             long startTime = TimeUtility.getNowTimeStampMS();
             Settings.SOUND_VOLUME = Settings.soundPref.getFloat("Sound Volume", 0.5F);
-            map.Add(SoundDefine.BALL_HIT_BRICK_COMMON, load("BALL_HIT_COMMON_H.wav"));
-            map.Add(SoundDefine.BALL_HIT_BORDER_COMMON, load("BALL_HIT_BORDER_COMMON.wav"));
+            map.Add(SoundDefine.BALL_HIT_BRICK_COMMON, load("ball_hit_brick_common.wav"));
+            map.Add(SoundDefine.BALL_HIT_BORDER_COMMON, load("ball_hit_border.wav"));
+            map.Add(SoundDefine.LASER_BEAM, load("laser_beam.wav"));
+            map.Add(SoundDefine.LIGHTNING_STRIKE, load("lightning_strike.wav"));
 
             log("Sound Effect Volume: " + Settings.SOUND_VOLUME);
             log("Loaded " + map.Count + " Sound Effects");

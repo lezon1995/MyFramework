@@ -245,6 +245,7 @@ MonoBehaviour:
   title: 
   cardsPlayedThisTurn: 0
   playerRenderer: {fileID: 4979159710220304118}
+  playerRecollectBall: {fileID: 0}
 --- !u!114 &1864776208260843582
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -366,7 +367,6 @@ MonoBehaviour:
   KnockbackForceMultiplier: 1
   DestroyOnDeath: 1
   DelayBeforeDestruction: 0
-  RespawnAtInitialLocation: 0
   DisableControllerOnDeath: 1
   DisableModelOnDeath: 1
   DisableCollisionsOnDeath: 1
@@ -439,7 +439,7 @@ MonoBehaviour:
   BlockingMovementStates: 
   BlockingConditionStates: 
   BlockingWeaponStates: 
-  InitialWeapon: {fileID: -4478620210553915232, guid: 03fd8e2ad2614534f9d6b71e5096cc78,
+  InitialWeapon: {fileID: -4478620210553915232, guid: e6874c1d75252ca489bec188cda26c42,
     type: 3}
   CanPickupWeapons: 1
   WeaponUseFeedback: {fileID: 0}

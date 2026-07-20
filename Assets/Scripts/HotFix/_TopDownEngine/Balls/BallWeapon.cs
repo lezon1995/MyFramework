@@ -6,9 +6,12 @@ namespace MoreMountains
 {
     public class BallWeapon : ProjectileWeapon
     {
+        [MMInspectorGroup("ID")]
+        public BallType ballType;
+        
         public override GameObject SpawnProjectile(Vector3 spawnPosition, int projectileIndex, int totalProjectiles, bool triggerObjectActivation = true)
         {
-            var ball = ballManager.acquireBall(spawnPosition);
+            var ball = ballManager.acquireBall(ballType, spawnPosition);
 
             // mandatory checks
             if (ball == null)

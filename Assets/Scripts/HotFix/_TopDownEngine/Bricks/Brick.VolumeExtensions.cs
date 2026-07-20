@@ -64,7 +64,8 @@ namespace MoreMountains
             if (body == null) 
                 return results;
 
-            var entities = VolumeManager.Instance.GetEntitiesInRadius(body.Position, body.Radius * 3f);
+            using var _ = new ListScope<TopDownController2D>(out var entities);
+            VolumeManager.Instance.GetEntitiesInRadius(body.Position, body.Radius * 3f, ref entities);
             foreach (var entity in entities)
             {
                 if (entity == body) 

@@ -84,6 +84,10 @@ namespace MoreMountains
         public int rareCardChance = 3;
         public int uncommonCardChance = 37;
 
+        public virtual void onRoomInitialize()
+        {
+        }
+
         public virtual void onPlayerEntry()
         {
             log($"onPlayerEntry Room {GetType().Name}");
@@ -92,6 +96,10 @@ namespace MoreMountains
         public virtual void onPlayerExit()
         {
             log($"onPlayerExit Room {GetType().Name}");
+        }
+        
+        public virtual void onRoomUninitialize()
+        {
         }
 
         protected virtual void changePhase(RoomPhaseType type)

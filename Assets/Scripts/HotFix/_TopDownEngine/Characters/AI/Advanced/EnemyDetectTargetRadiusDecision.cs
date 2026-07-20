@@ -27,7 +27,7 @@ namespace MoreMountains
         public LayerMask TargetLayer;
 
         [Tooltip("whether or not to look for obstacles")]
-        public bool ObstacleDetection = true;
+        public bool ObstacleDetection;
 
         [Tooltip("the layer(s) to look for obstacles on")]
         public LayerMask ObstacleMask = LayerManager.Obstacles_Mask;

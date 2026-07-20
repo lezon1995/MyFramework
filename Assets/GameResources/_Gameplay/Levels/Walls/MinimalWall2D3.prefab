@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 212328564898728720}
   - component: {fileID: 61059697609074732}
   - component: {fileID: -4153580281868135881}
+  - component: {fileID: -5591734938213180808}
   m_Layer: 14
   m_Name: MinimalWall2D3
   m_TagString: Untagged
@@ -151,3 +152,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d481b4bcf09d4ddca574b33cfb8ca5da, type: 3}
   m_Name: 
   m_EditorClassIdentifier: HotFix::MarbleHero.Obstacle
+--- !u!114 &-5591734938213180808
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1707245841049908}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b73f05b31212f0d419ada6564e9c4ddf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: HotFix::MoreMountains.VolumeCollider
+  Enabled: 1
+  CollisionPriority: 1
+  GizmosColor: {r: 0.3, g: 0.8, b: 0.3, a: 0.5}

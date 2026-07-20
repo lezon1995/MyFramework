@@ -26,6 +26,8 @@ namespace MoreMountains
             Exp.ResetLevel();
             Exp.SetOnLevelUp(onLevelUp);
             
+            FindAbility(out playerRecollectBall);
+            
             originalShootPosition = shootPosition = getWorldPosition();
             setOriginalShootPositionX(shootPosition.x);
 
@@ -60,6 +62,11 @@ namespace MoreMountains
         {
             // CtrUI.instance.SetReturnBallButton(false);
             actionManager.addToTop<ReturnBallsAction>().with(shootPosition);
+        }
+
+        public void recollectBall(Ball ball)
+        {
+            playerRecollectBall.RecollectBall(ball, 0.75F);
         }
 
         public void setCurrentShootPosition(Vector2 p)

@@ -47,7 +47,7 @@ public partial class SplashScreen
     public override void update(float dt)
     {
         base.update(dt);
-        if ((InputHelper.justClickedLeft /*|| CInputActionSet.select.isJustPressed()*/) && phase != Phase.FADE_OUT)
+        if ((InputHelper.justClickedLeft /*|| CInputActionSet.select.isJustPressed()*/) || phase != Phase.FADE_OUT)
         {
             phase = Phase.FADE_OUT;
             timer = FADE_OUT_DUR;

@@ -314,14 +314,14 @@ namespace MoreMountains
             if (player == null || player.Health == null) 
                 return;
 
-            float healAmount;
+            int healAmount;
             if (reward.value >= 100)
             {
                 healAmount = player.maxHealth;
             }
             else
             {
-                healAmount = player.maxHealth * (reward.value / 100f);
+                healAmount = (int)(player.maxHealth * (reward.value / 100f));
             }
 
             player.Health.ReceiveHealth(new Heal { Value = healAmount }, null, player);

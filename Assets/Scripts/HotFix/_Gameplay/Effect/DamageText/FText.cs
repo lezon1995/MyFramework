@@ -29,6 +29,7 @@ public class FText : Transformable
 
     Image _icon;
     TextMeshProUGUI _tmp;
+    TextMeshProUGUI _tmpPlus;
     TextTMP _text;
     Transform _content;
     CanvasGroup _canvas;
@@ -41,6 +42,7 @@ public class FText : Transformable
         useTimes = -1;
         _icon = null;
         _tmp = null;
+        _tmpPlus = null;
         UN_CLASS(ref _text);
         _content = null;
         _canvas = null;
@@ -60,6 +62,7 @@ public class FText : Transformable
     {
         base.setObject(obj);
         obj.find(out _tmp, "Content/Text");
+        obj.find(out _tmpPlus, "Content/TextPlus");
         obj.find(out _content, "Content");
         obj.find(out _icon, "Content/Icon");
         obj.TryGetComponent(out _canvas);
@@ -90,9 +93,17 @@ public class FText : Transformable
         setContentScale(setting.ContentScale, data.extraContentSize);
 
         if (data.fontColor != default)
+        {
             _text.color = data.fontColor;
+            if (_tmpPlus)
+                _tmpPlus.color = data.fontColor;
+        }
         else
+        {
             _text.color = setting.FontColors[data.type];
+            if (_tmpPlus)
+                _tmpPlus.color = setting.FontColors[data.type];
+        }
 
         if (data.outlineColor != default)
             _text.outlineColor = data.outlineColor;

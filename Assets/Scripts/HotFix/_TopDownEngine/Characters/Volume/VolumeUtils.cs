@@ -328,11 +328,13 @@ namespace MoreMountains
         /// <summary>
         /// 获取所有在圆形区域内的实体
         /// </summary>
-        public static List<TopDownController2D> GetEntitiesInCircle(this VolumeManager manager, Vector2 center, float radius)
+        public static List<TopDownController2D> GetEntitiesInCircle(this VolumeManager manager, Vector2 center, float radius, ref List<TopDownController2D> result)
         {
-            if (manager == null) 
-                return new();
-            return manager.GetEntitiesInRadius(center, radius);
+            if (manager == null)
+                return result;
+
+            manager.GetEntitiesInRadius(center, radius, ref result);
+            return result;
         }
 
         /// <summary>
@@ -344,7 +346,8 @@ namespace MoreMountains
                 return;
 
             float checkRadius = radius ?? source.Radius * 5f;
-            var entities = manager.GetEntitiesInRadius(source.Position, checkRadius);
+            using var _ = new ListScope<TopDownController2D>(out var entities);
+            manager.GetEntitiesInRadius(source.Position, checkRadius, ref entities);
 
             foreach (var entity in entities)
             {

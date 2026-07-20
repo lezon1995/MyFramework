@@ -9,16 +9,16 @@ namespace MoreMountains
     {
         const float PHYSICS_CAST_DISTANCE = 100F;
         protected Comparison<RaycastHit2D> comparison;
+        public virtual BallType BallType { get; }
 
         public int instanceID; //GameObject的instanceID，可以根据不同GameObject而变化
-        protected Type type;
         public long guid; // Ball这个对象的guid，
 
         #region Stats
 
         public bool isTemp; //是否是临时生成出来的球
         public bool horizontalBorderTeleportable; //是否可在左右边界来回传送
-        public bool usePhysics;
+        public bool usePhysics = true;
 
         public void setInitialHealth(int value)
         {
@@ -74,9 +74,7 @@ namespace MoreMountains
         public bool isOverlappingBrick;
 
         public void setBorderToBallDamageModifier(BorderToBallDamageModifier m) => borderToBallDamageModifier = m;
-        public void setBallType(Type t) => type = t;
         public void setID(long id) => guid = id;
-        public Type getType() => type;
         public long getGUID() => guid;
 
         public Ball()
@@ -515,8 +513,6 @@ namespace MoreMountains
         {
             lastRadius = Radius;
             Radius = value;
-            var diameter = value * 2F;
-            ballRenderer.setRadius(diameter);
         }
 
         public Circle2 getCircle()
@@ -531,7 +527,7 @@ namespace MoreMountains
             setRadius(Radius);
         }
 
-        public float getPhysicDamage()
+        public int getPhysicDamage()
         {
             float physicDamage = 0;
             if (GetStat(Stat.AD, out var ballAD))
@@ -544,13 +540,13 @@ namespace MoreMountains
                 physicDamage += characterAD.Value;
             }
 
-            return physicDamage;
+            return (int)physicDamage;
         }
 
-        public float getMagicDamage()
+        public int getMagicDamage()
         {
             GetStat(Stat.AP, out var stat);
-            return stat.Value;
+            return (int)stat.Value;
         }
 
         public virtual bool getSelfDamage(Brick brick, out int selfDamage)

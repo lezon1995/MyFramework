@@ -130,7 +130,7 @@ namespace MoreMountains
             _originalColliderCenter = ColliderOffset;
             
             Position = transform.position;
-            base.IntentVelocity = Vector2.zero;
+            IntentVelocity = Vector2.zero;
             ExternalForce = Vector2.zero;
         }
 
@@ -202,6 +202,7 @@ namespace MoreMountains
 
         /// <summary>
         /// 施加速度到位置（速度 = 意图速度 + 击退速度）
+        /// 注意：边界和障碍物碰撞由 VolumeManager 统一处理
         /// </summary>
         protected virtual void ApplyVelocity(float dt)
         {

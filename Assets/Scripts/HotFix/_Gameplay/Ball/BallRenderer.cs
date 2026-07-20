@@ -35,10 +35,5 @@ namespace MoreMountains
         {
             trailRenderer.clearTrail();
         }
-
-        public void setRadius(float diameter)
-        {
-            renderer.transform.localScale = new(diameter, diameter, 1);
-        }
     }
 }

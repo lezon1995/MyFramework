@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace MoreMountains
@@ -120,12 +119,32 @@ namespace MoreMountains
         /// <summary>
         /// 当前活跃怪物数量
         /// </summary>
-        public int ActiveMonsterCount => ActiveMonsters.Count(m => m.IsAlive());
+        public int ActiveMonsterCount
+        {
+            get
+            {
+                int count = 0;
+                foreach (var m in ActiveMonsters)
+                    if (m.IsAlive())
+                        count++;
+                return count;
+            }
+        }
 
         /// <summary>
         /// 当前存活Boss数量
         /// </summary>
-        public int ActiveBossCount => ActiveBosses.Count(b => b.IsAlive());
+        public int ActiveBossCount
+        {
+            get
+            {
+                int count = 0;
+                foreach (var m in ActiveBosses)
+                    if (m.IsAlive())
+                        count++;
+                return count;
+            }
+        }
 
         /// <summary>
         /// 是否Boss已生成
@@ -286,9 +305,14 @@ namespace MoreMountains
             }
 
             // 准备强制生成的怪物列表
-            _pendingForceSpawns = CurWave.availableMonsters
-                .Where(m => m.forceSpawnOnce)
-                .ToList();
+            _pendingForceSpawns.Clear();
+            foreach (var config in CurWave.availableMonsters)
+            {
+                if (config.forceSpawnOnce)
+                {
+                    _pendingForceSpawns.Add(config);
+                }
+            }
 
             // 应用属性增长
             _scalingData.ApplyWaveScaling(WaveNumber, CurWave, CurLevel);
@@ -361,6 +385,8 @@ namespace MoreMountains
                 spawnPos = position.Value;
             else
                 spawnPos = GetSmartSpawnPosition();
+
+            Debug.DrawLine(spawnPos, spawnPos + Vector3.up, Color.red, 10);
 
             // 创建怪物
             var monster = CreateMonster(monsterId, type, spawnPos);
@@ -485,9 +511,24 @@ namespace MoreMountains
                 return SpawnEnemyType.Normal;
 
             // 获取当前怪物类型分布
-            int normalCount = ActiveMonsters.Count(m => m.type == EnemyType.NORMAL && m.IsAlive());
-            int eliteCount = ActiveMonsters.Count(m => m.type == EnemyType.ELITE && m.IsAlive());
-            int bossCount = ActiveBosses.Count(b => b.IsAlive());
+            int normalCount = 0;
+            foreach (var m in ActiveMonsters)
+            {
+                if (m.type == EnemyType.NORMAL && m.IsAlive())
+                    normalCount++;
+            }
+            int eliteCount = 0;
+            foreach (var m in ActiveMonsters)
+            {
+                if (m.type == EnemyType.ELITE && m.IsAlive())
+                    eliteCount++;
+            }
+            int bossCount = 0;
+            foreach (var m in ActiveBosses)
+            {
+                if (m.type == EnemyType.BOSS && m.IsAlive())
+                    bossCount++;
+            }
 
             float totalWeight = CurWave.normalMonsterWeight +
                                 CurWave.eliteMonsterWeight +
@@ -537,9 +578,14 @@ namespace MoreMountains
             if (CurWave == null || CurWave.availableMonsters.Count == 0)
                 return null;
 
-            var candidates = CurWave.availableMonsters
-                .Where(m => m.enemyType == type)
-                .ToList();
+            using var _ = new ListScope<MonsterSpawnConfig>(out var candidates);
+            foreach (var config in CurWave.availableMonsters)
+            {
+                if (config.enemyType == type)
+                {
+                    candidates.Add(config);
+                }
+            }
 
             if (candidates.Count == 0)
             {
@@ -551,7 +597,12 @@ namespace MoreMountains
                 return null;
 
             // 根据权重随机选择
-            float totalWeight = candidates.Sum(c => c.spawnWeight);
+            float totalWeight = 0;
+            foreach (var config in candidates)
+            {
+                totalWeight += config.spawnWeight;
+            }
+            
             float roll = (float)_spawnRandom.NextDouble() * totalWeight;
 
             foreach (var candidate in candidates)
@@ -630,7 +681,15 @@ namespace MoreMountains
         public void ClearMapDrops()
         {
             // TODO: 实现掉落物清理逻辑
-            Debug.Log("[WaveManager] Clearing map drops...");
+            // Debug.Log("[WaveManager] Clearing map drops...");
+        }
+
+        public void RecollectAllBalls()
+        {
+            foreach (var (_, ball) in ballManager.activeBalls)
+            {
+                player.recollectBall(ball);
+            }
         }
 
         /// <summary>
@@ -661,7 +720,7 @@ namespace MoreMountains
             State = newState;
             OnStateChanged?.Invoke(State);
 
-            Debug.Log($"[WaveManager] State changed: {oldState} -> {State}");
+            // Debug.Log($"[WaveManager] State changed: {oldState} -> {State}");
         }
 
         void UpdatePreparing(float dt)
@@ -873,13 +932,20 @@ namespace MoreMountains
             // 检查是否需要生成
             if (ActiveMonsterCount < CurWave.minActiveMonsters)
             {
-                // 立即生成
-                SpawnRandomMonster();
-                _spawnTimer = 0f;
+                // 生成怪物补足到最小数量
+                // 使用较小间隔批量生成，避免第一帧生成太多
+                _spawnTimer += dt;
+                float quickSpawnInterval = 0.1f; // 快速填充间隔
+
+                if (_spawnTimer >= quickSpawnInterval)
+                {
+                    SpawnRandomMonster();
+                    _spawnTimer = 0f;
+                }
             }
             else
             {
-                // 根据间隔计时
+                // 达到最小数量后，按照正常间隔刷怪
                 float interval = GetDynamicSpawnInterval();
                 _spawnTimer += dt;
 
@@ -924,9 +990,14 @@ namespace MoreMountains
             float areaWidth = _spawnAreaMax.x - _spawnAreaMin.x;
             float areaHeight = _spawnAreaMax.y - _spawnAreaMin.y;
 
-            // 边界区域的宽度/高度（整体的20%）
-            float edgeMarginX = areaWidth * 0.2f;
-            float edgeMarginY = areaHeight * 0.2f;
+            // 如果区域无效，返回玩家位置附近
+            if (areaWidth <= 0 || areaHeight <= 0)
+            {
+                Debug.LogWarning("[GetEdgeBiasedRandomPosition] Invalid spawn area! Using player position + offset");
+                if (player != null)
+                    return player.getWorldPosition() + new Vector3(5, 5, 0);
+                return Vector3.zero;
+            }
 
             float x, y;
 
@@ -938,32 +1009,32 @@ namespace MoreMountains
                 int edge = _spawnRandom.Next(4);
                 switch (edge)
                 {
-                    case 0: // 上边
-                        x = Mathf.Lerp(_spawnAreaMin.x + edgeMarginX, _spawnAreaMax.x - edgeMarginX, (float)_spawnRandom.NextDouble());
-                        y = _spawnAreaMax.y - edgeMarginY * (float)_spawnRandom.NextDouble();
+                    case 0: // 上边 - y使用固定的地图上边界
+                        x = Mathf.Lerp(_spawnAreaMin.x, _spawnAreaMax.x, (float)_spawnRandom.NextDouble());
+                        y = _spawnAreaMax.y;
                         break;
-                    case 1: // 下边
-                        x = Mathf.Lerp(_spawnAreaMin.x + edgeMarginX, _spawnAreaMax.x - edgeMarginX, (float)_spawnRandom.NextDouble());
-                        y = _spawnAreaMin.y + edgeMarginY * (float)_spawnRandom.NextDouble();
+                    case 1: // 下边 - y使用固定的地图下边界
+                        x = Mathf.Lerp(_spawnAreaMin.x, _spawnAreaMax.x, (float)_spawnRandom.NextDouble());
+                        y = _spawnAreaMin.y;
                         break;
-                    case 2: // 左边
-                        x = _spawnAreaMin.x + edgeMarginX * (float)_spawnRandom.NextDouble();
-                        y = Mathf.Lerp(_spawnAreaMin.y + edgeMarginY, _spawnAreaMax.y - edgeMarginY, (float)_spawnRandom.NextDouble());
+                    case 2: // 左边 - x使用固定的地图左边界
+                        x = _spawnAreaMin.x;
+                        y = Mathf.Lerp(_spawnAreaMin.y, _spawnAreaMax.y, (float)_spawnRandom.NextDouble());
                         break;
-                    default: // 右边
-                        x = _spawnAreaMax.x - edgeMarginX * (float)_spawnRandom.NextDouble();
-                        y = Mathf.Lerp(_spawnAreaMin.y + edgeMarginY, _spawnAreaMax.y - edgeMarginY, (float)_spawnRandom.NextDouble());
+                    default: // 右边 - x使用固定的地图右边界
+                        x = _spawnAreaMax.x;
+                        y = Mathf.Lerp(_spawnAreaMin.y, _spawnAreaMax.y, (float)_spawnRandom.NextDouble());
                         break;
                 }
             }
             else
             {
-                // 中间区域
-                x = Mathf.Lerp(_spawnAreaMin.x + edgeMarginX, _spawnAreaMax.x - edgeMarginX, (float)_spawnRandom.NextDouble());
-                y = Mathf.Lerp(_spawnAreaMin.y + edgeMarginY, _spawnAreaMax.y - edgeMarginY, (float)_spawnRandom.NextDouble());
+                // 中间区域 - 使用整个区域
+                x = Mathf.Lerp(_spawnAreaMin.x, _spawnAreaMax.x, (float)_spawnRandom.NextDouble());
+                y = Mathf.Lerp(_spawnAreaMin.y, _spawnAreaMax.y, (float)_spawnRandom.NextDouble());
             }
 
-            return new Vector3(x, y, 0);
+            return new(x, y, 0);
         }
 
         int CountNearbyMonsters(Vector3 position, float radius)
@@ -992,7 +1063,6 @@ namespace MoreMountains
         {
             Debug.Log($"[WaveManager] Creating monster: {monsterId}, Type: {type}, Position: {position}");
             var brick = brickManager.acquireBrick(position, new(1, 1));
-
             return brick;
         }
 
@@ -1031,6 +1101,7 @@ namespace MoreMountains
         {
             SetState(WaveState.Clearing);
 
+            RecollectAllBalls();
             // 清理地图掉落物
             ClearMapDrops();
 
@@ -1046,7 +1117,7 @@ namespace MoreMountains
             SetState(WaveState.Completed);
             OnWaveComplete?.Invoke(CurWave);
 
-            Debug.Log($"[WaveManager] Wave {WaveNumber} completed! Kills: {WaveKillCount}, Spawns: {WaveSpawnCount}");
+            // Debug.Log($"[WaveManager] Wave {WaveNumber} completed! Kills: {WaveKillCount}, Spawns: {WaveSpawnCount}");
 
             // 清理剩余怪物
             ClearAllActiveMonsters();

@@ -22,19 +22,28 @@ namespace MoreMountains
         public Type getType() => GetType();
         public long getGUID() => guid;
 
-
         public override void onAcquire()
         {
             base.onAcquire();
-            SetColliderEnabled(true);
+            SetColliderEnabled(false);
+            CharacterBrain.BrainActive = false;
             brickRenderer.setRendererActive(true);
             brickRenderer.setHealthBarActive(false);
             brickRenderer.playBornAnimation();
             Health.onAcquire();
+            _controller2D.RegisterToVolumeManager();
+        }
+
+        void OnBornCompleted()
+        {
+            SetColliderEnabled(true);
+            CharacterBrain.ResetBrain();
+            brickRenderer.setHealthBarActive(true);
         }
 
         public override void onRelease()
         {
+            _controller2D.UnregisterToVolumeManager();
             Health.onRelease();
             base.onRelease();
         }

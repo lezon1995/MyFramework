@@ -707,7 +707,6 @@ namespace MoreMountains
 
             if (Health)
             {
-                Health.StoreInitialPosition();
                 Health.ResetHealthToMaxHealth();
                 Health.Resurrect();
             }

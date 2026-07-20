@@ -95,7 +95,8 @@ namespace MoreMountains
             if (VolumeManager.Instance == null) 
                 return;
 
-            var entities = VolumeManager.Instance.GetEntitiesInRadius(center, radius);
+            using var _ = new ListScope<TopDownController2D>(out var entities);
+            VolumeManager.Instance.GetEntitiesInRadius(center, radius, ref entities);
             foreach (var entity in entities)
             {
                 Vector2 toEntity = entity.Position - center;
@@ -126,7 +127,8 @@ namespace MoreMountains
             float halfAngle = angle * 0.5f;
             float cosThreshold = Mathf.Cos(halfAngle * Mathf.Deg2Rad);
 
-            var entities = VolumeManager.Instance.GetEntitiesInRadius(origin, radius);
+            using var _ = new ListScope<TopDownController2D>(out var entities);
+            VolumeManager.Instance.GetEntitiesInRadius(origin, radius, ref entities);
             foreach (var entity in entities)
             {
                 Vector2 toEntity = entity.Position - origin;

@@ -50,6 +50,7 @@ namespace MoreMountains
 
         public bool IsRecollecting { get; set; }
         public new BallDamageOnTouch DamageOnTouch => (BallDamageOnTouch)_damageOnTouch;
+        public new BallStats Stats => _stats as BallStats;
 
         protected override void OnAwake()
         {
@@ -94,6 +95,11 @@ namespace MoreMountains
             newOwner.TryGetComponent(out character);
         }
 
+        public void SetColliderEnabled(bool v)
+        {
+            _collider2D.enabled = v;
+        }
+        
         public void SetCharacter(Character c)
         {
             character = c;
@@ -108,10 +114,10 @@ namespace MoreMountains
 
         protected override void OnStatsSet()
         {
-            var ballMS = GetStat(Stat.MS);
             SpeedModifier = (ref float raw) =>
             {
                 float speed = raw;
+                var ballMS = GetStat(Stat.MS);
                 if (ballMS)
                     speed = ballMS.Value;
 
@@ -229,7 +235,7 @@ namespace MoreMountains
                                 var hitDir = hit.point - (Vector2)curPos;
                                 if (Vector2.Dot(Direction, hitDir) < 0)
                                     continue;
-                                
+
                                 if (hit.collider.TryGetComponent(out Brick brick))
                                 {
                                     if (IsTheBrickBeingIgnoredToHit(brick))
@@ -282,7 +288,7 @@ namespace MoreMountains
 
             EvaluateHit2D(hit);
         }
-        
+
         SafeDictionary<Brick, MTimer> brickHitTimers = new();
 
         public bool IsTheBrickBeingIgnoredToHit(Brick brick)
@@ -317,7 +323,7 @@ namespace MoreMountains
                         {
                             return;
                         }
-                        
+
                         lastHittable = brick;
                         var hitDmg = getHitDmg(brick, normal);
                         brick.onHitEnter(ball, normal);

@@ -21,7 +21,7 @@ namespace MoreMountains
             transform.position = Target.transform.position;
             var ad = Source.GetStat("AD");
             DamageOnTouch.AddIgnore(Target.gameObject);
-            DamageOnTouch.SetDmg(Dmg.AD(ad.Value));
+            DamageOnTouch.SetDmg(Dmg.AD((int)ad.Value));
             DamageOnTouch.SetEnabled(true);
         }
 

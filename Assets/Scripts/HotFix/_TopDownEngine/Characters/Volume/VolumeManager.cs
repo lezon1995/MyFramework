@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using MoreMountains.Tools;
 using UnityEngine;
+using UnityEngine.Pool;
 
 namespace MoreMountains
 {
@@ -44,6 +45,10 @@ namespace MoreMountains
         /// </summary>
         public void Clear()
         {
+            foreach (var (key, list) in _cells)
+            {
+                ListPool<TopDownController2D>.Release(list);
+            }
             _cells.Clear();
             _entityCells.Clear();
         }
@@ -59,7 +64,7 @@ namespace MoreMountains
             int cellKey = GetCellKey(entity.Position);
             if (!_cells.TryGetValue(cellKey, out var list))
             {
-                list = new List<TopDownController2D>();
+                list = ListPool<TopDownController2D>.Get();
                 _cells[cellKey] = list;
             }
             list.Add(entity);
@@ -174,6 +179,122 @@ namespace MoreMountains
         public int CellCount => _cells.Count;// 获取网格单元数量
         public int EntityCount => _entityCells.Count;// 获取总实体数量
 
+        #region Solid Collider Support
+
+        // 固体碰撞体的空间分区数据
+        Dictionary<int, List<VolumeCollider>> _solidCells = new();
+        Dictionary<VolumeCollider, int> _solidColliderCells = new();
+
+        /// <summary>
+        /// 重建固体碰撞体空间分区
+        /// </summary>
+        public void RebuildSolids(List<VolumeCollider> solids)
+        {
+            ClearSolids();
+            foreach (var solid in solids)
+            {
+                if (solid != null)
+                    InsertAsSolid(solid);
+            }
+        }
+
+        /// <summary>
+        /// 清空固体碰撞体数据
+        /// </summary>
+        public void ClearSolids()
+        {
+            foreach (var (key, list) in _solidCells)
+                ListPool<VolumeCollider>.Release(list);
+
+            _solidCells.Clear();
+            _solidColliderCells.Clear();
+        }
+
+        /// <summary>
+        /// 插入固体碰撞体到网格（覆盖所有重叠的格子）
+        /// </summary>
+        public void InsertAsSolid(VolumeCollider solid)
+        {
+            if (solid == null) return;
+
+            solid.RefreshAfterMove();
+            Vector2 center = solid.CurrentPosition;
+
+            // 用包围半径覆盖所有可能涉及的格子
+            float radius = solid.BoundingRadius;
+            int minX = WorldToCell(center.x - radius);
+            int maxX = WorldToCell(center.x + radius);
+            int minY = WorldToCell(center.y - radius);
+            int maxY = WorldToCell(center.y + radius);
+
+            for (int cx = minX; cx <= maxX; cx++)
+            {
+                for (int cy = minY; cy <= maxY; cy++)
+                {
+                    int key = CellToKey(cx, cy);
+                    if (!_solidCells.TryGetValue(key, out var list))
+                    {
+                        list = ListPool<VolumeCollider>.Get();
+                        _solidCells[key] = list;
+                    }
+                    if (!list.Contains(solid))
+                    {
+                        list.Add(solid);
+                    }
+                }
+            }
+
+            // 记录 solid 涉及的格子，便于移除
+            _solidColliderCells[solid] = CellToKey(WorldToCell(center.x), WorldToCell(center.y));
+        }
+
+        /// <summary>
+        /// 移除固体碰撞体
+        /// </summary>
+        public void RemoveSolid(VolumeCollider solid)
+        {
+            if (solid == null) return;
+
+            if (_solidColliderCells.TryGetValue(solid, out int cellKey))
+            {
+                if (_solidCells.TryGetValue(cellKey, out var list))
+                {
+                    list.Remove(solid);
+                }
+                _solidColliderCells.Remove(solid);
+            }
+        }
+
+        /// <summary>
+        /// 获取与指定实体可能发生碰撞的固体碰撞体
+        /// </summary>
+        public void GetPotentialSolids(TopDownController2D entity, List<VolumeCollider> results)
+        {
+            results.Clear();
+            if (entity == null) return;
+
+            int cellX = WorldToCell(entity.Position.x);
+            int cellY = WorldToCell(entity.Position.y);
+
+            // 检测周围 5x5 的网格（固体碰撞体可能比较大）
+            for (int dx = -2; dx <= 2; dx++)
+            {
+                for (int dy = -2; dy <= 2; dy++)
+                {
+                    int key = CellToKey(cellX + dx, cellY + dy);
+                    if (_solidCells.TryGetValue(key, out var list))
+                    {
+                        for (int i = 0; i < list.Count; i++)
+                        {
+                            results.Add(list[i]);
+                        }
+                    }
+                }
+            }
+        }
+
+        #endregion
+
         #region Private Methods
 
          int WorldToCell(float worldPos)
@@ -280,10 +401,18 @@ namespace MoreMountains
         [Tooltip("显示软排斥力")]
         public bool ShowSoftRepulsion;
 
+        [Header("固体碰撞体（边界/障碍物）")]
+        [Tooltip("启用固体碰撞体碰撞检测")]
+        public bool EnableSolidColliders = true;
+
+        [Tooltip("是否自动检测场景中的 VolumeCollider")]
+        public bool AutoDetectVolumeColliders = true;
+
         // 空间分区
         VolumeSpatialHash _spatialHash;
+        VolumeSpatialHash _solidColliderSpatialHash;
 
-        // 运行时数据
+        // 运行时数据 - 实体
         List<TopDownController2D> _registeredEntities = new();
         List<TopDownController2D> _potentialColliders = new();
         List<VolumeCollisionResult> _collisionResults = new();
@@ -291,6 +420,11 @@ namespace MoreMountains
         Queue<TopDownController2D> _entityQueue = new();
         HashSet<TopDownController2D> _visitedSet = new();
         HashSet<int> _processedPairKeys = new();
+
+        // 运行时数据 - 固体碰撞体
+        readonly List<VolumeCollider> _solidColliders = new();
+        readonly List<VolumeCollider> _potentialSolidColliders = new();
+        HashSet<int> _processedSolidPairKeys = new();
 
          int _collisionCheckCount;
          float _updateTimer;
@@ -324,16 +458,25 @@ namespace MoreMountains
          void InitializeSpatialHash()
         {
             _spatialHash = new(SpatialHashCellSize);
+            _solidColliderSpatialHash = new(SpatialHashCellSize);
+        }
+
+        protected virtual void Start()
+        {
+            if (AutoDetectVolumeColliders)
+            {
+                AutoDetectSolidColliders();
+            }
         }
 
         protected virtual void Update()
         {
-            if (!Enabled) 
+            if (!Enabled)
                 return;
 
             var dt = Time.deltaTime;
             _updateTimer += dt;
-            if (UpdateInterval > 0 && _updateTimer < UpdateInterval) 
+            if (UpdateInterval > 0 && _updateTimer < UpdateInterval)
                 return;
 
             _updateTimer = 0f;
@@ -344,13 +487,24 @@ namespace MoreMountains
                 UpdateSpatialHash();
             }
 
+            // 实体↔实体碰撞（互相挤）
             ProcessAllCollisions(dt);
+
             _totalEntitiesLastFrame = _registeredEntities.Count;
         }
 
         protected virtual void LateUpdate()
         {
+            // 击退力应用（在 LateUpdate 中，确保击退应用到当前位置后能立即被纠正）
             ApplyAllKnockbackForces();
+
+            // 实体↔固体碰撞体碰撞（必须最后做，否则怪物下一次 LateUpdate 又会穿回去）
+            // 这是最后一道保险：把实体推回表面外，并清理朝向墙的速度
+            if (EnableSolidColliders)
+            {
+                var dt = Time.deltaTime;
+                ProcessSolidColliderCollisions(dt);
+            }
         }
 
         #region Spatial Hash
@@ -367,6 +521,12 @@ namespace MoreMountains
 
             // 重建整个网格（实体位置变化了）
             _spatialHash.Rebuild(_registeredEntities);
+
+            // 重建固体碰撞体的空间分区
+            if (EnableSolidColliders && _solidColliderSpatialHash != null)
+            {
+                RebuildSolidColliderSpatialHash();
+            }
         }
 
         /// <summary>
@@ -389,6 +549,159 @@ namespace MoreMountains
                     if (other != entity)
                         _potentialColliders.Add(other);
                 }
+            }
+        }
+
+        #endregion
+
+        #region Solid Collider Registration
+
+        /// <summary>
+        /// 自动检测场景中的 VolumeCollider 并注册
+        /// </summary>
+        [ContextMenu("Auto Detect Solid Colliders")]
+        public void AutoDetectSolidColliders()
+        {
+            _solidColliders.Clear();
+
+            var colliders = FindObjectsByType<VolumeCollider>(FindObjectsSortMode.None);
+            foreach (var col in colliders)
+            {
+                if (col.Enabled)
+                {
+                    RegisterSolidCollider(col);
+                }
+            }
+
+            Debug.Log($"[VolumeManager] 自动检测到 {_solidColliders.Count} 个固体碰撞体", this);
+        }
+
+        /// <summary>
+        /// 注册固体碰撞体
+        /// </summary>
+        public void RegisterSolidCollider(VolumeCollider collider)
+        {
+            if (collider == null || _solidColliders.Contains(collider))
+                return;
+
+            _solidColliders.Add(collider);
+            _solidColliderSpatialHash?.InsertAsSolid(collider);
+        }
+
+        /// <summary>
+        /// 注销固体碰撞体
+        /// </summary>
+        public void UnregisterSolidCollider(VolumeCollider collider)
+        {
+            if (collider == null)
+                return;
+
+            _solidColliders.Remove(collider);
+            _solidColliderSpatialHash?.RemoveSolid(collider);
+        }
+
+        /// <summary>
+        /// 当固体碰撞体移动时调用（由 VolumeCollider 在 Update 中调用）
+        /// </summary>
+        public void NotifyColliderMoved(VolumeCollider collider)
+        {
+            // 空间分区会在下一帧自动重建，不需要手动更新
+        }
+
+        /// <summary>
+        /// 重建固体碰撞体的空间分区
+        /// </summary>
+        void RebuildSolidColliderSpatialHash()
+        {
+            _solidColliderSpatialHash.RebuildSolids(_solidColliders);
+        }
+
+        /// <summary>
+        /// 获取指定实体的潜在固体碰撞体
+        /// </summary>
+        void GetPotentialSolidColliders(TopDownController2D entity)
+        {
+            _potentialSolidColliders.Clear();
+
+            if (EnableSpatialHash && _solidColliderSpatialHash != null)
+            {
+                _solidColliderSpatialHash.GetPotentialSolids(entity, _potentialSolidColliders);
+            }
+            else
+            {
+                _potentialSolidColliders.AddRange(_solidColliders);
+            }
+        }
+
+        /// <summary>
+        /// 处理实体与固体碰撞体的碰撞
+        /// </summary>
+        protected virtual void ProcessSolidColliderCollisions(float dt)
+        {
+            if (_solidColliders.Count == 0)
+                return;
+
+            foreach (var entity in _registeredEntities)
+            {
+                if (entity == null)
+                    continue;
+
+                GetPotentialSolidColliders(entity);
+
+                foreach (var solid in _potentialSolidColliders)
+                {
+                    if (solid == null || !solid.Enabled)
+                        continue;
+
+                    ProcessEntitySolidCollision(entity, solid, dt);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 处理单个实体与固体碰撞体的碰撞
+        /// </summary>
+        protected virtual void ProcessEntitySolidCollision(TopDownController2D entity, VolumeCollider solid, float dt)
+        {
+            var result = new VolumeColliderCollisionResult(entity, solid);
+
+            if (!result.IsColliding)
+                return;
+
+            // 1. 位置分离：把实体推到表面外（重叠量 + 一点点缓冲，避免下一帧又穿透）
+            //    必须保证能在一帧内清掉所有重叠，否则会被持续推 → 抖动
+            float pushDistance = result.Overlap + 0.001f;
+            Vector2 pushDir = result.SurfaceNormal;
+            entity.Position += pushDir * pushDistance;
+            entity.transform.position = entity.Position;
+
+            // 2. 速度处理：实体朝墙方向的速度分量需要清除
+            //    SurfaceNormal 是从墙指向实体的方向，所以沿这个方向的速度是"远离墙"的，
+            //    沿 -SurfaceNormal 的速度才是"撞向墙"，要被消除
+            Vector2 totalVel = entity.IntentVelocity + entity.KnockbackVelocity;
+            float velIntoWall = Vector2.Dot(totalVel, -pushDir);
+
+            if (velIntoWall > 0)
+            {
+                // 撞墙中，清除指向墙的速度分量（按质量比保留部分动能）
+                // 固体质量视为无限大，所以击退速度完全被挡
+                float restitution = 0f; // 不反弹
+                Vector2 reflectedVel = totalVel - (-pushDir) * velIntoWall * (1f + restitution);
+                // 把反射后的总速度拆分到 IntentVelocity 和 KnockbackVelocity
+                // 简单起见，全部作用在 KnockbackVelocity（IntentVelocity 通常较小）
+                Vector2 newTotal = reflectedVel;
+
+                // 保留 IntentVelocity 的切向分量，把垂直分量设为 0
+                float intentNormal = Vector2.Dot(entity.IntentVelocity, -pushDir);
+                if (intentNormal > 0)
+                {
+                    entity.IntentVelocity += (Vector3)pushDir * intentNormal;
+                }
+
+                // KnockbackVelocity 剩余部分补到 total
+                Vector2 intentRemaining = entity.IntentVelocity;
+                Vector2 neededKnockback = newTotal - intentRemaining;
+                entity.KnockbackVelocity = neededKnockback;
             }
         }
 
@@ -580,7 +893,7 @@ namespace MoreMountains
             {
                 Self = b,
                 Other = a,
-                Result = new VolumeCollisionResult(b, a),
+                Result = new(b, a),
                 DeltaTime = dt
             };
             OnCollisionDetected?.Invoke(evtB);
@@ -737,7 +1050,7 @@ namespace MoreMountains
             _visitedSet.Clear();
 
             // 链式传播：source(0级) -> 1级 -> 2级 -> ...
-            var entityLevels = new Dictionary<TopDownController2D, int>();
+            using var _ = new DicScope<TopDownController2D, int>(out var entityLevels);
 
             // BFS队列，每层记录当前位置
             _entityQueue.Clear();
@@ -876,10 +1189,9 @@ namespace MoreMountains
         /// <summary>
         /// 获取指定点周围的所有实体
         /// </summary>
-        public List<TopDownController2D> GetEntitiesInRadius(Vector2 position, float radius)
+        public void GetEntitiesInRadius(Vector2 position, float radius, ref List<TopDownController2D> result)
         {
-            var result = new List<TopDownController2D>();
-
+            result.Clear();
             if (EnableSpatialHash && _spatialHash != null)
             {
                 _spatialHash.GetEntitiesInCircle(position, radius, result);
@@ -899,8 +1211,6 @@ namespace MoreMountains
                     }
                 }
             }
-
-            return result;
         }
 
         /// <summary>

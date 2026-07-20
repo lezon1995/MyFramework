@@ -191,7 +191,8 @@ public class FTextManager : FrameSystem
         var mix = dmg.Mix;
         if (mix.Off)
         {
-            new FText.Data($"{dmg.DamageDealt:F0}", type)
+            
+            new FText.Data(IToS(dmg.DamageDealt), type)
                 .setSetting(type)
                 .setValue(dmg.DamageDealt)
                 .setDirection(dmg.Direction)
@@ -205,9 +206,9 @@ public class FTextManager : FrameSystem
         }
 
         var damage = mix.DamageDealtAD;
-        if ((int)damage > 0)
+        if (damage > 0)
         {
-            new FText.Data($"{damage:F0}", type)
+            new FText.Data(IToS(damage), type)
                 .setSetting(type)
                 .setValue(damage)
                 .setDirection(dmg.Direction)
@@ -219,9 +220,9 @@ public class FTextManager : FrameSystem
         }
 
         damage = mix.DamageDealtAP;
-        if ((int)damage > 0)
+        if (damage > 0)
         {
-            new FText.Data($"{damage:F0}", type)
+            new FText.Data(IToS(damage), type)
                 .setSetting(type)
                 .setValue(damage)
                 .setDirection(dmg.Direction)
@@ -233,9 +234,9 @@ public class FTextManager : FrameSystem
         }
 
         damage = mix.DamageDealtTrue;
-        if ((int)damage > 0)
+        if (damage > 0)
         {
-            new FText.Data($"{damage:F0}", type)
+            new FText.Data(IToS(damage), type)
                 .setSetting(type)
                 .setValue(damage)
                 .setDirection(dmg.Direction)
@@ -250,7 +251,7 @@ public class FTextManager : FrameSystem
     public static void showGainCoin(Transform target, int coin)
     {
         const TextType TYPE = TextType.GainCoin;
-        new FText.Data($"+ {coin}", TYPE)
+        new FText.Data(IToS(coin), TYPE)
             .setSetting(TYPE)
             .setValue(coin)
             .setDirection(Vector3.up)
@@ -280,7 +281,7 @@ public class FTextManager : FrameSystem
     public static void showHealing(Transform target, Heal heal)
     {
         const TextType TYPE = TextType.Healing;
-        new FText.Data($"+{heal.Healing:F0}", TYPE)
+        new FText.Data(IToS(heal.Healing), TYPE)
             .setSetting(TYPE)
             .setValue(heal.Healing)
             .setDirection(Vector3.up)

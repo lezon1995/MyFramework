@@ -24,7 +24,7 @@ public class BaseMagazine : ARelic, IEvent<OnBallDeath>
             return;
         
         var ranDir = randomDirectionInCone(normal, 60);
-        var tempBall = ballManager.acquireBall(ball.curPos, ranDir);
+        var tempBall = ballManager.acquireBall(BallType.Normal, ball.curPos, ranDir);
         tempBall.setInitialHealth(1);
         tempBall.setBorderToBallDamageModifier(BALL_IMMUNE_TO_BORDER_DAMAGE_MODIFIER);
         tempBall.setTemp(true);

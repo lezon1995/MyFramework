@@ -19,6 +19,7 @@ namespace MoreMountains
         public WaveLevelConfig waveLevelConfig;
         
         public CoinManager coinManager;
+        public VolumeManager volumeManager;
 
         public MonsterRoom()
         {
@@ -31,6 +32,13 @@ namespace MoreMountains
             _phases[RoomPhaseType.LEVEL_UP_REWARD] = new LevelUpRewardPhase(this);
             _phases[RoomPhaseType.SHOPPING] = new ShoppingPhase(this);
             _phases[RoomPhaseType.GAME_SETTLEMENT] = new GameSettlementPhase(this);
+        }
+
+        public override void onRoomInitialize()
+        {
+            loadWaveManager();
+            loadCoinManager();
+            loadVolumeManager();
         }
 
         public override void onPlayerEntry()
@@ -47,12 +55,11 @@ namespace MoreMountains
             waitTimer = COMBAT_WAIT_TIME;
             new OnPlayerEnterBattleRoom().trigger();
             this.addListener();
-
-            loadWaveManager();
-            loadCoinManager();
+            
+            player.Controller2D.RegisterToVolumeManager();
         }
 
-        void loadWaveManager()
+        protected void loadWaveManager()
         {
             string path1 = $"{GAMEPLAY_PATH}/Levels/WaveGameMode.prefab";
             string path2 = $"{GAMEPLAY_PATH}/Levels/WaveLevelConfig.asset";
@@ -62,7 +69,7 @@ namespace MoreMountains
             waveGameMode.StartGame(waveLevelConfig);
         }
 
-        void loadCoinManager()
+        protected void loadCoinManager()
         {
             string path1 = $"{GAMEPLAY_PATH}/Coin/CoinManager.prefab";
             var res = resource.loadGameResource<CoinManager>(path1);
@@ -71,6 +78,19 @@ namespace MoreMountains
             {
                 adapter.SetCoinManager(coinManager);
             }
+        }
+
+        protected void loadVolumeManager()
+        {
+            var manager = Object.FindFirstObjectByType<VolumeManager>();
+            if (manager)
+            {
+                volumeManager = manager;
+                return;
+            }
+            string path = $"{GAMEPLAY_PATH}/Characters/VolumeManager.prefab";
+            var res = resource.loadGameResource<VolumeManager>(path);
+            volumeManager = Object.Instantiate(res.getResource());
         }
 
         public override void onPlayerExit()

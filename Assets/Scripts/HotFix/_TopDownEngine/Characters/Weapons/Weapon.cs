@@ -317,15 +317,15 @@ namespace MoreMountains
         public Stats Stats;
 
         public bool IsCritThisFrame { get; set; }
-        public float BaseDamage = 5;
+        public int BaseDamage = 5;
         public Dmg.Types BaseDamageType;
 
-        protected float Damage
+        protected int Damage
         {
             get
             {
-                var damage = BaseDamage;
-                return DamageModifier.SafeInvoke(ref damage);
+                var damage = (float)BaseDamage;
+                return (int)DamageModifier.SafeInvoke(ref damage);
             }
         }
 
