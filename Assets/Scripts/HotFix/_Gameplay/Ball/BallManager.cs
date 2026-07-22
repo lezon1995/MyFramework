@@ -143,8 +143,10 @@ public class BallManager : FrameSystem
         string ballName = type switch
         {
             BallType.Normal => "Ball_Normal",
-            BallType.Laser => "Ball_Laser",
+            BallType.LaserBeam => "Ball_Laser",
+            BallType.LaserBullet => "Ball_LaserBullet",
             BallType.LightningStrike => "Ball_LightningStrike",
+            BallType.ElectricityStrike => "Ball_ElectricityStrike",
             _ => "Ball_Normal"
         };
         var path = $"{GAMEPLAY_PATH}/Balls/{ballName}.prefab";

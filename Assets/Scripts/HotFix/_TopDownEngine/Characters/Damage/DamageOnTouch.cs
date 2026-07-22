@@ -306,13 +306,13 @@ namespace MoreMountains
 
         #region PublicAPIs
 
-        public virtual void SetOwner(GameObject owner)
+        public virtual void SetOwner(Character owner)
         {
-            Owner = owner;
-            Source = owner.GetComponent<Character>();
+            Owner = owner.gameObject;
+            Source = owner;
             if (BuffOnTouch)
             {
-                BuffOnTouch.SetOwner(owner);
+                BuffOnTouch.SetOwner(owner.gameObject);
             }
         }
 
@@ -702,11 +702,11 @@ namespace MoreMountains
             DmgRate = 1F;
             DamageRaw = 0;
             DamageDealt = 0;
-            Direction = Vector3.zero;
+            Direction = Vector3.up;
             Self = false;
             Mix = default;
             TriggerEffect = true;
-            HitNormal = Vector2.zero;
+            HitNormal = Vector2.up;
             IsLethal = false;
         }
 
@@ -722,11 +722,11 @@ namespace MoreMountains
             DmgRate = 1F;
             DamageRaw = 0;
             DamageDealt = 0;
-            Direction = Vector3.zero;
+            Direction = Vector3.up;
             Self = false;
             Mix = default;
             TriggerEffect = true;
-            HitNormal = Vector2.zero;
+            HitNormal = Vector2.up;
             IsLethal = false;
         }
 

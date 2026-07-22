@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Object = UnityEngine.Object;
+using Random = System.Random;
 
 namespace MoreMountains
 {
@@ -167,13 +169,33 @@ namespace MoreMountains
         List<MonsterSpawnConfig> _pendingForceSpawns = new();
         MonsterScalingData _scalingData = new();
         int _forceSpawnIndex;
-        System.Random _spawnRandom;
+        Random _spawnRandom;
         Vector2 _spawnAreaMin;
         Vector2 _spawnAreaMax;
+
+        // ---------------------------------------------------------------
+        // Grid2D 网格视图 (取代 brickLayout).
+        //
+        // 如果在 Inspector 里手动指定, 则优先使用;
+        // 否则 Awake 时通过 FindObjectOfType 自动获取场景中的第一个 Grid2DView.
+        // 它提供 cols / rows / cellSize / originOffset 等, 把 spawn 点锚定到网格 cell 中心.
+        // ---------------------------------------------------------------
+
+        [Tooltip("网格视图. 不指定时, 在 Start/StartLevel 时通过 FindObjectOfType 自动获取场景中的 Grid2DView.")]
+        public GridManager GridView;
+
+        GridManager _resolvedGridView;
+        bool _gridViewResolved;
 
         // 问题2修复：击败所有怪物策略的最大生成数量
         int _waveMaxTotalSpawn;
         int _waveCurrentTotalSpawn;
+
+        // 持续刷怪相关
+        float _killSpeedTimer; // 击杀速度计时器
+        int _killsInLastInterval; // 上一个间隔内的击杀数
+        int _killsThisInterval; // 当前间隔的击杀数
+        float _spawnIntervalOverride; // 刷怪间隔覆盖值（用于紧急补充）
 
         #endregion
 
@@ -197,6 +219,40 @@ namespace MoreMountains
         void Awake()
         {
             _spawnRandom = new();
+        }
+
+        /// <summary>
+        /// 解析 GridView 引用. 优先用 Inspector 字段; 否则尝试从场景里找.
+        /// 返回 null 表示当前场景中没有可用的 Grid2DView.
+        /// </summary>
+        public GridManager ResolveGridView()
+        {
+            if (_gridViewResolved)
+                return _resolvedGridView;
+
+            if (GridView)
+            {
+                _resolvedGridView = GridView;
+                _gridViewResolved = true;
+                return _resolvedGridView;
+            }
+
+#if UNITY_2023_1_OR_NEWER
+            _resolvedGridView = FindFirstObjectByType<GridManager>(FindObjectsInactive.Include);
+#else
+        _resolvedGridView = UnityEngine.Object.FindObjectOfType<Grid2DView>(true);
+#endif
+            _gridViewResolved = true;
+            return _resolvedGridView;
+        }
+
+        /// <summary>
+        /// 清空 GridView 缓存 (例如场景切换或手动换引用时手动调用).
+        /// </summary>
+        public void InvalidateGridView()
+        {
+            _resolvedGridView = null;
+            _gridViewResolved = false;
         }
 
 
@@ -386,8 +442,6 @@ namespace MoreMountains
             else
                 spawnPos = GetSmartSpawnPosition();
 
-            Debug.DrawLine(spawnPos, spawnPos + Vector3.up, Color.red, 10);
-
             // 创建怪物
             var monster = CreateMonster(monsterId, type, spawnPos);
             if (monster)
@@ -438,6 +492,7 @@ namespace MoreMountains
             ActiveMonsters.Remove(monster);
             ActiveBosses.Remove(monster);
             WaveKillCount++;
+            NotifyMonsterKilled(); // 持续刷怪：通知击杀
             OnMonsterKilled?.Invoke(monster);
         }
 
@@ -467,9 +522,15 @@ namespace MoreMountains
         }
 
         List<Vector3> sparsePositions = new();
+        List<Vector2Int> _emptyCellsScratch = new();
+
+        // scratch set reused across hot paths to avoid GC churn
+        readonly HashSet<Vector2Int> _scratchSet = new();
 
         /// <summary>
         /// 获取智能生成位置（基于现有怪物密度）
+        /// 改造后: 优先使用 Grid2D 系统的 grid 信息 (GridView), 不再依赖 brickLayout.
+        /// 在网格上的所有空置 cell 中挑选 "周围最稀疏" 的那个 cell, 返回其中心世界坐标.
         /// </summary>
         public Vector3 GetSmartSpawnPosition()
         {
@@ -478,27 +539,60 @@ namespace MoreMountains
                 return GetEdgeBiasedRandomPosition();
             }
 
+            var grid = ResolveGridView().CurrentGrid();
+            if (grid.Columns <= 0 || grid.Rows <= 0)
+            {
+                return GetEdgeBiasedRandomPosition();
+            }
+
+            // 收集所有空置 cell (基于 grid 的 cols/rows), brickManager 上的占用表依然作为来源.
+            _emptyCellsScratch.Clear();
+            if (brickManager != null)
+            {
+                brickManager.CollectEmptyCells(_scratchSet);
+                foreach (var c in _scratchSet)
+                {
+                    if (c.x >= 0 && c.x < grid.Columns && c.y >= 0 && c.y < grid.Rows)
+                        _emptyCellsScratch.Add(c);
+                }
+
+                _scratchSet.Clear();
+            }
+            else
+            {
+                // 没有 brickManager 时, 全部 grid 上 cell 都视为空置
+                for (int y = 0; y < grid.Rows; y++)
+                for (int x = 0; x < grid.Columns; x++)
+                    _emptyCellsScratch.Add(new(x, y));
+            }
+
+            if (_emptyCellsScratch.Count == 0)
+            {
+                if (player != null) return player.getWorldPosition();
+                return Vector3.zero;
+            }
+
             sparsePositions.Clear();
-            // 查找稀疏区域
-            int sampleCount = 20;
+            int sampleCount = Mathf.Min(20, _emptyCellsScratch.Count);
+            float radius = CurWave.denseRadius;
+
             for (int i = 0; i < sampleCount; i++)
             {
-                // 问题4修复：使用边界偏移的位置采样
-                Vector3 samplePos = GetEdgeBiasedRandomPosition();
-                int nearbyCount = CountNearbyMonsters(samplePos, CurWave.denseRadius);
+                var cell = _emptyCellsScratch[_spawnRandom.Next(_emptyCellsScratch.Count)];
+                Vector2 cellCenter = grid.CellToWorld(cell);
+                Vector3 samplePos = new(cellCenter.x, cellCenter.y, 0);
+                int nearbyCount = CountNearbyMonsters(samplePos, radius);
                 if (nearbyCount <= CurWave.sparseThreshold)
                 {
                     sparsePositions.Add(samplePos);
                 }
             }
 
-            // 如果找到足够多的稀疏位置，从中选择一个
             if (sparsePositions.Count > 0)
             {
                 return sparsePositions[_spawnRandom.Next(sparsePositions.Count)];
             }
 
-            // 没有稀疏区域，选择边界位置
             return GetEdgeBiasedRandomPosition();
         }
 
@@ -517,12 +611,14 @@ namespace MoreMountains
                 if (m.type == EnemyType.NORMAL && m.IsAlive())
                     normalCount++;
             }
+
             int eliteCount = 0;
             foreach (var m in ActiveMonsters)
             {
                 if (m.type == EnemyType.ELITE && m.IsAlive())
                     eliteCount++;
             }
+
             int bossCount = 0;
             foreach (var m in ActiveBosses)
             {
@@ -602,7 +698,7 @@ namespace MoreMountains
             {
                 totalWeight += config.spawnWeight;
             }
-            
+
             float roll = (float)_spawnRandom.NextDouble() * totalWeight;
 
             foreach (var candidate in candidates)
@@ -796,6 +892,7 @@ namespace MoreMountains
                     if (monster && monster.IsDead())
                     {
                         WaveKillCount++;
+                        NotifyMonsterKilled(); // 持续刷怪：通知击杀
                         OnMonsterKilled?.Invoke(monster);
                     }
 
@@ -811,6 +908,7 @@ namespace MoreMountains
                     if (boss && boss.IsDead())
                     {
                         WaveKillCount++;
+                        NotifyMonsterKilled(); // 持续刷怪：通知击杀
                         OnMonsterKilled?.Invoke(boss);
                     }
 
@@ -918,6 +1016,138 @@ namespace MoreMountains
             if (CurWave == null || CurWave.availableMonsters.Count == 0)
                 return;
 
+            // 持续刷怪模式
+            if (CurWave.enableContinuousSpawning)
+            {
+                ProcessContinuousSpawn(dt);
+            }
+            else
+            {
+                // 原有逻辑：有限刷怪模式
+                ProcessLimitedSpawn(dt);
+            }
+        }
+
+        /// <summary>
+        /// 持续刷怪模式 - 怪物死亡后立即补充
+        /// </summary>
+        void ProcessContinuousSpawn(float dt)
+        {
+            // 获取配置参数（优先使用波次配置，否则使用全局配置）
+            float targetCoverage = CurWave.targetCoverageRatio;
+            float minInterval = CurWave.minSpawnInterval;
+            float maxInterval = CurWave.maxSpawnInterval;
+            float sensitivity = CurWave.killSpeedSensitivity;
+
+            if (CurLevel != null)
+            {
+                if (targetCoverage <= 0) targetCoverage = CurLevel.globalTargetCoverageRatio;
+                if (minInterval <= 0) minInterval = CurLevel.globalMinSpawnInterval;
+                if (maxInterval <= 0) maxInterval = CurLevel.globalMaxSpawnInterval;
+            }
+
+            // 计算基于覆盖率的理想怪物数量
+            float spawnArea = (_spawnAreaMax.x - _spawnAreaMin.x) * (_spawnAreaMax.y - _spawnAreaMin.y);
+            float monsterSize = 1f; // 假设每个怪物占1格
+            float totalMonsterSlots = spawnArea / (monsterSize * monsterSize);
+            int targetMonsterCount = Mathf.FloorToInt(totalMonsterSlots * targetCoverage);
+            targetMonsterCount = Mathf.Max(1, targetMonsterCount);
+
+            // 更新击杀速度追踪
+            _killSpeedTimer += dt;
+            if (_killSpeedTimer >= 1f)
+            {
+                _killsInLastInterval = _killsThisInterval;
+                _killsThisInterval = 0;
+                _killSpeedTimer = 0f;
+            }
+
+            // 动态计算刷怪间隔
+            float currentSpawnInterval = CalculateDynamicSpawnInterval(
+                ActiveMonsterCount,
+                targetMonsterCount,
+                _killsInLastInterval,
+                minInterval,
+                maxInterval,
+                sensitivity);
+
+            // 检查是否可以生成更多怪物
+            int maxMonsters = Mathf.Min(CurWave.maxActiveMonsters, CurLevel.globalMaxActiveMonsters);
+            maxMonsters = Mathf.Max(maxMonsters, targetMonsterCount); // 确保至少能达到目标数量
+
+            // 如果怪物数量低于目标，增加紧迫感
+            if (ActiveMonsterCount < targetMonsterCount)
+            {
+                currentSpawnInterval = Mathf.Min(currentSpawnInterval, minInterval * 2f);
+            }
+
+            // 如果怪物数量远低于目标，使用紧急间隔
+            if (ActiveMonsterCount < targetMonsterCount * 0.5f)
+            {
+                currentSpawnInterval = minInterval;
+            }
+
+            // 检查是否需要生成
+            if (ActiveMonsterCount < maxMonsters)
+            {
+                _spawnTimer += dt;
+
+                if (_spawnTimer >= currentSpawnInterval)
+                {
+                    _spawnTimer = 0f;
+                    SpawnRandomMonster();
+                }
+            }
+
+            // 如果场上怪物数为0，立即生成
+            if (ActiveMonsterCount == 0)
+            {
+                SpawnRandomMonster();
+                SpawnRandomMonster();
+                SpawnRandomMonster();
+            }
+        }
+
+        /// <summary>
+        /// 计算动态刷怪间隔
+        /// </summary>
+        float CalculateDynamicSpawnInterval(
+            int currentMonsters,
+            int targetMonsters,
+            int killsPerSecond,
+            float minInterval,
+            float maxInterval,
+            float sensitivity)
+        {
+            // 基础间隔：当前怪物数量与目标的差距越大，间隔越短
+            float fillRatio = (float)currentMonsters / targetMonsters;
+            float baseInterval = Mathf.Lerp(minInterval, maxInterval, fillRatio);
+
+            // 根据击杀速度调整：如果玩家杀得很快，说明怪物太少了
+            // killsPerSecond 表示每秒击杀数，我们需要根据这个调整间隔
+            if (killsPerSecond > 0)
+            {
+                // 每秒击杀超过1个，说明怪物不够用
+                float killFactor = Mathf.Min(killsPerSecond * sensitivity * 0.5f, 1f);
+                baseInterval = Mathf.Lerp(baseInterval, minInterval, killFactor);
+            }
+
+            return baseInterval;
+        }
+
+        /// <summary>
+        /// 通知怪物被击杀（用于击杀速度追踪）
+        /// </summary>
+        public void NotifyMonsterKilled()
+        {
+            _killsThisInterval++;
+        }
+
+        /// <summary>
+        /// 有限刷怪模式（原逻辑）
+        /// </summary>
+        void ProcessLimitedSpawn(float dt)
+        {
             // 问题2修复：击败所有怪物策略时，检查是否已生成达到上限
             if (_waveMaxTotalSpawn > 0 && _waveCurrentTotalSpawn >= _waveMaxTotalSpawn)
             {
@@ -983,58 +1213,100 @@ namespace MoreMountains
 
         /// <summary>
         /// 问题4修复：获取偏向边界的随机位置
-        /// 根据配置的edgeBias参数决定在边界生成的概率
+        /// 改造后: 优先用 Grid2D 系统 (GridView) 取得 cols/rows,
+        /// 在"未占用的边缘 cell"中随机挑一个, 返回该 cell 中心的世界坐标.
+        /// Grid2D 不可用时, 退回到玩家附近.
         /// </summary>
         Vector3 GetEdgeBiasedRandomPosition()
         {
-            float areaWidth = _spawnAreaMax.x - _spawnAreaMin.x;
-            float areaHeight = _spawnAreaMax.y - _spawnAreaMin.y;
-
-            // 如果区域无效，返回玩家位置附近
-            if (areaWidth <= 0 || areaHeight <= 0)
+            var grid = ResolveGridView().CurrentGrid();
+            if (grid.Columns <= 0 || grid.Rows <= 0)
             {
-                Debug.LogWarning("[GetEdgeBiasedRandomPosition] Invalid spawn area! Using player position + offset");
                 if (player != null)
                     return player.getWorldPosition() + new Vector3(5, 5, 0);
                 return Vector3.zero;
             }
 
-            float x, y;
+            int cols = grid.Columns;
+            int rows = grid.Rows;
 
-            // 根据配置的edgeBias决定在边界区域生成的概率
-            float edgeProbability = CurWave?.edgeBias ?? 0.8f;
-            if ((float)_spawnRandom.NextDouble() < edgeProbability)
+            // 边缘 cell (第一行/最后一行/第一列/最后一列), 且未被占
+            float edgeProbability = CurWave?.edgeBiasProbability ?? 0.8f;
+            bool preferEdge = (float)_spawnRandom.NextDouble() < edgeProbability;
+
+            Vector2Int? picked = null;
+
+            if (preferEdge)
             {
-                // 选择是哪条边：上、下、左、右
+                // 从 4 个边里随机选, 在该边上随机抽一个未被占的 cell
                 int edge = _spawnRandom.Next(4);
-                switch (edge)
+                int tries = 0;
+                const int kMaxTries = 32;
+                while (tries++ < kMaxTries)
                 {
-                    case 0: // 上边 - y使用固定的地图上边界
-                        x = Mathf.Lerp(_spawnAreaMin.x, _spawnAreaMax.x, (float)_spawnRandom.NextDouble());
-                        y = _spawnAreaMax.y;
+                    Vector2Int candidate = edge switch
+                    {
+                        0 => new Vector2Int(_spawnRandom.Next(cols), rows - 1), // top
+                        1 => new Vector2Int(_spawnRandom.Next(cols), 0), // bottom
+                        2 => new Vector2Int(0, _spawnRandom.Next(rows)), // left
+                        _ => new Vector2Int(cols - 1, _spawnRandom.Next(rows)), // right
+                    };
+                    if (brickManager == null || !brickManager.IsCellOccupied(candidate))
+                    {
+                        picked = candidate;
                         break;
-                    case 1: // 下边 - y使用固定的地图下边界
-                        x = Mathf.Lerp(_spawnAreaMin.x, _spawnAreaMax.x, (float)_spawnRandom.NextDouble());
-                        y = _spawnAreaMin.y;
-                        break;
-                    case 2: // 左边 - x使用固定的地图左边界
-                        x = _spawnAreaMin.x;
-                        y = Mathf.Lerp(_spawnAreaMin.y, _spawnAreaMax.y, (float)_spawnRandom.NextDouble());
-                        break;
-                    default: // 右边 - x使用固定的地图右边界
-                        x = _spawnAreaMax.x;
-                        y = Mathf.Lerp(_spawnAreaMin.y, _spawnAreaMax.y, (float)_spawnRandom.NextDouble());
-                        break;
+                    }
                 }
             }
-            else
+
+            // 没在边缘抽到, 退回到"grid 上所有 cell" 中任选一个空置的
+            if (!picked.HasValue)
             {
-                // 中间区域 - 使用整个区域
-                x = Mathf.Lerp(_spawnAreaMin.x, _spawnAreaMax.x, (float)_spawnRandom.NextDouble());
-                y = Mathf.Lerp(_spawnAreaMin.y, _spawnAreaMax.y, (float)_spawnRandom.NextDouble());
+                if (brickManager != null)
+                {
+                    _scratchSet.Clear();
+                    brickManager.CollectEmptyCells(_scratchSet);
+                    if (_scratchSet.Count > 0)
+                    {
+                        int idx = _spawnRandom.Next(_scratchSet.Count);
+                        int i = 0;
+                        foreach (var c in _scratchSet)
+                        {
+                            if (i++ == idx)
+                            {
+                                picked = c;
+                                break;
+                            }
+                        }
+
+                        _scratchSet.Clear();
+                    }
+                }
+                else
+                {
+                    // 没有 brickManager, 随机挑一个 grid 上的 cell
+                    picked = new(_spawnRandom.Next(cols), _spawnRandom.Next(rows));
+                }
             }
 
-            return new(x, y, 0);
+            if (!picked.HasValue)
+            {
+                if (player != null)
+                    return player.getWorldPosition();
+                return Vector3.zero;
+            }
+
+            // 落在 grid 外的 cell 视为"无" (例如 brickManager 残留的占用记录超出 grid 范围)
+            if (picked.Value.x < 0 || picked.Value.x >= cols || picked.Value.y < 0 || picked.Value.y >= rows)
+            {
+                if (player != null)
+                    return player.getWorldPosition();
+
+                return Vector3.zero;
+            }
+
+            var pos = grid.CellToWorld(picked.Value);
+            return new Vector3(pos.x, pos.y, 0);
         }
 
         int CountNearbyMonsters(Vector3 position, float radius)
@@ -1089,6 +1361,7 @@ namespace MoreMountains
                     if (monster)
                     {
                         WaveKillCount++;
+                        NotifyMonsterKilled(); // 持续刷怪：通知击杀
                         OnMonsterKilled?.Invoke(monster);
                     }
 
@@ -1144,7 +1417,7 @@ namespace MoreMountains
         void OnGUI()
         {
             var m = this;
-            GUILayout.BeginArea(new Rect(10, 10, 300, 400));
+            GUILayout.BeginArea(new Rect(10, 10, 320, 450));
             GUILayout.BeginVertical("box");
 
             GUILayout.Label($"=== Wave Debug Info ===");
@@ -1156,6 +1429,18 @@ namespace MoreMountains
             GUILayout.Label($"Time Elapsed: {m.WaveTimeElapsed:F1}s");
             GUILayout.Label($"Kill Count: {m.WaveKillCount}");
             GUILayout.Label($"Spawn Count: {m.WaveSpawnCount}");
+
+            GUILayout.Space(10);
+            GUILayout.Label($"=== Continuous Spawning ===");
+            if (CurWave != null)
+            {
+                GUILayout.Label($"Continuous Mode: {(CurWave.enableContinuousSpawning ? "ON" : "OFF")}");
+                GUILayout.Label($"Target Coverage: {CurWave.targetCoverageRatio:P0}");
+                GUILayout.Label($"Min/Max Interval: {CurWave.minSpawnInterval:F1}s / {CurWave.maxSpawnInterval:F1}s");
+            }
+
+            GUILayout.Label($"Kills/sec (last): {_killsInLastInterval}");
+            GUILayout.Label($"Kills/sec (curr): {_killsThisInterval}");
 
             GUILayout.Space(10);
             GUILayout.Label($"=== Scaling ===");

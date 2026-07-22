@@ -53,6 +53,7 @@ namespace MoreMountains
     public enum ResistDamageType
     {
         None,
+        BornInvincible,
         Invincible,
         DashInvincible,
         ImmuneToDamage,

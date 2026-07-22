@@ -105,6 +105,9 @@ namespace MoreMountains
         /// </summary>
         public void RecollectBall(Ball ball, float collectDuration = 0F)
         {
+            if (ball.IsRecollecting)
+                return;
+
             ball.IsRecollecting = true;
             ball.SetColliderEnabled(false);
             ball.setEnabled(false);

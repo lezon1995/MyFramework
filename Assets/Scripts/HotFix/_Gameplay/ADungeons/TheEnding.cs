@@ -6,15 +6,17 @@ namespace MoreMountains
     {
         public TheEnding(string name, string levelId, APlayer p, List<string> newSpecialOneTimeEventList) : base("Exordium", "Exordium", p, newSpecialOneTimeEventList)
         {
+            screen = CurrentScreen.MAP;
+            isScreenUp = true;
         }
 
         public TheEnding(string name, APlayer p, SaveFile saveFile) : base("Exordium", p, saveFile)
         {
         }
 
-        public override void Initialize(int seed)
+        public override void initialize()
         {
-            base.Initialize(seed);
+            base.initialize();
         }
 
         protected override void initializeEventList()

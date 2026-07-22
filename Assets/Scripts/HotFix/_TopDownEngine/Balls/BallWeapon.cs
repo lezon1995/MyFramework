@@ -8,10 +8,22 @@ namespace MoreMountains
     {
         [MMInspectorGroup("ID")]
         public BallType ballType;
+
+        int count;
         
         public override GameObject SpawnProjectile(Vector3 spawnPosition, int projectileIndex, int totalProjectiles, bool triggerObjectActivation = true)
         {
-            var ball = ballManager.acquireBall(ballType, spawnPosition);
+            BallType t = (count++ % 5) switch
+            {
+                0 => BallType.Normal,
+                1 => BallType.LaserBeam,
+                2 => BallType.LaserBullet,
+                3 => BallType.LightningStrike,
+                4 => BallType.ElectricityStrike,
+                _ => BallType.Normal
+            };
+
+            var ball = ballManager.acquireBall(t, spawnPosition);
 
             // mandatory checks
             if (ball == null)
@@ -32,7 +44,7 @@ namespace MoreMountains
                 ball.SetWeapon(this);
                 if (Owner)
                 {
-                    ball.SetOwner(Owner.gameObject);
+                    ball.SetOwner(Owner);
                     ball.SetCharacter(Owner);
                     ball.SetDamage(Dmg);
                 }

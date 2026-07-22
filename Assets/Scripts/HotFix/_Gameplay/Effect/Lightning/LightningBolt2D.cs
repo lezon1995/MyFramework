@@ -11,8 +11,44 @@ namespace MoreMountains
     {
         #region Configurable variables
 
-        public Vector2 startPoint = Vector2.left * 3f;
-        public Vector2 endPoint = Vector2.right * 3f;
+        public Vector2 _startPoint = Vector2.left * 3f;
+        public Vector2 _endPoint = Vector2.right * 3f;
+        
+        
+        public Vector2 startPoint
+        {
+            get
+            {
+                if (startPointTransform) return startPointTransform.position;
+
+                return _startPoint;
+            }
+            set
+            {
+                if (startPointTransform) startPointTransform.position = value;
+                _startPoint = value;
+            }
+        }
+
+        public Vector2 endPoint
+        {
+            get
+            {
+                if (endPointTransform) return endPointTransform.position;
+                return _endPoint;
+            }
+            set
+            {
+                if (endPointTransform) endPointTransform.position = value;
+                _endPoint = value;
+            }
+        }
+
+        public Transform startPointTransform;
+        public Transform endPointTransform;
+
+        public Transform startPointFx;
+        public Transform endPointFx;
 
         public float arcLifetimeMin = 0.1f;
         public float arcLifetimeMax = 1f;
@@ -204,6 +240,11 @@ namespace MoreMountains
             {
                 Generate();
             }
+            
+            if (startPointFx)
+                startPointFx.transform.localPosition = transform.InverseTransformPoint(startPoint); 
+            if (endPointFx)
+                endPointFx.transform.localPosition = transform.InverseTransformPoint(endPoint);
         }
 
         /*

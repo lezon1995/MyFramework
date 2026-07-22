@@ -351,9 +351,9 @@ MonoBehaviour:
   mNeedUpdate: 1
   mNeedFixedUpdate: 1
   FaceDirection: 1
-  FaceMovement: 0
+  FaceMovement: 1
   ManuallyColliding: 1
-  MovementVector: 0
+  movementVector: 1
   Speed:
     _meter: 10
   Acceleration: 0

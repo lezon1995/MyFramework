@@ -23,6 +23,11 @@ namespace MoreMountains
         [Tooltip("怪物生成区域边界（右）")] public float spawnAreaRight = 10f;
         [Tooltip("怪物生成区域边界（上）")] public float spawnAreaTop = 10f;
         [Tooltip("怪物生成区域边界（下）")] public float spawnAreaBottom = -10f;
+        [Tooltip("持续刷怪时，地图覆盖率目标（0-1），怪物数量会据此动态调整")]
+        [Range(0f, 1f)]
+        public float globalTargetCoverageRatio = 0.3f;
+        [Tooltip("持续刷怪时，全局最小刷怪间隔（秒）")] public float globalMinSpawnInterval = 0.3f;
+        [Tooltip("持续刷怪时，全局最大刷怪间隔（秒）")] public float globalMaxSpawnInterval = 2f;
 
         /// <summary>
         /// 获取指定波次的配置

@@ -16,7 +16,6 @@ public class LightningStrikeEffect : ALogicEffect, IArgs<Ball, Brick>
         duration = 0.1666667F;
         ball = b1;
 
-
         if (brickManager.getRandomActiveBrick(out var brick, b2))
         {
             var effect = mEffectManager.createEffect(path, 0.5F);

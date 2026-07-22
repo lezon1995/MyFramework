@@ -56,11 +56,13 @@ namespace MoreMountains
         #region --------------------------------------------------------------------------------------------
 
         //爬塔地图页面
-        public static DungeonMapScreen dungeonMapScreen = new DungeonMapScreen();
+        public static DungeonMapScreen dungeonMapScreen = new();
 
         #endregion
 
         public static OverlayMenu overlayMenu;
+        public static VolumeManager volumeManager;
+        public static GridManager gridManager;
         public static CurrentScreen screen { get; set; }
         public static CurrentScreen previousScreen;
 
@@ -76,7 +78,6 @@ namespace MoreMountains
             player = p;
             ascensionCheck = UnlockTracker.isAscensionUnlocked(p);
             _dungeon = this;
-            long startTime = TimeUtility.getNowTimeStampMS();
             // topPanel.setPlayerName();
             actionManager = new();
             effectManager = new();
@@ -92,46 +93,15 @@ namespace MoreMountains
 
             isDungeonBeaten = false;
             isScreenUp = false;
-            dungeonTransitionSetup();
-
-            generateMonsters();
-            initializeBoss();
-            if (bossList.Count > 0)
-                setBoss(bossList[0]);
-
-            initializeEventList();
-            initializeEventImg();
-            initializeShrineList();
-
-            initializeCardPools();
-            if (floorNum == 0)
-                p.initializeStarterDeck();
-
-            initializePotions();
-            // BlightHelper.initialize();
-
-            if (id == "Exordium")
-            {
-                screen = CurrentScreen.NONE;
-                isScreenUp = false;
-            }
-            else
-            {
-                screen = CurrentScreen.MAP;
-                isScreenUp = true;
-            }
-
-            log("Content generation time: " + (TimeUtility.getNowTimeStampMS() - startTime) + "ms");
         }
 
         protected ADungeon(string _name, APlayer p, SaveFile saveFile)
         {
+            _dungeon = this;
             id = saveFile.level_name;
             name = _name;
             player = p;
             ascensionCheck = UnlockTracker.isAscensionUnlocked(p);
-            _dungeon = this;
-            long startTime = TimeUtility.getNowTimeStampMS();
             // topPanel.setPlayerName();
             actionManager = new();
             effectManager = new();
@@ -158,18 +128,41 @@ namespace MoreMountains
                 Application.Quit();
             }
 
+            screen = CurrentScreen.NONE;
+            isScreenUp = false;
+        }
+
+        public virtual void initialize()
+        {
+            loadVolumeManager();
+            loadGridManager();
+
+            generateMonsters();
+            initializeBoss();
+            if (bossList.Count > 0)
+                setBoss(bossList[0]);
+
+            initializeEventList();
+            initializeEventImg();
+            initializeShrineList();
+
+            initializeCardPools();
+            if (floorNum == 0)
+                player.initializeStarterDeck();
+
+            initializePotions();
+            // BlightHelper.initialize();
+            
+            dungeonTransitionSetup();
+        }
+
+        public virtual void initializeByFile(SaveFile saveFile)
+        {
             // Data.initializeEventImg();
             // Data.initializeShrineList();
             initializeCardPools();
             initializePotions();
             // BlightHelper.initialize();
-            screen = CurrentScreen.NONE;
-            isScreenUp = false;
-            log("Dungeon load time: " + (TimeUtility.getNowTimeStampMS() - startTime) + "ms");
-        }
-
-        public virtual void Initialize(int seed)
-        {
         }
 
         public static void dungeonTransitionSetup()

@@ -146,7 +146,7 @@ namespace MoreMountains
                 projectile.SetWeapon(this);
                 if (Owner)
                 {
-                    projectile.SetOwner(Owner.gameObject);
+                    projectile.SetOwner(Owner);
                     projectile.SetDamage(Dmg);
                 }
 

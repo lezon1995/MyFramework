@@ -496,7 +496,6 @@ namespace MoreMountains
             GameActionManager.turn.increment();
             GameActionManager.turnScore = 0;
             GameActionManager.turnExp = 0;
-            GameActionManager.turnCombo = 0;
 
             // startPlayerTurn();
             startEnemyTurn();

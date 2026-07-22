@@ -7,7 +7,6 @@ namespace MoreMountains
     /// <summary>
     /// Projectile class that will bounce off walls instead of exploding on impact
     /// </summary>
-    [AddComponentMenu("TopDown Engine/Weapons/BouncyProjectile")]
     public class BouncyProjectile : Projectile
     {
         [Header("Bounciness Tech")] [Tooltip("the length of the raycast used to detect bounces, should be proportionate to the size and speed of your projectile")]

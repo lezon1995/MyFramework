@@ -249,7 +249,7 @@ namespace MoreMountains
             refreshHitInfo();
         }
 
-        public void onEvent(DoHitEffect e)
+        public virtual void onEvent(DoHitEffect e)
         {
             for (var i = 0; i < buffs.Count; i++)
             {
@@ -262,7 +262,7 @@ namespace MoreMountains
         }
 
 
-        public void onEvent(DoSkillEffect e)
+        public virtual void onEvent(DoSkillEffect e)
         {
             for (var i = 0; i < buffs.Count; i++)
             {

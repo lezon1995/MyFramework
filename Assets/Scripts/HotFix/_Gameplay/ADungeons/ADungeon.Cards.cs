@@ -16,7 +16,7 @@ namespace MoreMountains
         public static PoolCards uncommonCardPool = new();
         public static PoolCards rareCardPool = new();
 
-        public void initializeCardPools()
+        protected void initializeCardPools()
         {
             log("INIT CARD POOL");
             long startTime = TimeUtility.getNowTimeStampMS();

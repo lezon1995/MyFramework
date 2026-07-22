@@ -8,7 +8,6 @@ namespace MoreMountains
     /// </summary>
     public abstract class TopDownController : TopDownMonoBehaviour
     {
-        public bool IsPlayer;
         public Character Character;
         // 意图速度（由 AI / 玩家输入控制，每帧持续施加）
         public Vector3 IntentVelocity { get; set; }

@@ -89,7 +89,7 @@ namespace MoreMountains
             ResetIgnoredToHitBricks();
         }
 
-        public override void SetOwner(GameObject newOwner)
+        public override void SetOwner(Character newOwner)
         {
             base.SetOwner(newOwner);
             newOwner.TryGetComponent(out character);

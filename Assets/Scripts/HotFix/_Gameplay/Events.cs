@@ -7,11 +7,13 @@ public struct DoHitEffect
 {
     public Ball ball;
     public Brick brick;
+    public Vector2 hitDir;
 
-    public DoHitEffect(Ball b1, Brick b2)
+    public DoHitEffect(Ball b1, Brick b2, Vector2 dir)
     {
         ball = b1;
         brick = b2;
+        hitDir = dir;
     }
 }
 
@@ -57,13 +59,11 @@ public struct OnBrickDeath
 {
     public Brick brick;
     public Vector3 deathPosition;
-    public int combo;
 
     public OnBrickDeath(Brick b)
     {
         brick = b;
         deathPosition = b.getWorldPosition();
-        combo = 0;
     }
 }
 

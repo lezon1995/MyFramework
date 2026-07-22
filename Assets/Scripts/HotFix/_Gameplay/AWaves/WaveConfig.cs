@@ -30,11 +30,20 @@ namespace MoreMountains
     [Serializable]
     public class MonsterSpawnConfig
     {
-        [Tooltip("怪物ID或预设路径")] public string monsterId;
-        [Tooltip("怪物类型")] public SpawnEnemyType enemyType = SpawnEnemyType.Normal;
-        [Tooltip("生成权重（数值越高越容易被选中）")] public float spawnWeight = 1f;
-        [Tooltip("该类型怪物的基础生成间隔（秒），实际间隔会动态调整")] public float baseSpawnInterval = 3f;
-        [Tooltip("该怪物是否在本波次强制生成一次")] public bool forceSpawnOnce;
+        [Tooltip("怪物ID或预设路径")]
+        public string monsterId;
+
+        [Tooltip("怪物类型")]
+        public SpawnEnemyType enemyType = SpawnEnemyType.Normal;
+
+        [Tooltip("生成权重（数值越高越容易被选中）")]
+        public float spawnWeight = 1f;
+
+        [Tooltip("该类型怪物的基础生成间隔（秒），实际间隔会动态调整")]
+        public float baseSpawnInterval = 3f;
+
+        [Tooltip("该怪物是否在本波次强制生成一次")]
+        public bool forceSpawnOnce;
     }
 
     /// <summary>
@@ -43,41 +52,99 @@ namespace MoreMountains
     [Serializable]
     public class WaveConfig
     {
-        [Tooltip("波次编号（从1开始）")] public int waveNumber = 1;
-        [Tooltip("波次名称（可选）")] public string waveName = "";
-        [Tooltip("波次持续时间（秒），0表示无限")] public float duration = 60f;
-        [Tooltip("通关策略")] public WaveClearStrategy clearStrategy;
-        [Tooltip("该波次可能出现的怪物配置列表")] public List<MonsterSpawnConfig> availableMonsters = new();
-        [Tooltip("该波次最大同时存活怪物数量")] public int maxActiveMonsters = 10;
-        [Tooltip("该波次最小存活怪物数量（用于控制刷怪频率）")] public int minActiveMonsters = 3;
+        [Tooltip("波次编号（从1开始）")]
+        public int waveNumber = 1;
+
+        [Tooltip("波次名称（可选）")]
+        public string waveName = "";
+
+        [Tooltip("波次持续时间（秒），0表示无限")]
+        public float duration = 60f;
+
+        [Tooltip("通关策略")]
+        public WaveClearStrategy clearStrategy;
+
+        [Tooltip("该波次可能出现的怪物配置列表")]
+        public List<MonsterSpawnConfig> availableMonsters = new();
+
+        [Tooltip("该波次最大同时存活怪物数量")]
+        public int maxActiveMonsters = 10;
+
+        [Tooltip("该波次最小存活怪物数量（用于控制刷怪频率）")]
+        public int minActiveMonsters = 3;
 
         [Header("Defeat All Strategy")]
         [Tooltip("击败所有怪物策略时的最大总生成数量，0表示使用默认值(maxActiveMonsters * 3)")]
         public int defeatAllMaxTotalSpawn;
 
         [Header("Monster Scaling")]
-        [Tooltip("怪物属性随波次的增长倍率（血量）")] public float healthScaling = 1f;
-        [Tooltip("怪物属性随波次的增长倍率（伤害）")] public float damageScaling = 1f;
-        [Tooltip("怪物属性随波次的增长倍率（移动速度）")] public float speedScaling = 1f;
-        [Tooltip("怪物属性随波次的增长倍率（防御）")] public float defenseScaling = 1f;
+        [Tooltip("怪物属性随波次的增长倍率（血量）")]
+        public float healthScaling = 1f;
+
+        [Tooltip("怪物属性随波次的增长倍率（伤害）")]
+        public float damageScaling = 1f;
+
+        [Tooltip("怪物属性随波次的增长倍率（移动速度）")]
+        public float speedScaling = 1f;
+
+        [Tooltip("怪物属性随波次的增长倍率（防御）")]
+        public float defenseScaling = 1f;
 
         [Header("Enemy Type Weights")]
-        [Tooltip("小怪生成权重")] public float normalMonsterWeight = 70f;
-        [Tooltip("精英怪生成权重")] public float eliteMonsterWeight = 25f;
-        [Tooltip("Boss怪生成权重")] public float bossMonsterWeight = 5f;
+        [Tooltip("小怪生成权重")]
+        public float normalMonsterWeight = 70f;
+
+        [Tooltip("精英怪生成权重")]
+        public float eliteMonsterWeight = 25f;
+
+        [Tooltip("Boss怪生成权重")]
+        public float bossMonsterWeight = 5f;
 
         [Header("Boss Settings")]
-        [Tooltip("Boss怪物ID（当clearStrategy为DefeatBoss时使用）")] public string bossMonsterId;
-        [Tooltip("Boss出现的时间点（波次开始后的秒数）")] public float bossSpawnTime = 30f;
+        [Tooltip("Boss怪物ID（当clearStrategy为DefeatBoss时使用）")]
+        public string bossMonsterId;
+
+        [Tooltip("Boss出现的时间点（波次开始后的秒数）")]
+        public float bossSpawnTime = 30f;
 
         [Header("Smart Spawning")]
-        [Tooltip("是否允许使用智能刷怪（基于密度）")] public bool enableSmartSpawning = true;
-        [Tooltip("智能刷怪时，怪物密集区域的判定半径")] public float denseRadius = 5f;
-        [Tooltip("智能刷怪时，稀疏区域的判定半径内最少怪物数")] public int sparseThreshold = 1;
+        [Tooltip("是否允许使用智能刷怪（基于密度）")]
+        public bool enableSmartSpawning = true;
+
+        [Tooltip("智能刷怪时，怪物密集区域的判定半径")]
+        public float denseRadius = 5f;
+
+        [Tooltip("智能刷怪时，稀疏区域的判定半径内最少怪物数")]
+        public int sparseThreshold = 1;
+
+        [Header("Dynamic Continuous Spawning")]
+        [Tooltip("是否启用持续刷怪模式（怪物死亡后立即补充）")]
+        public bool enableContinuousSpawning = true;
+
+        [Tooltip("持续刷怪时，地图覆盖率目标（0-1），怪物数量会据此动态调整")]
+        [Range(0f, 1f)]
+        public float targetCoverageRatio = 0.3f;
+
+        [Tooltip("持续刷怪时，最小刷怪间隔（秒）")]
+        public float minSpawnInterval = 0.3f;
+
+        [Tooltip("持续刷怪时，最大刷怪间隔（秒）")]
+        public float maxSpawnInterval = 2f;
+
+        [Tooltip("持续刷怪时，根据击杀速度调整间隔的灵敏度（越大反应越快）")]
+        public float killSpeedSensitivity = 2f;
 
         [Header("Spawn Position")]
-        [Tooltip("生成位置偏向边界的概率（0-1），值越大越偏向边界")] [Range(0f, 1f)]
-        public float edgeBias = 0.8f;
+        [Tooltip("生成位置偏向边界的概率（0-1），值越大越偏向边界")]
+        [Range(0f, 1f)]
+        public float edgeBiasProbability = 0.5f;
+
+        [Tooltip("生成位置偏向边界的百分比（0-1），值越大越偏向边界")] 
+        [Range(0f, 1f)]
+        public float edgeBiasPercent = 0.7f;
+
+        [Range(0f, 1f)]
+        public float edgeBiasPercentAmplitude = 0.15f;
 
         /// <summary>
         /// 获取击败所有怪物策略的最大生成总数

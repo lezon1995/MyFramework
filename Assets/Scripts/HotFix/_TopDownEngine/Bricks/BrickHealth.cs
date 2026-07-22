@@ -67,14 +67,24 @@ namespace MoreMountains
             Character.conditionState?.ChangeState(Character.Conditions.Normal);
         }
 
+        public override bool CanTakeDamageThisFrame(out ResistDamageType type)
+        {
+            if (brick.brickRenderer.isPlayingAnimationBorn())
+            {
+                type = ResistDamageType.BornInvincible;
+                return false;
+            }
+
+            return base.CanTakeDamageThisFrame(out type);
+        }
 
         public override void Damage(ref Dmg dmg, GameObject instigator, Character source = null, float invincibleTime = 0F, Vector3 direction = default, IDmgCalculator calculator = null)
         {
-            if (dmg.hasSkillEffect())
-                brick.brickRenderer.playFxSkillHit(dmg.Direction);
-
             if (!CanTakeDamageThisFrame(out _))
                 return;
+
+            if (dmg.hasSkillEffect() || dmg.hasAttackEffect())
+                brick.brickRenderer.playFxHit(dmg.HitNormal);
 
             //应用Source的DmgRate
             if (source)
@@ -88,8 +98,18 @@ namespace MoreMountains
                 }
             }
 
-            instigator.TryGetComponent(out Ball ball);
+            if (instigator.TryGetComponent(out Ball ball))
+            {
+                DamageByBall(ref dmg, ball, source, invincibleTime, direction, calculator);
+            }
+            else
+            {
+                DamageByOther(ref dmg, instigator, source, invincibleTime, direction, calculator);
+            }
+        }
 
+        void DamageByBall(ref Dmg dmg, Ball ball, Character source, float invincibleTime, Vector3 direction, IDmgCalculator calculator)
+        {
             if (dmg.hasAttackEffect())
             {
                 foreach (var p in ball.powers)
@@ -133,7 +153,7 @@ namespace MoreMountains
                 //触发本次伤害所造成的攻击特效/技能特效
                 if (dmg.hasAttackEffect())
                 {
-                    var e = new DoHitEffect(ball, brick);
+                    var e = new DoHitEffect(ball, brick, dmg.Direction);
                     ball.Event.trigger(e);
                     ball.getPlayer().Event.trigger(e);
                 }
@@ -144,8 +164,6 @@ namespace MoreMountains
                     ball.Event.trigger(e);
                     ball.getPlayer().Event.trigger(e);
                 }
-
-                Event.trigger(new OnHit());
             }
 
             foreach (var p in brick.powers)
@@ -220,7 +238,7 @@ namespace MoreMountains
                         {
                             if (dmg.hasAttackEffect())
                             {
-                                var e = new DoAttackKillEffect(ball, brick, instigator);
+                                var e = new DoAttackKillEffect(ball, brick, ball.gameObject);
                                 ball.Event.trigger(e);
                                 ball.getPlayer().Event.trigger(e);
                                 ball.onHitKill(brick);
@@ -228,11 +246,164 @@ namespace MoreMountains
 
                             if (dmg.hasSkillEffect())
                             {
-                                var e = new DoKillBrick(ball, brick, instigator);
+                                var e = new DoKillBrick(ball, brick, ball.gameObject);
                                 ball.Event.trigger(e);
                                 ball.getPlayer().Event.trigger(e);
                                 ball.onSkillKill(brick);
                             }
+                        }
+                    }
+
+                    if (source && isLethal && !dmg.Self)
+                        source.Health.Event.trigger(new DoKill(Character, ball.gameObject));
+
+                    dmg.IsLethal = isLethal;
+                }
+
+                // we prevent the character from colliding with Projectiles, Player and Enemies
+                if (invincibleTime > 0 && !dmg.IsLethal)
+                {
+                    DamageDisabled();
+                    _coroutineTimeElapsed = 0F;
+                    _coroutineState = CoroutineState.DamageEnabled;
+                    _invincibleTime = invincibleTime;
+                }
+            }
+        }
+
+
+        void DamageByOther(ref Dmg dmg, GameObject instigator, Character source, float invincibleTime, Vector3 direction, IDmgCalculator calculator)
+        {
+            // if (dmg.hasAttackEffect())
+            // {
+            //     foreach (var p in ball.powers)
+            //         p.onBeforeHandleHitDamage(ball, brick, ref dmg);
+            // }
+
+            // if (dmg.hasSkillEffect())
+            // {
+            //     foreach (var p in ball.powers)
+            //         p.onBeforeHandleSkillDamage(ball, brick, ref dmg);
+            // }
+
+            ComputeDamageOutput(ref dmg, calculator);
+
+            //设置此次dmg实际造成的伤害，并通知伤害飘字显示
+            {
+                dmg.SetDirection(direction);
+
+                if (dmg.DamageDealt > 0)
+                    new DmgTextEvent(dmg, transform).trigger();
+            }
+
+            //触发本次伤害所造成的攻击特效/技能特效
+            if (dmg.TriggerEffect && source && !dmg.Self)
+            {
+                if (dmg.hasAttackEffect())
+                {
+                    var e = new DoAttackEffect(Character);
+                    source.Event.trigger(e);
+                }
+
+                if (dmg.hasSkillEffect())
+                {
+                    var e = new DoAbilityEffect(Character);
+                    source.Event.trigger(e);
+                }
+            }
+
+            if (dmg.TriggerEffect)
+            {
+                //触发本次伤害所造成的攻击特效/技能特效
+                // if (dmg.hasAttackEffect())
+                // {
+                //     var e = new DoHitEffect(ball, brick, dmg.Direction);
+                //     ball.Event.trigger(e);
+                //     ball.getPlayer().Event.trigger(e);
+                // }
+
+                // if (dmg.hasSkillEffect())
+                // {
+                //     var e = new DoSkillEffect(ball, brick);
+                //     ball.Event.trigger(e);
+                //     ball.getPlayer().Event.trigger(e);
+                // }
+            }
+
+            // foreach (var p in brick.powers)
+            //     p.onBeforeApplyDamage(brick, ball, ref dmg);
+
+            // if (dmg.IsCrit)
+            // {
+            //     if (dmg.hasAttackEffect())
+            //         ball.onCritHit(brick);
+            //
+            //     if (dmg.hasSkillEffect())
+            //         ball.onCritSkill(brick);
+            // }
+
+            Event.trigger(new OnHit());
+
+            if (dmg.DamageDealt > 0)
+            {
+                // we decrease the character's health by the damage
+                float preHealth = CurrentHealth;
+                SetHealth(CurrentHealth - dmg.DamageDealt, RefreshHealthBarType.ReceiveDamage);
+                LastDamage = dmg.DamageDealt;
+                LastDamageType = dmg.ActualType;
+                LastDamageDirection = direction;
+
+                //造成伤害后处理Source吸血，触发DoDmg
+                if (source && !dmg.Self)
+                {
+                    source.Health.Event.trigger(new DoDmg(Character, dmg));
+                }
+
+                //造成伤害后，触发OnDmg
+                if (Character && !dmg.Self)
+                    Event.trigger(new OnDmg(source, dmg));
+
+                // we play our feedback
+                if (FeedbackIsProportionalToDamage)
+                    DamageMMFeedbacks.Play(transform.position, dmg.DamageDealt);
+                else
+                    DamageMMFeedbacks.Play(transform.position);
+
+                {
+                    var e = new DoDmgBrick(brick, dmg);
+                    source.Event.trigger(e);
+
+                    //造成伤害后，触发OnDmg
+                    Event.trigger(new OnDmg(source, dmg));
+
+                    brick.brickRenderer.playFxDamage(dmg.Direction);
+                }
+
+                //检测是否死亡
+                if (CurrentHealth <= 0)
+                {
+                    CurrentHealth = 0;
+
+                    var isLethal = Kill();
+                    if (isLethal)
+                    {
+                        if (dmg.TriggerEffect)
+                        {
+                            // if (dmg.hasAttackEffect())
+                            // {
+                            //     var e = new DoAttackKillEffect(ball, brick, ball.gameObject);
+                            //     ball.Event.trigger(e);
+                            //     ball.getPlayer().Event.trigger(e);
+                            //     ball.onHitKill(brick);
+                            // }
+
+                            // if (dmg.hasSkillEffect())
+                            // {
+                            //     var e = new DoKillBrick(ball, brick, ball.gameObject);
+                            //     ball.Event.trigger(e);
+                            //     ball.getPlayer().Event.trigger(e);
+                            //     ball.onSkillKill(brick);
+                            // }
                         }
                     }
 
@@ -252,6 +423,7 @@ namespace MoreMountains
                 }
             }
         }
+
 
         public override void ReceiveHealth(Heal heal, GameObject instigator = null, Character source = null)
         {

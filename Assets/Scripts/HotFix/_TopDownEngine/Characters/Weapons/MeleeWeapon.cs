@@ -89,7 +89,7 @@ namespace MoreMountains
 
             if (Owner)
             {
-                _damageOnTouch.SetOwner(Owner.gameObject);
+                _damageOnTouch.SetOwner(Owner);
             }
         }
 

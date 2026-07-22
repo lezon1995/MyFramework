@@ -135,13 +135,14 @@ namespace MoreMountains
             matUnit.SetFloat(StrongTintFade, 1);
         }
 
-        public void playFxSkillHit(Vector2 direction)
-        {
-            playFxHit(direction);
-        }
-
         public void playFxHit(Vector2 normal)
         {
+            if (brick.IsDead())
+                return;
+
+            if (isAnimationDiedOrDying())
+                return;
+
             var dir = determineUnderHitDirection(normal);
             switch (dir)
             {
@@ -262,6 +263,16 @@ namespace MoreMountains
             {
                 curAnimation = AnimationState.DYING;
             }
+        }
+
+        bool isAnimationDiedOrDying()
+        {
+            return curAnimation is AnimationState.DIED or AnimationState.DYING;
+        }
+
+        public bool isPlayingAnimationBorn()
+        {
+            return curAnimation == AnimationState.BORN;
         }
 
         void onAnimationEnd()

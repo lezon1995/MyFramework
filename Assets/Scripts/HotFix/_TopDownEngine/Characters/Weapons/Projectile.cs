@@ -35,7 +35,7 @@ namespace MoreMountains
         public bool ManuallyColliding;
 
         [Tooltip("if FaceMovement is true, the projectile's vector specified below will be aligned to the movement vector, usually you'll want to go with Forward in 3D, Right in 2D")] [ShowIf(nameof(FaceMovement))]
-        public MovementVectors MovementVector = MovementVectors.Forward;
+        public MovementVectors movementVector = MovementVectors.Right;
 
         [Tooltip("the speed of the object (relative to the level's speed), 米/秒")]
         public UnitLength Speed;
@@ -71,12 +71,12 @@ namespace MoreMountains
 
         public DamageOnTouch DamageOnTouch => _damageOnTouch;
         public Weapon SourceWeapon => _weapon;
-        public GameObject Owner => _owner;
+        public Character Owner => _owner;
         protected Stats Stats => _stats;
-        protected Health Health => _health;
+        public Health Health => _health;
 
         protected Weapon _weapon;
-        protected GameObject _owner;
+        protected Character _owner;
         protected Transform _target;
         protected Health _targetHealth;
         protected Vector3 _movement;
@@ -258,9 +258,9 @@ namespace MoreMountains
             }
         }
 
-        protected void FaceMovementDirection(Vector3 newDirection)
+        protected virtual void FaceMovementDirection(Vector3 newDirection)
         {
-            switch (MovementVector)
+            switch (movementVector)
             {
                 case MovementVectors.Forward:
                     transform.forward = newDirection;
@@ -347,7 +347,7 @@ namespace MoreMountains
         /// Sets the projectile's owner.
         /// </summary>
         /// <param name="newOwner">New owner.</param>
-        public virtual void SetOwner(GameObject newOwner)
+        public virtual void SetOwner(Character newOwner)
         {
             _owner = newOwner;
             if (TryGetComponent<DamageOnTouch>(out var damageOnTouch))
@@ -356,7 +356,7 @@ namespace MoreMountains
                 if (!DamageOwner)
                 {
                     damageOnTouch.ClearIgnore();
-                    damageOnTouch.AddIgnore(newOwner);
+                    damageOnTouch.AddIgnore(newOwner.gameObject);
                 }
             }
         }

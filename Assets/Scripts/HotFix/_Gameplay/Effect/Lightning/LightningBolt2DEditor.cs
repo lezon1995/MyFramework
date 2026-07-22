@@ -1,4 +1,4 @@
-﻿#if UNITY_EDITOR
+﻿/*#if UNITY_EDITOR
 using UnityEngine;
 using UnityEditor;
 using UnityEditorInternal;
@@ -477,4 +477,4 @@ namespace MoreMountains
         #endregion
     }
 }
-#endif
+#endif*/

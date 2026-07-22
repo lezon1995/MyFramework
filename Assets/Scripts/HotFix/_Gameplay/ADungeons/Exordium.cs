@@ -7,26 +7,23 @@ namespace MoreMountains
     {
         public Exordium(APlayer p, List<string> emptyList) : base("Exordium", "Exordium", p, emptyList)
         {
-            initializeRelicList();
-            // if (Settings.isEndless)
-            // {
-            //     if (floorNum <= 1)
-            //     {
-            //         blightPool.clear();
-            //         blightPool = new();
-            //     }
-            // }
-            // else
-            // {
-            //     blightPool.clear();
-            // }
+            screen = CurrentScreen.NONE;
+            isScreenUp = false;
+            fadeColor = new(30, 15, 15, 255);
+            sourceFadeColor = new(30, 15, 15, 255);
+        }
 
-            // scene?.dispose();
-            // scene = new TheBottomScene();
-            // scene.randomizeScene();
-
+        public Exordium(APlayer p, SaveFile saveFile) : base("Exordium", p, saveFile)
+        {
             fadeColor = new Color32(30, 15, 15, 255);
             sourceFadeColor = new Color32(30, 15, 15, 255);
+        }
+
+        public override void initialize()
+        {
+            base.initialize();
+
+            initializeRelicList();
             initializeSpecialOneTimeEventList();
             initializeLevelSpecificChances();
 
@@ -36,7 +33,7 @@ namespace MoreMountains
             generateMap();
             music.changeBGM(id);
             prevMapNode = null;
-            currMapNode = new MapRoomNode(0, -1);
+            currMapNode = new(0, -1);
             if (Settings.isShowBuild || !TipTracker.tips["NEOW_SKIP"])
             {
                 room = new EmptyRoom();
@@ -52,15 +49,9 @@ namespace MoreMountains
             }
         }
 
-        public Exordium(APlayer p, SaveFile saveFile) : base("Exordium", p, saveFile)
+        public override void initializeByFile(SaveFile saveFile)
         {
-            // scene?.dispose();
-            // scene = new TheBottomScene();
-            fadeColor = new Color32(30, 15, 15, 255);
-            sourceFadeColor = new Color32(30, 15, 15, 255);
             music.changeBGM(id);
-
-            initializeLevelSpecificChances();
 
             if (Settings.seed != 0)
             {
@@ -68,16 +59,15 @@ namespace MoreMountains
                 mapRng = new Rand(Settings.seed + saveFile.act_num);
             }
 
+            initializeLevelSpecificChances();
+
             generateMap();
             firstRoomChosen = true;
             populatePathTaken(saveFile);
             if (isLoadingIntoNeow(saveFile))
                 firstRoomChosen = false;
-        }
 
-        public override void Initialize(int seed)
-        {
-            base.Initialize(seed);
+            base.initializeByFile(saveFile);
         }
     }
 }

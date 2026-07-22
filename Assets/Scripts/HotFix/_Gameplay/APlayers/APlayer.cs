@@ -45,7 +45,19 @@ namespace MoreMountains
             // for (i = 0; i < potionSlots; i++)
             // potions.Add(new PotionSlot(i));
         }
-    
+
+        public override void onAcquire()
+        {
+            base.onAcquire();
+            _controller2D.RegisterToVolumeManager();
+        }
+
+        public override void onRelease()
+        {
+            _controller2D.UnregisterToVolumeManager();;
+            base.onRelease();
+        }
+
         public override void SetInputManager()
         {
             Input = InputManager.Instance;

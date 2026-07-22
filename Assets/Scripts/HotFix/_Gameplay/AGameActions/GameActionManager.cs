@@ -32,7 +32,6 @@ public partial class GameActionManager
     public static Turn turn;
     public static int turnScore { get; set; }
     public static int turnExp { get; set; }
-    public static int turnCombo { get; set; }
     public static bool isAllClear { get; set; }
 
     public enum Phase

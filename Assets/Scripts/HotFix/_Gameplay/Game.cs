@@ -23,8 +23,8 @@ namespace MoreMountains
         public static string TRUE_VERSION_NUM = "2022-12-18";
 
         //
+        ADungeon dungeon;
         public static ScreenShake screenShake;
-        public static ADungeon dungeon;
         public static SplashScreen splashScreen;
         public static MainMenuScreen mainMenuScreen;
         public static DungeonTransitionScreen transitionScreen;
@@ -427,6 +427,7 @@ namespace MoreMountains
             if (loadingSave)
             {
                 d = getDungeon(saveFile.level_name, player, saveFile);
+                d.initializeByFile(saveFile);
                 loadPostCombat(saveFile);
                 if (!saveFile.post_combat)
                     loadingSave = false;
@@ -434,6 +435,8 @@ namespace MoreMountains
             else
             {
                 d = getDungeon(nextDungeon, player);
+                d.initialize();
+                
                 if (nextDungeon != "Exordium" || Settings.isShowBuild || !TipTracker.tips["NEOW_SKIP"])
                 {
                     // ADungeon.dungeonMapScreen.open(true);

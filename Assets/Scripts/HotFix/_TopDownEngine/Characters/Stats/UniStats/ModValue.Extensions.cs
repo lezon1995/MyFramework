@@ -35,58 +35,46 @@ namespace UniStats
         }
 
 #if NET7_0_OR_GREATER
-        public static string AddFlat<T>(this IModValue<T> modValue, T delta, string key = null) where T : struct, INumber<T>
+        public static string AddFlat<T>(this IModValue<T> modValue, T delta, string name = null) where T : struct, INumber<T>
         {
-            if (string.IsNullOrEmpty(key))
-                key = Guid.NewGuid().ToString();
-
-            var mod = Mod.Add(delta, key);
+            var mod = Mod.Add(delta, name);
             modValue.Add(mod);
-            return key;
+            return name;
         }
 
-        public static string AddPct<T>(this IModValue<T> modValue, T delta, string key = null) where T : struct, INumber<T>
+        public static string AddPct<T>(this IModValue<T> modValue, T delta, string name = null) where T : struct, INumber<T>
         {
-            if (string.IsNullOrEmpty(key))
-                key = Guid.NewGuid().ToString();
-
             var one = T.One;
             var sum = one + delta;
-            var mod = Mod.Mul(sum, key);
+            var mod = Mod.Mul(sum, name);
             modValue.Add(mod);
-            return key;
+            return name;
         }
 
-        public static string SubFlat<T>(this IModValue<T> modValue, T delta, string key = null) where T : struct, INumber<T>
+        public static string SubFlat<T>(this IModValue<T> modValue, T delta, string name = null) where T : struct, INumber<T>
         {
-            if (string.IsNullOrEmpty(key))
-                key = Guid.NewGuid().ToString();
-
-            var mod = Mod.Sub(delta, key);
+            var mod = Mod.Sub(delta, name);
             modValue.Add(mod);
-            return key;
+            return name;
         }
 
-        public static string SubPercent<T>(this IModValue<T> modValue, T delta, string key = null) where T : struct, INumber<T>
+        public static string SubPercent<T>(this IModValue<T> modValue, T delta, string name = null) where T : struct, INumber<T>
         {
-            if (string.IsNullOrEmpty(key))
-                key = Guid.NewGuid().ToString();
-
             var one = T.One;
             var sum = one - delta;
-            var mod = Mod.Mul(sum, key);
+            var mod = Mod.Mul(sum, name);
             modValue.Add(mod);
-            return key;
+            return name;
         }
 
-        public static bool Remove<T>(this IModValue<IValue<T>, T> modValue, string key) where T : struct
+        public static bool Remove<T>(this IModValue<IValue<T>, T> modValue, string name) where T : struct
         {
-            if (string.IsNullOrEmpty(key))
+            if (string.IsNullOrEmpty(name))
             {
                 return false;
             }
 
-            return modValue.Remove(key);
+            return modValue.Remove(name);
         }
 
 
@@ -108,67 +96,52 @@ namespace UniStats
             return accum;
         }
 #else
-        public static string AddFlat<T>(this IAttr<T> attr, T delta, string key = null) where T : struct
+        public static string AddFlat<T>(this IAttr<T> attr, T delta, string name = null) where T : struct
         {
-            if (string.IsNullOrEmpty(key))
-                key = Guid.NewGuid().ToString();
-
-            var mod = Mod.Add(delta, key);
+            var mod = Mod.Add(delta, name);
             attr.AddMod(mod);
-            return key;
+            return name;
         }
 
-        public static string AddFlat<T>(this IAttr<T> attr, IVar<T> v, string key = null) where T : struct
+        public static string AddFlat<T>(this IAttr<T> attr, IVar<T> v, string name = null) where T : struct
         {
-            if (string.IsNullOrEmpty(key))
-                key = Guid.NewGuid().ToString();
-
-            var mod = Mod.Add(v, key);
+            var mod = Mod.Add(v, name);
             attr.AddMod(mod);
-            return key;
+            return name;
         }
 
-        public static string AddPct<T>(this IAttr<T> attr, T delta, string key = null) where T : struct
+        public static string AddPct<T>(this IAttr<T> attr, T delta, string name = null) where T : struct
         {
-            if (string.IsNullOrEmpty(key))
-                key = Guid.NewGuid().ToString();
-
             var op = Mod.GetOperator<T>();
             var one = op.One;
             var sum = op.Add(one, delta);
-            var mod = Mod.Mul(sum, key);
+            var mod = Mod.Mul(sum, name);
             attr.AddMod(mod);
-            return key;
+            return name;
         }
 
-        public static string AddFunc<T>(this IAttr<T> attr, Func<T, T> func, string key = null) where T : struct
+        public static string AddFunc<T>(this IAttr<T> attr, Func<T, T> func, string name = null) where T : struct
         {
-            if (string.IsNullOrEmpty(key))
-                key = Guid.NewGuid().ToString();
-
-            var mod = Mod.Func(func, key);
+            var mod = Mod.Func(func, name);
             attr.AddMod(mod);
-            return key;
+            return name;
         }
 
-        public static string AddFunc<T>(this IAttr<T> attr, Func<T, T> func, out Action<T, T> onChange, string key = null) where T : struct
+        public static string AddFunc<T>(this IAttr<T> attr, Func<T, T> func, out Action<T, T> onChange, string name = null) where T : struct
         {
-            if (string.IsNullOrEmpty(key))
-                key = Guid.NewGuid().ToString();
-
-            var mod = Mod.Func(func, out onChange, key);
+            var mod = Mod.Func(func, out onChange, name);
             attr.AddMod(mod);
-            return key;
+            return name;
         }
 
-        // public static bool Remove<T>(this IModValue<T> modValue, string key) where T : struct
+        // public static bool Remove<T>(this IModValue<T> modValue, string name) where T : struct
         // {
-        //     if (string.IsNullOrEmpty(key))
+        //     if (string.IsNullOrEmpty(name))
         //     {
         //         return false;
         //     }
         //
-        //     return modValue.Remove(key);
+        //     return modValue.Remove(name);
         // }
 
         public static T ProbeDelta<T>(this IAttr<T> attr, IMod<T> mod) where T : struct

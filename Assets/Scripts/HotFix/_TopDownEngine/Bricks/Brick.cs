@@ -16,7 +16,8 @@ namespace MoreMountains
             instanceID = GetInstanceID();
             TryGetComponent(out brickRenderer);
             TryGetComponent(out damageOnTouch);
-            damageOnTouch.SetOwner(gameObject);
+            TryGetComponent(out volumeCollider);
+            damageOnTouch.SetOwner(this);
             brickRenderer.setOnBornAnimationComplete(OnBornCompleted);
             brickRenderer.Awake();
         }

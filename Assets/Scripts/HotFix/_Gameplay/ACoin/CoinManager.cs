@@ -74,7 +74,7 @@ namespace MoreMountains
 
         #region Private Fields
 
-        Dictionary<int, Coin> activeCoins = new();
+        SafeDictionary<int, Coin> activeCoins = new();
         Dictionary<Type, ObjectPool<Coin>> coinPools = new();
 
         // 临时列表用于更新（避免修改集合时迭代）
@@ -110,13 +110,11 @@ namespace MoreMountains
 
         public void OnDestroy()
         {
-            foreach (var coin in activeCoins.Values)
-            {
-                if (coin != null)
-                    releaseCoin(coin);
-            }
+            using var _ = new SafeDictionaryReader<int, Coin>(activeCoins, out var reader);
+            foreach (var (_, coin) in reader)
+                releaseCoin(coin);
 
-            activeCoins.Clear();
+            activeCoins.clear();
             coinPools.Clear();
 
             if (CoinParent != null)
@@ -130,7 +128,7 @@ namespace MoreMountains
 
         public void Update()
         {
-            if (activeCoins.Count == 0)
+            if (activeCoins.count() == 0)
                 return;
 
             var dt = Time.deltaTime;
@@ -291,7 +289,8 @@ namespace MoreMountains
             float range = rangeOverride > 0 ? rangeOverride : PickupRange;
             float rangeSq = range * range;
 
-            foreach (var coin in activeCoins.Values)
+            using var _ = new SafeDictionaryReader<int, Coin>(activeCoins, out var reader);
+            foreach (var (_, coin) in reader)
             {
                 if (coin == null)
                     continue;
@@ -359,13 +358,11 @@ namespace MoreMountains
         /// </summary>
         public void ClearAllCoins()
         {
-            foreach (var coin in activeCoins.Values)
-            {
-                if (coin != null)
-                    releaseCoin(coin);
-            }
+            using var _ = new SafeDictionaryReader<int, Coin>(activeCoins, out var reader);
+            foreach (var (_, coin) in reader)
+                releaseCoin(coin);
 
-            activeCoins.Clear();
+            activeCoins.clear();
         }
 
         /// <summary>
@@ -373,7 +370,7 @@ namespace MoreMountains
         /// </summary>
         public int GetActiveCoinCount()
         {
-            return activeCoins.Count;
+            return activeCoins.count();
         }
 
         #endregion
@@ -427,7 +424,7 @@ namespace MoreMountains
                     },
                     actionOnRelease: coin =>
                     {
-                        activeCoins.Remove(coin.instanceID);
+                        activeCoins.remove(coin.instanceID);
                         coin.OnRelease();
                         coin.gameObject.SetActive(false);
                     },
@@ -480,7 +477,7 @@ namespace MoreMountains
             if (coin == null)
                 return;
 
-            activeCoins.Remove(coin.instanceID);
+            activeCoins.remove(coin.instanceID);
             if (prefabPool != null)
             {
                 prefabPool.destroyObject(coin.gameObject, false);

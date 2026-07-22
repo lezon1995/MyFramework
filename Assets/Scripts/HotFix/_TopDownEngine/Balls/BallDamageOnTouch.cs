@@ -40,6 +40,11 @@ namespace MoreMountains
                     break;
             }
         }
+        
+        protected override void DetermineDamageDirection()
+        {
+            _damageDirection = ball.Direction;
+        }
 
         public void Colliding(Brick target, Dmg dmg)
         {
@@ -115,8 +120,7 @@ namespace MoreMountains
         {
             if (DamageTakenHealth)
             {
-                _damageDirection = Vector3.up;
-                DamageTakenHealth.Damage(ref dmg, instigator, brick, DamageTakenInvincibilityDuration, _damageDirection);
+                DamageTakenHealth.Damage(ref dmg, instigator, brick, DamageTakenInvincibilityDuration, -_damageDirection);
             }
         }
 

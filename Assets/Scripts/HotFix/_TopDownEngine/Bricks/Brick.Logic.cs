@@ -17,6 +17,8 @@ namespace MoreMountains
         #endregion
 
         public BrickRenderer brickRenderer;
+        public VolumeCollider volumeCollider;
+        Action<Brick> onBornCompleted;
     
         public void setID(long id) => guid = id;
         public Type getType() => GetType();
@@ -31,7 +33,12 @@ namespace MoreMountains
             brickRenderer.setHealthBarActive(false);
             brickRenderer.playBornAnimation();
             Health.onAcquire();
-            _controller2D.RegisterToVolumeManager();
+            volumeCollider.RegisterToVolumeManager();
+        }
+
+        public void setOnBornCompleted(Action<Brick> a)
+        {
+            onBornCompleted = a;
         }
 
         void OnBornCompleted()
@@ -39,11 +46,12 @@ namespace MoreMountains
             SetColliderEnabled(true);
             CharacterBrain.ResetBrain();
             brickRenderer.setHealthBarActive(true);
+            onBornCompleted?.Invoke(this);
         }
 
         public override void onRelease()
         {
-            _controller2D.UnregisterToVolumeManager();
+            volumeCollider.UnregisterToVolumeManager();
             Health.onRelease();
             base.onRelease();
         }

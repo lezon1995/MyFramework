@@ -115,6 +115,7 @@ namespace MoreMountains
         }
 
         public BoxCollider2D boxCollider => _boxCollider;
+        public Collider2D Collider2D;
 
         protected BoxCollider2D _boxCollider;
         protected CircleCollider2D _circleCollider;
@@ -124,8 +125,11 @@ namespace MoreMountains
         protected override void Awake()
         {
             base.Awake();
-            TryGetComponent(out _boxCollider);
-            TryGetComponent(out _circleCollider);
+            if (TryGetComponent(out _boxCollider))
+                Collider2D =  _boxCollider;
+            else if (TryGetComponent(out _circleCollider))
+                Collider2D =  _circleCollider;
+
             _originalColliderSize = ColliderSize;
             _originalColliderCenter = ColliderOffset;
             
@@ -214,22 +218,6 @@ namespace MoreMountains
         protected override void FixedUpdate()
         {
             base.FixedUpdate();
-
-            if (IsPlayer)
-            {
-                // 玩家：意图速度由 CurrentMovement 提供，平滑过渡
-                IntentVelocity = Vector2.Lerp(IntentVelocity, CurrentMovement, Time.fixedDeltaTime * 10f);
-                Vector2 totalVel = IntentVelocity + KnockbackVelocity;
-                Position += totalVel * Time.fixedDeltaTime;
-                transform.position = Position;
-            }
-            else
-            {
-                // 怪物：意图速度由 AI 控制，这里只应用总速度
-                Vector2 totalVel = IntentVelocity + KnockbackVelocity;
-                Position += totalVel * Time.fixedDeltaTime;
-                transform.position = Position;
-            }
         }
 
         /// <summary>

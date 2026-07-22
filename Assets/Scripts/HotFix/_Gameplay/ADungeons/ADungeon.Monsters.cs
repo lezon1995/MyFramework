@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace MoreMountains
 {
@@ -14,6 +15,32 @@ namespace MoreMountains
         protected abstract void generateStrongEnemies(int paramInt);
         protected abstract void generateElites(int paramInt);
         protected abstract void initializeBoss();
+        
+        protected virtual void loadVolumeManager()
+        {
+            var manager = Object.FindFirstObjectByType<VolumeManager>();
+            if (manager)
+            {
+                volumeManager = manager;
+                return;
+            }
+            string path = $"{GAMEPLAY_PATH}/Characters/VolumeManager.prefab";
+            var res = resource.loadGameResource<VolumeManager>(path);
+            volumeManager = Object.Instantiate(res.getResource());
+        }
+
+        protected virtual void loadGridManager()
+        {
+            var manager = Object.FindFirstObjectByType<GridManager>();
+            if (manager)
+            {
+                gridManager = manager;
+                return;
+            }
+            string path = $"{GAMEPLAY_PATH}/Grids/GridManager.prefab";
+            var res = resource.loadGameResource<GridManager>(path);
+            gridManager = Object.Instantiate(res.getResource());
+        }
 
         public static MonsterGroup getMonsters() => room.monsters;
 

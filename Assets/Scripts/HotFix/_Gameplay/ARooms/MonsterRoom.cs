@@ -12,14 +12,11 @@ namespace MoreMountains
         public override RoomType Type => RoomType.MONSTER;
 
         // public DiscardPileViewScreen discardPileViewScreen = new DiscardPileViewScreen();
-        protected static Queue<OnBrickDeath> brickDeathQueue = new();
-        Timer brickDeathTimer;
 
         public WaveGameMode waveGameMode;
         public WaveLevelConfig waveLevelConfig;
         
         public CoinManager coinManager;
-        public VolumeManager volumeManager;
 
         public MonsterRoom()
         {
@@ -38,7 +35,6 @@ namespace MoreMountains
         {
             loadWaveManager();
             loadCoinManager();
-            loadVolumeManager();
         }
 
         public override void onPlayerEntry()
@@ -55,8 +51,6 @@ namespace MoreMountains
             waitTimer = COMBAT_WAIT_TIME;
             new OnPlayerEnterBattleRoom().trigger();
             this.addListener();
-            
-            player.Controller2D.RegisterToVolumeManager();
         }
 
         protected void loadWaveManager()
@@ -78,19 +72,6 @@ namespace MoreMountains
             {
                 adapter.SetCoinManager(coinManager);
             }
-        }
-
-        protected void loadVolumeManager()
-        {
-            var manager = Object.FindFirstObjectByType<VolumeManager>();
-            if (manager)
-            {
-                volumeManager = manager;
-                return;
-            }
-            string path = $"{GAMEPLAY_PATH}/Characters/VolumeManager.prefab";
-            var res = resource.loadGameResource<VolumeManager>(path);
-            volumeManager = Object.Instantiate(res.getResource());
         }
 
         public override void onPlayerExit()
@@ -134,16 +115,11 @@ namespace MoreMountains
 
         public void onEvent(OnBrickDeath e)
         {
-            var combo = ++GameActionManager.turnCombo;
             var baseExp = gameDesign.baseExpStandard;
-            int extraExp = gameDesign.getExtraExpAtCombo(combo);
-            var totalExp = baseExp + extraExp;
+            var totalExp = baseExp;
             actionManager.addToBot<GainExpAction>().with(totalExp);
             GameActionManager.turnExp += totalExp;
-            e.combo = combo;
-
-            brickDeathTimer = 0.15F;
-            brickDeathQueue.Enqueue(e);
+            Game.screenShake.shakeCamera(0.005f, 0.15F);
         }
 
         protected override void onFightPhaseEnd()
@@ -194,7 +170,6 @@ namespace MoreMountains
         {
             base.update(dt);
 
-            handleBrickDeathEvent(dt);
         }
 
         public override void getAllBricks(ref List<Brick> list)
@@ -203,23 +178,6 @@ namespace MoreMountains
             {
                 list.add(m as Brick);
             }
-        }
-
-        void handleBrickDeathEvent(float elapsedTime)
-        {
-            if (brickDeathTimer.update(elapsedTime))
-            {
-                if (brickDeathQueue.TryDequeue(out var e))
-                {
-                    brickDeathTimer = 0.15F;
-                    // comboManager.createComboEffect(e.combo, e.deathPosition);
-
-                    //Camera shaking
-                    Game.screenShake.shakeCamera(e.combo * 0.005f, 0.15F);
-                }
-            }
-
-            return;
         }
     }
 }

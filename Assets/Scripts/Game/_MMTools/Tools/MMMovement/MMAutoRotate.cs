@@ -28,7 +28,7 @@ namespace MoreMountains.Tools
 
         [MMCondition("Rotating", true)]
         /// The rotation speed. Positive means clockwise, negative means counter clockwise.
-        public Vector3 RotationSpeed = new Vector3(100f, 0f, 0f);
+        public Vector3 RotationSpeed = new(100f, 0f, 0f);
 
         [Header("Orbit")]
         /// if this is true, the object will also move around a pivot (only the position is affected, not the rotation)

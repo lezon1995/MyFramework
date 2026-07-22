@@ -422,17 +422,16 @@ GameObject:
   - component: {fileID: 7328556129454814211}
   - component: {fileID: 8351306170979192449}
   - component: {fileID: 6261652187701802809}
-  - component: {fileID: 5216520933645092017}
+  - component: {fileID: -5052866077652537403}
   - component: {fileID: 6747709835520826469}
   - component: {fileID: 2979757389551645709}
   - component: {fileID: 7666875946719432214}
   - component: {fileID: 5559078358697362129}
   - component: {fileID: 4302964047343872517}
-  - component: {fileID: 4907028769070163970}
-  - component: {fileID: 4152779896775279395}
   - component: {fileID: -8467668726761128537}
   - component: {fileID: 1178844211309142110}
   - component: {fileID: -4211822000043830622}
+  - component: {fileID: 5490957526687953782}
   m_Layer: 7
   m_Name: Brick_1x1
   m_TagString: Block
@@ -577,7 +576,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27979c2dab9943c880fe621ff230642e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: HotFix::MarbleHero.BrickAnimationReceiver
---- !u!114 &5216520933645092017
+--- !u!114 &-5052866077652537403
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -586,14 +585,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 3237124602915234066}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 89ee7fe4b0037274d8dba40f605ae049, type: 3}
+  m_Script: {fileID: 11500000, guid: db212325dbc24a1f8c5698cd6cb247d1, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: HotFix::MoreMountains.TopDownEngine.TopDownController2D
-  IsPlayer: 0
+  m_EditorClassIdentifier: HotFix::MoreMountains.BrickController
   Character: {fileID: 5559078358697362129}
   Radius: 0.5
   Mass: 1
-  MaxOverlapRatio: 0.2
+  MaxOverlapRatio: 0.3
   PushForceWeight: 1
   SpeedMultiplier: 1
   KnockbackResistance: 0
@@ -604,6 +602,7 @@ MonoBehaviour:
   VelocityDamping: 0.9
   ShowGizmos: 1
   GizmosColor: {r: 0, g: 1, b: 0, a: 0.3}
+  Collider2D: {fileID: 0}
 --- !u!114 &6747709835520826469
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -631,13 +630,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49072b7988e64270b2073ffeb9eece90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: HotFix::MoreMountains.TopDownEngine.CharacterMovement
-  InitializeOnAwake: 1
+  InitializeOnAwake: 0
   AbilityStartSfx: {fileID: 0}
   AbilityInProgressSfx: {fileID: 0}
   AbilityStopSfx: {fileID: 0}
   AbilityStartFeedbacks: {fileID: 0}
   AbilityStopFeedbacks: {fileID: 0}
-  AbilityPermitted: 1
+  AbilityPermitted: 0
   BlockingMovementStates: 
   BlockingConditionStates: 
   BlockingWeaponStates: 
@@ -785,16 +784,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: HotFix::MoreMountains.TopDownEngine.EnemyBrain
   Owner: {fileID: 0}
-  States:
-  - StateName: Chasing
-    Actions:
-      array:
-      - {fileID: 4152779896775279395}
-    Transitions:
-      array:
-      - Decision: {fileID: 4907028769070163970}
-        TrueState: 
-        FalseState: 
+  States: []
   TimeInThisState: 0
   Target: {fileID: 0}
   _lastKnownTargetPosition: {x: 0, y: 0, z: 0}
@@ -807,50 +797,6 @@ MonoBehaviour:
   RandomActionFrequency: {x: 0.5, y: 1}
   RandomDecisionFrequency: {x: 0.5, y: 1}
   character: {fileID: 0}
---- !u!114 &4907028769070163970
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3237124602915234066}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2a946a428cb16e1409d657b9041c69be, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: HotFix::MoreMountains.TopDownEngine.EnemyDetectTargetRadiusDecision
-  Label: 
-  Radius: 15
-  DetectionOriginOffset: {x: 0, y: 0, z: 0}
-  TargetLayer:
-    serializedVersion: 2
-    m_Bits: 4096
-  ObstacleDetection: 0
-  ObstacleMask:
-    serializedVersion: 2
-    m_Bits: 16384
-  ObstaclesDetectionMode: 0
-  CanTargetSelf: 0
-  TargetCheckFrequency: 1
-  OverlapMaximum: 10
---- !u!114 &4152779896775279395
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3237124602915234066}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 47557c9dd44293a41bc6710b083332de, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: HotFix::MoreMountains.TopDownEngine.EnemyMoveTowardsTargetAction
-  InitializationMode: 0
-  Label: 
-  UseMinimumXDistance: 1
-  MinimumXDistance: 0.1
-  MonsterAttractionForce: 1
-  MonsterWanderForce: 0.5
 --- !u!114 &-8467668726761128537
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -922,6 +868,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: HotFix::MoreMountains.BrickStats
   Debug: 0
   StatsConfig: {fileID: 11400000, guid: 145964dca47f5ff478027cb65c377a2c, type: 2}
+--- !u!114 &5490957526687953782
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3237124602915234066}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b73f05b31212f0d419ada6564e9c4ddf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: HotFix::MoreMountains.VolumeCollider
+  Enabled: 1
+  CollisionPriority: 1
+  GizmosColor: {r: 0.3, g: 0.8, b: 0.3, a: 0.5}
 --- !u!1 &3490370333130838258
 GameObject:
   m_ObjectHideFlags: 0

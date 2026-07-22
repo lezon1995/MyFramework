@@ -14,6 +14,25 @@ public class SafeDictionary<Key, Value> : ClassObject
 	protected Dictionary<Key, Value> mMainList = new();                     // 用于存储实时数据的列表
 	protected string mLastFileName;											// 上一次开始遍历时的文件名
 	protected bool mForeaching;												// 当前是否正在遍历中
+
+	public Value this[Key key]
+	{
+		get => mMainList[key];
+		set
+		{
+			if (mMainList.ContainsKey(key))
+			{
+				mMainList[key] = value;
+			}
+			else
+			{
+				add(key, value);
+			}
+		}
+	}
+
+	public Dictionary<Key, Value>.ValueCollection Values => mMainList.Values;
+
 	public override void resetProperty()
 	{
 		base.resetProperty();
