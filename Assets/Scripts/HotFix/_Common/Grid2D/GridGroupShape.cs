@@ -62,6 +62,11 @@ namespace MoreMountains
             return col == other.col && row == other.row && width == other.width && height == other.height;
         }
 
+        public bool ShapeEquals(GridUnitBrick other)
+        {
+            return width == other.width && height == other.height;
+        }
+
         public override bool Equals(object obj)
         {
             return obj is GridUnitBrick other && Equals(other);
