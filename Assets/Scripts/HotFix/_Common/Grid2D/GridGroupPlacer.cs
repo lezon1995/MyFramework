@@ -52,7 +52,7 @@ namespace MoreMountains
         {
             if (includeAllOrientations)
             {
-                foreach (var o in GridGroupShape.orientations)
+                foreach (var o in GridGroupShape._orientations)
                 {
                     var oriented = shape.WithOrientation(o);
                     foreach (var p in FindPlacementsForShape(oriented, grid, occupied, o))
@@ -95,7 +95,7 @@ namespace MoreMountains
                     var origin = new Vector2Int(x, y);
                     if (!shape.CanPlaceAt(origin, grid, occupied))
                         continue;
-                    shape.PlaceAt(origin, bufferedCells);
+                    shape.PlaceAt(origin, ref bufferedCells);
                     var copy = bufferedCells.ToArray();
                     yield return new(origin, copy, orientation);
                 }
@@ -184,7 +184,7 @@ namespace MoreMountains
                     var origin = new Vector2Int(x, y);
                     if (!shape.CanPlaceAt(origin, grid))
                         continue;
-                    shape.PlaceAt(origin, bufferedCells);
+                    shape.PlaceAt(origin, ref bufferedCells);
                     bool ok = true;
                     for (int i = 0; i < bufferedCells.Count; i++)
                     {

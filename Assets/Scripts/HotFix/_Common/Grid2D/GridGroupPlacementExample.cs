@@ -15,6 +15,7 @@ namespace MoreMountains
     {
         [Header("Grid Setup")]
         public float CellSize = 1f;
+
         public int Rows = 8;
         public int Columns = 12;
         public Vector2 OriginOffset = new(-6f, -4f);
@@ -32,9 +33,10 @@ namespace MoreMountains
         [Tooltip("是否在 Start 自动执行.")]
         public bool RunOnStart = true;
 
-        private void Start()
+        void Start()
         {
-            if (RunOnStart) RunExample();
+            if (RunOnStart)
+                RunExample();
         }
 
         [ContextMenu("Run Example")]
@@ -63,8 +65,10 @@ namespace MoreMountains
             var emptySet = new HashSet<Vector2Int>();
             foreach (var cell in grid)
             {
-                if (!occupied.Contains(cell)) emptySet.Add(cell);
+                if (!occupied.Contains(cell))
+                    emptySet.Add(cell);
             }
+
             var regions = GridGroupPlacer.FindEmptyRegions(grid, emptySet);
             Debug.Log($"[Grid2D/Example] 形状 = {Kind}, 共 {regions.Count} 个空置区域.");
 
@@ -75,9 +79,10 @@ namespace MoreMountains
                 count++;
                 Debug.Log($"可放置 #{count}: origin={placement.Origin}, 朝向={placement.Orientation}, " + $"cells=[{string.Join(",", System.Array.ConvertAll(placement.Cells, c => $"({c.x},{c.y})"))}]");
 
-                if (count >= 6) 
+                if (count >= 6)
                     break; // 只演示前 6 个
             }
+
             Debug.Log($"[Grid2D/Example] 共 {count} 个候选放置位.");
         }
 

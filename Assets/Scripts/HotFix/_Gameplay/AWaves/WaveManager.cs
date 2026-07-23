@@ -174,14 +174,14 @@ namespace MoreMountains
         Vector2 _spawnAreaMax;
 
         // ---------------------------------------------------------------
-        // Grid2D 网格视图 (取代 brickLayout).
+        // Grid 网格视图 (取代 brickLayout).
         //
         // 如果在 Inspector 里手动指定, 则优先使用;
-        // 否则 Awake 时通过 FindObjectOfType 自动获取场景中的第一个 Grid2DView.
-        // 它提供 cols / rows / cellSize / originOffset 等, 把 spawn 点锚定到网格 cell 中心.
+        // 否则 Awake 时通过 FindObjectOfType 自动获取场景中的第一个 GridManager.
+        // 它提供 Rows / Columns / CellSize / OriginOffset 等, 把 spawn 点锚定到网格 cell 中心.
         // ---------------------------------------------------------------
 
-        [Tooltip("网格视图. 不指定时, 在 Start/StartLevel 时通过 FindObjectOfType 自动获取场景中的 Grid2DView.")]
+        [Tooltip("网格管理器. 不指定时, 在首次 spawn 时通过 FindObjectOfType 自动获取场景中的 GridManager.")]
         public GridManager GridView;
 
         GridManager _resolvedGridView;
@@ -222,8 +222,8 @@ namespace MoreMountains
         }
 
         /// <summary>
-        /// 解析 GridView 引用. 优先用 Inspector 字段; 否则尝试从场景里找.
-        /// 返回 null 表示当前场景中没有可用的 Grid2DView.
+        /// 解析 GridManager 引用. 优先用 Inspector 字段; 否则尝试从场景里找.
+        /// 返回 null 表示当前场景中没有可用的 GridManager.
         /// </summary>
         public GridManager ResolveGridView()
         {
@@ -240,7 +240,7 @@ namespace MoreMountains
 #if UNITY_2023_1_OR_NEWER
             _resolvedGridView = FindFirstObjectByType<GridManager>(FindObjectsInactive.Include);
 #else
-        _resolvedGridView = UnityEngine.Object.FindObjectOfType<Grid2DView>(true);
+            _resolvedGridView = UnityEngine.Object.FindObjectOfType<GridManager>(true);
 #endif
             _gridViewResolved = true;
             return _resolvedGridView;
@@ -539,7 +539,12 @@ namespace MoreMountains
                 return GetEdgeBiasedRandomPosition();
             }
 
-            var grid = ResolveGridView().CurrentGrid();
+            var gm = ResolveGridView();
+            if (gm == null)
+            {
+                return GetEdgeBiasedRandomPosition();
+            }
+            var grid = gm.CurrentGrid();
             if (grid.Columns <= 0 || grid.Rows <= 0)
             {
                 return GetEdgeBiasedRandomPosition();
@@ -1219,7 +1224,14 @@ namespace MoreMountains
         /// </summary>
         Vector3 GetEdgeBiasedRandomPosition()
         {
-            var grid = ResolveGridView().CurrentGrid();
+            var gm = ResolveGridView();
+            if (gm == null)
+            {
+                if (player != null)
+                    return player.getWorldPosition() + new Vector3(5, 5, 0);
+                return Vector3.zero;
+            }
+            var grid = gm.CurrentGrid();
             if (grid.Columns <= 0 || grid.Rows <= 0)
             {
                 if (player != null)

@@ -86,7 +86,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 1
-  m_Size: {x: 2.65, y: 0.2}
+  m_Size: {x: 4, y: 0.2}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -399,7 +399,7 @@ Transform:
   m_GameObject: {fileID: 2438729641320770937}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.3375, y: 0, z: 0}
+  m_LocalPosition: {x: 0.675, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -453,7 +453,7 @@ GameObject:
   - component: {fileID: 7328556129454814211}
   - component: {fileID: 8351306170979192449}
   - component: {fileID: 6261652187701802809}
-  - component: {fileID: -4269532793844909601}
+  - component: {fileID: 3268493454991262486}
   - component: {fileID: 1869582164082399622}
   - component: {fileID: 6784063828938475265}
   - component: {fileID: 8240030677337843147}
@@ -461,10 +461,10 @@ GameObject:
   - component: {fileID: -1421266774468195594}
   - component: {fileID: 1681178672596040620}
   - component: {fileID: -2375815759049658533}
-  - component: {fileID: -8800460350147408025}
-  - component: {fileID: -6742035369546388740}
+  - component: {fileID: -8867560118057278914}
+  - component: {fileID: -8122543766635123772}
   m_Layer: 7
-  m_Name: Brick_2x1
+  m_Name: Brick_3x3
   m_TagString: Block
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -548,7 +548,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0.3375, y: 0}
+  m_Offset: {x: 0.675, y: 0.675}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -558,7 +558,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 1.35, y: 0.675}
+  m_Size: {x: 2.025, y: 2.025}
   m_EdgeRadius: 0
 --- !u!210 &7328556129454814211
 SortingGroup:
@@ -607,7 +607,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27979c2dab9943c880fe621ff230642e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: HotFix::MarbleHero.BrickAnimationReceiver
---- !u!114 &-4269532793844909601
+--- !u!114 &3268493454991262486
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -874,7 +874,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: HotFix::MoreMountains.BrickStats
   Debug: 0
   StatsConfig: {fileID: 11400000, guid: 145964dca47f5ff478027cb65c377a2c, type: 2}
---- !u!114 &-8800460350147408025
+--- !u!114 &-8867560118057278914
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -900,7 +900,7 @@ MonoBehaviour:
   RandomActionFrequency: {x: 0.5, y: 1}
   RandomDecisionFrequency: {x: 0.5, y: 1}
   character: {fileID: 0}
---- !u!114 &-6742035369546388740
+--- !u!114 &-8122543766635123772
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -973,8 +973,8 @@ Transform:
   m_GameObject: {fileID: 4025440000751913080}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.2775, z: 0}
-  m_LocalScale: {x: 0.7, y: 0.7, z: 1}
+  m_LocalPosition: {x: 0, y: 0.9, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8723397171512986198}
@@ -1032,8 +1032,8 @@ SpriteRenderer:
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
-  m_DrawMode: 0
-  m_Size: {x: 1, y: 1}
+  m_DrawMode: 1
+  m_Size: {x: 2.025, y: 2.025}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -1125,7 +1125,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 1
-  m_Size: {x: 1.17, y: 0.064}
+  m_Size: {x: 1.78, y: 0.064}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -1218,8 +1218,8 @@ Transform:
   m_GameObject: {fileID: 5711784307859128996}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.703125, y: 0.6958763, z: 1}
+  m_LocalPosition: {x: 0, y: 0.675, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 9071320630829488056}
@@ -1273,12 +1273,12 @@ SpriteRenderer:
   m_SortingLayer: 2
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: 8552a93ee6dfe2746a993c46e3151d80, type: 3}
+  m_Sprite: {fileID: 767241737, guid: bac3111782729304c9f7ec625973166b, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
-  m_DrawMode: 0
-  m_Size: {x: 0.675, y: 0.675}
+  m_DrawMode: 1
+  m_Size: {x: 2.025, y: 2.025}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -1402,7 +1402,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 1
-  m_Size: {x: 1.17, y: 0.07}
+  m_Size: {x: 1.78, y: 0.07}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -1433,7 +1433,7 @@ Transform:
   m_GameObject: {fileID: 7638508557024894739}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0.675, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1493,7 +1493,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 1
-  m_Size: {x: 1.35, y: 0.675}
+  m_Size: {x: 2.025, y: 2.025}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1

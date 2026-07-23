@@ -6,73 +6,257 @@ using UnityEngine;
 namespace MoreMountains
 {
     /// <summary>
-    /// 描述 "在网格上的形状" 的纯数据结构.
-    /// 由一组相对原点的整数格子点 (Vector2Int) 组成;形状可以是矩形 / L 形 / T 形 / 任意散点.
+    /// 单个"基础砖块"在形状中的描述.
+    /// 砖块的 Pivot 固定在所占据矩形 (width × height) 的左下角 cell 中心.
+    /// 本结构使用局部坐标: 所有字段在形状自身的 BBox 原点坐标系中.
+    /// </summary>
+    [Serializable]
+    public struct GridUnitBrick : IEquatable<GridUnitBrick>
+    {
+        /// <summary>砖块起点在形状局部坐标系中的 col (X).</summary>
+        [Tooltip("砖块起点的列索引 (X), 相对于形状 BBox 左下角.")]
+        public int col;
+
+        /// <summary>砖块起点在形状局部坐标系中的 row (Y).</summary>
+        [Tooltip("砖块起点的行索引 (Y), 相对于形状 BBox 左下角.")]
+        public int row;
+
+        /// <summary>砖块宽度 (X 方向占多少个 cell).</summary>
+        [Tooltip("砖块宽度 (cell 数).")]
+        public int width;
+
+        /// <summary>砖块高度 (Y 方向占多少个 cell).</summary>
+        [Tooltip("砖块高度 (cell 数).")]
+        public int height;
+
+        /// <summary>
+        /// 以 col/row 为原点的左下角 cell 坐标 (即 Pivot 在局部坐标系中的位置).
+        /// </summary>
+        public Vector2Int PivotCell => new(col, row);
+
+        /// <summary>
+        /// 该砖块占用的 cell 总数.
+        /// </summary>
+        public int CellCount => width * height;
+
+        public GridUnitBrick(int col, int row, int width, int height)
+        {
+            this.col = col;
+            this.row = row;
+            this.width = width;
+            this.height = height;
+        }
+
+        /// <summary>
+        /// 该砖块覆盖的所有 cell 的局部坐标 (左闭右开, 即 col∈[col, col+width), row∈[row, row+height)).
+        /// </summary>
+        public void EnumerateCells(ref List<Vector2Int> list)
+        {
+            for (int dy = 0; dy < height; dy++)
+            for (int dx = 0; dx < width; dx++)
+                list.Add(new(col + dx, row + dy));
+        }
+
+        public bool Equals(GridUnitBrick other)
+        {
+            return col == other.col && row == other.row && width == other.width && height == other.height;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is GridUnitBrick other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            return (col, row, width, height).GetHashCode();
+        }
+
+        public override string ToString()
+        {
+            return $"Brick({col},{row} {width}x{height})";
+        }
+    }
+
+    /// <summary>
+    /// 描述"在网格上的形状"的纯数据结构.
+    ///
+    /// 支持两种编辑模式:
+    /// - <b>砖块模式</b> (推荐): 以 <see cref="GridUnitBrick"/> 为单位配置形状,
+    ///   由若干基础砖块 (1×1 ~ 3×3) 拼接而成,每一块都有明确的尺寸和位置.
+    ///   调用 <see cref="FromBricks"/> 构造.
+    /// - <b>格点模式</b> (兼容): 直接以格点集合配置形状,调用 <see cref="FromCells"/> 构造.
     ///
     /// 关键性质:
-    /// - 形状是相对于某个 "锚点" 的局部坐标,通常锚点 = BBox 左下角;
-    /// - 通过 <see cref="Pivot"/> 调整锚点 (八种常见锚点位置);
-    /// - 通过 <see cref="WithOrientation"/> 生成 8 种朝向的副本;
+    /// - 形状是相对于某个"锚点"的局部坐标,通常锚点 = BBox 左下角;
+    /// - 通过 <see cref="Pivot"/> 调整锚点 (九种常见锚点位置);
+    /// - 通过 <see cref="WithOrientation"/> 生成 8 种朝向的副本 (砖块坐标同步变换);
+    /// - 通过 <see cref="ExpandToCells"/> 展开为所有格点的集合 (用于碰撞检测);
     /// - 与 <see cref="Grid"/> 配合: 用 <see cref="CanPlaceAt"/> 检查能否放在网格某处.
     /// </summary>
     [Serializable]
     public struct GridGroupShape : IEnumerable<Vector2Int>, IEquatable<GridGroupShape>
     {
-        // 内部用 hash 集合缓存 + 哈希, 用 array 保存插入序用于遍历.
-        //  struct 字段仍可持有 reference type (array/hashset).
+        // ---------------------------------------------------------------
+        // 序列化字段 (由 Unity 序列化, 用于 Inspector 编辑)
+        // ---------------------------------------------------------------
+
+        /// <summary>砖块模式: 组成形状的基础砖块列表 (col/row/width/height 为局部坐标).</summary>
+        [Tooltip("砖块列表. 每个条目表示一个基础砖块, col/row 为起点的局部坐标, width/height 为尺寸.")]
+        public GridUnitBrick[] _bricks;
+
+        /// <summary>格点模式: 形状覆盖的所有 cell 的局部坐标 (由 _bricks 展开得到, 或直接配置).</summary>
+        [Tooltip("所有格点的局部坐标 (由砖块展开或直接配置).")]
         public Vector2Int[] _cells;
 
-        // 锚点在 BBox 中的位置 
+        /// <summary>锚点在 BBox 中的位置.</summary>
         public GridGroupPivot _pivot;
 
-        public GridGroupShape(IEnumerable<Vector2Int> cells, GridGroupPivot pivot = GridGroupPivot.BottomLeft)
-            : this(NormalizeToArray(cells), pivot)
+        // ---------------------------------------------------------------
+        // 构造
+        // ---------------------------------------------------------------
+
+        /// <summary>
+        /// 从砖块列表构造形状. 所有砖块的 col/row/width/height 必须非负.
+        /// 内部自动展开到格点集合, 自动计算 BBox 并 normalize.
+        /// </summary>
+        /// <param name="bricks">基础砖块列表 (不允许重叠, 允许空隙).</param>
+        /// <param name="pivot">形状锚点.</param>
+        /// <exception cref="ArgumentException">当 bricks 为空或含非法尺寸时抛出.</exception>
+        public static GridGroupShape FromBricks(IEnumerable<GridUnitBrick> bricks, GridGroupPivot pivot = GridGroupPivot.BottomLeft)
         {
+            using var _a = new ListScope<GridUnitBrick>(out var brickList);
+            brickList.AddRange(bricks);
+            if (brickList.Count == 0)
+                throw new ArgumentException("FromBricks requires at least one brick.", nameof(bricks));
+
+            // 展开所有 cell
+            using var _b = new HashSetScope<Vector2Int>(out var cellSet);
+            using var _c = new ListScope<Vector2Int>(out var cellList);
+            foreach (var b in brickList)
+            {
+                if (b.width <= 0 || b.height <= 0)
+                    throw new ArgumentException($"Invalid brick size: {b.width}x{b.height}. Size must be positive.");
+
+                using var _d = new ListScope<Vector2Int>(out var cells);
+                b.EnumerateCells(ref cells);
+                foreach (var c in cells)
+                {
+                    if (cellSet.Add(c))
+                        cellList.Add(c);
+                }
+            }
+
+            // Normalize: 把所有坐标平移到 BBox 左下角 = (0,0)
+            var min = cellList[0];
+            foreach (var c in cellList)
+            {
+                if (c.x < min.x) min.x = c.x;
+                if (c.y < min.y) min.y = c.y;
+            }
+
+            var normBricks = new GridUnitBrick[brickList.Count];
+            for (int i = 0; i < brickList.Count; i++)
+            {
+                var b = brickList[i];
+                normBricks[i] = new(b.col - min.x, b.row - min.y, b.width, b.height);
+            }
+
+            var normCells = new Vector2Int[cellList.Count];
+            for (int i = 0; i < cellList.Count; i++)
+                normCells[i] = new(cellList[i].x - min.x, cellList[i].y - min.y);
+
+            return new(normBricks, normCells, pivot);
         }
 
-        GridGroupShape(Vector2Int[] cells, GridGroupPivot pivot)
+        /// <summary>
+        /// 从格点列表构造形状 (兼容模式).
+        /// 内部自动去重并 normalize 到 BBox 左下角 = (0,0).
+        /// </summary>
+        public static GridGroupShape FromCells(IEnumerable<Vector2Int> cells, GridGroupPivot pivot = GridGroupPivot.BottomLeft)
         {
-            if (cells == null || cells.Length == 0)
-                throw new ArgumentException("GridGroupShape requires at least one cell.", nameof(cells));
+            using var _a = new ListScope<Vector2Int>(out var list);
+            using var _b = new HashSetScope<Vector2Int>(out var seen);
+            using var _c = new ListScope<Vector2Int>(out var cellList);
+            cellList.AddRange(cells);
+            foreach (var c in cellList)
+            {
+                if (seen.Add(c))
+                    list.Add(c);
+            }
 
+            if (list.Count == 0)
+                throw new ArgumentException("FromCells requires at least one cell.", nameof(cells));
+
+            var min = list[0];
+            foreach (var c in list)
+            {
+                if (c.x < min.x) min.x = c.x;
+                if (c.y < min.y) min.y = c.y;
+            }
+
+            for (int i = 0; i < list.Count; i++)
+                list[i] = new(list[i].x - min.x, list[i].y - min.y);
+
+            return new GridGroupShape(null, list.ToArray(), pivot);
+        }
+
+        /// <summary>
+        /// 用预置基础尺寸构造一个矩形形状 (等价于 FromCells).
+        /// </summary>
+        public static GridGroupShape Rectangle(int width, int height, GridGroupPivot pivot = GridGroupPivot.BottomLeft)
+        {
+            if (width <= 0 || height <= 0)
+                throw new ArgumentOutOfRangeException();
+            // 直接用砖块模式
+            return FromBricks(new[] { new GridUnitBrick(0, 0, width, height) }, pivot);
+        }
+
+        GridGroupShape(GridUnitBrick[] bricks, Vector2Int[] cells, GridGroupPivot pivot)
+        {
+            _bricks = bricks;
             _cells = cells;
             _pivot = pivot;
         }
 
-        static Vector2Int[] NormalizeToArray(IEnumerable<Vector2Int> cells)
+        GridGroupShape(Vector2Int[] cells, GridGroupPivot pivot)
         {
-            var list = new List<Vector2Int>();
-            var seen = new HashSet<Vector2Int>();
-            foreach (var c in cells)
-            {
-                if (seen.Add(c))
-                {
-                    list.Add(c);
-                }
-            }
-
-            if (list.Count == 0)
-                throw new ArgumentException("GridGroupShape requires at least one cell.", nameof(cells));
-            return list.ToArray();
+            _bricks = null;
+            _cells = cells;
+            _pivot = pivot;
         }
 
+        // ---------------------------------------------------------------
+        // 属性
+        // ---------------------------------------------------------------
+
+        /// <summary>砖块列表 (只读). 若为 null 则该形状是通过格点模式创建的.</summary>
+        public IReadOnlyList<GridUnitBrick> Bricks => _bricks ?? Array.Empty<GridUnitBrick>();
+
+        /// <summary>是否以砖块模式构造.</summary>
+        public bool HasBrickData => _bricks is { Length: > 0 };
+
+        /// <summary>展开后的格点列表 (只读).</summary>
         public IReadOnlyList<Vector2Int> Cells => _cells;
+
+        /// <summary>形状占用的格点总数.</summary>
         public int Count => _cells.Length;
+
+        /// <summary>形状锚点.</summary>
         public GridGroupPivot Pivot => _pivot;
 
-        // ---------------------------------------------------------------
-        // BBox / 锚点
-        // ---------------------------------------------------------------
-
         /// <summary>
-        /// 当前形状的局部 BBox (在形状本地坐标系中).
+        /// 当前形状的局部 BBox (在形状本地坐标系中, 最小坐标始终为 (0,0)).
         /// </summary>
         public (Vector2Int min, Vector2Int max) LocalBounds
         {
             get
             {
-                Vector2Int min = _cells[0];
-                Vector2Int max = _cells[0];
+                if (_cells == null || _cells.Length == 0)
+                    return (Vector2Int.zero, Vector2Int.zero);
+
+                var min = _cells[0];
+                var max = _cells[0];
                 for (int i = 1; i < _cells.Length; i++)
                 {
                     var c = _cells[i];
@@ -86,6 +270,7 @@ namespace MoreMountains
             }
         }
 
+        /// <summary>BBox 尺寸 (宽×高, 单位: cell 数).</summary>
         public Vector2Int LocalSize
         {
             get
@@ -96,8 +281,8 @@ namespace MoreMountains
         }
 
         /// <summary>
-        /// 锚点 (即 <see cref="Pivot"/>) 在 BBox 内的偏移.
-        /// 把它加到形状的 (0,0) 上, 就等于"放入全局网格后该格的世界位置".
+        /// 锚点在 BBox 中的偏移.
+        /// 在放置时: 把它从 origin 中减去, 得到形状 BBox 左下角在全局的坐标.
         /// </summary>
         public Vector2Int PivotOffset
         {
@@ -121,112 +306,121 @@ namespace MoreMountains
         }
 
         // ---------------------------------------------------------------
-        // 8 向变换
+        // 8 向变换 (同步变换砖块 + 展开的格点)
         // ---------------------------------------------------------------
 
-        /// <summary>
-        /// 90° 顺时针 (CW) 旋转: (x,y) -> (y, -x).
-        /// 注意: 用 int 表示会因正负导致 BBox 平移; 因此旋转后通常需要再
-        /// 把 BBox 拉到第一象限, <see cref="WithOrientation"/> 已经做了这件事.
-        /// </summary>
+        /// <summary>90° 顺时针旋转: (x,y) -> (y, -x).</summary>
         static Vector2Int Rotate90(Vector2Int p) => new(p.y, -p.x);
 
-        /// <summary>
-        /// 沿着 X 轴镜像 (左右翻转): (x, y) -> (-x, y).
-        /// </summary>
+        /// <summary>沿 X 轴镜像: (x,y) -> (-x,y).</summary>
         static Vector2Int MirrorX(Vector2Int p) => new(-p.x, p.y);
 
         /// <summary>
-        /// 把 BBox 拉到非负象限 (BBox.min = (0,0)).
-        /// 用于让形状的局部坐标始终从 (0,0) 开始, 便于放置时叠加 origin.
-        /// </summary>
-        static (Vector2Int[] normalized, Vector2Int originalMin) NormalizeAfterTransform(Vector2Int[] raw)
-        {
-            Vector2Int min = raw[0];
-            for (int i = 1; i < raw.Length; i++)
-            {
-                var c = raw[i];
-                if (c.x < min.x) min.x = c.x;
-                if (c.y < min.y) min.y = c.y;
-            }
-
-            var result = new Vector2Int[raw.Length];
-            for (int i = 0; i < raw.Length; i++)
-            {
-                result[i] = new(raw[i].x - min.x, raw[i].y - min.y);
-            }
-
-            return (result, min);
-        }
-
-        /// <summary>
         /// 返回该形状的某个 <see cref="GridGroupOrientation"/> 副本.
-        /// orientation 枚举决定 8 种朝向:
-        /// - rotation: 0 / 90 / 180 / 270
-        /// - mirrored: 是否左右镜像
+        /// 砖块坐标和展开的格点坐标会同步变换, 并自动 normalize 到 BBox.min = (0,0).
         /// </summary>
         public GridGroupShape WithOrientation(GridGroupOrientation orientation)
         {
-            int rot = ((int)orientation) & 0b0011; // low 2 bits
+            int rot = ((int)orientation) & 0b0011;
             bool mirror = (((int)orientation) & 0b0100) != 0;
 
-            // 在 "BBox 起点 = (0,0)" 的稳定形态上做变换, 再 normalize 回第一象限.
-            var (min, _) = LocalBounds;
-            var raw = new Vector2Int[_cells.Length];
-            for (int i = 0; i < _cells.Length; i++)
-            {
-                raw[i] = new(_cells[i].x - min.x, _cells[i].y - min.y);
-            }
+            if (_cells == null || _cells.Length == 0)
+                return this;
 
-            // 镜像 (沿当前 BBox 中线翻转 X)
+            // 先 normalize 到 (0,0) 起点
+            var (min, _) = LocalBounds;
+            var normCells = new Vector2Int[_cells.Length];
+            for (int i = 0; i < _cells.Length; i++)
+                normCells[i] = new(_cells[i].x - min.x, _cells[i].y - min.y);
+
+            // 镜像 (沿 BBox 中线翻转 X)
             if (mirror)
             {
                 int maxX = 0;
-                for (int i = 0; i < raw.Length; i++)
-                    if (raw[i].x > maxX)
-                        maxX = raw[i].x;
-                for (int i = 0; i < raw.Length; i++)
-                {
-                    raw[i] = new(maxX - raw[i].x, raw[i].y);
-                }
+                foreach (var c in normCells)
+                    if (c.x > maxX)
+                        maxX = c.x;
+                for (int i = 0; i < normCells.Length; i++)
+                    normCells[i] = new(maxX - normCells[i].x, normCells[i].y);
             }
 
             // 旋转
             for (int r = 0; r < rot; r++)
+            for (int i = 0; i < normCells.Length; i++)
+                normCells[i] = Rotate90(normCells[i]);
+
+            // 再次 normalize 到 (0,0)
+            Vector2Int min2 = normCells[0];
+            foreach (var c in normCells)
             {
-                for (int i = 0; i < raw.Length; i++)
+                if (c.x < min2.x) min2.x = c.x;
+                if (c.y < min2.y) min2.y = c.y;
+            }
+
+            for (int i = 0; i < normCells.Length; i++)
+                normCells[i] = new(normCells[i].x - min2.x, normCells[i].y - min2.y);
+
+            // 同步变换砖块 (如果存在)
+            GridUnitBrick[] normBricks = null;
+            if (_bricks is { Length: > 0 })
+            {
+                normBricks = new GridUnitBrick[_bricks.Length];
+                for (int i = 0; i < _bricks.Length; i++)
                 {
-                    raw[i] = Rotate90(raw[i]);
+                    var b = _bricks[i];
+                    // 砖块的 Pivot = 左下角 cell, 先 normalize
+                    var pivot = new Vector2Int(b.col - min.x, b.row - min.y);
+
+                    // 应用 mirror: 沿 BBox 中线翻转 X (使用 normCells 的 maxX, 此时已经 mirror 过了)
+                    int maxX = 0;
+                    foreach (var c in normCells)
+                        if (c.x > maxX)
+                            maxX = c.x;
+                    if (mirror)
+                        pivot = new(maxX - pivot.x, pivot.y);
+
+                    // 应用 rotate (pivot 旋转后会自动落在正确位置)
+                    for (int r2 = 0; r2 < rot; r2++)
+                        pivot = Rotate90(pivot);
+
+                    // normalize (应用与 normCells 相同的偏移)
+                    pivot = new(pivot.x - min2.x, pivot.y - min2.y);
+
+                    // 宽高: 90°/270° 旋转时宽高需要交换
+                    int w = b.width;
+                    int h = b.height;
+                    if (rot == 1 || rot == 3)
+                        (w, h) = (h, w);
+
+                    normBricks[i] = new(pivot.x, pivot.y, w, h);
                 }
             }
 
-            var normalized = NormalizeAfterTransform(raw).normalized;
-            return new(normalized, _pivot);
+            return new(normBricks, normCells, _pivot);
         }
 
         /// <summary>
         /// 返回该形状的所有 8 个朝向 (按 <see cref="GridGroupOrientation"/> 枚举顺序).
-        /// 用 <c>yield return</c> 方式给出; 调用方可直接 <c>foreach</c>.
         /// </summary>
         public IEnumerable<GridGroupShape> AllOrientations()
         {
-            foreach (var o in orientations)
-            {
+            foreach (var o in _orientations)
                 yield return WithOrientation(o);
-            }
         }
 
         // ---------------------------------------------------------------
-        // 在网格上"放置"与碰撞检查
+        // 在网格上放置
         // ---------------------------------------------------------------
 
         /// <summary>
         /// 把形状放在以 <paramref name="origin"/> 为锚点的位置上, 返回全局网格坐标集.
         /// 调用方应先用 <see cref="CanPlaceAt"/> 校验越界与冲突.
         /// </summary>
-        public void PlaceAt(Vector2Int origin, List<Vector2Int> output)
+        public void PlaceAt(Vector2Int origin, ref List<Vector2Int> output)
         {
-            if (output == null) throw new ArgumentNullException(nameof(output));
+            if (output == null)
+                throw new ArgumentNullException(nameof(output));
+
             var pivot = PivotOffset;
             output.Clear();
             for (int i = 0; i < _cells.Length; i++)
@@ -239,27 +433,22 @@ namespace MoreMountains
         public Vector2Int[] PlaceAt(Vector2Int origin)
         {
             var list = new List<Vector2Int>(_cells.Length);
-            PlaceAt(origin, list);
+            PlaceAt(origin, ref list);
             return list.ToArray();
         }
 
         /// <summary>
-        /// 给定一个 Grid2D 和一个 origin (即锚点在网格中的全局坐标), 检查:
+        /// 检查形状能否放在网格的 <paramref name="origin"/> 位置:
         /// - 所有 cell 是否都在网格范围内;
-        /// - 给定的 occupiedCells 中有没有任何 cell 与之重叠.
+        /// - 是否与 <paramref name="occupiedCells"/> 冲突.
         /// </summary>
-        /// <param name="origin">锚点的全局坐标.</param>
-        /// <param name="grid">用于范围检查.</param>
-        /// <param name="occupiedCells">占用标记集合, 比如已存在的砖块.</param>
-        /// <param name="occupiedCellsInGrid">当为 true 时, 使用与 (occupied set) 相同的 BBox; 否则完全外部判定.</param>
         public bool CanPlaceAt(Vector2Int origin, Grid grid, ISet<Vector2Int> occupiedCells)
         {
             var pivot = PivotOffset;
             for (int i = 0; i < _cells.Length; i++)
             {
                 var local = _cells[i];
-                var g = new Vector2Int(origin.x + local.x - pivot.x,
-                    origin.y + local.y - pivot.y);
+                var g = new Vector2Int(origin.x + local.x - pivot.x, origin.y + local.y - pivot.y);
                 if (!grid.InBounds(g))
                     return false;
                 if (occupiedCells != null && occupiedCells.Contains(g))
@@ -272,76 +461,100 @@ namespace MoreMountains
         public bool CanPlaceAt(Vector2Int origin, Grid grid) => CanPlaceAt(origin, grid, null);
 
         // ---------------------------------------------------------------
-        // 工厂
+        // 展开
         // ---------------------------------------------------------------
 
-        public static GridGroupShape Rectangle(int width, int height, GridGroupPivot pivot = GridGroupPivot.BottomLeft)
+        /// <summary>
+        /// 把所有砖块展开为格点集合 (已在构造时完成, 此方法供外部显式调用).
+        /// </summary>
+        public IEnumerable<Vector2Int> ExpandToCells()
         {
-            if (width <= 0 || height <= 0)
-                throw new ArgumentOutOfRangeException();
-            var list = new List<Vector2Int>(width * height);
-            for (int y = 0; y < height; y++)
-            for (int x = 0; x < width; x++)
-                list.Add(new(x, y));
-            return new(list, pivot);
+            if (_cells != null)
+                foreach (var c in _cells)
+                    yield return c;
         }
 
-        public static GridGroupShape LineHorizontal(int length, GridGroupPivot pivot = GridGroupPivot.BottomLeft) => Rectangle(length, 1, pivot);
+        // ---------------------------------------------------------------
+        // 预置形状工厂 (砖块模式)
+        //
+        // 基础尺寸: 1×1, 1×2, 1×3, 2×1, 2×2, 2×3, 3×1, 3×2, 3×3
+        // 所有工厂均使用 FromBricks, 让每个矩形都用一块基础砖块描述.
+        // ---------------------------------------------------------------
 
-        public static GridGroupShape LineVertical(int length, GridGroupPivot pivot = GridGroupPivot.BottomLeft) => Rectangle(1, length, pivot);
+        /// <summary>单格 (1×1).</summary>
+        public static GridGroupShape OneByOne(GridGroupPivot pivot = GridGroupPivot.BottomLeft) => FromBricks(new[] { new GridUnitBrick(0, 0, 1, 1) }, pivot);
 
-        public static GridGroupShape LShape(GridGroupPivot pivot = GridGroupPivot.BottomLeft)
-        {
-            return new(new Vector2Int[]
-            {
-                new(0, 0), new(1, 0), new(2, 0),
-                new(2, 1),
-            }, pivot);
-        }
+        /// <summary>1×2 竖条.</summary>
+        public static GridGroupShape OneByTwo(GridGroupPivot pivot = GridGroupPivot.BottomLeft) => FromBricks(new[] { new GridUnitBrick(0, 0, 1, 2) }, pivot);
 
-        public static GridGroupShape TShape(GridGroupPivot pivot = GridGroupPivot.BottomLeft)
-        {
-            return new(new Vector2Int[]
-            {
-                new(0, 1), new(1, 1), new(2, 1),
-                new(1, 0),
-            }, pivot);
-        }
+        /// <summary>2×1 横条.</summary>
+        public static GridGroupShape TwoByOne(GridGroupPivot pivot = GridGroupPivot.BottomLeft) => FromBricks(new[] { new GridUnitBrick(0, 0, 2, 1) }, pivot);
 
-        public static GridGroupShape SShape(GridGroupPivot pivot = GridGroupPivot.BottomLeft)
-        {
-            return new(new Vector2Int[]
-            {
-                new(1, 0), new(2, 0),
-                new(0, 1), new(1, 1),
-            }, pivot);
-        }
+        /// <summary>1×3 竖条.</summary>
+        public static GridGroupShape OneByThree(GridGroupPivot pivot = GridGroupPivot.BottomLeft) => FromBricks(new[] { new GridUnitBrick(0, 0, 1, 3) }, pivot);
 
-        public static GridGroupShape ZShape(GridGroupPivot pivot = GridGroupPivot.BottomLeft)
-        {
-            return new(new Vector2Int[]
-            {
-                new(0, 0), new(1, 0),
-                new(1, 1), new(2, 1),
-            }, pivot);
-        }
+        /// <summary>3×1 横条.</summary>
+        public static GridGroupShape ThreeByOne(GridGroupPivot pivot = GridGroupPivot.BottomLeft) => FromBricks(new[] { new GridUnitBrick(0, 0, 3, 1) }, pivot);
 
-        public static GridGroupShape JShape(GridGroupPivot pivot = GridGroupPivot.BottomLeft)
-        {
-            return new(new Vector2Int[]
-            {
-                new(0, 0), new(0, 1),
-                new(1, 1), new(2, 1),
-            }, pivot);
-        }
+        /// <summary>2×2 方块.</summary>
+        public static GridGroupShape TwoByTwo(GridGroupPivot pivot = GridGroupPivot.BottomLeft) => FromBricks(new[] { new GridUnitBrick(0, 0, 2, 2) }, pivot);
+
+        /// <summary>2×3 竖长方.</summary>
+        public static GridGroupShape TwoByThree(GridGroupPivot pivot = GridGroupPivot.BottomLeft) => FromBricks(new[] { new GridUnitBrick(0, 0, 2, 3) }, pivot);
+
+        /// <summary>3×2 横长方.</summary>
+        public static GridGroupShape ThreeByTwo(GridGroupPivot pivot = GridGroupPivot.BottomLeft) => FromBricks(new[] { new GridUnitBrick(0, 0, 3, 2) }, pivot);
+
+        /// <summary>3×3 方块.</summary>
+        public static GridGroupShape ThreeByThree(GridGroupPivot pivot = GridGroupPivot.BottomLeft) => FromBricks(new[] { new GridUnitBrick(0, 0, 3, 3) }, pivot);
 
         /// <summary>
-        /// 用外部提供的格子点集合直接构造. 内部会自动去重.
+        /// L 形 (由 3×1 横条 + 2×1 横条垂直交叉组成).
+        /// 布局: 底部 (0,0) 处有 3 格横条, 右侧 (2,0) 处向上延伸 1 格,
+        /// 结果: 4 格, 呈 "L" 形状.
         /// </summary>
-        public static GridGroupShape FromCells(IEnumerable<Vector2Int> cells, GridGroupPivot pivot = GridGroupPivot.BottomLeft)
+        public static GridGroupShape LShape(GridGroupPivot pivot = GridGroupPivot.BottomLeft) => FromBricks(new[]
         {
-            return new(cells, pivot);
-        }
+            new GridUnitBrick(0, 0, 3, 1), // 底部 3 格
+            new GridUnitBrick(2, 1, 1, 1), // 右侧上方 1 格
+        }, pivot);
+
+        /// <summary>
+        /// T 形 (由 3×1 横条 + 1×2 竖条组成).
+        /// 布局: (0,1) 处 3 格横条, 中间 (1,0) 处向上延伸 1 格.
+        /// </summary>
+        public static GridGroupShape TShape(GridGroupPivot pivot = GridGroupPivot.BottomLeft) => FromBricks(new[]
+        {
+            new GridUnitBrick(0, 1, 3, 1), // 顶部 3 格
+            new GridUnitBrick(1, 0, 1, 1), // 中间向下 1 格
+        }, pivot);
+
+        /// <summary>
+        /// S 形 (两个 2×1 横条交错).
+        /// </summary>
+        public static GridGroupShape SShape(GridGroupPivot pivot = GridGroupPivot.BottomLeft) => FromBricks(new[]
+        {
+            new GridUnitBrick(1, 0, 2, 1), // 上排 2 格
+            new GridUnitBrick(0, 1, 2, 1), // 下排 2 格 (错开 1 格)
+        }, pivot);
+
+        /// <summary>
+        /// Z 形 (两个 2×1 横条交错, 与 S 形镜像).
+        /// </summary>
+        public static GridGroupShape ZShape(GridGroupPivot pivot = GridGroupPivot.BottomLeft) => FromBricks(new[]
+        {
+            new GridUnitBrick(0, 0, 2, 1), // 上排 2 格
+            new GridUnitBrick(1, 1, 2, 1), // 下排 2 格 (错开 1 格)
+        }, pivot);
+
+        /// <summary>
+        /// J 形 (与 L 形镜像).
+        /// </summary>
+        public static GridGroupShape JShape(GridGroupPivot pivot = GridGroupPivot.BottomLeft) => FromBricks(new[]
+        {
+            new GridUnitBrick(0, 0, 3, 1), // 底部 3 格
+            new GridUnitBrick(0, 1, 1, 1), // 左侧上方 1 格
+        }, pivot);
 
         // ---------------------------------------------------------------
         // IEquatable / IEnumerable
@@ -352,15 +565,17 @@ namespace MoreMountains
             if (other._pivot != _pivot)
                 return false;
 
+            if (other._cells == null || _cells == null)
+                return false;
+
             if (other._cells.Length != _cells.Length)
                 return false;
 
-            var seen = new HashSet<Vector2Int>(other._cells);
+            using var _ = new HashSetScope<Vector2Int>(out var seen);
+            seen.addRange(other._cells);
             foreach (var c in _cells)
-            {
                 if (!seen.Contains(c))
                     return false;
-            }
 
             return true;
         }
@@ -375,11 +590,9 @@ namespace MoreMountains
             unchecked
             {
                 int hash = 17;
-                foreach (var c in _cells)
-                {
-                    hash = (hash * 397) ^ (c.x * 397) ^ c.y;
-                }
-
+                if (_cells != null)
+                    foreach (var c in _cells)
+                        hash = (hash * 397) ^ (c.x * 397) ^ c.y;
                 hash = (hash * 397) ^ (int)_pivot;
                 return hash;
             }
@@ -387,7 +600,7 @@ namespace MoreMountains
 
         public override string ToString()
         {
-            return $"GridGroupShape[count={_cells.Length},pivot={_pivot}]";
+            return $"GridGroupShape[bricks={_bricks?.Length ?? 0},cells={_cells?.Length ?? 0},pivot={_pivot}]";
         }
 
         public Enumerator GetEnumerator() => new(_cells);
@@ -407,13 +620,7 @@ namespace MoreMountains
 
             public Vector2Int Current => _cells[_index];
             object IEnumerator.Current => Current;
-
-            public bool MoveNext()
-            {
-                _index++;
-                return _index < _cells.Length;
-            }
-
+            public bool MoveNext() => ++_index < _cells.Length;
             public void Reset() => _index = -1;
 
             public void Dispose()
@@ -421,17 +628,13 @@ namespace MoreMountains
             }
         }
 
-        public static GridGroupOrientation[] orientations =
+        public static readonly GridGroupOrientation[] _orientations =
         {
-            GridGroupOrientation.Rotate0,
-            GridGroupOrientation.Rotate90,
-            GridGroupOrientation.Rotate180,
-            GridGroupOrientation.Rotate270,
-            GridGroupOrientation.Mirror,
             GridGroupOrientation.Identity,
             GridGroupOrientation.Rot90,
             GridGroupOrientation.Rot180,
             GridGroupOrientation.Rot270,
+            GridGroupOrientation.Mirror,
             GridGroupOrientation.Mirror0,
             GridGroupOrientation.Mirror90,
             GridGroupOrientation.Mirror180,
@@ -440,7 +643,7 @@ namespace MoreMountains
     }
 
     /// <summary>
-    /// 形状内的 "锚点" 在 BBox 中的位置. 锚点对应放置时指定的 origin 格子.
+    /// 形状内的"锚点"在 BBox 中的位置. 锚点对应放置时指定的 origin 格子.
     /// </summary>
     public enum GridGroupPivot
     {

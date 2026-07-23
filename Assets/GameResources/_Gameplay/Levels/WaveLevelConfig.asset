@@ -45,7 +45,14 @@ MonoBehaviour:
     enableSmartSpawning: 1
     denseRadius: 2
     sparseThreshold: 1
-    edgeBias: 0.7
+    enableContinuousSpawning: 1
+    targetCoverageRatio: 0.3
+    minSpawnInterval: 0.3
+    maxSpawnInterval: 2
+    killSpeedSensitivity: 2
+    edgeBiasProbability: 0.5
+    edgeBiasPercent: 0.7
+    edgeBiasPercentAmplitude: 0.15
   - waveNumber: 2
     waveName: Wave 2
     duration: 60
@@ -76,7 +83,14 @@ MonoBehaviour:
     enableSmartSpawning: 1
     denseRadius: 5
     sparseThreshold: 1
-    edgeBias: 0.7
+    enableContinuousSpawning: 1
+    targetCoverageRatio: 0.3
+    minSpawnInterval: 0.3
+    maxSpawnInterval: 2
+    killSpeedSensitivity: 2
+    edgeBiasProbability: 0.5
+    edgeBiasPercent: 0.7
+    edgeBiasPercentAmplitude: 0.15
   - waveNumber: 3
     waveName: Wave 3
     duration: 60
@@ -102,7 +116,14 @@ MonoBehaviour:
     enableSmartSpawning: 1
     denseRadius: 5
     sparseThreshold: 1
-    edgeBias: 0.7
+    enableContinuousSpawning: 1
+    targetCoverageRatio: 0.3
+    minSpawnInterval: 0.3
+    maxSpawnInterval: 2
+    killSpeedSensitivity: 2
+    edgeBiasProbability: 0.5
+    edgeBiasPercent: 0.7
+    edgeBiasPercentAmplitude: 0.15
   - waveNumber: 4
     waveName: Wave 4
     duration: 60
@@ -128,7 +149,14 @@ MonoBehaviour:
     enableSmartSpawning: 1
     denseRadius: 5
     sparseThreshold: 1
-    edgeBias: 0.7
+    enableContinuousSpawning: 1
+    targetCoverageRatio: 0.3
+    minSpawnInterval: 0.3
+    maxSpawnInterval: 2
+    killSpeedSensitivity: 2
+    edgeBiasProbability: 0.5
+    edgeBiasPercent: 0.7
+    edgeBiasPercentAmplitude: 0.15
   globalMaxActiveMonsters: 400
   globalMinActiveMonsters: 10
   globalBaseSpawnInterval: 1
@@ -140,3 +168,6 @@ MonoBehaviour:
   spawnAreaRight: 9.6
   spawnAreaTop: 5.4
   spawnAreaBottom: -5.4
+  globalTargetCoverageRatio: 0.3
+  globalMinSpawnInterval: 0.3
+  globalMaxSpawnInterval: 2

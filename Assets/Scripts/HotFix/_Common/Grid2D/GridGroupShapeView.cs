@@ -145,7 +145,7 @@ namespace MoreMountains
 
             // 画以 (0,0) 为锚点 (即放在第一个 cell 的位置)
             var originInGrid = Vector2Int.zero - pivotOffset;
-            shape.PlaceAt(originInGrid, _scratchCells);
+            shape.PlaceAt(originInGrid, ref _scratchCells);
 
             foreach (var localCell in _scratchCells)
             {
@@ -185,6 +185,6 @@ namespace MoreMountains
             Gizmos.DrawLine(d, a);
         }
 
-        static readonly List<Vector2Int> _scratchCells = new();
+        static List<Vector2Int> _scratchCells = new();
     }
 }
