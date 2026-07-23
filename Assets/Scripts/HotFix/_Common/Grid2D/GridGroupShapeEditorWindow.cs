@@ -45,6 +45,7 @@ namespace MoreMountains
                 _instance?.LoadLibrary(library);
                 return true;
             }
+
             return false;
         }
 
@@ -54,7 +55,8 @@ namespace MoreMountains
         // 状态
         // ---------------------------------------------------------------
 
-        const int grid_count = 14;
+        const int grid_col_count = 28;
+        const int grid_row_count = 16;
 
         GridGroupShapeLibrary _library;
         ShapeEntry _currentEntry;
@@ -88,11 +90,11 @@ namespace MoreMountains
         Vector2Int? _mouseUpCell;
 
         // 预定义尺寸按钮
-        static readonly Vector2Int[] _presetSizes = new[]
+        static readonly Vector2Int[] _presetSizes =
         {
-            new Vector2Int(1,1), new Vector2Int(1,2), new Vector2Int(1,3),
-            new Vector2Int(2,1), new Vector2Int(2,2), new Vector2Int(2,3),
-            new Vector2Int(3,1), new Vector2Int(3,2), new Vector2Int(3,3),
+            new(1, 1), new(1, 2), new(1, 3),
+            new(2, 1), new(2, 2), new(2, 3),
+            new(3, 1), new(3, 2), new(3, 3),
         };
 
         // ---------------------------------------------------------------
@@ -128,28 +130,32 @@ namespace MoreMountains
             DrawToolbar();
             EditorGUILayout.Space(2);
 
-            // 三栏: 固定宽度 Palette + 固定宽度 Properties, 中间 Canvas 自适应
+            // 三栏: 固定高度 420px，确保下方有空间给列表
+            float canvasHeight = 500f;
             float paletteW = 82f;
             float propW = 210f;
 
-            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.BeginHorizontal(GUILayout.Height(canvasHeight));
 
             // 左: 砖块调色板
-            DrawPalette(paletteW);
+            DrawPalette(paletteW, canvasHeight);
 
             GUILayout.Space(2);
 
             // 中: 网格画布 (自适应剩余宽度)
-            DrawCanvas();
+            DrawCanvas(canvasHeight);
 
             GUILayout.Space(2);
 
             // 右: 属性面板
-            DrawProperties(propW);
+            DrawProperties(propW, canvasHeight);
 
             EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.Space(2);
+
+            // 填满剩余空间，确保列表始终可见
+            GUILayout.FlexibleSpace();
 
             // 下: 库形状列表
             DrawLibraryList();
@@ -198,20 +204,20 @@ namespace MoreMountains
 
         static readonly Color[] _brickColors = new[]
         {
-            new Color(0.45f, 0.85f, 1.0f),     // 1x1
-            new Color(0.30f, 0.75f, 0.40f),     // 1x2
-            new Color(0.20f, 0.65f, 0.85f),     // 1x3
-            new Color(0.95f, 0.60f, 0.20f),     // 2x1
-            new Color(0.90f, 0.85f, 0.15f),     // 2x2
-            new Color(0.75f, 0.35f, 0.85f),     // 2x3
-            new Color(0.95f, 0.30f, 0.30f),     // 3x1
-            new Color(0.55f, 0.30f, 0.80f),     // 3x2
-            new Color(0.25f, 0.55f, 0.25f),     // 3x3
+            new Color(0.45f, 0.85f, 1.0f), // 1x1
+            new Color(0.30f, 0.75f, 0.40f), // 1x2
+            new Color(0.20f, 0.65f, 0.85f), // 1x3
+            new Color(0.95f, 0.60f, 0.20f), // 2x1
+            new Color(0.90f, 0.85f, 0.15f), // 2x2
+            new Color(0.75f, 0.35f, 0.85f), // 2x3
+            new Color(0.95f, 0.30f, 0.30f), // 3x1
+            new Color(0.55f, 0.30f, 0.80f), // 3x2
+            new Color(0.25f, 0.55f, 0.25f), // 3x3
         };
 
-        void DrawPalette(float width)
+        void DrawPalette(float width, float height)
         {
-            EditorGUILayout.BeginVertical(GUI.skin.box, GUILayout.Width(width), GUILayout.ExpandHeight(true));
+            EditorGUILayout.BeginVertical(GUI.skin.box, GUILayout.Width(width), GUILayout.Height(height));
 
             GUILayout.Label("Brick", EditorStyles.boldLabel, GUILayout.Height(20));
 
@@ -253,10 +259,9 @@ namespace MoreMountains
         // 网格画布
         // ---------------------------------------------------------------
 
-        void DrawCanvas()
+        void DrawCanvas(float height)
         {
-            // 固定高度,自适应宽度
-            EditorGUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
+            EditorGUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandWidth(true), GUILayout.Height(height));
 
             // 工具栏
             EditorGUILayout.BeginHorizontal(EditorStyles.toolbar, GUILayout.Height(22));
@@ -268,12 +273,14 @@ namespace MoreMountains
                 _zoom = Mathf.Min(_zoom * 1.25f, 5f);
                 Repaint();
             }
+
             GUILayout.Label($"{_zoom:P0}", EditorStyles.centeredGreyMiniLabel, GUILayout.Width(40));
             if (GUILayout.Button("-", EditorStyles.toolbarButton, GUILayout.Width(22)))
             {
                 _zoom = Mathf.Max(_zoom / 1.25f, 0.2f);
                 Repaint();
             }
+
             if (GUILayout.Button("\u29C9", EditorStyles.toolbarButton, GUILayout.Width(22)))
             {
                 _zoom = 1f;
@@ -283,10 +290,10 @@ namespace MoreMountains
 
             EditorGUILayout.EndHorizontal();
 
-            // 画布区域 (固定最大高度,避免 GUILayout 撑到 16384)
-            var availableRect = GUILayoutUtility.GetRect(1, 16384, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
-            availableRect.width = Mathf.Min(availableRect.width, _constCellPixelSize * grid_count * _zoom);
-            availableRect.height = Mathf.Min(availableRect.height, _constCellPixelSize * grid_count * _zoom);
+            // 画布区域 (不再用 ExpandHeight,避免向上贪占空间)
+            var availableRect = GUILayoutUtility.GetRect(1, height - 26, GUILayout.ExpandWidth(true), GUILayout.Height(height - 26));
+            availableRect.width = Mathf.Min(availableRect.width, _constCellPixelSize * grid_col_count * _zoom);
+            availableRect.height = Mathf.Min(availableRect.height, _constCellPixelSize * grid_row_count * _zoom);
             _canvasRect = EditorGUI.IndentedRect(availableRect);
 
             // 处理输入事件
@@ -303,11 +310,11 @@ namespace MoreMountains
             EditorGUIUtility.AddCursorRect(_canvasRect, MouseCursor.Arrow);
 
             // 计算网格参数: 左下角原点
-            _cellPixelSize = Mathf.Min(_canvasRect.width, _canvasRect.height) / grid_count;
+            _cellPixelSize = _canvasRect.width / grid_col_count;
             _cellPixelSize = Mathf.Clamp(_cellPixelSize, 8f, 80f);
 
-            float gridW = grid_count * _cellPixelSize;
-            float gridH = grid_count * _cellPixelSize;
+            float gridW = grid_col_count * _cellPixelSize;
+            float gridH = grid_row_count * _cellPixelSize;
 
             _canvasOrigin = new(
                 _canvasRect.x + (_canvasRect.width - gridW) / 2f - _pan.x,
@@ -323,7 +330,7 @@ namespace MoreMountains
             DrawPlacedBricks();
 
             // 悬停预览
-            if (_hoverCell.HasValue/* && !_isDragging*/)
+            if (_hoverCell.HasValue /* && !_isDragging*/)
                 DrawHoverPreview();
 
             // 拖拽
@@ -341,25 +348,26 @@ namespace MoreMountains
         {
             Handles.color = new Color(0.5f, 0.5f, 0.5f, 0.3f);
 
-            for (int y = 0; y <= grid_count; y++)
+            for (int y = 0; y <= grid_row_count; y++)
             {
                 Vector3 p0 = CanvasToScreen(new(0, y));
-                Vector3 p1 = CanvasToScreen(new(grid_count, y));
+                Vector3 p1 = CanvasToScreen(new(grid_col_count, y));
                 Handles.DrawLine(p0, p1);
             }
-            for (int x = 0; x <= grid_count; x++)
+
+            for (int x = 0; x <= grid_col_count; x++)
             {
                 Vector3 p0 = CanvasToScreen(new(x, 0));
-                Vector3 p1 = CanvasToScreen(new(x, grid_count));
+                Vector3 p1 = CanvasToScreen(new(x, grid_row_count));
                 Handles.DrawLine(p0, p1);
             }
 
             // 边框
             Handles.color = new Color(0.8f, 0.8f, 0.8f, 0.6f);
-            Handles.DrawLine(CanvasToScreen(new(0,0)), CanvasToScreen(new(grid_count, 0)));
-            Handles.DrawLine(CanvasToScreen(new(grid_count, 0)), CanvasToScreen(new(grid_count, grid_count)));
-            Handles.DrawLine(CanvasToScreen(new(grid_count, grid_count)), CanvasToScreen(new(0, grid_count)));
-            Handles.DrawLine(CanvasToScreen(new(0, grid_count)), CanvasToScreen(new(0,0)));
+            Handles.DrawLine(CanvasToScreen(new(0, 0)), CanvasToScreen(new(grid_col_count, 0)));
+            Handles.DrawLine(CanvasToScreen(new(grid_col_count, 0)), CanvasToScreen(new(grid_col_count, grid_row_count)));
+            Handles.DrawLine(CanvasToScreen(new(grid_col_count, grid_row_count)), CanvasToScreen(new(0, grid_row_count)));
+            Handles.DrawLine(CanvasToScreen(new(0, grid_row_count)), CanvasToScreen(new(0, 0)));
 
             // 坐标标注
             Handles.color = new Color(0.6f, 0.6f, 0.6f, 0.5f);
@@ -368,9 +376,9 @@ namespace MoreMountains
                 fontSize = 8,
                 alignment = TextAnchor.MiddleCenter,
             };
-            for (int x = 0; x <= grid_count; x++)
+            for (int x = 0; x <= grid_col_count; x++)
                 Handles.Label(CanvasToScreen(new(x, 0)) + new Vector3(0, 8, 0), x.ToString(), numStyle);
-            for (int y = 0; y <= grid_count; y++)
+            for (int y = 0; y <= grid_row_count; y++)
                 Handles.Label(CanvasToScreen(new(0, y)) + new Vector3(-8, 0, 0), y.ToString(), numStyle);
         }
 
@@ -388,7 +396,7 @@ namespace MoreMountains
 
         void DrawHoverPreview()
         {
-            if (!_hoverCell.HasValue) 
+            if (!_hoverCell.HasValue)
                 return;
 
             if (_working != null && BrickExistsAt(_working, _hoverCell.Value))
@@ -401,18 +409,18 @@ namespace MoreMountains
 
         void DrawDraggingBrick()
         {
-            int bx = Mathf.Clamp(_draggingBrick.col, 0, grid_count - _draggingBrick.width);
-            int by = Mathf.Clamp(_draggingBrick.row, 0, grid_count - _draggingBrick.height);
+            int bx = Mathf.Clamp(_draggingBrick.col, 0, grid_col_count - _draggingBrick.width);
+            int by = Mathf.Clamp(_draggingBrick.row, 0, grid_row_count - _draggingBrick.height);
             DrawSingleBrick(bx, by, _draggingBrick.width, _draggingBrick.height, new Color(1f, 1f, 0f, 0.55f), 0.6f);
         }
 
         void DrawSingleBrick(int col, int row, int w, int h, Color fillColor, float alpha)
         {
-            int x0 = Mathf.Clamp(col, 0, grid_count);
-            int y0 = Mathf.Clamp(row, 0, grid_count);
-            int x1 = Mathf.Clamp(col + w, 0, grid_count);
-            int y1 = Mathf.Clamp(row + h, 0, grid_count);
-            if (x0 >= x1 || y0 >= y1) 
+            int x0 = Mathf.Clamp(col, 0, grid_col_count);
+            int y0 = Mathf.Clamp(row, 0, grid_row_count);
+            int x1 = Mathf.Clamp(col + w, 0, grid_col_count);
+            int y1 = Mathf.Clamp(row + h, 0, grid_row_count);
+            if (x0 >= x1 || y0 >= y1)
                 return;
 
             Vector3 min = CanvasToScreen(new(x0, y0));
@@ -440,20 +448,20 @@ namespace MoreMountains
         {
             return new(
                 _canvasOrigin.x + canvasPos.x * _cellPixelSize,
-                _canvasOrigin.y + (grid_count - canvasPos.y) * _cellPixelSize,
+                _canvasOrigin.y + (grid_row_count - canvasPos.y) * _cellPixelSize,
                 0);
         }
 
         /// <summary>屏幕像素坐标转为形状坐标. 原点左下角, y 向 上.</summary>
         Vector2Int? ScreenToCanvas(Vector2 screenPos)
         {
-            if (!_canvasRect.Contains(screenPos)) 
+            if (!_canvasRect.Contains(screenPos))
                 return null;
 
             float x = (screenPos.x - _canvasOrigin.x) / _cellPixelSize;
             float y = (screenPos.y - _canvasOrigin.y) / _cellPixelSize;
             var coordX = Mathf.FloorToInt(x);
-            var coordY = grid_count - Mathf.FloorToInt(y) - 1;
+            var coordY = grid_row_count - Mathf.FloorToInt(y) - 1;
             Debug.Log($"coord = {new Vector2Int(coordX, coordY)}");
             return new(coordX, coordY);
         }
@@ -483,7 +491,7 @@ namespace MoreMountains
                 return;
 
             var cell = ScreenToCanvas(ev.mousePosition);
-            if (!cell.HasValue) 
+            if (!cell.HasValue)
                 return;
 
             switch (evType)
@@ -507,6 +515,7 @@ namespace MoreMountains
                     {
                         RemoveBrickAt(_working, cell.Value);
                     }
+
                     ev.Use();
                     Repaint();
                     break;
@@ -519,6 +528,7 @@ namespace MoreMountains
                             cell.Value.x, cell.Value.y,
                             _draggingBrick.width, _draggingBrick.height);
                     }
+
                     ev.Use();
                     Repaint();
                     break;
@@ -531,9 +541,9 @@ namespace MoreMountains
                         if (_isDragging)
                         {
                             // 结束拖拽
-                            _draggingBrick = new GridUnitBrick(
-                                Mathf.Clamp(_draggingBrick.col, 0, grid_count - _draggingBrick.width),
-                                Mathf.Clamp(_draggingBrick.row, 0, grid_count - _draggingBrick.height),
+                            _draggingBrick = new(
+                                Mathf.Clamp(_draggingBrick.col, 0, grid_col_count - _draggingBrick.width),
+                                Mathf.Clamp(_draggingBrick.row, 0, grid_row_count - _draggingBrick.height),
                                 _draggingBrick.width, _draggingBrick.height);
 
                             if (_draggingIndex >= 0 && _draggingIndex < _working.bricks.Count)
@@ -541,6 +551,7 @@ namespace MoreMountains
                                 _working.bricks[_draggingIndex] = _draggingBrick;
                                 _working.RebuildExpandedCells();
                             }
+
                             _isDragging = false;
                             _draggingIndex = -1;
                         }
@@ -550,6 +561,7 @@ namespace MoreMountains
                             TryPlaceBrick(_working, cell.Value, _selectedBrickSize);
                         }
                     }
+
                     ev.Use();
                     Repaint();
                     break;
@@ -562,7 +574,7 @@ namespace MoreMountains
 
         bool BrickExistsAt(ShapeEntry entry, Vector2Int cell)
         {
-            if (entry == null) 
+            if (entry == null)
                 return false;
 
             return HitBrickAt(entry, cell).HasValue;
@@ -570,7 +582,7 @@ namespace MoreMountains
 
         GridUnitBrick? HitBrickAt(ShapeEntry entry, Vector2Int cell)
         {
-            if (entry == null) 
+            if (entry == null)
                 return null;
 
             foreach (var b in entry.bricks)
@@ -578,12 +590,13 @@ namespace MoreMountains
                 if (cell.x >= b.col && cell.x < b.col + b.width && cell.y >= b.row && cell.y < b.row + b.height)
                     return b;
             }
+
             return null;
         }
 
         bool TryPlaceBrick(ShapeEntry entry, Vector2Int cell, Vector2Int size)
         {
-            if (entry == null) 
+            if (entry == null)
                 return false;
 
             for (int dy = 0; dy < size.y; dy++)
@@ -591,10 +604,10 @@ namespace MoreMountains
                 for (int dx = 0; dx < size.x; dx++)
                 {
                     var c = new Vector2Int(cell.x + dx, cell.y + dy);
-                    if (c.x < 0 || c.x >= grid_count || c.y < 0 || c.y >= grid_count) 
+                    if (c.x < 0 || c.x >= grid_col_count || c.y < 0 || c.y >= grid_row_count)
                         continue;
 
-                    if (BrickExistsAt(entry, c)) 
+                    if (BrickExistsAt(entry, c))
                         return false;
                 }
             }
@@ -606,7 +619,7 @@ namespace MoreMountains
 
         void RemoveBrickAt(ShapeEntry entry, Vector2Int cell)
         {
-            if (entry == null) 
+            if (entry == null)
                 return;
 
             var hit = HitBrickAt(entry, cell);
@@ -623,9 +636,9 @@ namespace MoreMountains
 
         Vector2 _libraryScroll;
 
-        void DrawProperties(float width)
+        void DrawProperties(float width, float height)
         {
-            EditorGUILayout.BeginVertical(GUI.skin.box, GUILayout.Width(width), GUILayout.ExpandHeight(true));
+            EditorGUILayout.BeginVertical(GUI.skin.box, GUILayout.Width(width), GUILayout.Height(height));
 
             GUILayout.Label("Properties", EditorStyles.boldLabel, GUILayout.Height(20));
 
@@ -718,7 +731,7 @@ namespace MoreMountains
                 EditorGUILayout.BeginHorizontal(GUI.skin.box);
 
                 bool isSelected = _currentEntry == entry;
-                if (isSelected) 
+                if (isSelected)
                     GUI.backgroundColor = new Color(0.4f, 0.7f, 1f);
 
                 EditorGUILayout.LabelField(entry.name, GUILayout.Width(150));
@@ -741,6 +754,7 @@ namespace MoreMountains
                             _currentEntry = null;
                             _working = null;
                         }
+
                         EditorUtility.SetDirty(_library);
                     }
                 }
@@ -866,8 +880,7 @@ namespace MoreMountains
             _working.EnsureId();
             _working.RebuildExpandedCells();
 
-            var existing = _library.GetById(_working.id);
-            if (existing != null)
+            if (_library.GetById(_working.id, out var existing))
             {
                 existing.name = _working.name;
                 existing.pivot = _working.pivot;

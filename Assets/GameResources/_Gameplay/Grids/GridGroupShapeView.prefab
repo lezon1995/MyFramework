@@ -51,17 +51,14 @@ MonoBehaviour:
   OriginOffset: {x: 0, y: 0}
   Pivot: 4
   UseTransformAsAdditionalOffset: 1
-  ToggleGrid:
-  - {x: 0, y: 0}
-  - {x: 0, y: 1}
-  - {x: 1, y: 0}
-  - {x: 2, y: 0}
-  - {x: 3, y: 0}
-  - {x: 3, y: 1}
+  ToggleGrid: []
   ShapePivot: 0
+  Library: {fileID: 11400000, guid: d7a21f0b9ea41a1429838b9a9e76c958, type: 2}
+  ShapeId: c538d32f
   Orientation: 0
   DrawShape: 1
   ShapeColor: {r: 0.95, g: 0.65, b: 0.2, a: 0.9}
   ShapeInvalidColor: {r: 1, g: 0.3, b: 0.3, a: 0.9}
+  UseBrickColors: 1
   LiveValidityCheck: 1
   ExternalOccupied: []

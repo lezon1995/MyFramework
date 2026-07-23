@@ -17,12 +17,14 @@ namespace MoreMountains
         public string name;
 
         [Tooltip("可选的唯一ID(用于引用).留空时自动生成.")]
+        [HideInInspector]
         public string id;
 
         [Tooltip("组成该形状的基础砖块列表 (col/row 为起点的局部坐标, width/height 为尺寸).")]
         public List<GridUnitBrick> bricks = new();
 
         [Tooltip("形状锚点在 BBox 中的位置.")]
+        [HideInInspector]
         public GridGroupPivot pivot = GridGroupPivot.BottomLeft;
 
         /// <summary>预计算的展开格点 (由编辑器自动维护, 也可运行时 RebuildFromBricks). </summary>
@@ -122,29 +124,42 @@ namespace MoreMountains
         public List<ShapeEntry> shapes = new();
 
         /// <summary>根据 ID 查找形状.</summary>
-        public ShapeEntry GetById(string id)
+        public bool GetById(string id, out ShapeEntry result)
         {
             foreach (var s in shapes)
+            {
                 if (s.id == id)
-                    return s;
-            return null;
+                {
+                    result = s;
+                    return true;
+                }
+            }
+
+            result = null;
+            return false;
         }
 
         /// <summary>根据名称查找形状.</summary>
-        public ShapeEntry GetByName(string name)
+        public bool GetByName(string name, out ShapeEntry result)
         {
             foreach (var s in shapes)
+            {
                 if (s.name == name)
-                    return s;
-            return null;
+                {
+                    result = s;
+                    return true;
+                }
+            }
+
+            result = null;
+            return false;
         }
 
         /// <summary>添加或更新一个形状(按 id 去重).</summary>
         public void AddOrUpdate(ShapeEntry entry)
         {
             entry.EnsureId();
-            var exist = GetById(entry.id);
-            if (exist != null)
+            if (GetById(entry.id, out var exist))
             {
                 exist.name = entry.name;
                 exist.bricks.Clear();

@@ -525,7 +525,7 @@ namespace MoreMountains
         List<Vector2Int> _emptyCellsScratch = new();
 
         // scratch set reused across hot paths to avoid GC churn
-        readonly HashSet<Vector2Int> _scratchSet = new();
+        HashSet<Vector2Int> _scratchSet = new();
 
         /// <summary>
         /// 获取智能生成位置（基于现有怪物密度）
@@ -554,7 +554,7 @@ namespace MoreMountains
             _emptyCellsScratch.Clear();
             if (brickManager != null)
             {
-                brickManager.CollectEmptyCells(_scratchSet);
+                brickManager.CollectEmptyCells(ref _scratchSet);
                 foreach (var c in _scratchSet)
                 {
                     if (c.x >= 0 && c.x < grid.Columns && c.y >= 0 && c.y < grid.Rows)
@@ -573,7 +573,9 @@ namespace MoreMountains
 
             if (_emptyCellsScratch.Count == 0)
             {
-                if (player != null) return player.getWorldPosition();
+                if (player != null) 
+                    return player.getWorldPosition();
+
                 return Vector3.zero;
             }
 
@@ -1277,7 +1279,7 @@ namespace MoreMountains
                 if (brickManager != null)
                 {
                     _scratchSet.Clear();
-                    brickManager.CollectEmptyCells(_scratchSet);
+                    brickManager.CollectEmptyCells(ref _scratchSet);
                     if (_scratchSet.Count > 0)
                     {
                         int idx = _spawnRandom.Next(_scratchSet.Count);

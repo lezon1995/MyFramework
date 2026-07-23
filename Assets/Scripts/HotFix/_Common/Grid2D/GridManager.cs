@@ -21,6 +21,9 @@ namespace MoreMountains
         [Header("Settings (可选: 拖入 ScriptableObject 配置)")]
         [Tooltip("可选. 若提供, 将由它定义网格参数 (覆盖下方内联参数).")]
         public GridSetting Setting;
+        
+        [Header("网格形状库")]
+        public List<GridGroupShapeLibrary> ShapesLibrary = new();
 
         [Header("Inline (未指定 ScriptableObject 时使用以下内联值)")]
         [Min(0.0001f)]

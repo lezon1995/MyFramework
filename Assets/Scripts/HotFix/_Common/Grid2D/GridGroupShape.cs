@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace MoreMountains
@@ -15,18 +16,22 @@ namespace MoreMountains
     {
         /// <summary>砖块起点在形状局部坐标系中的 col (X).</summary>
         [Tooltip("砖块起点的列索引 (X), 相对于形状 BBox 左下角.")]
+        [HorizontalGroup("coord")]
         public int col;
 
         /// <summary>砖块起点在形状局部坐标系中的 row (Y).</summary>
         [Tooltip("砖块起点的行索引 (Y), 相对于形状 BBox 左下角.")]
+        [HorizontalGroup("coord")]
         public int row;
 
         /// <summary>砖块宽度 (X 方向占多少个 cell).</summary>
         [Tooltip("砖块宽度 (cell 数).")]
+        [HorizontalGroup("size")]
         public int width;
 
         /// <summary>砖块高度 (Y 方向占多少个 cell).</summary>
         [Tooltip("砖块高度 (cell 数).")]
+        [HorizontalGroup("size")]
         public int height;
 
         /// <summary>

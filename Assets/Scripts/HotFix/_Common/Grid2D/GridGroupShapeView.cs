@@ -96,10 +96,9 @@ namespace MoreMountains
         public GridGroupShape BuildShape()
         {
             // 库模式优先
-            if (Library != null && !string.IsNullOrEmpty(ShapeId))
+            if (Library && !string.IsNullOrEmpty(ShapeId))
             {
-                var entry = Library.GetById(ShapeId);
-                if (entry != null)
+                if (Library.GetById(ShapeId, out var entry))
                     return entry.ToShape();
             }
             // 手动模式
@@ -111,10 +110,11 @@ namespace MoreMountains
         /// </summary>
         public void LoadShapeFromLibrary(string id)
         {
-            if (Library == null) return;
+            if (Library == null) 
+                return;
+
             ShapeId = id;
-            var entry = Library.GetById(id);
-            if (entry != null)
+            if (Library.GetById(id, out var entry))
             {
                 // 同步到手动模式 (方便在库模式关闭时也能看到)
                 ToggleGrid = new List<Vector2Int>(entry.expandedCells);
@@ -127,9 +127,10 @@ namespace MoreMountains
         /// </summary>
         public void LoadShapeFromLibraryByName(string name)
         {
-            if (Library == null) return;
-            var entry = Library.GetByName(name);
-            if (entry != null)
+            if (Library == null) 
+                return;
+
+            if (Library.GetByName(name, out var entry))
                 LoadShapeFromLibrary(entry.id);
         }
 
@@ -138,10 +139,9 @@ namespace MoreMountains
         /// </summary>
         public IReadOnlyList<GridUnitBrick> CurrentBricks()
         {
-            if (Library != null && !string.IsNullOrEmpty(ShapeId))
+            if (Library && !string.IsNullOrEmpty(ShapeId))
             {
-                var entry = Library.GetById(ShapeId);
-                if (entry != null)
+                if (Library.GetById(ShapeId, out var entry))
                     return entry.bricks;
             }
             // 没有库数据时返回空
@@ -151,7 +151,7 @@ namespace MoreMountains
         public Grid CurrentGrid()
         {
             GridDefinition def;
-            if (Setting != null)
+            if (Setting)
             {
                 def = Setting.BuildDefinition();
                 CellSize = Setting.CellSize;
@@ -277,7 +277,7 @@ namespace MoreMountains
                 if (valid)
                 {
                     // 库模式: 根据砖块尺寸着色
-                    if (UseBrickColors && Library != null && !string.IsNullOrEmpty(ShapeId))
+                    if (UseBrickColors && Library && !string.IsNullOrEmpty(ShapeId))
                     {
                         if (cellToBrickIdx.TryGetValue(localCell, out int brickIdx))
                         {
@@ -350,10 +350,9 @@ namespace MoreMountains
 
             // 4. 库模式: 在 Gizmos 标题显示形状名
             #if UNITY_EDITOR
-            if (Library != null && !string.IsNullOrEmpty(ShapeId))
+            if (Library && !string.IsNullOrEmpty(ShapeId))
             {
-                var entry = Library.GetById(ShapeId);
-                if (entry != null)
+                if (Library.GetById(ShapeId, out var entry))
                 {
                     var labelStyle = new GUIStyle
                     {

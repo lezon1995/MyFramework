@@ -45,6 +45,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: HotFix::Grid2D.Grid2DView
   Setting: {fileID: 11400000, guid: ede156020dfbe4348ae23261ca5287eb, type: 2}
+  ShapesLibrary:
+  - {fileID: 11400000, guid: 227f63da07387a046a1c8d3e4d0046da, type: 2}
+  - {fileID: 11400000, guid: a0824bab48b2d104d97bf3b94cefde23, type: 2}
+  - {fileID: 11400000, guid: d7a21f0b9ea41a1429838b9a9e76c958, type: 2}
+  - {fileID: 11400000, guid: d78e924a7669dc743a71b77842bf151e, type: 2}
+  - {fileID: 11400000, guid: b2090e5ad01422842ae2bde1ac6637f1, type: 2}
+  - {fileID: 11400000, guid: 31bc6136142f9e448bb06c6eeb1c5121, type: 2}
+  - {fileID: 11400000, guid: 088766dd624cc5e4fb72f02fe7498cb9, type: 2}
+  - {fileID: 11400000, guid: b21a9967c084b7445a2451f7679cd38b, type: 2}
   CellSize: 0.675
   Rows: 16
   Columns: 28

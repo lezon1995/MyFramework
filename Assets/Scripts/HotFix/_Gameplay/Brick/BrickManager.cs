@@ -305,7 +305,7 @@ public class BrickManager : FrameSystem
     }
 
     /// <summary>把所有当前空置的 cell 收集到 output (output 不清空, 用前请自行 Clear).</summary>
-    public void CollectEmptyCells(HashSet<Vector2Int> output)
+    public void CollectEmptyCells(ref HashSet<Vector2Int> output)
     {
         if (brickLayout == null)
             return;
