@@ -147,6 +147,9 @@ public class BallManager : FrameSystem
             BallType.LaserBullet => "Ball_LaserBullet",
             BallType.LightningStrike => "Ball_LightningStrike",
             BallType.ElectricityStrike => "Ball_ElectricityStrike",
+            BallType.RockQuake => "Ball_RockQuake",
+            BallType.FireBurning => "Ball_FireBurning",
+            BallType.PoisonBurning => "Ball_PoisonBurning",
             _ => "Ball_Normal"
         };
         var path = $"{GAMEPLAY_PATH}/Balls/{ballName}.prefab";

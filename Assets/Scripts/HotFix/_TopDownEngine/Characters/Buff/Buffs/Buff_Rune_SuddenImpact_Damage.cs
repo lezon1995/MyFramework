@@ -24,7 +24,7 @@ namespace MoreMountains
             var dmg = new Dmg((int)value, mag.DmgType, mag.DmgAlgo);
             dmg.SetEffect(Dmg.Effects.Skill);
 
-            Target.RemoveBuffWithType(BuffType, true);
+            Target.RemoveBuffWithType(GetType(), true);
 
             e.Character.Health.Damage(ref dmg, gameObject);
         }

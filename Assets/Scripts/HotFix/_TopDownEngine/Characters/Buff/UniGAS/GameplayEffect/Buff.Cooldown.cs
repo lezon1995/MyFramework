@@ -1,16 +1,14 @@
-using UnityEngine;
-
 namespace MoreMountains
 {
     public partial class Buff
     {
-        bool _hasCooldown => BuffType.main.HasCooldown;
-        float _cooldownDuration => BuffType.cooldown.Duration.Value(this);
-        Actors _cooldownAt => BuffType.cooldown.CooldownAt;
+        bool hasCooldown => main.HasCooldown;
+        float cooldownDuration => cooldown.Duration.Value(this);
+        Actors cooldownAt => cooldown.CooldownAt;
 
         Buffable CooldownActor()
         {
-            var buffable = _cooldownAt switch
+            var buffable = cooldownAt switch
             {
                 Actors.Target => Target,
                 Actors.Source => Source,
@@ -21,14 +19,14 @@ namespace MoreMountains
 
         public bool CheckCooldown()
         {
-            if (_hasCooldown)
+            if (hasCooldown)
             {
                 var buffable = CooldownActor();
                 var list = buffable.BuffCooldown;
                 for (var i = 0; i < list.Count; i++)
                 {
                     var (buffType, cooldown) = list[i];
-                    if (buffType == BuffType)
+                    if (buffType == GetType())
                     {
                         var ready = cooldown.Ready();
                         if (ready == false)

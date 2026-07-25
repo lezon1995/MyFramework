@@ -17,6 +17,7 @@ namespace MoreMountains
             map.Add(SoundDefine.LASER_BEAM, load("laser_beam.wav"));
             map.Add(SoundDefine.LIGHTNING_STRIKE, load("lightning_strike.wav"));
             map.Add(SoundDefine.ELECTRICITY_STRIKE, load("electricity_strike.wav"));
+            map.Add(SoundDefine.ROCK_QUAKE, load("rock_quake.wav"));
 
             log("Sound Effect Volume: " + Settings.SOUND_VOLUME);
             log("Loaded " + map.Count + " Sound Effects");

@@ -3,7 +3,7 @@ using Sirenix.OdinInspector;
 
 namespace MoreMountains
 {
-    public partial class BuffType : SerializedScriptableObject
+    public partial class Buff
     {
         public ConditionConfig condition;
 

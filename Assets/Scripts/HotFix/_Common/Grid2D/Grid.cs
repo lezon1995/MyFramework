@@ -131,6 +131,9 @@ namespace MoreMountains
 
         public GridDefinition Definition => _definition;
 
+        public static int rows { get; set; }
+        public static int cols { get; set; }
+
         public int Rows => _definition.Rows;
         public int Columns => _definition.Columns;
         public float CellSize => _definition.CellSize;
@@ -268,5 +271,17 @@ namespace MoreMountains
         public static Grid Create(float cellSize, int rows, int columns) => new(new(cellSize, rows, columns, Vector2.zero, GridPivot.BottomLeft));
         public static Grid Create(float cellSize, int rows, int columns, Vector2 originOffset) => new(new(cellSize, rows, columns, originOffset, GridPivot.BottomLeft));
         public static Grid Create(float cellSize, int rows, int columns, Vector2 originOffset, GridPivot pivot) => new(new(cellSize, rows, columns, originOffset, pivot));
+    }
+    
+    public static class GridExtensions
+    {
+        public static int ToIndex(this Vector2Int coord)
+        {
+            return coord.y * Grid.cols + coord.x;
+        }
+        public static Vector2Int ToCoord(this int index)
+        {
+            return new(index % Grid.cols, index / Grid.cols);
+        }
     }
 }

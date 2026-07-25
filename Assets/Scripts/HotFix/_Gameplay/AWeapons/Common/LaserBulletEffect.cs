@@ -28,6 +28,7 @@ public class LaserBulletEffect : ALogicEffect, IArgs<Ball, Brick, Vector2>
             bullet.SetDirection(dir, rotation);
             bullet.SetOwner(b1.character);
             bullet.SetDamage(Dmg.AP((int)(5 + ball.GetStat(Ball.Stat.AP).Value + ball.character.GetStat(Character.Stat.AP).Value)));
+            bullet.TryClearTrails();
         }
     }
 
@@ -43,7 +44,10 @@ public class LaserBulletEffect : ALogicEffect, IArgs<Ball, Brick, Vector2>
         base.resetProperty();
         ball = null;
         if (bullet)
+        {
+            bullet.TryClearTrails();
             prefabPool.destroyObject(bullet.gameObject, false);
+        }
 
         bullet = null;
     }

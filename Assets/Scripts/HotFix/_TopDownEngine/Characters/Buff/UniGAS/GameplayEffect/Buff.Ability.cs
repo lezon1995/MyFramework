@@ -4,7 +4,7 @@ namespace MoreMountains
 {
     public partial class Buff
     {
-        Dictionary<CharacterAbility, CharacterAbility> _abilityDict = new();
+        Dictionary<CharacterAbility, CharacterAbility> abilityDict = new();
 
         /// <summary>
         /// 当成功应用该GE时，为该GE的Target赋予配置的Ability
@@ -12,14 +12,14 @@ namespace MoreMountains
         /// </summary>
         public void GrantedAbilities()
         {
-            foreach (var data in BuffType.Abilities)
+            foreach (var data in Abilities)
             {
                 var character = GetActor(data.ApplyTo).Character;
-                if (!_abilityDict.TryGetValue(data.Ability, out var ability))
+                if (!abilityDict.TryGetValue(data.Ability, out var ability))
                 {
                     ability = Instantiate(data.Ability);
                     ability.InitializeOnAwake = false;
-                    _abilityDict.Add(data.Ability, ability);
+                    abilityDict.Add(data.Ability, ability);
                 }
 
                 character.AddAbility(ability);
@@ -44,12 +44,12 @@ namespace MoreMountains
         /// <param name="gaSpec"></param>
         private void CancelAbilityImmediately()
         {
-            foreach (var data in BuffType.Abilities)
+            foreach (var data in Abilities)
             {
                 if (data.RemoveWithBuff)
                 {
                     var character = GetActor(data.ApplyTo).Character;
-                    if (_abilityDict.TryGetValue(data.Ability, out var ability))
+                    if (abilityDict.TryGetValue(data.Ability, out var ability))
                     {
                         character.RemoveAbility(ability);
                     }

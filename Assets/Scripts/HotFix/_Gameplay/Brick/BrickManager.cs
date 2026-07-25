@@ -25,6 +25,8 @@ public class BrickManager : FrameSystem
     // 网格占用跟踪 (由 WaveManager 等使用, 防止在已被占的 cell 上生成新砖块)
     // ---------------------------------------------------------------
 
+    protected bool[] _cellStates;
+
     /// <summary>占用的 cell -> 该 cell 上的 brick (同一格上最后一个注册者).</summary>
     protected Dictionary<Vector2Int, Brick> _cellToBrick = new();
 
@@ -53,8 +55,8 @@ public class BrickManager : FrameSystem
         destroyAllBrick();
         brickTypeList = null;
         brickGUIDList = null;
-        _cellToBrick?.Clear();
-        _brickToCells?.Clear();
+        _cellToBrick.Clear();
+        _brickToCells.Clear();
     }
 
     public override void update(float elapsedTime)
@@ -70,6 +72,9 @@ public class BrickManager : FrameSystem
     public void load()
     {
         brickLayout = new(new(18.9F, 10.8F), 28, 16);
+        int cols = brickLayout.getCols();
+        int rows = brickLayout.getRows();
+        _cellStates = new bool[cols * rows];
     }
 
     public bool getActiveBrick(int instanceID, out Brick brick)
@@ -162,6 +167,33 @@ public class BrickManager : FrameSystem
         return acquireBrick(typeof(Brick), pos, size);
     }
 
+    /// <summary>
+    /// 从形状库生成一组砖块（用于 ShapeEntry 的批量生成）。
+    /// </summary>
+    /// <param name="shapeOrigin">形状锚点在世界坐标系中的位置（即形状放置的原点）</param>
+    /// <param name="bricks">形状中每个砖块的局部坐标 (col/row 为起点的局部坐标, width/height 为尺寸)</param>
+    /// <param name="pivot">形状锚点位置（影响局部坐标如何映射到世界坐标）</param>
+    /// <returns>生成的砖块列表</returns>
+    public bool acquireShape(Vector2Int shapeOrigin, List<GridUnitBrick> bricks, ref List<BrickTemplate> result)
+    {
+        if (bricks == null || bricks.Count == 0)
+            return false;
+
+        if (brickLayout == null)
+            return false;
+
+        result.Clear();
+        foreach (var b in bricks)
+        {
+            // 该砖块左下角在世界中的坐标
+            var brickPivotCoord = shapeOrigin + b.PivotCell;
+            var brickPivotPos = brickLayout.getPos(brickPivotCoord);
+            result.Add(new(brickPivotPos, b.Size));
+        }
+
+        return true;
+    }
+
     public Brick acquireBrick(Type type, Vector2 pos, Vector2Int size)
     {
         if (!brickPools.TryGetValue((type, size), out var pool))
@@ -218,14 +250,10 @@ public class BrickManager : FrameSystem
         if (brick == null || brickLayout == null)
             return;
 
-        var rect = brick.getRect();
-        int col = brickLayout.getColAtPosX(rect.center.x);
-        int row = brickLayout.getRowAtPosY(rect.center.y);
+        var pos = brick.getWorldPosition();
+        var coord = brickLayout.getCoord(pos);
         var size = brick.getSize();
-        int w = Mathf.Max(1, size.x);
-        int h = Mathf.Max(1, size.y);
-
-        RegisterOccupancy(brick, col, row, w, h);
+        RegisterOccupancy(brick, coord.x, coord.y, size.x, size.y);
     }
 
     /// <summary>
@@ -265,6 +293,7 @@ public class BrickManager : FrameSystem
                 var cell = new Vector2Int(x, y);
                 list.Add(cell);
                 _cellToBrick[cell] = brick;
+                _cellStates[cell.ToIndex()] = true;
             }
         }
     }
@@ -281,10 +310,11 @@ public class BrickManager : FrameSystem
         for (int i = 0; i < list.Count; i++)
         {
             var cell = list[i];
-            if (_cellToBrick.TryGetValue(cell, out var owner) && owner == brick)
-            {
+            //if (_cellToBrick.TryGetValue(cell, out var owner) && owner == brick)
+            //{
                 _cellToBrick.Remove(cell);
-            }
+                _cellStates[cell.ToIndex()] = false;
+            //}
         }
 
         list.Clear();
@@ -298,28 +328,116 @@ public class BrickManager : FrameSystem
         return _cellToBrick.ContainsKey(cell);
     }
 
+    /// <summary>给定 cell 是否空闲.</summary>
+    public bool IsCellEmpty(Vector2Int cell)
+    {
+        return !_cellStates[cell.ToIndex()];
+    }
+
     /// <summary>查询 cell 上的 brick.</summary>
     public bool TryGetBrickAtCell(Vector2Int cell, out Brick brick)
     {
         return _cellToBrick.TryGetValue(cell, out brick);
     }
 
-    /// <summary>把所有当前空置的 cell 收集到 output (output 不清空, 用前请自行 Clear).</summary>
-    public void CollectEmptyCells(ref HashSet<Vector2Int> output)
+    /// <summary>
+    /// 检查形状能否放置在网格的指定 origin 位置。
+    /// shapeOrigin 是形状锚点的世界坐标。
+    /// </summary>
+    public bool CanPlaceShapeAtCell(Vector2Int cell, List<GridUnitBrick> bricks)
     {
-        if (brickLayout == null)
-            return;
+        if (brickLayout == null || bricks == null || bricks.Count == 0)
+            return false;
 
         int cols = brickLayout.getCols();
         int rows = brickLayout.getRows();
-        for (int y = 0; y < rows; y++)
+        foreach (var b in bricks)
         {
-            for (int x = 0; x < cols; x++)
+            // 该砖块的中心 cell（左下角 + 宽高）
+            var curCell = cell + b.PivotCell;
+            // 检查所有被该砖块覆盖的 cell
+            for (int dy = 0; dy < b.height; dy++)
             {
-                var c = new Vector2Int(x, y);
-                if (!_cellToBrick.ContainsKey(c))
-                    output.Add(c);
+                for (int dx = 0; dx < b.width; dx++)
+                {
+                    int cx = curCell.x + dx;
+                    int cy = curCell.y + dy;
+                    if (cx < 0 || cx >= cols || cy < 0 || cy >= rows)
+                        return false;
+                    if (IsCellOccupied(new(cx, cy)))
+                        return false;
+                }
             }
+        }
+
+        return true;
+    }
+
+    /// <summary>查询 shape origin 附近在形状占据范围内的第一个空置位置。</summary>
+    public bool FindEmptyCellForShape(Vector2Int targetCell, List<GridUnitBrick> bricks, out Vector2Int result, int maxRetries = 20)
+    {
+        result = default;
+        if (brickLayout == null || bricks == null || bricks.Count == 0)
+            return false;
+
+        // 从 nearPosition 的 grid cell 开始，向外扩散搜索
+        int startCol = targetCell.x;
+        int startRow = targetCell.y;
+
+        // 优先搜索边缘附近的空位（模仿 edge-biased 行为）
+        for (int r = 0; r < maxRetries; r++)
+        {
+            // 在半径 r 的环形区域搜索
+            int minC = Math.Max(0, startCol - r);
+            int maxC = Math.Min(brickLayout.getCols() - 1, startCol + r);
+            int minR2 = Math.Max(0, startRow - r);
+            int maxR2 = Math.Min(brickLayout.getRows() - 1, startRow + r);
+
+            // 收集这一圈的所有候选 cell
+            using var _ = new ListScope<Vector2Int>(out var candidates);
+            for (int c = minC; c <= maxC; c++)
+            {
+                candidates.Add(new(c, minR2));
+                if (minR2 != maxR2)
+                    candidates.Add(new(c, maxR2));
+            }
+
+            for (int r2 = minR2 + 1; r2 < maxR2; r2++)
+            {
+                candidates.Add(new(minC, r2));
+                if (minC != maxC)
+                    candidates.Add(new(maxC, r2));
+            }
+
+            // 随机打乱顺序
+            for (int i = candidates.Count - 1; i > 0; i--)
+            {
+                int j = UnityEngine.Random.Range(0, i + 1);
+                (candidates[i], candidates[j]) = (candidates[j], candidates[i]);
+            }
+
+            foreach (var cell in candidates)
+            {
+                if (CanPlaceShapeAtCell(cell, bricks))
+                {
+                    result = cell;
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>把所有当前空置的 cell 收集到 output (output 不清空, 用前请自行 Clear).</summary>
+    public void CollectEmptyCells(ref List<Vector2Int> emptyList)
+    {
+        emptyList.Clear();
+        for (var i = 0; i < _cellStates.Length; i++)
+        {
+            if (_cellStates[i])
+                continue;
+            emptyList.Add(i.ToCoord());
         }
     }
 
@@ -350,7 +468,9 @@ public class BrickManager : FrameSystem
         var path = $"{GAMEPLAY_PATH}/Bricks/Brick_{size.x}x{size.y}.prefab";
         var o = prefabPool.createObject(path);
         o.TryGetComponent<Brick>(out var brick);
-        brick.setName($"Brick_{activeBricks.Count + 1}");
+
+        var countAll = brickPools[(type, size)].CountAll;
+        brick.setName($"Brick_{size.x}x{size.y}_{countAll}");
         brick.setSize(size);
         brick.setID(id);
         brick.setOnBornCompleted(onBrickBornCompleted);

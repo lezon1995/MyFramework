@@ -4,7 +4,7 @@ namespace MoreMountains
     {
         public virtual void NotifyOnCombat(bool inCombat)
         {
-            if (_refreshDurationWhileInCombat && inCombat)
+            if (isRefreshDurationWhileInCombat && inCombat)
             {
                 RefreshDuration();
             }

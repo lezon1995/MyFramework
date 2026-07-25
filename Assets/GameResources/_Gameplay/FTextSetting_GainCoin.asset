@@ -16,7 +16,7 @@ MonoBehaviour:
   - {r: 1, g: 0.77908146, b: 0, a: 1}
   Icons:
   - {fileID: 21300000, guid: f09ff6217794d84439dc8abf92e48e88, type: 3}
-  ContentScale: 1
+  ContentScale: 0.8
   StartSequenceDuration: 0.1
   StaticDuration: 0
   FloatingDuration: 0.7
@@ -154,31 +154,22 @@ MonoBehaviour:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
-      time: 0.0000018442515
-      value: -0.022435896
-      inSlope: -27.682047
-      outSlope: -27.682047
-      tangentMode: 0
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 34
       weightedMode: 0
       inWeight: 0
-      outWeight: 0.1949941
-    - serializedVersion: 3
-      time: 0.419287
-      value: -28.143154
-      inSlope: -35.156166
-      outSlope: -35.156166
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.15504648
-      outWeight: 0.115632415
+      outWeight: 0.33333334
     - serializedVersion: 3
       time: 1
-      value: -45
-      inSlope: -29.267578
-      outSlope: -29.267578
-      tangentMode: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 34
       weightedMode: 0
-      inWeight: 0.12580639
+      inWeight: 0.33333334
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2

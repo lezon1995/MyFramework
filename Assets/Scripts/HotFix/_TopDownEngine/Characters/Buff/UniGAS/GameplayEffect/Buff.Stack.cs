@@ -1,44 +1,35 @@
+using System;
 using System.Collections.Generic;
-using MoreMountains.Feedbacks;
 using UnityEngine;
 
 namespace MoreMountains
 {
     public partial class Buff
     {
-        StackType _stackType => BuffType.stack.Type;
-        int _stackIncrement => BuffType.stack.Delta.Incre;
-        int _stackDecrement => BuffType.stack.Delta.Decre;
+        protected StackType stackType => stack.Type;
+        protected int stackIncrement => stack.Delta.Incre;
+        protected int stackDecrement => stack.Delta.Decre;
 
-        Mag _maxStack
-        {
-            get
-            {
-                if (BuffType == null)
-                    return null;
+        protected Mag maxStack => stack.MaxStack;
 
-                return BuffType.stack.MaxStack;
-            }
-        }
-
-        bool _stackExclusive => BuffType.stack.Exclusive;
-        bool _refreshDurationOnStacked => BuffType.stack.RefreshDurationOnStacked;
-        bool _resetPeriodOnStacked => BuffType.stack.ResetPeriodOnStacked;
-        StackExpirePolicy _stackExpirePolicy => BuffType.stack.StackExpirePolicy;
-        bool _isOverrideDecreasingDuration => BuffType.stack.DecreasingDuration.Override;
-        float _DecreasingDuration => BuffType.stack.DecreasingDuration.Duration;
-        bool _clearOnMaxStacked => BuffType.stack.ClearOnMaxStacked;
-        bool _hasExtraStackSources => BuffType.stack.HasExtraStackSources;
-        Data[] _maxStackBuffs => BuffType.stack.MaxStackBuffs;
-        Mod[] _stackMods => BuffType.stack.Mods;
-        StackSource[] _extraStackSources => BuffType.stack.ExtraStackSources;
-
-        public MMFeedbacks FB_Stacked;
-        public MMFeedbacks FB_MaxStacked;
+        protected bool isStackExclusive => stack.Exclusive;
+        protected bool isRefreshDurationOnStacked => stack.RefreshDurationOnStacked;
+        protected bool isResetPeriodOnStacked => stack.ResetPeriodOnStacked;
+        protected StackExpirePolicy stackExpirePolicy => stack.StackExpirePolicy;
+        protected bool isOverrideDecreasingDuration => stack.DecreasingDuration.Override;
+        protected float DecreasingDuration => stack.DecreasingDuration.Duration;
+        protected bool isClearOnMaxStacked => stack.ClearOnMaxStacked;
+        protected bool hasExtraStackSources => stack.HasExtraStackSources;
+        protected Data[] maxStackBuffs => stack.MaxStackBuffs;
+        protected Mod[] stackMods => stack.Mods;
+        protected StackSource[] extraStackSources => stack.ExtraStackSources;
+        
+        public Action<int, int> OnStackChanged { get; set; }
 
         protected virtual void OnStackChange(int oldStack, int newStack)
         {
             LastStack = oldStack;
+            OnStackChanged?.Invoke(oldStack, newStack);
         }
 
         protected virtual void OnMaxStacked(int maxStack)
@@ -60,10 +51,10 @@ namespace MoreMountains
         {
             get
             {
-                if (_maxStack == null)
+                if (maxStack == null)
                     return 0;
 
-                return (int)_maxStack.Value(this);
+                return (int)maxStack.Value(this);
             }
         }
 
@@ -84,9 +75,9 @@ namespace MoreMountains
         public Result GetBuffIncrements(Param param)
         {
             Buff originBuff;
-            if (_isStackable)
+            if (IsStackable)
             {
-                switch (_stackType)
+                switch (stackType)
                 {
                     case StackType.ByTarget:
                         if (!TryGetBuffStackedByTarget(out originBuff))
@@ -125,7 +116,7 @@ namespace MoreMountains
             }
             else
             {
-                switch (_instanceMode)
+                switch (InstanceMode)
                 {
                     case InstanceModes.Single:
                         if (IfAlreadyExist(out originBuff))
@@ -145,14 +136,14 @@ namespace MoreMountains
 
         public bool TryGetBuffStackedBySource(out Buff result)
         {
-            return Target.StackedBySource.TryGetValue((BuffType, Source), out result);
+            return Target.StackedBySource.TryGetValue((GetType(), Source), out result);
         }
 
         public bool TryGetBuffStackedByTarget(out Buff result)
         {
             foreach (var buff in Target.Buffs)
             {
-                if (buff.BuffType == BuffType)
+                if (buff.GetType() == GetType())
                 {
                     result = buff;
                     return true;
@@ -167,7 +158,7 @@ namespace MoreMountains
         {
             foreach (var buff in Target.Buffs)
             {
-                if (buff.BuffType == BuffType)
+                if (buff.GetType() == GetType())
                 {
                     originBuff = buff;
                     return true;
@@ -181,7 +172,7 @@ namespace MoreMountains
         public void IncreaseStack(int delta)
         {
             if (delta == 0)
-                delta = _stackIncrement;
+                delta = stackIncrement;
 
             DoIncreaseStack(delta);
         }
@@ -209,7 +200,7 @@ namespace MoreMountains
 
         void AddStackMods(int oldStack, int newStack)
         {
-            var mods = _stackMods;
+            var mods = stackMods;
             if (mods == null || mods.Length == 0)
                 return;
 
@@ -242,11 +233,11 @@ namespace MoreMountains
         /// </summary>
         void CheckClearStackOnReachStackLimit()
         {
-            if (_clearOnMaxStacked)
+            if (isClearOnMaxStacked)
             {
                 OnReachMaxStackedClear();
 
-                RemoveStack();
+                RemoveStack(true);
 
                 Target.RemoveBuff(this, Removal.MaxStacked, true);
             }
@@ -259,7 +250,7 @@ namespace MoreMountains
         /// </summary>
         void ApplyMaxStackBuffs()
         {
-            foreach (var data in _maxStackBuffs)
+            foreach (var data in maxStackBuffs)
             {
                 GetActor(data.ApplyTo).ApplyBuff(data.Buff);
             }
@@ -279,15 +270,19 @@ namespace MoreMountains
             OnStackChange(oldStack, Stack);
             RemoveStackMods(oldStack, Stack);
 
-            if (Stack == 0 && _isDuration)
-                return RemoveStack();
+            if (Stack == 0 && IsDuration)
+            {
+                RemoveStack();
+                return true;
+            }
 
-            return RefreshDuration();
+            RefreshDuration();
+            return false;
         }
 
         void RemoveStackMods(int oldStack, int newStack)
         {
-            var mods = _stackMods;
+            var mods = stackMods;
             if (mods == null || mods.Length == 0)
                 return;
 
@@ -302,7 +297,7 @@ namespace MoreMountains
         /// </summary>
         void ExecuteDurationRefreshPolicy()
         {
-            if (_refreshDurationOnStacked)
+            if (isRefreshDurationOnStacked)
             {
                 //刷新持续时间
                 // Example：英雄联盟 EZ技能命中后攻速5秒内提升，当5秒内若再次命中技能，则刷新持续时间为5秒
@@ -320,7 +315,7 @@ namespace MoreMountains
         /// </summary>
         void ExecuteStackPeriodResetPolicy()
         {
-            if (_resetPeriodOnStacked)
+            if (isResetPeriodOnStacked)
             {
                 // Example：英雄联盟 蘑菇中毒效果，每0.5秒跳一次伤害，假如当前时间运行到0.4秒的时候
                 // 再次踩到蘑菇，则中毒剩余时间会刷新，并且伤害仍会在0.5秒后计算，因为Period重置到了0
@@ -337,39 +332,60 @@ namespace MoreMountains
         /// <summary>
         /// 执行 叠加过期 政策
         /// </summary>
-        bool DoStackExpirePolicy()
+        bool DoStackExpirePolicy(out Removal removal)
         {
             //根据不同政策执行对应的方法
-            return _stackExpirePolicy switch
+            switch (stackExpirePolicy)
             {
                 //移除全部Stack，并移除buff实例
                 //Eg: 英雄联盟 游戏中叠加征服者天赋，不管叠加到多少层，只要当前层过期，直接移除全部层
-                StackExpirePolicy.ClearAllStack => RemoveStack(),
+                case StackExpirePolicy.ClearAllStack:
+                    removal = Removal.StackExpirePolicy_ClearAllStack;
+                    RemoveStack(true);
+                    return true;
                 //移除1层Stack 并刷新持续时间，不移除Buff实例
                 //Eg: 英雄联盟 武器大师被动，不管叠加到多少层，只要当前层过期，总叠加层数减1，并刷新当前层的持续时间
-                StackExpirePolicy.DecreaseStack => DecreaseStack(_stackDecrement),
+                case StackExpirePolicy.DecreaseStack:
+                    var needRemove = DecreaseStack(stackDecrement);
+                    if (needRemove)
+                        removal = Removal.StackExpirePolicy_DecreaseLastStack;
+                    else
+                        removal = Removal.None;
+
+                    return needRemove;
                 //仅刷新持续时间，层数变化可以自定义实现，不移除Buff实例
-                StackExpirePolicy.RefreshDuration => RefreshDuration(),
-                _ => false
-            };
+                case StackExpirePolicy.RefreshDuration:
+                    removal = Removal.None;
+                    RefreshDuration();
+                    return false;
+                default:
+                    removal = Removal.None;
+                    return false;
+            }
         }
 
-        bool RemoveStack()
+        public void RemoveStack(bool triggerOnStackChanged = false)
         {
             //如果是在Source上聚合，则还需要移除聚合中保存的Buff
             if (IsStackBySource())
-                Target.StackedBySource.Remove((BuffType, Source));
+                Target.StackedBySource.Remove((GetType(), Source));
 
             CheckRemoveExclusiveStack();
 
             CheckRemoveExtraStackSources();
-
-            return true;
+            
+            var oldStack = Stack;
+            Stack = Mathf.Clamp(0, 0, MaxStack);
+            
+            if (triggerOnStackChanged)
+            {
+                OnStackChange(oldStack, Stack);
+            }
         }
 
         public bool IsStackBySource()
         {
-            return _stackType == StackType.BySource;
+            return stackType == StackType.BySource;
         }
 
         void ClearStack()
@@ -380,9 +396,9 @@ namespace MoreMountains
 
         public void CheckAddExclusiveStack()
         {
-            if (_stackExclusive)
+            if (isStackExclusive)
             {
-                var dictionary = BuffType.Exclusive;
+                var dictionary = Exclusive;
                 if (dictionary.Remove(Source, out var buff))
                 {
                     buff.Target.RemoveBuff(buff, Removal.Exclusively, false);
@@ -394,18 +410,17 @@ namespace MoreMountains
 
         void CheckRemoveExclusiveStack()
         {
-            if (_stackExclusive)
+            if (isStackExclusive)
             {
-                var dictionary = BuffType.Exclusive;
-                dictionary.Remove(Source);
+                Exclusive.Remove(Source);
             }
         }
 
         public void CheckAddExtraStackSources()
         {
-            if (_hasExtraStackSources)
+            if (hasExtraStackSources)
             {
-                foreach (var stackSource in _extraStackSources)
+                foreach (var stackSource in extraStackSources)
                 {
                     switch (stackSource.Source)
                     {
@@ -422,9 +437,9 @@ namespace MoreMountains
 
         void CheckRemoveExtraStackSources()
         {
-            if (_hasExtraStackSources)
+            if (hasExtraStackSources)
             {
-                foreach (var stackSource in _extraStackSources)
+                foreach (var stackSource in extraStackSources)
                 {
                     switch (stackSource.Source)
                     {
@@ -458,7 +473,7 @@ namespace MoreMountains
 
         protected virtual void OnIncreaseStackFrom(DoAttackEffect e)
         {
-            foreach (var source in _extraStackSources)
+            foreach (var source in extraStackSources)
             {
                 if (source.Source == StackSource.Sources.DoAttackHit)
                 {
@@ -476,7 +491,7 @@ namespace MoreMountains
         {
             var movement = e.Movement;
             var unitDist = movement.magnitude * 100;
-            foreach (var source in _extraStackSources)
+            foreach (var source in extraStackSources)
             {
                 if (source.Source == StackSource.Sources.DoMove)
                 {

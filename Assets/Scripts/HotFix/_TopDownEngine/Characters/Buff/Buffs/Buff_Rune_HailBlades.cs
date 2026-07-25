@@ -33,7 +33,7 @@ namespace MoreMountains
                     
                     break;
                 case OnWindup.States.Finish:
-                    if (Target.HasBuff(Buff.BuffType))
+                    if (Target.HasBuff(Buff.GetType()))
                     {
                         _triggered = true;
                         Target.ApplyBuff(Buff, param: new(-1));
@@ -42,7 +42,7 @@ namespace MoreMountains
                     break;
                 case OnWindup.States.Cancel:
                     if (!_triggered)
-                        Target.RemoveBuffWithType(Buff.BuffType);
+                        Target.RemoveBuffWithType(Buff.GetType());
 
                     break;
             }
@@ -53,7 +53,7 @@ namespace MoreMountains
             if (_triggered == false)
                 return;
 
-            if (e.Buff.BuffType == Buff.BuffType)
+            if (e.Buff.GetType() == Buff.GetType())
             {
                 _triggered = false;
             }

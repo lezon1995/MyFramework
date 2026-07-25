@@ -10,9 +10,9 @@ namespace MoreMountains
         {
         }
 
-        Data[] _overflowBuffs => BuffType.overflow.OverflowBuffs;
-        bool _denyOverflowApplication => BuffType.overflow.DenyOverflowApplication;
-        bool _clearStackOnOverflow => BuffType.overflow.ClearStackOnOverflow;
+        Data[] overflowBuffs => overflow.OverflowBuffs;
+        bool isDenyOverflowApplication => overflow.DenyOverflowApplication;
+        bool isClearStackOnOverflow => overflow.ClearStackOnOverflow;
 
         /// <summary>
         /// 当前GE溢出
@@ -23,7 +23,7 @@ namespace MoreMountains
             ApplyOverflowBuffs();
 
             //如果DenyOverflowApplication为True，则溢出的Apply不会执行DurationRefreshPolicy
-            if (!_denyOverflowApplication)
+            if (!isDenyOverflowApplication)
             {
                 ExecuteDurationRefreshPolicy();
             }
@@ -38,7 +38,7 @@ namespace MoreMountains
         /// </summary>
         void ApplyOverflowBuffs()
         {
-            foreach (var data in _overflowBuffs)
+            foreach (var data in overflowBuffs)
             {
                 GetActor(data.ApplyTo).ApplyBuff(data.Buff);
             }
@@ -54,7 +54,7 @@ namespace MoreMountains
         void CheckClearStackOnOverflow()
         {
             //当DenyOverflowApplication为True是才有效，当Overflow时是否直接删除所有层数
-            if (_denyOverflowApplication && _clearStackOnOverflow)
+            if (isDenyOverflowApplication && isClearStackOnOverflow)
             {
                 OnStackOverflowClear();
 

@@ -146,6 +146,21 @@ namespace MoreMountains
         [Range(0f, 1f)]
         public float edgeBiasPercentAmplitude = 0.15f;
 
+        [Header("Shape Spawning")]
+        [Tooltip("是否启用形状生成（从 ShapesLibrary 中随机选取 ShapeEntry 生成砖块组合）")]
+        public bool enableShapeSpawning;
+
+        [Tooltip("形状生成权重（数值越高越容易被选中），设为0时只生成单个砖块")]
+        [Range(0f, 100f)]
+        public float shapeSpawnWeight = 30f;
+
+        [Tooltip("形状生成时，最多尝试找到空置位置的次数")]
+        [Range(1, 50)]
+        public int shapeSpawnMaxRetries = 20;
+
+        [Tooltip("形状生成后，是否在形状上随机放置怪物（取代单独刷怪）")]
+        public bool spawnMonstersOnShape = true;
+
         /// <summary>
         /// 获取击败所有怪物策略的最大生成总数
         /// </summary>

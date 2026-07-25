@@ -3,7 +3,7 @@ using Sirenix.OdinInspector;
 
 namespace MoreMountains
 {
-    public partial class BuffType : SerializedScriptableObject
+    public partial class Buff
     {
         [Serializable, HideLabel]
         [BoxGroup("Event", order: 9), HideIfGroup("Event/Toggle", Condition = EVENT)]
@@ -17,7 +17,7 @@ namespace MoreMountains
                 public bool On;
 
                 [HorizontalGroup]
-                public Buff.Data[] Buffs;
+                public Data[] Buffs;
             }
         }
     }

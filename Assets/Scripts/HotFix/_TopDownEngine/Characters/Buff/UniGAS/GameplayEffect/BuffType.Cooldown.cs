@@ -3,7 +3,7 @@ using Sirenix.OdinInspector;
 
 namespace MoreMountains
 {
-    public partial class BuffType : SerializedScriptableObject
+    public partial class Buff
     {
         public CooldownConfig cooldown;
 
@@ -12,9 +12,9 @@ namespace MoreMountains
         public class CooldownConfig
         {
             [BoxGroup("Duration", false), InlineProperty]
-            public Buff.Mag Duration;
+            public Mag Duration;
 
-            public Buff.Actors CooldownAt;
+            public Actors CooldownAt;
         }
     }
 }

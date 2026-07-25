@@ -148,24 +148,6 @@ namespace MoreMountains
                 }
             }
 
-            if (dmg.TriggerEffect)
-            {
-                //触发本次伤害所造成的攻击特效/技能特效
-                if (dmg.hasAttackEffect())
-                {
-                    var e = new DoHitEffect(ball, brick, dmg.Direction);
-                    ball.Event.trigger(e);
-                    ball.getPlayer().Event.trigger(e);
-                }
-
-                if (dmg.hasSkillEffect())
-                {
-                    var e = new DoSkillEffect(ball, brick);
-                    ball.Event.trigger(e);
-                    ball.getPlayer().Event.trigger(e);
-                }
-            }
-
             foreach (var p in brick.powers)
                 p.onBeforeApplyDamage(brick, ball, ref dmg);
 
@@ -267,6 +249,24 @@ namespace MoreMountains
                     _coroutineTimeElapsed = 0F;
                     _coroutineState = CoroutineState.DamageEnabled;
                     _invincibleTime = invincibleTime;
+                }
+            }
+            
+            if (dmg is { TriggerEffect: true, IsLethal: false })
+            {
+                //触发本次伤害所造成的攻击特效/技能特效
+                if (dmg.hasAttackEffect())
+                {
+                    var e = new DoHitEffect(ball, brick, dmg.Direction);
+                    ball.Event.trigger(e);
+                    ball.getPlayer().Event.trigger(e);
+                }
+
+                if (dmg.hasSkillEffect())
+                {
+                    var e = new DoSkillEffect(ball, brick);
+                    ball.Event.trigger(e);
+                    ball.getPlayer().Event.trigger(e);
                 }
             }
         }
@@ -488,6 +488,7 @@ namespace MoreMountains
             {
                 var e = new OnBrickDeath(brick);
                 e.trigger(this);
+                e.trigger(brick);
                 e.trigger();
 
                 brick.SetColliderEnabled(false);

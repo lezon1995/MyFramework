@@ -3,33 +3,32 @@ using UnityEngine;
 
 namespace MoreMountains;
 
-public class TextTMP : ClassObject, IText, IArgs<TextMeshProUGUI, bool>
+public class TextTMP : ClassObject, IText, IArgs<TextMeshProUGUI, TextMeshProUGUI>
 {
-    static readonly int UnderlayColor = Shader.PropertyToID("_UnderlayColor");
     TextMeshProUGUI _text;
-    bool _useUnderlay;
-    float _outlineDivider;
+    TextMeshProUGUI _textOutline;
 
     public override void resetProperty()
     {
         base.resetProperty();
         _text = null;
-        _useUnderlay = false;
-        _outlineDivider = 0F;
+        _textOutline = null;
     }
 
-
-    public void onCreate(TextMeshProUGUI t, bool useUnderlay)
+    public void onCreate(TextMeshProUGUI t, TextMeshProUGUI tOutline)
     {
         _text = t;
-        _useUnderlay = useUnderlay;
-        _outlineDivider = 6F;
+        _textOutline = tOutline;
     }
 
     public string text
     {
         get => _text.text;
-        set => _text.text = value;
+        set
+        {
+            _text.SetText(value);;
+            _textOutline.SetText(value);
+        }
     }
 
     public Color color
@@ -41,7 +40,11 @@ public class TextTMP : ClassObject, IText, IArgs<TextMeshProUGUI, bool>
     public float fontSize
     {
         get => _text.fontSize;
-        set => _text.fontSize = value;
+        set
+        {
+            _text.fontSize = value;
+            _textOutline.fontSize = value;
+        }
     }
 
     public float outlineSize
@@ -49,8 +52,6 @@ public class TextTMP : ClassObject, IText, IArgs<TextMeshProUGUI, bool>
         get => _text.outlineWidth;
         set
         {
-            if (!_useUnderlay)
-                _text.outlineWidth = value / _outlineDivider;
         }
     }
 
@@ -59,10 +60,6 @@ public class TextTMP : ClassObject, IText, IArgs<TextMeshProUGUI, bool>
         get => _text.outlineColor;
         set
         {
-            if (!_useUnderlay)
-                _text.outlineColor = value;
-            else
-                _text.fontMaterial.SetColor(UnderlayColor, value);
         }
     }
 }

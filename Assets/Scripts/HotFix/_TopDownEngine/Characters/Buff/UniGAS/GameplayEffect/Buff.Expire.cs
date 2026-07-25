@@ -1,13 +1,9 @@
-// using MoreMountains.Feedbacks;
-
 namespace MoreMountains
 {
     public partial class Buff
     {
-        // public MMFeedbacks FB_Expired;
-        
-        Data[] _expiredBuffs => BuffType.expire.ExpiredBuffs;
-        Data[] _preExpiredBuffs => BuffType.expire.PreExpiredBuffs;
+        Data[] expiredBuffs => expire.ExpiredBuffs;
+        Data[] preExpiredBuffs => expire.PreExpiredBuffs;
 
         /// <summary>
         /// 当该GE提前过期时（一般是主动被移除），应用该GE配置的提前过期的GE
@@ -15,10 +11,10 @@ namespace MoreMountains
         /// </summary>
         void ApplyPreExpiredBuff()
         {
-            if (_preExpiredBuffs == null)
+            if (preExpiredBuffs == null)
                 return;
 
-            foreach (var data in _preExpiredBuffs)
+            foreach (var data in preExpiredBuffs)
             {
                 GetActor(data.ApplyTo).ApplyBuff(data.Buff);
             }
@@ -30,10 +26,10 @@ namespace MoreMountains
         /// </summary>
         void ApplyExpiredBuff()
         {
-            if (_expiredBuffs == null)
+            if (expiredBuffs == null)
                 return;
 
-            foreach (var data in _expiredBuffs)
+            foreach (var data in expiredBuffs)
             {
                 GetActor(data.ApplyTo).ApplyBuff(data.Buff);
             }

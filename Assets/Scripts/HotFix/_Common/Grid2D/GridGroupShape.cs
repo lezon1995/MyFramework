@@ -38,6 +38,7 @@ namespace MoreMountains
         /// 以 col/row 为原点的左下角 cell 坐标 (即 Pivot 在局部坐标系中的位置).
         /// </summary>
         public Vector2Int PivotCell => new(col, row);
+        public Vector2Int Size => new(width, height);
 
         /// <summary>
         /// 该砖块占用的 cell 总数.

@@ -673,6 +673,7 @@ namespace MoreMountains
         public Types Type;
         public Types ActualType;
         public Algos Algo;
+        public int MetaType;
         public bool IsCrit;
         public float CritRate;
         public Stat DmgRate;
@@ -697,6 +698,7 @@ namespace MoreMountains
             Type = type;
             ActualType = type;
             Algo = Algos.Fixed;
+            MetaType = 0;
             IsCrit = isCrit;
             CritRate = 2F;
             DmgRate = 1F;
@@ -717,6 +719,7 @@ namespace MoreMountains
             Type = type;
             ActualType = type;
             Algo = algo;
+            MetaType = 0;
             IsCrit = false;
             CritRate = 2F;
             DmgRate = 1F;
@@ -857,6 +860,11 @@ namespace MoreMountains
         {
             DmgRate.increase(delta);
             return this;
+        }
+
+        public void SetMetaType(int type)
+        {
+            MetaType = type;
         }
 
         public Dmg SetSelf()

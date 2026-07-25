@@ -7,7 +7,7 @@ namespace MoreMountains
     {
         public static IEnumerable<string> GetAllTags(this IEnumerable<Buff> buffs)
         {
-            return buffs.SelectMany(buff => buff.BuffType.GrantedTags);
+            return buffs.SelectMany(buff => buff.GrantedTags);
         }
 
         public static bool HasAllTags(this IEnumerable<Buff> buffs, string[] targetTags)
@@ -17,7 +17,7 @@ namespace MoreMountains
                 return true;
             }
 
-            var grantedTags = buffs.SelectMany(buff => buff.BuffType.GrantedTags);
+            var grantedTags = buffs.SelectMany(buff => buff.GrantedTags);
             return targetTags.All(grantedTags.Contains);
         }
 
@@ -28,13 +28,13 @@ namespace MoreMountains
                 return true;
             }
 
-            var grantedTags = buffs.SelectMany(buff => buff.BuffType.GrantedTags);
+            var grantedTags = buffs.SelectMany(buff => buff.GrantedTags);
             return targetTags.All(t => !grantedTags.Contains(t));
         }
 
         public static bool HasAny(this IEnumerable<Buff> buffs, string[] target)
         {
-            var grantedTags = buffs.SelectMany(buff => buff.BuffType.GrantedTags);
+            var grantedTags = buffs.SelectMany(buff => buff.GrantedTags);
             return target.Any(grantedTags.Contains);
         }
 

@@ -3,7 +3,7 @@ using Sirenix.OdinInspector;
 
 namespace MoreMountains
 {
-    public partial class BuffType : SerializedScriptableObject
+    public partial class Buff
     {
         public ExpireConfig expire;
 
@@ -11,8 +11,8 @@ namespace MoreMountains
         [BoxGroup("Expire", order: 6), HideIfGroup("Expire/Toggle", Condition = INSTANT)]
         public class ExpireConfig
         {
-            public Buff.Data[] ExpiredBuffs;
-            public Buff.Data[] PreExpiredBuffs;
+            public Data[] ExpiredBuffs;
+            public Data[] PreExpiredBuffs;
         }
     }
 }

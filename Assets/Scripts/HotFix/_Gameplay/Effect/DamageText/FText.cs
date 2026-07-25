@@ -28,8 +28,11 @@ public class FText : Transformable
     public int useTimes = -1;
 
     Image _icon;
+    Image _metaIcon;
     TextMeshProUGUI _tmp;
+    TextMeshProUGUI _tmpOutline;
     TextMeshProUGUI _tmpPlus;
+    TextMeshProUGUI _tmpPlusOutline;
     TextTMP _text;
     Transform _content;
     CanvasGroup _canvas;
@@ -41,7 +44,10 @@ public class FText : Transformable
         base.resetProperty();
         useTimes = -1;
         _icon = null;
+        _metaIcon = null;
         _tmp = null;
+        _tmpOutline = null;
+        _tmpPlusOutline = null;
         _tmpPlus = null;
         UN_CLASS(ref _text);
         _content = null;
@@ -61,12 +67,15 @@ public class FText : Transformable
     public override void setObject(GameObject obj)
     {
         base.setObject(obj);
-        obj.find(out _tmp, "Content/Text");
-        obj.find(out _tmpPlus, "Content/TextPlus");
+        obj.find(out _tmpOutline, "Content/TextOutline");
+        obj.find(out _tmp, "Content/TextOutline/Text");
+        obj.find(out _tmpPlus, "Content/TextPlusOutline/TextPlus");
+        obj.find(out _tmpPlusOutline, "Content/TextPlusOutline");
         obj.find(out _content, "Content");
         obj.find(out _icon, "Content/Icon");
+        obj.find(out _metaIcon, "Content/MetaIcon");
         obj.TryGetComponent(out _canvas);
-        CLASS(out _text).with(_tmp, true);
+        CLASS(out _text).with(_tmp, _tmpOutline);
     }
 
     public void Set(Data data)
@@ -85,6 +94,21 @@ public class FText : Transformable
             {
                 _icon.sprite = null;
                 _icon.gameObject.SetActive(false);
+            }
+        }
+
+        if (_metaIcon)
+        {
+            if (setting.MetaIcons.tryGetById(data.metaType, out var metaIcon))
+            {
+                _metaIcon.sprite = metaIcon.sprite;
+                _metaIcon.color = metaIcon.color;
+                _metaIcon.gameObject.SetActive(true);
+            }
+            else
+            {
+                _metaIcon.sprite = null;
+                _metaIcon.gameObject.SetActive(false);
             }
         }
 
@@ -128,7 +152,7 @@ public class FText : Transformable
         if (data.hasFlag(Data.Flags.InvertHorizontalDirectionRandomly))
             data.invertHorizontalDirection = Random.value > 0.5f;
         else
-            data.invertHorizontalDirection = data.direction.x > 0;
+            data.invertHorizontalDirection = data.direction.x > 0 ? true : data.direction.x == 0 ? Random.value > 0.5f : false;
 
         setting.ModifyFloatDirection(ref data);
 
@@ -429,6 +453,7 @@ public class FText : Transformable
         public bool valid;
         public TextType textType;
         public int type;
+        public int metaType;
         public float value;
         public string text;
         public Transform target;
@@ -455,6 +480,7 @@ public class FText : Transformable
             valid = true;
             textType = t;
             type = 0;
+            metaType = 0;
             value = 0;
             target = null;
             direction = Vector3.zero;
@@ -491,6 +517,12 @@ public class FText : Transformable
         public Data setType(int _type)
         {
             type = _type;
+            return this;
+        }
+
+        public Data setMetaType(int _type)
+        {
+            metaType = _type;
             return this;
         }
 

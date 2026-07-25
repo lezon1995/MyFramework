@@ -17,7 +17,7 @@ namespace MoreMountains
         public bool CheckApplyCondition()
         {
             //检查应用条件
-            var conditions = BuffType.condition.ApplyConditions;
+            var conditions = condition.ApplyConditions;
             if (conditions == null)
                 return true;
 
@@ -25,8 +25,8 @@ namespace MoreMountains
                 return true;
 
             var canApply = true;
-            foreach (var condition in conditions)
-                canApply &= condition.CanApply(this);
+            foreach (var c in conditions)
+                canApply &= c.CanApply(this);
 
             return canApply;
         }
@@ -38,6 +38,7 @@ namespace MoreMountains
 
         public void FirstAdd()
         {
+            IsPrototype = true;
             OnAfterAdd();
         }
     }

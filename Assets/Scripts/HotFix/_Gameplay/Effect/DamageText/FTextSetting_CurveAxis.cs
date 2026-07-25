@@ -10,7 +10,7 @@ public class FTextSetting_CurveAxis : FTextSetting
 
     public override void ModifyPosition(ref Vector2 rectPos, in FText.Data data, float pct)
     {
-        // rectPos.x = XFloatCurve.Evaluate(pct);
+        rectPos.x = XFloatCurve.Evaluate(pct);
         rectPos.y = YFloatCurve.Evaluate(pct);
     }
 }

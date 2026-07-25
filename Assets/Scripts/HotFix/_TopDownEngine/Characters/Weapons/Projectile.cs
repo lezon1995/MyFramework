@@ -72,8 +72,10 @@ namespace MoreMountains
         public DamageOnTouch DamageOnTouch => _damageOnTouch;
         public Weapon SourceWeapon => _weapon;
         public Character Owner => _owner;
-        protected Stats Stats => _stats;
+        public Stats Stats => _stats;
+        public Buffable Buffable => _buffable;
         public Health Health => _health;
+        public TrailRenderer Trail => _trailRenderer;
 
         protected Weapon _weapon;
         protected Character _owner;
@@ -98,6 +100,8 @@ namespace MoreMountains
         protected bool _shouldMove = true;
         protected Health _health;
         protected Stats _stats;
+        protected Buffable _buffable;
+        protected TrailRenderer _trailRenderer;
         protected bool _spawnerIsFacingRight;
 
         CoroutineHandle coroutineInvincible;
@@ -123,7 +127,9 @@ namespace MoreMountains
 
             TryGetComponent(out _damageOnTouch);
             TryGetComponent(out _stats);
+            TryGetComponent(out _buffable);
             _hasRigidBody2D = TryGetComponent(out _rigidBody2D);
+            this.TryGetComponentInChildren(out _trailRenderer);
             _initialLocalScale = transform.localScale;
             OnStatsSet();
         }
@@ -371,6 +377,12 @@ namespace MoreMountains
 
             _shouldMove = false;
             inUse = false;
+        }
+
+        public void TryClearTrails()
+        {
+            if (_trailRenderer)
+                _trailRenderer.Clear();
         }
 
         /// <summary>

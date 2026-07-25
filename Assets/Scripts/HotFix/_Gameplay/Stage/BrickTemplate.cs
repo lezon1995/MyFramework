@@ -26,6 +26,13 @@ public struct BrickTemplate : IEquatable<BrickTemplate>
         size = default;
         health = 1;
     }
+    
+    public BrickTemplate(Vector2 _position, Vector2Int _size)
+    {
+        position = _position;
+        size = _size;
+        health = 0;
+    }
 
     public BrickTemplate(Vector2 _position, Vector2Int _size, int _health)
     {

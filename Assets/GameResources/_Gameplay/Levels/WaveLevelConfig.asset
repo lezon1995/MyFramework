@@ -17,7 +17,7 @@ MonoBehaviour:
   waves:
   - waveNumber: 1
     waveName: Wave 1
-    duration: 60
+    duration: 120
     clearStrategy: 0
     availableMonsters:
     - monsterId: Test1
@@ -30,8 +30,8 @@ MonoBehaviour:
       spawnWeight: 1.09
       baseSpawnInterval: 3
       forceSpawnOnce: 0
-    maxActiveMonsters: 30
-    minActiveMonsters: 10
+    maxActiveMonsters: 80
+    minActiveMonsters: 20
     defeatAllMaxTotalSpawn: 0
     healthScaling: 1
     damageScaling: 1
@@ -43,19 +43,23 @@ MonoBehaviour:
     bossMonsterId: 
     bossSpawnTime: 30
     enableSmartSpawning: 1
-    denseRadius: 2
-    sparseThreshold: 1
+    denseRadius: 1
+    sparseThreshold: 4
     enableContinuousSpawning: 1
-    targetCoverageRatio: 0.3
+    targetCoverageRatio: 0.5
     minSpawnInterval: 0.3
     maxSpawnInterval: 2
     killSpeedSensitivity: 2
     edgeBiasProbability: 0.5
-    edgeBiasPercent: 0.7
+    edgeBiasPercent: 0.6
     edgeBiasPercentAmplitude: 0.15
+    enableShapeSpawning: 1
+    shapeSpawnWeight: 30
+    shapeSpawnMaxRetries: 20
+    spawnMonstersOnShape: 1
   - waveNumber: 2
     waveName: Wave 2
-    duration: 60
+    duration: 120
     clearStrategy: 0
     availableMonsters:
     - monsterId: Test1
@@ -91,6 +95,10 @@ MonoBehaviour:
     edgeBiasProbability: 0.5
     edgeBiasPercent: 0.7
     edgeBiasPercentAmplitude: 0.15
+    enableShapeSpawning: 0
+    shapeSpawnWeight: 30
+    shapeSpawnMaxRetries: 20
+    spawnMonstersOnShape: 1
   - waveNumber: 3
     waveName: Wave 3
     duration: 60
@@ -124,6 +132,10 @@ MonoBehaviour:
     edgeBiasProbability: 0.5
     edgeBiasPercent: 0.7
     edgeBiasPercentAmplitude: 0.15
+    enableShapeSpawning: 0
+    shapeSpawnWeight: 30
+    shapeSpawnMaxRetries: 20
+    spawnMonstersOnShape: 1
   - waveNumber: 4
     waveName: Wave 4
     duration: 60
@@ -157,6 +169,10 @@ MonoBehaviour:
     edgeBiasProbability: 0.5
     edgeBiasPercent: 0.7
     edgeBiasPercentAmplitude: 0.15
+    enableShapeSpawning: 0
+    shapeSpawnWeight: 30
+    shapeSpawnMaxRetries: 20
+    spawnMonstersOnShape: 1
   globalMaxActiveMonsters: 400
   globalMinActiveMonsters: 10
   globalBaseSpawnInterval: 1

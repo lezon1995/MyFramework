@@ -191,7 +191,6 @@ public class FTextManager : FrameSystem
         var mix = dmg.Mix;
         if (mix.Off)
         {
-            
             new FText.Data(IToS(dmg.DamageDealt), type)
                 .setSetting(type)
                 .setValue(dmg.DamageDealt)
@@ -200,6 +199,7 @@ public class FTextManager : FrameSystem
                 .setOffset(Random.insideUnitCircle * 0.15F)
                 .setExtraContentSize(Mathf.InverseLerp(50, 1000, dmg.DamageDealt) * 0.25F) //this should be based on the amount of damage
                 .setType((int)dmg.ActualType)
+                .setMetaType(dmg.MetaType)
                 .show();
 
             return;
@@ -216,6 +216,7 @@ public class FTextManager : FrameSystem
                 .setOffset(Random.insideUnitCircle * 0.15F)
                 .setExtraContentSize(Mathf.InverseLerp(50, 1000, dmg.DamageDealt) * 0.25F) //this should be based on the amount of damage
                 .setType((int)Dmg.Types.AD)
+                .setMetaType(dmg.MetaType)
                 .show();
         }
 
@@ -230,6 +231,7 @@ public class FTextManager : FrameSystem
                 .setOffset(Random.insideUnitCircle * 0.15F)
                 .setExtraContentSize(Mathf.InverseLerp(50, 1000, dmg.DamageDealt) * 0.25F) //this should be based on the amount of damage
                 .setType((int)Dmg.Types.AP)
+                .setMetaType(dmg.MetaType)
                 .show();
         }
 
@@ -244,6 +246,7 @@ public class FTextManager : FrameSystem
                 .setOffset(Random.insideUnitCircle * 0.15F)
                 .setExtraContentSize(Mathf.InverseLerp(50, 1000, dmg.DamageDealt) * 0.25F) //this should be based on the amount of damage
                 .setType((int)Dmg.Types.True)
+                .setMetaType(dmg.MetaType)
                 .show();
         }
     }
@@ -259,6 +262,7 @@ public class FTextManager : FrameSystem
             .setOffset(new(0, 0.65F, 0))
             .setExtraContentSize(0F) //this should be based on the amount of damage
             .setType(0)
+            .setMetaType(0)
             .show();
     }
 
@@ -288,6 +292,7 @@ public class FTextManager : FrameSystem
             .setTarget(target)
             .setExtraContentSize(Mathf.InverseLerp(50, 1000, heal.Healing) * 0.25F) //this should be based on the amount of damage
             .setType(0)
+            .setMetaType(0)
             .show();
     }
 }

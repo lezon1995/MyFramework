@@ -44,7 +44,7 @@ namespace MoreMountains
             if (health.HealthPct > HealthPctThreshold)
                 return;
 
-            if (Target.HasBuff(Cooldown.BuffType))
+            if (Target.HasBuff(Cooldown.GetType()))
                 return;
             
             Target.ApplyBuff(Cooldown);

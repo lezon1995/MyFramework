@@ -130,7 +130,7 @@ namespace MoreMountains
 
         public void playFxDamage(Vector3 direction)
         {
-            flashRemainSeconds = 0.1F;
+            flashRemainSeconds = 0.08F;
             matBlock.SetFloat(StrongTintFade, 1);
             matUnit.SetFloat(StrongTintFade, 1);
         }

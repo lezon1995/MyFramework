@@ -12,6 +12,12 @@ namespace MoreMountains
             public Vector3 Dir;
             public int Stack;
 
+            public Param()
+            {
+                Dir = Vector3.zero;
+                Stack = 1;
+            }
+
             public Param(int stack) : this()
             {
                 Stack = stack;
@@ -36,15 +42,22 @@ namespace MoreMountains
             Multiple,
         }
 
+        //Buff被移除的原因种类
         public enum Removal
         {
+            None,
             Routinely,
             MaxStacked,
             Overflowed,
             Exclusively,
             ApplyStack,
+            
+            StackExpirePolicy_ClearAllStack,
+            StackExpirePolicy_DecreaseLastStack,
+            
             WithTag,
             WithType,
+            Death,
         }
 
         public enum Types

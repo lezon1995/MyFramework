@@ -1,4 +1,6 @@
 // using MoreMountains.Feedbacks;
+
+using System;
 using MoreMountains.Tools;
 using Sirenix.OdinInspector;
 using UniStats;
@@ -7,12 +9,8 @@ using UnityEngine;
 namespace MoreMountains
 {
     [HideMonoScript]
-    public partial class Buff : SerializedMonoBehaviour
+    public partial class Buff : SerializedMonoBehaviour, IResetable
     {
-        [CustomContextMenu("Create BuffType", nameof(CreateBuffType))]
-        [InlineEditor, PropertyOrder(-100)]
-        public BuffType BuffType;
-
         [ShowInInspector, ReadOnly, HorizontalGroup("Buffable", order: -90)]
         public Buffable Source { get; private set; }
 
@@ -21,33 +19,25 @@ namespace MoreMountains
 
         public Buffable Owner { get; set; }
 
+        public bool IsPrototype { get; internal set; }
         public Transform DefaultParent { get; internal set; }
         public Transform CurrentParent { get; private set; }
 
-        bool _isStackable => BuffType.IsStackable;
-        InstanceModes _instanceMode => BuffType.InstanceMode;
-        bool _isInstant => BuffType.IsInstant;
-        bool _isDuration => BuffType.IsDuration;
-        bool _isInfinite => BuffType.IsInfinite;
-        Mod[] _mods => BuffType.main.Mods;
-        bool _isInstantDamage => BuffType.main.IsInstantDamage;
-        DmgMag _instantDamage => BuffType.main.InstantDamage;
-        bool _hasAlternativeInstantDamage => BuffType.main.HasAlternativeInstantDamage;
-        DmgMag _alternativeInstantDamage => BuffType.main.AlternativeInstantDamage;
-        bool _isInstantHeal => BuffType.main.IsInstantHeal;
-        HealMag _instantHeal => BuffType.main.InstantHeal;
-        ConditionalBuff[] _conditionalBuffs => BuffType.main.ConditionalBuffs;
+        public Action OnRemoved { get; set; }
+
+        Mod[] mods => main.Mods;
+        bool isInstantDamage => main.IsInstantDamage;
+        DmgMag instantDamage => main.InstantDamage;
+        bool hasAlternativeInstantDamage => main.HasAlternativeInstantDamage;
+        DmgMag alternativeInstantDamage => main.AlternativeInstantDamage;
+        bool isInstantHeal => main.IsInstantHeal;
+        HealMag instantHeal => main.InstantHeal;
+        ConditionalBuff[] conditionalBuffs => main.ConditionalBuffs;
 
         // public MMFeedbacks FB_Instant;
 
         protected virtual void OnInstant()
         {
-        }
-
-        public void Initialize(BuffType buffType, Buffable source, Buffable target)
-        {
-            BuffType = buffType;
-            Initialize(source, target);
         }
 
         public void Initialize(Buffable source, Buffable target)
@@ -57,18 +47,6 @@ namespace MoreMountains
             InitializePeriod();
             InitializeStack();
             OnInitialized();
-        }
-
-        void CreateBuffType()
-        {
-            if (BuffType)
-            {
-                Debug.Log("BuffType不为null，无法创建新的BuffType");
-                return;
-            }
-
-            var buffType = ScriptableObject.CreateInstance<BuffType>();
-            BuffType = buffType;
         }
 
         public void SetParent(Transform parent)
@@ -93,7 +71,7 @@ namespace MoreMountains
         {
             ApplyConditionalBuff();
 
-            if (_isInstant)
+            if (IsInstant)
             {
                 ExecuteInstantBuff();
 
@@ -109,20 +87,20 @@ namespace MoreMountains
 
         void CheckAddCooldown()
         {
-            if (_hasCooldown)
+            if (hasCooldown)
             {
-                var cooldown = MMCooldown.Get(_cooldownDuration);
+                var cooldown = MMCooldown.Get(cooldownDuration);
                 var buffable = CooldownActor();
-                buffable.BuffCooldown.Add((BuffType, cooldown));
+                buffable.BuffCooldown.Add((GetType(), cooldown));
             }
         }
 
         void ExecuteInstantBuff()
         {
-            if (_isInstantDamage)
+            if (isInstantDamage)
                 ExecuteInstantDamage();
 
-            if (_isInstantHeal)
+            if (isInstantHeal)
                 ExecuteInstantHeal();
 
             OnInstant();
@@ -130,15 +108,15 @@ namespace MoreMountains
 
             void ExecuteInstantDamage()
             {
-                var mag = _instantDamage;
+                var mag = instantDamage;
                 var value = mag.Value(this);
 
-                if (_hasAlternativeInstantDamage)
+                if (hasAlternativeInstantDamage)
                 {
-                    var alternativeValue = _alternativeInstantDamage.Value(this);
+                    var alternativeValue = alternativeInstantDamage.Value(this);
                     if (alternativeValue > value)
                     {
-                        mag = _alternativeInstantDamage;
+                        mag = alternativeInstantDamage;
                         value = alternativeValue;
                     }
                 }
@@ -152,7 +130,7 @@ namespace MoreMountains
 
             void ExecuteInstantHeal()
             {
-                var mag = _instantHeal;
+                var mag = instantHeal;
                 var value = mag.Value(this);
                 if (value > 0)
                 {
@@ -234,7 +212,7 @@ namespace MoreMountains
 
         internal void AddMainMods()
         {
-            var mods = _mods;
+            var mods = this.mods;
             if (mods == null || mods.Length == 0)
                 return;
 
@@ -246,7 +224,7 @@ namespace MoreMountains
 
         void RemoveMainMods()
         {
-            var mods = _mods;
+            var mods = this.mods;
             if (mods == null || mods.Length == 0)
                 return;
 
@@ -260,7 +238,7 @@ namespace MoreMountains
 
         void ApplyConditionalBuff()
         {
-            var buffs = _conditionalBuffs;
+            var buffs = conditionalBuffs;
             if (buffs == null || buffs.Length == 0)
                 return;
 
@@ -278,32 +256,20 @@ namespace MoreMountains
             return true;
         }
 
-        public virtual void OnNew()
-        {
-        }
-
-        public virtual void OnGet()
-        {
-            gameObject.SetActive(true);
-        }
-
         public virtual void OnInitialized()
         {
         }
 
-        public virtual void OnRelease()
+        public void reset()
         {
-            Clear();
-            gameObject.SetActive(false);
-            SetParent(DefaultParent);
-            Owner = null;
-        }
-
-        protected void Clear()
-        {
-            BuffType = null;
             Source = null;
             Target = null;
+            Owner = null;
+            IsPrototype = false;
+            IsKillByPeriodDamage = false;
+            OnRemoved = null;
+            OnPeriodDamage = null;
+            OnStackChanged = null;
 
             ClearPeriod();
             ClearStack();

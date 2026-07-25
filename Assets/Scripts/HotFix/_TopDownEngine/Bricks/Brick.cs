@@ -46,6 +46,11 @@ namespace MoreMountains
             return new(pos + colliderOffset - colliderSize * 0.5F, colliderSize);
         }
 
+        public Vector2 getCenterPosition()
+        {
+            return getRect().center;
+        }
+
         public override void SetColliderEnabled(bool enable)
         {
             base.SetColliderEnabled(enable);

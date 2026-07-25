@@ -9,8 +9,8 @@ namespace MoreMountains
         public bool CheckTagRequirements()
         {
             return true;
-            var requiredTags = BuffType.ApplicationRequiredTags;
-            var ignoredTags = BuffType.ApplicationIgnoredTags;
+            var requiredTags = ApplicationRequiredTags;
+            var ignoredTags = ApplicationIgnoredTags;
             var hasAllTags = Target.Buffs.HasAllTags(requiredTags);
             var hasNoneTags = Target.Buffs.HasNoneTags(ignoredTags);
             if (hasAllTags && hasNoneTags)

@@ -170,6 +170,16 @@ public class BrickGridLayout
         return new(getPosXAtCol(col), getPosYAtRow(row));
     }
 
+    public Vector2 getPos(Vector2Int coord)
+    {
+        return new(getPosXAtCol(coord.x), getPosYAtRow(coord.y));
+    }
+
+    public Vector2Int getCoord(Vector2 pos)
+    {
+        return new(getColAtPosX(pos.x), getRowAtPosY(pos.y));
+    }
+
     public int getRowAtPosY(float y)
     {
         var leftCol = allCols[0];

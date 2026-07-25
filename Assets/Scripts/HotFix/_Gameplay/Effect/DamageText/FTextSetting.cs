@@ -1,3 +1,4 @@
+using System;
 using MoreMountains;
 using UnityEngine;
 
@@ -9,6 +10,7 @@ public class FTextSetting : ScriptableObject
     public virtual bool CalculateTotalPct => false;
     public Color[] FontColors;
     public Sprite[] Icons;
+    public MetaIcon[] MetaIcons;
     public float ContentScale = 1F;
     public float StartSequenceDuration = 0.5f;
     public float StaticDuration = 0.5f;
@@ -27,5 +29,12 @@ public class FTextSetting : ScriptableObject
 
     public virtual void ModifyFloatDirection(ref FText.Data data)
     {
+    }
+
+    [Serializable]
+    public class MetaIcon
+    {
+        public Sprite sprite;
+        public Color color = Color.white;
     }
 }

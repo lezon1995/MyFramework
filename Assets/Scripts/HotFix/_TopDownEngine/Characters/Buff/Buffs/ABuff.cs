@@ -7,12 +7,6 @@ namespace MoreMountains
     {
         public DamageOnTouch DamageOnTouch;
 
-        public override void OnNew()
-        {
-            DamageOnTouch = GetComponent<DamageOnTouch>();
-            DamageOnTouch.SetEnabled(false);
-        }
-
         protected override void OnInstant()
         {
             Debug.Log($"OnInstant at{Time.frameCount}");
@@ -30,12 +24,12 @@ namespace MoreMountains
             Debug.Log($"OnDiscard at{Time.frameCount}");
         }
 
-        public override void OnRelease()
-        {
-            Clear();
-
-            Timing.RunCoroutine(delay());
-        }
+        // public override void OnRelease()
+        // {
+        //     Clear();
+        //
+        //     Timing.RunCoroutine(delay());
+        // }
 
         IEnumerator<float> delay()
         {

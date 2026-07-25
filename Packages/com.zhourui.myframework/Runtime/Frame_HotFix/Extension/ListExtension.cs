@@ -1102,6 +1102,24 @@ public static class ListExtension
 		result = array[index];
 		return true;
 	}
+	public static bool tryGetById<T>(this T[] array, int id, out T result)
+	{
+		if (array == null)
+		{
+			result = default;
+			return false;
+		}
+
+		var index = id - 1;
+		if (index < 0 || index >= array.Length)
+		{
+			result = default;
+			return false;
+		}
+
+		result = array[index];
+		return true;
+	}
 	
 	public static void shuffle<T>(this List<T> list, Random rnd)
 	{

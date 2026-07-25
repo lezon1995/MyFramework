@@ -1,9 +1,8 @@
-using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace MoreMountains
 {
-    public partial class BuffType : SerializedScriptableObject
+    public partial class Buff
     {
         /// <summary>
         /// Tags that the GameplayEffect has.
@@ -23,7 +22,7 @@ namespace MoreMountains
         /// 从{RemoveFrom}上移除带有Tags的GEs
         /// </summary>
         [HideInInspector]
-        public Buff.Actors RemoveGEWithTagsFrom;
+        public Actors RemoveGEWithTagsFrom;
 
         /// <summary>
         /// GameplayEffects on the Target that have any of these tags in their Asset Tags or

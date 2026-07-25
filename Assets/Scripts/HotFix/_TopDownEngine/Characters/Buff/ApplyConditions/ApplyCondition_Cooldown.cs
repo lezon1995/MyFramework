@@ -1,11 +1,12 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace MoreMountains.ApplyConditions
 {
     [CreateAssetMenu(menuName = "TopDown Engine/Character/Buff/ApplyConditions/Cooldown", fileName = "AC-Cooldown")]
     public class ApplyCondition_Cooldown : ApplyCondition
     {
-        public BuffType CooldownBuffType;
+        public Type CooldownBuffType;
         public Buff.Actors Actors;
 
         public override bool CanApply(Buff buff)

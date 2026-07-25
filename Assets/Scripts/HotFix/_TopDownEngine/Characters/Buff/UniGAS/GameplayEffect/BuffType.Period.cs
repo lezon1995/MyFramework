@@ -1,11 +1,10 @@
 using System;
 using Sirenix.OdinInspector;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace MoreMountains
 {
-    public partial class BuffType : SerializedScriptableObject
+    public partial class Buff
     {
         public PeriodConfig period;
 
@@ -13,8 +12,8 @@ namespace MoreMountains
         [BoxGroup("Period", order: 3), ShowIfGroup("Period/Toggle", Condition = PERIODIC)]
         public class PeriodConfig
         {
-            [BoxGroup("Period/Time", false), InlineProperty]
-            public Buff.Mag Time;
+            [BoxGroup("Time", false), InlineProperty]
+            public Mag Time;
 
             [ToggleLeft]
             public bool ExecuteOnApply;
@@ -23,18 +22,18 @@ namespace MoreMountains
             public bool IsPeriodDamage;
 
             [ShowIf(nameof(IsPeriodDamage)), HideLabel]
-            public Buff.DmgMag PeriodDamage;
+            public DmgMag PeriodDamage;
 
             [ToggleLeft, LabelText("Heal")]
             public bool IsPeriodHeal;
 
             [ShowIf(nameof(IsPeriodHeal)), HideLabel]
-            public Buff.HealMag PeriodHeal;
+            public HealMag PeriodHeal;
 
             [HideInInspector]
             public PeriodicInhibitionPolicy PeriodicInhibitionPolicy;
 
-            public Buff.Mod[] Mods;
+            public Mod[] Mods;
         }
     }
 

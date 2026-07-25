@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 #if UNITY_EDITOR
@@ -61,6 +62,10 @@ namespace MoreMountains
         GridDefinition _cachedDefinition;
         bool _cacheDirty = true;
 
+        void Awake()
+        {
+        }
+
         void InvalidateCache() => _cacheDirty = true;
 
         void RebuildCache()
@@ -80,6 +85,8 @@ namespace MoreMountains
             }
 
             _cacheDirty = false;
+            Grid.cols = Columns;
+            Grid.rows = Rows;
         }
 
         public GridDefinition Definition

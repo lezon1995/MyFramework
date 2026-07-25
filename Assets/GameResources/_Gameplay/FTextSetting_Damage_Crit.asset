@@ -20,7 +20,9 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 774e20dacd0072548960c051d831f211, type: 3}
   - {fileID: 21300000, guid: 73798ad0418dcf64e96ea2d52554d348, type: 3}
   - {fileID: 21300000, guid: d8ae7331a7e89464d8a01bb75d58e8bc, type: 3}
-  ContentScale: 1.2
+  MetaIcons:
+  - {fileID: 21300000, guid: be45a90f853145c4c837a73ac3e60720, type: 3}
+  ContentScale: 1.3
   StartSequenceDuration: 0.12
   StaticDuration: 0.2
   FloatingDuration: 0.3

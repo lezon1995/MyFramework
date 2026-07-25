@@ -213,6 +213,18 @@ public class PrefabPoolManager : FrameSystem
 		mInstanceList.For(item => tempList.addIf(item.Value, item.Value.getTag() == objectTag));
 		tempList.For(item => destroyObject(item.getObject(), true));
 	}
+	public void destroyObject(Component component)
+	{
+		destroyObject(component.gameObject, false);
+	}
+	public void destroyObject(GameObject obj)
+	{
+		destroyObject(ref obj, false);
+	}
+	public void destroyObject(Component component, bool destroyReally)
+	{
+		destroyObject(component.gameObject, destroyReally);
+	}
 	public void destroyObject(GameObject obj, bool destroyReally)
 	{
 		destroyObject(ref obj, destroyReally);

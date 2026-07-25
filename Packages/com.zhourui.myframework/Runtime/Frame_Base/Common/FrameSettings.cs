@@ -3,6 +3,7 @@ using static FrameBaseUtility;
 using static FrameBaseDefine;
 
 // 运行时可读取的框架设置资源
+[CreateAssetMenu(fileName = "FrameSettings", menuName = "FrameSettings")]
 public class FrameSettings : ScriptableObject
 {
     [Tooltip("桌面端UI标准分辨率宽高,根据此设置来决定UI的适配")]

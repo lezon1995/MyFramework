@@ -1,4 +1,4 @@
-using UnityEngine;
+/*using UnityEngine;
 
 #if UNITY_EDITOR
 
@@ -23,16 +23,16 @@ namespace MoreMountains
 
                 // 定义要显示的文字内容
                 string strDuration;
-                if (_isInfinite)
+                if (IsInfinite)
                     strDuration = string.Empty;
                 else
                     strDuration = $"({DurationLeft:F1}/{Duration:F1})";
 
                 string str;
-                if (_isStackable)
-                    str = $"{BuffType.main.Name}:({Stack}/{MaxStack}):{strDuration}";
+                if (IsStackable)
+                    str = $"{main.Name}:({Stack}/{MaxStack}):{strDuration}";
                 else
-                    str = $"{BuffType.main.Name}:{strDuration}";
+                    str = $"{main.Name}:{strDuration}";
 
                 // 定义文字的位置和大小
                 Vector2 screenPoint = _camera.WorldToScreenPoint(start);
@@ -51,4 +51,4 @@ namespace MoreMountains
         }
     }
 }
-#endif
+#endif*/

@@ -933,7 +933,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: HotFix::MoreMountains.BrickStats
   Debug: 0
-  StatsConfig: {fileID: 11400000, guid: 145964dca47f5ff478027cb65c377a2c, type: 2}
+  StatsConfig: {fileID: 11400000, guid: 9dbbede6e846f5b44af234b31c8eb1b5, type: 2}
 --- !u!114 &-7317602544700251239
 MonoBehaviour:
   m_ObjectHideFlags: 0

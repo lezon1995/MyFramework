@@ -5062,6 +5062,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 8541052529043262044, guid: 5e00b6b46508ed3418d3430fc43fa3b9,
+        type: 3}
+      propertyPath: DrawGizmos
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8856400553607937428, guid: 5e00b6b46508ed3418d3430fc43fa3b9,
         type: 3}
       propertyPath: m_Name

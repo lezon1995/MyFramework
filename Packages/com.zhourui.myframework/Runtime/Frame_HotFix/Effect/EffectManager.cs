@@ -213,6 +213,11 @@ public class EffectManager : FrameSystem
 		return op;
 	}
 	
+	public GameEffect createEffect(string nameWithPath)
+	{
+		return createEffect(nameWithPath, null, null, 0, true, true, default, -1F);
+	}
+	
 	public GameEffect createEffect(string nameWithPath, float lifeTime)
 	{
 		return createEffect(nameWithPath, null, null, 0, true, true, default, lifeTime);

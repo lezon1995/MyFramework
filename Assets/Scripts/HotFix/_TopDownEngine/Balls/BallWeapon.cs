@@ -8,6 +8,7 @@ namespace MoreMountains
     {
         [MMInspectorGroup("ID")]
         public BallType ballType;
+        public BallType OverrideBallType;
 
         int count;
         
@@ -15,12 +16,12 @@ namespace MoreMountains
         {
             BallType t = (count++ % 5) switch
             {
-                0 => BallType.Normal,
-                1 => BallType.LaserBeam,
-                2 => BallType.LaserBullet,
-                3 => BallType.LightningStrike,
-                4 => BallType.ElectricityStrike,
-                _ => BallType.Normal
+                // 0 => BallType.Normal,
+                // 1 => BallType.LaserBeam,
+                // 2 => BallType.LaserBullet,
+                // 3 => BallType.LightningStrike,
+                // 4 => BallType.ElectricityStrike,
+                _ => OverrideBallType
             };
 
             var ball = ballManager.acquireBall(t, spawnPosition);

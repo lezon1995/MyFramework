@@ -17,6 +17,8 @@ MonoBehaviour:
   - {r: 0, g: 0.7294118, b: 1, a: 1}
   - {r: 1, g: 1, b: 1, a: 1}
   Icons: []
+  MetaIcons:
+  - {fileID: 21300000, guid: be45a90f853145c4c837a73ac3e60720, type: 3}
   ContentScale: 0.8
   StartSequenceDuration: 0.1
   StaticDuration: 0

@@ -3,10 +3,10 @@ using Sirenix.OdinInspector;
 
 namespace MoreMountains
 {
-    public partial class BuffType : SerializedScriptableObject
+    public partial class Buff
     {
         public OverflowConfig overflow;
-        
+
         [Serializable, HideLabel]
         [BoxGroup("Overflow", order: 5), ShowIfGroup("Overflow/Toggle", Condition = STACKABLE)]
         public class OverflowConfig
@@ -17,7 +17,7 @@ namespace MoreMountains
             [ToggleLeft]
             public bool ClearStackOnOverflow;
 
-            public Buff.Data[] OverflowBuffs;
+            public Data[] OverflowBuffs;
         }
     }
 }

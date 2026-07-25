@@ -660,23 +660,23 @@ namespace MoreMountains
         {
             // we process our abilities
             // TickAbilitiesBefore();
-            TickAbilities(dt);
-            TickBuffs(dt);
+            FixedUpdateAbilities(dt);
+            FixedUpdateBuffs(dt);
             // TickAbilitiesAfter();
         }
 
-        protected virtual void TickAbilities(float dt)
+        protected virtual void FixedUpdateAbilities(float dt)
         {
             foreach (var ability in _characterAbilities)
                 if (ability.enabled && ability.AbilityInitialized)
                     ability.Tick(dt);
         }
 
-        protected virtual void TickBuffs(float dt)
+        protected virtual void FixedUpdateBuffs(float dt)
         {
             if ((Flags & ComponentFlags.Buffable) != 0)
             {
-                Buffable.OnTick(dt);
+                Buffable.OnFixedUpdate(dt);
             }
         }
 

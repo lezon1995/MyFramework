@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace MoreMountains
 {
-    public partial class BuffType : SerializedScriptableObject
+    public partial class Buff
     {
         public StackConfig stack;
 
@@ -20,7 +20,7 @@ namespace MoreMountains
             public DeltaStack Delta;
 
             [BoxGroup("MaxStack", false), InlineProperty]
-            public Buff.Mag MaxStack;
+            public Mag MaxStack;
 
             [ToggleLeft]
             [Tooltip("是否只能同时叠加在一个单位上")]
@@ -43,12 +43,12 @@ namespace MoreMountains
             [ShowIf(nameof(StackExpirePolicy), StackExpirePolicy.DecreaseStack)]
             public Decreasing DecreasingDuration;
 
-            public Buff.Data[] MaxStackBuffs;
+            public Data[] MaxStackBuffs;
 
-            public Buff.Mod[] Mods;
+            public Mod[] Mods;
 
             [ShowIf(nameof(HasExtraStackSources))]
-            public Buff.StackSource[] ExtraStackSources;
+            public StackSource[] ExtraStackSources;
 
             [Serializable]
             [InlineProperty]

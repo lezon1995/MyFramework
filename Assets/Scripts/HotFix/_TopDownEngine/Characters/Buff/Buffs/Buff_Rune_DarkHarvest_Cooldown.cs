@@ -5,8 +5,26 @@ namespace MoreMountains
     public class Buff_Rune_DarkHarvest_Cooldown : Buff, IEvent<DoKill>
     {
         public float ResetDuration = 1;
-        
+
         bool _triggered;
+        float overrideDuration;
+
+        public override float Duration
+        {
+            get
+            {
+                if (IsInfinite)
+                    return 0F;
+
+                if (overrideDuration > 0)
+                    return overrideDuration;
+
+                if (IsStackDecreasing && isOverrideDecreasingDuration)
+                    return DecreasingDuration;
+
+                return duration.Value(this);
+            }
+        }
 
         protected override void OnAfterAdd()
         {
@@ -26,14 +44,14 @@ namespace MoreMountains
 
             _triggered = true;
 
-            var duration = ResetDuration;
-            if (DurationLeft < duration)
+            var d = ResetDuration;
+            if (DurationLeft < d)
             {
-                duration = DurationLeft;
+                d = DurationLeft;
             }
 
             DurationElapsed = 0F;
-            OverrideDuration = duration;
+            overrideDuration = d;
         }
     }
 }
