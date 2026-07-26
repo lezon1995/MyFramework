@@ -8,7 +8,7 @@ namespace MoreMountains
     /// 玩家金币拾取适配器 - 将APlayer适配到APicker接口
     /// 挂载到玩家身上，自动接收金币拾取事件
     /// </summary>
-    public class CoinPickerAdapter : MonoBehaviour, APicker
+    public class CoinPickerAdapter : PlayerAbility, ICoinPicker
     {
         public CoinManager coinManager;
 
@@ -39,7 +39,6 @@ namespace MoreMountains
         #region Private Fields
 
         float _autoPickupTimer;
-        APlayer _player;
 
         #endregion
 
@@ -51,36 +50,34 @@ namespace MoreMountains
 
         #region Lifecycle
 
-        void Awake()
+        protected override void OnEnable()
         {
-            TryGetComponent(out _player);
-        }
-
-        void OnEnable()
-        {
+            base.OnEnable();
             if (coinManager)
                 coinManager.RegisterPicker(this);
         }
 
-        void OnDisable()
+        protected override void OnDisable()
         {
+            base.OnDisable();
             if (coinManager)
                 coinManager.UnregisterPicker(this);
         }
 
-        void Start()
+        protected override void Start()
         {
+            base.Start();
             // 延迟注册，确保CoinManager已初始化
             if (coinManager)
                 coinManager.RegisterPicker(this);
         }
 
-        void Update()
+        public override void OnUpdate(float dt)
         {
             if (!AutoPickupEnabled || coinManager == null || _player == null)
                 return;
 
-            _autoPickupTimer += Time.deltaTime;
+            _autoPickupTimer += dt;
             if (_autoPickupTimer >= AutoPickupInterval)
             {
                 _autoPickupTimer = 0f;
@@ -99,12 +96,10 @@ namespace MoreMountains
         public void OnGoldCollected(int amount)
         {
             TotalGoldCollected += amount;
-            if (_player)
-                _player.gainGold(amount);
+            _player.gainGold(amount);
 
             OnGoldCollectedEvent?.Invoke(amount);
             new OnGoldPickedUp_S(this, amount, Position).trigger();
-
             new GainCoinTextEvent(amount, transform).trigger();
         }
 

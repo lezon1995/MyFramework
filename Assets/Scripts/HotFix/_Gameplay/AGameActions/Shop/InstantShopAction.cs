@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 
 namespace MoreMountains
 {
@@ -10,11 +11,15 @@ namespace MoreMountains
     {
         public override void update(float dt)
         {
-            try { Execute(); }
+            try
+            {
+                Execute();
+            }
             catch (Exception ex)
             {
-                UnityEngine.Debug.LogError($"[ShopAction] {GetType().Name}: {ex}");
+                Debug.LogError($"[ShopAction] {GetType().Name}: {ex}");
             }
+
             isDone = true;
         }
 

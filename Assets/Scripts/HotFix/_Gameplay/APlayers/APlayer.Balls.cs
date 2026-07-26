@@ -18,6 +18,15 @@ namespace MoreMountains
 
         protected List<BuffObject> buffs = new();
         protected List<Type> ballBuffs = new();
+        protected BallManagementSystem ballManagement;
+        protected InventorySystem inventory;
+        protected ShopSystem shop;
+        protected PlayerWallet wallet;
+        
+        public BallManagementSystem BallManagement => ballManagement;
+        public InventorySystem Inventory => inventory;
+        public ShopSystem Shop => shop;
+        public PlayerWallet Wallet => wallet;
 
         protected override void Initialization()
         {
@@ -27,6 +36,11 @@ namespace MoreMountains
             Exp.SetOnLevelUp(onLevelUp);
             
             FindAbility(out playerRecollectBall);
+
+            getOrAddUnityComponent(out ballManagement);
+            getOrAddUnityComponent(out inventory);
+            getOrAddUnityComponent(out shop);
+            getOrAddUnityComponent(out wallet);
             
             originalShootPosition = shootPosition = getWorldPosition();
             setOriginalShootPositionX(shootPosition.x);

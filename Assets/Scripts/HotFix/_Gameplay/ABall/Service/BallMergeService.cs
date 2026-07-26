@@ -1,6 +1,3 @@
-using System;
-using static FrameBaseUtility;
-
 namespace MoreMountains
 {
     public enum BallMergeInvalidReason
@@ -18,8 +15,12 @@ namespace MoreMountains
     /// </summary>
     public sealed class BallMergeService
     {
-        readonly BallManagementSystem _owner;
-        public BallMergeService(BallManagementSystem owner) { _owner = owner; }
+        BallManagementSystem _owner;
+
+        public BallMergeService(BallManagementSystem owner)
+        {
+            _owner = owner;
+        }
 
         public BallInstance TryMerge(BallInstance a, BallInstance b, out BallMergeInvalidReason reason)
         {
@@ -31,7 +32,8 @@ namespace MoreMountains
                 logWarning("BallMergeService: null input");
                 return null;
             }
-            if (a.DefId == b.DefId)
+
+            if (a.Type == b.Type)
             {
                 reason = BallMergeInvalidReason.SameKind;
                 return null;
@@ -43,6 +45,7 @@ namespace MoreMountains
                 reason = BallMergeInvalidReason.MergeRecipeMissing;
                 return null;
             }
+
             var defB = b.Def;
             int maxLevelA = defA.MaxLevel;
             int maxLevelB = defB != null ? defB.MaxLevel : int.MaxValue;
@@ -53,22 +56,26 @@ namespace MoreMountains
                 return null;
             }
 
-            if (!PlayerWallet.Instance.CanPay(defA.MergeGoldCost))
+            if (!_owner.Player.Wallet.CanPay(defA.MergeGoldCost))
             {
                 reason = BallMergeInvalidReason.GoldInsufficient;
                 return null;
             }
 
-            var holderA = InventoryLocate.FindHolderOf(a);
-            var holderB = InventoryLocate.FindHolderOf(b);
-            if (holderA == null || holderB == null)
+            if (!InventoryLocate.FindHolderOf(a, out var holderA))
+            {
+                reason = BallMergeInvalidReason.HolderMissing;
+                return null;
+            }
+
+            if (!InventoryLocate.FindHolderOf(b, out var holderB))
             {
                 reason = BallMergeInvalidReason.HolderMissing;
                 return null;
             }
 
             // 扣金币（在拆球前扣，避免回滚麻烦）
-            PlayerWallet.Instance.Pay(defA.MergeGoldCost, "ball_merge");
+            _owner.Player.loseGold(defA.MergeGoldCost, PayType.BALL_MERGE);
 
             // 拆 a
             if (!holderA.TryRemoveByInstance(a))
@@ -76,6 +83,7 @@ namespace MoreMountains
                 logError("BallMergeService: failed to remove a");
                 return null;
             }
+
             BallEvents.RaiseDestroyed(a);
 
             // 拆 b（若 a/b 同 holder，已经移除 a 不会再找到 b；用同样的 holder 再 RemoveByInstance 是 noop）
@@ -91,10 +99,11 @@ namespace MoreMountains
                 // 同 holder：a 已删，b 仍在；显式 RemoveByInstance
                 holderA.TryRemoveByInstance(b);
             }
+
             BallEvents.RaiseDestroyed(b);
 
             // 创建融合球，Lv.1
-            var merged = BallInstance.CreateNew(defA.MergeResultDefId, level: 1);
+            var merged = BallInstance.CreateNew(BallType.NONE, level: 1);
             if (!holderA.TryInsert(merged))
                 logError($"BallMergeService: failed to insert merged ball into {holderA.Name}");
 

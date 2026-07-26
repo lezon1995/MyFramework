@@ -8,7 +8,7 @@ namespace MoreMountains
         public abstract bool isPlayer { get; }
         public bool isBloodied;
 
-        public int gold;
+        public virtual int gold { get; set; }
         public int displayGold;
         public bool isDying;
         public bool isDead;
@@ -35,9 +35,9 @@ namespace MoreMountains
 
         public List<CreaturePower> powers = new();
         public List<ARelic> relics = new();
-        
+
         protected TopDownController2D _controller2D;
-        
+
         public TopDownController2D Controller2D
         {
             get
@@ -179,13 +179,11 @@ namespace MoreMountains
 
         #region Gold
 
-        public virtual void loseGold(int amount)
+        public virtual void loseGold(int amount, PayType type = PayType.DEFAULT)
         {
             if (amount > 0)
             {
-                gold -= amount;
-                if (gold < 0)
-                    gold = 0;
+                gold = clampMin(gold - amount, 0);
             }
             else
             {
@@ -193,15 +191,15 @@ namespace MoreMountains
             }
         }
 
-        public virtual void gainGold(int amount)
+        public virtual void gainGold(int amount, EarnType type = EarnType.DEFAULT)
         {
-            if (amount < 0)
+            if (amount > 0)
             {
-                log("NEGATIVE MONEY???");
+                gold += amount;
             }
             else
             {
-                gold += amount;
+                log("NEGATIVE MONEY???");
             }
         }
 

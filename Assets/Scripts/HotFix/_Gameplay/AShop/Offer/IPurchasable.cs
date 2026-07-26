@@ -6,13 +6,15 @@ namespace MoreMountains
     /// </summary>
     public interface IPurchasable
     {
-        ItemKind Kind     { get; }
-        int      ItemId   { get; }     // def id
-        string   DisplayName { get; }
-        int      Price    { get; }
-        bool     Sold     { get; }
+        ItemKind Kind { get; }
+        int ItemId { get; } // def id
+        string DisplayName { get; }
+        int Price { get; }
+        bool Sold { get; }
+
         /// <summary>"我还想要 ¥¥¥" 按钮是否激活（默认 true）</summary>
-        bool     Enabled  { get; }
-        void     MarkSold();
+        bool Enabled { get; }
+
+        void MarkSold();
     }
 }

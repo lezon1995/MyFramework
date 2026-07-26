@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using static FrameBaseUtility;
 
 namespace MoreMountains
 {
@@ -8,9 +7,9 @@ namespace MoreMountains
     /// 背包格子集合 —— 通用、带容量上限、可扩容。
     /// 球背包与遗物背包都基于它。
     /// </summary>
-    public abstract class InventoryBag<T> : IInventoryHolder where T : class, IInventoryItem
+    public abstract class InventoryBag<T> : IInventoryHolder<T> where T : class, IInventoryItem
     {
-        protected readonly List<T> Items;
+        protected List<T> Items;
         protected int CapacityValue;
 
         public string BagName { get; }
@@ -53,6 +52,7 @@ namespace MoreMountains
                 logError($"{BagName}: cannot add null");
                 return;
             }
+
             if (IsFull)
                 throw new InventoryFullException(GetBagKind());
             Items.Add(item);
@@ -69,6 +69,7 @@ namespace MoreMountains
                 logError($"{BagName}: cannot add null");
                 return;
             }
+
             if (IsFull)
                 throw new InventoryFullException(GetBagKind());
             if (index < 0 || index > Items.Count)
@@ -76,13 +77,14 @@ namespace MoreMountains
                 logError($"{BagName}: AddAt index out of range {index}");
                 return;
             }
+
             Items.Insert(index, item);
             RaiseAdded(item);
         }
 
         public virtual bool Remove(T item)
         {
-            if (item == null) 
+            if (item == null)
                 return false;
 
             int idx = Items.IndexOf(item);
@@ -96,6 +98,7 @@ namespace MoreMountains
                 logError($"{BagName}: RemoveAt index out of range {index}");
                 return false;
             }
+
             T removed = Items[index];
             Items.RemoveAt(index);
             RaiseRemoved(removed);
@@ -104,7 +107,7 @@ namespace MoreMountains
 
         public virtual void Swap(int a, int b)
         {
-            if (a < 0 || a >= Items.Count || b < 0 || b >= Items.Count || a == b) 
+            if (a < 0 || a >= Items.Count || b < 0 || b >= Items.Count || a == b)
                 return;
 
             (Items[a], Items[b]) = (Items[b], Items[a]);
@@ -114,7 +117,7 @@ namespace MoreMountains
         /// <summary>扩容。要求总容量不超过 MaxCapacity。</summary>
         public virtual void Expand(int delta)
         {
-            if (delta <= 0) 
+            if (delta <= 0)
                 return;
 
             int target = CapacityValue + delta;
@@ -127,7 +130,7 @@ namespace MoreMountains
         /// <summary>缩容。要求尾部空位 ≥ delta，否则抛 InventoryShrinkInvalidException。</summary>
         public virtual void Shrink(int delta)
         {
-            if (delta <= 0) 
+            if (delta <= 0)
                 return;
 
             int available = FreeSlots;
@@ -140,7 +143,7 @@ namespace MoreMountains
 
         public virtual void Clear()
         {
-            if (Items.Count == 0) 
+            if (Items.Count == 0)
                 return;
 
             Items.Clear();
@@ -163,16 +166,13 @@ namespace MoreMountains
 
         // ---- 实现 IInventoryHolder 所需：供其它系统增删 ----
 
-        public bool TryRemoveByInstance(IInventoryItem item) => Remove(item as T);
+        public bool TryRemoveByInstance(T item) => Remove(item);
 
-        public bool TryInsert(IInventoryItem item)
+        public bool TryInsert(T item)
         {
-            if (item is not T t) 
-                return false;
-
             try
             {
-                Add(t);
+                Add(item);
                 return true;
             }
             catch (InventoryFullException)
@@ -181,20 +181,31 @@ namespace MoreMountains
             }
         }
 
-        public int FindIndex(IInventoryItem item) => Items.IndexOf(item as T);
+        public bool FindIndex(T item, out int index)
+        {
+            index = Items.IndexOf(item);
+            if (index < 0)
+                return false;
+
+            return true;
+        }
 
         public string Name => BagName;
+    }
+
+    public interface IInventoryHolder
+    {
+        string Name { get; }
     }
 
     /// <summary>
     /// 任何"能装东西"的容器都实现这个接口，
     /// 让球管理系统 / 升级服务只面对接口，不感知是背包还是槽位。
     /// </summary>
-    public interface IInventoryHolder
+    public interface IInventoryHolder<in T> : IInventoryHolder where T : IInventoryItem
     {
-        bool TryRemoveByInstance(IInventoryItem item);
-        bool TryInsert(IInventoryItem item);
-        int  FindIndex(IInventoryItem item);
-        string Name { get; }
+        bool TryRemoveByInstance(T item);
+        bool TryInsert(T item);
+        bool FindIndex(T item, out int index);
     }
 }

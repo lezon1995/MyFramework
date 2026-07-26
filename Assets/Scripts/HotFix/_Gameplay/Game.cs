@@ -38,7 +38,7 @@ namespace MoreMountains
         public static bool playCreditsBgm;
         public static bool MUTE_IF_BG;
 
-        public static APlayer.PlayerClass chosenCharacter = APlayer.PlayerClass.IRONCLAD;
+        public static APlayer.PlayerClass chosenCharacter;
         public static bool loadingSave;
 
         public static SaveFile saveFile;

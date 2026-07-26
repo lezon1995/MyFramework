@@ -16,18 +16,24 @@ namespace MoreMountains
     public class InventoryItemNotFoundException : Exception
     {
         public InventoryItemNotFoundException(IInventoryItem item)
-            : base($"Item not found in bag: {item?.DisplayName ?? "<null>"}") { }
+            : base($"Item not found in bag: {item?.DisplayName ?? "<null>"}")
+        {
+        }
     }
 
     public class InventoryExpansionLimitException : Exception
     {
         public InventoryExpansionLimitException(string bag, int requested, int max)
-            : base($"{bag} bag expand rejected, requested {requested}, max {max}") { }
+            : base($"{bag} bag expand rejected, requested {requested}, max {max}")
+        {
+        }
     }
 
     public class InventoryShrinkInvalidException : Exception
     {
         public InventoryShrinkInvalidException(string bag, int delta, int available)
-            : base($"{bag} bag shrink rejected, need {delta} empty trailing slots, only {available} available") { }
+            : base($"{bag} bag shrink rejected, need {delta} empty trailing slots, only {available} available")
+        {
+        }
     }
 }

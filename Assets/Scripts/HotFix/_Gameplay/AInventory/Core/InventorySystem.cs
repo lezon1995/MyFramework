@@ -1,5 +1,4 @@
 using UnityEngine;
-using static FrameBaseUtility;
 
 namespace MoreMountains
 {
@@ -7,63 +6,64 @@ namespace MoreMountains
     /// 背包系统 —— 球背包 + 遗物背包。
     /// 继承 FrameSystem，由 GameHotFix.initFrameSystem 注册。
     /// </summary>
-    public class InventorySystem : FrameSystem
+    public class InventorySystem : PlayerAbility
     {
-        public static InventorySystem Instance { get; private set; }
+        [Header("Bag Capacity")]
+        [Tooltip("球背包默认格数")]
+        public int BallBagCapacity = 9;
 
-        BallBag  _ballBag;
+        [Tooltip("遗物背包默认格数")]
+        public int RelicBagCapacity = 15;
+
+        [Header("Expansion Cap")]
+        [Tooltip("球背包容量上限")]
+        public int MaxBallBagCapacity = 30;
+
+        [Tooltip("遗物背包容量上限")]
+        public int MaxRelicBagCapacity = 40;
+        
+        BallBag _ballBag;
         RelicBag _relicBag;
 
-        public BallBag  BallBag  => _ballBag;
+        public BallBag BallBag => _ballBag;
         public RelicBag RelicBag => _relicBag;
 
-        public int BallBagCapacity  => _ballBag?.Capacity  ?? 0;
-        public int RelicBagCapacity => _relicBag?.Capacity ?? 0;
-
-        public override void init()
+        protected override void Initialization()
         {
-            base.init();
-            Instance = this;
+            base.Initialization();
 
-            var cfg = InventorySystemConfig.Instance;
-            if (cfg == null)
-            {
-                logError("InventorySystem: missing InventorySystemConfig asset.");
-                return;
-            }
-
-            _ballBag  = new BallBag (cfg.BallBagCapacity,  cfg.MaxBallBagCapacity);
-            _relicBag = new RelicBag(cfg.RelicBagCapacity, cfg.MaxRelicBagCapacity);
+            _ballBag = new(BallBagCapacity, MaxBallBagCapacity);
+            _relicBag = new(RelicBagCapacity, MaxRelicBagCapacity);
 
             // 把背包变更桥接到 InventoryEvents，便于跨模块订阅。
-            _ballBag .OnItemAdded   += item => InventoryEvents.RaiseBallAdded(item);
-            _ballBag .OnItemRemoved += item => InventoryEvents.RaiseBallRemoved(item);
-            _ballBag .OnBagChanged  += ()    => InventoryEvents.RaiseBallBagChanged();
+            _ballBag.OnItemAdded += item => InventoryEvents.RaiseBallAdded(item);
+            _ballBag.OnItemRemoved += item => InventoryEvents.RaiseBallRemoved(item);
+            _ballBag.OnBagChanged += () => InventoryEvents.RaiseBallBagChanged();
 
-            _relicBag.OnItemAdded   += item => InventoryEvents.RaiseRelicAdded(item);
+            _relicBag.OnItemAdded += item => InventoryEvents.RaiseRelicAdded(item);
             _relicBag.OnItemRemoved += item => InventoryEvents.RaiseRelicRemoved(item);
-            _relicBag.OnBagChanged  += ()    => InventoryEvents.RaiseRelicBagChanged();
+            _relicBag.OnBagChanged += () => InventoryEvents.RaiseRelicBagChanged();
 
             InventoryEvents.RaiseSystemReady(this);
         }
 
-        public override void willDestroy()
+        void OnDestroy()
         {
-            base.willDestroy();
             InventoryEvents.RaiseSystemDestroy(this);
-            if (Instance == this) Instance = null;
-            _ballBag  = null;
+            _ballBag = null;
             _relicBag = null;
         }
 
         // ---------------- 便利方法 ----------------
 
-        public bool CanAddBall()  => _ballBag  != null && _ballBag.CanAdd();
+        public bool CanAddBall() => _ballBag != null && _ballBag.CanAdd();
         public bool CanAddRelic() => _relicBag != null && _relicBag.CanAdd();
 
         public bool AddBall(BallInstance ball)
         {
-            if (_ballBag == null || ball == null) return false;
+            if (_ballBag == null || ball == null) 
+                return false;
+
             try
             {
                 _ballBag.Add(ball);
@@ -77,7 +77,9 @@ namespace MoreMountains
 
         public bool AddRelic(RelicItem relic)
         {
-            if (_relicBag == null || relic == null) return false;
+            if (_relicBag == null || relic == null) 
+                return false;
+
             try
             {
                 _relicBag.Add(relic);
@@ -89,10 +91,10 @@ namespace MoreMountains
             }
         }
 
-        public void ExpandBallBag (int delta) => _ballBag ?.Expand(delta);
+        public void ExpandBallBag(int delta) => _ballBag?.Expand(delta);
         public void ExpandRelicBag(int delta) => _relicBag?.Expand(delta);
 
-        public void RemoveBall (BallInstance b)  => _ballBag ?.Remove(b);
-        public void RemoveRelic(RelicItem r)      => _relicBag?.Remove(r);
+        public void RemoveBall(BallInstance b) => _ballBag?.Remove(b);
+        public void RemoveRelic(RelicItem r) => _relicBag?.Remove(r);
     }
 }

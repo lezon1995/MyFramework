@@ -8,7 +8,7 @@ namespace MoreMountains
     /// </summary>
     public sealed class BallShopService
     {
-        readonly BallManagementSystem _owner;
+        BallManagementSystem _owner;
 
         public BallShopService(BallManagementSystem owner)
         {
@@ -16,20 +16,17 @@ namespace MoreMountains
         }
 
         /// <summary>商店流程（BuyBallAction）专用：在玩家已付金币、并通过满格校验后被调用。</summary>
-        public BallInstance PurchaseAndStore(int defId)
+        public BallInstance PurchaseAndStore(BallDef def)
         {
-            if (InventorySystem.Instance == null)
-                return null;
-
             // 双层校验：UI Action 已校验过，但调用方也可能是直调，所以兜底。
-            if (!InventorySystem.Instance.CanAddBall())
+            if (!_owner.Player.Inventory.CanAddBall())
                 return null;
 
-            var def = BallDefLibrary.Instance?.Get(defId);
-            if (def == null) return null;
+            if (def == null) 
+                return null;
 
-            var ball = BallInstance.CreateNew(defId, level: 1);
-            if (!InventorySystem.Instance.AddBall(ball))
+            var ball = BallInstance.CreateNew(def, level: 1);
+            if (!_owner.Player.Inventory.AddBall(ball))
                 return null;
 
             BallEvents.RaiseCreated(ball);
@@ -40,14 +37,16 @@ namespace MoreMountains
         /// <summary>售出：自动找 holder、移除、并用半价加金币。</summary>
         public int SellToShop(BallInstance ball)
         {
-            if (ball == null) return 0;
-            var holder = InventoryLocate.FindHolderOf(ball);
-            if (holder == null) return 0;
+            if (ball == null) 
+                return 0;
+            
+            if (!InventoryLocate.FindHolderOf(ball, out var holder)) 
+                return 0;
 
             holder.TryRemoveByInstance(ball);
 
             int refund = ball.SellPrice > 0 ? ball.SellPrice : 1;
-            PlayerWallet.Instance?.Earn(refund, "ball_sell");
+            _owner.Player.gainGold(refund, EarnType.SELL_BALL);
 
             BallEvents.RaiseDestroyed(ball);
             BallEvents.RaiseSold(ball, refund);

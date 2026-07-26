@@ -15,7 +15,6 @@ public class GBR
     public static GameDesign gameDesign { get; set; }
 
     // FrameSystem
-    public static GameplayManager gameplayManager;
     public static BallManager ballManager;
     public static BrickManager brickManager;
     public static LevelManager levelManager;

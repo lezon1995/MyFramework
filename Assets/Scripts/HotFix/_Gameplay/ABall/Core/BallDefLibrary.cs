@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+/*using System.Collections.Generic;
 
 namespace MoreMountains
 {
@@ -10,7 +10,7 @@ namespace MoreMountains
     {
         public static BallDefLibrary Instance { get; private set; }
 
-        readonly Dictionary<int, BallDef> _defs = new();
+        Dictionary<BallType, BallDef> _defs = new();
 
         public override void init()
         {
@@ -30,13 +30,13 @@ namespace MoreMountains
             if (def == null || def.BallDefId <= 0) 
                 return;
 
-            if (_defs.ContainsKey(def.BallDefId))
+            if (_defs.ContainsKey(def.Type))
             {
                 logWarning($"BallDefLibrary: duplicate id {def.BallDefId}");
                 return;
             }
 
-            _defs.Add(def.BallDefId, def);
+            _defs.Add(def.Type, def);
         }
 
         public void RegisterAll(BallDef[] defs)
@@ -48,15 +48,18 @@ namespace MoreMountains
                 Register(d);
         }
 
-        public BallDef Get(int id)
+        public BallDef Get(BallType type)
         {
-            _defs.TryGetValue(id, out var def);
+            _defs.TryGetValue(type, out var def);
             if (def == null) 
-                logError($"BallDefLibrary: missing def id {id}");
+                logError($"BallDefLibrary: missing def id {type}");
             return def;
         }
 
-        public bool TryGet(int id, out BallDef def) => _defs.TryGetValue(id, out def);
+        public bool TryGet(BallType type, out BallDef def)
+        {
+            return _defs.TryGetValue(type, out def);
+        }
 
         public IEnumerable<BallDef> All => _defs.Values;
 
@@ -65,4 +68,4 @@ namespace MoreMountains
             _defs.Clear();
         }
     }
-}
+}*/

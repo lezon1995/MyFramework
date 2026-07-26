@@ -1,8 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using UnityEngine;
-using static FrameBaseUtility;
 
 namespace MoreMountains
 {
@@ -21,24 +18,35 @@ namespace MoreMountains
     public static class ShopBallInventoryBootstrap
     {
         public static void RegisterAll(
-            Action<object /*PlayerWallet*/>      setWallet      = null,
-            Action<object /*BallDefLibrary*/>    setLibrary     = null,
-            Action<object /*InventorySystem*/>   setInventory   = null,
-            Action<object /*BallManagementSystem*/> setBalls      = null,
-            Action<object /*ShopSystem*/>        setShop        = null,
-            IEnumerable<BallDef> ballDefs        = null,
-            Func<int, ARelic> relicFactory       = null)
+            Action<object /*PlayerWallet*/> setWallet = null,
+            Action<object /*BallDefLibrary*/> setLibrary = null,
+            Action<object /*InventorySystem*/> setInventory = null,
+            Action<object /*BallManagementSystem*/> setBalls = null,
+            Action<object /*ShopSystem*/> setShop = null,
+            IEnumerable<BallDef> ballDefs = null,
+            Func<int, ARelic> relicFactory = null)
         {
-            var wallet = new PlayerWallet();           wallet.init(); setWallet?.Invoke(wallet);
-            var lib    = new BallDefLibrary();         lib   .init();
-            if (ballDefs != null) lib.RegisterAll(ballDefs as BallDef[] ?? new List<BallDef>(ballDefs).ToArray());
-            setLibrary?.Invoke(lib);
+            // var wallet = new PlayerWallet();
+            // wallet.init();
+            // setWallet?.Invoke(wallet);
+            // var lib = new BallDefLibrary();
+            // lib.init();
+            // if (ballDefs != null) 
+            //     lib.RegisterAll(ballDefs as BallDef[] ?? new List<BallDef>(ballDefs).ToArray());
 
-            var inv    = new InventorySystem();        inv   .init(); setInventory?.Invoke(inv);
+            // setLibrary?.Invoke(lib);
 
-            var balls  = new BallManagementSystem();   balls .init(); setBalls?.Invoke(balls);
+            // var inv = new InventorySystem();
+            // inv.init();
+            // setInventory?.Invoke(inv);
 
-            var shop   = new ShopSystem();             shop  .init(); setShop?.Invoke(shop);
+            // var balls = new BallManagementSystem();
+            // balls.init();
+            // setBalls?.Invoke(balls);
+
+            // var shop = new ShopSystem();
+            // shop.init();
+            // setShop?.Invoke(shop);
         }
     }
 }

@@ -46,9 +46,9 @@ namespace MoreMountains
         public Coin Coin;
         public Vector3 PickupPosition;
         public int Value;
-        public APicker Picker;
+        public ICoinPicker Picker;
 
-        public OnCoinCollected_S(Coin coin, Vector3 pickupPosition, int value, APicker picker)
+        public OnCoinCollected_S(Coin coin, Vector3 pickupPosition, int value, ICoinPicker picker)
         {
             Coin = coin;
             PickupPosition = pickupPosition;
@@ -62,11 +62,11 @@ namespace MoreMountains
     /// </summary>
     public struct OnGoldPickedUp_S
     {
-        public APicker Picker;
+        public ICoinPicker Picker;
         public int Amount;
         public Vector3 Position;
 
-        public OnGoldPickedUp_S(APicker picker, int amount, Vector3 position)
+        public OnGoldPickedUp_S(ICoinPicker picker, int amount, Vector3 position)
         {
             Picker = picker;
             Amount = amount;
@@ -78,7 +78,7 @@ namespace MoreMountains
     /// 拾取者接口 - 实现此接口的对象可以拾取金币
     /// 用于将金币拾取事件通知给具体的拾取者
     /// </summary>
-    public interface APicker
+    public interface ICoinPicker
     {
         /// <summary>
         /// 拾取者位置

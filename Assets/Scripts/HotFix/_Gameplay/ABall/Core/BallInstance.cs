@@ -13,40 +13,55 @@ namespace MoreMountains
     [Serializable]
     public sealed class BallInstance : IInventoryItem, IEquatable<BallInstance>
     {
-        public readonly int DefId;
-        public readonly int Level; // 1..MaxLevel
+        public BallType Type;
+        public int Level; // 1..MaxLevel
         public readonly Guid Uid; // 升级 / 融合后重新生成
 
         /// <summary>对关联的 BallDef 缓存（可选，避免反复查表）</summary>
-        public BallDef Def => BallDefLibrary.Instance != null ? BallDefLibrary.Instance.Get(DefId) : null;
+        public BallDef Def;
 
         public ItemKind Kind => ItemKind.Ball;
-        public string DisplayName => Def != null ? $"{Def.DisplayName} Lv.{Level}" : $"Ball#{DefId} Lv.{Level}";
+        public string DisplayName => Def ? $"{Def.DisplayName} Lv.{Level}" : $"Ball#{Type} Lv.{Level}";
 
         public int SellPrice
         {
             get
             {
-                if (Def == null) 
+                if (Def == null)
                     return 0;
-                
-                int rate = BallSystemConfig.Instance ? BallSystemConfig.Instance.SellRefundRate : 50;
-                rate = Mathf.Clamp(rate, 0, 100);
+
+                var rate = Mathf.Clamp(50, 0, 100);
                 return Math.Max(1, Def.BasePrice * rate / 100);
             }
         }
 
-        int IInventoryItem.ItemId => DefId;
+        int IInventoryItem.ItemId => Def.BallDefId;
 
-        public BallInstance(int defId, int level)
+        public BallInstance(BallType type, int level)
         {
-            DefId = defId;
+            Type = type;
+            Level = Math.Max(1, level);
+            Uid = Guid.NewGuid();
+        }
+
+        public BallInstance(BallDef def, int level)
+        {
+            Def = def;
+            Type = def.Type;
             Level = Math.Max(1, level);
             Uid = Guid.NewGuid();
         }
 
         /// <summary>工厂方法。系统内部创建都用它。</summary>
-        public static BallInstance CreateNew(int defId, int level) => new(defId, level);
+        public static BallInstance CreateNew(BallType type, int level)
+        {
+            return new(type, level);
+        }
+
+        public static BallInstance CreateNew(BallDef def, int level)
+        {
+            return new(def, level);
+        }
 
         public bool Equals(BallInstance other) => other != null && Uid.Equals(other.Uid);
         public override bool Equals(object obj) => obj is BallInstance other && Equals(other);

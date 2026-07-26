@@ -9,9 +9,9 @@ namespace MoreMountains
     [CreateAssetMenu(menuName = "MyFramework/Gameplay/BallDef")]
     public sealed class BallDef : ScriptableObject
     {
-        public int BallDefId;
+        public int BallDefId => (int)Type;
+        public BallType Type;
         public string DisplayName = "Ball";
-        public BallKind Kind = BallKind.Fire;
 
         [Header("Price")]
         public int BasePrice = 10;   // 商店售价 / 售出回收基于它

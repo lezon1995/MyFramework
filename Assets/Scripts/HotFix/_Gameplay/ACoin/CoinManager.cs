@@ -81,7 +81,7 @@ namespace MoreMountains
         List<Coin> _coinsToUpdate = new();
 
         // 拾取者引用（用于接收拾取事件）
-        APicker _activePicker;
+        ICoinPicker _activePicker;
 
         #endregion
 
@@ -258,7 +258,7 @@ namespace MoreMountains
         /// <summary>
         /// 注册当前活跃的拾取者（接收拾取通知）
         /// </summary>
-        public void RegisterPicker(APicker picker)
+        public void RegisterPicker(ICoinPicker picker)
         {
             _activePicker = picker;
         }
@@ -266,7 +266,7 @@ namespace MoreMountains
         /// <summary>
         /// 注销拾取者
         /// </summary>
-        public void UnregisterPicker(APicker picker)
+        public void UnregisterPicker(ICoinPicker picker)
         {
             if (_activePicker == picker)
                 _activePicker = null;

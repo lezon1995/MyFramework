@@ -12,9 +12,10 @@ namespace MoreMountains
     {
         public int RelicDefId;
         public string DisplayName = "Relic";
-        public int BasePrice = 50;        // 商店售价
-        public int SellRefund = 25;       // 售出回收价（也可由 Seller 配置比例）
+        public int BasePrice = 50; // 商店售价
+        public int SellRefund = 25; // 售出回收价（也可由 Seller 配置比例）
         public Sprite Icon;
+
         /// <summary>对应 ARelic 子类的 Type 名（FullName）。RelicService 据此反射创建。</summary>
         public string RelicTypeName;
     }

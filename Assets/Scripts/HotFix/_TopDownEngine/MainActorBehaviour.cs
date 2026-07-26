@@ -239,6 +239,12 @@ namespace MoreMountains
             return com;
         }
 
+        public T getOrAddUnityComponent<T>(out T com) where T : Component
+        {
+            FrameBaseUtility.getOrAddComponent(mObject, out com);
+            return com;
+        }
+
         // 从当前节点以及所有子节点中查找指定组件
         public void getUnityComponentsInChild<T>(bool includeInactive, List<T> list) where T : Component
         {

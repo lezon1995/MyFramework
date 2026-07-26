@@ -12,7 +12,7 @@ namespace MoreMountains
 
         public static void Register(IInventoryHolder h)
         {
-            if (h != null && !Holders.Contains(h)) 
+            if (h != null && !Holders.Contains(h))
                 Holders.Add(h);
         }
 
@@ -27,16 +27,25 @@ namespace MoreMountains
         /// 找到持有该物品的 holder；找不到返回 null。
         /// 只读查询，绝不修改任何 holder。
         /// </summary>
-        public static IInventoryHolder FindHolderOf(IInventoryItem item)
+        public static bool FindHolderOf<T>(T item, out IInventoryHolder<T> holder) where T : IInventoryItem
         {
-            if (item == null) return null;
+            holder = null;
+            if (item == null)
+                return false;
+
             foreach (var h in Holders)
             {
-                int idx = h.FindIndex(item);
-                if (idx >= 0) return h;
+                if (h is IInventoryHolder<T> a)
+                {
+                    if (a.FindIndex(item, out _))
+                    {
+                        holder = a;
+                        return true;
+                    }
+                }
             }
 
-            return null;
+            return false;
         }
     }
 }

@@ -115,11 +115,11 @@ namespace MoreMountains
         protected bool _startFeedbackIsPlaying;
         protected List<CharacterHandleWeapon> _handleWeaponList = new();
 
-        protected void Awake()
+        protected virtual void Awake()
         {
         }
 
-        protected void Start()
+        protected virtual void Start()
         {
             if (InitializeOnAwake)
             {

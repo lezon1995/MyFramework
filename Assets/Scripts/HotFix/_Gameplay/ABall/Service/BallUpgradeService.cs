@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using static FrameBaseUtility;
 
 namespace MoreMountains
 {
@@ -8,7 +6,7 @@ namespace MoreMountains
     {
         None,
         NotEnoughMaterial,
-        DifferentKind,
+        DifferentType,
         DifferentLevel,
         MaxLevelReached,
         GoldInsufficient,
@@ -23,8 +21,12 @@ namespace MoreMountains
     /// </summary>
     public sealed class BallUpgradeService
     {
-        readonly BallManagementSystem _owner;
-        public BallUpgradeService(BallManagementSystem owner) { _owner = owner; }
+        BallManagementSystem _owner;
+
+        public BallUpgradeService(BallManagementSystem owner)
+        {
+            _owner = owner;
+        }
 
         /// <summary>
         /// 尝试升级。
@@ -44,7 +46,14 @@ namespace MoreMountains
             // representative = 第一个非空元素
             BallInstance representative = null;
             for (int i = 0; i < candidates.Count; i++)
-                if (candidates[i] != null) { representative = candidates[i]; break; }
+            {
+                if (candidates[i] != null)
+                {
+                    representative = candidates[i];
+                    break;
+                }
+            }
+
             if (representative == null)
             {
                 reason = BallUpgradeInvalidReason.MaterialNotFound;
@@ -66,7 +75,6 @@ namespace MoreMountains
             }
 
             int combineCount = def.UpgradeCombineCount > 0 ? def.UpgradeCombineCount : 2;
-
             if (candidates.Count < combineCount)
             {
                 reason = BallUpgradeInvalidReason.NotEnoughMaterial;
@@ -82,11 +90,13 @@ namespace MoreMountains
                     reason = BallUpgradeInvalidReason.MaterialNotFound;
                     return Fail(representative, "null_material");
                 }
-                if (b.DefId != representative.DefId)
+
+                if (b.Type != representative.Type)
                 {
-                    reason = BallUpgradeInvalidReason.DifferentKind;
+                    reason = BallUpgradeInvalidReason.DifferentType;
                     return Fail(representative, "diff_kind");
                 }
+
                 if (b.Level != representative.Level)
                 {
                     reason = BallUpgradeInvalidReason.DifferentLevel;
@@ -95,15 +105,14 @@ namespace MoreMountains
             }
 
             // 校验金币
-            if (def.UpgradeGoldCost > 0 && !PlayerWallet.Instance.CanPay(def.UpgradeGoldCost))
+            if (def.UpgradeGoldCost > 0 && !_owner.Player.Wallet.CanPay(def.UpgradeGoldCost))
             {
                 reason = BallUpgradeInvalidReason.GoldInsufficient;
                 return Fail(representative, "gold_insufficient");
             }
 
             // 代表球所在的 holder —— 升级产物回到这里
-            var repHolder = InventoryLocate.FindHolderOf(representative);
-            if (repHolder == null)
+            if (!InventoryLocate.FindHolderOf(representative, out var repHolder))
             {
                 reason = BallUpgradeInvalidReason.HolderMissing;
                 return Fail(representative, "holder_missing");
@@ -111,15 +120,14 @@ namespace MoreMountains
 
             // 扣金币
             if (def.UpgradeGoldCost > 0)
-                PlayerWallet.Instance.Pay(def.UpgradeGoldCost, "ball_upgrade");
+                _owner.Player.loseGold(def.UpgradeGoldCost, PayType.BALL_UPGRADE);
 
             // 从各自的 holder 移除 N 个球
             for (int i = 0; i < candidates.Count; i++)
             {
                 var b = candidates[i];
                 // ball 可能与 representative 在同一 holder 或不同 holder；先精确查询。
-                var holder = InventoryLocate.FindHolderOf(b);
-                if (holder != null)
+                if (InventoryLocate.FindHolderOf(b, out var holder))
                 {
                     holder.TryRemoveByInstance(b);
                     BallEvents.RaiseDestroyed(b);
@@ -127,14 +135,13 @@ namespace MoreMountains
             }
 
             // 创建升级产物
-            var upgraded = BallInstance.CreateNew(def.BallDefId, targetLevel);
+            var upgraded = BallInstance.CreateNew(def, targetLevel);
 
             // 插入：优先精确放回 representative 原本所在的精确位置（仅 BallSlotGroup 支持）；
             // 其它实现走 TryInsert 默认行为。
             if (repHolder is BallSlotGroup sg)
             {
-                int slotIndex = sg.FindIndex(representative);
-                if (slotIndex >= 0)
+                if (sg.FindIndex(representative, out var slotIndex))
                 {
                     sg.ReplaceAt(slotIndex, upgraded);
                     BallEvents.RaiseCreated(upgraded);
@@ -146,6 +153,7 @@ namespace MoreMountains
             // 否则默认插入到代表球的 holder
             if (!repHolder.TryInsert(upgraded))
                 logError($"BallUpgradeService: failed to insert upgraded ball into {repHolder.Name}");
+
             BallEvents.RaiseCreated(upgraded);
             BallEvents.RaiseUpgraded(representative, upgraded);
             return upgraded;
@@ -153,7 +161,7 @@ namespace MoreMountains
 
         BallInstance Fail(BallInstance b, string why)
         {
-            logWarning($"BallUpgradeService: invalid ({why}) on def {b?.DefId} lv {b?.Level}");
+            logWarning($"BallUpgradeService: invalid ({why}) on def {b?.Type} lv {b?.Level}");
             return null;
         }
 

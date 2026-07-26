@@ -1,5 +1,4 @@
 using System;
-using static FrameBaseUtility;
 
 namespace MoreMountains
 {
@@ -24,6 +23,7 @@ namespace MoreMountains
                 logError($"RelicService: cannot create relic, RelicTypeName missing: {def.RelicTypeName}");
                 return null;
             }
+
             int refund = def.SellRefund > 0 ? def.SellRefund : Math.Max(1, def.BasePrice / 2);
             return new RelicItem(relic, refund);
         }
@@ -38,8 +38,8 @@ namespace MoreMountains
                 if (Activator.CreateInstance(type) is ARelic relic)
                 {
                     relic.relicId = displayName ?? relic.relicId ?? type.Name;
-                    relic.name    = displayName ?? relic.name ?? relic.relicId;
-                    relic.cost    = defId;
+                    relic.name = displayName ?? relic.name ?? relic.relicId;
+                    relic.cost = defId;
                     return relic;
                 }
             }
@@ -47,6 +47,7 @@ namespace MoreMountains
             {
                 logError($"RelicService.CreateRelicByTypeName failed: {ex.Message}");
             }
+
             return null;
         }
     }

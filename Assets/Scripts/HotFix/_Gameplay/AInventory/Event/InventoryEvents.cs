@@ -11,27 +11,60 @@ namespace MoreMountains
         // BallBag
         public static event Action<BallInstance> OnBallAdded;
         public static event Action<BallInstance> OnBallRemoved;
-        public static event Action               OnBallBagChanged;
+        public static event Action OnBallBagChanged;
 
         // RelicBag
-        public static event Action<RelicItem>    OnRelicAdded;
-        public static event Action<RelicItem>    OnRelicRemoved;
-        public static event Action               OnRelicBagChanged;
+        public static event Action<RelicItem> OnRelicAdded;
+        public static event Action<RelicItem> OnRelicRemoved;
+        public static event Action OnRelicBagChanged;
 
         // System lifecycle
         public static event Action<InventorySystem> OnSystemReady;
         public static event Action<InventorySystem> OnSystemDestroy;
 
         // ---- 内部分发 ----
-        internal static void RaiseBallAdded   (BallInstance b) { OnBallAdded?.Invoke(b); OnBallBagChanged?.Invoke(); }
-        internal static void RaiseBallRemoved (BallInstance b) { OnBallRemoved?.Invoke(b); OnBallBagChanged?.Invoke(); }
-        internal static void RaiseBallBagChanged()              { OnBallBagChanged?.Invoke(); }
+        internal static void RaiseBallAdded(BallInstance b)
+        {
+            OnBallAdded?.Invoke(b);
+            OnBallBagChanged?.Invoke();
+        }
 
-        internal static void RaiseRelicAdded   (RelicItem r) { OnRelicAdded?.Invoke(r); OnRelicBagChanged?.Invoke(); }
-        internal static void RaiseRelicRemoved (RelicItem r) { OnRelicRemoved?.Invoke(r); OnRelicBagChanged?.Invoke(); }
-        internal static void RaiseRelicBagChanged()            { OnRelicBagChanged?.Invoke(); }
+        internal static void RaiseBallRemoved(BallInstance b)
+        {
+            OnBallRemoved?.Invoke(b);
+            OnBallBagChanged?.Invoke();
+        }
 
-        internal static void RaiseSystemReady  (InventorySystem s) { OnSystemReady?.Invoke(s); }
-        internal static void RaiseSystemDestroy(InventorySystem s) { OnSystemDestroy?.Invoke(s); }
+        internal static void RaiseBallBagChanged()
+        {
+            OnBallBagChanged?.Invoke();
+        }
+
+        internal static void RaiseRelicAdded(RelicItem r)
+        {
+            OnRelicAdded?.Invoke(r);
+            OnRelicBagChanged?.Invoke();
+        }
+
+        internal static void RaiseRelicRemoved(RelicItem r)
+        {
+            OnRelicRemoved?.Invoke(r);
+            OnRelicBagChanged?.Invoke();
+        }
+
+        internal static void RaiseRelicBagChanged()
+        {
+            OnRelicBagChanged?.Invoke();
+        }
+
+        internal static void RaiseSystemReady(InventorySystem s)
+        {
+            OnSystemReady?.Invoke(s);
+        }
+
+        internal static void RaiseSystemDestroy(InventorySystem s)
+        {
+            OnSystemDestroy?.Invoke(s);
+        }
     }
 }

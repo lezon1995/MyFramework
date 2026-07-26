@@ -1,3 +1,5 @@
+using System;
+
 namespace MoreMountains
 {
     /// <summary>
@@ -11,13 +13,16 @@ namespace MoreMountains
         public BallInstance Current { get; set; }
         public bool IsEmpty => Current == null;
 
-        public event System.Action<BallSlot> OnSlotChanged;
+        public event Action<BallSlot> OnSlotChanged;
 
-        public BallSlot(int index) { Index = index; }
+        public BallSlot(int index)
+        {
+            Index = index;
+        }
 
         public bool TrySet(BallInstance ball)
         {
-            if (!IsEmpty) 
+            if (!IsEmpty)
                 return false;
 
             Current = ball;
@@ -31,8 +36,12 @@ namespace MoreMountains
             var old = Current;
             Current = ball;
             OnSlotChanged?.Invoke(this);
-            if (old != null) BallEvents.RaiseUnequipped(old, Index);
-            if (ball != null) BallEvents.RaiseEquipped(ball, Index);
+            if (old != null)
+                BallEvents.RaiseUnequipped(old, Index);
+
+            if (ball != null)
+                BallEvents.RaiseEquipped(ball, Index);
+
             return true;
         }
 
@@ -41,7 +50,9 @@ namespace MoreMountains
             var old = Current;
             Current = null;
             OnSlotChanged?.Invoke(this);
-            if (old != null) BallEvents.RaiseUnequipped(old, Index);
+            if (old != null)
+                BallEvents.RaiseUnequipped(old, Index);
+
             return old;
         }
     }

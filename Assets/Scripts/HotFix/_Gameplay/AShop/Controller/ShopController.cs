@@ -1,5 +1,5 @@
+using System;
 using System.Collections.Generic;
-using static FrameBaseUtility;
 
 namespace MoreMountains
 {
@@ -9,31 +9,34 @@ namespace MoreMountains
     /// 玩家点 "下一步" 切到下一阶段；
     /// 售出 / 购买 / 重新随机都由 UI 调下面的方法。
     /// </summary>
-    public sealed class ShopController
+    public class ShopController
     {
-        readonly ShopRefreshService _refresh;
-        readonly List<BallOffer>  _ballOffers  = new();
-        readonly List<RelicOffer> _relicOffers = new();
+        ShopSystem shopSystem;
+        ShopRefreshService _refresh;
+        List<BallOffer> _ballOffers = new();
+        List<RelicOffer> _relicOffers = new();
 
         public ShopState State { get; private set; } = ShopState.Idle;
-        public IReadOnlyList<BallOffer>  BallOffers  => _ballOffers;
+        public IReadOnlyList<BallOffer> BallOffers => _ballOffers;
         public IReadOnlyList<RelicOffer> RelicOffers => _relicOffers;
 
         public ShopBoardKind CurrentBoardKind => State switch
         {
-            ShopState.ShowingBallBoard  => ShopBoardKind.Ball,
+            ShopState.ShowingBallBoard => ShopBoardKind.Ball,
             ShopState.ShowingRelicBoard => ShopBoardKind.Relic,
             _ => ShopBoardKind.Ball,
         };
 
-        public ShopController(ShopRefreshService refresh = null)
+        public ShopController(ShopSystem system, ShopRefreshService refresh = null)
         {
+            shopSystem = system;
             _refresh = refresh ?? new ShopRefreshService();
         }
 
         public void EnterShop()
         {
-            if (State != ShopState.Idle) ExitShopInternal(raiseClosed: false);
+            if (State != ShopState.Idle)
+                ExitShopInternal(raiseClosed: false);
 
             State = ShopState.ShowingBallBoard;
             ShopEvents.RaiseShopOpened();
@@ -43,7 +46,11 @@ namespace MoreMountains
         public void OpenBoard(ShopBoardKind kind)
         {
             var cfg = ShopSystemConfig.Instance;
-            if (cfg == null) { logError("ShopController: missing ShopSystemConfig"); return; }
+            if (cfg == null)
+            {
+                logError("ShopController: missing ShopSystemConfig");
+                return;
+            }
 
             if (kind == ShopBoardKind.Ball)
             {
@@ -64,43 +71,56 @@ namespace MoreMountains
         public bool OnPlayerClickReroll()
         {
             var cfg = ShopSystemConfig.Instance;
-            if (cfg == null) return false;
+            if (cfg == null)
+                return false;
 
-            int cost = 0;
+            int cost;
             if (State == ShopState.ShowingBallBoard)
             {
                 cost = cfg.BallBoardRerollCost;
-                if (!PlayerWallet.Instance.CanPay(cost)) { logWarning("金币不足以重新随机"); return false; }
-                PlayerWallet.Instance.Pay(cost, "shop_reroll_ball");
+                if (!shopSystem.Player.Wallet.CanPay(cost))
+                {
+                    logWarning("金币不足以重新随机");
+                    return false;
+                }
+
+                shopSystem.Player.loseGold(cost, PayType.BALL_REROLL);
                 _refresh.RerollBallOffers(_ballOffers, cfg.BallOfferCount, cfg.BallOfferPool);
                 ShopEvents.RaiseBoardRerolled(ShopBoardKind.Ball);
                 return true;
             }
+
             if (State == ShopState.ShowingRelicBoard)
             {
                 cost = cfg.RelicBoardRerollCost;
-                if (!PlayerWallet.Instance.CanPay(cost)) { logWarning("金币不足以重新随机"); return false; }
-                PlayerWallet.Instance.Pay(cost, "shop_reroll_relic");
+                if (!shopSystem.Player.Wallet.CanPay(cost))
+                {
+                    logWarning("金币不足以重新随机");
+                    return false;
+                }
+
+                shopSystem.Player.loseGold(cost, PayType.RELIC_REROLL);
                 _refresh.RerollRelicOffers(_relicOffers, cfg.RelicOfferCount, cfg.RelicOfferPool);
                 ShopEvents.RaiseBoardRerolled(ShopBoardKind.Relic);
                 return true;
             }
+
             return false;
         }
 
         public bool OnPlayerClickNext()
         {
-            if (State == ShopState.ShowingBallBoard)
+            switch (State)
             {
-                OpenBoard(ShopBoardKind.Relic);
-                return true;
+                case ShopState.ShowingBallBoard:
+                    OpenBoard(ShopBoardKind.Relic);
+                    return true;
+                case ShopState.ShowingRelicBoard:
+                    FinishShopAndNotify();
+                    return true;
+                default:
+                    return false;
             }
-            if (State == ShopState.ShowingRelicBoard)
-            {
-                FinishShopAndNotify();
-                return true;
-            }
-            return false;
         }
 
         public void FinishShopAndNotify()
@@ -116,26 +136,31 @@ namespace MoreMountains
             _ballOffers.Clear();
             _relicOffers.Clear();
             State = ShopState.Done;
-            if (raiseClosed) ShopEvents.RaiseShopClosed();
+            if (raiseClosed)
+                ShopEvents.RaiseShopClosed();
         }
 
         // ------------- 出售 -------------
 
         /// <summary>出售球 — 走球管理服务的 SellToShop 自身事务。</summary>
-        public int OnPlayerSellBall(BallInstance ball)
+        public int OnPlayerSellBall(APlayer p, BallInstance ball)
         {
-            if (BallManagementSystem.Instance == null) return 0;
-            int gold = BallManagementSystem.Instance.Shop.SellToShop(ball);
-            if (gold > 0) ShopEvents.RaiseSoldFromBag(ball);
+            int gold = p.BallManagement.Shop.SellToShop(ball);
+            if (gold > 0)
+                ShopEvents.RaiseSoldFromBag(ball);
             return gold;
         }
 
         public int OnPlayerSellRelic(RelicItem item)
         {
-            if (item == null) return 0;
+            if (item == null)
+                return 0;
+
             int gold = item.SellPrice;
-            if (InventorySystem.Instance != null) InventorySystem.Instance.RemoveRelic(item);
-            PlayerWallet.Instance.Earn(gold, "relic_sell");
+
+            shopSystem.Player.Inventory.RemoveRelic(item);
+
+            shopSystem.Player.gainGold(gold, EarnType.SELL_RELIC);
             ShopEvents.RaiseGoldEarned(gold, "relic_sell");
             ShopEvents.RaiseSoldFromBag(item);
             return gold;
@@ -151,7 +176,7 @@ namespace MoreMountains
     /// </summary>
     public static class WaveBridge
     {
-        public static System.Action OnShopPhaseFinished;
+        public static Action OnShopPhaseFinished;
 
         public static void RequestNextPhaseAfterShop()
         {

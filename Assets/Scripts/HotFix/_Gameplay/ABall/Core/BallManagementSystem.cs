@@ -10,10 +10,30 @@ namespace MoreMountains
     ///   • BallUpgradeService / BallMergeService / BallShopService
     /// 不直接持有 BallBag —— 球背包归 InventorySystem 拥有，本系统通过 IInventoryHolder 接口操作。
     /// </summary>
-    public sealed class BallManagementSystem : FrameSystem
+    public class BallManagementSystem : PlayerAbility
     {
-        public static BallManagementSystem Instance { get; private set; }
+        [Header("Slot")]
+        [Tooltip("发射槽位数（默认 3，可运行时扩容）")]
+        public int SlotCount = 3;
 
+        [Tooltip("扩容上限（防越界）")]
+        public int MaxSlotCount = 8;
+
+        [Header("Level & Upgrade")]
+        [Tooltip("球最大等级（默认 3）")]
+        public int DefaultMaxLevel = 3;
+
+        [Tooltip("升级 X 合 1（默认 2）")]
+        public int UpgradeCombineCount = 2;
+
+        [Tooltip("升级是否扣金币（默认 0）")]
+        public int UpgradeGoldCost;
+
+        [Header("Price")]
+        [Tooltip("出售时回收比例，百分数（默认 50%）")]
+        [Range(0, 100)]
+        public int SellRefundRate = 50;
+        
         BallSlotGroup _slots;
         BallUpgradeService _upgrade;
         BallMergeService _merge;
@@ -24,18 +44,15 @@ namespace MoreMountains
         public BallMergeService Merge => _merge;
         public BallShopService Shop => _shop;
 
-        public override void init()
+        protected override void Initialization()
         {
-            base.init();
-            Instance = this;
+            base.Initialization();
+            int slotCount = Mathf.Max(1, SlotCount);
+            _slots = new(slotCount);
 
-            var cfg = BallSystemConfig.Instance;
-            int slotCount = cfg != null ? Mathf.Max(1, cfg.SlotCount) : 3;
-            _slots = new BallSlotGroup(slotCount);
-
-            _upgrade = new BallUpgradeService(this);
-            _merge = new BallMergeService(this);
-            _shop = new BallShopService(this);
+            _upgrade = new(this);
+            _merge = new(this);
+            _shop = new(this);
 
             // 把当前对玩家生效的 holder 注册到定位器
             InventoryLocate.Clear();
@@ -46,12 +63,10 @@ namespace MoreMountains
             BallEvents.RaiseSystemReady();
         }
 
-        public override void willDestroy()
+        void OnDestroy()
         {
-            base.willDestroy();
             InventoryLocate.Unregister(_slots);
             BallEvents.RaiseSystemDestroy();
-            if (Instance == this) Instance = null;
             _slots = null;
         }
 
@@ -59,16 +74,16 @@ namespace MoreMountains
         // 这里用一次性的事件订阅，确保 BallBag 出现后能注册到定位器。
         void InventorySystemReadinessWaiter()
         {
-            if (InventorySystem.Instance != null && InventorySystem.Instance.BallBag != null)
+            if (_player.Inventory.BallBag != null)
             {
-                InventoryLocate.Register(InventorySystem.Instance.BallBag);
+                InventoryLocate.Register(_player.Inventory.BallBag);
                 return;
             }
 
             Action<InventorySystem> handler = null;
             handler = s =>
             {
-                if (s != null && s.BallBag != null)
+                if (s is { BallBag: not null })
                     InventoryLocate.Register(s.BallBag);
                 InventoryEvents.OnSystemReady -= handler;
             };
@@ -80,27 +95,33 @@ namespace MoreMountains
         /// <summary>把球装备到指定槽位。返回是否成功。</summary>
         public bool EquipBall(BallInstance ball, int slotIndex)
         {
-            if (ball == null || _slots == null) return false;
+            if (ball == null || _slots == null) 
+                return false;
+
             // 从背包里拿出（如果还在）
-            var bag = InventorySystem.Instance?.BallBag;
-            bag?.Remove(ball);
+            _player.Inventory.BallBag.Remove(ball);
             return _slots.TryPlaceAt(slotIndex, ball);
         }
 
         /// <summary>从槽位卸下球到球背包。返回是否成功。</summary>
         public bool UnequipBall(int slotIndex)
         {
-            if (_slots == null) return false;
-            if (InventorySystem.Instance == null || !InventorySystem.Instance.CanAddBall()) return false;
+            if (_slots == null) 
+                return false;
+
+            if (!_player.Inventory.CanAddBall()) 
+                return false;
+
             var ball = _slots.PullFrom(slotIndex);
-            return ball != null && InventorySystem.Instance.AddBall(ball);
+            return ball != null && _player.Inventory.AddBall(ball);
         }
 
         public bool ExpandSlots(int delta)
         {
-            if (_slots == null || delta <= 0) return false;
-            var cfg = BallSystemConfig.Instance;
-            int max = cfg != null ? cfg.MaxSlotCount : 8;
+            if (_slots == null || delta <= 0) 
+                return false;
+
+            int max = MaxSlotCount;
             int target = _slots.Capacity + delta;
             if (target > max)
             {

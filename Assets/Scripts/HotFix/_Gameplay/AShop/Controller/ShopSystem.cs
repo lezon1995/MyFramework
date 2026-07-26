@@ -1,6 +1,3 @@
-using UnityEngine;
-using static FrameBaseUtility;
-
 namespace MoreMountains
 {
     /// <summary>
@@ -8,27 +5,22 @@ namespace MoreMountains
     /// 让 WaveSystem 等通过 Instance 进入。
     /// 不在 init() 中自动开 Shop，它是被外部 EnterShop() 触发的。
     /// </summary>
-    public sealed class ShopSystem : FrameSystem
+    public sealed class ShopSystem : PlayerAbility
     {
-        public static ShopSystem Instance { get; private set; }
-
         ShopController _ctrl;
 
         public ShopController Controller => _ctrl;
 
-        public override void init()
+        protected override void Initialization()
         {
-            base.init();
-            Instance = this;
-            _ctrl = new ShopController();
+            base.Initialization();
+            _ctrl = new ShopController(this, null);
             ShopEvents.RaiseSystemReady();
         }
 
-        public override void willDestroy()
+        void OnDestroy()
         {
-            base.willDestroy();
             ShopEvents.RaiseSystemDestroy();
-            if (Instance == this) Instance = null;
             _ctrl = null;
         }
 
@@ -39,6 +31,7 @@ namespace MoreMountains
                 logError("ShopSystem: Controller not initialized");
                 return;
             }
+
             _ctrl.EnterShop();
         }
     }

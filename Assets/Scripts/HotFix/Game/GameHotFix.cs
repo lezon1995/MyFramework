@@ -28,7 +28,6 @@ public class GameHotFix : GameHotFixBase<GameHotFix>
         registeFrameSystem<LevelManager>(com => levelManager = com);
         registeFrameSystem<ComboManager>(com => comboManager = com);
         registeFrameSystem<FTextManager>(com => textManager = com);
-        registeFrameSystem<GameplayManager>(com => gameplayManager = com);
         registeFrameSystem<LocalizedStrings>(com => languagePack = com);
     }
     

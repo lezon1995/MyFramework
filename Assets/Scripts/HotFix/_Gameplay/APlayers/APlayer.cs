@@ -9,6 +9,12 @@ namespace MoreMountains
         public override bool isPlayer => true;
         public abstract PlayerClass chosenClass { get; }
 
+        public override int gold
+        {
+            get => wallet.Balance;
+            set => wallet.SetBalance(value);
+        }
+
         public bool isEndingTurn { get; set; }
         public bool viewingRelics;
         public int damagedThisCombat;
@@ -54,7 +60,8 @@ namespace MoreMountains
 
         public override void onRelease()
         {
-            _controller2D.UnregisterToVolumeManager();;
+            _controller2D.UnregisterToVolumeManager();
+            ;
             base.onRelease();
         }
 
@@ -196,8 +203,8 @@ namespace MoreMountains
         {
             base.OnFixedUpdate(dt);
         }
-        
-        
+
+
         public void decreaseMaxHealth(int amount)
         {
             if (amount < 0)
@@ -213,7 +220,7 @@ namespace MoreMountains
             // healthBarUpdatedEvent();
         }
 
-        public override void loseGold(int amount)
+        public override void loseGold(int amount, PayType type = PayType.DEFAULT)
         {
             if (room is ShopRoom)
             {
@@ -226,9 +233,7 @@ namespace MoreMountains
 
             if (amount > 0)
             {
-                gold -= amount;
-                if (gold < 0)
-                    gold = 0;
+                wallet.Pay(amount, type);
 
                 foreach (var relic in relics)
                     relic.onLoseGold();
@@ -239,7 +244,7 @@ namespace MoreMountains
             }
         }
 
-        public override void gainGold(int amount)
+        public override void gainGold(int amount, EarnType type = EarnType.DEFAULT)
         {
             if (tryGetRelic("Ectoplasm", out var ectoplasm))
             {
@@ -247,17 +252,17 @@ namespace MoreMountains
                 return;
             }
 
-            if (amount <= 0)
-            {
-                log("NEGATIVE MONEY???");
-            }
-            else
+            if (amount > 0)
             {
                 Game.goldGained += amount;
-                gold += amount;
+                wallet.Earn(amount, type);
 
                 foreach (var relic in relics)
                     relic.onGainGold();
+            }
+            else
+            {
+                log("NEGATIVE MONEY???");
             }
         }
 
@@ -560,7 +565,7 @@ namespace MoreMountains
         {
             foreach (var relic in relics)
                 relic.onBallBeginOverlappingBrickAll(this, ball, brick);
-        
+
             //log($"重叠All开始 start with {brick.getName()}");
         }
 
@@ -568,7 +573,7 @@ namespace MoreMountains
         {
             foreach (var relic in relics)
                 relic.onBallEndOverlappingBrickAll(this, ball, brick, prematurely);
-        
+
             //log($"重叠All结束 end with {brick.getName()}");
         }
 
@@ -576,17 +581,17 @@ namespace MoreMountains
         {
             foreach (var relic in relics)
                 relic.onBallBeginOverlappingBrickOne(this, ball, brick);
-        
+
             //log($"重叠One开始 start with {brick.getName()}");
         }
 
         public void onBallEndOverlappingBrickOne(Ball ball, Brick brick, bool prematurely)
         {
             ball.counters.penetrateBrick.count();
-        
+
             foreach (var relic in relics)
                 relic.onBallEndOverlappingBrickOne(this, ball, brick, prematurely);
-        
+
             //log($"重叠One结束 end with {brick.getName()}");
         }
 
@@ -595,17 +600,19 @@ namespace MoreMountains
             foreach (var relic in relics)
                 relic.onBallHitBorderBot(this, ball, border, normal, ref forceReturn);
         }
-    
+
         public void onBallHitBorderTop(Ball ball, BorderTop border, ref Vector2 normal)
         {
             foreach (var relic in relics)
                 relic.onBallHitBorderTop(this, ball, border, ref normal);
         }
+
         public void onBallHitBorderLeft(Ball ball, BorderLeft border, ref Vector2 normal)
         {
             foreach (var relic in relics)
                 relic.onBallHitBorderLeft(this, ball, border, ref normal);
         }
+
         public void onBallHitBorderRight(Ball ball, BorderRight border, ref Vector2 normal)
         {
             foreach (var relic in relics)
