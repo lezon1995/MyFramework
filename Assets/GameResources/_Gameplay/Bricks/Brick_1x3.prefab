@@ -432,6 +432,7 @@ GameObject:
   - component: {fileID: 6219702712390601374}
   - component: {fileID: 37874976414786145}
   - component: {fileID: 4496455035483760870}
+  - component: {fileID: -4426417214753657639}
   m_Layer: 7
   m_Name: Brick_1x3
   m_TagString: Block
@@ -684,6 +685,7 @@ MonoBehaviour:
     Type: 0
     ActualType: 0
     Algo: 0
+    MetaType: 0
     IsCrit: 0
     CritRate: 0
     DmgRate:
@@ -884,6 +886,29 @@ MonoBehaviour:
   Enabled: 1
   CollisionPriority: 1
   GizmosColor: {r: 0.3, g: 0.8, b: 0.3, a: 0.5}
+--- !u!114 &-4426417214753657639
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3237124602915234066}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f2751167f3ca2649934ca5b4fa4a4e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: HotFix::MoreMountains.BrickGridMover
+  InitializeOnAwake: 1
+  AbilityStartSfx: {fileID: 0}
+  AbilityInProgressSfx: {fileID: 0}
+  AbilityStopSfx: {fileID: 0}
+  AbilityStartFeedbacks: {fileID: 0}
+  AbilityStopFeedbacks: {fileID: 0}
+  AbilityPermitted: 1
+  BlockingMovementStates: 
+  BlockingConditionStates: 
+  BlockingWeaponStates: 
+  config: {fileID: 11400000, guid: 284bf958e4432c14398b3248bff6f5af, type: 2}
 --- !u!1 &3490370333130838258
 GameObject:
   m_ObjectHideFlags: 0

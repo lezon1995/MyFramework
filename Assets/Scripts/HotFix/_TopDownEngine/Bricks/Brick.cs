@@ -33,11 +33,17 @@ namespace MoreMountains
         protected override void OnEnable()
         {
             base.OnEnable();
+            // 砖块启用时, 刷新 mover anchor 让它从当前位置开始
+            if (TryGetComponent<BrickGridMover>(out var mover))
+                mover.RefreshAnchor();
         }
 
         protected override void OnDisable()
         {
             base.OnDisable();
+            // 砖块被回收/禁用时, 强制停止移动并释放锁
+            if (TryGetComponent<BrickGridMover>(out var mover))
+                mover.ForceStop();
         }
 
         public Rect getRect()

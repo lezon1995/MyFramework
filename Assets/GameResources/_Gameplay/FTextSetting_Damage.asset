@@ -18,7 +18,10 @@ MonoBehaviour:
   - {r: 1, g: 1, b: 1, a: 1}
   Icons: []
   MetaIcons:
-  - {fileID: 21300000, guid: be45a90f853145c4c837a73ac3e60720, type: 3}
+  - sprite: {fileID: 21300000, guid: be45a90f853145c4c837a73ac3e60720, type: 3}
+    color: {r: 1, g: 1, b: 1, a: 1}
+  - sprite: {fileID: 21300000, guid: 9baef6a05fb482941849b159b03c71fc, type: 3}
+    color: {r: 0.3, g: 1, b: 0.3, a: 1}
   ContentScale: 0.8
   StartSequenceDuration: 0.1
   StaticDuration: 0

@@ -246,7 +246,7 @@ namespace MoreMountains
         {
         }
 
-        public virtual void Tick(float dt)
+        public virtual void OnFixedUpdate(float dt)
         {
         }
         

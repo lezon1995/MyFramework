@@ -19,10 +19,12 @@ namespace MoreMountains
         public BrickRenderer brickRenderer;
         public VolumeCollider volumeCollider;
         Action<Brick> onBornCompleted;
+        APlayer player;
     
         public void setID(long id) => guid = id;
         public Type getType() => GetType();
         public long getGUID() => guid;
+        public APlayer getTargetPlayer() => player;
 
         public override void onAcquire()
         {
@@ -70,6 +72,11 @@ namespace MoreMountains
         public void setSortingOrder(int order)
         {
             brickRenderer.setSortingOrder(order);
+        }
+
+        public void setPlayerAsTarget(APlayer p)
+        {
+            player = p;
         }
     }
 }

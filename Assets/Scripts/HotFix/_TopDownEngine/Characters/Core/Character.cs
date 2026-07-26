@@ -579,8 +579,13 @@ namespace MoreMountains
         public override void OnFixedUpdate(float dt)
         {
             base.OnFixedUpdate(dt);
-            OnTickBefore(dt);
-            OnTick(dt);
+            CheckInCombatStatus(dt);
+            
+            // we process our abilities
+            // TickAbilitiesBefore();
+            FixedUpdateAbilities(dt);
+            FixedUpdateBuffs(dt);
+            // TickAbilitiesAfter();
         }
 
         /// <summary>
@@ -650,26 +655,11 @@ namespace MoreMountains
             }
         }
 
-
-        void OnTickBefore(float dt)
-        {
-            CheckInCombatStatus(dt);
-        }
-
-        void OnTick(float dt)
-        {
-            // we process our abilities
-            // TickAbilitiesBefore();
-            FixedUpdateAbilities(dt);
-            FixedUpdateBuffs(dt);
-            // TickAbilitiesAfter();
-        }
-
         protected virtual void FixedUpdateAbilities(float dt)
         {
             foreach (var ability in _characterAbilities)
                 if (ability.enabled && ability.AbilityInitialized)
-                    ability.Tick(dt);
+                    ability.OnFixedUpdate(dt);
         }
 
         protected virtual void FixedUpdateBuffs(float dt)

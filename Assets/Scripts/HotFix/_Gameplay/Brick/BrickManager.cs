@@ -36,6 +36,49 @@ public class BrickManager : FrameSystem
     /// <summary>所有当前被占用的 cell (与 _cellToBrick.Keys 等价, 单独缓存方便遍历).</summary>
     public IReadOnlyDictionary<Vector2Int, Brick> OccupiedCells => _cellToBrick;
 
+    /// <summary>
+    /// 网格 cell 锁（用于砖块移动过渡期间）。
+    /// 锁住一个 cell 后, 其它砖块的寻路会跳过该 cell; 移动开始时锁起点+终点,
+    /// 移动结束时解锁起点 (由 BrickGridMover/Controller 显式调用).
+    /// </summary>
+    protected HashSet<Vector2Int> _lockedCells = new();
+
+    /// <summary>当前已锁定的 cell 集合 (只读).</summary>
+    public IReadOnlyCollection<Vector2Int> LockedCells => _lockedCells;
+
+    /// <summary>判断 cell 是否被锁 (其它砖块不能作为目标位置).</summary>
+    public bool IsCellLocked(Vector2Int cell) => _lockedCells.Contains(cell);
+
+    /// <summary>批量判断 cell 列表是否全部未被锁.</summary>
+    public bool AreCellsLocked(List<Vector2Int> cells)
+    {
+        foreach (var c in cells)
+        {
+            if (_lockedCells.Contains(c))
+                return true;
+        }
+        return false;
+    }
+
+    /// <summary>锁住若干 cells. 重复锁不会抛错, 直接覆盖.</summary>
+    public void LockCells(List<Vector2Int> cells)
+    {
+        if (cells == null) return;
+        foreach (var c in cells)
+            _lockedCells.Add(c);
+    }
+
+    /// <summary>解锁若干 cells.</summary>
+    public void UnlockCells(List<Vector2Int> cells)
+    {
+        if (cells == null) return;
+        foreach (var c in cells)
+            _lockedCells.Remove(c);
+    }
+
+    /// <summary>清空所有 cell 锁 (场景切换 / 重置时).</summary>
+    public void ClearAllLocks() => _lockedCells.Clear();
+
     Action<Brick> onBrickBornCompleted;
 
     public BrickManager()
@@ -57,6 +100,7 @@ public class BrickManager : FrameSystem
         brickGUIDList = null;
         _cellToBrick.Clear();
         _brickToCells.Clear();
+        _lockedCells.Clear();
     }
 
     public override void update(float elapsedTime)
@@ -328,6 +372,23 @@ public class BrickManager : FrameSystem
         return _cellToBrick.ContainsKey(cell);
     }
 
+    /// <summary>给定 cell 是否被占用或被锁.</summary>
+    public bool IsCellAvailable(Vector2Int cell)
+    {
+        return !IsCellOccupied(cell) && !IsCellLocked(cell);
+    }
+
+    /// <summary>批量检查 cells 是否全部可用 (未占用、未锁).</summary>
+    public bool AreCellsAvailable(List<Vector2Int> cells)
+    {
+        foreach (var c in cells)
+        {
+            if (IsCellOccupied(c) || IsCellLocked(c))
+                return false;
+        }
+        return true;
+    }
+
     /// <summary>给定 cell 是否空闲.</summary>
     public bool IsCellEmpty(Vector2Int cell)
     {
@@ -474,6 +535,7 @@ public class BrickManager : FrameSystem
         brick.setSize(size);
         brick.setID(id);
         brick.setOnBornCompleted(onBrickBornCompleted);
+        brick.setPlayerAsTarget(player);
 
         brick.Event.addListener<OnBrickDeath>(this);
         brick.Event.addListener<OnBrickDeathTotally>(this);
@@ -513,6 +575,7 @@ public class BrickManager : FrameSystem
     {
         brickTypeList.Clear();
         _cellToBrick.Clear();
+        _lockedCells.Clear();
 
         foreach (var (key, list) in _brickToCells)
             ListPool<Vector2Int>.Release(list);
