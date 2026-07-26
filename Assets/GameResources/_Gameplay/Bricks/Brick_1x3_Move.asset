@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Brick_1x3_Move
   m_EditorClassIdentifier: HotFix::MoreMountains.BrickGridMoveConfig
   allowedDirections: 3
-  moveInterval: 1
+  moveInterval: 2
   moveDuration: 0.5
   unlockStartOnArrive: 1
   chaseRadius: 8
