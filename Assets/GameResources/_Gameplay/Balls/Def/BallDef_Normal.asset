@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1b7b319e83f926f47ba4d3b6008e31a6, type: 3}
   m_Name: BallDef_Normal
   m_EditorClassIdentifier: HotFix::MoreMountains.BallDef
-  Type: 1
+  Type: 10000
   DisplayName: "\u666E\u901A\u7403"
   BasePrice: 2
   MaxLevel: 3

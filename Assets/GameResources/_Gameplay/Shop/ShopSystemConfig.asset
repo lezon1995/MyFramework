@@ -16,5 +16,14 @@ MonoBehaviour:
   RelicOfferCount: 5
   BallBoardRerollCost: 2
   RelicBoardRerollCost: 1
-  BallOfferPool: []
-  RelicOfferPool: []
+  BallOfferPool:
+  - {fileID: 11400000, guid: bd12c102cd2546b41b31e0e0870e2127, type: 2}
+  - {fileID: 11400000, guid: 983e70f7d43506c45b81287540350a07, type: 2}
+  - {fileID: 11400000, guid: a107ebc4e0003de40a444f330465073f, type: 2}
+  - {fileID: 11400000, guid: 5d1fde88abc94a1469affa200df55b79, type: 2}
+  - {fileID: 11400000, guid: bbe245932a49ab542a488e01175f33ab, type: 2}
+  - {fileID: 11400000, guid: dca726981b8ff03439f7f5b738e288bc, type: 2}
+  - {fileID: 11400000, guid: a644cabf7825d5e4db76a6de151a89ca, type: 2}
+  - {fileID: 11400000, guid: fe8c016fa4e799949a30ae1831251943, type: 2}
+  RelicOfferPool:
+  - {fileID: 11400000, guid: 0ad612f0642e6a14b80ea673a8af00e3, type: 2}

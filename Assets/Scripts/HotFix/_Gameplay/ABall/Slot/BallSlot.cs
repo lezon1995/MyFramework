@@ -10,7 +10,7 @@ namespace MoreMountains
     public sealed class BallSlot
     {
         public int Index { get; }
-        public BallInstance Current { get; set; }
+        public BallItem Current { get; set; }
         public bool IsEmpty => Current == null;
 
         public event Action<BallSlot> OnSlotChanged;
@@ -20,7 +20,7 @@ namespace MoreMountains
             Index = index;
         }
 
-        public bool TrySet(BallInstance ball)
+        public bool TrySet(BallItem ball)
         {
             if (!IsEmpty)
                 return false;
@@ -31,7 +31,7 @@ namespace MoreMountains
             return true;
         }
 
-        public bool Replace(BallInstance ball)
+        public bool Replace(BallItem ball)
         {
             var old = Current;
             Current = ball;
@@ -45,7 +45,7 @@ namespace MoreMountains
             return true;
         }
 
-        public BallInstance Clear()
+        public BallItem Clear()
         {
             var old = Current;
             Current = null;

@@ -59,7 +59,7 @@ namespace MoreMountains
         public bool CanAddBall() => _ballBag != null && _ballBag.CanAdd();
         public bool CanAddRelic() => _relicBag != null && _relicBag.CanAdd();
 
-        public bool AddBall(BallInstance ball)
+        public bool AddBall(BallItem ball)
         {
             if (_ballBag == null || ball == null) 
                 return false;
@@ -94,7 +94,7 @@ namespace MoreMountains
         public void ExpandBallBag(int delta) => _ballBag?.Expand(delta);
         public void ExpandRelicBag(int delta) => _relicBag?.Expand(delta);
 
-        public void RemoveBall(BallInstance b) => _ballBag?.Remove(b);
+        public void RemoveBall(BallItem b) => _ballBag?.Remove(b);
         public void RemoveRelic(RelicItem r) => _relicBag?.Remove(r);
     }
 }

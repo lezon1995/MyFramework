@@ -34,7 +34,7 @@ namespace MoreMountains
         /// materials：参与合成的材料球（不含 representative，N - 1 个）。
         /// 如果调用方不区分代表球与材料，可以把所有 N 个球全放 materials，由服务自动选出第一个作为代表。
         /// </summary>
-        public BallInstance TryUpgrade(IReadOnlyList<BallInstance> candidates, out BallUpgradeInvalidReason reason)
+        public BallItem TryUpgrade(IReadOnlyList<BallItem> candidates, out BallUpgradeInvalidReason reason)
         {
             reason = BallUpgradeInvalidReason.None;
             if (candidates == null || candidates.Count == 0)
@@ -44,7 +44,7 @@ namespace MoreMountains
             }
 
             // representative = 第一个非空元素
-            BallInstance representative = null;
+            BallItem representative = null;
             for (int i = 0; i < candidates.Count; i++)
             {
                 if (candidates[i] != null)
@@ -135,7 +135,7 @@ namespace MoreMountains
             }
 
             // 创建升级产物
-            var upgraded = BallInstance.CreateNew(def, targetLevel);
+            var upgraded = BallItem.CreateNew(def, targetLevel);
 
             // 插入：优先精确放回 representative 原本所在的精确位置（仅 BallSlotGroup 支持）；
             // 其它实现走 TryInsert 默认行为。
@@ -159,13 +159,13 @@ namespace MoreMountains
             return upgraded;
         }
 
-        BallInstance Fail(BallInstance b, string why)
+        BallItem Fail(BallItem b, string why)
         {
             logWarning($"BallUpgradeService: invalid ({why}) on def {b?.Type} lv {b?.Level}");
             return null;
         }
 
-        BallInstance Fail(string why)
+        BallItem Fail(string why)
         {
             logWarning($"BallUpgradeService: invalid ({why})");
             return null;

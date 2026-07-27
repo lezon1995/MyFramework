@@ -1,12 +1,12 @@
 namespace MoreMountains
 {
     /// <summary>出售背包里的球。</summary>
-    public sealed class SellBallAction : InstantShopAction, IArgs<BallInstance, APlayer>
+    public sealed class SellBallAction : InstantShopAction, IArgs<BallItem, APlayer>
     {
         APlayer _player;
-        BallInstance _ball;
+        BallItem _ball;
 
-        public void onCreate(BallInstance b, APlayer p)
+        public void onCreate(BallItem b, APlayer p)
         {
             _ball = b;
             _player = p;

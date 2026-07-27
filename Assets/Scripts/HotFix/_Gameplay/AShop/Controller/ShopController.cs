@@ -143,7 +143,7 @@ namespace MoreMountains
         // ------------- 出售 -------------
 
         /// <summary>出售球 — 走球管理服务的 SellToShop 自身事务。</summary>
-        public int OnPlayerSellBall(APlayer p, BallInstance ball)
+        public int OnPlayerSellBall(APlayer p, BallItem ball)
         {
             int gold = p.BallManagement.Shop.SellToShop(ball);
             if (gold > 0)

@@ -56,7 +56,7 @@ public class MainSceneGaming : SceneProcedure
 
         if (isKeyCurrentDown(KeyCode.R))
         {
-            foreach (var (_, ball) in ballManager.activeBalls)
+            foreach (var ball in ballManager.activeBalls)
             {
                 player.recollectBall(ball);
             }

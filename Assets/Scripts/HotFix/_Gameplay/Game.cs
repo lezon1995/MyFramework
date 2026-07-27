@@ -940,7 +940,7 @@ namespace MoreMountains
                     return;
 
                 foreach (AMonster m in ADungeon.getMonsters().monsters)
-                    m.damage(new DamageInfo(ADungeon.player, m.currentHealth, DamageInfo.DamageType.HP_LOSS));
+                    m.damage(new DamageInfo(player, m.currentHealth, DamageInfo.DamageType.HP_LOSS));
 
                 return;
             }

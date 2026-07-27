@@ -93,7 +93,7 @@ namespace MoreMountains
         // -------- 便利 API（供外部 Command / Action 直接调） --------
 
         /// <summary>把球装备到指定槽位。返回是否成功。</summary>
-        public bool EquipBall(BallInstance ball, int slotIndex)
+        public bool EquipBall(BallItem ball, int slotIndex)
         {
             if (ball == null || _slots == null) 
                 return false;

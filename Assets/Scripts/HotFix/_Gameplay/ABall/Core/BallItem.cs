@@ -11,7 +11,7 @@ namespace MoreMountains
     /// 两者之一存在（不可同时持有同一颗）。
     /// </summary>
     [Serializable]
-    public sealed class BallInstance : IInventoryItem, IEquatable<BallInstance>
+    public class BallItem : IInventoryItem, IEquatable<BallItem>
     {
         public BallType Type;
         public int Level; // 1..MaxLevel
@@ -37,14 +37,14 @@ namespace MoreMountains
 
         int IInventoryItem.ItemId => Def.BallDefId;
 
-        public BallInstance(BallType type, int level)
+        public BallItem(BallType type, int level)
         {
             Type = type;
             Level = Math.Max(1, level);
             Uid = Guid.NewGuid();
         }
 
-        public BallInstance(BallDef def, int level)
+        public BallItem(BallDef def, int level)
         {
             Def = def;
             Type = def.Type;
@@ -53,18 +53,18 @@ namespace MoreMountains
         }
 
         /// <summary>工厂方法。系统内部创建都用它。</summary>
-        public static BallInstance CreateNew(BallType type, int level)
+        public static BallItem CreateNew(BallType type, int level)
         {
             return new(type, level);
         }
 
-        public static BallInstance CreateNew(BallDef def, int level)
+        public static BallItem CreateNew(BallDef def, int level)
         {
             return new(def, level);
         }
 
-        public bool Equals(BallInstance other) => other != null && Uid.Equals(other.Uid);
-        public override bool Equals(object obj) => obj is BallInstance other && Equals(other);
+        public bool Equals(BallItem other) => other != null && Uid.Equals(other.Uid);
+        public override bool Equals(object obj) => obj is BallItem other && Equals(other);
         public override int GetHashCode() => Uid.GetHashCode();
         public override string ToString() => $"{DisplayName} [{Uid:N}]";
     }

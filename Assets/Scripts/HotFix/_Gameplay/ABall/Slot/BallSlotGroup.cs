@@ -8,7 +8,7 @@ namespace MoreMountains
     /// 默认 3 个，可运行时扩容（接口 Expand()）。
     /// 实现 IInventoryHolder：升级 / 融合流程不感知它，只看到接口。
     /// </summary>
-    public sealed class BallSlotGroup : IInventoryHolder<BallInstance>
+    public sealed class BallSlotGroup : IInventoryHolder<BallItem>
     {
         List<BallSlot> _slots;
 
@@ -61,7 +61,7 @@ namespace MoreMountains
         }
 
         /// <summary>尝试把球装备到指定槽位。占用中或越界返回 false。</summary>
-        public bool TryPlaceAt(int slotIndex, BallInstance ball)
+        public bool TryPlaceAt(int slotIndex, BallItem ball)
         {
             var slot = GetSlot(slotIndex);
             if (slot == null)
@@ -75,7 +75,7 @@ namespace MoreMountains
         }
 
         /// <summary>装备到第一个空槽位。返回 -1 表示失败。</summary>
-        public bool TryPlaceFirstEmpty(BallInstance ball, out int index)
+        public bool TryPlaceFirstEmpty(BallItem ball, out int index)
         {
             if (FindEmptySlotIndex(out index))
             {
@@ -87,7 +87,7 @@ namespace MoreMountains
             return false;
         }
 
-        public BallInstance PullFrom(int slotIndex)
+        public BallItem PullFrom(int slotIndex)
         {
             var slot = GetSlot(slotIndex);
             if (slot == null)
@@ -127,7 +127,7 @@ namespace MoreMountains
         }
 
         /// <summary>替换指定索引位置的球。会触发 BallSlot 的 OnSlotChanged 与相应的 Equipped/Unequipped 事件。</summary>
-        public bool ReplaceAt(int slotIndex, BallInstance ball)
+        public bool ReplaceAt(int slotIndex, BallItem ball)
         {
             var slot = GetSlot(slotIndex);
             if (slot == null)
@@ -138,7 +138,7 @@ namespace MoreMountains
             return true;
         }
 
-        public BallInstance FindBall(BallInstance ball)
+        public BallItem FindBall(BallItem ball)
         {
             if (ball == null)
                 return null;
@@ -167,7 +167,7 @@ namespace MoreMountains
 
         // -------- IInventoryHolder --------
 
-        public bool TryRemoveByInstance(BallInstance item)
+        public bool TryRemoveByInstance(BallItem item)
         {
             for (int i = 0; i < _slots.Count; i++)
             {
@@ -182,12 +182,12 @@ namespace MoreMountains
             return false;
         }
 
-        public bool TryInsert(BallInstance item)
+        public bool TryInsert(BallItem item)
         {
             return TryPlaceFirstEmpty(item, out _);
         }
 
-        public bool FindIndex(BallInstance item, out int index)
+        public bool FindIndex(BallItem item, out int index)
         {
             for (int i = 0; i < _slots.Count; i++)
             {

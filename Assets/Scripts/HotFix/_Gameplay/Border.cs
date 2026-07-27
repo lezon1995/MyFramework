@@ -43,15 +43,13 @@ public class Border : MovableObject
 
     protected void onTriggerEnter(Collider c)
     {
-        int instanceID = c.gameObject.GetInstanceID();
-        if (ballManager.getActiveBall(instanceID, out var ball))
+        if (c.TryGetComponent(out Ball ball))
             onBallEnter(ball);
     }
 
     protected void onTriggerExit(Collider c)
     {
-        int instanceID = c.gameObject.GetInstanceID();
-        if (ballManager.getActiveBall(instanceID, out var ball))
+        if (c.TryGetComponent(out Ball ball))
             onBallExit(ball);
     }
 

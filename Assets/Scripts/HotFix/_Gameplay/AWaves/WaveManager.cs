@@ -755,7 +755,7 @@ namespace MoreMountains
 
         public void RecollectAllBalls()
         {
-            foreach (var (_, ball) in ballManager.activeBalls)
+            foreach (var ball in ballManager.activeBalls)
             {
                 player.recollectBall(ball);
             }

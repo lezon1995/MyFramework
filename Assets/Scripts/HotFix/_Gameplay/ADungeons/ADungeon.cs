@@ -41,7 +41,6 @@ namespace MoreMountains
         public static string id;
         public static int floorNum;
         public static int actNum;
-        public static APlayer player { get; set; }
         public static List<AUnlock> unlocks = new();
         public static bool turnPhaseEffectActive;
         protected static float shrineChance = 0.25F;
@@ -75,7 +74,6 @@ namespace MoreMountains
             _dungeon = this;
             id = levelId;
             name = _name;
-            player = p;
             ascensionCheck = UnlockTracker.isAscensionUnlocked(p);
             _dungeon = this;
             // topPanel.setPlayerName();
@@ -100,7 +98,6 @@ namespace MoreMountains
             _dungeon = this;
             id = saveFile.level_name;
             name = _name;
-            player = p;
             ascensionCheck = UnlockTracker.isAscensionUnlocked(p);
             // topPanel.setPlayerName();
             actionManager = new();

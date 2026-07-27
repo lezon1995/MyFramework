@@ -89,7 +89,7 @@ public partial class MainMenuScreen
     {
         base.onCreate();
         Game.publisherIntegration.setRichPresenceDisplayInMenu();
-        ADungeon.player = null;
+        player = null;
         if (Settings.isDemo && Settings.isShowBuild)
             TipTracker.reset();
 

@@ -9,8 +9,8 @@ namespace MoreMountains
     public static class InventoryEvents
     {
         // BallBag
-        public static event Action<BallInstance> OnBallAdded;
-        public static event Action<BallInstance> OnBallRemoved;
+        public static event Action<BallItem> OnBallAdded;
+        public static event Action<BallItem> OnBallRemoved;
         public static event Action OnBallBagChanged;
 
         // RelicBag
@@ -23,13 +23,13 @@ namespace MoreMountains
         public static event Action<InventorySystem> OnSystemDestroy;
 
         // ---- 内部分发 ----
-        internal static void RaiseBallAdded(BallInstance b)
+        internal static void RaiseBallAdded(BallItem b)
         {
             OnBallAdded?.Invoke(b);
             OnBallBagChanged?.Invoke();
         }
 
-        internal static void RaiseBallRemoved(BallInstance b)
+        internal static void RaiseBallRemoved(BallItem b)
         {
             OnBallRemoved?.Invoke(b);
             OnBallBagChanged?.Invoke();
