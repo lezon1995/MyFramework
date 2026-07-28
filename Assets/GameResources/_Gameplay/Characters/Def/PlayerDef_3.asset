@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c38faa9077db4bc9adc6fb6216ef928e, type: 3}
+  m_Name: PlayerDef_3
+  m_EditorClassIdentifier: HotFix::MoreMountains.PlayerDef
+  Type: 2
+  DisplayName: "\u7F3A\u9677\u4F53 3"
+  DisplayStats: Test Stats 3
+  DisplayDesc: Test Desc 3
+  Icon: {fileID: 21300000, guid: 78227e85b02799442b418c444d47ebea, type: 3}

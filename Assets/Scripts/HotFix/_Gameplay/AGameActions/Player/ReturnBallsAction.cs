@@ -17,7 +17,7 @@ namespace MoreMountains
             duration = DURATION;
             curve = mKeyFrameManager.getKeyFrame(KEY_CURVE.CUBIC_OUT);
             ballStartPos.Clear();
-            foreach (var ball in player.activeBalls)
+            foreach (var ball in player.BallManagement.Instance.getActiveBalls())
             {
                 ball.setEnabled(false);
                 ballStartPos[ball.instanceID] = ball.getWorldPosition();
@@ -51,7 +51,7 @@ namespace MoreMountains
             tickDuration(dt);
 
             var t = curve.evaluate(duration.pct);
-            foreach (var ball in player.activeBalls)
+            foreach (var ball in player.BallManagement.Instance.getActiveBalls())
             {
                 var startPos = ballStartPos[ball.instanceID];
                 var curPos = lerp(startPos, targetPosition, t);
@@ -60,13 +60,14 @@ namespace MoreMountains
 
             if (isDone)
             {
-                foreach (var ball in player.activeBalls)
+                using var _ = new ListScope<Ball>(out var list);
+                list.AddRange(player.BallManagement.Instance.getActiveBalls());
+                foreach (var ball in list)
                 {
                     ball.setWorldPosition(targetPosition);
-                    ballManager.releaseBall(ball);
+                    player.BallManagement.Instance.enqueueBallToShootQueue(ball);
                 }
 
-                player.activeBalls.Clear();
                 player.setOriginalShootPositionX(targetPosition.x);
             }
         }

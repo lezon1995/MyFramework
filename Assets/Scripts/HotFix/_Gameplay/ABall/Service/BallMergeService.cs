@@ -103,7 +103,7 @@ namespace MoreMountains
             BallEvents.RaiseDestroyed(b);
 
             // 创建融合球，Lv.1
-            var merged = BallItem.CreateNew(BallType.NONE, level: 1);
+            var merged = BallItem.New(ballManager.getDef(BallType.Normal), level: 1);
             if (!holderA.TryInsert(merged))
                 logError($"BallMergeService: failed to insert merged ball into {holderA.Name}");
 

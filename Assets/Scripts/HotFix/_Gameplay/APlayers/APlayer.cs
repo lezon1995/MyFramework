@@ -642,5 +642,10 @@ namespace MoreMountains
             foreach (var relic in relics)
                 relic.onBallKillBrick(this, ball, brick);
         }
+
+        public bool equalWith(APlayer other)
+        {
+            return this ==  other;
+        }
     }
 }

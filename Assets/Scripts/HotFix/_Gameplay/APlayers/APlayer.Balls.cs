@@ -11,7 +11,6 @@ namespace MoreMountains
         public int ballMaxCount = 1;
         public int ballCount = 1;
 
-        public List<Ball> activeBalls = new();
         public Vector3 originalShootPosition, shootPosition;
         public bool isFirstBallReturn;
         public int toClaimRewardCount;
@@ -110,18 +109,16 @@ namespace MoreMountains
             {
                 isFirstBallReturn = true;
                 setOriginalShootPositionX(ball.getWorldPosition().x);
-                activeBalls.Remove(ball);
-                ballManager.releaseBall(ball);
+                BallManagement.Instance.enqueueBallToShootQueue(ball);
                 return;
             }
 
             ball.setEnabled(false);
-            activeBalls.Remove(ball);
             Tween
                 .Position(ball.getTransform(), endValue: shootPosition, duration: 0.15F, ease: Ease.OutCubic)
                 .OnComplete(ball, b =>
                 {
-                    ballManager.releaseBall(b);
+                    BallManagement.Instance.enqueueBallToShootQueue(b);
                 });
 
             return;

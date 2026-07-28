@@ -39,7 +39,13 @@ namespace MoreMountains
             if (!BallLayerMask.MMContains(other.gameObject.layer))
                 return;
             
-            if (other.TryGetComponent(out Ball ball) && capturedBalls.contains(ball))
+            if (!other.TryGetComponent(out Ball ball))
+                return;
+
+            if (!ball.Player.equalWith(_player))
+                return;
+
+            if (capturedBalls.contains(ball))
             {
                 // Debug.LogError("已经捕获的球不再捕获");
                 return;
@@ -56,8 +62,14 @@ namespace MoreMountains
         {
             if (!BallLayerMask.MMContains(other.gameObject.layer))
                 return;
+            
+            if (!other.TryGetComponent(out Ball ball))
+                return;
+            
+            if (!ball.Player.equalWith(_player))
+                return;
 
-            if (other.TryGetComponent(out Ball ball) && ball.inUse)
+            if (ball.inUse)
             {
                 if (capturedBalls.contains(ball))
                 {
@@ -196,10 +208,15 @@ namespace MoreMountains
         /// <summary>坠毁回调，可被子类重写。</summary>
         protected virtual void OnCrash(Ball ball)
         {
-            ballManager.releaseBall(ball);
+            _player.BallManagement.Instance.enqueueBallToShootQueue(ball);
             foreach (var h in _handleWeaponList)
             {
                 h.CurrentWeapon.CurrentAmmoLoaded++;
+            }
+            
+            if (_testWeapon)
+            {
+                _testWeapon.CurrentAmmoLoaded++;
             }
         }
     }

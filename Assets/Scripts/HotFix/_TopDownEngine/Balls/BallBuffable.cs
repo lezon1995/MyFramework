@@ -7,8 +7,8 @@ namespace MoreMountains
     public class BallBuffable : Buffable
     {
         Ball ball;
-        public override Character Character => ball.character;
-        public override IEventRouter Event => ball.character.Event;
+        public override Character Character => ball.Player;
+        public override IEventRouter Event => ball.Player.Event;
 
         protected override void Awake()
         {

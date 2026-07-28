@@ -62,7 +62,7 @@ public class ElectricityStrikeEffect : ALogicEffect, IArgs<Ball, Brick, int>
                 if (brick)
                 {
                     var dmg = ball.getSkillDmg(brick);
-                    brick.Health.Damage(ref dmg, ball.gameObject, ball.character);
+                    brick.Health.Damage(ref dmg, ball.gameObject, ball.Player);
                     brick = null;
                 }
 
@@ -78,7 +78,7 @@ public class ElectricityStrikeEffect : ALogicEffect, IArgs<Ball, Brick, int>
                     //Generate lightnings once, based on your configuration
                     bolt.FireOnce();
                     var dmg = ball.getSkillDmg(b);
-                    b.Health.Damage(ref dmg, ball.gameObject, ball.character);
+                    b.Health.Damage(ref dmg, ball.gameObject, ball.Player);
 
                     sound.play(SoundDefine.ELECTRICITY_STRIKE);
                 }

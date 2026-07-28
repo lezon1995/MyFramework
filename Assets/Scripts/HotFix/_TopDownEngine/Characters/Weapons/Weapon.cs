@@ -468,7 +468,7 @@ namespace MoreMountains
         /// Sets the weapon's owner
         /// </summary>
         /// <param name="owner">New owner.</param>
-        public void SetOwner(Character owner, CharacterHandleWeapon handleWeapon = null)
+        public virtual void SetOwner(Character owner, CharacterHandleWeapon handleWeapon = null)
         {
             Owner = owner;
             OwnerStats = owner.Stats;

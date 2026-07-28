@@ -17,7 +17,7 @@ namespace MoreMountains
             DmgRate,
         }
 
-        public Character character;
+        public APlayer Player { get; set; }
 
         public CircleCollider2D circleCollider
         {
@@ -92,17 +92,20 @@ namespace MoreMountains
         public override void SetOwner(Character newOwner)
         {
             base.SetOwner(newOwner);
-            newOwner.TryGetComponent(out character);
+            if (newOwner.TryGetComponent(out APlayer p))
+            {
+                Player = p;
+            }
         }
 
         public void SetColliderEnabled(bool v)
         {
             _collider2D.enabled = v;
         }
-        
-        public void SetCharacter(Character c)
+
+        public void SetPlayer(APlayer c)
         {
-            character = c;
+            Player = c;
         }
 
         protected override void Initialization()
@@ -121,7 +124,7 @@ namespace MoreMountains
                 if (ballMS)
                     speed = ballMS.Value;
 
-                var globalMS = character.GetStat(Character.Stat.BallisticSpeed);
+                var globalMS = Player.GetStat(Character.Stat.BallisticSpeed);
                 if (globalMS)
                     speed *= globalMS.Value;
 

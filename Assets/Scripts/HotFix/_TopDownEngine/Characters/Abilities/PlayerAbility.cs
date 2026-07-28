@@ -5,6 +5,8 @@
         protected APlayer _player;
         public APlayer Player => _player;
 
+        protected BallTestWeapon _testWeapon;
+
         protected override void Initialization()
         {
             base.Initialization();

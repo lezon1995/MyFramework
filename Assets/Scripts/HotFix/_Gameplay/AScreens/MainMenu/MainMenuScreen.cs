@@ -584,7 +584,7 @@ public partial class MainMenuScreen
         Game.mainMenuScreen.hideMenuButtons();
         Game.mainMenuScreen.darken();
         Game.loadingSave = true;
-        Game.chosenCharacter = Game.characterManager.loadChosenCharacter();
+        Game.chosenCharacter = characterManager.loadChosenCharacter();
         Game.mainMenuScreen.fadeOut();
         Game.mainMenuScreen.fadeOutMusic();
         Settings.isDailyRun = false;

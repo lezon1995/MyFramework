@@ -1,0 +1,53 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &7316678774203590550
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 574209240532013209}
+  - component: {fileID: 2707768007556450459}
+  m_Layer: 0
+  m_Name: CharacterManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &574209240532013209
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7316678774203590550}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2707768007556450459
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7316678774203590550}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d05b854f196d40eea2e6dc12264e74f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: HotFix::MoreMountains.CharacterManager
+  mNeedUpdate: 1
+  mNeedFixedUpdate: 1
+  Defs:
+  - {fileID: 11400000, guid: c7ccb88cd5f541044bc28d0fa8b87291, type: 2}
+  - {fileID: 11400000, guid: 433474dddcf9c5741bed97cea3ecdc15, type: 2}
+  - {fileID: 11400000, guid: f214ef1f812361a4dbe600977031fe35, type: 2}
+  - {fileID: 11400000, guid: 6e0f09cb90028b248acc07d0e150ea45, type: 2}

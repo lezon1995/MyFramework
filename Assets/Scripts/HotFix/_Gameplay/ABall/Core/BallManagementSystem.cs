@@ -35,11 +35,13 @@ namespace MoreMountains
         public int SellRefundRate = 50;
         
         BallSlotGroup _slots;
+        BallInstanceService _instance;
         BallUpgradeService _upgrade;
         BallMergeService _merge;
         BallShopService _shop;
 
         public BallSlotGroup Slots => _slots;
+        public BallInstanceService Instance => _instance;
         public BallUpgradeService Upgrade => _upgrade;
         public BallMergeService Merge => _merge;
         public BallShopService Shop => _shop;
@@ -49,7 +51,7 @@ namespace MoreMountains
             base.Initialization();
             int slotCount = Mathf.Max(1, SlotCount);
             _slots = new(slotCount);
-
+            _instance = new(this);
             _upgrade = new(this);
             _merge = new(this);
             _shop = new(this);
@@ -92,6 +94,16 @@ namespace MoreMountains
 
         // -------- 便利 API（供外部 Command / Action 直接调） --------
 
+        public bool EquipBall(BallItem ball)
+        {
+            if (ball == null || _slots == null) 
+                return false;
+
+            // 从背包里拿出（如果还在）
+            _player.Inventory.BallBag.Remove(ball);
+            return _slots.TryPlaceFirstEmpty(ball, out var index);
+        }
+        
         /// <summary>把球装备到指定槽位。返回是否成功。</summary>
         public bool EquipBall(BallItem ball, int slotIndex)
         {

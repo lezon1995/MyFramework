@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 #if UNITY_EDITOR
@@ -17,7 +16,7 @@ namespace MoreMountains
     /// </summary>
     [DisallowMultipleComponent]
     [ExecuteAlways]
-    public class GridManager : MonoBehaviour
+    public class GridManager : MainManagerBehaviour
     {
         [Header("Settings (可选: 拖入 ScriptableObject 配置)")]
         [Tooltip("可选. 若提供, 将由它定义网格参数 (覆盖下方内联参数).")]
@@ -61,10 +60,6 @@ namespace MoreMountains
 
         GridDefinition _cachedDefinition;
         bool _cacheDirty = true;
-
-        void Awake()
-        {
-        }
 
         void InvalidateCache() => _cacheDirty = true;
 

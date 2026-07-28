@@ -119,7 +119,7 @@ public partial class MainMenuScreen : LayoutScript
         addButton(MainMenuType.QUIT);
         addButton(MainMenuType.PATCH_NOTES);
 
-        setShowPlayButton(!Game.characterManager.anySaveFileExists());
+        setShowPlayButton(!characterManager.anySaveFileExists());
         setShowStatAndInfoButton(!Settings.isShowBuild /* && statsScreen.statScreenUnlocked()*/);
         setShowQuitAndPatchButton(!Settings.isMobile && !Settings.isConsoleBuild);
     }

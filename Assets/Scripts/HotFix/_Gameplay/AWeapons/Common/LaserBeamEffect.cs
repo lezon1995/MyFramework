@@ -37,7 +37,7 @@ public class LaserBeamEffect : ALogicEffect, IArgs<Ball, Brick, float>
             if (hits[i].collider.TryGetComponent(out Brick b))
             {
                 var dmg = ball.getSkillDmg(b);
-                b.Health.Damage(ref dmg, ball.gameObject, ball.character);
+                b.Health.Damage(ref dmg, ball.gameObject, ball.Player);
             }
         }
     }

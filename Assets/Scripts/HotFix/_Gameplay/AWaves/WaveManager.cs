@@ -753,11 +753,11 @@ namespace MoreMountains
             // Debug.Log("[WaveManager] Clearing map drops...");
         }
 
-        public void RecollectAllBalls()
+        public void RecollectAllBalls(APlayer p)
         {
-            foreach (var ball in ballManager.activeBalls)
+            foreach (var ball in p.BallManagement.Instance.getActiveBalls())
             {
-                player.recollectBall(ball);
+                p.recollectBall(ball);
             }
         }
 
@@ -1443,7 +1443,7 @@ namespace MoreMountains
         {
             SetState(WaveState.Clearing);
 
-            RecollectAllBalls();
+            RecollectAllBalls(player);
             // 清理地图掉落物
             ClearMapDrops();
 

@@ -25,7 +25,7 @@ namespace MoreMountains
             if (def == null) 
                 return null;
 
-            var ball = BallItem.CreateNew(def, level: 1);
+            var ball = BallItem.New(def, level: 1);
             if (!_owner.Player.Inventory.AddBall(ball))
                 return null;
 

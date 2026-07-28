@@ -14,6 +14,15 @@
         {
             // ADungeon.overlayMenu.proceedButton.hide();
             evt.onEnterRoom();
+
+            LT.LOAD<SelectPlayerPanel>();
+        }
+
+        public override void onPlayerExit()
+        {
+            base.onPlayerExit();
+            
+            LT.UNLOAD<SelectPlayerPanel>();
         }
 
         public override void update(float dt)

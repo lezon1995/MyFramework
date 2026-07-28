@@ -56,7 +56,7 @@ public class MainSceneGaming : SceneProcedure
 
         if (isKeyCurrentDown(KeyCode.R))
         {
-            foreach (var ball in ballManager.activeBalls)
+            foreach (var ball in player.BallManagement.Instance.getActiveBalls())
             {
                 player.recollectBall(ball);
             }
@@ -77,6 +77,5 @@ public class MainSceneGaming : SceneProcedure
         mGameFrameworkHotFix.unregisteOnApplicationPause(onApplicationPause);
         gameInstance.dispose();
         gameInstance = null;
-        ballManager?.destroyAllBall();
     }
 }

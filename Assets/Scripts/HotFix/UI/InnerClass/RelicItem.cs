@@ -1,10 +1,8 @@
-﻿
+﻿using MoreMountains;
+
 // auto generate classname start
 // generate from:Assets/GameResources/UI/UIPrefab/OverlayMenu.prefab
 // 
-
-using MoreMountains;
-
 public class RelicItem : WindowRecyclableUGUI
 // auto generate classname end
 {

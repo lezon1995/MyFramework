@@ -1,21 +1,20 @@
-using MoreMountains;
+﻿using MoreMountains;
 
 // 这个类的添加是方便代码的书写
 // 因为使用很频繁所以简写为GBH,全称为GameBaseHotFix
 public class GBR
 {
-	// auto generate SQLite start
-	// auto generate SQLite end
-	// FrameSystem
+    // auto generate SQLite start
+    // auto generate SQLite end
+    // FrameSystem
 
     // 需要添加auto generate Excel start和auto generate Excel end才会自动生成代码
     // auto generate Excel start
     // auto generate Excel end
-    
+
     public static GameDesign gameDesign { get; set; }
 
     // FrameSystem
-    public static BallManager ballManager;
     public static BrickManager brickManager;
     public static LevelManager levelManager;
     public static FTextManager textManager;
@@ -27,13 +26,14 @@ public class GBR
     // auto generate LayoutScript start
 	public static DebugPanel mDebugPanel;
 	public static MainMenuScreen mMainMenuScreen;
+	public static OperationPanel mOperationPanel;
 	public static OverlayMenu mOverlayMenu;
 	public static RewardChoosePanel mRewardChoosePanel;
+	public static SelectPlayerPanel mSelectPlayerPanel;
 	public static SplashScreen mSplashScreen;
 	public static UIGame mUIGame;
     // auto generate LayoutScript end
     // auto generate LayoutScript end
-
 
     public static ADungeon _dungeon { get; set; }
     public static GameActionManager actionManager { get; set; }
@@ -54,4 +54,9 @@ public class GBR
     public static MetricData metricData { get; set; }
     public static ResourceManager resource => mResourceManager;
     public static PrefabPoolManager prefabPool => mPrefabPoolManager;
+
+    public static BallManager ballManager;
+    public static VolumeManager volumeManager;
+    public static MoreMountains.CharacterManager characterManager;
+    public static GridManager gridManager;
 }

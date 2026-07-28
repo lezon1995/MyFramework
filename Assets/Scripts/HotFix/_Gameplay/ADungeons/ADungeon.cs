@@ -60,8 +60,6 @@ namespace MoreMountains
         #endregion
 
         public static OverlayMenu overlayMenu;
-        public static VolumeManager volumeManager;
-        public static GridManager gridManager;
         public static CurrentScreen screen { get; set; }
         public static CurrentScreen previousScreen;
 
@@ -131,9 +129,6 @@ namespace MoreMountains
 
         public virtual void initialize()
         {
-            loadVolumeManager();
-            loadGridManager();
-
             generateMonsters();
             initializeBoss();
             if (bossList.Count > 0)
@@ -149,6 +144,7 @@ namespace MoreMountains
 
             initializePotions();
             // BlightHelper.initialize();
+            initializeManagers();
             
             dungeonTransitionSetup();
         }

@@ -66,7 +66,7 @@ public class ElectricChainEffect : ALogicEffect, IArgs<Ball, Brick, int>
                     //Generate lightnings once, based on your configuration
                     bolt.FireOnce();
                     var dmg = ball.getSkillDmg(b);
-                    b.Health.Damage(ref dmg, ball.gameObject, ball.character);
+                    b.Health.Damage(ref dmg, ball.gameObject, ball.Player);
                 }
 
                 if (count.update())

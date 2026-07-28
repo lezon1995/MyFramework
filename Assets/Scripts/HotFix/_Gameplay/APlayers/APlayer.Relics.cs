@@ -4,6 +4,18 @@ namespace MoreMountains
 {
     public partial class APlayer
     {
+        public void addRelic(ARelic relic)
+        {
+            relic.owner = this;
+            relics.Add(relic);
+        }
+
+        public void setRelic(int slot, ARelic relic)
+        {
+            relic.owner = this;
+            relics[slot] = relic;
+        }
+        
         public void applyStartOfTurnRelics()
         {
             foreach (var relic in relics)

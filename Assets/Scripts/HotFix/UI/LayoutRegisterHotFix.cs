@@ -10,8 +10,10 @@ public class LayoutRegisterHotFix
 		// auto generate start
 		registeLayout<DebugPanel>(script =>						mDebugPanel = script);
 		registeLayout<MainMenuScreen>(script =>					mMainMenuScreen = script);
+		registeLayout<OperationPanel>(script =>					mOperationPanel = script);
 		registeLayout<OverlayMenu>(script =>					mOverlayMenu = script);
 		registeLayout<RewardChoosePanel>(script =>				mRewardChoosePanel = script);
+		registeLayout<SelectPlayerPanel>(script =>				mSelectPlayerPanel = script);
 		registeLayout<SplashScreen>(script =>					mSplashScreen = script);
 		registeLayout<UIGame>(script =>							mUIGame = script);
 		// auto generate end

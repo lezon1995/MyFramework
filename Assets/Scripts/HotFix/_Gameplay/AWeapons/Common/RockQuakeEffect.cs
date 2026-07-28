@@ -39,7 +39,7 @@ public class RockQuakeEffect : ALogicEffect, IArgs<Ball, Brick>
                         continue;
                     
                     var dmg = ball.getSkillDmg(b);
-                    b.Health.Damage(ref dmg, ball.gameObject, ball.character);
+                    b.Health.Damage(ref dmg, ball.gameObject, ball.Player);
                 }
             }
             

@@ -205,18 +205,6 @@ namespace MoreMountains
 
         #endregion
 
-        public void addRelic(ARelic relic)
-        {
-            relic.owner = this;
-            relics.Add(relic);
-        }
-
-        public void setRelic(int slot, ARelic relic)
-        {
-            relic.owner = this;
-            relics[slot] = relic;
-        }
-
         public bool IsDead() => Health.IsDead();
         public bool IsAlive() => Health.IsAlive();
         public virtual bool isDeadOrEscaped() => isDying || halfDead;

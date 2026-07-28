@@ -34,7 +34,7 @@ namespace MoreMountains
         public bool discarded;
         string assetURL;
 
-        public ACreature owner { get; set; }
+        public APlayer owner { get; set; }
 
         public enum LandingSound
         {

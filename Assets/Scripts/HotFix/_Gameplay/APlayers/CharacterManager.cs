@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 namespace MoreMountains
 {
@@ -9,12 +10,22 @@ namespace MoreMountains
         public CharStat stat;
     }
 
-    public class CharacterManager
+    public class CharacterManager : MainManagerBehaviour
     {
         static Dictionary<APlayer.PlayerClass, PlayerInfo> masterCharacterList = new();
 
-        public CharacterManager()
+        [SerializeField]
+        List<PlayerDef> Defs = new();
+
+        Dictionary<APlayer.PlayerClass, PlayerDef> defDict = new();
+
+        protected override void OnAwake()
         {
+            base.OnAwake();
+            defDict.Clear();
+            foreach (var def in Defs)
+                defDict[def.Type] = def;
+
             if (masterCharacterList.Count == 0)
             {
                 masterCharacterList.Add(APlayer.PlayerClass.IRONCLAD, new PlayerInfo());
@@ -31,6 +42,15 @@ namespace MoreMountains
             }
         }
 
+        public bool getDef(APlayer.PlayerClass t, out PlayerDef def)
+        {
+            return defDict.TryGetValue(t, out def);
+        }
+        
+        public List<PlayerDef> getDefs()
+        {
+            return Defs;
+        }
 
         public bool anySaveFileExists()
         {
@@ -60,7 +80,7 @@ namespace MoreMountains
         public List<CharStat> getAllCharacterStats()
         {
             List<CharStat> allCharStats = new();
-            foreach (var  (k, v)  in masterCharacterList)
+            foreach (var (k, v) in masterCharacterList)
                 allCharStats.Add(v.stat);
             return allCharStats;
         }
@@ -74,7 +94,7 @@ namespace MoreMountains
         public List<Prefs> getAllPrefs()
         {
             List<Prefs> allPrefs = new();
-            foreach (var  (k, v)  in masterCharacterList)
+            foreach (var (k, v) in masterCharacterList)
                 allPrefs.Add(v.prefs);
             return allPrefs;
         }
@@ -88,7 +108,7 @@ namespace MoreMountains
 
         public APlayer recreateCharacter(APlayer.PlayerClass p)
         {
-            foreach (var (k,v) in masterCharacterList)
+            foreach (var (k, v) in masterCharacterList)
             {
                 if (k == p)
                 {

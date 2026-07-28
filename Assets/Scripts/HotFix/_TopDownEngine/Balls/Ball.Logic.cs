@@ -9,11 +9,12 @@ namespace MoreMountains
     {
         const float PHYSICS_CAST_DISTANCE = 100F;
         protected Comparison<RaycastHit2D> comparison;
-        public virtual BallType BallType { get; }
+        public virtual BallType BallType => BallType.Normal;
 
         public int instanceID; //GameObject的instanceID，可以根据不同GameObject而变化
         public long guid; // Ball这个对象的guid，
-
+        public BallDef Def;
+        
         #region Stats
 
         public bool isTemp; //是否是临时生成出来的球
@@ -75,6 +76,7 @@ namespace MoreMountains
 
         public void setBorderToBallDamageModifier(BorderToBallDamageModifier m) => borderToBallDamageModifier = m;
         public void setID(long id) => guid = id;
+        public void setDef(BallDef def) => Def = def;
         public long getGUID() => guid;
 
         public Ball()
@@ -535,7 +537,7 @@ namespace MoreMountains
                 physicDamage += ballAD.Value;
             }
 
-            if (character.GetStat(Character.Stat.AD, out var characterAD))
+            if (Player.GetStat(Character.Stat.AD, out var characterAD))
             {
                 physicDamage += characterAD.Value;
             }

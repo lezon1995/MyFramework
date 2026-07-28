@@ -15,8 +15,8 @@ namespace MoreMountains
     {
         public string RelicId { get; }
         public string DisplayName { get; }
-        public int    SellPrice { get; }
-        public int    ItemId { get; }
+        public int SellPrice { get; }
+        public int ItemId { get; }
         public ItemKind Kind => ItemKind.Relic;
 
         /// <summary>关联的 ARelic 实例（或其子类）；由 RelicService 解析回传。</summary>
@@ -25,10 +25,10 @@ namespace MoreMountains
         public RelicItem(ARelic underlying, int sellPrice)
         {
             UnderlyingRelic = underlying ?? throw new ArgumentNullException(nameof(underlying));
-            RelicId     = string.IsNullOrEmpty(underlying.relicId) ? underlying.GetType().Name : underlying.relicId;
+            RelicId = string.IsNullOrEmpty(underlying.relicId) ? underlying.GetType().Name : underlying.relicId;
             DisplayName = underlying.name ?? RelicId;
-            SellPrice   = Math.Max(0, sellPrice);
-            ItemId      = ComputeHashId(RelicId);
+            SellPrice = Math.Max(0, sellPrice);
+            ItemId = ComputeHashId(RelicId);
         }
 
         static int ComputeHashId(string s)

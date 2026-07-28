@@ -23,7 +23,7 @@ public class LightningStrikeEffect : ALogicEffect, IArgs<Ball, Brick>
             effect.setWorldPosition(pos);
             
             var dmg = ball.getSkillDmg(brick);
-            brick.Health.Damage(ref dmg, ball.gameObject, ball.character);
+            brick.Health.Damage(ref dmg, ball.gameObject, ball.Player);
         }
     }
 

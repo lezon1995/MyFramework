@@ -49,7 +49,6 @@ namespace MoreMountains
 
         public static string alias;
 
-        public static CharacterManager characterManager;
         public static int monstersSlain;
         public static int elites1Slain;
         public static int elites2Slain;

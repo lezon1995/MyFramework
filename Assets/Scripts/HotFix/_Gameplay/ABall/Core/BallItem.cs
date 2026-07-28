@@ -13,14 +13,15 @@ namespace MoreMountains
     [Serializable]
     public class BallItem : IInventoryItem, IEquatable<BallItem>
     {
-        public BallType Type;
-        public int Level; // 1..MaxLevel
-        public readonly Guid Uid; // 升级 / 融合后重新生成
+        public int ItemId => Def.BallDefId;
+        public BallType Type => Def.Type;
+        public ItemKind Kind => ItemKind.Ball;
 
         /// <summary>对关联的 BallDef 缓存（可选，避免反复查表）</summary>
         public BallDef Def;
+        public int Level; // 1..MaxLevel
+        public readonly Guid Uid; // 升级 / 融合后重新生成
 
-        public ItemKind Kind => ItemKind.Ball;
         public string DisplayName => Def ? $"{Def.DisplayName} Lv.{Level}" : $"Ball#{Type} Lv.{Level}";
 
         public int SellPrice
@@ -35,30 +36,16 @@ namespace MoreMountains
             }
         }
 
-        int IInventoryItem.ItemId => Def.BallDefId;
-
-        public BallItem(BallType type, int level)
-        {
-            Type = type;
-            Level = Math.Max(1, level);
-            Uid = Guid.NewGuid();
-        }
 
         public BallItem(BallDef def, int level)
         {
             Def = def;
-            Type = def.Type;
             Level = Math.Max(1, level);
             Uid = Guid.NewGuid();
         }
 
         /// <summary>工厂方法。系统内部创建都用它。</summary>
-        public static BallItem CreateNew(BallType type, int level)
-        {
-            return new(type, level);
-        }
-
-        public static BallItem CreateNew(BallDef def, int level)
+        public static BallItem New(BallDef def, int level)
         {
             return new(def, level);
         }

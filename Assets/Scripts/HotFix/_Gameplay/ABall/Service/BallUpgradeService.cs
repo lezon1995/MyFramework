@@ -135,7 +135,7 @@ namespace MoreMountains
             }
 
             // 创建升级产物
-            var upgraded = BallItem.CreateNew(def, targetLevel);
+            var upgraded = BallItem.New(def, targetLevel);
 
             // 插入：优先精确放回 representative 原本所在的精确位置（仅 BallSlotGroup 支持）；
             // 其它实现走 TryInsert 默认行为。

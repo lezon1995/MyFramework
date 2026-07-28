@@ -562,7 +562,7 @@ namespace MoreMountains
 
         public void checkFightingOver()
         {
-            if (ballManager.anyActiveBall())
+            if (player.BallManagement.Instance.anyActiveBall())
                 return;
 
             endFight();
