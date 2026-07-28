@@ -14,6 +14,9 @@ public partial class OperationPanel : LayoutScript
 	protected PlayerInfoView playerInfoView;
 	protected RelicInventoryView relicInventoryView;
 	protected BallInventoryView ballInventoryView;
+	protected myUGUITextTMP textTitle;
+	protected myUGUIButton btnNext;
+	protected myUGUITextTMP textBtn;
 	// auto generate member end
 	public OperationPanel()
 	{
@@ -31,6 +34,9 @@ public partial class OperationPanel : LayoutScript
 		playerInfoView.assignWindow(mRoot, "PlayerInfoView");
 		relicInventoryView.assignWindow(mRoot, "InventoryView/RelicInventoryView");
 		ballInventoryView.assignWindow(mRoot, "InventoryView/BallInventoryView");
+		newObject(out textTitle, "Title/TextTitle");
+		newObject(out btnNext, "BtnNext");
+		newObject(out textBtn, "BtnNext/TextBtn");
 		// auto generate assignWindow end
 	}
 	public override void init()
