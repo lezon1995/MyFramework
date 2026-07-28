@@ -12,11 +12,13 @@ public class PlayerInfoView : WindowObjectUGUI
 	protected myUGUITextTMP textCurExp;
 	protected myUGUITextTMP textMaxExp;
 	protected myUGUIObject itemParent;
+	protected BallSlotGroupView ballSlotGroupView;
 	protected WindowStructPool<PlayerStatItem> PlayerStatItemPool;
 	// auto generate member end
 	public PlayerInfoView(IWindowObjectOwner parent) : base(parent)
 	{
 		// auto generate constructor start
+		ballSlotGroupView = new(this);
 		PlayerStatItemPool = new(this);
 		// auto generate constructor end
 	}
@@ -29,6 +31,7 @@ public class PlayerInfoView : WindowObjectUGUI
 		newObject(out textCurExp, "PlayerStats/Level/ExpBar/Exp/TextCur");
 		newObject(out textMaxExp, "PlayerStats/Level/ExpBar/Exp/TextMax");
 		newObject(out itemParent, "PlayerStats/V");
+		ballSlotGroupView.assignWindow(mRoot, "BallSlotGroupView");
 		PlayerStatItemPool.assignTemplate(mRoot, "PlayerStats/V/PlayerStatItem");
 		// auto generate assignWindowInternal end
 	}

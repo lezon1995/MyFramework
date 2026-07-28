@@ -11029,6 +11029,21 @@ MonoBehaviour:
     mUseCustomName: 1
     mRegisterCollider: 0
     mHasClickEvent: 0
+  - mObject: {fileID: 2676621245078923405}
+    mType: BallSlotGroupView
+    mArrayType: 0
+    mArrayLength: 0
+    mWindowType: 2
+    mViewportObject: {fileID: 0}
+    mPoolTemplate: {fileID: 0}
+    mTemplateWindowType: 
+    mParam0: 
+    mParam1: 
+    mCustomName: ballSlotGroupView
+    mHideError: 0
+    mUseCustomName: 1
+    mRegisterCollider: 0
+    mHasClickEvent: 0
   - mObject: {fileID: 2125582534761130172}
     mType: WindowStructPool
     mArrayType: 0
