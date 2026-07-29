@@ -4,13 +4,17 @@ namespace MoreMountains
 {
     public class TheEnding : ADungeon
     {
-        public TheEnding(string name, string levelId, APlayer p, List<string> newSpecialOneTimeEventList) : base("Exordium", "Exordium", p, newSpecialOneTimeEventList)
+        public TheEnding(string name, string levelId, List<string> newSpecialOneTimeEventList) : base("Exordium", "Exordium", newSpecialOneTimeEventList)
         {
             screen = CurrentScreen.MAP;
             isScreenUp = true;
         }
 
-        public TheEnding(string name, APlayer p, SaveFile saveFile) : base("Exordium", p, saveFile)
+        public TheEnding(string name, SaveFile saveFile) : base("Exordium", saveFile)
+        {
+        }
+
+        protected override void initializePhases()
         {
         }
 

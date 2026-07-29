@@ -40,7 +40,6 @@ public partial class RelicPurchaseItem : WindowRecyclableUGUI
 	{
 		base.init();
 		// auto generate init start
-		newTag.registeCollider(onnewTagClick);
 		// auto generate init end
 	}
 	public override void onShow()
@@ -48,8 +47,4 @@ public partial class RelicPurchaseItem : WindowRecyclableUGUI
 		base.onShow();
 	}
 	//--------------------------------------------------------------------------------------------------------------------------------------------
-	protected void onnewTagClick()
-	{
-		;
-	}
 }

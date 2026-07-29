@@ -16,7 +16,7 @@ namespace MoreMountains
         public static PoolCards uncommonCardPool = new();
         public static PoolCards rareCardPool = new();
 
-        protected void initializeCardPools()
+        protected void initializeCardPools(APlayer p)
         {
             log("INIT CARD POOL");
             long startTime = TimeUtility.getNowTimeStampMS();
@@ -39,7 +39,7 @@ namespace MoreMountains
             }
             else
             {
-                player.getCardPool(tmpPool);
+                p.getCardPool(tmpPool);
             }
 
             addColorlessCards();
@@ -188,11 +188,11 @@ namespace MoreMountains
             return everyRareCard;
         }
 
-        public static List<ACard> getColorlessRewardCards()
+        public static List<ACard> getColorlessRewardCards(APlayer p)
         {
             List<ACard> retVal = new();
             int numCards = 3;
-            foreach (ARelic r in player.relics)
+            foreach (ARelic r in p.relics)
                 numCards = r.changeNumberOfCardsInReward(numCards);
 
             if (ModHelper.isModEnabled("Binary"))
@@ -233,11 +233,11 @@ namespace MoreMountains
             return retVal2;
         }
 
-        public static List<ACard> getRewardCards()
+        public static List<ACard> getRewardCards(APlayer p)
         {
             List<ACard> retVal = new();
             int numCards = 3;
-            foreach (ARelic r in player.relics)
+            foreach (ARelic r in p.relics)
                 numCards = r.changeNumberOfCardsInReward(numCards);
 
             if (ModHelper.isModEnabled("Binary"))
@@ -268,7 +268,7 @@ namespace MoreMountains
                 while (containsDupe)
                 {
                     containsDupe = false;
-                    if (player.hasRelic("PrismaticShard"))
+                    if (p.hasRelic("PrismaticShard"))
                     {
                         card = CardLibrary.getAnyColorCard(rarity);
                     }
@@ -296,7 +296,7 @@ namespace MoreMountains
                 retVal2.Add(c.makeCopy());
             foreach (ACard c in retVal2)
             {
-                foreach (ARelic r in player.relics)
+                foreach (ARelic r in p.relics)
                     r.onPreviewObtainCard(c);
             }
 

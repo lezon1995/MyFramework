@@ -2,13 +2,13 @@
 
 namespace MoreMountains;
 
-public class LevelUpRewardPhase : APhase
+public class LevelUpRewardPhase : ARoomPhase
 {
     public LevelUpRewardPhase(MonsterRoom room) : base(room)
     {
     }
 
-    public override void onBegin(APhase last)
+    public override void onBegin(ARoomPhase last)
     {
         base.onBegin(last);
         log("进入 升级奖励阶段 按数字键盘1 进入商店阶段");

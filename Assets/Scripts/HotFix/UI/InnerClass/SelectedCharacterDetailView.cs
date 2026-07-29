@@ -1,9 +1,12 @@
-﻿namespace MoreMountains;
+﻿
+using System.Collections.Generic;
+
+namespace MoreMountains;
+
 // auto generate classname start
 // generate from:Assets/GameResources/UI/UIPrefab/SelectPlayerPanel.prefab
 // 
-
-public class CharacterDetailView : WindowObjectUGUI
+public partial class SelectedCharacterDetailView : WindowObjectUGUI
 // auto generate classname end
 {
 	// auto generate member start
@@ -11,10 +14,16 @@ public class CharacterDetailView : WindowObjectUGUI
 	protected myUGUITextTMP characterName;
 	protected myUGUITextTMP characterStats;
 	protected myUGUITextTMP characterDesc;
+	protected myUGUIObject ballParent;
+	protected myUGUIObject relicParent;
+	protected WindowStructPool<SelectBallItem> SelectBallItemPool;
+	protected WindowStructPool<SelectRelicItem> SelectRelicItemPool;
 	// auto generate member end
-	public CharacterDetailView(IWindowObjectOwner parent) : base(parent)
+	public SelectedCharacterDetailView(IWindowObjectOwner parent) : base(parent)
 	{
 		// auto generate constructor start
+		SelectBallItemPool = new(this);
+		SelectRelicItemPool = new(this);
 		// auto generate constructor end
 	}
 	protected override void assignWindowInternal()
@@ -24,6 +33,10 @@ public class CharacterDetailView : WindowObjectUGUI
 		newObject(out characterName, "V/Info/H/Title/V/Name/Text");
 		newObject(out characterStats, "V/Stats/Text");
 		newObject(out characterDesc, "V/Desc/Text");
+		newObject(out ballParent, "V/Balls/BallParent");
+		newObject(out relicParent, "V/Relics/RelicParent");
+		SelectBallItemPool.assignTemplate(mRoot, "V/Balls/BallParent/SelectBallItem");
+		SelectRelicItemPool.assignTemplate(mRoot, "V/Relics/RelicParent/SelectRelicItem");
 		// auto generate assignWindowInternal end
 	}
 	public override void init()
@@ -43,5 +56,21 @@ public class CharacterDetailView : WindowObjectUGUI
 		characterName.setText(def.DisplayName);
 		characterStats.setText(def.DisplayStats);
 		characterDesc.setText(def.DisplayDesc);
+	}
+
+	public void RefreshCharacterSelectBalls(List<BallDef> ballDefs)
+	{
+		SelectBallItemPool.newItemList(ballDefs, (item, def) =>
+		{
+			item.refresh(def);
+		});
+	}
+
+	public void RefreshCharacterSelectRelics(List<RelicDef> relicDefs)
+	{
+		SelectRelicItemPool.newItemList(relicDefs, (item, def) =>
+		{
+			item.refresh(def);
+		});
 	}
 }

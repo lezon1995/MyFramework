@@ -1,6 +1,6 @@
 ﻿namespace MoreMountains;
 
-public class BattlePassCleanupPhase : APhase
+public class BattlePassCleanupPhase : ARoomPhase
 {
     Timer timer;
 
@@ -8,7 +8,7 @@ public class BattlePassCleanupPhase : APhase
     {
     }
 
-    public override void onBegin(APhase last)
+    public override void onBegin(ARoomPhase last)
     {
         base.onBegin(last);
         log("进入 关卡通关阶段 测试阶段 1秒后自动跳过");

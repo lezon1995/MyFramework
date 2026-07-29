@@ -2,11 +2,10 @@ namespace MoreMountains
 {
     public class OneHpTrial : ATrial
     {
-        public override APlayer setupPlayer(APlayer player)
+        public override void setupPlayer(ref APlayer p)
         {
-            player.currentHealth = 1;
-            player.maxHealth = 1;
-            return player;
+            p.currentHealth = 1;
+            p.maxHealth = 1;
         }
     }
 }

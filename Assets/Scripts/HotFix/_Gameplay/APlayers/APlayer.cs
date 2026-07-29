@@ -61,7 +61,6 @@ namespace MoreMountains
         public override void onRelease()
         {
             _controller2D.UnregisterToVolumeManager();
-            ;
             base.onRelease();
         }
 

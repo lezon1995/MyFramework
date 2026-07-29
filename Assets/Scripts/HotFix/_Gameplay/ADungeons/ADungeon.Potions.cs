@@ -2,9 +2,9 @@
 {
     public partial class ADungeon
     {
-        protected virtual void initializePotions()
+        protected virtual void initializePotions(APlayer p)
         {
-            // PotionHelper.initialize(player.chosenClass);
+            // PotionHelper.initialize(p.chosenClass);
         }
     }
 }

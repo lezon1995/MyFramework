@@ -291,8 +291,8 @@ public class MemberData
 				mType == typeof(UGUICheckbox).ToString())
 				&& mArrayType == ARRAY_TYPE.NONE)
 			{
-				mRegisterCollider = true;
-				mHasClickEvent = true;
+				mRegisterCollider = false;
+				mHasClickEvent = false;
 			}
 			else
 			{

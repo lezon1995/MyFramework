@@ -313,8 +313,8 @@ MonoBehaviour:
     mCustomName: btn
     mHideError: 0
     mUseCustomName: 1
-    mRegisterCollider: 1
-    mHasClickEvent: 1
+    mRegisterCollider: 0
+    mHasClickEvent: 0
   - mObject: {fileID: 7034881146282674211}
     mType: myUGUIText
     mArrayType: 0

@@ -97,6 +97,12 @@ namespace MoreMountains.Tools
         {
         }
 
+        public MMStateMachine(T initialState)
+        {
+            PreviousState = CurrentState;
+            CurrentState = initialState;
+        }
+
         /// <summary>
         /// Creates a new StateMachine, with a targetName (used for events, usually use GetInstanceID()), and whether you want to use events with it or not
         /// </summary>

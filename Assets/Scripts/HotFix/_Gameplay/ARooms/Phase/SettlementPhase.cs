@@ -6,13 +6,13 @@
 /// 如果自身玩家的生命值扣除到0，则当前遭遇战通关失败，也就是爬塔失败
 /// 如果AI玩家的生命值扣除到0，则当前遭遇战通关成功，可以领取奖励并选择下一遭遇战
 /// </summary>
-public class SettlementPhase : APhase
+public class SettlementPhase : ARoomPhase
 {
     public SettlementPhase(MonsterRoom room) : base(room)
     {
     }
 
-    public override void onBegin(APhase last)
+    public override void onBegin(ARoomPhase last)
     {
         base.onBegin(last);
         SettleWin();

@@ -46,7 +46,6 @@ public class SelectPlayerItem : WindowRecyclableUGUI
     {
         base.init();
         // auto generate init start
-        button.registeCollider(onbuttonClick);
         // auto generate init end
 
         button.setUGUIButtonClick(onItemClick);
@@ -149,10 +148,5 @@ public class SelectPlayerItem : WindowRecyclableUGUI
     {
         base.onHide();
         getRoot().setScale(1f);
-    }
-
-    protected void onbuttonClick()
-    {
-        ;
     }
 }

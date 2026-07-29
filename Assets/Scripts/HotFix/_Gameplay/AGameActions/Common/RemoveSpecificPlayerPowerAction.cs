@@ -50,7 +50,7 @@
                     // ADungeon.effectList.Add(new PowerExpireTextEffect(target.hb.cX - target.animX, target.hb.cY + target.hb.height / 2.0F, removeMe.name, removeMe.region128));
                     removeMe.onRemove();
                     target.powers.Remove(removeMe);
-                    ADungeon.onModifyPower();
+                    ADungeon.onModifyPower(player);
                 }
                 else
                 {

@@ -4,13 +4,17 @@ namespace MoreMountains
 {
     public class TheBeyond : ADungeon
     {
-        public TheBeyond(string name, string levelId, APlayer p, List<string> newSpecialOneTimeEventList) : base("Exordium", "Exordium", p, newSpecialOneTimeEventList)
+        public TheBeyond(string name, string levelId, List<string> newSpecialOneTimeEventList) : base("Exordium", "Exordium", newSpecialOneTimeEventList)
         {
             screen = CurrentScreen.MAP;
             isScreenUp = true;
         }
 
-        public TheBeyond(string name, APlayer p, SaveFile saveFile) : base("Exordium", p, saveFile)
+        public TheBeyond(string name, SaveFile saveFile) : base("Exordium", saveFile)
+        {
+        }
+
+        protected override void initializePhases()
         {
         }
 

@@ -3,7 +3,7 @@
     public class NeowRoom : ARoom
     {
         public override RoomType Type => RoomType.NEOW;
-        
+
         public NeowRoom(bool isDone)
         {
             phase = RoomPhase.EVENT;
@@ -15,14 +15,15 @@
             // ADungeon.overlayMenu.proceedButton.hide();
             evt.onEnterRoom();
 
-            LT.LOAD<SelectPlayerPanel>();
+            foreach (var ballDef in _charSelectInfo.balls)
+            {
+                p.BallManagement.EquipBallAtInitialization(BallItem.New(ballDef, 1));
+            }
         }
 
         public override void onPlayerExit()
         {
             base.onPlayerExit();
-            
-            LT.UNLOAD<SelectPlayerPanel>();
         }
 
         public override void update(float dt)
@@ -30,7 +31,7 @@
             base.update(dt);
             if (!ADungeon.isScreenUp)
                 evt.update(dt);
-            
+
             if (evt.waitTimer == 0.0F && !evt.hasFocus && phase != RoomPhase.COMBAT)
             {
                 phase = RoomPhase.COMPLETE;

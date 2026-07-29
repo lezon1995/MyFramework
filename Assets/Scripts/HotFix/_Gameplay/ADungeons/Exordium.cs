@@ -5,7 +5,7 @@ namespace MoreMountains
 {
     public partial class Exordium : ADungeon
     {
-        public Exordium(APlayer p, List<string> emptyList) : base("Exordium", "Exordium", p, emptyList)
+        public Exordium(List<string> emptyList) : base("Exordium", "Exordium", emptyList)
         {
             screen = CurrentScreen.NONE;
             isScreenUp = false;
@@ -13,7 +13,7 @@ namespace MoreMountains
             sourceFadeColor = new(30, 15, 15, 255);
         }
 
-        public Exordium(APlayer p, SaveFile saveFile) : base("Exordium", p, saveFile)
+        public Exordium(SaveFile saveFile) : base("Exordium", saveFile)
         {
             fadeColor = new Color32(30, 15, 15, 255);
             sourceFadeColor = new Color32(30, 15, 15, 255);
@@ -23,7 +23,6 @@ namespace MoreMountains
         {
             base.initialize();
 
-            initializeRelicList();
             initializeSpecialOneTimeEventList();
             initializeLevelSpecificChances();
 
@@ -34,6 +33,13 @@ namespace MoreMountains
             music.changeBGM(id);
             prevMapNode = null;
             currMapNode = new(0, -1);
+
+            ToPhase = DungeonPhaseType.SELECT_CHARACTER;
+        }
+
+        protected override void entryFirstRoom()
+        {
+            base.entryFirstRoom();
             if (Settings.isShowBuild || !TipTracker.tips["NEOW_SKIP"])
             {
                 room = new EmptyRoom();
@@ -47,7 +53,7 @@ namespace MoreMountains
                 else
                     SaveHelper.saveIfAppropriate(SaveType.ENTER_ROOM);
             }
-            
+
             room.onPlayerEntry(player);
         }
 

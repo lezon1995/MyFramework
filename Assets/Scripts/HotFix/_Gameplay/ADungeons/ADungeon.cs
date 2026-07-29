@@ -9,6 +9,10 @@ namespace MoreMountains
     public enum CurrentScreen
     {
         NONE,
+        PHASE,
+        INITIALIZING_PLAYER,
+        ENTERING_FIRST_ROOM,
+        GAMEPLAY,
         MASTER_DECK_VIEW,
         SETTINGS,
         INPUT_SETTINGS,
@@ -36,7 +40,7 @@ namespace MoreMountains
 
     public abstract partial class ADungeon
     {
-        public static string name { get; set; }
+        public static string name;
         public static string levelNum;
         public static string id;
         public static int floorNum;
@@ -60,6 +64,7 @@ namespace MoreMountains
         #endregion
 
         public static OverlayMenu overlayMenu;
+
         public static CurrentScreen screen { get; set; }
         public static CurrentScreen previousScreen;
 
@@ -67,17 +72,18 @@ namespace MoreMountains
         public static int ascensionLevel = 0; //进阶等级
         public static bool ascensionCheck;
 
-        protected ADungeon(string _name, string levelId, APlayer p, List<string> newSpecialOneTimeEventList)
+        protected ADungeon(string _name, string levelId, List<string> newSpecialOneTimeEventList)
         {
             _dungeon = this;
+            _charSelectInfo = new();
             id = levelId;
             name = _name;
-            ascensionCheck = UnlockTracker.isAscensionUnlocked(p);
+            // ascensionCheck = UnlockTracker.isAscensionUnlocked(p);
             _dungeon = this;
+            _charSelectInfo = new();
             // topPanel.setPlayerName();
             actionManager = new();
             effectManager = new();
-            LT.SHOW(out overlayMenu);
             // dynamicBanner = new DynamicBanner();
             unlocks.Clear();
             specialOneTimeEventList = newSpecialOneTimeEventList;
@@ -91,16 +97,16 @@ namespace MoreMountains
             isScreenUp = false;
         }
 
-        protected ADungeon(string _name, APlayer p, SaveFile saveFile)
+        protected ADungeon(string _name, SaveFile saveFile)
         {
             _dungeon = this;
+            _charSelectInfo = new();
             id = saveFile.level_name;
             name = _name;
-            ascensionCheck = UnlockTracker.isAscensionUnlocked(p);
+            // ascensionCheck = UnlockTracker.isAscensionUnlocked(p);
             // topPanel.setPlayerName();
             actionManager = new();
             effectManager = new();
-            LT.SHOW(out overlayMenu);
             // dynamicBanner = new DynamicBanner();
             // isFadingIn = false;
             // isFadingOut = false;
@@ -118,7 +124,7 @@ namespace MoreMountains
             {
                 log("Exception occurred while loading save!");
                 log("Deleting save due to crash!");
-                SaveAndContinue.deleteSave(player.getSaveFilePath());
+                // SaveAndContinue.deleteSave(p.getSaveFilePath());
                 logException(e);
                 Application.Quit();
             }
@@ -129,6 +135,8 @@ namespace MoreMountains
 
         public virtual void initialize()
         {
+            initializeManagers();
+            initializePhases();
             generateMonsters();
             initializeBoss();
             if (bossList.Count > 0)
@@ -137,28 +145,25 @@ namespace MoreMountains
             initializeEventList();
             initializeEventImg();
             initializeShrineList();
-
-            initializeCardPools();
-            if (floorNum == 0)
-                player.initializeStarterDeck();
-
-            initializePotions();
-            // BlightHelper.initialize();
-            initializeManagers();
-            
-            dungeonTransitionSetup();
         }
 
         public virtual void initializeByFile(SaveFile saveFile)
         {
-            // Data.initializeEventImg();
-            // Data.initializeShrineList();
-            initializeCardPools();
-            initializePotions();
-            // BlightHelper.initialize();
         }
 
-        public static void dungeonTransitionSetup()
+        public virtual void initializeWithPlayer(APlayer p)
+        {
+            initializeRelicList(p);
+            initializeCardPools(p);
+            if (floorNum == 0)
+                p.initializeStarterDeck();
+
+            initializePotions(p);
+            // BlightHelper.initialize();
+            dungeonTransitionSetup(p);
+        }
+
+        public static void dungeonTransitionSetup(APlayer p)
         {
             actNum++;
             int counter = cardRng.counter switch
@@ -183,13 +188,8 @@ namespace MoreMountains
 
             if (ascensionLevel >= 5)
             {
-                var healAmount = round((player.maxHealth - player.currentHealth) * 0.75F);
-                player.Health.ReceiveHealth(new(healAmount), null, player);
-            }
-            else
-            {
-                var healAmount = player.maxHealth;
-                player.Health.ReceiveHealth(new(healAmount), null, player);
+                var healAmount = round((p.maxHealth - p.currentHealth) * 0.75F);
+                p.Health.ReceiveHealth(new(healAmount), null, p);
             }
 
             // if (floorNum > 1)
@@ -200,14 +200,14 @@ namespace MoreMountains
                 if (_dungeon is Exordium)
                 {
                     if (ascensionLevel >= 14)
-                        player.decreaseMaxHealth(player.getAscensionMaxHPLoss());
+                        p.decreaseMaxHealth(p.getAscensionMaxHPLoss());
 
                     if (ascensionLevel >= 6)
-                        player.currentHealth = round(player.maxHealth * 0.9F);
+                        p.currentHealth = round(p.maxHealth * 0.9F);
 
                     if (ascensionLevel >= 10)
                     {
-                        // player.masterDeck.addToTop(new AscendersBane());
+                        // p.masterDeck.addToTop(new AscendersBane());
                         UnlockTracker.markCardAsSeen("AscendersBane");
                     }
 
@@ -232,7 +232,6 @@ namespace MoreMountains
             // topPanel.update();
             // dynamicBanner.update();
             updateFading(dt);
-            room.updateObjects(dt);
 
             if (isScreenUp)
             {
@@ -248,17 +247,34 @@ namespace MoreMountains
             switch (screen)
             {
                 case CurrentScreen.NONE:
+                    break;
+                case CurrentScreen.PHASE:
+                    onPhaseUpdate(dt);
+                    break;
+                case CurrentScreen.INITIALIZING_PLAYER:
+                    Game.initializePlayer(_charSelectInfo);
+                    screen = CurrentScreen.ENTERING_FIRST_ROOM;
+                    break;
+                case CurrentScreen.ENTERING_FIRST_ROOM:
+                    _dungeon.entryFirstRoom();
+                    screen = CurrentScreen.GAMEPLAY;
+                    break;
+                case CurrentScreen.GAMEPLAY:
+                    overlayMenu.update(dt);
+                    room.updateObjects(dt);
+                    room.update(dt);
+                    break;
                 case CurrentScreen.MAP:
                     // dungeonMapScreen.update();
-                    room.update(dt);
+                    // room.update(dt);
                     // scene.update();
                     // room.eventControllerInput();
                     break;
                 case CurrentScreen.FTUE:
                     // ftue.update();
-                    InputHelper.justClickedRight = false;
-                    InputHelper.justClickedLeft = false;
-                    room.update(dt);
+                    // InputHelper.justClickedRight = false;
+                    // InputHelper.justClickedLeft = false;
+                    // room.update(dt);
                     break;
                 case CurrentScreen.MASTER_DECK_VIEW:
                     // deckViewScreen.update();
@@ -296,11 +312,11 @@ namespace MoreMountains
                     break;
                 case CurrentScreen.BOSS_REWARD:
                     // bossRelicScreen.update();
-                    room.update(dt);
+                    // room.update(dt);
                     break;
                 case CurrentScreen.HAND_SELECT:
                     // handCardSelectScreen.update();
-                    room.update(dt);
+                    // room.update(dt);
                     break;
                 case CurrentScreen.SHOP:
                     // shopScreen.update();
@@ -332,7 +348,6 @@ namespace MoreMountains
 
             turnPhaseEffectActive = false;
             effectManager.updateRender(dt);
-            overlayMenu.update(dt);
             cardInstanceIdGenerator = 0;
         }
 
@@ -341,11 +356,22 @@ namespace MoreMountains
             switch (screen)
             {
                 case CurrentScreen.NONE:
+                    break;
+                case CurrentScreen.PHASE:
+                    onPhaseFixedUpdate(dt);
+                    break;
+                case CurrentScreen.INITIALIZING_PLAYER:
+                    break;
+                case CurrentScreen.ENTERING_FIRST_ROOM:
+                    break;
+                case CurrentScreen.GAMEPLAY:
+                    room?.fixedUpdate(dt);
+                    break;
                 case CurrentScreen.MAP:
-                    room.fixedUpdate(dt);
+                    // room.fixedUpdate(dt);
                     break;
                 case CurrentScreen.FTUE:
-                    room.fixedUpdate(dt);
+                    // room.fixedUpdate(dt);
                     break;
                 case CurrentScreen.MASTER_DECK_VIEW:
                     break;
@@ -372,10 +398,10 @@ namespace MoreMountains
                 case CurrentScreen.COMBAT_REWARD:
                     break;
                 case CurrentScreen.BOSS_REWARD:
-                    room.fixedUpdate(dt);
+                    // room.fixedUpdate(dt);
                     break;
                 case CurrentScreen.HAND_SELECT:
-                    room.fixedUpdate(dt);
+                    // room.fixedUpdate(dt);
                     break;
                 case CurrentScreen.SHOP:
                     break;
@@ -426,11 +452,11 @@ namespace MoreMountains
                 ModHelper.setMods(saveFile.daily_mods);
         }
 
-        public static void onModifyPower()
+        public static void onModifyPower(APlayer p)
         {
-            // if (player != null)
+            // if (p != null)
             // {
-            //     player.hand.applyPowers();
+            //     p.hand.applyPowers();
             // }
 
             if (room.monsters != null)

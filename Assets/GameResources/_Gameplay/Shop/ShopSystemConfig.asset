@@ -14,8 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: HotFix::MoreMountains.ShopSystemConfig
   BallOfferCount: 5
   RelicOfferCount: 5
+  MixedOfferCount: 5
   BallBoardRerollCost: 2
   RelicBoardRerollCost: 1
+  MixedBoardRerollCost: 1
   BallOfferPool:
   - {fileID: 11400000, guid: bd12c102cd2546b41b31e0e0870e2127, type: 2}
   - {fileID: 11400000, guid: 983e70f7d43506c45b81287540350a07, type: 2}
@@ -27,3 +29,22 @@ MonoBehaviour:
   - {fileID: 11400000, guid: fe8c016fa4e799949a30ae1831251943, type: 2}
   RelicOfferPool:
   - {fileID: 11400000, guid: 0ad612f0642e6a14b80ea673a8af00e3, type: 2}
+  - {fileID: 11400000, guid: 8a740069343e93f42a54719a04ae8e70, type: 2}
+  - {fileID: 11400000, guid: 08749eda4cbb111469ff8c6c5e5b6b9b, type: 2}
+  - {fileID: 11400000, guid: 3a131251bf3e04b499830af270871e6b, type: 2}
+  - {fileID: 11400000, guid: 089cb08ae1747274f9c25d21e4a8beed, type: 2}
+  - {fileID: 11400000, guid: 51296c1875a62a74db6f67dfaf2143da, type: 2}
+  - {fileID: 11400000, guid: f570580408ead14428e8eb1f1dbf6bae, type: 2}
+  - {fileID: 11400000, guid: f0ff2830d5ab0c441be584490e196979, type: 2}
+  - {fileID: 11400000, guid: 16b4dadf32258d345b2ae4a34cc66bb5, type: 2}
+  - {fileID: 11400000, guid: b1f4db49657deda4ebf84a4d14d2a53b, type: 2}
+  - {fileID: 11400000, guid: e774ed7c6e02f9b4f82786ed5221c17c, type: 2}
+  - {fileID: 11400000, guid: d4ba0e960d7e8bb42b952d714d7462ab, type: 2}
+  - {fileID: 11400000, guid: 4bae04ee10bd74143a10ab1bce8d36b4, type: 2}
+  - {fileID: 11400000, guid: a6f4887696a3e914485eaa5e702cafc5, type: 2}
+  - {fileID: 11400000, guid: 4d5cce821c8bc3540b8fa5e724ec43ac, type: 2}
+  - {fileID: 11400000, guid: 7b1b0596fb07f87498a01affc7cf14d1, type: 2}
+  - {fileID: 11400000, guid: 41c60546f3202f241b50835b001d0ab8, type: 2}
+  - {fileID: 11400000, guid: 88fbc63b96ce4d94a8ba03b1f312c388, type: 2}
+  - {fileID: 11400000, guid: 78c89ff3927ae4144b1f074f866a3813, type: 2}
+  - {fileID: 11400000, guid: 0ae1f1a0a3440684da6c233a2cada22b, type: 2}

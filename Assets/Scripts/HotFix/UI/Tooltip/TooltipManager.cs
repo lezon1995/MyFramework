@@ -178,6 +178,7 @@ namespace MoreMountains
         bool _isFading;
         float _currentFadeDuration;
         float _fadeStartAlpha;
+        float _fadeEndAlpha;
 
         Dictionary<string, MetaTooltipContent> _keywordCache = new();
         Regex _keywordRegex;
@@ -188,7 +189,7 @@ namespace MoreMountains
 
         void Awake()
         {
-            if (_instance != null && _instance != this)
+            if (_instance && _instance != this)
             {
                 Destroy(gameObject);
                 return;
@@ -203,7 +204,8 @@ namespace MoreMountains
 
         void Update()
         {
-            if (!_isShowing && !_isFading) return;
+            if (!_isShowing && !_isFading) 
+                return;
 
             if (_isShowing && _currentRequest != null)
             {
@@ -227,9 +229,9 @@ namespace MoreMountains
             {
                 _fadeTimer -= Time.unscaledDeltaTime;
                 float t = 1f - Mathf.Clamp01(_fadeTimer / _currentFadeDuration);
-                float alpha = Mathf.Lerp(_fadeStartAlpha, 0f, t);
+                float alpha = Mathf.Lerp(_fadeStartAlpha, _fadeEndAlpha, t);
 
-                if (_currentTooltipBox != null)
+                if (_currentTooltipBox)
                 {
                     _currentTooltipBox.SetAlpha(alpha);
                 }
@@ -255,10 +257,10 @@ namespace MoreMountains
             _mainCanvas = GetComponentInParent<Canvas>();
             if (_mainCanvas == null)
             {
-                _mainCanvas = FindObjectOfType<Canvas>();
+                _mainCanvas = FindFirstObjectByType<Canvas>();
             }
 
-            if (_mainCanvas != null)
+            if (_mainCanvas)
             {
                 _uiCamera = _mainCanvas.renderMode == RenderMode.ScreenSpaceOverlay
                     ? null
@@ -296,7 +298,8 @@ namespace MoreMountains
         /// </summary>
         public void ShowTooltip(TooltipRequest request)
         {
-            if (!_settings.enableTooltip || request == null || request.content == null) return;
+            if (!_settings.enableTooltip || request?.content == null) 
+                return;
 
             _currentRequest = request;
 
@@ -322,16 +325,19 @@ namespace MoreMountains
         /// </summary>
         public void HideTooltip()
         {
-            if (!_isShowing) return;
+            if (!_isShowing) 
+                return;
 
             _isShowing = false;
 
-            if (_settings.fadeOutDuration > 0)
+            var fadeOutDuration = _settings.fadeOutDuration;
+            if (fadeOutDuration > 0)
             {
                 _isFading = true;
-                _fadeTimer = _settings.fadeOutDuration;
-                _currentFadeDuration = _settings.fadeOutDuration;
-                _fadeStartAlpha = _currentTooltipBox != null ? _currentTooltipBox.GetAlpha() : 1f;
+                _fadeTimer = fadeOutDuration;
+                _currentFadeDuration = fadeOutDuration;
+                _fadeStartAlpha = _currentTooltipBox ? _currentTooltipBox.GetAlpha() : 1f;
+                _fadeEndAlpha = 0F;
             }
             else
             {
@@ -357,7 +363,7 @@ namespace MoreMountains
         /// </summary>
         public void UpdateTooltipContent(TooltipContent content)
         {
-            if (_currentTooltipBox != null && content != null)
+            if (_currentTooltipBox && content != null)
             {
                 _currentTooltipBox.SetContent(content);
                 CreateMetaTooltipBoxes();
@@ -399,7 +405,7 @@ namespace MoreMountains
 
         void CreateTooltipBox()
         {
-            if (_currentTooltipBox != null)
+            if (_currentTooltipBox)
             {
                 DestroyTooltipBox();
             }
@@ -426,7 +432,7 @@ namespace MoreMountains
 
         void DestroyTooltipBox()
         {
-            if (_currentTooltipBox != null)
+            if (_currentTooltipBox)
             {
                 Destroy(_currentTooltipBox.gameObject);
                 _currentTooltipBox = null;
@@ -505,7 +511,7 @@ namespace MoreMountains
         {
             foreach (var box in _currentMetaBoxes)
             {
-                if (box != null)
+                if (box)
                 {
                     Destroy(box.gameObject);
                 }
@@ -516,7 +522,8 @@ namespace MoreMountains
 
         void PositionTooltipBox()
         {
-            if (_currentTooltipBox == null || _currentRequest == null) return;
+            if (_currentTooltipBox == null || _currentRequest == null) 
+                return;
 
             Vector2 targetPosition = CalculateTargetPosition();
 
@@ -674,7 +681,8 @@ namespace MoreMountains
 
         void UpdateMousePosition()
         {
-            if (_currentTooltipBox == null) return;
+            if (_currentTooltipBox == null) 
+                return;
 
             Vector2 targetPosition = Input.mousePosition + (Vector3)_currentRequest.mouseOffset;
 
@@ -689,11 +697,13 @@ namespace MoreMountains
 
         void ShowWithFade()
         {
-            if (_settings.fadeInDuration > 0)
+            var fadeInDuration = _settings.fadeInDuration;
+            if (fadeInDuration > 0)
             {
-                _fadeTimer = _settings.fadeInDuration;
-                _currentFadeDuration = _settings.fadeInDuration;
+                _fadeTimer = fadeInDuration;
+                _currentFadeDuration = fadeInDuration;
                 _fadeStartAlpha = 0f;
+                _fadeEndAlpha = 1f;
                 _isFading = true;
             }
             else
@@ -725,11 +735,11 @@ namespace MoreMountains
             rect.anchoredPosition = Vector2.zero;
 
             Image bg = go.AddComponent<Image>();
-            bg.color = new Color(0.1f, 0.1f, 0.1f, 0.95f);
+            bg.color = new(0.1f, 0.1f, 0.1f, 0.95f);
 
             Outline outline = go.AddComponent<Outline>();
-            outline.effectColor = new Color(0, 0, 0, 0.5f);
-            outline.effectDistance = new Vector2(2, 2);
+            outline.effectColor = new(0, 0, 0, 0.5f);
+            outline.effectDistance = new(2, 2);
 
             go.AddComponent<TooltipBox>();
 

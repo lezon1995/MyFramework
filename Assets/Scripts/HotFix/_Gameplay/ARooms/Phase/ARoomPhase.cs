@@ -4,18 +4,18 @@ using UnityEngine;
 
 namespace MoreMountains;
 
-public abstract class APhase : IDisposable
+public abstract class ARoomPhase : IDisposable
 {
     protected MonsterRoom _room;
     protected WaveGameMode wave => _room.waveGameMode;
     protected float timeElapsed;
 
-    protected APhase(MonsterRoom room)
+    protected ARoomPhase(MonsterRoom room)
     {
         _room = room;
     }
 
-    public virtual void onBegin(APhase last)
+    public virtual void onBegin(ARoomPhase last)
     {
         timeElapsed = 0F;
         onBindListeners();

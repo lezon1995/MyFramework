@@ -108,25 +108,54 @@ namespace MoreMountains
 
         // -------- 便利 API（供 Command / Action / UI 直接调） --------
 
-        /// <summary>把球装到第一个空槽。返回是否成功（背包里同名球会被一并尝试移走）。</summary>
-        public bool EquipBall(BallItem ball)
+        public bool EquipBallAtInitialization(BallItem item)
         {
-            if (ball == null || _slots == null)
+            if (item == null || _slots == null)
+                return false;
+
+            var success = _slots.TryPlaceFirstEmpty(item, out _);
+            if (success)
+            {
+                var ball = _instance.acquireBall(item.Type);
+                _instance.enqueueBallToShootQueue(ball);
+            }
+
+            return success;
+        }
+        
+        /// <summary>把球装到第一个空槽。返回是否成功（背包里同名球会被一并尝试移走）。</summary>
+        public bool EquipBall(BallItem item)
+        {
+            if (item == null || _slots == null)
                 return false;
 
             // 从背包里拿出（如果还在）
-            _player?.Inventory?.BallBag?.Remove(ball);
-            return _slots.TryPlaceFirstEmpty(ball, out _);
+            _player?.Inventory?.BallBag?.Remove(item);
+            var success = _slots.TryPlaceFirstEmpty(item, out _);
+            if (success)
+            {
+                var ball = _instance.acquireBall(item.Type);
+                _instance.enqueueBallToShootQueue(ball);
+            }
+            
+            return success;
         }
 
         /// <summary>把球装备到指定槽位。返回是否成功。</summary>
-        public bool EquipBall(BallItem ball, int slotIndex)
+        public bool EquipBall(BallItem item, int slotIndex)
         {
-            if (ball == null || _slots == null)
+            if (item == null || _slots == null)
                 return false;
 
-            _player?.Inventory?.BallBag?.Remove(ball);
-            return _slots.TryPlaceAt(slotIndex, ball);
+            _player.Inventory.BallBag.Remove(item);
+            var success = _slots.TryPlaceAt(slotIndex, item);
+            if (success)
+            {
+                var ball = _instance.acquireBall(item.Type);
+                _instance.enqueueBallToShootQueue(ball);
+            }
+
+            return success;
         }
 
         /// <summary>从槽位卸下球到球背包。返回是否成功（背包满则拒绝）。</summary>
@@ -134,16 +163,24 @@ namespace MoreMountains
         {
             if (_slots == null)
                 return false;
+
             if (_player == null || _player.Inventory == null || !_player.Inventory.CanAddBall())
                 return false;
 
-            var ball = _slots.PullFrom(slotIndex);
-            return ball != null && _player.Inventory.AddBall(ball);
+            var success = _slots.PullFrom(slotIndex, out var item);
+            if (success)
+            {
+                // _instance.dequeueBallFromShootQueue(ball);
+            }
+
+            return success && _player.Inventory.AddBall(item);
         }
 
         public bool SwapSlots(int a, int b)
         {
-            if (_slots == null) return false;
+            if (_slots == null) 
+                return false;
+
             _slots.Swap(a, b);
             return true;
         }

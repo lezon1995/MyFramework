@@ -98,7 +98,7 @@ public class ApplyPlayerPowerAction : AGameAction
 
                     p.updateDescription();
                     hasBuffAlready = true;
-                    ADungeon.onModifyPower();
+                    ADungeon.onModifyPower(player);
                 }
             }
 
@@ -122,7 +122,7 @@ public class ApplyPlayerPowerAction : AGameAction
                     // ADungeon.effectList.Add(new PowerDebuffEffect(target.hb.cX - target.animX, target.hb.cY + target.hb.height / 2.0F, powerToApply.name));
                 }
 
-                ADungeon.onModifyPower();
+                ADungeon.onModifyPower(player);
                 if (target.isPlayer)
                 {
                     int buffCount = 0;

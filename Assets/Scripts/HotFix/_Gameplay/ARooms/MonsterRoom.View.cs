@@ -4,8 +4,8 @@ namespace MoreMountains
 {
     public partial class MonsterRoom
     {
-        public APhase curPhase;
-        protected Dictionary<RoomPhaseType, APhase> _phases = new();
+        public ARoomPhase curPhase;
+        protected Dictionary<RoomPhaseType, ARoomPhase> _phases = new();
 
         protected void nextPhase(RoomPhaseType type)
         {

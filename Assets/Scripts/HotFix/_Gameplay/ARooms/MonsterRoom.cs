@@ -20,9 +20,6 @@ namespace MoreMountains
 
         public MonsterRoom()
         {
-            _phases[RoomPhaseType.SELECT_CHARACTER] = new SelectCharacterPhase(this);
-            _phases[RoomPhaseType.SELECT_WEAPON] = new SelectWeaponPhase(this);
-            _phases[RoomPhaseType.SELECT_DIFFICULTY] = new SelectDifficultyPhase(this);
             _phases[RoomPhaseType.PREPARE] = new PreparePhase(this);
             _phases[RoomPhaseType.BATTLE] = new BattlePhase(this);
             _phases[RoomPhaseType.BATTLE_PASS_CLEANUP] = new BattlePassCleanupPhase(this);

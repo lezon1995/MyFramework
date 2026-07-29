@@ -13,7 +13,7 @@ namespace MoreMountains
 
         public static List<string> relicsToRemoveOnStart = new();
 
-        protected void initializeRelicList()
+        protected void initializeRelicList(APlayer p)
         {
             commonRelicPool.Clear();
             uncommonRelicPool.Clear();
@@ -21,15 +21,15 @@ namespace MoreMountains
             shopRelicPool.Clear();
             bossRelicPool.Clear();
 
-            RelicLibrary.populateRelicPool(ref commonRelicPool, RelicTier.COMMON, player.chosenClass);
-            RelicLibrary.populateRelicPool(ref uncommonRelicPool, RelicTier.UNCOMMON, player.chosenClass);
-            RelicLibrary.populateRelicPool(ref rareRelicPool, RelicTier.RARE, player.chosenClass);
-            RelicLibrary.populateRelicPool(ref shopRelicPool, RelicTier.SHOP, player.chosenClass);
-            RelicLibrary.populateRelicPool(ref bossRelicPool, RelicTier.BOSS, player.chosenClass);
+            RelicLibrary.populateRelicPool(ref commonRelicPool, RelicTier.COMMON, p.chosenClass);
+            RelicLibrary.populateRelicPool(ref uncommonRelicPool, RelicTier.UNCOMMON, p.chosenClass);
+            RelicLibrary.populateRelicPool(ref rareRelicPool, RelicTier.RARE, p.chosenClass);
+            RelicLibrary.populateRelicPool(ref shopRelicPool, RelicTier.SHOP, p.chosenClass);
+            RelicLibrary.populateRelicPool(ref bossRelicPool, RelicTier.BOSS, p.chosenClass);
 
             if (floorNum >= 1)
             {
-                foreach (var r in player.relics)
+                foreach (var r in p.relics)
                     relicsToRemoveOnStart.Add(r.relicId);
             }
 

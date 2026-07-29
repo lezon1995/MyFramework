@@ -1,12 +1,12 @@
 namespace MoreMountains;
 
-public class FightingPhase : APhase
+public class FightingPhase : ARoomPhase
 {
     public FightingPhase(MonsterRoom room) : base(room)
     {
     }
 
-    public override void onBegin(APhase last)
+    public override void onBegin(ARoomPhase last)
     {
         base.onBegin(last);
     }

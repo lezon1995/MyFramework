@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using MoreMountains.Tools;
 using Obfuz;
 using PrimeTween;
 using UnityEngine;
@@ -14,31 +15,42 @@ public partial class SelectPlayerPanel : LayoutScript
 // auto generate classname end
 {
     // auto generate member start
-	protected myUGUITextTMP textTitle;
-	protected CharacterDetailView characterDetailView;
-	protected CharacterListView characterListView;
-	protected myUGUIButton btnConfirm;
+    protected myUGUITextTMP textTitle;
+    protected SelectedCharacterDetailView selectedCharacterDetailView;
+    protected SelectCharacterListView selectCharacterListView;
+    protected SelectBallListView selectBallListView;
+    protected SelectRelicListView selectRelicListView;
+    protected myUGUIButton btnNext;
+    protected myUGUIButton btnPrevious;
     // auto generate member end
 
-    public Action<PlayerDef> onPlayerSelected;
+    public Action<CharSelectInfo> onSubmitCharacterSelectInfo;
+    public Action onPrevStep;
     public Action onNextStep;
+    MMStateMachine<int> stepState = new();
 
     public SelectPlayerPanel()
     {
         // auto generate constructor start
-		characterDetailView = new(this);
-		characterListView = new(this);
+        selectedCharacterDetailView = new(this);
+        selectCharacterListView = new(this);
+        selectBallListView = new(this);
+        selectRelicListView = new(this);
         // auto generate constructor end
         mNeedUpdate = false;
+        stepState.OnStateChange = OnStepStateChange;
     }
 
     public override void assignWindow()
     {
         // auto generate assignWindow start
-		newObject(out textTitle, "Content/V/TextTitle");
-		characterDetailView.assignWindow(mRoot, "Content/V/CharacterDetailView");
-		characterListView.assignWindow(mRoot, "Content/V/CharacterListView");
-		newObject(out btnConfirm, "Content/BtnConfirm");
+        newObject(out textTitle, "Content/V/TextTitle");
+        selectedCharacterDetailView.assignWindow(mRoot, "Content/V/CentralArea/SelectedCharacterDetailView");
+        selectCharacterListView.assignWindow(mRoot, "Content/V/SelectionArea/SelectCharacterListView");
+        selectBallListView.assignWindow(mRoot, "Content/V/SelectionArea/SelectBallListView");
+        selectRelicListView.assignWindow(mRoot, "Content/V/SelectionArea/SelectRelicListView");
+        newObject(out btnNext, "Content/BtnNext");
+        newObject(out btnPrevious, "Content/BtnPrevious");
         // auto generate assignWindow end
     }
 
@@ -48,93 +60,55 @@ public partial class SelectPlayerPanel : LayoutScript
         // auto generate init start
         // auto generate init end
 
-        characterListView.setCharacterDetailView(characterDetailView);
-        characterListView.setSelectPlayerPanel(this);
-        characterListView.initPlayerItems();
-        initNextStepButton();
+        selectCharacterListView.setCharacterDetailView(selectedCharacterDetailView);
+        selectCharacterListView.setSelectPlayerPanel(this);
+        selectCharacterListView.initPlayerItems();
+
+        selectBallListView.setCharacterDetailView(selectedCharacterDetailView);
+        selectBallListView.initBallItems();
+
+        selectRelicListView.setCharacterDetailView(selectedCharacterDetailView);
+        selectRelicListView.initRelicItems();
+        
+        initButtons();
         updateNextStepButton();
-        
-        /*btnConfirm.registeCollider(vec3 =>
-        {
-            Debug.Log($"click at pos={vec3}");
-        });
-        if (btnConfirm.getOrAddComponent<COMWindowDrag>(out var drag))
-        {
-            drag.setDragStartCallback((ComponentOwner obj, TouchPoint point, ref bool allowDrag) =>
-            {
-                Debug.Log($"Drag Start obj={obj.getName()} point={point.getCurPosition()} allowDrag={allowDrag}");
-            });
-            drag.setDraggingCallback((obj, pos) =>
-            {
-                Debug.Log($"Dragging obj={obj.getName()} pos={pos}");
-            });
-            drag.setDragEndCallback((obj, pos, cancel) =>
-            {
-                Debug.Log($"Drag End obj={obj.getName()} pos={pos} cancel={cancel}");
-            });
-            drag.setDragEndTotallyCallback((obj, pos, cancel) =>
-            {
-                Debug.Log($"Drag End Totally obj={obj.getName()} pos={pos} cancel={cancel}");
-            });
-        }
-        btnConfirm.setOnDragHover((e, pos, hover) =>
-        {
-            Debug.Log($"OnDragHover {e.getName()} pos={pos} hover={hover}");
-        });
-        // btnConfirm.setPassDragEvent();
-        btnConfirm.setOnReceiveDrag((IMouseEventCollect e, Vector3 pos, ref bool flag) =>
-        {
-            Debug.Log($"OnReceiveDrag {e.getName()} pos={pos} flag={flag}");
-        });*/
-        
-        
-        if (btnConfirm.tryGetUnityComponent<UIEventListener>(out var listener))
-        {
-            listener.SetOnDropped(data =>
-            {
-                Debug.Log($"Dropped point={data.position}");
-            });
-            listener.SetOnPotentialDragInitialized(data =>
-            {
-                Debug.Log($"OnPotentialDragInitialized point={data.position}");
-            });
-            listener.SetOnDragStarted(data =>
-            {
-                Debug.Log($"Drag Start point={data.position}");
-            });
-            listener.SetOnDragging(data =>
-            {
-                Debug.Log($"Dragging point={data.position}");
-            });
-            listener.SetOnDragEnded(data =>
-            {
-                Debug.Log($"Drag End point={data.position}");
-            });
-            listener.SetOnDragReleasedOverUI(data =>
-            {
-                Debug.Log($"Drag ReleasedOverUI obj={data.TopmostGameObject?.name}");
-            });
-        }
+
+        stepState.ChangeState(1);
     }
 
-    void initNextStepButton()
+    void initButtons()
     {
-        btnConfirm.setUGUIButtonClick(onNextStepClicked);
+        btnNext.setUGUIButtonClick(onNextStepClicked);
+        btnPrevious.setUGUIButtonClick(onPreviousStepClicked);
     }
 
     public void updateNextStepButton()
     {
-        bool canClick = characterListView.isCharacterSelected();
-        btnConfirm.setInteractable(canClick);
+        bool canClick = selectCharacterListView.isCharacterSelected();
+        btnNext.setInteractable(canClick);
     }
 
     void onNextStepClicked()
     {
-        if (!characterListView.isCharacterSelected())
+        if (stepState.CurrentState == 3)
+        {
+            onSubmitCharacterSelectInfo?.Invoke(_charSelectInfo);
+            return;
+        }
+
+        if (!selectCharacterListView.isCharacterSelected())
             return;
 
-        onPlayerSelected?.Invoke(characterListView.selectedPlayer);
         onNextStep?.Invoke();
+
+        stepState.ChangeState(stepState.CurrentState + 1);
+    }
+
+    void onPreviousStepClicked()
+    {
+        onPrevStep?.Invoke();
+
+        stepState.ChangeState(stepState.CurrentState - 1);
     }
 
     public override void onGameState()
@@ -145,13 +119,48 @@ public partial class SelectPlayerPanel : LayoutScript
     public override void destroy()
     {
         base.destroy();
-        onPlayerSelected = null;
+        onSubmitCharacterSelectInfo = null;
         onNextStep = null;
     }
 
     public void resetSelection()
     {
-        characterListView.RefreshPlayerItems();
+        selectCharacterListView.RefreshPlayerItems();
         updateNextStepButton();
+    }
+
+    public void setOnNextStepClick(Action a)
+    {
+        onNextStep = a;
+    }
+
+    public void setOnSubmitCharacterSelectInfo(Action<CharSelectInfo> a)
+    {
+        onSubmitCharacterSelectInfo = a;
+    }
+
+    void OnStepStateChange(int pre, int cur)
+    {
+        switch (cur)
+        {
+            case 1:
+                btnPrevious.setActive(false);
+                selectCharacterListView.setActive(true);
+                selectBallListView.setActive(false);
+                selectRelicListView.setActive(false);
+                break;
+            case 2:
+                btnPrevious.setActive(true);
+                selectCharacterListView.setActive(false);
+                selectBallListView.setActive(true);
+                selectRelicListView.setActive(false);
+                break;
+            case 3:
+                btnPrevious.setActive(true);
+                selectCharacterListView.setActive(false);
+                selectBallListView.setActive(false);
+                selectRelicListView.setActive(true);
+                break;
+        }
     }
 }

@@ -31,14 +31,16 @@ public class GBR
 	public static RewardChoosePanel mRewardChoosePanel;
 	public static SelectPlayerPanel mSelectPlayerPanel;
 	public static SplashScreen mSplashScreen;
+	public static TooltipScreen mTooltipScreen;
 	public static UIGame mUIGame;
     // auto generate LayoutScript end
     // auto generate LayoutScript end
 
+    public static CharSelectInfo _charSelectInfo;
     public static ADungeon _dungeon { get; set; }
     public static GameActionManager actionManager { get; set; }
     public static GameEffectManager effectManager { get; set; }
-    public static APlayer player { get; set; }
+    public static APlayer player;
     public static SoundMaster sound { get; set; }
     public static MusicMaster music { get; set; }
     public static FxMaster fx { get; set; }
@@ -56,6 +58,7 @@ public class GBR
     public static PrefabPoolManager prefabPool => mPrefabPoolManager;
 
     public static BallManager ballManager;
+    public static RelicManager relicManager;
     public static VolumeManager volumeManager;
     public static MoreMountains.CharacterManager characterManager;
     public static GridManager gridManager;

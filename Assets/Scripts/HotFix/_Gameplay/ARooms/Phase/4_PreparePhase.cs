@@ -1,6 +1,6 @@
 ﻿namespace MoreMountains;
 
-public class PreparePhase : APhase
+public class PreparePhase : ARoomPhase
 {
     Timer timer;
 
@@ -8,7 +8,7 @@ public class PreparePhase : APhase
     {
     }
 
-    public override void onBegin(APhase last)
+    public override void onBegin(ARoomPhase last)
     {
         base.onBegin(last);
         log("进入 战前准备阶段 测试阶段 1秒后自动跳过");

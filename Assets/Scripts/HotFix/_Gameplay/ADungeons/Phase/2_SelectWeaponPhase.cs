@@ -1,15 +1,15 @@
 ﻿namespace MoreMountains;
 
-public class SelectDifficultyPhase : APhase
+public class SelectWeaponPhase : ADungeonPhase
 {
-    public SelectDifficultyPhase(MonsterRoom room) : base(room)
+    public SelectWeaponPhase(ADungeon dungeon) : base(dungeon)
     {
     }
 
-    public override void onBegin(APhase last)
+    public override void onBegin(ADungeonPhase last)
     {
         base.onBegin(last);
-        log("进入 难度选择阶段 测试阶段 自动跳过");
+        log("进入 武器选择阶段 测试阶段 自动跳过");
     }
 
     public override void onEnd()
@@ -20,7 +20,7 @@ public class SelectDifficultyPhase : APhase
     public override void update(float dt)
     {
         base.update(dt);
-        _room.ToPhase = RoomPhaseType.PREPARE;
+        _dungeon.ToPhase = DungeonPhaseType.SELECT_DIFFICULTY;
     }
 
     public override void fixedUpdate(float dt)

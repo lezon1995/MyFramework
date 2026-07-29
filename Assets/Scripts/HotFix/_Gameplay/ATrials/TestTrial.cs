@@ -4,12 +4,11 @@ namespace MoreMountains
 {
     public class TestTrial : ATrial
     {
-        public override APlayer setupPlayer(APlayer player)
+        public override void setupPlayer(ref APlayer p)
         {
-            player.maxHealth = 20;
-            player.currentHealth = 10;
-            player.gold = 777;
-            return player;
+            p.maxHealth = 20;
+            p.currentHealth = 10;
+            p.gold = 777;
         }
 
         public override bool keepStarterRelic()

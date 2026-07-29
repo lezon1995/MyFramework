@@ -1,6 +1,6 @@
 ﻿namespace MoreMountains;
 
-public class PlayerTurnPhase : APhase
+public class PlayerTurnPhase : ARoomPhase
 {
     public PlayerTurnPhase(MonsterRoom room) : base(room)
     {
@@ -19,7 +19,7 @@ public class PlayerTurnPhase : APhase
     {
     }
 
-    public override void onBegin(APhase last)
+    public override void onBegin(ARoomPhase last)
     {
         base.onBegin(last);
         player.onPlayerTurnBegin();

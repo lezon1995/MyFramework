@@ -10,7 +10,7 @@ namespace MoreMountains
         public Game()
         {
         }
-        
+
         public enum GameMode
         {
             SPLASH,
@@ -26,6 +26,7 @@ namespace MoreMountains
         ADungeon dungeon;
         public static ScreenShake screenShake;
         public static SplashScreen splashScreen;
+        public static TooltipScreen tooltipScreen;
         public static MainMenuScreen mainMenuScreen;
         public static DungeonTransitionScreen transitionScreen;
         public static DebugPanel debugPanel;
@@ -269,7 +270,7 @@ namespace MoreMountains
         void onUpdate(float dt)
         {
             screenShake.update(dt);
-            
+
             if (mode != GameMode.SPLASH)
                 updateFade(dt);
 
@@ -310,6 +311,7 @@ namespace MoreMountains
                     {
                         LT.UNLOAD(ref splashScreen);
                         LT.SHOW(out mainMenuScreen);
+                        tooltipScreen = LT.LOAD_TOP<TooltipScreen>();
                         mode = GameMode.MAIN_MENU;
                     }
 
@@ -324,46 +326,7 @@ namespace MoreMountains
                         if (trial == null && Settings.specialSeed != 0)
                             trial = TrialHelper.getTrialForSeed(SeedHelper.getString(Settings.specialSeed));
 
-                        if (loadingSave)
-                        {
-                            ModHelper.setModsFalse();
-                            player = createCharacter(chosenCharacter);
-                            loadPlayerSave(player);
-                        }
-                        else
-                        {
-                            Settings.setFinalActAvailability();
-                            log("Final Act Available: " + Settings.isFinalActAvailable);
-
-                            if (trial == null)
-                            {
-                                if (Settings.isDailyRun)
-                                {
-                                    ADungeon.ascensionLevel = 0;
-                                    ADungeon.isAscensionMode = false;
-                                }
-
-                                player = createCharacter(chosenCharacter);
-                                foreach (var relic in player.relics)
-                                {
-                                    relic.updateDescription(player.chosenClass);
-                                    relic.onEquip(player);
-                                }
-
-                                // foreach (var card in player.masterDeck.group)
-                                // {
-                                //     if (card.rarity != CardRarity.Basic)
-                                //         CardHelper.obtain(card.cardID, card.rarity, card.color);
-                                // }
-                            }
-                            else
-                            {
-                                Settings.isTrial = true;
-                                Settings.isDailyRun = false;
-                                setupTrialMods(trial, chosenCharacter);
-                                setupTrialPlayer(trial);
-                            }
-                        }
+                        // initializePlayer();
 
                         mode = GameMode.GAMEPLAY;
                         nextDungeon = "Exordium";
@@ -420,12 +383,63 @@ namespace MoreMountains
             //     fpsLogger.log();
         }
 
+        public static void initializePlayer(CharSelectInfo selectInfo = null)
+        {
+            var chosenClass = chosenCharacter;
+            if (selectInfo!=null)
+            {
+                chosenClass = selectInfo.playerDef.Type;
+            }
+
+            var p = createCharacter(chosenClass);
+            player = p;
+
+            if (loadingSave)
+            {
+                ModHelper.setModsFalse();
+                loadPlayerSave(p);
+                return;
+            }
+
+            Settings.setFinalActAvailability();
+            log("Final Act Available: " + Settings.isFinalActAvailable);
+
+            if (trial != null)
+            {
+                Settings.isTrial = true;
+                Settings.isDailyRun = false;
+                setupTrialMods(trial, chosenClass);
+                setupTrialPlayer(trial, ref p);
+                return;
+            }
+
+            if (Settings.isDailyRun)
+            {
+                ADungeon.ascensionLevel = 0;
+                ADungeon.isAscensionMode = false;
+            }
+
+            foreach (var relic in p.relics)
+            {
+                relic.updateDescription(p.chosenClass);
+                relic.onEquip(p);
+            }
+
+            // foreach (var card in p.masterDeck.group)
+            // {
+            //     if (card.rarity != CardRarity.Basic)
+            //         CardHelper.obtain(card.cardID, card.rarity, card.color);
+            // }
+
+            _dungeon.initializeWithPlayer(p);
+        }
+
         public ADungeon loadDungeon()
         {
             ADungeon d;
             if (loadingSave)
             {
-                d = getDungeon(saveFile.level_name, player, saveFile);
+                d = getDungeon(saveFile.level_name, saveFile);
                 d.initializeByFile(saveFile);
                 loadPostCombat(saveFile);
                 if (!saveFile.post_combat)
@@ -433,9 +447,9 @@ namespace MoreMountains
             }
             else
             {
-                d = getDungeon(nextDungeon, player);
+                d = getDungeon(nextDungeon);
                 d.initialize();
-                
+
                 if (nextDungeon != "Exordium" || Settings.isShowBuild || !TipTracker.tips["NEOW_SKIP"])
                 {
                     // ADungeon.dungeonMapScreen.open(true);
@@ -446,11 +460,11 @@ namespace MoreMountains
             return d;
         }
 
-        public ADungeon getDungeon(string key, APlayer p)
+        public ADungeon getDungeon(string key)
         {
             return key switch
             {
-                "Exordium" => new Exordium(p, new List<string>()),
+                "Exordium" => new Exordium(new List<string>()),
                 // "TheCity" => new TheCity(p, ADungeon.specialOneTimeEventList),
                 // "TheBeyond" => new TheBeyond(p, ADungeon.specialOneTimeEventList),
                 // "TheEnding" => new TheEnding(p, ADungeon.specialOneTimeEventList),
@@ -458,11 +472,11 @@ namespace MoreMountains
             };
         }
 
-        public ADungeon getDungeon(string key, APlayer p, SaveFile saveFile)
+        public ADungeon getDungeon(string key, SaveFile saveFile)
         {
             return key switch
             {
-                "Exordium" => new Exordium(p, saveFile),
+                "Exordium" => new Exordium(saveFile),
                 // "TheCity" => new TheCity(p, saveFile),
                 // "TheBeyond" => new TheBeyond(p, saveFile),
                 // "TheEnding" => new TheEnding(p, saveFile),
@@ -486,33 +500,33 @@ namespace MoreMountains
             }
         }
 
-        static void setupTrialPlayer(ATrial trial)
+        static void setupTrialPlayer(ATrial trial, ref APlayer p)
         {
-            player = trial.setupPlayer(createCharacter(chosenCharacter));
+            trial.setupPlayer(ref p);
             if (!trial.keepStarterRelic())
-                player.relics.Clear();
+                p.relics.Clear();
 
             foreach (string relicID in trial.extraStartingRelicIDs())
             {
                 ARelic relic = RelicLibrary.getRelic(relicID);
-                relic.instantObtain(player, player.relics.Count, false);
+                relic.instantObtain(p, p.relics.Count, false);
                 ADungeon.relicsToRemoveOnStart.Add(relic.relicId);
             }
 
-            foreach (ARelic r in player.relics)
+            foreach (ARelic r in p.relics)
             {
-                r.updateDescription(player.chosenClass);
-                r.onEquip(player);
+                r.updateDescription(p.chosenClass);
+                r.onEquip(p);
             }
 
             // if (!trial.keepsStarterCards())
-            // player.masterDeck.clear();
+            // p.masterDeck.clear();
 
             // foreach (string cardID in trial.extraStartingCardIDs())
             // {
             //     if (CardLibrary.getCard(cardID, out var card))
             //     {
-            //         player.masterDeck.addToTop(card.makeCopy());
+            //         p.masterDeck.addToTop(card.makeCopy());
             //     }
             // }
         }

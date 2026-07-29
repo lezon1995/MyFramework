@@ -10,9 +10,8 @@ namespace MoreMountains
         public CardGroup deck;
         public List<ARelic> relics = new();
 
-        public virtual APlayer setupPlayer(APlayer player)
+        public virtual void setupPlayer(ref APlayer p)
         {
-            return player;
         }
 
         public virtual bool keepStarterRelic()

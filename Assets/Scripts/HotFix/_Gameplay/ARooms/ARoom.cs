@@ -29,9 +29,6 @@ namespace MoreMountains
     public enum RoomPhaseType
     {
         NONE,
-        SELECT_CHARACTER,//角色选择
-        SELECT_WEAPON,//武器选择
-        SELECT_DIFFICULTY,//难度选择
         PREPARE,//战前准备阶段，通常是等个几秒介绍一下接下来可能出现的怪物
         BATTLE,//战斗阶段
         BATTLE_PASS_CLEANUP,//战后舞台清理阶段
@@ -460,7 +457,7 @@ namespace MoreMountains
         public void startGame()
         {
             effectManager.addRender<GameStartEffect>();
-            ToPhase = RoomPhaseType.SELECT_CHARACTER;
+            ToPhase = RoomPhaseType.PREPARE;
         }
 
         public void enter_SelectCharacter()

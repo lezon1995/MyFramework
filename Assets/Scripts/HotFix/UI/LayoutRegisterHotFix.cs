@@ -15,6 +15,7 @@ public class LayoutRegisterHotFix
 		registeLayout<RewardChoosePanel>(script =>				mRewardChoosePanel = script);
 		registeLayout<SelectPlayerPanel>(script =>				mSelectPlayerPanel = script);
 		registeLayout<SplashScreen>(script =>					mSplashScreen = script);
+		registeLayout<TooltipScreen>(script =>					mTooltipScreen = script);
 		registeLayout<UIGame>(script =>							mUIGame = script);
 		// auto generate end
 	}

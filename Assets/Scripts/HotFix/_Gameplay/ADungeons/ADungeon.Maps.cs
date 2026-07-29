@@ -554,7 +554,7 @@ namespace MoreMountains
             // dynamicBanner.hide();
             new OnNextRoomTransition().trigger();
             // dungeonMapScreen.closeInstantly();
-            closeCurrentScreen();
+            // closeCurrentScreen();
             fadeIn();
             player.resetControllerValues();
             effectManager.clear();
@@ -691,6 +691,11 @@ namespace MoreMountains
                 EventHelper.RoomResult.EVENT => new EventRoom(),
                 _ => new EventRoom()
             };
+        }
+
+        protected virtual void entryFirstRoom()
+        {
+            LT.SHOW(out overlayMenu);
         }
 
         public static void reset()

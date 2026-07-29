@@ -2,13 +2,13 @@
 
 namespace MoreMountains;
 
-public class ShoppingPhase : APhase
+public class ShoppingPhase : ARoomPhase
 {
     public ShoppingPhase(MonsterRoom room) : base(room)
     {
     }
 
-    public override void onBegin(APhase last)
+    public override void onBegin(ARoomPhase last)
     {
         base.onBegin(last);
         log("进入 商店购买阶段 按数字键盘1 开启下一波");

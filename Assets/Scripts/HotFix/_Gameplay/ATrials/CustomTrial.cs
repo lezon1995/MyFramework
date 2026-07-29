@@ -66,15 +66,13 @@ namespace MoreMountains
             _useRandomDailyMods = true;
         }
 
-        public override APlayer setupPlayer(APlayer player)
+        public override void setupPlayer(ref APlayer p)
         {
             if (maxHpOverride != null)
             {
-                player.maxHealth = maxHpOverride.Value;
-                player.currentHealth = maxHpOverride.Value;
+                p.maxHealth = maxHpOverride.Value;
+                p.currentHealth = maxHpOverride.Value;
             }
-
-            return player;
         }
 
         public override bool keepStarterRelic()

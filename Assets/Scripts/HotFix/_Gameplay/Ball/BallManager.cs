@@ -31,5 +31,10 @@ namespace MoreMountains
             defDict.TryGetValue(type, out var def);
             return def;
         }
+        
+        public List<BallDef> getDefs()
+        {
+            return Defs;
+        }
     }
 }

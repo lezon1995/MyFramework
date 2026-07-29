@@ -29,7 +29,6 @@ public class MainMenuButton : WindowRecyclableUGUI
 	{
 		base.init();
 		// auto generate init start
-		btn.registeCollider(onbtnClick);
 		// auto generate init end
 		
 		btn.setUGUIButtonClick(() => onClick?.Invoke());
@@ -55,10 +54,6 @@ public class MainMenuButton : WindowRecyclableUGUI
 		base.onShow();
 	}
 	//--------------------------------------------------------------------------------------------------------------------------------------------
-	protected void onbtnClick()
-	{
-		;
-	}
 
 	public void setName(string name)
 	{

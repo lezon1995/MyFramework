@@ -87,15 +87,18 @@ namespace MoreMountains
             return false;
         }
 
-        public BallItem PullFrom(int slotIndex)
+        public bool PullFrom(int slotIndex, out BallItem item)
         {
             var slot = GetSlot(slotIndex);
             if (slot == null)
-                return null;
+            {
+                item = null;
+                return false;
+            }
 
-            var b = slot.Clear();
+            item = slot.Clear();
             OnSlotsChanged?.Invoke();
-            return b;
+            return item != null;
         }
 
         public bool MoveTo(int src, int dst)
