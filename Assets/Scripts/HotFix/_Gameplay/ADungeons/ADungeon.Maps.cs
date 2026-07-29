@@ -648,7 +648,7 @@ namespace MoreMountains
                     Game.publisherIntegration?.setRichPresenceDisplayPlaying(floorNum, player.getLocalizedCharacterName());
 
                 room.onRoomInitialize();
-                room.onPlayerEntry();
+                room.onPlayerEntry(player);
             }
 
             if (room is MonsterRoom && !isLoadingPostCombatSave)

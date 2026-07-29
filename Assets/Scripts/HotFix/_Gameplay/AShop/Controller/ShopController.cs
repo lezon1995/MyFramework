@@ -17,11 +17,12 @@ namespace MoreMountains
         List<RelicOffer> _relicOffers = new();
 
         public ShopState State { get; private set; } = ShopState.Idle;
-        public IReadOnlyList<BallOffer> BallOffers => _ballOffers;
-        public IReadOnlyList<RelicOffer> RelicOffers => _relicOffers;
+        public List<BallOffer> BallOffers => _ballOffers;
+        public List<RelicOffer> RelicOffers => _relicOffers;
 
         public ShopBoardKind CurrentBoardKind => State switch
         {
+            ShopState.ShowingMixedBoard => ShopBoardKind.Mixed,
             ShopState.ShowingBallBoard => ShopBoardKind.Ball,
             ShopState.ShowingRelicBoard => ShopBoardKind.Relic,
             _ => ShopBoardKind.Ball,
@@ -38,9 +39,9 @@ namespace MoreMountains
             if (State != ShopState.Idle)
                 ExitShopInternal(raiseClosed: false);
 
-            State = ShopState.ShowingBallBoard;
+            State = ShopState.ShowingMixedBoard;
             ShopEvents.RaiseShopOpened();
-            OpenBoard(ShopBoardKind.Ball);
+            OpenBoard(ShopBoardKind.Mixed);
         }
 
         public void OpenBoard(ShopBoardKind kind)
@@ -52,19 +53,47 @@ namespace MoreMountains
                 return;
             }
 
-            if (kind == ShopBoardKind.Ball)
+            switch (kind)
             {
-                _ballOffers.Clear();
-                _ballOffers.AddRange(_refresh.GenerateBallOffers(cfg.BallOfferCount, cfg.BallOfferPool));
-                State = ShopState.ShowingBallBoard;
-                ShopEvents.RaiseBoardOpened(ShopBoardKind.Ball);
-            }
-            else
-            {
-                _relicOffers.Clear();
-                _relicOffers.AddRange(_refresh.GenerateRelicOffers(cfg.RelicOfferCount, cfg.RelicOfferPool));
-                State = ShopState.ShowingRelicBoard;
-                ShopEvents.RaiseBoardOpened(ShopBoardKind.Relic);
+                case ShopBoardKind.Mixed:
+                {
+                    foreach (var offer in _ballOffers)
+                        UN_CLASS(offer);
+
+                    _ballOffers.Clear();
+
+                    foreach (var offer in _relicOffers)
+                        UN_CLASS(offer);
+
+                    _relicOffers.Clear();
+
+                    _refresh.GenerateMixedOffers(cfg.MixedOfferCount, cfg.BallOfferPool, ref _ballOffers, cfg.RelicOfferPool, ref _relicOffers);
+                    State = ShopState.ShowingMixedBoard;
+                    ShopEvents.RaiseBoardOpened(ShopBoardKind.Mixed);
+                    break;
+                }
+                case ShopBoardKind.Ball:
+                {
+                    foreach (var offer in _ballOffers)
+                        UN_CLASS(offer);
+
+                    _ballOffers.Clear();
+                    _refresh.GenerateBallOffers(cfg.BallOfferCount, cfg.BallOfferPool, ref _ballOffers);
+                    State = ShopState.ShowingBallBoard;
+                    ShopEvents.RaiseBoardOpened(ShopBoardKind.Ball);
+                    break;
+                }
+                case ShopBoardKind.Relic:
+                {
+                    foreach (var offer in _relicOffers)
+                        UN_CLASS(offer);
+
+                    _relicOffers.Clear();
+                    _refresh.GenerateRelicOffers(cfg.RelicOfferCount, cfg.RelicOfferPool, ref _relicOffers);
+                    State = ShopState.ShowingRelicBoard;
+                    ShopEvents.RaiseBoardOpened(ShopBoardKind.Relic);
+                    break;
+                }
             }
         }
 
@@ -75,37 +104,54 @@ namespace MoreMountains
                 return false;
 
             int cost;
-            if (State == ShopState.ShowingBallBoard)
+            switch (State)
             {
-                cost = cfg.BallBoardRerollCost;
-                if (!shopSystem.Player.Wallet.CanPay(cost))
+                case ShopState.ShowingMixedBoard:
                 {
-                    logWarning("金币不足以重新随机");
-                    return false;
+                    cost = cfg.MixedBoardRerollCost;
+                    if (!shopSystem.Player.Wallet.CanPay(cost))
+                    {
+                        logWarning("金币不足以重新随机");
+                        return false;
+                    }
+
+                    shopSystem.Player.loseGold(cost, PayType.MIXED_REROLL);
+                    _refresh.RerollMixedOffers(cfg.MixedOfferCount, cfg.BallOfferPool, ref _ballOffers, cfg.RelicOfferPool, ref _relicOffers);
+                    ShopEvents.RaiseBoardRerolled(ShopBoardKind.Mixed);
+                    return true;
                 }
 
-                shopSystem.Player.loseGold(cost, PayType.BALL_REROLL);
-                _refresh.RerollBallOffers(_ballOffers, cfg.BallOfferCount, cfg.BallOfferPool);
-                ShopEvents.RaiseBoardRerolled(ShopBoardKind.Ball);
-                return true;
-            }
-
-            if (State == ShopState.ShowingRelicBoard)
-            {
-                cost = cfg.RelicBoardRerollCost;
-                if (!shopSystem.Player.Wallet.CanPay(cost))
+                case ShopState.ShowingBallBoard:
                 {
-                    logWarning("金币不足以重新随机");
-                    return false;
+                    cost = cfg.BallBoardRerollCost;
+                    if (!shopSystem.Player.Wallet.CanPay(cost))
+                    {
+                        logWarning("金币不足以重新随机");
+                        return false;
+                    }
+
+                    shopSystem.Player.loseGold(cost, PayType.BALL_REROLL);
+                    _refresh.RerollBallOffers(_ballOffers, cfg.BallOfferCount, cfg.BallOfferPool);
+                    ShopEvents.RaiseBoardRerolled(ShopBoardKind.Ball);
+                    return true;
                 }
+                case ShopState.ShowingRelicBoard:
+                {
+                    cost = cfg.RelicBoardRerollCost;
+                    if (!shopSystem.Player.Wallet.CanPay(cost))
+                    {
+                        logWarning("金币不足以重新随机");
+                        return false;
+                    }
 
-                shopSystem.Player.loseGold(cost, PayType.RELIC_REROLL);
-                _refresh.RerollRelicOffers(_relicOffers, cfg.RelicOfferCount, cfg.RelicOfferPool);
-                ShopEvents.RaiseBoardRerolled(ShopBoardKind.Relic);
-                return true;
+                    shopSystem.Player.loseGold(cost, PayType.RELIC_REROLL);
+                    _refresh.RerollRelicOffers(_relicOffers, cfg.RelicOfferCount, cfg.RelicOfferPool);
+                    ShopEvents.RaiseBoardRerolled(ShopBoardKind.Relic);
+                    return true;
+                }
+                default:
+                    return false;
             }
-
-            return false;
         }
 
         public bool OnPlayerClickNext()
@@ -116,6 +162,9 @@ namespace MoreMountains
                     OpenBoard(ShopBoardKind.Relic);
                     return true;
                 case ShopState.ShowingRelicBoard:
+                    FinishShopAndNotify();
+                    return true;
+                case ShopState.ShowingMixedBoard:
                     FinishShopAndNotify();
                     return true;
                 default:
@@ -133,7 +182,13 @@ namespace MoreMountains
 
         void ExitShopInternal(bool raiseClosed)
         {
+            foreach (var offer in _ballOffers)
+                UN_CLASS(offer);
+
             _ballOffers.Clear();
+            foreach (var offer in _relicOffers)
+                UN_CLASS(offer);
+
             _relicOffers.Clear();
             State = ShopState.Done;
             if (raiseClosed)

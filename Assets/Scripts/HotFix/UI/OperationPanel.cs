@@ -44,6 +44,8 @@ public partial class OperationPanel : LayoutScript
 		base.init();
 		// auto generate init start
 		// auto generate init end
+
+		initBinder();
 	}
 	public override void onGameState()
 	{

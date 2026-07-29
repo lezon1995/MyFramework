@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 
 namespace MoreMountains
 {
@@ -7,9 +6,9 @@ namespace MoreMountains
     /// PlayerInfo binder —— 负责等级、经验、属性列表显示。
     /// 槽位的显示交给嵌入的 BallSlotGroupView，由 BallSlotGroupBinder 直接驱动。
     /// </summary>
-        public sealed class PlayerInfoBinder
+    public sealed class PlayerInfoBinder
     {
-        readonly PlayerInfoView _view;
+        PlayerInfoView _view;
         BallSlotGroupBinder _slotBinder; // 共享，绑定嵌入的 BallSlotGroupView
         APlayer _player;
 
@@ -31,7 +30,11 @@ namespace MoreMountains
             _view.SetExp(0, 100);
 
             // 属性列表占位
-            _view.BuildPlayerStats(Array.Empty<PlayerStatRow>(), (item, row) => { /* 留空 */ });
+            using var _ = new ListScope<PlayerStatRow>(out var list);
+            _view.BuildPlayerStats(list, (item, row) =>
+            {
+                /* 留空 */
+            });
         }
 
         public void Detach()
@@ -39,8 +42,8 @@ namespace MoreMountains
             _player = null;
         }
 
-        public void RefreshExp(int cur, int max)        => _view.SetExp(cur, max);
-        public void RefreshLevel(int lv)                 => _view.SetLevel(lv);
+        public void RefreshExp(int cur, int max) => _view.SetExp(cur, max);
+        public void RefreshLevel(int lv) => _view.SetLevel(lv);
     }
 
     public struct PlayerStatRow

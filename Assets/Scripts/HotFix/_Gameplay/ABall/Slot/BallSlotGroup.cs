@@ -14,7 +14,7 @@ namespace MoreMountains
 
         public string Name => "SlotGroup";
         public int Capacity => _slots.Count;
-        public IReadOnlyList<BallSlot> Slots => _slots;
+        public List<BallSlot> Slots => _slots;
 
         public int OccupiedCount
         {

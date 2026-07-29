@@ -10,8 +10,9 @@ namespace MoreMountains
     [CreateAssetMenu(menuName = "MyFramework/Gameplay/RelicDef")]
     public sealed class RelicDef : ScriptableObject
     {
-        public int RelicDefId;
-        public string DisplayName = "Relic";
+        public RelicType Type;
+        public int RelicDefId => (int)Type;
+        public string DisplayName => Type.ToString();
         public int BasePrice = 50; // 商店售价
         public int SellRefund = 25; // 售出回收价（也可由 Seller 配置比例）
         public Sprite Icon;

@@ -10,7 +10,7 @@ namespace MoreMountains
         {
         }
 
-        public override void onPlayerEntry()
+        public override void onPlayerEntry(APlayer p)
         {
             monsters = _dungeon.getBoss();
             log("BOSSES: " + ADungeon.bossList.Count);

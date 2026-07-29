@@ -10,7 +10,7 @@ namespace MoreMountains
     /// </summary>
     public sealed class ShopBinder
     {
-        readonly ShopView _view;
+        ShopView _view;
         ShopController _ctrl;
         APlayer _player;
 
@@ -21,16 +21,16 @@ namespace MoreMountains
         Action<int, string> _onGoldEarned;
         Action<int, string> _onGoldSpent;
 
-        readonly List<IPurchasable> _orderedOffers = new();
+        List<IPurchasable> _orderedOffers = new();
 
         public ShopBinder(ShopView view)
         {
             _view = view ?? throw new ArgumentNullException(nameof(view));
             _onBoardRefreshed = _ => Rebuild();
-            _onOfferSold    = _ => Rebuild();
-            _onSoldFromBag  = _ => Rebuild();
-            _onGoldEarned   = (g, _) => RefreshCoin();
-            _onGoldSpent    = (g, _) => RefreshCoin();
+            _onOfferSold = _ => Rebuild();
+            _onSoldFromBag = _ => Rebuild();
+            _onGoldEarned = (g, _) => RefreshCoin();
+            _onGoldSpent = (g, _) => RefreshCoin();
         }
 
         public event Action<IPurchasable> OfferBuyClicked;
@@ -50,12 +50,12 @@ namespace MoreMountains
             _view.BtnReroll.setUGUIButtonClick(OnRerollClicked);
             _view.BtnBuyExp.setUGUIButtonClick(OnBuyExpClicked);
 
-            ShopEvents.OnBoardOpened   += _onBoardRefreshed;
+            ShopEvents.OnBoardOpened += _onBoardRefreshed;
             ShopEvents.OnBoardRerolled += _onBoardRefreshed;
-            ShopEvents.OnOfferSold     += _onOfferSold;
-            ShopEvents.OnSoldFromBag   += _onSoldFromBag;
-            ShopEvents.OnGoldEarned    += _onGoldEarned;
-            ShopEvents.OnGoldSpent     += _onGoldSpent;
+            ShopEvents.OnOfferSold += _onOfferSold;
+            ShopEvents.OnSoldFromBag += _onSoldFromBag;
+            ShopEvents.OnGoldEarned += _onGoldEarned;
+            ShopEvents.OnGoldSpent += _onGoldSpent;
 
             RefreshCoin();
             Rebuild();
@@ -63,50 +63,52 @@ namespace MoreMountains
 
         public void Detach()
         {
-            if (_ctrl == null) return;
-            ShopEvents.OnBoardOpened   -= _onBoardRefreshed;
+            if (_ctrl == null) 
+                return;
+
+            ShopEvents.OnBoardOpened -= _onBoardRefreshed;
             ShopEvents.OnBoardRerolled -= _onBoardRefreshed;
-            ShopEvents.OnOfferSold     -= _onOfferSold;
-            ShopEvents.OnSoldFromBag   -= _onSoldFromBag;
-            ShopEvents.OnGoldEarned    -= _onGoldEarned;
-            ShopEvents.OnGoldSpent     -= _onGoldSpent;
+            ShopEvents.OnOfferSold -= _onOfferSold;
+            ShopEvents.OnSoldFromBag -= _onSoldFromBag;
+            ShopEvents.OnGoldEarned -= _onGoldEarned;
+            ShopEvents.OnGoldSpent -= _onGoldSpent;
             _player = null;
             _ctrl = null;
         }
 
         public void Rebuild()
         {
-            if (_ctrl == null) return;
+            if (_ctrl == null) 
+                return;
+
             RefreshCoin();
 
             _orderedOffers.Clear();
-            var ballList = new List<BallOffer>(_ctrl.BallOffers);
-            var relicList = new List<RelicOffer>(_ctrl.RelicOffers);
 
-            _view.BuildBallOffers(ballList, (item, offer) =>
+            _view.BuildBallOffers(_ctrl.BallOffers, (item, offer) =>
             {
                 _orderedOffers.Add(offer);
                 item.SetName(offer.DisplayName ?? "—");
                 item.SetPrice(offer.Price);
-                if (offer.Def != null)
+                if (offer.Def)
                     item.SetDesc(offer.Def.GetType().Name);
-                if (offer.Def is BallDef bd && bd.Icon != null)
-                    item.SetIcon(bd.Icon);
+                if (offer.Def.Icon)
+                    item.SetIcon(offer.Def.Icon);
                 item.SetHovered(false);
                 item.SetNewTag(offer.Enabled);
                 item.Btn.setInteractable(offer.Enabled);
                 item.Btn.setUGUIButtonClick(() => OnOfferClicked(offer));
             });
 
-            _view.BuildRelicOffers(relicList, (item, offer) =>
+            _view.BuildRelicOffers(_ctrl.RelicOffers, (item, offer) =>
             {
                 _orderedOffers.Add(offer);
                 item.SetName(offer.DisplayName ?? "—");
                 item.SetPrice(offer.Price);
-                if (offer.Def != null)
+                if (offer.Def)
                     item.SetDesc(offer.Def.GetType().Name);
-                if (offer.Def is RelicDef rd && rd.Icon != null)
-                    item.SetIcon(rd.Icon);
+                if (offer.Def.Icon)
+                    item.SetIcon(offer.Def.Icon);
                 item.SetHovered(false);
                 item.SetNewTag(offer.Enabled);
                 item.Btn.setInteractable(offer.Enabled);
@@ -116,12 +118,14 @@ namespace MoreMountains
 
         void OnOfferClicked(IPurchasable offer)
         {
-            if (offer == null) return;
+            if (offer == null) 
+                return;
+
             OfferBuyClicked?.Invoke(offer);
         }
 
-        void OnRerollClicked()      => RerollClicked?.Invoke();
-        void OnBuyExpClicked()      => BuyExpClicked?.Invoke();
+        void OnRerollClicked() => RerollClicked?.Invoke();
+        void OnBuyExpClicked() => BuyExpClicked?.Invoke();
 
         public void RefreshCoin()
         {

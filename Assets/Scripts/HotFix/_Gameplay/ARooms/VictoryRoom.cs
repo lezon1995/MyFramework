@@ -18,7 +18,7 @@
             eType = type;
         }
 
-        public override void onPlayerEntry()
+        public override void onPlayerEntry(APlayer p)
         {
             // ADungeon.overlayMenu.proceedButton.hide();
             // switch (eType)

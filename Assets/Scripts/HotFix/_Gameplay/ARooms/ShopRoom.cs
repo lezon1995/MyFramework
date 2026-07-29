@@ -25,7 +25,7 @@
         // merchant = merc;
         // }
 
-        public override void onPlayerEntry()
+        public override void onPlayerEntry(APlayer p)
         {
             if (ADungeon.id != ("TheEnding"))
                 playBGM("SHOP");

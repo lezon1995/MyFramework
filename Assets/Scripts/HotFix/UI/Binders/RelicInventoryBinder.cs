@@ -7,9 +7,9 @@ namespace MoreMountains
     /// 遗物背包 binder —— 把 RelicBag 同步到 RelicInventoryView。
     /// 行为与 BallInventoryBinder 一致：单击选中，操作委托给 OperationPanelBinder。
     /// </summary>
-        public sealed class RelicInventoryBinder
+    public sealed class RelicInventoryBinder
     {
-        readonly RelicInventoryView _view;
+        RelicInventoryView _view;
         RelicBag _bag;
 
         RelicItem _selected;
@@ -26,7 +26,9 @@ namespace MoreMountains
 
         public void Attach(RelicBag bag)
         {
-            if (_bag != null) Detach();
+            if (_bag != null) 
+                Detach();
+
             _bag = bag ?? throw new ArgumentNullException(nameof(bag));
             _view.SetTitle("RELICS");
             _bag.OnItemAdded += OnBagItemAdded;
@@ -37,7 +39,9 @@ namespace MoreMountains
 
         public void Detach()
         {
-            if (_bag == null) return;
+            if (_bag == null) 
+                return;
+
             _bag.OnItemAdded -= OnBagItemAdded;
             _bag.OnItemRemoved -= OnBagItemRemoved;
             _bag.OnBagChanged -= OnBagAnyChanged;
@@ -51,7 +55,9 @@ namespace MoreMountains
 
         public void Rebuild()
         {
-            if (_bag == null) return;
+            if (_bag == null) 
+                return;
+
             var items = new List<RelicItem>(_bag.AllItems);
 
             _view.BuildRelics(items, (item, relic) =>
@@ -65,7 +71,9 @@ namespace MoreMountains
 
         void OnRelicClicked(RelicItem relic)
         {
-            if (relic == null) return;
+            if (relic == null) 
+                return;
+
             _selected = ReferenceEquals(_selected, relic) ? null : relic;
             UpdateSelectionVisuals();
             if (_selected != null) RelicSelected?.Invoke(_selected);
@@ -73,7 +81,9 @@ namespace MoreMountains
 
         void UpdateSelectionVisuals()
         {
-            if (_bag == null) return;
+            if (_bag == null) 
+                return;
+
             int i = 0;
             foreach (var relic in _bag.AllItems)
             {
@@ -81,13 +91,16 @@ namespace MoreMountains
                 {
                     item.SetSelected(ReferenceEquals(relic, _selected));
                 }
+
                 i++;
             }
         }
 
         public void RequestSellSelected()
         {
-            if (_selected == null) return;
+            if (_selected == null) 
+                return;
+
             SellRequested?.Invoke(_selected);
         }
 

@@ -10,7 +10,7 @@
             evt = new NeowEvent(isDone);
         }
 
-        public override void onPlayerEntry()
+        public override void onPlayerEntry(APlayer p)
         {
             // ADungeon.overlayMenu.proceedButton.hide();
             evt.onEnterRoom();

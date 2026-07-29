@@ -14,4 +14,20 @@ public partial class OperationPanel
 
     public void SetTitle(string s) => textTitle.setText(s ?? string.Empty);
     public void SetBtnLabel(string s) => textBtn.setText(s ?? string.Empty);
+
+    OperationPanelBinder binder;
+    
+    void initBinder()
+    {
+        binder = new(
+            this, 
+            ballInventoryView.initBinder(),
+            relicInventoryView.initBinder(),
+            playerInfoView.SlotGroup.initBinder(),
+            shopView.initBinder(),
+            playerInfoView.initBinder()
+            );
+        
+        OperationPanelService.Instance.Register(this, binder);
+    }
 }

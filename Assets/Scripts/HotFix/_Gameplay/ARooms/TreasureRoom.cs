@@ -18,7 +18,7 @@
             // mapImgOutline = ImageMaster.MAP_NODE_TREASURE_OUTLINE;
         }
 
-        public override void onPlayerEntry()
+        public override void onPlayerEntry(APlayer p)
         {
             playBGM(null);
             // chest = ADungeon.getRandomChest();

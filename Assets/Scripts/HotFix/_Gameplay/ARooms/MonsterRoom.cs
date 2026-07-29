@@ -37,9 +37,9 @@ namespace MoreMountains
             loadCoinManager();
         }
 
-        public override void onPlayerEntry()
+        public override void onPlayerEntry(APlayer p)
         {
-            base.onPlayerEntry();
+            base.onPlayerEntry(p);
             playBGM(null);
 
             if (monsters == null)

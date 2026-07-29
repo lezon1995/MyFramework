@@ -21,7 +21,7 @@ namespace MoreMountains
     {
         static OperationPanelService sInstance;
 
-        public static OperationPanelService Instance => sInstance ??= new OperationPanelService();
+        public static OperationPanelService Instance => sInstance ??= new();
 
         OperationPanel _panel;
         OperationPanelBinder _binder;
@@ -66,7 +66,7 @@ namespace MoreMountains
         /// <summary>打开面板，使用最近一次绑定过的玩家；不存在则报错。</summary>
         public void Open()
         {
-            if (_boundPlayer != null)
+            if (_boundPlayer)
             {
                 Open(_boundPlayer);
                 return;

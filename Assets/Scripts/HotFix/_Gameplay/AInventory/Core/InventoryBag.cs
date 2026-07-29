@@ -15,7 +15,7 @@ namespace MoreMountains
         public string BagName { get; }
         public int MaxCapacity { get; }
 
-        public IReadOnlyList<T> AllItems => Items;
+        public List<T> AllItems => Items;
 
         public int Count => Items.Count;
 

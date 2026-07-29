@@ -14,7 +14,7 @@ namespace MoreMountains
     /// </summary>
     public sealed class BallSlotGroupBinder
     {
-        readonly BallSlotGroupView _view;
+        BallSlotGroupView _view;
         BallSlotGroup _model;
         int _selectedSlotIndex = -1;
 
@@ -29,7 +29,9 @@ namespace MoreMountains
 
         public void Attach(BallSlotGroup model)
         {
-            if (_model != null) Detach();
+            if (_model != null) 
+                Detach();
+
             _model = model ?? throw new ArgumentNullException(nameof(model));
             _view.SetTitle("SLOTS");
             _model.OnSlotsChanged += OnModelChanged;
@@ -40,12 +42,15 @@ namespace MoreMountains
         {
             if (_model != null)
                 _model.OnSlotsChanged -= OnModelChanged;
+
             _model = null;
         }
 
         public void SetSelectedSlot(int index)
         {
-            if (_selectedSlotIndex == index) return;
+            if (_selectedSlotIndex == index) 
+                return;
+
             _selectedSlotIndex = index;
             UpdateSelectionVisuals();
             SelectionChanged?.Invoke(_selectedSlotIndex);
@@ -55,7 +60,9 @@ namespace MoreMountains
 
         public void Rebuild()
         {
-            if (_model == null) return;
+            if (_model == null) 
+                return;
+
             var slots = new List<BallSlot>(_model.Slots);
 
             _view.BuildSlots(slots, (item, slot) =>
@@ -70,7 +77,9 @@ namespace MoreMountains
 
         void UpdateSelectionVisuals()
         {
-            if (_model == null) return;
+            if (_model == null) 
+                return;
+
             int i = 0;
             foreach (var slot in _model.Slots)
             {
@@ -78,6 +87,7 @@ namespace MoreMountains
                 {
                     item.SetSelected(_selectedSlotIndex == slot.Index);
                 }
+
                 i++;
             }
         }
@@ -90,8 +100,10 @@ namespace MoreMountains
 
         static int ClampStars(int level)
         {
-            if (level < 0) return 0;
-            if (level > 3) return 3;
+            if (level < 0) 
+                return 0;
+            if (level > 3) 
+                return 3;
             return level;
         }
     }

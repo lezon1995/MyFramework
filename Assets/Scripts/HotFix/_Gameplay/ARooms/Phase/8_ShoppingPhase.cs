@@ -14,7 +14,7 @@ public class ShoppingPhase : APhase
         log("进入 商店购买阶段 按数字键盘1 开启下一波");
 
         // 通过全局 Service 打开 OperationPanel；面板内部已经绑定或会重绑当前玩家。
-        OperationPanelService.Instance.Open();
+        OperationPanelService.Instance.Open(_room.Player);
     }
 
     public override void onEnd()

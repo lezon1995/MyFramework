@@ -8,10 +8,9 @@ public partial class BallSlotGroupView
     public void SetTitle(string s) => textTitle.setText(s ?? string.Empty);
     public myUGUIObject SlotRoot => itemParent;
 
-    public void BuildSlots<TData>(IList<TData> dataList, Action<BallSlotItem, TData> onBuild)
+    public void BuildSlots<TData>(List<TData> dataList, Action<BallSlotItem, TData> onBuild)
     {
-        var list = dataList is List<TData> l ? l : new List<TData>(dataList);
-        BallSlotItemPool.newItemList(list, (item, data) => onBuild?.Invoke(item, data));
+        BallSlotItemPool.newItemList(dataList, (item, data) => onBuild?.Invoke(item, data));
     }
 
     /// <summary>取第 index 个已经分配（used）的 item。Binder 用于选中态同步。</summary>
@@ -26,5 +25,12 @@ public partial class BallSlotGroupView
 
         item = null;
         return false;
+    }
+    
+    BallSlotGroupBinder binder;
+
+    public BallSlotGroupBinder initBinder()
+    {
+        return binder ??= new(this);
     }
 }

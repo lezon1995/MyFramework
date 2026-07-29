@@ -48,7 +48,7 @@ namespace MoreMountains
                     SaveHelper.saveIfAppropriate(SaveType.ENTER_ROOM);
             }
             
-            room.onPlayerEntry();
+            room.onPlayerEntry(player);
         }
 
         public override void initializeByFile(SaveFile saveFile)

@@ -7,10 +7,9 @@ public partial class RelicInventoryView
     public void SetTitle(string s) => textTitle.setText(s ?? string.Empty);
     public myUGUIObject ItemParent => itemParent;
 
-    public void BuildRelics<TData>(IList<TData> dataList, System.Action<RelicInventoryItem, TData> onBuild)
+    public void BuildRelics<TData>(List<TData> dataList, System.Action<RelicInventoryItem, TData> onBuild)
     {
-        var list = dataList is List<TData> l ? l : new List<TData>(dataList);
-        RelicInventoryItemPool.newItemList(list, (item, data) => onBuild?.Invoke(item, data));
+        RelicInventoryItemPool.newItemList(dataList, (item, data) => onBuild?.Invoke(item, data));
     }
 
     public bool GetUsedItem(int index, out RelicInventoryItem item)
@@ -24,5 +23,12 @@ public partial class RelicInventoryView
 
         item = null;
         return false;
+    }
+
+    RelicInventoryBinder binder;
+
+    public RelicInventoryBinder initBinder()
+    {
+        return binder ??= new(this);
     }
 }

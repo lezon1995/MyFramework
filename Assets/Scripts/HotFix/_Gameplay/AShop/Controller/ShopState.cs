@@ -6,6 +6,7 @@ namespace MoreMountains
     public enum ShopState : byte
     {
         Idle,
+        ShowingMixedBoard,
         ShowingBallBoard,
         ShowingRelicBoard,
         Done,

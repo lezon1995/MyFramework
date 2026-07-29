@@ -16,15 +16,20 @@ public partial class ShopView
     public myUGUIButton BtnBuyExp => btnBuyExp;
 
     /// <summary>把现有的 UI 项全部回收，然后按 data 列表重建。每项回调里把数据塞到 UI。</summary>
-    public void BuildBallOffers<TData>(IList<TData> dataList, Action<BallPurchaseItem, TData> onBuild)
+    public void BuildBallOffers<TData>(List<TData> dataList, Action<BallPurchaseItem, TData> onBuild)
     {
-        var list = dataList is List<TData> l ? l : new List<TData>(dataList);
-        BallPurchaseItemPool.newItemList(list, (item, data) => onBuild?.Invoke(item, data));
+        BallPurchaseItemPool.newItemList(dataList, (item, data) => onBuild?.Invoke(item, data));
     }
 
-    public void BuildRelicOffers<TData>(IList<TData> dataList, Action<RelicPurchaseItem, TData> onBuild)
+    public void BuildRelicOffers<TData>(List<TData> dataList, Action<RelicPurchaseItem, TData> onBuild)
     {
-        var list = dataList is List<TData> l ? l : new List<TData>(dataList);
-        RelicPurchaseItemPool.newItemList(list, (item, data) => onBuild?.Invoke(item, data));
+        RelicPurchaseItemPool.newItemList(dataList, (item, data) => onBuild?.Invoke(item, data));
+    }
+
+    ShopBinder binder;
+
+    public ShopBinder initBinder()
+    {
+        return binder ??= new(this);
     }
 }

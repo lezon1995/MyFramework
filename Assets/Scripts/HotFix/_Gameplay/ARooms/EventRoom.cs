@@ -4,7 +4,7 @@
     {
         public override RoomType Type => RoomType.EVENT;
 
-        public override void onPlayerEntry()
+        public override void onPlayerEntry(APlayer p)
         {
             // ADungeon.overlayMenu.proceedButton.hide();
             // var eventRngDuplicate = new Rand(Settings.seed, ADungeon.eventRng.counter);

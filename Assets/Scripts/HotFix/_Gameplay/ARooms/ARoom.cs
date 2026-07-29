@@ -51,6 +51,7 @@ namespace MoreMountains
         public RoomPhaseType CurPhase { get; set; }
         public RoomPhaseType ToPhase { get; set; }
         public bool inPlayerTurn => CurPhase == RoomPhaseType.BATTLE;
+        public APlayer Player => _player;
 
         // public List<AbstractPotion> potions = new();
         public List<ARelic> relics = new();
@@ -64,6 +65,7 @@ namespace MoreMountains
         public Timer rewardPopOutTimer = 1.0F;
         public Timer waitTimer;
         protected string mapSymbol;
+        protected APlayer _player;
 
         public bool isFightStarted;
         public bool isFightEnded;
@@ -88,8 +90,9 @@ namespace MoreMountains
         {
         }
 
-        public virtual void onPlayerEntry()
+        public virtual void onPlayerEntry(APlayer p)
         {
+            _player = p;
             log($"onPlayerEntry Room {GetType().Name}");
         }
 

@@ -10,6 +10,7 @@ namespace MoreMountains
         DEFAULT,
         BALL_BUY,
         RELIC_BUY,
+        MIXED_REROLL,
         BALL_REROLL,
         RELIC_REROLL,
         BALL_UPGRADE,

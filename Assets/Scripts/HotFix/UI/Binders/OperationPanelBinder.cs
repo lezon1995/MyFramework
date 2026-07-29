@@ -15,14 +15,14 @@ namespace MoreMountains
     /// 注意：OperationPanel 是 LayoutScript 的子类，需要在 UI 系统里实例化后才能 assignWindow。
     /// 这里持 IObservedView 引用（实际是 OperationPanel 实例），由外部传入。
     /// </summary>
-        public sealed class OperationPanelBinder
+    public sealed class OperationPanelBinder
     {
-        readonly OperationPanel _panel;
-        readonly BallInventoryBinder _ballInv;
-        readonly RelicInventoryBinder _relicInv;
-        readonly BallSlotGroupBinder _slotBinder;
-        readonly ShopBinder _shop;
-        readonly PlayerInfoBinder _playerInfo;
+        OperationPanel _panel;
+        BallInventoryBinder _ballInv;
+        RelicInventoryBinder _relicInv;
+        BallSlotGroupBinder _slotBinder;
+        ShopBinder _shop;
+        PlayerInfoBinder _playerInfo;
         APlayer _player;
 
         public OperationPanelBinder(
@@ -33,24 +33,27 @@ namespace MoreMountains
             ShopBinder shop,
             PlayerInfoBinder playerInfo)
         {
-            _panel        = panel        ?? throw new ArgumentNullException(nameof(panel));
-            _ballInv      = ballInv      ?? throw new ArgumentNullException(nameof(ballInv));
-            _relicInv     = relicInv     ?? throw new ArgumentNullException(nameof(relicInv));
-            _slotBinder   = slotBinder   ?? throw new ArgumentNullException(nameof(slotBinder));
-            _shop         = shop         ?? throw new ArgumentNullException(nameof(shop));
-            _playerInfo   = playerInfo   ?? throw new ArgumentNullException(nameof(playerInfo));
+            _panel = panel ?? throw new ArgumentNullException(nameof(panel));
+            _ballInv = ballInv ?? throw new ArgumentNullException(nameof(ballInv));
+            _relicInv = relicInv ?? throw new ArgumentNullException(nameof(relicInv));
+            _slotBinder = slotBinder ?? throw new ArgumentNullException(nameof(slotBinder));
+            _shop = shop ?? throw new ArgumentNullException(nameof(shop));
+            _playerInfo = playerInfo ?? throw new ArgumentNullException(nameof(playerInfo));
         }
 
-        public BallInventoryBinder BallInventory  => _ballInv;
+        public BallInventoryBinder BallInventory => _ballInv;
         public RelicInventoryBinder RelicInventory => _relicInv;
-        public BallSlotGroupBinder SlotGroup        => _slotBinder;
-        public ShopBinder Shop                      => _shop;
-        public PlayerInfoBinder PlayerInfo          => _playerInfo;
+        public BallSlotGroupBinder SlotGroup => _slotBinder;
+        public ShopBinder Shop => _shop;
+        public PlayerInfoBinder PlayerInfo => _playerInfo;
 
         public void Bind(APlayer player)
         {
-            if (ReferenceEquals(_player, player)) return;
-            if (_player != null) Unbind();
+            if (ReferenceEquals(_player, player)) 
+                return;
+
+            if (_player != null) 
+                Unbind();
 
             _player = player ?? throw new ArgumentNullException(nameof(player));
 
@@ -64,9 +67,9 @@ namespace MoreMountains
             // 监听子 binder 的事件，把 UI 操作翻译成对系统的命令
             _ballInv.EquipRequested += OnEquipBallRequested;
             _ballInv.UpgradeRequested += OnUpgradeBallRequested;
-            _ballInv.SellRequested   += OnSellBallRequested;
+            _ballInv.SellRequested += OnSellBallRequested;
 
-            _relicInv.SellRequested  += OnSellRelicRequested;
+            _relicInv.SellRequested += OnSellRelicRequested;
 
             _shop.RerollClicked += OnShopRerollRequested;
             _shop.BuyExpClicked += OnShopBuyExpRequested;
@@ -84,7 +87,9 @@ namespace MoreMountains
 
         public void Unbind()
         {
-            if (_player == null) return;
+            if (_player == null) 
+                return;
+
             _player.Wallet.OnBalanceChanged -= OnWalletChanged;
             _ballInv.EquipRequested -= OnEquipBallRequested;
             _ballInv.UpgradeRequested -= OnUpgradeBallRequested;
@@ -121,7 +126,9 @@ namespace MoreMountains
 
         void OnEquipBallRequested(BallItem ball, int slotIndex)
         {
-            if (_player == null) return;
+            if (_player == null) 
+                return;
+
             // slotIndex 是 UI 调用方传入的目标槽；缺省时回退到 binder 当前选中的槽
             int target = slotIndex >= 0 ? slotIndex : _slotBinder.SelectedSlotIndex;
             if (target < 0)
@@ -133,6 +140,7 @@ namespace MoreMountains
             {
                 _player.BallManagement.EquipBall(ball, target);
             }
+
             _ballInv.ClearSelection();
         }
 
@@ -144,7 +152,9 @@ namespace MoreMountains
 
         void OnUpgradeBallRequested(BallItem ball)
         {
-            if (_player == null) return;
+            if (_player == null) 
+                return;
+
             // 升级：升级服务 TryUpgrade 期望多个 candidate；这里传入单个，由调用方选择 N-up-1 校验
             // 简化：调用方接 list 后再做。我们先把单球升级视作"无效"返回。
             // 实际应让 UI 多选模式下把 candidate list 传进来：此处仅暴露事件。
@@ -155,35 +165,45 @@ namespace MoreMountains
 
         void OnSellBallRequested(BallItem ball)
         {
-            if (_player == null) return;
+            if (_player == null) 
+                return;
+
             _player.Shop.Controller.OnPlayerSellBall(_player, ball);
             _ballInv.ClearSelection();
         }
 
         void OnSellRelicRequested(RelicItem relic)
         {
-            if (_player == null) return;
+            if (_player == null) 
+                return;
+
             _player.Shop.Controller.OnPlayerSellRelic(relic);
             _relicInv.ClearSelection();
         }
 
         void OnShopBuyRequested(IPurchasable offer)
         {
-            if (_player == null || offer == null) return;
+            if (_player == null || offer == null) 
+                return;
 
             // 由 ShopController 暴露的购买接口（依 kind 分发）：
-            if (offer is BallOffer ballOffer && ballOffer.Def != null)
+            if (offer is BallOffer ballOffer && ballOffer.Def)
             {
                 int price = ballOffer.Price;
-                if (!_player.Wallet.Pay(price, PayType.BALL_BUY)) return;
+                if (!_player.Wallet.Pay(price, PayType.BALL_BUY)) 
+                    return;
+                
                 var created = _player.BallManagement.Shop.PurchaseAndStore(ballOffer.Def);
-                if (created != null) ballOffer.MarkSold();
+                if (created != null) 
+                    ballOffer.MarkSold();
+
                 ShopEvents.RaiseOfferSold(ballOffer);
             }
             else if (offer is RelicOffer relicOffer && relicOffer.Def != null)
             {
                 int price = relicOffer.Price;
-                if (!_player.Wallet.Pay(price, PayType.RELIC_BUY)) return;
+                if (!_player.Wallet.Pay(price, PayType.RELIC_BUY)) 
+                    return;
 
                 // 反射创建 ARelic；要求 RelicDef.RelicTypeName 有效（策划需填）
                 ARelic underlying = null;
@@ -193,6 +213,7 @@ namespace MoreMountains
                     _player.Wallet.Earn(price, EarnType.OTHER, "rollback_buy_relic");
                     return;
                 }
+
                 try
                 {
                     var t = Type.GetType(relicOffer.Def.RelicTypeName);
@@ -216,6 +237,7 @@ namespace MoreMountains
                     _player.Wallet.Earn(price, EarnType.OTHER, "rollback_buy_relic");
                     return;
                 }
+
                 relicOffer.MarkSold();
                 ShopEvents.RaiseOfferSold(relicOffer);
             }

@@ -4,7 +4,7 @@
     {
         public override RoomType Type => RoomType.EMPTY;
         
-        public override void onPlayerEntry()
+        public override void onPlayerEntry(APlayer p)
         {
         }
     }

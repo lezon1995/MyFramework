@@ -40,7 +40,7 @@
             return null;
         }
 
-        public override void onPlayerEntry()
+        public override void onPlayerEntry(APlayer p)
         {
             // music.silenceBGM();
             // if (ADungeon.actNum < 4 || !APlayer.customMods.Contains("Blight Chests"))

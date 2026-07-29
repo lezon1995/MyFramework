@@ -32,7 +32,7 @@ namespace MoreMountains
             }
         }
 
-        public override void onPlayerEntry()
+        public override void onPlayerEntry(APlayer p)
         {
             playBGM(null);
             if (monsters == null)

@@ -8,7 +8,7 @@
         public static int lastFireSoundId;
         // public CampfireUI campfireUI;
 
-        public override void onPlayerEntry()
+        public override void onPlayerEntry(APlayer p)
         {
             // if (ADungeon.id != ("TheEnding"))
             // music.silenceBGM();

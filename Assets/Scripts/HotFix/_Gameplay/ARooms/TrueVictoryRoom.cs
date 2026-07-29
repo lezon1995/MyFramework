@@ -13,7 +13,7 @@
             // ADungeon.overlayMenu.proceedButton.hideInstantly();
         }
 
-        public override void onPlayerEntry()
+        public override void onPlayerEntry(APlayer p)
         {
             ADungeon.isScreenUp = true;
             // ADungeon.overlayMenu.proceedButton.hide();

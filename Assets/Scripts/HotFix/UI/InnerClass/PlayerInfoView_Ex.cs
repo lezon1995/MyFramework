@@ -24,13 +24,19 @@ public partial class PlayerInfoView
 
     public myUGUIObject StatListRoot => itemParent;
 
-    public void BuildPlayerStats<TData>(IList<TData> dataList, Action<PlayerStatItem, TData> onBuild)
+    public void BuildPlayerStats<TData>(List<TData> dataList, Action<PlayerStatItem, TData> onBuild)
     {
-        var list = dataList is List<TData> l ? l : new List<TData>(dataList);
-        PlayerStatItemPool.newItemList(list, (item, data) => onBuild?.Invoke(item, data));
+        PlayerStatItemPool.newItemList(dataList, (item, data) => onBuild?.Invoke(item, data));
     }
 
     public BallSlotGroupView SlotGroup => ballSlotGroupView;
+
+    PlayerInfoBinder binder;
+
+    public PlayerInfoBinder initBinder()
+    {
+        return binder ??= new(this, ballSlotGroupView.initBinder());
+    }
 }
 
 public partial class PlayerStatItem
