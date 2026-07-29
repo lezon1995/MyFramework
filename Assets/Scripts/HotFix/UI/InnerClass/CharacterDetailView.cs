@@ -1,9 +1,7 @@
-﻿
+﻿namespace MoreMountains;
 // auto generate classname start
 // generate from:Assets/GameResources/UI/UIPrefab/SelectPlayerPanel.prefab
 // 
-
-using MoreMountains;
 
 public class CharacterDetailView : WindowObjectUGUI
 // auto generate classname end

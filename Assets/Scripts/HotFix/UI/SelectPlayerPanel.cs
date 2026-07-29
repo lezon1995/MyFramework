@@ -53,6 +53,68 @@ public partial class SelectPlayerPanel : LayoutScript
         characterListView.initPlayerItems();
         initNextStepButton();
         updateNextStepButton();
+        
+        /*btnConfirm.registeCollider(vec3 =>
+        {
+            Debug.Log($"click at pos={vec3}");
+        });
+        if (btnConfirm.getOrAddComponent<COMWindowDrag>(out var drag))
+        {
+            drag.setDragStartCallback((ComponentOwner obj, TouchPoint point, ref bool allowDrag) =>
+            {
+                Debug.Log($"Drag Start obj={obj.getName()} point={point.getCurPosition()} allowDrag={allowDrag}");
+            });
+            drag.setDraggingCallback((obj, pos) =>
+            {
+                Debug.Log($"Dragging obj={obj.getName()} pos={pos}");
+            });
+            drag.setDragEndCallback((obj, pos, cancel) =>
+            {
+                Debug.Log($"Drag End obj={obj.getName()} pos={pos} cancel={cancel}");
+            });
+            drag.setDragEndTotallyCallback((obj, pos, cancel) =>
+            {
+                Debug.Log($"Drag End Totally obj={obj.getName()} pos={pos} cancel={cancel}");
+            });
+        }
+        btnConfirm.setOnDragHover((e, pos, hover) =>
+        {
+            Debug.Log($"OnDragHover {e.getName()} pos={pos} hover={hover}");
+        });
+        // btnConfirm.setPassDragEvent();
+        btnConfirm.setOnReceiveDrag((IMouseEventCollect e, Vector3 pos, ref bool flag) =>
+        {
+            Debug.Log($"OnReceiveDrag {e.getName()} pos={pos} flag={flag}");
+        });*/
+        
+        
+        if (btnConfirm.tryGetUnityComponent<UIEventListener>(out var listener))
+        {
+            listener.SetOnDropped(data =>
+            {
+                Debug.Log($"Dropped point={data.position}");
+            });
+            listener.SetOnPotentialDragInitialized(data =>
+            {
+                Debug.Log($"OnPotentialDragInitialized point={data.position}");
+            });
+            listener.SetOnDragStarted(data =>
+            {
+                Debug.Log($"Drag Start point={data.position}");
+            });
+            listener.SetOnDragging(data =>
+            {
+                Debug.Log($"Dragging point={data.position}");
+            });
+            listener.SetOnDragEnded(data =>
+            {
+                Debug.Log($"Drag End point={data.position}");
+            });
+            listener.SetOnDragReleasedOverUI(data =>
+            {
+                Debug.Log($"Drag ReleasedOverUI obj={data.TopmostGameObject?.name}");
+            });
+        }
     }
 
     void initNextStepButton()

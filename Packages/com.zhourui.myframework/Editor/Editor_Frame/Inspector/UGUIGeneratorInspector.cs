@@ -310,8 +310,11 @@ public class UGUIGeneratorInspector : GameInspector
 				line(ref fileContent, "using static StringUtility;");
 			}
 			line(ref fileContent, "");
-			line(ref fileContent, $"namespace {F_SCRIPTS_HOTFIX_UI_NAMESPACE};");
-			line(ref fileContent, "");
+			if (!F_SCRIPTS_HOTFIX_UI_NAMESPACE.isEmpty())
+			{
+				line(ref fileContent, $"namespace {F_SCRIPTS_HOTFIX_UI_NAMESPACE};");
+				line(ref fileContent, "");
+			}
 			// 类声明区域
 			line(ref fileContent, "// auto generate classname start");
 			line(ref fileContent, classnameLines);

@@ -419,7 +419,10 @@ public class myUGUIObject : Transformable, IMouseEventCollect
 	}
 	public override Collider getCollider(bool addIfNotExist = false)
 	{
-		var collider = tryGetUnityComponent<Collider>();
+		if (getCOMCollider().getBoxCollider(out var collider))
+			return collider;
+
+		collider = tryGetUnityComponent<BoxCollider>();
 		// 由于Collider无法直接添加到GameObject上,所以只能默认添加BoxCollider
 		if (addIfNotExist && collider == null)
 		{

@@ -1,4 +1,4 @@
-﻿
+﻿namespace MoreMountains;
 // auto generate classname start
 // generate from:Assets/GameResources/UI/UIPrefab/SelectPlayerPanel.prefab
 // 

@@ -1,8 +1,9 @@
-﻿
+﻿namespace MoreMountains;
+
 // auto generate classname start
 // generate from:Assets/GameResources/UI/UIPrefab/OperationPanel.prefab
 // 
-public class BallInventoryView : WindowObjectUGUI
+public partial class BallInventoryView : WindowObjectUGUI
 // auto generate classname end
 {
 	// auto generate member start

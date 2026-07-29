@@ -1,8 +1,9 @@
-﻿
+﻿namespace MoreMountains;
+
 // auto generate classname start
 // generate from:Assets/GameResources/UI/UIPrefab/OperationPanel.prefab
 // 
-public class BallPurchaseItem : WindowRecyclableUGUI
+public partial class BallPurchaseItem : WindowRecyclableUGUI
 // auto generate classname end
 {
 	// auto generate member start

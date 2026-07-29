@@ -126,6 +126,10 @@ namespace MoreMountains
                 Initialization();
             }
         }
+        
+        protected virtual void OnDestroy()
+        {
+        }
 
         /// <summary>
         /// Gets and stores components for further use

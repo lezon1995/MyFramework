@@ -1,0 +1,82 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &4912068818008855453
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 726731735973324496}
+  - component: {fileID: 4963985876986663392}
+  m_Layer: 0
+  m_Name: TooltipManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &726731735973324496
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4912068818008855453}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4963985876986663392
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4912068818008855453}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 194c6e7e56163714aa27c9950aa10755, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: HotFix::MoreMountains.TooltipManager
+  _settings:
+    enableTooltip: 1
+    defaultShowDelay: 0
+    defaultDisplayDuration: 60
+    defaultPositionMode: 0
+    defaultAnchorDirection: 1
+    fixedPosition: {x: 100, y: -100}
+    mouseOffset: {x: 20, y: -20}
+    anchorOffset: {x: 0, y: -10}
+    screenEdgePadding: 10
+    metaTooltipSpacing: 8
+    autoAdjustPosition: 1
+    fadeInDuration: 0.15
+    fadeOutDuration: 0.1
+    keywordPattern: '\[([^\]]+)\]'
+    enableMetaTooltip: 1
+    keywordPresets:
+    - keyword: "\u707C\u70E7"
+      type: 0
+      displayName: "\u707C\u70E7"
+    - keyword: "\u51B0\u51BB"
+      type: 0
+      displayName: "\u51B0\u51BB"
+    - keyword: "\u4E2D\u6BD2"
+      type: 0
+      displayName: "\u4E2D\u6BD2"
+    - keyword: "\u7729\u6655"
+      type: 0
+      displayName: "\u7729\u6655"
+    - keyword: "\u6C89\u9ED8"
+      type: 0
+      displayName: "\u6C89\u9ED8"
+  _tooltipBoxPrefab: {fileID: 5272896175035753433, guid: 8f32bfb0d56068442a35e2650cdf1083,
+    type: 3}
+  _metaTooltipBoxPrefab: {fileID: 8595785829805445333, guid: fba09dfad3d409340a2338579559fd29,
+    type: 3}

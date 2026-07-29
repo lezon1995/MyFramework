@@ -1,12 +1,12 @@
-﻿
+﻿namespace MoreMountains;
+
 // auto generate classname start
 // generate from:Assets/GameResources/UI/UIPrefab/OperationPanel.prefab
 // 
-public class PlayerInfoView : WindowObjectUGUI
+public partial class PlayerInfoView : WindowObjectUGUI
 // auto generate classname end
 {
 	// auto generate member start
-	protected myUGUIObject textTitle;
 	protected myUGUITextTMP textLevel;
 	protected myUGUISlider expSlider;
 	protected myUGUITextTMP textCurExp;
@@ -25,7 +25,6 @@ public class PlayerInfoView : WindowObjectUGUI
 	protected override void assignWindowInternal()
 	{
 		// auto generate assignWindowInternal start
-		newObject(out textTitle, "PlayerStats/Level/TextTitle");
 		newObject(out textLevel, "PlayerStats/Level/TextLevel");
 		newObject(out expSlider, "PlayerStats/Level/ExpBar");
 		newObject(out textCurExp, "PlayerStats/Level/ExpBar/Exp/TextCur");

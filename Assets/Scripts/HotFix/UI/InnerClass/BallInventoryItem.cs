@@ -1,8 +1,8 @@
-﻿
+﻿namespace MoreMountains;
 // auto generate classname start
 // generate from:Assets/GameResources/UI/UIPrefab/OperationPanel.prefab
 // 
-public class BallInventoryItem : WindowRecyclableUGUI
+public partial class BallInventoryItem : WindowRecyclableUGUI
 // auto generate classname end
 {
 	// auto generate member start
@@ -37,6 +37,16 @@ public class BallInventoryItem : WindowRecyclableUGUI
 		base.init();
 		// auto generate init start
 		// auto generate init end
+		
+		
+		if (btn.tryGetUnityComponent(out UIEventListener listener))
+		{
+			listener.SetOnPotentialDragInitialized(onPotentialDragInitialized);
+			listener.SetOnDragStarted(onDragStarted);
+			listener.SetOnDragging(onDragging);
+			listener.SetOnDragEnded(onDragEnded);
+			listener.SetOnDragReleasedOverUI(onDragReleasedOverUI);
+		}
 	}
 	public override void onShow()
 	{

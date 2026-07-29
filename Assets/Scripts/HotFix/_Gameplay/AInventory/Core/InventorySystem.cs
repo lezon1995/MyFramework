@@ -28,6 +28,8 @@ namespace MoreMountains
         public BallBag BallBag => _ballBag;
         public RelicBag RelicBag => _relicBag;
 
+        bool _systemReadyRaised;
+
         protected override void Initialization()
         {
             base.Initialization();
@@ -44,12 +46,20 @@ namespace MoreMountains
             _relicBag.OnItemRemoved += item => InventoryEvents.RaiseRelicRemoved(item);
             _relicBag.OnBagChanged += () => InventoryEvents.RaiseRelicBagChanged();
 
-            InventoryEvents.RaiseSystemReady(this);
+            if (!_systemReadyRaised)
+            {
+                _systemReadyRaised = true;
+                InventoryEvents.RaiseSystemReady(this);
+            }
         }
 
-        void OnDestroy()
+        protected override void OnDestroy()
         {
-            InventoryEvents.RaiseSystemDestroy(this);
+            if (_systemReadyRaised)
+            {
+                _systemReadyRaised = false;
+                InventoryEvents.RaiseSystemDestroy(this);
+            }
             _ballBag = null;
             _relicBag = null;
         }

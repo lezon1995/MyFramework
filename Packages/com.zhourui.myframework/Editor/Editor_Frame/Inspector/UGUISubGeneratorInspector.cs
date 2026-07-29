@@ -247,6 +247,11 @@ public class UGUISubGeneratorInspector : GameInspector
 				line(ref fileContent, "using static StringUtility;");
 			}
 			line(ref fileContent, "");
+			if (!F_SCRIPTS_HOTFIX_UI_NAMESPACE.isEmpty())
+			{
+				line(ref fileContent, $"namespace {F_SCRIPTS_HOTFIX_UI_NAMESPACE};");
+				line(ref fileContent, "");
+			}
 			// 对象池节点的代码会特殊判断
 			if (generator.mParentType == "DragViewItem")
 			{
@@ -256,7 +261,7 @@ public class UGUISubGeneratorInspector : GameInspector
 				line(ref fileContent, "public class " + subUIName + " : " + generator.mParentType + "<" + subUIName + ".Data>");
 				line(ref fileContent, "// auto generate classname end");
 				line(ref fileContent, "{");
-				line(ref fileContent, "\tpublic class Data : ClassObject");
+				line(ref fileContent, "\tpublic partial class Data : ClassObject");
 				line(ref fileContent, "\t{");
 				line(ref fileContent, "\t\tpublic override void resetProperty()");
 				line(ref fileContent, "\t\t{");
@@ -271,11 +276,11 @@ public class UGUISubGeneratorInspector : GameInspector
 				line(ref fileContent, "// " + generator.mComment);
 				if (generator.mParentGenericType.isEmpty())
 				{
-					line(ref fileContent, "public class " + subUIName + " : " + generator.mParentType);
+					line(ref fileContent, "public partial class " + subUIName + " : " + generator.mParentType);
 				}
 				else
 				{
-					line(ref fileContent, "public class " + subUIName + " : " + generator.mParentType + "<" + generator.mParentGenericType + ">");
+					line(ref fileContent, "public partial class " + subUIName + " : " + generator.mParentType + "<" + generator.mParentGenericType + ">");
 				}
 				line(ref fileContent, "// auto generate classname end");
 				line(ref fileContent, "{");
@@ -356,24 +361,24 @@ public class UGUISubGeneratorInspector : GameInspector
 				codeList.Insert(++lineStart0, "// " + generator.mComment);
 				if (generator.mParentType == "DragViewItem")
 				{
-					codeList.Insert(++lineStart0, "public class " + subUIName + " : " + generator.mParentType + "<" + subUIName + ".Data>");
+					codeList.Insert(++lineStart0, "public partial class " + subUIName + " : " + generator.mParentType + "<" + subUIName + ".Data>");
 				}
 				else
 				{
 					if (generator.mParentGenericType.isEmpty())
 					{
-						codeList.Insert(++lineStart0, "public class " + subUIName + " : " + generator.mParentType);
+						codeList.Insert(++lineStart0, "public partial class " + subUIName + " : " + generator.mParentType);
 					}
 					else
 					{
-						codeList.Insert(++lineStart0, "public class " + subUIName + " : " + generator.mParentType + "<" + generator.mParentGenericType + ">");
+						codeList.Insert(++lineStart0, "public partial class " + subUIName + " : " + generator.mParentType + "<" + generator.mParentGenericType + ">");
 					}
 				}
 			}
 			else
 			{
-				// 找到第一个public class
-				if (codeList.find(item=>item.Contains("public class "), out int index))
+				// 找到第一个public partial class
+				if (codeList.find(item=>item.Contains("public partial class "), out int index))
 				{
 					codeList.RemoveAt(index);
 					lineStart0 = index - 1;
@@ -382,17 +387,17 @@ public class UGUISubGeneratorInspector : GameInspector
 					codeList.Insert(++lineStart0, "// " + generator.mComment);
 					if (generator.mParentType == "DragViewItem")
 					{
-						codeList.Insert(++lineStart0, "public class " + subUIName + " : " + generator.mParentType + "<" + subUIName + ".Data>");
+						codeList.Insert(++lineStart0, "public partial class " + subUIName + " : " + generator.mParentType + "<" + subUIName + ".Data>");
 					}
 					else
 					{
 						if (generator.mParentGenericType.isEmpty())
 						{
-							codeList.Insert(++lineStart0, "public class " + subUIName + " : " + generator.mParentType);
+							codeList.Insert(++lineStart0, "public partial class " + subUIName + " : " + generator.mParentType);
 						}
 						else
 						{
-							codeList.Insert(++lineStart0, "public class " + subUIName + " : " + generator.mParentType + "<" + generator.mParentGenericType + ">");
+							codeList.Insert(++lineStart0, "public partial class " + subUIName + " : " + generator.mParentType + "<" + generator.mParentGenericType + ">");
 						}
 					}
 					codeList.Insert(++lineStart0, "// auto generate classname end");

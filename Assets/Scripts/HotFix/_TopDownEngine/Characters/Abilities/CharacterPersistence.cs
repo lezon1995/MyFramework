@@ -116,10 +116,11 @@ namespace MoreMountains
         /// <summary>
         /// On disable we stop listening for events
         /// </summary>
-        protected virtual void OnDestroy()
+        protected override void OnDestroy()
         {
             this.removeListener<MMGameEvent>();
             this.removeListener<TopDownEngineEvent>();
+            base.OnDestroy();
         }
     }
 }

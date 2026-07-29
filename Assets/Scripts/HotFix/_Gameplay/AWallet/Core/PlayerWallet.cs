@@ -1,98 +1,75 @@
 using System;
+using UnityEngine;
 
 namespace MoreMountains
 {
-    public enum EarnType
-    {
-        DEFAULT = 0,
-        SELL_BALL,
-        SELL_RELIC,
-    }
-    
-    public enum PayType
-    {
-        DEFAULT = 0,
-        
-        BALL_UPGRADE,
-        BALL_MERGE,
-        BALL_BUY,
-        BALL_REROLL,
-        RELIC_BUY,
-        RELIC_REROLL,
-    }
-    
     /// <summary>
     /// 玩家钱包 —— 唯一外部金币出入口。
-    /// 硬币实体掉落 / 拾取仍然走 CoinManager（MoneyPickupAction 之类），
-    /// 但所有"因购买/出售/升级/融合/重新随机"导致的金币变动，都必须通过 PlayerWallet。
-    /// 后续接到金币系统时，建议在 CoinManager.OnGoldCollected 增加回调自动给钱包入账；
-    /// 售出 / 升级扣金币时则调 Pay() 并配合新的"金币减少"动画。
+    /// 球售出 / 商店购买 / 升级扣金币 / 重新随机扣金币 / 球融合扣金币 / BuyExp 都走这里。
+    ///
+    /// 接入方式：在 APlayer 的 GameObject 上 AddComponent 该脚本；外部通过
+    ///     _player.Wallet.Pay(amount, payType)
+    ///     _player.Wallet.Earn(amount, earnType)
+    ///     _player.Wallet.CanPay(amount)
+    ///     _player.Wallet.Balance         (APlayer.gold 读这里)
+    ///     _player.Wallet.SetBalance(int) (APlayer.gold= 也写这里)
+    /// 调用。
+    ///
+    /// 继承 PlayerAbility：基类会自动赋值 _player（不需要再写 Initialize(APlayer)）。
+    /// 不维护静态 Instance，避免多玩家时串数据。
+    /// Pay / Earn 接收项目既有的 PayType / EarnType 枚举，与 APlayer.loseGold / gainGold 保持类型一致。
     /// </summary>
-    public class PlayerWallet : PlayerAbility
+    public sealed class PlayerWallet : PlayerAbility
     {
+        [SerializeField] int initialBalance = 100;
+
         public int Balance { get; private set; }
-        public event Action<int> OnBalanceChanged; // (newBalance)
-        public event Action<int, PayType> OnPaid; // (amount, reason)
-        public event Action<int, EarnType> OnEarned; // (amount, reason)
+
+        public event Action<int /*newBalance*/>                          OnBalanceChanged;
+        public event Action<int /*amount*/, PayType /*reason*/>          OnPaid;
+        public event Action<int /*amount*/, EarnType /*reason*/>         OnEarned;
 
         protected override void Initialization()
         {
             base.Initialization();
+            Balance = initialBalance;
             OnBalanceChanged?.Invoke(Balance);
         }
 
-        public bool CanPay(int amount)
-        {
-            return Balance >= amount && amount >= 0;
-        }
+        public bool CanPay(int amount) => Balance >= amount && amount >= 0;
 
-        /// <summary>
-        /// 扣金币。可选 reason 用于审计。
-        /// </summary>
-        public bool Pay(int amount, PayType reason = PayType.DEFAULT)
+        /// <summary>扣金币。余额不足返回 false 且不动数据。</summary>
+        public bool Pay(int amount, PayType type = PayType.DEFAULT, string reason = null)
         {
-            if (amount <= 0)
-                return true;
-
+            if (amount <= 0) return true;
             if (Balance < amount)
             {
-                logWarning($"PlayerWallet.Pay rejected: amount={amount}, balance={Balance}, reason={reason}");
+                logWarning($"PlayerWallet.Pay rejected: amount={amount}, balance={Balance}, type={type}, reason={reason}");
                 return false;
             }
-
             Balance -= amount;
-            OnPaid?.Invoke(amount, reason);
+            OnPaid?.Invoke(amount, type);
             OnBalanceChanged?.Invoke(Balance);
             return true;
         }
 
-        /// <summary>
-        /// 加金币。
-        /// </summary>
-        public void Earn(int amount, EarnType reason = EarnType.DEFAULT)
+        /// <summary>加金币。</summary>
+        public void Earn(int amount, EarnType type = EarnType.DEFAULT, string reason = null)
         {
-            if (amount <= 0)
-                return;
-
+            if (amount <= 0) return;
             Balance += amount;
-            OnEarned?.Invoke(amount, reason);
+            OnEarned?.Invoke(amount, type);
             OnBalanceChanged?.Invoke(Balance);
         }
 
-        public void SetBalance(int newBalance, int type = 0)
+        /// <summary>强写余额（用于重置或读 / 写 APlayer.gold）。</summary>
+        public void SetBalance(int value, int type = 0)
         {
-            var oldBalance = Balance;
-            if (newBalance > oldBalance)
-            {
-                Earn(newBalance - oldBalance, (EarnType)type);
-            }
-            else if (newBalance < oldBalance)
-            {
-                Pay(oldBalance - newBalance, (PayType)type);
-            }
+            Balance = Math.Max(0, value);
+            OnBalanceChanged?.Invoke(Balance);
         }
 
-        public void ResetWallet(int initial = 0)
+        public void ResetWallet(int initial)
         {
             Balance = Math.Max(0, initial);
             OnBalanceChanged?.Invoke(Balance);

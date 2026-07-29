@@ -1,9 +1,9 @@
 namespace MoreMountains
 {
     /// <summary>
-    /// 商店系统 FrameSystem（主入口）。
-    /// 让 WaveSystem 等通过 Instance 进入。
-    /// 不在 init() 中自动开 Shop，它是被外部 EnterShop() 触发的。
+    /// 商店系统组件 —— 继承自 PlayerAbility（基类自动赋值 _player）。
+    /// 在 APlayer 上 AddComponent；外部通过 _player.Shop 访问。
+    /// 不在 Initialization 中自动开 Shop，由外部 EnterShop() 触发。
     /// </summary>
     public sealed class ShopSystem : PlayerAbility
     {
@@ -11,16 +11,27 @@ namespace MoreMountains
 
         public ShopController Controller => _ctrl;
 
+        bool _systemReadyRaised;
+
         protected override void Initialization()
         {
             base.Initialization();
             _ctrl = new ShopController(this, null);
-            ShopEvents.RaiseSystemReady();
+
+            if (!_systemReadyRaised)
+            {
+                _systemReadyRaised = true;
+                ShopEvents.RaiseSystemReady();
+            }
         }
 
-        void OnDestroy()
+        protected override void OnDestroy()
         {
-            ShopEvents.RaiseSystemDestroy();
+            if (_systemReadyRaised)
+            {
+                _systemReadyRaised = false;
+                ShopEvents.RaiseSystemDestroy();
+            }
             _ctrl = null;
         }
 

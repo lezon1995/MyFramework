@@ -3392,7 +3392,11 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6977744885495402202, guid: 4a5ddf34ff4f848adaa272a41dc88356,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7901977006312059390}
   m_SourcePrefab: {fileID: 100100000, guid: 4a5ddf34ff4f848adaa272a41dc88356, type: 3}
 --- !u!1 &1521211595397830421 stripped
 GameObject:
@@ -3400,6 +3404,75 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 8487459979755002319}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &7901977006312059390
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1521211595397830421}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 64993db8abb42354f97bd72167d9750f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: HotFix::MoreMountains.UIEventListener
+  _onPointerEnter:
+    m_PersistentCalls:
+      m_Calls: []
+  _onPointerExit:
+    m_PersistentCalls:
+      m_Calls: []
+  _onPointerDown:
+    m_PersistentCalls:
+      m_Calls: []
+  _onPointerUp:
+    m_PersistentCalls:
+      m_Calls: []
+  _onPointerClick:
+    m_PersistentCalls:
+      m_Calls: []
+  _onPointerMove:
+    m_PersistentCalls:
+      m_Calls: []
+  _onPointerHover:
+    m_PersistentCalls:
+      m_Calls: []
+  _onInitializePotentialDrag:
+    m_PersistentCalls:
+      m_Calls: []
+  _onBeginDrag:
+    m_PersistentCalls:
+      m_Calls: []
+  _onDrag:
+    m_PersistentCalls:
+      m_Calls: []
+  _onEndDrag:
+    m_PersistentCalls:
+      m_Calls: []
+  _onDrop:
+    m_PersistentCalls:
+      m_Calls: []
+  _onDragReleasedOverUI:
+    m_PersistentCalls:
+      m_Calls: []
+  _onScroll:
+    m_PersistentCalls:
+      m_Calls: []
+  _onSelect:
+    m_PersistentCalls:
+      m_Calls: []
+  _onDeselect:
+    m_PersistentCalls:
+      m_Calls: []
+  _onSubmit:
+    m_PersistentCalls:
+      m_Calls: []
+  _onCancel:
+    m_PersistentCalls:
+      m_Calls: []
+  _onMove:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!224 &2965251505178714996 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 6696627703857724091, guid: 4a5ddf34ff4f848adaa272a41dc88356,

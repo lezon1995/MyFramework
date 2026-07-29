@@ -6,10 +6,12 @@ using static FrameBaseHotFix;
 // 窗口的碰撞检测相关逻辑
 public class COMWindowCollider : GameComponent
 {
+	protected bool mHasBoxCollider;
 	protected BoxCollider mBoxCollider;                         // 碰撞组件
 	public override void resetProperty()
 	{
 		base.resetProperty();
+		mHasBoxCollider = false;
 		mBoxCollider = null;
 	}
 	public void setBoxCollider(BoxCollider collider)
@@ -19,6 +21,7 @@ public class COMWindowCollider : GameComponent
 			return;
 		}
 		mBoxCollider = collider;
+		mHasBoxCollider = collider != null;
 		var window = mComponentOwner as myUGUIObject;
 		GameLayout layout = window.getLayout();
 		if (layout != null && layout.isCheckBoxAnchor() && mLayoutManager.isUseAnchor())
@@ -39,6 +42,13 @@ public class COMWindowCollider : GameComponent
 		}
 	}
 	public BoxCollider getBoxCollider() { return mBoxCollider; }
+
+	public bool getBoxCollider(out BoxCollider collider)
+	{
+		collider = mBoxCollider;
+		return mHasBoxCollider;
+	}
+
 	public bool isHandleInput() { return mBoxCollider != null && mBoxCollider.enabled; }
 	public bool raycast(ref Ray ray, out RaycastHit hit, float maxDistance)
 	{
