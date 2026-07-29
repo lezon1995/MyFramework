@@ -17,7 +17,7 @@ MonoBehaviour:
   waves:
   - waveNumber: 1
     waveName: Wave 1
-    duration: 120
+    duration: 10
     clearStrategy: 0
     availableMonsters:
     - monsterId: Test1

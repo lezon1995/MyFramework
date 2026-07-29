@@ -23,30 +23,26 @@ namespace MoreMountains
 
         public static OperationPanelService Instance => sInstance ??= new();
 
-        OperationPanel _panel;
         OperationPanelBinder _binder;
         APlayer _boundPlayer;
 
-        public OperationPanel Panel => _panel;
         public OperationPanelBinder Binder => _binder;
         public APlayer CurrentPlayer => _boundPlayer;
 
-        public void Register(OperationPanel panel, OperationPanelBinder binder)
+        public void Register(OperationPanelBinder binder)
         {
-            _panel = panel;
             _binder = binder;
         }
 
         public void Unregister()
         {
-            _panel = null;
             _binder = null;
         }
 
         /// <summary>绑定 APlayer 并打开面板。</summary>
         public void Open(APlayer player)
         {
-            if (_panel == null || _binder == null)
+            if (_binder == null)
             {
                 logError("OperationPanelService.Open: panel / binder not registered.");
                 return;

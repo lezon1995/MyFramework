@@ -131,6 +131,10 @@ public static class LT
 	{
 		return CmdLayoutManagerLoad.execute(typeof(T), 0, LAYOUT_ORDER.AUTO, false, false) as T;
 	}
+	public static void LOAD_HIDE<T>(out T t) where T : LayoutScript
+	{
+		t = CmdLayoutManagerLoad.execute(typeof(T), 0, LAYOUT_ORDER.AUTO, false, false) as T;
+	}
 	public static T LOAD_HIDE<T>(int renderOrder, LAYOUT_ORDER orderType) where T : LayoutScript
 	{
 		return CmdLayoutManagerLoad.execute(typeof(T), renderOrder, orderType, false, false) as T;

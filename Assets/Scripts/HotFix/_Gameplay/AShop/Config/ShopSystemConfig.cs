@@ -16,7 +16,11 @@ namespace MoreMountains
             get
             {
                 if (sInstance == null)
-                    sInstance = Resources.Load<ShopSystemConfig>(nameof(ShopSystemConfig));
+                {
+                    string path = $"{GAMEPLAY_PATH}/Shop/ShopSystemConfig.asset";
+                    sInstance = resource.loadGameResource<ShopSystemConfig>(path);
+                }
+
                 return sInstance;
             }
         }

@@ -28,6 +28,6 @@ public partial class OperationPanel
             playerInfoView.initBinder()
             );
         
-        OperationPanelService.Instance.Register(this, binder);
+        OperationPanelService.Instance.Register(binder);
     }
 }

@@ -123,6 +123,8 @@ namespace MoreMountains
         {
             // 池子够大时采不重复；不够时也允许重复。
             using var _ = new ListScope<T>(out var working);
+            working.AddRange(pool);
+
             result.Clear();
             int n = Math.Min(count, working.Count);
             for (int i = 0; i < n; i++)

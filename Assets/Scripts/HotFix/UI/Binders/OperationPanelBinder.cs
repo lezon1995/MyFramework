@@ -52,7 +52,7 @@ namespace MoreMountains
             if (ReferenceEquals(_player, player)) 
                 return;
 
-            if (_player != null) 
+            if (_player) 
                 Unbind();
 
             _player = player ?? throw new ArgumentNullException(nameof(player));
