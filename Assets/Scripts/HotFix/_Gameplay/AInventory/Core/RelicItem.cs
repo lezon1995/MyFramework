@@ -13,32 +13,17 @@ namespace MoreMountains
     /// </summary>
     public class RelicItem : IInventoryItem
     {
-        public string RelicId { get; }
-        public string DisplayName { get; }
-        public int SellPrice { get; }
-        public int ItemId { get; }
+        public int ItemId => Def.RelicDefId;
+        public RelicType Type => Def.Type;
         public ItemKind Kind => ItemKind.Relic;
+        public RelicDef Def;
 
-        /// <summary>关联的 ARelic 实例（或其子类）；由 RelicService 解析回传。</summary>
-        public ARelic UnderlyingRelic { get; }
+        public string DisplayName => Def ? $"{Def.DisplayName}" : $"Relic#{Type}";
+        public int SellPrice => Def.BasePrice;
 
-        public RelicItem(ARelic underlying, int sellPrice)
+        public RelicItem(RelicDef def)
         {
-            UnderlyingRelic = underlying ?? throw new ArgumentNullException(nameof(underlying));
-            RelicId = string.IsNullOrEmpty(underlying.relicId) ? underlying.GetType().Name : underlying.relicId;
-            DisplayName = underlying.name ?? RelicId;
-            SellPrice = Math.Max(0, sellPrice);
-            ItemId = ComputeHashId(RelicId);
-        }
-
-        static int ComputeHashId(string s)
-        {
-            unchecked
-            {
-                int hash = 17;
-                foreach (var c in s) hash = hash * 31 + c;
-                return hash;
-            }
+            Def = def;
         }
     }
 }

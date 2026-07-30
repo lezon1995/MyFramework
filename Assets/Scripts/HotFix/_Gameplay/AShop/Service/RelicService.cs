@@ -25,7 +25,7 @@ namespace MoreMountains
             }
 
             int refund = def.SellRefund > 0 ? def.SellRefund : Math.Max(1, def.BasePrice / 2);
-            return new RelicItem(relic, refund);
+            return new RelicItem(def);
         }
 
         static ARelic CreateRelicByTypeName(string typeName, string displayName, int defId)

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace MoreMountains
 {
@@ -9,11 +10,16 @@ namespace MoreMountains
     /// 职责：
     ///   • Bind(APlayer)：把玩家四大系统（BallManagement / Inventory / Wallet / Shop）注入子 binder。
     ///   • Open() / Close()：被 ShoppingPhase.onBegin/onEnd 调用。
-    ///   • 处理各 button（Btns 在 OperationPanel 上的 onClick 还没指定 -- 模式：OperationPanel 暴露 Action；
-    ///     当前 binder 监听 ShopBinder 的事件，向上抛响应供外部接入按钮）。
+    ///   • 处理按钮事件 + 处理「拖拽释放」事件，把 UI 操作翻译成系统命令。
     ///
-    /// 注意：OperationPanel 是 LayoutScript 的子类，需要在 UI 系统里实例化后才能 assignWindow。
-    /// 这里持 IObservedView 引用（实际是 OperationPanel 实例），由外部传入。
+    /// 拖拽释放的解析：
+    ///   UIDragReleaseEventData.GameObjects 已经按 EventSystem.RaycastAll 的顺序（最前 → 最后）
+    ///   给出释放点指针下方所有命中的 GameObject。我们依次看每个 go：
+    ///     • 它是哪个 BallSlotItem 的子节点 → 槽位目标
+    ///     • 它是哪个 BallInventoryItem 的子节点 → 球背包目标
+    ///     • 它是哪个 RelicInventoryItem 的子节点 → 遗物背包目标
+    ///     • 它位于 SellZone 子树 → 出售目标
+    ///   第一个命中即为目标。
     /// </summary>
     public sealed class OperationPanelBinder
     {
@@ -39,6 +45,11 @@ namespace MoreMountains
             _slotBinder = slotBinder ?? throw new ArgumentNullException(nameof(slotBinder));
             _shop = shop ?? throw new ArgumentNullException(nameof(shop));
             _playerInfo = playerInfo ?? throw new ArgumentNullException(nameof(playerInfo));
+
+            // 子 binder 互相认识:drag 释放时它们能把事件转交回来。
+            _ballInv.SetOwner(this);
+            _relicInv.SetOwner(this);
+            _slotBinder.SetOwner(this);
         }
 
         public BallInventoryBinder BallInventory => _ballInv;
@@ -49,10 +60,10 @@ namespace MoreMountains
 
         public void Bind(APlayer player)
         {
-            if (ReferenceEquals(_player, player)) 
+            if (ReferenceEquals(_player, player))
                 return;
 
-            if (_player) 
+            if (_player)
                 Unbind();
 
             _player = player ?? throw new ArgumentNullException(nameof(player));
@@ -64,7 +75,7 @@ namespace MoreMountains
             _relicInv.Attach(_player.Inventory.RelicBag);
             _shop.Attach(_player, _player.Shop.Controller);
 
-            // 监听子 binder 的事件，把 UI 操作翻译成对系统的命令
+            // 监听子 binder 的事件,把 UI 操作翻译成对系统的命令
             _ballInv.EquipRequested += OnEquipBallRequested;
             _ballInv.UpgradeRequested += OnUpgradeBallRequested;
             _ballInv.SellRequested += OnSellBallRequested;
@@ -87,7 +98,7 @@ namespace MoreMountains
 
         public void Unbind()
         {
-            if (_player == null) 
+            if (_player == null)
                 return;
 
             _player.Wallet.OnBalanceChanged -= OnWalletChanged;
@@ -122,11 +133,170 @@ namespace MoreMountains
             _panel.setActive(false);
         }
 
-        // ------------- 系统操作映射 -------------
+        // ============================================================
+        //                 拖拽释放解析:目标识别
+        // ============================================================
+
+        // drag 释放时被三个子 binder 转交到这里:
+        //   • OnBallInventoryDragReleased: 球背包里的球被拖出去了
+        //   • OnRelicInventoryDragReleased: 遗物背包里的遗物被拖出去了
+        //   • OnSlotDragReleased:          槽位上的球被拖出去了
+
+        internal void OnBallInventoryDragReleased(BallInventoryItem src, BallItem ball, UIDragReleaseEventData data)
+        {
+            if (_player == null || ball == null) return;
+
+            // 1. 释放到 sellZone → 出售
+            if (TryFindSellZone(data, out _))
+            {
+                _player.Shop.Controller.OnPlayerSellBall(_player, ball);
+                _ballInv.ClearSelection();
+                return;
+            }
+
+            // 2. 释放到某个槽位 → 装备到该槽位
+            if (TryFindSlotIndex(data, out int slotIndex))
+            {
+                _player.BallManagement.EquipBall(ball, slotIndex);
+                _ballInv.ClearSelection();
+                return;
+            }
+
+            // 3. 释放到球背包里的另一个 item → "放回原处 / 合并候选"，暂不做事(交给 Upgrade/Merge 流程)
+        }
+
+        internal void OnRelicInventoryDragReleased(RelicInventoryItem src, RelicItem relic, UIDragReleaseEventData data)
+        {
+            if (_player == null || relic == null) return;
+
+            // 遗物：释放到 sellZone → 出售；否则不处理
+            if (TryFindSellZone(data, out _))
+            {
+                _player.Shop.Controller.OnPlayerSellRelic(relic);
+                _relicInv.ClearSelection();
+            }
+        }
+
+        internal void OnSlotDragReleased(BallSlotItem src, int sourceSlotIndex, BallItem ball, UIDragReleaseEventData data)
+        {
+            if (_player == null || ball == null) return;
+
+            // 1. 释放到 sellZone → 出售
+            //    SellToShop 会通过 InventoryLocate 自动找到 holder(槽位或背包)并移除 + 加金币,
+            //    所以不需要先 UnequipBall。
+            if (TryFindSellZone(data, out _))
+            {
+                _player.Shop.Controller.OnPlayerSellBall(_player, ball);
+                return;
+            }
+
+            // 2. 释放到另一个槽位 → Swap
+            if (TryFindSlotIndex(data, out int targetSlotIndex))
+            {
+                if (targetSlotIndex != sourceSlotIndex)
+                    _player.BallManagement.SwapSlots(sourceSlotIndex, targetSlotIndex);
+                return;
+            }
+
+            // 3. 释放到球背包某个 item 上 → 卸下到背包
+            if (TryFindBallInventory(data, out _))
+            {
+                _player.BallManagement.UnequipBall(sourceSlotIndex);
+                return;
+            }
+        }
+
+        // ------- 释放目标识别 helpers -------
+
+        bool TryFindSellZone(UIDragReleaseEventData data, out GameObject sellZoneGO)
+        {
+            sellZoneGO = null;
+            if (data == null) return false;
+            var sellRoot = _panel.Shop.SellZoneRoot;
+            if (sellRoot == null) return false;
+            var sellTransform = sellRoot.getGameObject().transform;
+
+            foreach (var go in data.GameObjects)
+            {
+                if (go == null) continue;
+                if (go.transform == sellTransform || go.transform.IsChildOf(sellTransform))
+                {
+                    sellZoneGO = go;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        bool TryFindSlotIndex(UIDragReleaseEventData data, out int slotIndex)
+        {
+            slotIndex = -1;
+            if (data == null) return false;
+
+            // 拿当前所有激活的 slot item 列表（顺序 = BallSlotGroup.Slots 的顺序）
+            var slots = _player?.BallManagement?.Slots;
+            if (slots == null) return false;
+
+            int i = 0;
+            foreach (var slot in slots.Slots)
+            {
+                if (_panel.PlayerInfo.SlotGroup.GetUsedItem(i, out var slotItem) && slotItem != null)
+                {
+                    var t = slotItem.ItemGO != null ? slotItem.ItemGO.transform : null;
+                    if (t != null && HitContains(t, data))
+                    {
+                        slotIndex = slot.Index;
+                        return true;
+                    }
+                }
+                i++;
+            }
+            return false;
+        }
+
+        bool TryFindBallInventory(UIDragReleaseEventData data, out BallInventoryItem found)
+        {
+            found = null;
+            if (data == null) return false;
+            int i = 0;
+            foreach (var _ball in _player.Inventory.BallBag.AllItems)
+            {
+                if (_panel.BallInventory.GetUsedItem(i, out var item) && item != null)
+                {
+                    var t = item.ItemGO != null ? item.ItemGO.transform : null;
+                    if (t != null && HitContains(t, data))
+                    {
+                        found = item;
+                        return true;
+                    }
+                }
+                i++;
+            }
+            return false;
+        }
+
+        /// <summary>检查 target transform 是否在释放命中 GameObject 列表里(自己或子节点)。</summary>
+        static bool HitContains(Transform target, UIDragReleaseEventData data)
+        {
+            if (target == null || data == null) return false;
+            foreach (var go in data.GameObjects)
+            {
+                if (go == null) continue;
+                var t = go.transform;
+                if (t == null) continue;
+                if (t == target || t.IsChildOf(target))
+                    return true;
+            }
+            return false;
+        }
+
+        // ============================================================
+        //                 按钮 / 系统操作
+        // ============================================================
 
         void OnEquipBallRequested(BallItem ball, int slotIndex)
         {
-            if (_player == null) 
+            if (_player == null)
                 return;
 
             // slotIndex 是 UI 调用方传入的目标槽；缺省时回退到 binder 当前选中的槽
@@ -147,17 +317,15 @@ namespace MoreMountains
         void OnSlotSelectionChanged(int slotIndex)
         {
             // 槽位被选中后,后续"装备"按钮会以该 slot 为目标
-            // 单一 source of truth：BallSlotGroupBinder.SelectedSlotIndex。
+            // 单一 source of truth:BallSlotGroupBinder.SelectedSlotIndex。
         }
 
         void OnUpgradeBallRequested(BallItem ball)
         {
-            if (_player == null) 
+            if (_player == null)
                 return;
 
-            // 升级：升级服务 TryUpgrade 期望多个 candidate；这里传入单个，由调用方选择 N-up-1 校验
-            // 简化：调用方接 list 后再做。我们先把单球升级视作"无效"返回。
-            // 实际应让 UI 多选模式下把 candidate list 传进来：此处仅暴露事件。
+            // 简化:调用方接 list 后再做。我们先把单球升级视作"无效"返回。
             var candidates = new List<BallItem> { ball };
             _player.BallManagement.Upgrade.TryUpgrade(candidates, out _);
             _ballInv.ClearSelection();
@@ -165,7 +333,7 @@ namespace MoreMountains
 
         void OnSellBallRequested(BallItem ball)
         {
-            if (_player == null) 
+            if (_player == null)
                 return;
 
             _player.Shop.Controller.OnPlayerSellBall(_player, ball);
@@ -174,7 +342,7 @@ namespace MoreMountains
 
         void OnSellRelicRequested(RelicItem relic)
         {
-            if (_player == null) 
+            if (_player == null)
                 return;
 
             _player.Shop.Controller.OnPlayerSellRelic(relic);
@@ -183,18 +351,18 @@ namespace MoreMountains
 
         void OnShopBuyRequested(IPurchasable offer)
         {
-            if (_player == null || offer == null) 
+            if (_player == null || offer == null)
                 return;
 
-            // 由 ShopController 暴露的购买接口（依 kind 分发）：
+            // 由 ShopController 暴露的购买接口(依 kind 分发):
             if (offer is BallOffer ballOffer && ballOffer.Def)
             {
                 int price = ballOffer.Price;
-                if (!_player.Wallet.Pay(price, PayType.BALL_BUY)) 
+                if (!_player.Wallet.Pay(price, PayType.BALL_BUY))
                     return;
-                
+
                 var created = _player.BallManagement.Shop.PurchaseAndStore(ballOffer.Def);
-                if (created != null) 
+                if (created != null)
                     ballOffer.MarkSold();
 
                 ShopEvents.RaiseOfferSold(ballOffer);
@@ -202,10 +370,10 @@ namespace MoreMountains
             else if (offer is RelicOffer relicOffer && relicOffer.Def != null)
             {
                 int price = relicOffer.Price;
-                if (!_player.Wallet.Pay(price, PayType.RELIC_BUY)) 
+                if (!_player.Wallet.Pay(price, PayType.RELIC_BUY))
                     return;
 
-                // 反射创建 ARelic；要求 RelicDef.RelicTypeName 有效（策划需填）
+                // 反射创建 ARelic；要求 RelicDef.RelicTypeName 有效(策划需填)
                 ARelic underlying = null;
                 if (string.IsNullOrEmpty(relicOffer.Def.RelicTypeName))
                 {
@@ -231,7 +399,7 @@ namespace MoreMountains
                     return;
                 }
 
-                var ritem = new RelicItem(underlying, sellPrice: relicOffer.Def.SellRefund);
+                var ritem = new RelicItem(relicOffer.Def);
                 if (!_player.Inventory.AddRelic(ritem))
                 {
                     _player.Wallet.Earn(price, EarnType.OTHER, "rollback_buy_relic");
@@ -253,7 +421,7 @@ namespace MoreMountains
 
         void OnShopBuyExpRequested()
         {
-            // 暂未实现 BuyExp action，触发事件给接入方
+            // 暂未实现 BuyExp action,触发事件给接入方
         }
 
         void OnWalletChanged(int _) => _shop.RefreshCoin();

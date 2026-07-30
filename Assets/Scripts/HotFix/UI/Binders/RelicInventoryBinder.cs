@@ -5,7 +5,8 @@ namespace MoreMountains
 {
     /// <summary>
     /// 遗物背包 binder —— 把 RelicBag 同步到 RelicInventoryView。
-    /// 行为与 BallInventoryBinder 一致：单击选中，操作委托给 OperationPanelBinder。
+    /// 行为与 BallInventoryBinder 一致：单击选中,操作委托给 OperationPanelBinder。
+    /// 拖拽：把"遗物被拖到哪了"转交给 OperationPanelBinder(主要场景:拖到 sellZone 出售)。
     /// </summary>
     public sealed class RelicInventoryBinder
     {
@@ -13,11 +14,14 @@ namespace MoreMountains
         RelicBag _bag;
 
         RelicItem _selected;
+        OperationPanelBinder _owner;
 
         public RelicInventoryBinder(RelicInventoryView view)
         {
             _view = view ?? throw new ArgumentNullException(nameof(view));
         }
+
+        internal void SetOwner(OperationPanelBinder owner) => _owner = owner;
 
         public RelicItem SelectedRelic => _selected;
 
@@ -26,7 +30,7 @@ namespace MoreMountains
 
         public void Attach(RelicBag bag)
         {
-            if (_bag != null) 
+            if (_bag != null)
                 Detach();
 
             _bag = bag ?? throw new ArgumentNullException(nameof(bag));
@@ -39,7 +43,7 @@ namespace MoreMountains
 
         public void Detach()
         {
-            if (_bag == null) 
+            if (_bag == null)
                 return;
 
             _bag.OnItemAdded -= OnBagItemAdded;
@@ -55,7 +59,7 @@ namespace MoreMountains
 
         public void Rebuild()
         {
-            if (_bag == null) 
+            if (_bag == null)
                 return;
 
             var items = new List<RelicItem>(_bag.AllItems);
@@ -63,15 +67,18 @@ namespace MoreMountains
             _view.BuildRelics(items, (item, relic) =>
             {
                 item.SetSelected(ReferenceEquals(relic, _selected));
-                item.SetIconVisible(relic != null);
+                item.SetRelicIcon(relic.Def.Icon);
+                item.SetIconVisible(true);
                 item.SetEnabled(true);
                 item.SetOnClick(() => OnRelicClicked(relic));
+
+                item.SetOnDragReleased((src, data) => _owner?.OnRelicInventoryDragReleased(src, relic, data));
             });
         }
 
         void OnRelicClicked(RelicItem relic)
         {
-            if (relic == null) 
+            if (relic == null)
                 return;
 
             _selected = ReferenceEquals(_selected, relic) ? null : relic;
@@ -81,7 +88,7 @@ namespace MoreMountains
 
         void UpdateSelectionVisuals()
         {
-            if (_bag == null) 
+            if (_bag == null)
                 return;
 
             int i = 0;
@@ -98,7 +105,7 @@ namespace MoreMountains
 
         public void RequestSellSelected()
         {
-            if (_selected == null) 
+            if (_selected == null)
                 return;
 
             SellRequested?.Invoke(_selected);

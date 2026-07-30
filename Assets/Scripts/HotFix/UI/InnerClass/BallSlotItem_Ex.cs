@@ -1,3 +1,5 @@
+using System;
+using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
@@ -6,7 +8,9 @@ namespace MoreMountains;
 public partial class BallSlotItem : IDraggableItem
 {
     public myUGUIButton Btn => btn;
+    public GameObject ItemGO => mRoot.getGameObject();
     public void SetSelected(bool on) => selected.setActive(on);
+    public void SetBallIcon(Sprite s) => icon.setSpriteOnly(s);
     public void SetIconVisible(bool on) => icon.setActive(on);
 
     public void SetStarCount(int count)
@@ -21,29 +25,32 @@ public partial class BallSlotItem : IDraggableItem
         if (btn != null) btn.setUGUIButtonClick(callback);
     }
 
+    /// <summary>替换此 item 的拖拽松开回调。</summary>
+    public void SetOnDragReleased(Action<BallSlotItem, UIDragReleaseEventData> callback)
+    {
+        _onDragReleased = callback;
+    }
 
     public void onPotentialDragInitialized(PointerEventData data)
     {
-        //Debug.Log($"OnPotentialDragInitialized point={data.position}");
     }
 
     public void onDragStarted(PointerEventData data)
     {
-        //Debug.Log($"Drag Start point={data.position}");
     }
 
     public void onDragging(PointerEventData data)
     {
-        //Debug.Log($"Dragging point={data.position}");
     }
 
     public void onDragEnded(PointerEventData data)
     {
-        //Debug.Log($"Drag End point={data.position}");
     }
 
     public void onDragReleasedOverUI(UIDragReleaseEventData data)
     {
-        //Debug.Log($"Drag ReleasedOverUI obj={data.TopmostGameObject?.name}");
+        _onDragReleased?.Invoke(this, data);
     }
+
+    Action<BallSlotItem, UIDragReleaseEventData> _onDragReleased;
 }

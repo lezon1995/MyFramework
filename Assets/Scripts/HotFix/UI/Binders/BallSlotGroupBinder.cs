@@ -10,18 +10,23 @@ namespace MoreMountains
     ///   • 点击空槽 / 装备槽 → 切换选中态（聚焦于"装备/升级/卸下"按钮的 target）。
     ///   • 选中态由 _selectedSlotIndex 决定；外部 OperationPanelBinder 监听 SelectionChanged。
     ///
-    /// 槽位间交换 / 拖拽到 sellZone 由你后续在框架层（drag system）加入，binder 只暴露 API。
+    /// 拖拽：
+    ///   • 槽位 → 槽位：Swap。
+    ///   • 槽位 → SellZone：卸下 + 出售（OnSlotDragReleased 转交 OperationPanelBinder）。
     /// </summary>
     public sealed class BallSlotGroupBinder
     {
-        BallSlotGroupView _view;
+        readonly BallSlotGroupView _view;
         BallSlotGroup _model;
         int _selectedSlotIndex = -1;
+        OperationPanelBinder _owner;
 
         public BallSlotGroupBinder(BallSlotGroupView view)
         {
             _view = view ?? throw new ArgumentNullException(nameof(view));
         }
+
+        internal void SetOwner(OperationPanelBinder owner) => _owner = owner;
 
         public BallSlotGroup Model => _model;
         public int SelectedSlotIndex => _selectedSlotIndex;
@@ -29,9 +34,7 @@ namespace MoreMountains
 
         public void Attach(BallSlotGroup model)
         {
-            if (_model != null) 
-                Detach();
-
+            if (_model != null) Detach();
             _model = model ?? throw new ArgumentNullException(nameof(model));
             _view.SetTitle("SLOTS");
             _model.OnSlotsChanged += OnModelChanged;
@@ -42,15 +45,12 @@ namespace MoreMountains
         {
             if (_model != null)
                 _model.OnSlotsChanged -= OnModelChanged;
-
             _model = null;
         }
 
         public void SetSelectedSlot(int index)
         {
-            if (_selectedSlotIndex == index) 
-                return;
-
+            if (_selectedSlotIndex == index) return;
             _selectedSlotIndex = index;
             UpdateSelectionVisuals();
             SelectionChanged?.Invoke(_selectedSlotIndex);
@@ -60,26 +60,30 @@ namespace MoreMountains
 
         public void Rebuild()
         {
-            if (_model == null) 
-                return;
-
+            if (_model == null) return;
             var slots = new List<BallSlot>(_model.Slots);
 
             _view.BuildSlots(slots, (item, slot) =>
             {
                 var ball = slot.Current;
-                item.SetIconVisible(ball != null);
-                item.SetStarCount(ball != null ? ClampStars(ball.Level) : 0);
+                item.SetBallIcon(ball.Def.Icon);
+                item.SetIconVisible(true);
+                item.SetStarCount(ClampStars(ball.Level));
                 item.SetSelected(_selectedSlotIndex == slot.Index);
                 item.SetOnClick(() => OnSlotClicked(slot.Index));
+
+                item.SetOnDragReleased((src, data) =>
+                {
+                    if (_model == null) return;
+                    var b = slot.Current;
+                    if (b != null) _owner?.OnSlotDragReleased(src, slot.Index, b, data);
+                });
             });
         }
 
         void UpdateSelectionVisuals()
         {
-            if (_model == null) 
-                return;
-
+            if (_model == null) return;
             int i = 0;
             foreach (var slot in _model.Slots)
             {
@@ -87,7 +91,6 @@ namespace MoreMountains
                 {
                     item.SetSelected(_selectedSlotIndex == slot.Index);
                 }
-
                 i++;
             }
         }
@@ -100,10 +103,8 @@ namespace MoreMountains
 
         static int ClampStars(int level)
         {
-            if (level < 0) 
-                return 0;
-            if (level > 3) 
-                return 3;
+            if (level < 0) return 0;
+            if (level > 3) return 3;
             return level;
         }
     }

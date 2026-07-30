@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace MoreMountains;
@@ -7,9 +8,11 @@ public partial class BallInventoryView
     public void SetTitle(string s) => textTitle.setText(s ?? string.Empty);
     public myUGUIObject ItemParent => itemParent;
 
-    public void BuildBalls<TData>(List<TData> dataList, System.Action<BallInventoryItem, TData> onBuild)
+    public void BuildBalls<T>(List<T> dataList, Action<BallInventoryItem, T> onBuild)
     {
-        BallInventoryItemPool.newItemList(dataList, (item, data) => onBuild?.Invoke(item, data));
+        using var _ = new ListScope<T>(out var list);
+        
+        BallInventoryItemPool.newItemList(dataList, onBuild);
     }
 
     public bool GetUsedItem(int index, out BallInventoryItem item)

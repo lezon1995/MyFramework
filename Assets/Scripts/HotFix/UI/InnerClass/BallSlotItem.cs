@@ -12,7 +12,7 @@ public partial class BallSlotItem : WindowRecyclableUGUI
 	// auto generate member start
 	protected myUGUIButton btn;
 	protected myUGUIObject selected;
-	protected myUGUIObject icon;
+	protected myUGUIImageSimple icon;
 	protected myUGUIObject[] stars = new myUGUIObject[3];
 	// auto generate member end
 	public BallSlotItem(IWindowObjectOwner parent) : base(parent)
