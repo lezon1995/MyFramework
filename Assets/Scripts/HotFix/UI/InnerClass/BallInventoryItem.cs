@@ -38,8 +38,8 @@ public partial class BallInventoryItem : WindowRecyclableUGUI
         // auto generate assignWindowInternal end
     }
 
-    int slotIndex = -1;
-    BallInventoryBinder slotBinder;
+    public int slotIndex = -1;
+    public BallInventoryBinder slotBinder;
 
     public override void init()
     {
@@ -82,7 +82,7 @@ public partial class BallInventoryItem : WindowRecyclableUGUI
         if (data.button != UnityEngine.EventSystems.PointerEventData.InputButton.Left) 
             return;
 
-        if (!BallOperationStateManager.Instance.IsActive && ballInventorySlot.IsOccupied)
+        if (!BallOperationStateManager.Instance.IsActive && isOccupied)
         {
             var iconRect = icon?.getGameObject()?.GetComponent<UnityEngine.RectTransform>();
             if (iconRect != null)
@@ -93,7 +93,8 @@ public partial class BallInventoryItem : WindowRecyclableUGUI
     // 原有事件转发(仅在非操作状态时)
     void onBtnClick()
     {
-        if (_eventBlocked) return;
+        if (_eventBlocked)
+            return;
         slotBinder?.OnBallBtnClicked(slotIndex);
     }
 

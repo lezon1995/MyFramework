@@ -29,6 +29,12 @@ namespace MoreMountains
 
         public BallItem SelectedBall => _selected;
 
+        /// <summary>背包数据模型。</summary>
+        public BallBag Bag => _bag;
+
+        /// <summary>背包视图。</summary>
+        public BallInventoryView View => _view;
+
         public event Action<BallItem /*selected ball*/> BallSelected;
         public event Action<BallItem /*ball*/, int /*slotIndex*/> EquipRequested;
         public event Action<BallItem /*ball*/> UpgradeRequested;

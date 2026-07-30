@@ -15,7 +15,8 @@ public partial class RelicInventoryItem : IDraggableItem
     public void SetIconVisible(bool on) => icon.setActive(on);
     public void SetOnClick(UnityAction a)
     {
-        if (btn == null) return;
+        if (btn == null)
+            return;
         btn.setUGUIButtonClick(a);
     }
 

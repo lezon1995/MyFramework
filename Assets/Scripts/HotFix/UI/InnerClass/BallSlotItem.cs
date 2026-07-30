@@ -39,7 +39,7 @@ public partial class BallSlotItem : WindowRecyclableUGUI
 	}
 
 	int slotIndex = -1;
-	BallSlotGroupBinder slotBinder;
+	public BallSlotGroupBinder slotBinder;
 
 	public override void init()
 	{
@@ -95,7 +95,8 @@ public partial class BallSlotItem : WindowRecyclableUGUI
 	// 原有事件转发(仅在非操作状态时)
 	void onBtnClick()
 	{
-		if (_eventBlocked) return;
+		if (_eventBlocked)
+			return;
 		slotBinder?.OnSlotBtnClicked(slotIndex);
 	}
 

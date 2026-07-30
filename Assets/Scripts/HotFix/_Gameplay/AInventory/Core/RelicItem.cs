@@ -21,8 +21,12 @@ namespace MoreMountains
         public string DisplayName => Def ? $"{Def.DisplayName}" : $"Relic#{Type}";
         public int SellPrice => Def.BasePrice;
 
-        public RelicItem(RelicDef def)
+        /// <summary>关联的 ARelic 实例（或其子类）；由 RelicService 解析回传。</summary>
+        public ARelic UnderlyingRelic { get; }
+
+        public RelicItem(ARelic underlying, RelicDef def)
         {
+            UnderlyingRelic = underlying ?? throw new ArgumentNullException(nameof(underlying));
             Def = def;
         }
     }

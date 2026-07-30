@@ -147,7 +147,7 @@ namespace MoreMountains
         {
             var prev = _hovered;
             _hovered = RaycastHovered();
-            if (!ReferenceEquals(prev, _hovered))
+            if (_hovered != null && !ReferenceEquals(prev, _hovered))
             {
                 prev?.SetHovered(false);
                 _hovered?.SetHovered(true);

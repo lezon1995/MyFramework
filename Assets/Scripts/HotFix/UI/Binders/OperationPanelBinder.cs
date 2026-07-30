@@ -506,8 +506,8 @@ namespace MoreMountains
                     return;
                 }
 
-                var ritem = new RelicItem(relicOffer.Def);
-                if (!_player.Inventory.AddRelic(ritem))
+                var item = new RelicItem(underlying, relicOffer.Def);
+                if (!_player.Inventory.AddRelic(item))
                 {
                     _player.Wallet.Earn(price, EarnType.OTHER, "rollback_buy_relic");
                     return;

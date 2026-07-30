@@ -41,7 +41,8 @@ public partial class BallSlotItem : IBallOperationTarget
 
     public void UpdateFollowMouse(Vector2 screenMousePos)
     {
-        if (!_isFollowingMouse || _iconRect == null) return;
+        if (!_isFollowingMouse || _iconRect == null)
+            return;
 
         // Overlay Canvas:屏幕坐标直接减去屏幕中心即为 local position(当 Canvas Scaler Reference Resolution 与屏幕分辨率一致时)
         // 若不一致,需要乘以 canvas 的缩放因子
@@ -62,7 +63,8 @@ public partial class BallSlotItem : IBallOperationTarget
 
     public void EndFollowMouse()
     {
-        if (!_isFollowingMouse) return;
+        if (!_isFollowingMouse)
+            return;
         _isFollowingMouse = false;
 
         if (_iconRect != null)
@@ -98,11 +100,137 @@ public partial class BallSlotItem : IBallOperationTarget
         highlightHovered?.setActive(_highlightVisible && _highlightHoveredVisible);
     }
 
-    /// <summary>左键点击在此 BallSlotItem 上时执行操作。</summary>
     public void ExecuteOperation(IBallOperationTarget hoveredTarget)
     {
-        if (slotBinder != null)
-            slotBinder.OnSlotOperationConfirmed(slotIndex);
+        var source = BallOperationStateManager.Instance.CurrentSource;
+        if (source == null)
+            return;
+
+        // source 来自 BallInventoryItem → Equip 或 Swap 到此槽
+        if (source is BallInventoryItem srcInv)
+        {
+            int srcSlotIndex = srcInv.slotIndex;
+            if (srcSlotIndex < 0)
+                return;
+
+            var srcBag = srcInv.slotBinder?.Bag;
+            var srcBall = srcBag != null && srcSlotIndex < srcBag.SlotList.Count
+                ? srcBag.SlotList[srcSlotIndex].Item : null;
+            if (srcBall == null)
+                return;
+
+            var targetGroup = slotBinder?.Model;
+            if (targetGroup == null)
+                return;
+
+            if (hoveredTarget is BallInventoryItem targetInv)
+            {
+                // 背包格之间 Swap
+                int targetSlotIndex = targetInv.slotIndex;
+                if (targetSlotIndex < 0 || targetSlotIndex == srcSlotIndex)
+                    return;
+
+                srcBag?.Swap(srcSlotIndex, targetSlotIndex);
+                slotBinder?.Rebuild();
+                return;
+            }
+
+            if (hoveredTarget is BallSlotItem targetSlotItem && targetSlotItem != this)
+            {
+                int targetSlotIndex = -1;
+                targetSlotItem.slotBinder?.GetSlotIndexForItem(targetSlotItem, out targetSlotIndex);
+                if (targetSlotIndex < 0)
+                    return;
+
+                var targetBall = targetSlotIndex < targetGroup.Slots.Count
+                    ? targetGroup.Slots[targetSlotIndex].Item : null;
+
+                if (targetBall != null)
+                {
+                    srcBag.SlotList[srcSlotIndex].Set(targetBall);
+                    targetGroup.Slots[targetSlotIndex].Set(srcBall);
+                }
+                else
+                {
+                    targetGroup.Slots[targetSlotIndex].Set(srcBall);
+                    srcBag.SlotList[srcSlotIndex].Set(null);
+                }
+
+                slotBinder?.Rebuild();
+                targetSlotItem.slotBinder?.Rebuild();
+                return;
+            }
+        }
+
+        // source 来自 BallSlotItem → Swap 或移动到背包
+        if (source is BallSlotItem srcSlotItem && srcSlotItem != hoveredTarget)
+        {
+            int srcSlotIndex = -1;
+            slotBinder?.GetSlotIndexForItem(srcSlotItem, out srcSlotIndex);
+            if (srcSlotIndex < 0)
+                return;
+
+            var srcGroup = slotBinder?.Model;
+            var srcBall = srcGroup != null && srcSlotIndex < srcGroup.Slots.Count
+                ? srcGroup.Slots[srcSlotIndex].Item : null;
+            if (srcBall == null)
+                return;
+
+            if (hoveredTarget is BallSlotItem targetSlotItem)
+            {
+                int targetSlotIndex = -1;
+                targetSlotItem.slotBinder?.GetSlotIndexForItem(targetSlotItem, out targetSlotIndex);
+                if (targetSlotIndex < 0 || targetSlotIndex == srcSlotIndex)
+                    return;
+
+                var targetBall = targetSlotIndex < srcGroup.Slots.Count
+                    ? srcGroup.Slots[targetSlotIndex].Item : null;
+
+                if (srcGroup != null)
+                {
+                    if (targetBall != null)
+                    {
+                        srcGroup.Slots[srcSlotIndex].Set(targetBall);
+                        srcGroup.Slots[targetSlotIndex].Set(srcBall);
+                    }
+                    else
+                    {
+                        srcGroup.Slots[srcSlotIndex].Set(null);
+                        srcGroup.Slots[targetSlotIndex].Set(srcBall);
+                    }
+                }
+
+                slotBinder?.Rebuild();
+                return;
+            }
+
+            if (hoveredTarget is BallInventoryItem targetInv)
+            {
+                int targetSlotIndex = targetInv.slotIndex;
+                if (targetSlotIndex < 0)
+                    return;
+
+                var targetBag = targetInv.slotBinder?.Bag;
+                if (targetBag == null)
+                    return;
+
+                if (targetInv.isOccupied)
+                {
+                    var targetBall = targetSlotIndex < targetBag.SlotList.Count
+                        ? targetBag.SlotList[targetSlotIndex].Item : null;
+                    srcGroup.Slots[srcSlotIndex].Set(targetBall);
+                    targetBag.SlotList[targetSlotIndex].Set(srcBall);
+                }
+                else
+                {
+                    srcGroup.Slots[srcSlotIndex].Set(null);
+                    targetBag.AddAt(targetSlotIndex, srcBall);
+                }
+
+                slotBinder?.Rebuild();
+                targetInv.slotBinder?.Rebuild();
+            }
+        }
     }
 }
 
@@ -118,7 +246,8 @@ public partial class BallSlotItem : IDraggableItem
     public void SetBallSlot(BallSlot slot) => ballSlot = slot;
     public void SetStarCount(int count)
     {
-        if (stars == null) return;
+        if (stars == null)
+            return;
         for (int i = 0; i < stars.Length; ++i)
             stars[i]?.setActive(i < count);
     }
