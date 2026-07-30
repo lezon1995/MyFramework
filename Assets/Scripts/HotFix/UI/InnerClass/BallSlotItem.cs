@@ -1,4 +1,5 @@
 ﻿using MoreMountains;
+using UnityEngine;
 using UnityEngine.EventSystems;
 using static StringUtility;
 namespace MoreMountains;
@@ -37,52 +38,67 @@ public partial class BallSlotItem : WindowRecyclableUGUI
 		// auto generate assignWindowInternal end
 	}
 
-	// 槽位 index 由 binder Rebuild 时写入,转发事件时从字段读。
-	// 避免每次 Rebuild 创建闭包 lambda。
 	int slotIndex = -1;
 	BallSlotGroupBinder slotBinder;
 
 	public override void init()
 	{
 		base.init();
-		// auto generate init start
-		// auto generate init end
 
+		// 挂 Bridge 组件到根节点,用于射线检测、事件拦截和右键取消
+		var go = mRoot.getGameObject();
+		if (!go.TryGetComponent<BallOperationTargetBridge>(out var bridge))
+		{
+			bridge = go.AddComponent<BallOperationTargetBridge>();
+		}
+		bridge.Target = this;
+
+		// 初始化 highlight 状态
+		highlight?.setActive(false);
+		highlightHovered?.setActive(false);
+
+		// 订阅左键按下事件(进入操作状态)
 		if (btn.tryGetUnityComponent(out UIEventListener listener))
 		{
-			listener.SetOnPotentialDragInitialized(onPotentialDragInitialized);
-			listener.SetOnDragStarted(onDragStarted);
-			listener.SetOnDragging(onDragging);
-			listener.SetOnDragEnded(onDragEnded);
-			listener.SetOnDragReleasedOverUI(onDragReleasedOverUI);
+			listener.SetOnPointerPressed(OnPointerPressed);
 		}
-
-		// 一次性订阅,转发走字段,不创建 lambda。
-		btn.setUGUIButtonClick(onBtnClick);
-		SetOnDragReleased(onDragReleased);
 	}
 
-	/// <summary>由 BallSlotGroupBinder 在 Rebuild 时写入本 item 的数据。</summary>
+	public override void onShow()
+	{
+		base.onShow();
+		highlight?.setActive(false);
+		highlightHovered?.setActive(false);
+	}
+
+	/// <summary>由 BallSlotGroupBinder 在 Rebuild 时写入。</summary>
 	public void SetSlotData(int index, BallSlotGroupBinder binder)
 	{
 		slotIndex = index;
 		slotBinder = binder;
 	}
 
-	// 点击:转发到 binder 的实例方法,无闭包。
+	// 左键按下:尝试进入操作状态
+	void OnPointerPressed(PointerEventData data)
+	{
+		if (data.button != PointerEventData.InputButton.Left) 
+			return;
+
+		if (!BallOperationStateManager.Instance.IsActive && ballSlot.IsOccupied)
+		{
+			var iconRect = icon?.getGameObject()?.GetComponent<RectTransform>();
+			if (iconRect != null)
+				BallOperationStateManager.Instance.TryEnter(this, iconRect);
+		}
+	}
+
+	// 原有事件转发(仅在非操作状态时)
 	void onBtnClick()
 	{
+		if (_eventBlocked) return;
 		slotBinder?.OnSlotBtnClicked(slotIndex);
 	}
 
-	// 拖拽释放:同上。
-	void onDragReleased(BallSlotItem src, UIDragReleaseEventData data)
-	{
-		slotBinder?.OnSlotDragReleased(src, slotIndex, data);
-	}
-
-	public override void onShow()
-	{
-		base.onShow();
-	}
+	// 内部标志:操作状态激活时阻止原有事件
+	internal bool _eventBlocked;
 }

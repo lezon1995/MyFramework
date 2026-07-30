@@ -91,6 +91,7 @@ namespace MoreMountains
                 // UnityEvent 订阅在 item.init() 中已经一次性完成,这里只更新数据字段,
                 // 不创建任何 lambda。
                 item.SetSlotData(index, this);
+                item.SetBallInventorySlot(slot);
             });
         }
 
@@ -125,6 +126,38 @@ namespace MoreMountains
                 return;
 
             _owner?.OnBallInventoryDragReleased(src, ball, data);
+        }
+
+        /// <summary>
+        /// 根据 BallInventoryItem 查找对应的 slotIndex。
+        /// 用于操作状态中点击 BallInventoryItem 时确定目标背包格子。
+        /// </summary>
+        public void GetSlotIndexForItem(BallInventoryItem item, out int slotIndex)
+        {
+            slotIndex = -1;
+            if (_bag == null || item == null) return;
+
+            int i = 0;
+            foreach (var slot in _bag.SlotList)
+            {
+                if (_view.GetUsedItem(i, out var usedItem) && usedItem == item)
+                {
+                    slotIndex = slot.Index;
+                    return;
+                }
+                i++;
+            }
+        }
+
+        /// <summary>
+        /// 球操作状态中,在 BallInventoryItem 上左键点击时调用。
+        /// source 是背包里的球:
+        ///   • 目标是 BallSlotItem → Equip
+        ///   • 目标是 BallInventoryItem → 无效
+        /// </summary>
+        public void OnInventoryOperationConfirmed(int sourceSlotIndex)
+        {
+            _owner?.OnInventoryOperationConfirmed(sourceSlotIndex);
         }
 
         // ------------- 选择/出售/升级事件(由外部按钮触发)-------------

@@ -26,6 +26,7 @@ public partial class OperationPanel : LayoutScript
 		relicInventoryView = new(this);
 		ballInventoryView = new(this);
 		// auto generate constructor end
+		mNeedUpdate = false;
 	}
 	public override void assignWindow()
 	{
@@ -46,9 +47,5 @@ public partial class OperationPanel : LayoutScript
 		// auto generate init end
 
 		initBinder();
-	}
-	public override void onGameState()
-	{
-		base.onGameState();
 	}
 }

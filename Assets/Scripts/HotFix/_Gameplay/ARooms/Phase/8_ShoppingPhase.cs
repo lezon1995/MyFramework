@@ -30,6 +30,8 @@ public class ShoppingPhase : ARoomPhase
         {
             _room.ToPhase = RoomPhaseType.BATTLE;
         }
+
+        ADungeon.operationPanel.update(dt);
     }
 
     public override void fixedUpdate(float dt)

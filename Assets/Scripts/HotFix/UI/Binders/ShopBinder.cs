@@ -7,6 +7,8 @@ namespace MoreMountains
     /// 商店 binder —— 把 ShopController 的 offers 渲染到 ShopView。
     /// 需求：球商品与遗物商品在同一面板（ShopItems 节点）下生成，按 offer 顺序排列。
     /// 不直接处理金币扣 / 加，业务由 ShopController 通过 ShopController.OnPlayerBuyOffer 走。
+    ///
+    /// 同时订阅球操作状态管理器的事件,控制 sellZone 的显示/隐藏和点击响应。
     /// </summary>
     public sealed class ShopBinder
     {
@@ -20,6 +22,7 @@ namespace MoreMountains
         Action<IInventoryItem> _onSoldFromBag;
         Action<int, string> _onGoldEarned;
         Action<int, string> _onGoldSpent;
+        Action<bool> _onSellZoneVisibilityChanged;
 
         List<IPurchasable> _orderedOffers = new();
 
@@ -31,12 +34,15 @@ namespace MoreMountains
             _onSoldFromBag = _ => Rebuild();
             _onGoldEarned = (g, _) => RefreshCoin();
             _onGoldSpent = (g, _) => RefreshCoin();
+            _onSellZoneVisibilityChanged = visible => _view.SetSellZoneVisible(visible);
         }
 
         public event Action<IPurchasable> OfferBuyClicked;
         public event Action RerollClicked;
         public event Action BuyExpClicked;
-        public event Action<IInventoryItem> SellDropDetected;
+
+        /// <summary>由 OperationPanelBinder 订阅,在操作状态中点击 sellZone 时触发。</summary>
+        public event Action SellZoneClicked;
 
         public ShopController Controller => _ctrl;
 
@@ -50,6 +56,9 @@ namespace MoreMountains
             _view.BtnReroll.setUGUIButtonClick(OnRerollClicked);
             _view.BtnBuyExp.setUGUIButtonClick(OnBuyExpClicked);
 
+            // 设置 sellZone 点击回调
+            _view.SetupSellZoneClick(() => SellZoneClicked?.Invoke());
+
             ShopEvents.OnBoardOpened += _onBoardRefreshed;
             ShopEvents.OnBoardRerolled += _onBoardRefreshed;
             ShopEvents.OnOfferSold += _onOfferSold;
@@ -57,13 +66,18 @@ namespace MoreMountains
             ShopEvents.OnGoldEarned += _onGoldEarned;
             ShopEvents.OnGoldSpent += _onGoldSpent;
 
+            // 订阅球操作状态管理器:sellZone 显隐
+            BallOperationStateManager.Instance.SellZoneVisibilityChanged += _onSellZoneVisibilityChanged;
+            // 初始 sellZone 隐藏
+            _view.SetSellZoneVisible(false);
+
             RefreshCoin();
             Rebuild();
         }
 
         public void Detach()
         {
-            if (_ctrl == null) 
+            if (_ctrl == null)
                 return;
 
             ShopEvents.OnBoardOpened -= _onBoardRefreshed;
@@ -72,13 +86,17 @@ namespace MoreMountains
             ShopEvents.OnSoldFromBag -= _onSoldFromBag;
             ShopEvents.OnGoldEarned -= _onGoldEarned;
             ShopEvents.OnGoldSpent -= _onGoldSpent;
+
+            BallOperationStateManager.Instance.SellZoneVisibilityChanged -= _onSellZoneVisibilityChanged;
+            _view.SetSellZoneVisible(false);
+
             _player = null;
             _ctrl = null;
         }
 
         public void Rebuild()
         {
-            if (_ctrl == null) 
+            if (_ctrl == null)
                 return;
 
             RefreshCoin();
@@ -118,9 +136,7 @@ namespace MoreMountains
 
         void OnOfferClicked(IPurchasable offer)
         {
-            if (offer == null) 
-                return;
-
+            if (offer == null) return;
             OfferBuyClicked?.Invoke(offer);
         }
 

@@ -38,52 +38,64 @@ public partial class BallInventoryItem : WindowRecyclableUGUI
         // auto generate assignWindowInternal end
     }
 
-    // 由 binder Rebuild 时写入:slot 索引 + binder 引用。
-    // 转发事件时从字段读,避免每次 Rebuild 创建 lambda 闭包。
     int slotIndex = -1;
     BallInventoryBinder slotBinder;
 
     public override void init()
     {
         base.init();
-        // auto generate init start
-        // auto generate init end
 
+        // 挂 Bridge 组件
+        var go = mRoot.getGameObject();
+        if (!go.TryGetComponent<BallOperationTargetBridge>(out var bridge))
+        {
+            bridge = go.AddComponent<BallOperationTargetBridge>();
+        }
+        bridge.Target = this;
+
+        // 初始化 highlight 状态
+        highlight?.setActive(false);
+        highlightHovered?.setActive(false);
+
+        // 订阅左键按下事件
         if (btn.tryGetUnityComponent(out UIEventListener listener))
         {
-            listener.SetOnPotentialDragInitialized(onPotentialDragInitialized);
-            listener.SetOnDragStarted(onDragStarted);
-            listener.SetOnDragging(onDragging);
-            listener.SetOnDragEnded(onDragEnded);
-            listener.SetOnDragReleasedOverUI(onDragReleasedOverUI);
+            listener.SetOnPointerPressed(OnPointerPressed);
         }
-
-        // 一次性订阅 UnityEvent,转发走字段读,不创建 lambda。
-        btn.setUGUIButtonClick(onBtnClick);
-        SetOnDragReleased(onDragReleased);
     }
 
-    /// <summary>由 BallInventoryBinder 在 Rebuild 时写入本 item 的数据。
-    /// 写入后,转发事件会根据 slotIndex 实时从 BallBag.SlotList 取 ball,避免 item 持有过期 ball 引用。</summary>
+    public override void onShow()
+    {
+        base.onShow();
+        highlight?.setActive(false);
+        highlightHovered?.setActive(false);
+    }
+
     public void SetSlotData(int index, BallInventoryBinder binder)
     {
         slotIndex = index;
         slotBinder = binder;
     }
 
-    // 拖拽释放:把 item + slotIndex + data 转给 binder,binder 拿到 index 后再去 SlotList 取 ball。
-    void onDragReleased(BallInventoryItem inventoryItem, UIDragReleaseEventData data)
+    void OnPointerPressed(UnityEngine.EventSystems.PointerEventData data)
     {
-        slotBinder?.OnBallDragReleased(inventoryItem, slotIndex, data);
+        if (data.button != UnityEngine.EventSystems.PointerEventData.InputButton.Left) 
+            return;
+
+        if (!BallOperationStateManager.Instance.IsActive && ballInventorySlot.IsOccupied)
+        {
+            var iconRect = icon?.getGameObject()?.GetComponent<UnityEngine.RectTransform>();
+            if (iconRect != null)
+                BallOperationStateManager.Instance.TryEnter(this, iconRect);
+        }
     }
 
+    // 原有事件转发(仅在非操作状态时)
     void onBtnClick()
     {
+        if (_eventBlocked) return;
         slotBinder?.OnBallBtnClicked(slotIndex);
     }
 
-    public override void onShow()
-    {
-        base.onShow();
-    }
+    internal bool _eventBlocked;
 }

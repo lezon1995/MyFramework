@@ -63,19 +63,20 @@ namespace MoreMountains
             // 直接把 model 的 Slots 列表交给 View,binder 不在中间建一个 List<BallSlot>。
             _view.BuildSlotsWithIndex(_model.Slots, (index, item, slot) =>
             {
-                var ball = slot.Item;
-                var isOccupied = slot.IsOccupied;
+                var ball = slot.Item; // 装备槽用 Item,非空表示有球
+                bool isOccupied = ball != null;
                 item.SetIconVisible(isOccupied);
-                if (isOccupied)
+                if (isOccupied && ball.Def != null)
                 {
                     item.SetBallIcon(ball.Def.Icon);
                 }
 
                 item.SetStarCount(isOccupied ? ClampStars(ball.Level) : 0);
                 item.SetSelected(_selectedSlotIndex == slot.Index);
+                item.SetBallSlot(slot);
 
                 // 不创建 lambda;item 的 UnityEvent 在 init() 中已一次性订阅,
-                // 这里只更新数据字段,转发走 item 自身的 onBtnClick / onDragReleased。
+                // 这里只更新数据字段,转发走 item 自身的 onBtnClick。
                 item.SetSlotData(index, this);
             });
         }
@@ -106,22 +107,54 @@ namespace MoreMountains
             SetSelectedSlot(_selectedSlotIndex == slotIndex ? -1 : slotIndex);
         }
 
+        /// <summary>
+        /// 根据 BallSlotItem 查找对应的 slotIndex。
+        /// 用于操作状态中点击 BallSlotItem 时确定目标槽位。
+        /// </summary>
+        public void GetSlotIndexForItem(BallSlotItem item, out int slotIndex)
+        {
+            slotIndex = -1;
+            if (_model == null || item == null) return;
+
+            int i = 0;
+            foreach (var slot in _model.Slots)
+            {
+                if (_view.GetUsedItem(i, out var usedItem) && usedItem == item)
+                {
+                    slotIndex = slot.Index;
+                    return;
+                }
+                i++;
+            }
+        }
+
         /// <summary>由 BallSlotItem.onDragReleased 转发。
         /// 这里只取 slot 索引,具体 ball 通过该 slot 实时读出,避免在 Rebuild 时持有 ball 引用。</summary>
         public void OnSlotDragReleased(BallSlotItem src, int slotIndex, UIDragReleaseEventData data)
         {
-            if (_model == null) 
+            if (_model == null)
                 return;
 
-            if (slotIndex < 0 || slotIndex >= _model.Slots.Count) 
+            if (slotIndex < 0 || slotIndex >= _model.Slots.Count)
                 return;
 
             var slot = _model.Slots[slotIndex];
             var ball = slot.Item;
-            if (ball == null) 
+            if (ball == null)
                 return;
 
             _owner?.OnSlotDragReleased(src, slotIndex, ball, data);
+        }
+
+        /// <summary>
+        /// 球操作状态中,在 BallSlotItem 上左键点击时调用。
+        /// source 是槽位上的球:
+        ///   • 目标是 BallSlotItem → Swap
+        ///   • 目标是 BallInventoryItem → Unequip 到背包
+        /// </summary>
+        public void OnSlotOperationConfirmed(int sourceSlotIndex)
+        {
+            _owner?.OnSlotOperationConfirmed(sourceSlotIndex);
         }
 
         static int ClampStars(int level)
