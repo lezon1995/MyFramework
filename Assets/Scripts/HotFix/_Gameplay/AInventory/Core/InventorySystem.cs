@@ -10,17 +10,17 @@ namespace MoreMountains
     {
         [Header("Bag Capacity")]
         [Tooltip("球背包默认格数")]
-        public int BallBagCapacity = 9;
+        public int BallBagCapacity = 8;
 
         [Tooltip("遗物背包默认格数")]
-        public int RelicBagCapacity = 15;
+        public int RelicBagCapacity = 16;
 
         [Header("Expansion Cap")]
         [Tooltip("球背包容量上限")]
-        public int MaxBallBagCapacity = 30;
+        public int MaxBallBagCapacity = 8;
 
         [Tooltip("遗物背包容量上限")]
-        public int MaxRelicBagCapacity = 40;
+        public int MaxRelicBagCapacity = 32;
         
         BallBag _ballBag;
         RelicBag _relicBag;

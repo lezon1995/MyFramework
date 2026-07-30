@@ -18,12 +18,12 @@ public partial class ShopView
     /// <summary>把现有的 UI 项全部回收，然后按 data 列表重建。每项回调里把数据塞到 UI。</summary>
     public void BuildBallOffers<TData>(List<TData> dataList, Action<BallPurchaseItem, TData> onBuild)
     {
-        BallPurchaseItemPool.newItemList(dataList, (item, data) => onBuild?.Invoke(item, data));
+        BallPurchaseItemPool.newItemList(dataList, onBuild);
     }
 
     public void BuildRelicOffers<TData>(List<TData> dataList, Action<RelicPurchaseItem, TData> onBuild)
     {
-        RelicPurchaseItemPool.newItemList(dataList, (item, data) => onBuild?.Invoke(item, data));
+        RelicPurchaseItemPool.newItemList(dataList, onBuild);
     }
 
     ShopBinder binder;

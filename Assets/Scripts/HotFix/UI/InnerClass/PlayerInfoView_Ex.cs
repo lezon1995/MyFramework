@@ -26,7 +26,7 @@ public partial class PlayerInfoView
 
     public void BuildPlayerStats<TData>(List<TData> dataList, Action<PlayerStatItem, TData> onBuild)
     {
-        PlayerStatItemPool.newItemList(dataList, (item, data) => onBuild?.Invoke(item, data));
+        PlayerStatItemPool.newItemList(dataList, onBuild);
     }
 
     public BallSlotGroupView SlotGroup => ballSlotGroupView;
@@ -43,16 +43,16 @@ public partial class PlayerStatItem
 {
     public void SetIcon(Sprite s)
     {
-        /* statIcon 占位，预留贴图迭代阶段使用 */
+        statIcon.setSpriteOnly(s);
     }
 
     public void SetName(string s)
     {
-        /* statName 占位 */
+        statName.setText(s);
     }
 
     public void SetValue(string s)
     {
-        /* statValue 占位 */
+        statValue.setText(s);
     }
 }

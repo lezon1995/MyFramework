@@ -7,17 +7,29 @@ namespace MoreMountains
     /// Current == null 表示空。
     /// 装备 / 卸下都通过这里，外部不能直接动 Current。
     /// </summary>
-    public sealed class BallSlot
+    public sealed class BallSlot : IInventorySlot<BallItem>
     {
         public int Index { get; }
-        public BallItem Current { get; set; }
-        public bool IsEmpty => Current == null;
+        public BallItem Item { get; set; }
+        public bool IsEmpty => Item == null;
+        public bool IsOccupied => Item != null;
 
-        public event Action<BallSlot> OnSlotChanged;
+        public event Action<IInventorySlot<BallItem>> OnSlotChanged;
 
         public BallSlot(int index)
         {
             Index = index;
+        }
+        
+        public BallItem Set(BallItem item)
+        {
+            if (ReferenceEquals(Item, item))
+                return Item;
+
+            BallItem previous = Item;
+            Item = item;
+            OnSlotChanged?.Invoke(this);
+            return previous;
         }
 
         public bool TrySet(BallItem ball)
@@ -25,7 +37,7 @@ namespace MoreMountains
             if (!IsEmpty)
                 return false;
 
-            Current = ball;
+            Item = ball;
             OnSlotChanged?.Invoke(this);
             BallEvents.RaiseEquipped(ball, Index);
             return true;
@@ -33,8 +45,8 @@ namespace MoreMountains
 
         public bool Replace(BallItem ball)
         {
-            var old = Current;
-            Current = ball;
+            var old = Item;
+            Item = ball;
             OnSlotChanged?.Invoke(this);
             if (old != null)
                 BallEvents.RaiseUnequipped(old, Index);
@@ -47,8 +59,8 @@ namespace MoreMountains
 
         public BallItem Clear()
         {
-            var old = Current;
-            Current = null;
+            var old = Item;
+            Item = null;
             OnSlotChanged?.Invoke(this);
             if (old != null)
                 BallEvents.RaiseUnequipped(old, Index);

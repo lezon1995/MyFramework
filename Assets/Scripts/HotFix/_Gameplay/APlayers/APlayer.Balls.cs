@@ -32,7 +32,7 @@ namespace MoreMountains
             base.Initialization();
             
             Exp.ResetLevel();
-            Exp.SetOnLevelUp(onLevelUp);
+            // Exp.SetOnLevelUp(onLevelUp);
             
             FindAbility(out playerRecollectBall);
 

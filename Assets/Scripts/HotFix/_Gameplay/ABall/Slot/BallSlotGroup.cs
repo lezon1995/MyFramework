@@ -124,7 +124,7 @@ namespace MoreMountains
             if (sA == null || sB == null)
                 return false;
 
-            (sA.Current, sB.Current) = (sB.Current, sA.Current);
+            (sA.Item, sB.Item) = (sB.Item, sA.Item);
             OnSlotsChanged?.Invoke();
             return true;
         }
@@ -148,7 +148,7 @@ namespace MoreMountains
 
             foreach (var s in _slots)
             {
-                if (ReferenceEquals(s.Current, ball))
+                if (ReferenceEquals(s.Item, ball))
                     return ball;
             }
 
@@ -174,7 +174,7 @@ namespace MoreMountains
         {
             for (int i = 0; i < _slots.Count; i++)
             {
-                if (ReferenceEquals(_slots[i].Current, item))
+                if (ReferenceEquals(_slots[i].Item, item))
                 {
                     _slots[i].Clear();
                     OnSlotsChanged?.Invoke();
@@ -194,7 +194,7 @@ namespace MoreMountains
         {
             for (int i = 0; i < _slots.Count; i++)
             {
-                if (ReferenceEquals(_slots[i].Current, item))
+                if (ReferenceEquals(_slots[i].Item, item))
                 {
                     index = i;
                     return true;

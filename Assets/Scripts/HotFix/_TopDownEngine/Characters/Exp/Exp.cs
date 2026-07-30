@@ -12,23 +12,27 @@ namespace MoreMountains
         const string XP_TOTAL = "_XpTotal";
         const string XP_REQUIRED = "_XpRequired";
 
-        Action LevelUpAction;
-        
+
         public ExpData Data;
         public bool saveOnQuit;
         public bool saveOnDestroy;
         public bool loadOnStart;
 
         public int LevelMax => Data.Trait.MaxLevel;
-        public int maxLevel => Data.Trait.MaxLevel;
-        public float progress => Xp / XpRequired;
-        public int currentExp => (int)Xp;
-        public int currentLevelRequiredExp => (int)XpRequired;
+        public int MaxLevel => Data.Trait.MaxLevel;
+        public float progress => Xp / (float)XpRequired;
+        public int currentExp => Xp;
+        public int currentLevelRequiredExp => XpRequired;
 
         public int Level;
-        public float Xp;
-        public float XpTotal;
-        public float XpRequired;
+        public int Xp;
+        public int XpTotal;
+        public int XpRequired;
+
+        public Action<int> onLevelUp;
+        public Action<int, int> onLevelChanged;
+        public Action<int, int> onExpChanged;
+        public Action<int, int> onExpRequiredChanged;
 
         public void SetData(ExpData d)
         {
@@ -42,12 +46,12 @@ namespace MoreMountains
             }
         }
 
-        
-        public void SetOnLevelUp(Action action)
+
+        public void SetOnLevelUp(Action<int> action)
         {
-            LevelUpAction = action;
+            onLevelUp = action;
         }
-        
+
         public void SetLevel(int value)
         {
             if (Level != value)
@@ -55,22 +59,25 @@ namespace MoreMountains
                 var oldLevel = Level;
                 Level = value;
                 new OnLevelChange(oldLevel, value).trigger();
+                onLevelChanged?.Invoke(oldLevel, value);
             }
         }
 
-        public void SetXpRequired(float value)
+        public void SetXpRequired(int value)
         {
             XpRequired = value;
             new OnXpRequiredChange(XpRequired).trigger();
+            onExpRequiredChanged?.Invoke(Xp, XpRequired);
         }
 
-        public void SetXp(float value)
+        public void SetXp(int value)
         {
             Xp = value;
-            new OnXpChange(Xp, XpTotal == 0 ? 0 : Xp / XpTotal).trigger();
+            new OnXpChange(Xp, XpTotal == 0 ? 0 : Xp / (float)XpTotal).trigger();
+            onExpChanged?.Invoke(Xp, XpRequired);
         }
 
-        public void SetXpTotal(float value)
+        public void SetXpTotal(int value)
         {
             XpTotal = value;
             new OnXpTotalChange(XpTotal).trigger();
@@ -104,7 +111,7 @@ namespace MoreMountains
             }
         }
 
-        void UpdateAll(int level, float xpRequired, float xp, float xpTotal)
+        void UpdateAll(int level, int xpRequired, int xp, int xpTotal)
         {
             SetLevel(level);
             SetXpRequired(xpRequired);
@@ -116,9 +123,9 @@ namespace MoreMountains
         {
             string key = Data.Trait.Key;
             PlayerPrefs.SetInt(key + LEVEL, Level);
-            PlayerPrefs.SetFloat(key + XP, Xp);
-            PlayerPrefs.SetFloat(key + XP_TOTAL, XpTotal);
-            PlayerPrefs.SetFloat(key + XP_REQUIRED, XpRequired);
+            PlayerPrefs.SetInt(key + XP, Xp);
+            PlayerPrefs.SetInt(key + XP_TOTAL, XpTotal);
+            PlayerPrefs.SetInt(key + XP_REQUIRED, XpRequired);
             PlayerPrefs.Save();
         }
 
@@ -129,9 +136,9 @@ namespace MoreMountains
             {
                 UpdateAll(
                     PlayerPrefs.GetInt(key + LEVEL),
-                    PlayerPrefs.GetFloat(key + XP_REQUIRED),
-                    PlayerPrefs.GetFloat(key + XP),
-                    PlayerPrefs.GetFloat(key + XP_TOTAL));
+                    PlayerPrefs.GetInt(key + XP_REQUIRED),
+                    PlayerPrefs.GetInt(key + XP),
+                    PlayerPrefs.GetInt(key + XP_TOTAL));
             }
             else
             {
@@ -141,7 +148,7 @@ namespace MoreMountains
 
 
         [Button]
-        public void AddXp(float delta)
+        public void AddXp(int delta)
         {
             var maxLevel = Data.Trait.MaxLevel;
             var newXp = Xp + delta;
@@ -154,11 +161,11 @@ namespace MoreMountains
 
             if (newXp >= XpRequired && newLevel < maxLevel)
             {
-                new OnAddXp((int)XpRequired, 1F).trigger();
+                new OnAddXp(XpRequired, 1F).trigger();
             }
             else
             {
-                new OnAddXp((int)newXp, newXpRequired == 0 ? 0 : newXp / newXpRequired).trigger();
+                new OnAddXp(newXp, newXpRequired == 0 ? 0 : newXp / (float)newXpRequired).trigger();
             }
 
             while (newXp >= newXpRequired && newLevel < maxLevel)
@@ -166,8 +173,8 @@ namespace MoreMountains
                 newXp -= newXpRequired;
                 newLevel++;
                 newXpRequired = CalculateXpRequiredToNextLevel(newLevel);
-                new OnLevelUp((int)newXp, newLevel, Mathf.Clamp01(newXp / newXpRequired)).trigger();
-                LevelUpAction?.Invoke();
+                new OnLevelUp(newXp, newLevel, Mathf.Clamp01(newXp / (float)newXpRequired)).trigger();
+                onLevelUp?.Invoke(newLevel);
             }
 
             if (newLevel >= maxLevel)
@@ -181,27 +188,27 @@ namespace MoreMountains
             UpdateAll(newLevel, newXpRequired, newXp, newXpTotal);
         }
 
-        float CalculateXpRequiredToNextLevel(int level)
+        int CalculateXpRequiredToNextLevel(int level)
         {
-            (int maxLevel, float startXpRequired, float maxLevelXpRequired, AnimationCurve xpCurve) = Data.Trait;
+            (int maxLevel, int startXpRequired, int maxLevelXpRequired, AnimationCurve xpCurve) = Data.Trait;
 
             float t = (float)level / (maxLevel - 1);
-            float curveValue = xpCurve.Evaluate(t);
-            float xpRequired = Mathf.Lerp(startXpRequired, maxLevelXpRequired, curveValue);
+            int curveValue = (int)xpCurve.Evaluate(t);
+            int xpRequired = (int)Mathf.Lerp(startXpRequired, maxLevelXpRequired, curveValue);
             return xpRequired;
         }
 
-        float CalculateXpTotalToLevel(int level)
+        int CalculateXpTotalToLevel(int level)
         {
-            (int maxLevel, float startXpRequired, float maxLevelXpRequired, AnimationCurve xpCurve) = Data.Trait;
+            (int maxLevel, int startXpRequired, int maxLevelXpRequired, AnimationCurve xpCurve) = Data.Trait;
 
-            float totalXP = 0;
+            int totalXP = 0;
 
             for (int i = 1; i <= level; i++)
             {
                 float t = (float)i / (maxLevel - 1);
-                float curveValue = xpCurve.Evaluate(t);
-                float xpRequiredForLevel = Mathf.Lerp(startXpRequired, maxLevelXpRequired, curveValue);
+                int curveValue = (int)xpCurve.Evaluate(t);
+                int xpRequiredForLevel = (int)Mathf.Lerp(startXpRequired, maxLevelXpRequired, curveValue);
                 totalXP += xpRequiredForLevel;
             }
 

@@ -19,12 +19,6 @@ public partial class BallSlotItem : IDraggableItem
             stars[i]?.setActive(i < count);
     }
 
-    /// <summary>替换此 item 的点击回调（先清空已注册，再设）。</summary>
-    public void SetOnClick(UnityAction callback)
-    {
-        if (btn != null) btn.setUGUIButtonClick(callback);
-    }
-
     /// <summary>替换此 item 的拖拽松开回调。</summary>
     public void SetOnDragReleased(Action<BallSlotItem, UIDragReleaseEventData> callback)
     {

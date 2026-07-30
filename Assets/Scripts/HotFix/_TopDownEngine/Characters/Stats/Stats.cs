@@ -129,6 +129,7 @@ namespace MoreMountains
 
                     stat = new(initial, ratio);
                     _stats[statName] = stat;
+                    stat.Name = statName;
                     stat.Event.Add(Action);
 
                     void Action(float pre, float cur)

@@ -258,8 +258,12 @@ namespace MoreMountains
         {
             found = null;
             if (data == null) return false;
+            var bag = _player?.Inventory?.BallBag;
+            if (bag == null) return false;
+
             int i = 0;
-            foreach (var _ball in _player.Inventory.BallBag.AllItems)
+            // 按 BallBag 的 slot 顺序遍历（slot.Item == null 也占位），与 View 的 item 顺序一一对应。
+            foreach (var slot in bag.SlotList)
             {
                 if (_panel.BallInventory.GetUsedItem(i, out var item) && item != null)
                 {
@@ -422,6 +426,9 @@ namespace MoreMountains
         void OnShopBuyExpRequested()
         {
             // 暂未实现 BuyExp action,触发事件给接入方
+            var baseExp = gameDesign.baseExpStandard;
+            var totalExp = baseExp;
+            _player.gainExp(totalExp);
         }
 
         void OnWalletChanged(int _) => _shop.RefreshCoin();

@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using UniStats;
 
 namespace MoreMountains
 {
@@ -12,7 +14,21 @@ namespace MoreMountains
         BallSlotGroupBinder _slotBinder; // 共享，绑定嵌入的 BallSlotGroupView
         APlayer _player;
 
-        public PlayerInfoBinder(PlayerInfoView view, BallSlotGroupBinder slotBinder)
+        Action<int> onLevelUp;
+        Action<int, int> onLevelChanged;
+        Action<int, int> onExpChanged;
+        Action<int, int> onExpRequiredChanged;
+        Dictionary<string, IDisposable> statsDisposables = new();
+
+        PlayerInfoBinder()
+        {
+            onLevelUp = OnLevelUpAction;
+            onLevelChanged = OnLevelChanged;
+            onExpChanged = OnExpChanged;
+            onExpRequiredChanged = OnExpRequiredChanged;
+        }
+
+        public PlayerInfoBinder(PlayerInfoView view, BallSlotGroupBinder slotBinder) : this()
         {
             _view = view ?? throw new ArgumentNullException(nameof(view));
             _slotBinder = slotBinder ?? throw new ArgumentNullException(nameof(slotBinder));
@@ -26,19 +42,80 @@ namespace MoreMountains
 
             // 等级 / 经验 监听可在此处挂 PlayerWallet.OnBalanceChanged 等
             // 当前简化：使用固定占位 1/0，后续接入等级系统替换。
-            _view.SetLevel(1);
-            _view.SetExp(0, 100);
+            _view.SetLevel(player.Exp.Level);
+            _view.SetExp(player.Exp.currentExp, player.Exp.currentLevelRequiredExp);
+
+            player.Exp.onLevelUp = onLevelUp;
+            player.Exp.onLevelChanged = onLevelChanged;
+            player.Exp.onExpChanged = onExpChanged;
+            player.Exp.onExpRequiredChanged = onExpRequiredChanged;
 
             // 属性列表占位
-            using var _ = new ListScope<PlayerStatRow>(out var list);
-            _view.BuildPlayerStats(list, (item, row) =>
+            using var _ = new ListScope<UniStats.Stat>(out var statList);
+            statList.Add(player.GetStat(Character.Stat.HealthMax));
+            statList.Add(player.GetStat(Character.Stat.HealthRegen));
+            statList.Add(player.GetStat(Character.Stat.AD));
+            statList.Add(player.GetStat(Character.Stat.AD_PT));
+            statList.Add(player.GetStat(Character.Stat.AD_PT_Rate));
+            statList.Add(player.GetStat(Character.Stat.AP));
+            statList.Add(player.GetStat(Character.Stat.AP_PT));
+            statList.Add(player.GetStat(Character.Stat.AP_PT_Rate));
+            statList.Add(player.GetStat(Character.Stat.CritChance));
+            statList.Add(player.GetStat(Character.Stat.CritDamage));
+            statList.Add(player.GetStat(Character.Stat.DmgRate));
+            statList.Add(player.GetStat(Character.Stat.AR));
+            statList.Add(player.GetStat(Character.Stat.MS));
+            statList.Add(player.GetStat(Character.Stat.LS));
+            statList.Add(player.GetStat(Character.Stat.DodgeChance));
+            statList.Add(player.GetStat(Character.Stat.BallisticSpeed));
+            _view.BuildPlayerStats(statList, (item, stat) =>
             {
-                /* 留空 */
+                // item.SetIcon();
+                item.SetName(stat.Name);
+                item.SetValue(IToS((int)stat.Value));
+                var disposable = stat.OnChange(v =>
+                {
+                    item.SetValue(IToS((int)v.Value));
+                });
+                
+                statsDisposables[stat.Name] = disposable;
             });
+        }
+
+        void OnLevelUpAction(int curLevel)
+        {
+            _player.BallManagement.ExpandSlots(1);
+        }
+
+        void OnLevelChanged(int pre, int cur)
+        {
+            RefreshLevel(cur);
+        }
+
+        void OnExpChanged(int xp, int xpRequired)
+        {
+            RefreshExp(xp, xpRequired);
+        }
+
+        void OnExpRequiredChanged(int xp, int xpRequired)
+        {
+            RefreshExp(xp, xpRequired);
         }
 
         public void Detach()
         {
+            if (_player)
+            {
+                _player.Exp.onLevelChanged = null;
+                _player.Exp.onExpChanged = null;
+                _player.Exp.onExpRequiredChanged = null;
+            }
+            
+            foreach (var (statName, disposable) in statsDisposables)
+                disposable.Dispose();
+
+            statsDisposables.Clear();
+
             _player = null;
         }
 

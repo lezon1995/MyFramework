@@ -28,16 +28,16 @@ namespace MoreMountains
 
     public struct OnXpTotalChange
     {
-        public float Xp;
-        public OnXpTotalChange(float xp) => Xp = xp;
+        public int Xp;
+        public OnXpTotalChange(int xp) => Xp = xp;
     }
 
     public struct OnXpChange
     {
-        public float Xp;
+        public int Xp;
         public float Ratio;
 
-        public OnXpChange(float xp, float ratio)
+        public OnXpChange(int xp, float ratio)
         {
             Xp = xp;
             Ratio = ratio;
@@ -58,8 +58,8 @@ namespace MoreMountains
 
     public struct OnXpRequiredChange
     {
-        public float Xp;
-        public OnXpRequiredChange(float xp) => Xp = xp;
+        public int Xp;
+        public OnXpRequiredChange(int xp) => Xp = xp;
     }
 
     public struct OnMaxLevel

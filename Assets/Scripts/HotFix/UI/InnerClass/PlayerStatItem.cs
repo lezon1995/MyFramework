@@ -7,9 +7,9 @@ public partial class PlayerStatItem : WindowRecyclableUGUI
 // auto generate classname end
 {
 	// auto generate member start
-	protected myUGUIObject statIcon;
-	protected myUGUIObject statName;
-	protected myUGUIObject statValue;
+	protected myUGUIImageSimple statIcon;
+	protected myUGUITextTMP statName;
+	protected myUGUITextTMP statValue;
 	// auto generate member end
 	public PlayerStatItem(IWindowObjectOwner parent) : base(parent)
 	{

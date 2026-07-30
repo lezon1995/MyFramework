@@ -4,24 +4,24 @@ namespace MoreMountains
 {
     /// <summary>
     /// 球背包 binder —— 把 BallBag 内容同步到 BallInventoryView。
-    /// 单击球 → 选中；选中态视觉用 focus 节点切换。
-    /// 不在这里做 Equip / Upgrade / Sell —— 而是抛事件,由 OperationPanelBinder 把按钮接到对应操作。
-    /// 拖拽：通过 SetOnDragReleased 把「球被拖到哪了」交给 OperationPanelBinder 处理(装备/出售)。
+    ///
+    /// 数据模型:BallBag 内部是固定 N 个 BallInventorySlot,Slot.Item == null 表示空格子。
+    /// 一次 Rebuild 把 N 个 slot 全部渲染:Item != null 的显示球,Item == null 的显示空格子。
+    /// 单击球 → 选中;选中态视觉用 focus 节点切换;空格子不可选中也不响应点击。
+    /// 拖拽:item 自身已经在 init() 一次性订阅 UnityEvent,转发走字段读取,
+    /// 所以 Rebuild 不再创建 lambda,只更新 item 的数据(slot 索引 + 当前 ball)。
     /// </summary>
     public sealed class BallInventoryBinder
     {
-        Action<BallInventoryItem, BallItem> onBuild;
         BallInventoryView _view;
         BallBag _bag;
 
         BallItem _selected;
         OperationPanelBinder _owner; // 用于把 drag 释放事件转交顶层 binder
-        public OperationPanelBinder Owner => _owner;
 
         public BallInventoryBinder(BallInventoryView view)
         {
             _view = view ?? throw new ArgumentNullException(nameof(view));
-            onBuild = OnBuild;
         }
 
         /// <summary>由 OperationPanelBinder 在构造后注入,让 item 的 drag 释放回调能找到上层分派逻辑。</summary>
@@ -68,23 +68,68 @@ namespace MoreMountains
             if (_bag == null)
                 return;
 
-            // 把 IReadOnlyList 转成 List 以匹配 WindowStructPool.newItemList 的 List<T> 要求。
-            _view.BuildBalls(_bag.AllItems, onBuild);
+            // 把固定 N 个 slot 直接交给 View;View 自己判断 Slot.Item == null 决定显示空格子还是叠加 item。
+            // binder 不在中间建一个 List<BallItem>,避免 Rebuild 时的中间分配。
+            _view.BuildBallsWithIndex(_bag.SlotList, (index, item, slot) =>
+            {
+                var ball = slot.Item; // 可能为 null
+                bool isEmpty = slot.IsEmpty;
+                bool isOccupied = slot.IsOccupied;
+                bool isSel = !isEmpty && ReferenceEquals(ball, _selected);
+
+                item.SetSelected(isSel);
+                if (isOccupied)
+                {
+                    item.SetBallIcon(ball.Def.Icon);
+                }
+
+                item.SetIconVisible(!isEmpty);
+                item.SetStarCount(!isEmpty ? ClampStars(ball.Level) : 0);
+                item.SetEnabledState(!isEmpty);
+
+                // 把数据塞到 item 上(item 内部保存一份,作为兜底转发路径)
+                // UnityEvent 订阅在 item.init() 中已经一次性完成,这里只更新数据字段,
+                // 不创建任何 lambda。
+                item.SetSlotData(index, this);
+            });
         }
 
-        void OnBuild(BallInventoryItem item, BallItem ball)
+        // ------------- item 事件转发入口（item 直接调过来,无 lambda 中转）-------------
+
+        /// <summary>由 BallInventoryItem.onBtnClick 转发。
+        /// 无参数,ball 从 Bag 的 SlotList 中按 slotIndex 实时读取,避免 item 持有过期 ball 引用。</summary>
+        public void OnBallBtnClicked(int slotIndex)
         {
-            bool isSel = ReferenceEquals(ball, _selected);
-            item.SetBallItem(ball);
-            item.SetBallInventoryBinder(this);
-            item.SetSelected(isSel);
-            item.SetBallIcon(ball.Def.Icon);
-            item.SetIconVisible(true);
-            item.SetStarCount(ClampStars(ball.Level));
-            item.SetEnabledState(true);
+            if (_bag == null)
+                return;
+
+            if (slotIndex < 0 || slotIndex >= _bag.SlotList.Count)
+                return;
+
+            var ball = _bag.SlotList[slotIndex].Item;
+            OnBallClicked(ball);
         }
 
-        public void OnBallClicked(BallItem ball)
+        /// <summary>由 BallInventoryItem.onDragReleased 转发。
+        /// 无 ball 参数,从 Bag 的 SlotList 中按 slotIndex 实时读取。</summary>
+        public void OnBallDragReleased(BallInventoryItem src, int slotIndex, UIDragReleaseEventData data)
+        {
+            if (_bag == null)
+                return;
+
+            if (slotIndex < 0 || slotIndex >= _bag.SlotList.Count)
+                return;
+
+            var ball = _bag.SlotList[slotIndex].Item;
+            if (ball == null)
+                return;
+
+            _owner?.OnBallInventoryDragReleased(src, ball, data);
+        }
+
+        // ------------- 选择/出售/升级事件(由外部按钮触发)-------------
+
+        void OnBallClicked(BallItem ball)
         {
             if (ball == null)
                 return;
@@ -101,11 +146,12 @@ namespace MoreMountains
                 return;
 
             int i = 0;
-            foreach (var ball in _bag.AllItems)
+            foreach (var slot in _bag.SlotList)
             {
                 if (_view.GetUsedItem(i, out var item))
                 {
-                    item.SetSelected(ReferenceEquals(ball, _selected));
+                    var b = slot.Item;
+                    item.SetSelected(b != null && ReferenceEquals(b, _selected));
                 }
 
                 i++;

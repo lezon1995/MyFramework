@@ -28,6 +28,15 @@
       "dependencies": {},
       "hash": "5932a6f9a6ecf3739f6bdfffae1d56f632a31fc5"
     },
+    "com.coffee.ui-effect": {
+      "version": "https://github.com/mob-sakai/UIEffect.git?path=Packages/src",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.ugui": "1.0.0"
+      },
+      "hash": "1f4427c3d5d249534dba69d8c53acafb5d5fbd7f"
+    },
     "com.unity.2d.sprite": {
       "version": "1.0.0",
       "depth": 0,

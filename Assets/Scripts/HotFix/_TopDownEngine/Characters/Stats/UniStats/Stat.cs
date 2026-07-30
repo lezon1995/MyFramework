@@ -34,6 +34,7 @@ namespace UniStats
 #endif
     {
         static IOperator<T> op = Mod.GetOperator<T>();
+        public string Name { get; set; }
 
         public Attr<T> Bonus { get; }
         public Attr<T> BonusPct { get; }

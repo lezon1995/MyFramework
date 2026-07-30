@@ -112,10 +112,6 @@ namespace MoreMountains
 
         public void onEvent(OnBrickDeath e)
         {
-            var baseExp = gameDesign.baseExpStandard;
-            var totalExp = baseExp;
-            actionManager.addToBot<GainExpAction>().with(totalExp);
-            GameActionManager.turnExp += totalExp;
             Game.screenShake.shakeCamera(0.005f, 0.15F);
         }
 

@@ -13,7 +13,11 @@ public partial class RelicInventoryItem : IDraggableItem
     public void SetEnabled(bool on) => disable.setActive(!on);
     public void SetRelicIcon(Sprite s) => icon.setSpriteOnly(s);
     public void SetIconVisible(bool on) => icon.setActive(on);
-    public void SetOnClick(UnityAction a) => btn.setUGUIButtonClick(a);
+    public void SetOnClick(UnityAction a)
+    {
+        if (btn == null) return;
+        btn.setUGUIButtonClick(a);
+    }
 
     /// <summary>替换此 item 的拖拽松开回调。</summary>
     public void SetOnDragReleased(Action<RelicInventoryItem, UIDragReleaseEventData> callback)
