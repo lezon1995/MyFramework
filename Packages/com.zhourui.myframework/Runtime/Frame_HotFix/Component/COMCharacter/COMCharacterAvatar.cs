@@ -77,7 +77,7 @@ public class COMCharacterAvatar : GameComponent
 	public override void init(ComponentOwner owner)
 	{
 		base.init(owner);
-		mCharacter = base.owner as Character;
+		mCharacter = base.mComponentOwner as Character;
 	}
 	public override void update(float dt)
 	{
@@ -381,9 +381,9 @@ public class COMCharacterAvatar : GameComponent
 		{
 			return;
 		}
-		if (mObject.activeSelf != active)
+		if (mObject.activeSelf != mActive)
 		{
-			mObject.SetActive(active);
+			mObject.SetActive(mActive);
 		}
 		mObject.TryGetComponent(out mController);
 		mObject.TryGetComponent(out mModelTransform);

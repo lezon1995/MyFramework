@@ -7,8 +7,8 @@ public struct Timer
     public float elapsed;
     public bool finished;
     public float remain => duration - elapsed;
-    public float pct => MathUtility.isFloatEqual(duration, 0F) ? 0F : elapsed / duration;
-    public bool unstarted => !MathUtility.isFloatEqual(duration, 0F) && MathUtility.isFloatEqual(elapsed, 0F);
+    public float pct => duration.isZero() ? 0F : elapsed / duration;
+    public bool unstarted => !duration.isZero() && elapsed.isZero();
     public bool isDone => finished;
 
     public bool update(float dt, bool canRepeatTrigger = false)
@@ -16,7 +16,7 @@ public struct Timer
         if (!this)
             return false;
 
-        elapsed = MathUtility.clamp(elapsed + dt, 0F, duration);
+        elapsed = (elapsed + dt).clamp(0F, duration);
         var timeUp = elapsed >= duration;
         if (canRepeatTrigger)
             return timeUp;
@@ -65,8 +65,8 @@ public class MTimer : ClassObject
     public float elapsed;
     public bool finished;
     public float remain => duration - elapsed;
-    public float pct => MathUtility.isFloatEqual(duration, 0F) ? 0F : elapsed / duration;
-    public bool unstarted => !MathUtility.isFloatEqual(duration, 0F) && MathUtility.isFloatEqual(elapsed, 0F);
+    public float pct => duration.isZero() ? 0F : elapsed / duration;
+    public bool unstarted => !duration.isZero() && elapsed.isZero();
     public bool isDone => finished;
 
     public override void resetProperty()
@@ -79,7 +79,7 @@ public class MTimer : ClassObject
 
     public bool update(float dt, bool canRepeatTrigger = false)
     {
-        elapsed = MathUtility.clamp(elapsed + dt, 0F, duration);
+        elapsed = (elapsed + dt).clamp(0F, duration);
         var timeUp = elapsed >= duration;
         if (canRepeatTrigger)
             return timeUp;

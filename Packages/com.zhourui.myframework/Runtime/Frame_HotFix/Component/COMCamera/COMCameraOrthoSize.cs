@@ -17,7 +17,7 @@ public class COMCameraOrthoSize : ComponentKeyFrame
 	//------------------------------------------------------------------------------------------------------------------------------
 	protected override void applyTrembling(float value)
 	{
-		var obj = owner as GameCamera;
+		var obj = mComponentOwner as GameCamera;
 		obj.setOrthoSize(lerpSimple(mStart, mTarget, value));
 	}
 }

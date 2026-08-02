@@ -72,10 +72,10 @@ namespace MoreMountains
             {
                 // item.SetIcon();
                 item.SetName(stat.Name);
-                item.SetValue(IToS((int)stat.Value));
+                item.SetValue(((int)stat.Value).IToS());
                 var disposable = stat.OnChange(v =>
                 {
-                    item.SetValue(IToS((int)v.Value));
+                    item.SetValue(((int)v.Value).IToS());
                 });
                 
                 statsDisposables[stat.Name] = disposable;

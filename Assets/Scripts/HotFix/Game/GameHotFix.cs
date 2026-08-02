@@ -6,6 +6,7 @@ global using static FrameBaseHotFix;
 global using static FrameBaseUtility;
 global using static FrameUtility;
 global using static MathUtility;
+global using static MathExtension;
 global using static GameDefine;
 global using static HotfixDefine;
 global using static GBR;
@@ -20,12 +21,12 @@ public class GameHotFix : GameHotFixBase<GameHotFix>
 	//----------------------------------------------------------------------------------------------------------------------------------
 	protected override void registerAllTable()
 	{
-        ExcelRegister.registeAll();
+        // ExcelRegister.registeAll();
     }
 	protected override void registerAll()
 	{
 		LayoutRegisterHotFix.registeAll();
-		PacketRegister.registeAll();
+		// PacketRegister.registeAll();
     }
 	protected override void initFrameSystem()
 	{

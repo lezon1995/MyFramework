@@ -667,7 +667,7 @@ public class UGUIGeneratorUtility
 					lines.Add(prefix + "for (int i = 0; i < " + newMemberName + ".Length; ++i)");
 					lines.Add(prefix + "{");
 					string parentParam = parentName ?? "mRoot";
-					lines.Add(prefix + "\t" + newMemberName + "[i].assignWindow(" + parentParam + ", " + varName + ", \"" + newGameObjectName + "\" + IToS(i));");
+					lines.Add(prefix + "\t" + newMemberName + "[i].assignWindow(" + parentParam + ", " + varName + ", \"" + newGameObjectName + "\" + i.IToS());");
 					lines.Add(prefix + "}");
 					// 动态生成的数组都需要把模板节点隐藏起来
 					lines.Add(prefix + varName + ".setActive(false);");
@@ -682,13 +682,13 @@ public class UGUIGeneratorUtility
 					string showErrorParam = data.mHideError ? ", false" : "";
 					string parentParam = "";
 					// 使用完整路径来查找节点
-					string pathParam = fullPath != null ? "\"" + fullPath + "\" + IToS(i)" : "\"" + newGameObjectName + "\" + IToS(i)";
+					string pathParam = fullPath != null ? "\"" + fullPath + "\" + i.IToS()" : "\"" + newGameObjectName + "\" + i.IToS()";
 					lines.Add(prefix + "\tnewObject(out " + newMemberName + "[i], " + parentParam + pathParam + showErrorParam + ");");
 				}
 				else
 				{
 					string parentParam = parentName ?? "mRoot";
-					string pathParam = fullPath != null ? "\"" + fullPath + "\" + IToS(i)" : "\"" + newGameObjectName + "\" + IToS(i)";
+					string pathParam = fullPath != null ? "\"" + fullPath + "\" + i.IToS()" : "\"" + newGameObjectName + "\" + i.IToS()";
 					lines.Add(prefix + "\t" + newMemberName + "[i].assignWindow(" + parentParam + ", " + pathParam + ");");
 				}
 				lines.Add(prefix + "}");

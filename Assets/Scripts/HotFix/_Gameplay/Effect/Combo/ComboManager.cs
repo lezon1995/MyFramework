@@ -31,7 +31,7 @@ public class ComboManager : FrameSystem
             var id = (i + 1) * 10;
             var path = $"{GAMEPLAY_PATH}/Sprites/Play/_Combo/combo_{id}.png";
             var sprite = resource.loadGameResource<Sprite>(path);
-            comboSprites[i] = sprite.getResource();
+            comboSprites[i] = sprite.get();
         }
     }
 

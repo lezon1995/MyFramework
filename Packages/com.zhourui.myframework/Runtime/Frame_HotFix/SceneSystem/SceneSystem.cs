@@ -27,7 +27,7 @@ public class SceneSystem : FrameSystem
 		base.update(elapsedTime);
 		foreach (var item in mSceneList)
 		{
-			if (item.Value.getActive())
+			if (item.Value.isActive())
 			{
 				item.Value.update(elapsedTime);
 			}
@@ -38,7 +38,7 @@ public class SceneSystem : FrameSystem
 		base.lateUpdate(elapsedTime);
 		foreach (var item in mSceneList)
 		{
-			if (item.Value.getActive())
+			if (item.Value.isActive())
 			{
 				item.Value.lateUpdate(elapsedTime);
 			}

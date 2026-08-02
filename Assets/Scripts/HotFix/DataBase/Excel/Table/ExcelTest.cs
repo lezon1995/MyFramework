@@ -10,8 +10,8 @@ public class ExcelTest : ExcelTableT<EDTest>
 		foreach (EDTest item in queryAll())
 		{
 			checkEnum(item.mTestEnum, "mTestEnum", item.mID);
-			mExcelAchivement.checkData(item.mTestLinkTable0, item.mID, this);
-			mExcelAchivement.checkData(item.mTestLinkTable1, item.mID, this);
+			// mExcelAchivement.checkData(item.mTestLinkTable0, item.mID, this);
+			// mExcelAchivement.checkData(item.mTestLinkTable1, item.mID, this);
 			if (!item.mTestPath.isEmpty())
 			{
 				checkPath(item.mTestPath);

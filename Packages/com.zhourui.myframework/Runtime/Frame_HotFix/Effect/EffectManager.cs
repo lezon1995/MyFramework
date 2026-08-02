@@ -248,17 +248,17 @@ public class EffectManager : FrameSystem
 	
 	public GameEffect createEffect(string nameWithPath)
 	{
-		return createEffect(nameWithPath, null, null, 0, true, true, default, -1F);
+		return createEffect(nameWithPath, null, null, true, true, default, 0, -1F);
 	}
 	
 	public GameEffect createEffect(string nameWithPath, float lifeTime)
 	{
-		return createEffect(nameWithPath, null, null, 0, true, true, default, lifeTime);
+		return createEffect(nameWithPath, null, null, true, true, default, 0, lifeTime);
 	}
 
 	public GameEffect createEffect(string nameWithPath, Vector3 pos, float lifeTime)
 	{
-		return createEffect(nameWithPath, null, null, 0, true, true, pos, lifeTime);
+		return createEffect(nameWithPath, null, null, true, true, pos, 0, lifeTime);
 	}
 	
 	// 会从当前类中缓存的特效对象来获取,而不是从通用对象池中获取一个已经被重置过的对象

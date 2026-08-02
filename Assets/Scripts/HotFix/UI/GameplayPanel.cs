@@ -139,7 +139,7 @@ public class GameplayPanel : LayoutScript
 
             if (tweenExpTimer > 0)
             {
-                tweenExpTimer = clampMin(tweenExpTimer - elapsedTime);
+                tweenExpTimer = (tweenExpTimer - elapsedTime).clampMin();
                 var t = (tweenExpTime - tweenExpTimer) / tweenExpTime;
                 var curve = mKeyFrameManager.getKeyFrame(KEY_CURVE.CUBIC_OUT);
                 var f = curve.evaluate(t);

@@ -222,7 +222,7 @@ namespace MoreMountains
 
             public void refreshByDamage(int cur, int max)
             {
-                health.SetText(IToS(cur));
+                health.SetText(cur.IToS());
 
                 var f = Mathf.Clamp01(((float)cur) / max);
                 barRenderer.ApplyDamage(f);
@@ -230,7 +230,7 @@ namespace MoreMountains
 
             public void refreshByHealing(int cur, int max)
             {
-                health.SetText(IToS(cur));
+                health.SetText(cur.IToS());
 
                 var f = Mathf.Clamp01(((float)cur) / max);
                 barRenderer.SetProgress(f);
@@ -240,7 +240,7 @@ namespace MoreMountains
 
             public void refreshByBorn(int cur, int max)
             {
-                health.SetText(IToS(cur));
+                health.SetText(cur.IToS());
 
                 var f = Mathf.Clamp01(((float)cur) / max);
                 barRenderer.SetProgress(f);

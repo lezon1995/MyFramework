@@ -12,7 +12,7 @@ public abstract class GameComponent : ClassObject
 	{
 		mActive = true;
 	}
-	public virtual void init(ComponentOwner owner) { mComponentOwner = owner; }
+	public virtual void init(ComponentOwner owner) { this.mComponentOwner = owner; }
 	public virtual void update(float elapsedTime){}
 	public virtual void fixedUpdate(float elapsedTime){}
 	public virtual void lateUpdate(float elapsedTime){}

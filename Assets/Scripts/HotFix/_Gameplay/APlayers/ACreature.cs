@@ -183,7 +183,7 @@ namespace MoreMountains
         {
             if (amount > 0)
             {
-                gold = clampMin(gold - amount, 0);
+                gold = (gold - amount).clampMin(0);
             }
             else
             {

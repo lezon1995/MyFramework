@@ -21,5 +21,5 @@ public partial class BallPurchaseItem
     public void SetIcon(Sprite s) => itemIcon?.setSpriteOnly(s);
     public void SetName(string s) => itemName.setText(s ?? string.Empty);
     public void SetDesc(string s) => itemDesc.setText(s ?? string.Empty);
-    public void SetPrice(int price) => itemPrice.setText(IToS(price));
+    public void SetPrice(int price) => itemPrice.setText(price.IToS());
 }

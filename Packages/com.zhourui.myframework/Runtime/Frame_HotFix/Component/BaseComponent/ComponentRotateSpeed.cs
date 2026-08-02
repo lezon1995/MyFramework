@@ -70,7 +70,7 @@ public class ComponentRotateSpeed : GameComponent, IComponentModifyRotation, ICo
 	public void pause(bool pause) { mPlayState = pause ? PLAY_STATE.PAUSE : PLAY_STATE.PLAY; }
 	public void setPlayState(PLAY_STATE state)
 	{
-		if (owner == null)
+		if (mComponentOwner == null)
 		{
 			return;
 		}

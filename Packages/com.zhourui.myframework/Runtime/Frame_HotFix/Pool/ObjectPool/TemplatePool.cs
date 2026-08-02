@@ -127,7 +127,7 @@ public class TemplatePool : ClassObject
 		{
 			return;
 		}
-		int needCreate = clampMin(count - mInuseList.Count - mUnuseList.Count);
+		int needCreate = (count - mInuseList.Count - mUnuseList.Count).clampMin();
 		int needCapacity = mUnuseList.count() + needCreate;
 		if (mUnuseList.Capacity < needCapacity)
 		{

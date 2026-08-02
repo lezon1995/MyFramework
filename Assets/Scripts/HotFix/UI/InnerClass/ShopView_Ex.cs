@@ -11,7 +11,7 @@ namespace MoreMountains;
 public partial class ShopView
 {
     public void SetTitle(string s) => shopTitle?.setText(s ?? string.Empty);
-    public void SetRemainCoin(int n) => remainCoin?.setText(IToS(n));
+    public void SetRemainCoin(int n) => remainCoin?.setText(n.IToS());
     public myUGUIObject ShopItemsRoot => shopItems;
     public myUGUIObject SellZoneRoot => sellZone;
     public myUGUIButton BtnReroll => btnReroll;

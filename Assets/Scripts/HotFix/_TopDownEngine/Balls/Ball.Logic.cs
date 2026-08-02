@@ -281,7 +281,7 @@ namespace MoreMountains
 
         void fixedUpdate(float dt)
         {
-            if (isVectorEqual(hitNormal, Vector2.zero))
+            if (hitNormal.isEqual(Vector2.zero))
                 return;
 
             checkRadius();
@@ -524,7 +524,7 @@ namespace MoreMountains
 
         void checkRadius()
         {
-            if (isFloatEqual(lastRadius, Radius))
+            if (lastRadius.isEqual(Radius))
                 return;
             setRadius(Radius);
         }

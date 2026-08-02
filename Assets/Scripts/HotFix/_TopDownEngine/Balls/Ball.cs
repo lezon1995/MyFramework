@@ -36,7 +36,7 @@ namespace MoreMountains
         {
             get
             {
-                if (isFloatZero(_radius))
+                if (_radius.isZero())
                     _radius = circleCollider.radius;
 
                 return _radius;

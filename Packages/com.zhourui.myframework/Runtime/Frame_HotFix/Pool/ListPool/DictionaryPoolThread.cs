@@ -22,7 +22,7 @@ public class DictionaryPoolThread : FrameSystem
 		base.init();
 		if (isEditor())
 		{
-			go.AddComponent<DictionaryPoolThreadDebug>();
+			mObject.AddComponent<DictionaryPoolThreadDebug>();
 		}
 	}
 	public override void destroy()

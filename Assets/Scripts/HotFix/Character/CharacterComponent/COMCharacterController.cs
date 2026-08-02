@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+﻿/*using UnityEngine;
 using static GBR;
 using static FrameUtility;
 
@@ -54,4 +54,4 @@ public class COMCharacterController : GameComponent
 			mUIGame.setAvatarPosition(mPlayer.getPosition());
 		}
 	}
-}
+}*/

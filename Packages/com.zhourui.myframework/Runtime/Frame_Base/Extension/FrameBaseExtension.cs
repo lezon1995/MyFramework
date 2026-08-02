@@ -5,7 +5,7 @@ public static class FrameBaseExtension
 {
     public static Transform find(this Transform parent, string name)
     {
-        var o = getGameObject(name, parent.gameObject, true, true);
+        var o = findGameObject(name, parent.gameObject, true, true);
         if (o == null)
             return null;
 
@@ -14,7 +14,7 @@ public static class FrameBaseExtension
     
     public static bool find(this Transform parent, string name, out Transform result)
     {
-        var o = getGameObject(name, parent.gameObject, true, true);
+        var o = findGameObject(name, parent.gameObject, true, true);
         if (o == null)
         {
             result = null;
@@ -27,7 +27,7 @@ public static class FrameBaseExtension
     
     public static RectTransform find(this RectTransform parent, string name)
     {
-        var o = getGameObject(name, parent.gameObject, true, true);
+        var o = findGameObject(name, parent.gameObject, true, true);
         if (o == null)
             return null;
 
@@ -36,7 +36,7 @@ public static class FrameBaseExtension
 
     public static GameObject find(this GameObject parent, string name)
     {
-        var o = getGameObject(name, parent.gameObject, true, true);
+        var o = findGameObject(name, parent.gameObject, true, true);
         if (o == null)
             return null;
 
@@ -45,7 +45,7 @@ public static class FrameBaseExtension
     
     public static bool find(this GameObject parent, out GameObject result, string name)
     {
-        var o = getGameObject(name, parent.gameObject, true, true);
+        var o = findGameObject(name, parent.gameObject, true, true);
         if (o == null)
         {
             result = null;
@@ -67,7 +67,7 @@ public static class FrameBaseExtension
     
     public static bool find<T>(this GameObject go, out T component, string name) where T : Component
     {
-        var o = getGameObject(name, go);
+        var o = findGameObject(name, go);
         if (o)
             return o.TryGetComponent(out component);
 
@@ -92,7 +92,7 @@ public static class FrameBaseExtension
             return false;
         }
 
-        var o = getGameObject(name, t.gameObject);
+        var o = findGameObject(name, t.gameObject);
         if (o)
             return o.TryGetComponent(out component);
 

@@ -1872,16 +1872,16 @@ public class FrameUtility
 #endif
     public static void recoverCrossParam()
 	{
-		mResourceManager.setDownloadURL(FrameCrossParam.mDownloadURL);
-		mLocalizationManager.setCurrentLanguage(FrameCrossParam.mLocalizationName);
-		mAssetVersionSystem.setStreamingAssetsVersion(FrameCrossParam.mStreamingAssetsVersion);
-		mAssetVersionSystem.setPersistentAssetsVersion(FrameCrossParam.mPersistentDataVersion);
-		mAssetVersionSystem.setRemoteVersion(FrameCrossParam.mRemoteVersion);
-		mAssetVersionSystem.setStreamingAssetsFile(FrameCrossParam.mStreamingAssetsFileList);
-		mAssetVersionSystem.setPersistentAssetsFile(FrameCrossParam.mPersistentAssetsFileList);
-		mAssetVersionSystem.setRemoteAssetsFile(FrameCrossParam.mRemoteAssetsFileList);
-		mAssetVersionSystem.setTotalDownloadedFiles(FrameCrossParam.mTotalDownloadedFiles);
-		mAssetVersionSystem.setTotalDownloadedByteCount(FrameCrossParam.mTotalDownloadByteCount);
-		mAssetVersionSystem.setAssetReadPath(FrameCrossParam.mAssetReadPath);
+		mResourceManager.setDownloadURL(FrameCrossParam.downloadURL);
+		mLocalizationManager.setCurrentLanguage(FrameCrossParam.localizationName);
+		mAssetVersionSystem.setStreamingAssetsVersion(FrameCrossParam.streamingAssetsVersion);
+		mAssetVersionSystem.setPersistentAssetsVersion(FrameCrossParam.persistentDataVersion);
+		mAssetVersionSystem.setRemoteVersion(FrameCrossParam.remoteVersion);
+		mAssetVersionSystem.setStreamingAssetsFile(FrameCrossParam.streamingAssetsFileList);
+		mAssetVersionSystem.setPersistentAssetsFile(FrameCrossParam.persistentAssetsFileList);
+		mAssetVersionSystem.setRemoteAssetsFile(FrameCrossParam.remoteAssetsFileList);
+		mAssetVersionSystem.setTotalDownloadedFiles(FrameCrossParam.totalDownloadedFiles);
+		mAssetVersionSystem.setTotalDownloadedByteCount(FrameCrossParam.totalDownloadByteCount);
+		mAssetVersionSystem.setAssetReadPath(FrameCrossParam.assetReadPath);
 	}
 }

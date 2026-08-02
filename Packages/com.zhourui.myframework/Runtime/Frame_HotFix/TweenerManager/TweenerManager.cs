@@ -17,7 +17,7 @@ public class TweenerManager : FrameSystem
 	public MyTweenerFloat createTweenerFloat()
 	{
 		CLASS(out MyTweenerFloat tweener).init();
-		mTweenerList.add(tweener.id, tweener);
+		mTweenerList.add(tweener.getAssignID(), tweener);
 		return tweener;
 	}
 	public void destroyTweener(MyTweener tweener)
@@ -26,7 +26,7 @@ public class TweenerManager : FrameSystem
 		{
 			return;
 		}
-		mTweenerList.remove(tweener.id);
+		mTweenerList.remove(tweener.getAssignID());
 		UN_CLASS(ref tweener);
 	}
 }

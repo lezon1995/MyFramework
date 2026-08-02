@@ -21,7 +21,7 @@ public class PlayerBlock : ABlock
 
         bool effect = currentBlock == 0;
 
-        currentBlock += floor(tmp);
+        currentBlock += tmp;
         if (currentBlock >= 99)
             UnlockTracker.unlockAchievement("IMPERVIOUS");
 

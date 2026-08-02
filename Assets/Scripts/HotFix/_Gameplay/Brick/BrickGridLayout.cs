@@ -158,7 +158,7 @@ public class BrickGridLayout
         {
             var rect1 = leftCol.get(1);
             var rect0 = leftCol.get(0);
-            return rect0.center.y - abs(rect1.center.y - rect0.center.y);
+            return rect0.center.y - (rect1.center.y - rect0.center.y).abs();
         }
 
         var rect = leftCol.get(row);

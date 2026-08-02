@@ -23,7 +23,7 @@ public class GameFramework : IFramework
 		registeFrameSystem<AndroidPluginManager>(null);
 		registeFrameSystem<AndroidAssetLoader>(null);
 		registeFrameSystem<AndroidMainClass>(null);
-		AndroidPluginManager.initAnroidPlugin(FrameSettings.getAndroidPluginBundleName());
+		AndroidPluginManager.initAndroidPlugin(FrameSettings.getAndroidPluginBundleName());
 		AndroidAssetLoader.initJava(AndroidPluginManager.getPackageName() + ".AssetLoader");
 		AndroidMainClass.initJava(AndroidPluginManager.getPackageName() + ".MainClass");
 		logBase("start game!");

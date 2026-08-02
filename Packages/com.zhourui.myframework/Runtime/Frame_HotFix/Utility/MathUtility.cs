@@ -1307,18 +1307,18 @@ public class MathUtility
 		Vector2 circleCenter = circle.mCenter;
 		// 将圆形转换到以矩形中心为原点的坐标系
 		circleCenter -= rectanglePosition;
-		circleCenter = rotateVector2InRadian(circleCenter, toRadian(-rectAngle));
+		circleCenter = rotateVector2InRadian(circleCenter, (-rectAngle).toRadian());
 		// 然后把圆心映射到第一象限,因为在转换以后的坐标系中,4个象限都是对称的,所以只需要判断一个象限即可
-		circleCenter.x = abs(circleCenter.x);
-		circleCenter.y = abs(circleCenter.y);
+		circleCenter.x = circleCenter.x.abs();
+		circleCenter.y = circleCenter.y.abs();
 		// 矩形在第一象限上的顶点
 		Vector2 rightTopPoint = size * 0.5f;
 		// 相减后获得右上角顶点到圆心的向量
 		Vector2 centerToRightTop = circleCenter - rightTopPoint;
 		// 将小于0的分量设置为0,保证如果圆心到矩形边的垂点在矩形范围内时该向量与矩形的某条边垂直
-		clampMin(ref centerToRightTop.x);
-		clampMin(ref centerToRightTop.y);
-		return lengthLess(centerToRightTop, circle.mRadius);
+		centerToRightTop.x = centerToRightTop.x.clampMin();
+		centerToRightTop.y = centerToRightTop.y.clampMin();
+		return centerToRightTop.lengthLess(circle.mRadius);
 	}
 	// 判断圆是否与线段相交,仅限2D平面,且Z轴为0
 	public static bool circleIntersectLine(Circle3 circle, Line3 line)
@@ -2030,10 +2030,10 @@ public class MathUtility
 	}
 	public static Vector2 lerp(Vector2 start, Vector2 end, float t, float minRange = 0.0f)
 	{
-		saturate(ref t);
+		t = t.saturate();
 		Vector2 value = start + (end - start) * t;
 		// 如果值已经在end的一定范围内了,则直接设置为end
-		if (lengthLess(value - end, minRange))
+		if ((value - end).lengthLess(minRange))
 		{
 			value = end;
 		}
@@ -2275,13 +2275,13 @@ public class MathUtility
 	}
 	public static float getAngleFromVector2(Vector2 vec)
 	{
-		Vector3 tempVec = normalize(new Vector3(vec.x, 0.0f, vec.y));
-		float angle = acos(tempVec.z);
+		Vector3 tempVec = new Vector3(vec.x, 0.0f, vec.y).normalize();
+		float angle = tempVec.z.acos();
 		if (tempVec.x > 0.0f)
 		{
 			angle = -angle;
 		}
-		adjustRadian180(ref angle);
+		angle = angle.adjustRadian180();
 		// 在unity的坐标系中航向角需要取反
 		angle = -angle;
 		return angle;
@@ -2294,7 +2294,7 @@ public class MathUtility
 	// 求向量水平顺时针旋转一定角度后的向量,角度范围是-MATH_PI 到 MATH_PI
 	public static Vector3 rotateVector3(Vector3 vec, float radian)
 	{
-		return rotateVector3(vec, Quaternion.AngleAxis(toDegree(radian), Vector3.up));
+		return rotateVector3(vec, Quaternion.AngleAxis(radian.toDegree(), Vector3.up));
 	}
 	
 	// 求向量水平顺时针旋转一定角度后的向量,角度范围是-MATH_PI 到 MATH_PI
@@ -2323,16 +2323,16 @@ public class MathUtility
 	// 求Z轴顺时针旋转一定角度后的向量,角度范围是-MATH_PI 到 MATH_PI
 	public static Vector3 getVectorFromAngle(float radian)
 	{
-		adjustRadian180(ref radian);
+		radian = radian.adjustRadian180();
 		// 在unity坐标系是右手坐标系,所以x轴不需要添加负号
-		return new(sin(radian), 0.0f, cos(radian));
+		return new(radian.sin(), 0.0f, radian.cos());
 	}
 	// 求Z轴顺时针旋转一定角度后的向量,角度范围是-MATH_PI 到 MATH_PI
 	public static Vector2 getVector2FromAngle(float radian)
 	{
-		adjustRadian180(ref radian);
+		radian = radian.adjustRadian180();
 		// 在unity坐标系是右手坐标系,所以x轴不需要添加负号
-		return new(sin(radian), cos(radian));
+		return new(radian.sin(), radian.cos());
 	}
 	public static int pcm_db_count(short[] ptr, int size)
 	{

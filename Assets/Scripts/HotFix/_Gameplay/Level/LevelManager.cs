@@ -18,7 +18,7 @@ public class LevelManager : FrameSystem
     public override void init()
     {
         base.init();
-        var go = getRootGameObject("Level");
+        var go = findRootGameObject("Level");
         go.find(out var left, "BorderLeft");
         go.find(out var right, "BorderRight");
         go.find(out var top, "BorderTop");
@@ -30,7 +30,7 @@ public class LevelManager : FrameSystem
         defaultBorderLeftX = borderLeft.getWorldPosition().x;
         defaultBorderRightX = borderRight.getWorldPosition().x;
 
-        var width = abs(defaultBorderLeftX - defaultBorderRightX);
+        var width = (defaultBorderLeftX - defaultBorderRightX).abs();
         setBorderWidth(width);
         var height = getBorderHeight();
         setBorderHeight(height);
@@ -48,13 +48,13 @@ public class LevelManager : FrameSystem
         base.update(elapsedTime);
 
         var width = getBorderWidth();
-        if (!isFloatEqual(curBorderWidth, width))
+        if (!curBorderWidth.isEqual(width))
         {
             setBorderWidth(width);
         }
 
         var height = getBorderHeight();
-        if (!isFloatEqual(curBorderHeight, height))
+        if (!curBorderHeight.isEqual(height))
         {
             setBorderHeight(height);
         }
@@ -76,12 +76,12 @@ public class LevelManager : FrameSystem
 
     public float getBorderWidth()
     {
-        return abs(borderRight.getWorldPosition().x - borderLeft.getWorldPosition().x);
+        return (borderRight.getWorldPosition().x - borderLeft.getWorldPosition().x).abs();
     }
 
     public float getBorderHeight()
     {
-        return abs(borderTop.getWorldPosition().y - borderBot.getWorldPosition().y);
+        return (borderTop.getWorldPosition().y - borderBot.getWorldPosition().y).abs();
     }
 
     public void moveBorderLeftBy(float offset)

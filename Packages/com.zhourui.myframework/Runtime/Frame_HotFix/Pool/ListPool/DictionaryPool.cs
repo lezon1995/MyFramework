@@ -22,7 +22,7 @@ public class DictionaryPool : FrameSystem
 		base.init();
 		if (isEditor())
 		{
-			go.AddComponent<DictionaryPoolDebug>();
+			mObject.AddComponent<DictionaryPoolDebug>();
 		}
 	}
 	public override void update(float dt)

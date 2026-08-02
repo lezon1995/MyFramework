@@ -796,9 +796,9 @@ public class myUGUIObject : Transformable, IMouseEventCollect
 		GameObject parentObj = getGameObject();
 		GameObject gameObject;
 		if (parentObj == null)
-			gameObject = getRootGameObject(name, showError);
+			gameObject = findRootGameObject(name, showError);
 		else
-			gameObject = FrameBaseUtility.getGameObject(name, parentObj, showError, true);
+			gameObject = findGameObject(name, parentObj, showError, true);
 
 		if (gameObject == null)
 			return obj;
@@ -894,7 +894,7 @@ public class myUGUIObject : Transformable, IMouseEventCollect
 	
 	public bool find<T>(out T t, string name, bool recursive = true) where T : Component
 	{
-		var o = FrameBaseUtility.getGameObject(name, mObject, true, recursive);
+		var o = findGameObject(name, mObject, true, recursive);
 		if (o)
 		{
 			return o.TryGetComponent(out t);

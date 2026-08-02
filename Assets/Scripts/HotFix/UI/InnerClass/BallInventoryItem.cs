@@ -33,7 +33,7 @@ public partial class BallInventoryItem : WindowRecyclableUGUI
 		newObject(out icon, "Btn/Icon");
 		for (int i = 0; i < stars.Length; ++i)
 		{
-			newObject(out stars[i], "Btn/Icon/Grade_Star_01/Star" + IToS(i));
+			newObject(out stars[i], "Btn/Icon/Grade_Star_01/Star" + i.IToS());
 		}
         // auto generate assignWindowInternal end
     }

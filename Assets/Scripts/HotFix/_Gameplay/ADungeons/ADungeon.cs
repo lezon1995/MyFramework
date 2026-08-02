@@ -189,7 +189,7 @@ namespace MoreMountains
 
             if (ascensionLevel >= 5)
             {
-                var healAmount = round((p.maxHealth - p.currentHealth) * 0.75F);
+                var healAmount = ((p.maxHealth - p.currentHealth) * 0.75F).round();
                 p.Health.ReceiveHealth(new(healAmount), null, p);
             }
 
@@ -204,7 +204,7 @@ namespace MoreMountains
                         p.decreaseMaxHealth(p.getAscensionMaxHPLoss());
 
                     if (ascensionLevel >= 6)
-                        p.currentHealth = round(p.maxHealth * 0.9F);
+                        p.currentHealth = (p.maxHealth * 0.9F).round();
 
                     if (ascensionLevel >= 10)
                     {

@@ -23,7 +23,7 @@ public class GoogleLogin : FrameSystem
         base.init();
         if (!isEditor() && isAndroid())
         {
-            go.AddComponent<GoogleToken>();
+            mObject.AddComponent<GoogleToken>();
         }
     }
 

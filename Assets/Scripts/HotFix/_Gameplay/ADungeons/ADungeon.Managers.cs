@@ -23,7 +23,7 @@ namespace MoreMountains
             }
             string path = $"{GAMEPLAY_PATH}/Characters/CharacterManager.prefab";
             var res = resource.loadGameResource<CharacterManager>(path);
-            characterManager = Object.Instantiate(res.getResource());
+            characterManager = Object.Instantiate(res.get());
         }
         
         
@@ -37,7 +37,7 @@ namespace MoreMountains
             }
             string path = $"{GAMEPLAY_PATH}/Characters/VolumeManager.prefab";
             var res = resource.loadGameResource<VolumeManager>(path);
-            volumeManager = Object.Instantiate(res.getResource());
+            volumeManager = Object.Instantiate(res.get());
         }
 
         protected virtual void loadGridManager()
@@ -50,7 +50,7 @@ namespace MoreMountains
             }
             string path = $"{GAMEPLAY_PATH}/Grids/GridManager.prefab";
             var res = resource.loadGameResource<GridManager>(path);
-            gridManager = Object.Instantiate(res.getResource());
+            gridManager = Object.Instantiate(res.get());
         }
 
         protected virtual void loadBallManager()
@@ -63,7 +63,7 @@ namespace MoreMountains
             }
             string path = $"{GAMEPLAY_PATH}/Balls/BallManager.prefab";
             var res = resource.loadGameResource<BallManager>(path);
-            ballManager = Object.Instantiate(res.getResource());
+            ballManager = Object.Instantiate(res.get());
         }
 
         protected virtual void loadRelicManager()
@@ -76,7 +76,7 @@ namespace MoreMountains
             }
             string path = $"{GAMEPLAY_PATH}/Relics/RelicManager.prefab";
             var res = resource.loadGameResource<RelicManager>(path);
-            relicManager = Object.Instantiate(res.getResource());
+            relicManager = Object.Instantiate(res.get());
         }
 
     }

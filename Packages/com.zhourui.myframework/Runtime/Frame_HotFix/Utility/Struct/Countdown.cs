@@ -10,7 +10,7 @@
 
     public bool update(int dt = 1, bool canRepeatTrigger = false)
     {
-        elapsed = MathUtility.clamp(elapsed + dt, 0, duration);
+        elapsed = (elapsed + dt).clamp(0, duration);
         var timeUp = elapsed >= duration;
         if (canRepeatTrigger)
             return timeUp;

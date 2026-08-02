@@ -25,7 +25,7 @@ public class MonsterBlock : ABlock
         foreach (var p in player.powers)
             tmp = p.onMonsterGainedBlock(tmp);
 
-        currentBlock += floor(tmp);
+        currentBlock += tmp;
         if (currentBlock > 999)
             currentBlock = 999;
 

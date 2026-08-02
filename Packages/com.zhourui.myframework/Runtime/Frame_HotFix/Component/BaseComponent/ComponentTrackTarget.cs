@@ -15,7 +15,7 @@ public class ComponentTrackTarget : GameComponent, IComponentModifyPosition, ICo
 	public override void init(ComponentOwner owner)
 	{
 		base.init(owner);
-		if (mComponentOwner is not ITransformable)
+		if (base.mComponentOwner is not ITransformable)
 		{
 			logError("ComponentTrackTarget can only add to ITransformable");
 		}
@@ -66,7 +66,7 @@ public class ComponentTrackTarget : GameComponent, IComponentModifyPosition, ICo
 		}
 		mDoneCallback = doneCallback;
 		mTarget = target;
-		mTargetAssignID = mTarget?.id ?? 0;
+		mTargetAssignID = mTarget?.getAssignID() ?? 0;
 		if (mTarget == null)
 		{
 			setActive(false);
@@ -95,7 +95,7 @@ public class ComponentTrackTarget : GameComponent, IComponentModifyPosition, ICo
 	protected virtual Vector3 getTargetPosition() { return mTarget.getWorldPosition() + mTarget.localToWorldDirection(mTargetOffset); }
 	protected virtual void tick(float elapsedTime)
 	{
-		if (mTarget != null && (mTarget.id != mTargetAssignID || mTarget.isDestroy()))
+		if (mTarget != null && (mTarget.getAssignID() != mTargetAssignID || mTarget.isDestroy()))
 		{
 			mTarget = null;
 			BoolCallback tempCallback = mDoneCallback;

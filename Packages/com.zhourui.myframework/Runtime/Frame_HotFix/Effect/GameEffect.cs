@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using static FrameBaseHotFix;
 using static FrameUtility;
+using static MathUtility;
 
 // 表示3D特效的对象
 public class GameEffect : MovableObject

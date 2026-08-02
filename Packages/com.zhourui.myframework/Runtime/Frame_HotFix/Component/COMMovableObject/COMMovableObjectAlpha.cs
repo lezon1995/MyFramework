@@ -16,7 +16,7 @@ public class COMMovableObjectAlpha : ComponentKeyFrame, IComponentModifyAlpha
 	//------------------------------------------------------------------------------------------------------------------------------
 	protected override void applyTrembling(float value)
 	{
-		var obj = owner as MovableObject;
+		var obj = mComponentOwner as MovableObject;
 		obj.setAlpha(lerpSimple(mStart, mTarget, value));
 	}
 }

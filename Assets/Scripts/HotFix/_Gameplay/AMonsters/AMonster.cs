@@ -169,7 +169,7 @@ namespace MoreMountains
                 if (damageAmount >= 99 && !Game.overkill)
                     Game.overkill = true;
 
-                currentHealth = clamp(currentHealth - damageAmount, 0, maxHealth);
+                currentHealth = (currentHealth - damageAmount).clamp(0, maxHealth);
 
                 // if (!probablyInstantKill)
                 // ADungeon.effectList.Add(new StrikeEffect(this, hb.cX, hb.cY, damageAmount));

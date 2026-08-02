@@ -182,12 +182,12 @@ public class PrefabPoolManager : FrameSystem
 
 	public GameObject createObject(string fileWithPath)
 	{
-		return createObject(fileWithPath, 0, false, true, null);
+		return createObject(fileWithPath, false, true, 0, null);
 	}
 	
 	public GameObject createObject(string fileWithPath, bool moveToHide, GameObject parent = null)
 	{
-		return createObject(fileWithPath, 0, moveToHide, true, parent);
+		return createObject(fileWithPath, moveToHide, true, 0, parent);
 	}
 	
 	// 同步创建物体,fileWithPath是GameResource下的相对路径

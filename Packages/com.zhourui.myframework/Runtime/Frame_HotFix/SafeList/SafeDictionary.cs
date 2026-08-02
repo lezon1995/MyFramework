@@ -69,7 +69,7 @@ public class SafeDictionary<Key, Value> : ClassObject
 			{
 				foreach (var modify in mModifyList)
 				{
-					mUpdateList.addOrRemove(modify.mKey, modify.mValue, modify.mAdd);
+					mUpdateList.addOrRemove(modify.Key, modify.Value, modify.IsAdd);
 				}
 			}
 			// 主列表元素较少,则直接同步主列表到更新列表

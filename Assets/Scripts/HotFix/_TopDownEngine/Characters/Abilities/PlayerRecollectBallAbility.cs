@@ -149,7 +149,7 @@ namespace MoreMountains
             // 坠落时间：angle=0 → minDuration，angle=90 → maxDuration
             float t = angleDeg / 90f;
             
-            if (isFloatZero(collectDuration))
+            if (collectDuration.isZero())
                 collectDuration = Mathf.Lerp(minCollectDuration, maxCollectDuration, t);
 
             data._fallDuration = collectDuration;

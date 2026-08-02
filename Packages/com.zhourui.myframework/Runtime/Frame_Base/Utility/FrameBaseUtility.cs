@@ -368,7 +368,7 @@ public class FrameBaseUtility
 	
 	public static Transform find(Transform parent, string name, bool recursive = true)
 	{
-		var o = getGameObject(name, parent.gameObject, false, recursive);
+		var o = findGameObject(name, parent.gameObject, false, recursive);
 		if (o == null)
 			return null;
 
@@ -442,7 +442,7 @@ public class FrameBaseUtility
 	}
 	public static bool findComponent<T>(GameObject go, string name, out T component) where T : Component
 	{
-		var o = getGameObject(name, go);
+		var o = findGameObject(name, go);
 		if (o)
 			return o.TryGetComponent(out component);
 

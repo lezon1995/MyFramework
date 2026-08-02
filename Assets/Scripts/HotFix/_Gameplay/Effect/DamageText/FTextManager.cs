@@ -77,10 +77,10 @@ public class FTextManager : FrameSystem
         var damage_Crit = resource.loadGameResource<FTextSetting>($"{GAMEPLAY_PATH}/FTextSetting_Damage_Crit.asset");
         var healing = resource.loadGameResource<FTextSetting>($"{GAMEPLAY_PATH}/FTextSetting_Healing.asset");
         var gainCoin = resource.loadGameResource<FTextSetting>($"{GAMEPLAY_PATH}/FTextSetting_GainCoin.asset");
-        settings.add(TextType.Damage, damage.getResource());
-        settings.add(TextType.DamageCrit, damage_Crit.getResource());
-        settings.add(TextType.Healing, healing.getResource());
-        settings.add(TextType.GainCoin, gainCoin.getResource());
+        settings.add(TextType.Damage, damage.get());
+        settings.add(TextType.DamageCrit, damage_Crit.get());
+        settings.add(TextType.Healing, healing.get());
+        settings.add(TextType.GainCoin, gainCoin.get());
     }
 
     public override void destroy()
@@ -191,7 +191,7 @@ public class FTextManager : FrameSystem
         var mix = dmg.Mix;
         if (mix.Off)
         {
-            new FText.Data(IToS(dmg.DamageDealt), type)
+            new FText.Data(dmg.DamageDealt.IToS(), type)
                 .setSetting(type)
                 .setValue(dmg.DamageDealt)
                 .setDirection(dmg.Direction)
@@ -208,7 +208,7 @@ public class FTextManager : FrameSystem
         var damage = mix.DamageDealtAD;
         if (damage > 0)
         {
-            new FText.Data(IToS(damage), type)
+            new FText.Data(damage.IToS(), type)
                 .setSetting(type)
                 .setValue(damage)
                 .setDirection(dmg.Direction)
@@ -223,7 +223,7 @@ public class FTextManager : FrameSystem
         damage = mix.DamageDealtAP;
         if (damage > 0)
         {
-            new FText.Data(IToS(damage), type)
+            new FText.Data(damage.IToS(), type)
                 .setSetting(type)
                 .setValue(damage)
                 .setDirection(dmg.Direction)
@@ -238,7 +238,7 @@ public class FTextManager : FrameSystem
         damage = mix.DamageDealtTrue;
         if (damage > 0)
         {
-            new FText.Data(IToS(damage), type)
+            new FText.Data(damage.IToS(), type)
                 .setSetting(type)
                 .setValue(damage)
                 .setDirection(dmg.Direction)
@@ -254,7 +254,7 @@ public class FTextManager : FrameSystem
     public static void showGainCoin(Transform target, int coin)
     {
         const TextType TYPE = TextType.GainCoin;
-        new FText.Data(IToS(coin), TYPE)
+        new FText.Data(coin.IToS(), TYPE)
             .setSetting(TYPE)
             .setValue(coin)
             .setDirection(Vector3.up)
@@ -285,7 +285,7 @@ public class FTextManager : FrameSystem
     public static void showHealing(Transform target, Heal heal)
     {
         const TextType TYPE = TextType.Healing;
-        new FText.Data(IToS(heal.Healing), TYPE)
+        new FText.Data(heal.Healing.IToS(), TYPE)
             .setSetting(TYPE)
             .setValue(heal.Healing)
             .setDirection(Vector3.up)

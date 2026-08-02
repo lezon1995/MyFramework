@@ -360,7 +360,7 @@ namespace MoreMountains
 
                 GameActionManager.damageReceivedThisTurn += dmg;
                 GameActionManager.damageReceivedThisCombat += dmg;
-                currentHealth = clamp(currentHealth - dmg, 0, maxHealth);
+                currentHealth = (currentHealth - dmg).clamp(0, maxHealth);
 
                 if (dmg > 0 && room.inCombat())
                 {

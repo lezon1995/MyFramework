@@ -15,11 +15,6 @@ public class CreaturePower : APower, IArgs<ACreature>
         owner = null;
     }
     
-    public virtual int onMonsterGainedBlock(float blockAmount)
-    {
-        return floor(blockAmount);
-    }
-
     public virtual int onMonsterGainedBlock(int blockAmount)
     {
         return blockAmount;

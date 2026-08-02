@@ -23,7 +23,7 @@ public class ByteArrayPoolThread : FrameSystem
 		base.init();
 		if (isEditor())
 		{
-			go.AddComponent<ArrayPoolThreadDebug>();
+			mObject.AddComponent<ArrayPoolThreadDebug>();
 		}
 	}
 	public override void destroy()

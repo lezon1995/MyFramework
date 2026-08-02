@@ -46,5 +46,5 @@ public class ResourceRef<T> : ClassObject where T : UObject
 		return newObjRef;
 	}
 	
-	public static implicit operator T(ResourceRef<T> r) => r?.getResource();
+	public static implicit operator T(ResourceRef<T> r) => r?.get();
 }

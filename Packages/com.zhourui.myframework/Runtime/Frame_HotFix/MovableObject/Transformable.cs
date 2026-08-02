@@ -52,9 +52,9 @@ public class Transformable : ComponentOwner, ITransformable
 		if (mObject != null)
 		{
 			mTransform = mObject.transform;
-			if (mObject.name != name)
+			if (mObject.name != mName)
 			{
-				mObject.name = name;
+				mObject.name = mName;
 			}
 			mActive = mObject.activeSelf;
 			mLastWorldScale = getWorldScale();

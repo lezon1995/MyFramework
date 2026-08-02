@@ -55,7 +55,7 @@ namespace MoreMountains
             string path1 = $"{GAMEPLAY_PATH}/Levels/WaveGameMode.prefab";
             string path2 = $"{GAMEPLAY_PATH}/Levels/WaveLevelConfig.asset";
             var res = resource.loadGameResource<WaveGameMode>(path1);
-            waveGameMode = Object.Instantiate(res.getResource());
+            waveGameMode = Object.Instantiate(res.get());
             waveLevelConfig = resource.loadGameResource<WaveLevelConfig>(path2);
             waveGameMode.StartGame(waveLevelConfig);
         }
@@ -64,7 +64,7 @@ namespace MoreMountains
         {
             string path1 = $"{GAMEPLAY_PATH}/Coin/CoinManager.prefab";
             var res = resource.loadGameResource<CoinManager>(path1);
-            coinManager = Object.Instantiate(res.getResource());
+            coinManager = Object.Instantiate(res.get());
             if (player.gameObject.TryGetComponent(out CoinPickerAdapter adapter))
             {
                 adapter.SetCoinManager(coinManager);

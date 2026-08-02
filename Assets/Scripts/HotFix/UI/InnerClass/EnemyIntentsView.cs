@@ -28,7 +28,7 @@ public class EnemyIntentsView : WindowObjectUGUI
 		newObject(out intentsParent, "V");
 		for (int i = 0; i < intents.Length; ++i)
 		{
-			newObject(out intents[i], "V/Intent" + IToS(i));
+			newObject(out intents[i], "V/Intent" + i.IToS());
 		}
 		newObject(out intentEffecting, "V/IntentEffecting");
 		EnemyIntentItemPool.assignTemplate(mRoot, "V/EnemyIntentItem");

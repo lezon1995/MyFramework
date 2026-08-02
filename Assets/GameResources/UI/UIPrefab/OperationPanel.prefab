@@ -247,6 +247,8 @@ MonoBehaviour:
   mAutoType: 1
   mCustomClassName: ShopView
   mOnlyForMarkType: 0
+  mRootRegisterCollider: 0
+  mRootHasClickEvent: 0
 --- !u!1 &102534257952623706
 GameObject:
   m_ObjectHideFlags: 0
@@ -2614,7 +2616,7 @@ GameObject:
   - component: {fileID: 1120563460458621425}
   - component: {fileID: 5857941250890326873}
   - component: {fileID: 5247392055219604417}
-  - component: {fileID: 9151444937423406524}
+  - component: {fileID: 90841831566768173}
   m_Layer: 0
   m_Name: Btn
   m_TagString: Untagged
@@ -2734,7 +2736,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
---- !u!114 &9151444937423406524
+--- !u!114 &90841831566768173
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -3313,6 +3315,8 @@ MonoBehaviour:
   mAutoType: 1
   mCustomClassName: PlayerStatItem
   mOnlyForMarkType: 0
+  mRootRegisterCollider: 0
+  mRootHasClickEvent: 0
 --- !u!1 &2145632602911681131
 GameObject:
   m_ObjectHideFlags: 0
@@ -3956,6 +3960,8 @@ MonoBehaviour:
   mAutoType: 1
   mCustomClassName: BallInventoryItem
   mOnlyForMarkType: 0
+  mRootRegisterCollider: 0
+  mRootHasClickEvent: 0
 --- !u!222 &5554535846773013643
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -4303,6 +4309,8 @@ MonoBehaviour:
   mAutoType: 1
   mCustomClassName: BallSlotItem
   mOnlyForMarkType: 0
+  mRootRegisterCollider: 0
+  mRootHasClickEvent: 0
 --- !u!222 &7230588679371094194
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -4781,6 +4789,8 @@ MonoBehaviour:
   mAutoType: 1
   mCustomClassName: BallSlotGroupView
   mOnlyForMarkType: 0
+  mRootRegisterCollider: 0
+  mRootHasClickEvent: 0
 --- !u!1 &2791350395881858694
 GameObject:
   m_ObjectHideFlags: 0
@@ -8529,6 +8539,8 @@ MonoBehaviour:
   mAutoType: 1
   mCustomClassName: RelicPurchaseItem
   mOnlyForMarkType: 0
+  mRootRegisterCollider: 0
+  mRootHasClickEvent: 0
 --- !u!1 &4343374143243504017
 GameObject:
   m_ObjectHideFlags: 0
@@ -10052,6 +10064,8 @@ MonoBehaviour:
   mAutoType: 1
   mCustomClassName: RelicInventoryView
   mOnlyForMarkType: 0
+  mRootRegisterCollider: 0
+  mRootHasClickEvent: 0
 --- !u!1 &5456721004933733167
 GameObject:
   m_ObjectHideFlags: 0
@@ -11773,6 +11787,8 @@ MonoBehaviour:
   mAutoType: 1
   mCustomClassName: PlayerInfoView
   mOnlyForMarkType: 0
+  mRootRegisterCollider: 0
+  mRootHasClickEvent: 0
 --- !u!1 &6218388462525219310
 GameObject:
   m_ObjectHideFlags: 0
@@ -13595,6 +13611,8 @@ MonoBehaviour:
   mAutoType: 1
   mCustomClassName: RelicInventoryItem
   mOnlyForMarkType: 0
+  mRootRegisterCollider: 0
+  mRootHasClickEvent: 0
 --- !u!222 &2970252052334890522
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -15110,6 +15128,8 @@ MonoBehaviour:
   mAutoType: 1
   mCustomClassName: BallInventoryView
   mOnlyForMarkType: 0
+  mRootRegisterCollider: 0
+  mRootHasClickEvent: 0
 --- !u!1 &7716881560720427310
 GameObject:
   m_ObjectHideFlags: 0
@@ -16262,6 +16282,8 @@ MonoBehaviour:
   mAutoType: 1
   mCustomClassName: BallPurchaseItem
   mOnlyForMarkType: 0
+  mRootRegisterCollider: 0
+  mRootHasClickEvent: 0
 --- !u!1 &8247199736088325692
 GameObject:
   m_ObjectHideFlags: 0
@@ -16643,7 +16665,7 @@ MonoBehaviour:
     m_Top: 20
     m_Bottom: 20
   m_ChildAlignment: 4
-  m_Spacing: 20
+  m_Spacing: 6
   m_ChildForceExpandWidth: 0
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 0

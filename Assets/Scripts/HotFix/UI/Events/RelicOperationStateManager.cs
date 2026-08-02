@@ -195,7 +195,7 @@ namespace MoreMountains
                 if (!go.TryGetComponent<RelicOperationTargetBridge>(out var bridge)) 
                     continue;
 
-                if (bridge.Target == null) 
+                if (bridge.Target != null) 
                     return bridge.Target;
                 
                 // if (!ReferenceEquals(bridge.Target, _source))

@@ -16,6 +16,6 @@ public class COMGameSceneVolume : ComponentKeyFrame
 	//------------------------------------------------------------------------------------------------------------------------------
 	protected override void applyTrembling(float value)
 	{
-		(owner as GameScene).getOrAddComponent<COMGameSceneAudio>().setVolume(lerpSimple(mStart, mTarget, value));
+		(mComponentOwner as GameScene).getOrAddComponent<COMGameSceneAudio>().setVolume(lerpSimple(mStart, mTarget, value));
 	}
 }

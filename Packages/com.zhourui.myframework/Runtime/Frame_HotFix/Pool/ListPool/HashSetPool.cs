@@ -22,7 +22,7 @@ public class HashSetPool : FrameSystem
 		base.init();
 		if (isEditor())
 		{
-			go.AddComponent<HashSetPoolDebug>();
+			mObject.AddComponent<HashSetPoolDebug>();
 		}
 	}
 	public override void update(float dt)

@@ -60,7 +60,7 @@ namespace MoreMountains
         public static void initialize()
         {
             var path = $"{GAMEPLAY_PATH}/GameDesign.asset";
-            gameDesign = resource.loadGameResource<GameDesign>(path).getResource();
+            gameDesign = resource.loadGameResource<GameDesign>(path).get();
         }
     }
 }

@@ -168,7 +168,7 @@ namespace MoreMountains
             hasBeenCollided = true;
             if (horizontalBorderTeleportable)
             {
-                var dist = abs(curPos.x - border.getWorldPosition().x);
+                var dist = (curPos.x - border.getWorldPosition().x).abs();
                 var teleportedX = levelManager.borderRight.getWorldPosition().x + dist;
                 setTeleportPosition(new(teleportedX, curPos.y), BORDER_RIGHT_LAYER_MASK);
             }
@@ -196,7 +196,7 @@ namespace MoreMountains
             hasBeenCollided = true;
             if (horizontalBorderTeleportable)
             {
-                var dist = abs(curPos.x - border.getWorldPosition().x);
+                var dist = (curPos.x - border.getWorldPosition().x).abs();
                 var teleportedX = levelManager.borderLeft.getWorldPosition().x - dist;
                 setTeleportPosition(new(teleportedX, curPos.y), BORDER_LEFT_LAYER_MASK);
             }

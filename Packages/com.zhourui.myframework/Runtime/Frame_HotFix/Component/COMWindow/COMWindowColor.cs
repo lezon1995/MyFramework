@@ -17,7 +17,7 @@ public class COMWindowColor : ComponentKeyFrame, IComponentModifyAlpha, ICompone
 	//------------------------------------------------------------------------------------------------------------------------------
 	protected override void applyTrembling(float value)
 	{
-		var obj = owner as myUGUIObject;
+		var obj = mComponentOwner as myUGUIObject;
 		obj.setColor(lerpSimple(mStart, mTarget, value));
 	}
 }

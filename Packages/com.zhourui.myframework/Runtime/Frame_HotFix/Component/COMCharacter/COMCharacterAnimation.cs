@@ -10,7 +10,7 @@ public class COMCharacterAnimation : GameComponent
 	public override void init(ComponentOwner owner)
 	{
 		base.init(owner);
-		mCharacter = base.owner as Character;
+		mCharacter = base.mComponentOwner as Character;
 	}
 	public override void resetProperty()
 	{

@@ -238,7 +238,7 @@ public class CommandSystem : FrameSystem
 		}
 		watcher?.addDelayCmd(cmd);
 	}
-	public void notifyReceiverDestroied(CommandReceiver receiver)
+	public void notifyReceiverDestroyed(CommandReceiver receiver)
 	{
 		if (mHasDestroy)
 		{

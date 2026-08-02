@@ -64,7 +64,7 @@ namespace MoreMountains
             }
         }
 
-        protected virtual void OnUpdate(float dt)
+        public virtual void OnUpdate(float dt)
         {
         }
 
@@ -76,7 +76,7 @@ namespace MoreMountains
             }
         }
 
-        protected virtual void OnFixedUpdate(float dt)
+        public virtual void OnFixedUpdate(float dt)
         {
         }
 
@@ -261,7 +261,7 @@ namespace MoreMountains
         // 从指定的子节点中查找指定组件
         public T getUnityComponentInChild<T>(string childName) where T : Component
         {
-            GameObject go = FrameBaseUtility.getGameObject(childName, mObject);
+            GameObject go = findGameObject(childName, mObject);
             if (go == null)
             {
                 return null;
@@ -297,22 +297,22 @@ namespace MoreMountains
 
         public Vector3 getLeft(bool ignoreY = false)
         {
-            return ignoreY ? normalize(resetY(-mTransform.right)) : -mTransform.right;
+            return ignoreY ? (-mTransform.right).resetY().normalize() : -mTransform.right;
         }
 
         public Vector3 getRight(bool ignoreY = false)
         {
-            return ignoreY ? normalize(resetY(mTransform.right)) : mTransform.right;
+            return ignoreY ? mTransform.right.resetY().normalize() : mTransform.right;
         }
 
         public Vector3 getBack(bool ignoreY = false)
         {
-            return ignoreY ? normalize(resetY(-mTransform.forward)) : -mTransform.forward;
+            return ignoreY ? (-mTransform.forward).resetY().normalize() : -mTransform.forward;
         }
 
         public Vector3 getForward(bool ignoreY = false)
         {
-            return ignoreY ? normalize(resetY(mTransform.forward)) : mTransform.forward;
+            return ignoreY ? mTransform.forward.resetY().normalize() : mTransform.forward;
         }
 
         public virtual bool isActive()
@@ -358,7 +358,7 @@ namespace MoreMountains
         public Vector3 getRotation()
         {
             Vector3 vector3 = mTransform.localEulerAngles;
-            adjustAngle180(ref vector3.z);
+            vector3.z = vector3.z.adjustAngle180();
             return vector3;
         }
 
@@ -404,8 +404,8 @@ namespace MoreMountains
                 return Vector3.zero;
             }
 
-            Vector3 vector3 = toRadian(mTransform.localEulerAngles);
-            adjustRadian180(ref vector3.z);
+            Vector3 vector3 = mTransform.localEulerAngles.toRadian();
+            vector3.z = vector3.z.adjustRadian180();
             return vector3;
         }
 
@@ -421,7 +421,7 @@ namespace MoreMountains
 
         public void setPosition(Vector3 pos)
         {
-            if (mTransform == null || isVectorEqual(mTransform.localPosition, pos))
+            if (mTransform == null || mTransform.localPosition.isEqual(pos))
                 return;
 
             mTransform.localPosition = pos;
@@ -434,7 +434,7 @@ namespace MoreMountains
 
         public void setScale(Vector3 scale)
         {
-            if (mTransform == null || isVectorEqual(mTransform.localScale, scale))
+            if (mTransform == null || mTransform.localScale.isEqual(scale))
                 return;
 
             mTransform.localScale = scale;
@@ -443,7 +443,7 @@ namespace MoreMountains
         // 角度制的欧拉角,分别是绕xyz轴的旋转角度
         public void setRotation(Vector3 rot)
         {
-            if (mTransform == null || isVectorEqual(mTransform.localEulerAngles, rot))
+            if (mTransform == null || mTransform.localEulerAngles.isEqual(rot))
                 return;
 
             mTransform.localEulerAngles = rot;
@@ -489,7 +489,7 @@ namespace MoreMountains
 
             if (mTransform.parent)
             {
-                mTransform.localScale = divideVector3(scale, mTransform.parent.lossyScale);
+                mTransform.localScale = scale.divide(mTransform.parent.lossyScale);
             }
             else
             {
@@ -519,52 +519,52 @@ namespace MoreMountains
 
         public void setPositionX(float x)
         {
-            setPosition(replaceX(getPosition(), x));
+            setPosition(getPosition().replaceX(x));
         }
 
         public void setPositionY(float y)
         {
-            setPosition(replaceY(getPosition(), y));
+            setPosition(getPosition().replaceY(y));
         }
 
         public void setPositionZ(float z)
         {
-            setPosition(replaceZ(getPosition(), z));
+            setPosition(getPosition().replaceZ(z));
         }
 
         public void setWorldPositionX(float x)
         {
-            setWorldPosition(replaceX(getWorldPosition(), x));
+            setWorldPosition(getWorldPosition().replaceX(x));
         }
 
         public void setWorldPositionY(float y)
         {
-            setWorldPosition(replaceY(getWorldPosition(), y));
+            setWorldPosition(getWorldPosition().replaceY(y));
         }
 
         public void setWorldPositionZ(float z)
         {
-            setWorldPosition(replaceZ(getWorldPosition(), z));
+            setWorldPosition(getWorldPosition().replaceZ(z));
         }
 
         public void setRotationX(float rotX)
         {
-            setRotation(replaceX(mTransform.localEulerAngles, rotX));
+            setRotation(mTransform.localEulerAngles.replaceX(rotX));
         }
 
         public void setRotationY(float rotY)
         {
-            setRotation(replaceY(mTransform.localEulerAngles, rotY));
+            setRotation(mTransform.localEulerAngles.replaceY(rotY));
         }
 
         public void setRotationZ(float rotZ)
         {
-            setRotation(replaceZ(mTransform.localEulerAngles, rotZ));
+            setRotation(mTransform.localEulerAngles.replaceZ(rotZ));
         }
 
         public void setScaleX(float x)
         {
-            setScale(replaceX(mTransform.localScale, x));
+            setScale(mTransform.localScale.replaceX(x));
         }
 
         public virtual void move(Vector3 moveDelta, Space space = Space.Self)
@@ -621,7 +621,7 @@ namespace MoreMountains
 
         public void lookAt(Vector3 direction)
         {
-            if (isVectorZero(direction))
+            if (direction.isZero())
                 return;
 
             setRotation(getLookAtQuaternion(direction));
@@ -629,7 +629,7 @@ namespace MoreMountains
 
         public void lookAtPoint(Vector3 point)
         {
-            if (!isVectorEqual(point, getPosition()))
+            if (!point.isEqual(getPosition()))
             {
                 setRotation(getLookAtQuaternion(point - getPosition()));
             }

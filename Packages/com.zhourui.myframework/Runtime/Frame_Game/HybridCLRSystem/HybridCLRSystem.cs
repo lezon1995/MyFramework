@@ -94,17 +94,17 @@ public class HybridCLRSystem
 	}
 	protected static void backupFrameParam()
 	{
-		FrameCrossParam.mLocalizationName = ResLocalizationText.mCurLanguage;
-		FrameCrossParam.mDownloadURL = mResourceManager.getDownloadURL();
-		FrameCrossParam.mStreamingAssetsVersion = mAssetVersionSystem.getStreamingAssetsVersion();
-		FrameCrossParam.mPersistentDataVersion = mAssetVersionSystem.getPersistentDataVersion();
-		FrameCrossParam.mRemoteVersion = mAssetVersionSystem.getRemoteVersion();
-		FrameCrossParam.mStreamingAssetsFileList.setRange(mAssetVersionSystem.getStreamingAssetsFile());
-		FrameCrossParam.mPersistentAssetsFileList.setRange(mAssetVersionSystem.getPersistentAssetsFile());
-		FrameCrossParam.mRemoteAssetsFileList.setRange(mAssetVersionSystem.getRemoteAssetsFile());
-		FrameCrossParam.mTotalDownloadedFiles.setRange(mAssetVersionSystem.getTotalDownloadedFiles());
-		FrameCrossParam.mTotalDownloadByteCount = mAssetVersionSystem.getTotalDownloadedByteCount();
-		FrameCrossParam.mAssetReadPath = mAssetVersionSystem.getAssetReadPath();
+		FrameCrossParam.localizationName = ResLocalizationText.mCurLanguage;
+		FrameCrossParam.downloadURL = mResourceManager.getDownloadURL();
+		FrameCrossParam.streamingAssetsVersion = mAssetVersionSystem.getStreamingAssetsVersion();
+		FrameCrossParam.persistentDataVersion = mAssetVersionSystem.getPersistentDataVersion();
+		FrameCrossParam.remoteVersion = mAssetVersionSystem.getRemoteVersion();
+		FrameCrossParam.streamingAssetsFileList.setRange(mAssetVersionSystem.getStreamingAssetsFile());
+		FrameCrossParam.persistentAssetsFileList.setRange(mAssetVersionSystem.getPersistentAssetsFile());
+		FrameCrossParam.remoteAssetsFileList.setRange(mAssetVersionSystem.getRemoteAssetsFile());
+		FrameCrossParam.totalDownloadedFiles.setRange(mAssetVersionSystem.getTotalDownloadedFiles());
+		FrameCrossParam.totalDownloadByteCount = mAssetVersionSystem.getTotalDownloadedByteCount();
+		FrameCrossParam.assetReadPath = mAssetVersionSystem.getAssetReadPath();
 	}
 	// 执行AOT补充元数据
 	protected static void loadMetaDataForAOT(Action callback, Action errorCallback)

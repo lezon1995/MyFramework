@@ -22,7 +22,7 @@ public class ListPool : FrameSystem
 		base.init();
 		if (isEditor())
 		{
-			go.AddComponent<ListPoolDebug>();
+			mObject.AddComponent<ListPoolDebug>();
 		}
 	}
 	public override void update(float dt)

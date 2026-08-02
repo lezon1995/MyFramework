@@ -17,11 +17,6 @@ namespace MoreMountains
             owner = null;
         }
         
-        public virtual int onPlayerGainedBlock(float blockAmount)
-        {
-            return floor(blockAmount);
-        }
-
         public virtual int onPlayerGainedBlock(int blockAmount)
         {
             return blockAmount;

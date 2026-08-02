@@ -21,7 +21,7 @@ public class StageTemplateBrickGroup : BrickGroup, IArgs<ResourceRef<StageTempla
     public override void buildBrickTemplates(int turnCount)
     {
         templates.Clear();
-        templates.addRange(stageTemplate.getResource().bricks);
+        templates.addRange(stageTemplate.get().bricks);
         for (var i = 0; i < templates.Count; i++)
         {
             var t = templates[i];

@@ -8,6 +8,6 @@ public static class RelicExtensions
     {
         var path = $"{GAMEPLAY_PATH}/Sprites/Relics/{relic.imgUrl}";
         var resource = GBR.resource.loadGameResource<Sprite>(path);
-        return resource.getResource();
+        return resource.get();
     }
 }

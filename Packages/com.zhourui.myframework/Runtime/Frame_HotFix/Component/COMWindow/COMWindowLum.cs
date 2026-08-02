@@ -17,7 +17,7 @@ public class COMWindowLum : ComponentKeyFrame
 	//------------------------------------------------------------------------------------------------------------------------------
 	protected override void applyTrembling(float value)
 	{
-		if (owner is not IShaderWindow shaderWindow)
+		if (mComponentOwner is not IShaderWindow shaderWindow)
 		{
 			logError("window is not a IShaderWindow! can not offset hsl!");
 			return;

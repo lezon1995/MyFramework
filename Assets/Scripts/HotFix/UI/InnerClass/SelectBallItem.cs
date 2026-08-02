@@ -42,7 +42,7 @@ public partial class SelectBallItem : WindowRecyclableUGUI
 		newObject(out icon, "Icon/Image");
 		for (int i = 0; i < stars.Length; ++i)
 		{
-			newObject(out stars[i], "Icon/Grade_Star_01/Star" + IToS(i));
+			newObject(out stars[i], "Icon/Grade_Star_01/Star" + i.IToS());
 		}
 		newObject(out button, "Button");
 		// auto generate assignWindowInternal end

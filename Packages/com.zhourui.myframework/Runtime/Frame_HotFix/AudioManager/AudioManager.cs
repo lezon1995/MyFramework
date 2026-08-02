@@ -27,7 +27,7 @@ public class AudioManager : FrameSystem
 		base.init();
 		if (isEditor())
 		{
-			go.AddComponent<AudioManagerDebug>();
+			mObject.AddComponent<AudioManagerDebug>();
 		}
 	}
 	public override void destroy()

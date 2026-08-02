@@ -26,7 +26,7 @@ public class BrickBlock : ABlock
                 p.onGainedBlock(tmp);
 
         bool effect = currentBlock == 0;
-        currentBlock += floor(tmp);
+        currentBlock += tmp;
         if (currentBlock > 999)
             currentBlock = 999;
 

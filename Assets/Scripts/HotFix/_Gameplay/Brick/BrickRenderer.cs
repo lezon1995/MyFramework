@@ -179,7 +179,7 @@ namespace MoreMountains
         static UnderHitDirection determineUnderHitDirection(Vector2 normal)
         {
             UnderHitDirection dir;
-            if (isFloatEqual(normal.x, 0F))
+            if (normal.x.isZero())
             {
                 if (normal.y > 0F)
                     dir = UnderHitDirection.Top; //上方受击
@@ -188,7 +188,7 @@ namespace MoreMountains
             }
             else
             {
-                if (isFloatEqual(normal.y, 0F))
+                if (normal.y.isZero())
                 {
                     if (normal.x > 0F)
                         dir = UnderHitDirection.Right; //右方受击
@@ -326,7 +326,7 @@ namespace MoreMountains
 
             public void refreshByDamage(int cur, int max)
             {
-                health.SetText(IToS(cur));
+                health.SetText(cur.IToS());
 
                 var f = Mathf.Clamp01(((float)cur) / max);
                 barRenderer.ApplyDamage(f);
@@ -334,7 +334,7 @@ namespace MoreMountains
 
             public void refreshByHealing(int cur, int max)
             {
-                health.SetText(IToS(cur));
+                health.SetText(cur.IToS());
 
                 var f = Mathf.Clamp01(((float)cur) / max);
                 barRenderer.SetProgress(f);
@@ -344,7 +344,7 @@ namespace MoreMountains
 
             public void refreshByBorn(int cur, int max)
             {
-                health.SetText(IToS(cur));
+                health.SetText(cur.IToS());
 
                 var f = Mathf.Clamp01(((float)cur) / max);
                 barRenderer.SetProgress(f);

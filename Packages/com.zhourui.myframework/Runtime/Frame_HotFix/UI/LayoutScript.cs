@@ -500,7 +500,7 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 			GameObject curGo = null;
 			if (parentGo == null)
 			{
-				curGo = getRootGameObject(curName, !isLast);
+				curGo = findRootGameObject(curName, !isLast);
 			}
 			else
 			{

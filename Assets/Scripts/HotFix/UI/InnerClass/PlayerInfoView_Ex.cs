@@ -8,13 +8,13 @@ public partial class PlayerInfoView
 {
     public void SetLevel(int lv)
     {
-        textLevel.setText(IToS(lv));
+        textLevel.setText(lv.IToS());
     }
 
     public void SetExp(int cur, int max)
     {
-        textCurExp.setText(IToS(cur));
-        textMaxExp.setText(IToS(max));
+        textCurExp.setText(cur.IToS());
+        textMaxExp.setText(max.IToS());
         if (expSlider != null)
         {
             float v = max > 0 ? Mathf.Clamp01((float)cur / max) : 0f;

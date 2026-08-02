@@ -52,11 +52,11 @@ public class ExpView : WindowObjectUGUI
 
 			targetProgress = exp.progress;
 			timeElapsed = 0;
-			curExp.setText(IToS(exp.currentExp));
-			maxExp.setText(IToS(exp.currentLevelRequiredExp));
+			curExp.setText(exp.currentExp.IToS());
+			maxExp.setText(exp.currentLevelRequiredExp.IToS());
 		}
 
-		timeElapsed = clamp(timeElapsed + dt, 0, tweenDuration);
+		timeElapsed = (timeElapsed + dt).clamp(0, tweenDuration);
 		var t = timeElapsed / tweenDuration;
 		var f = lerp(curProgress, targetProgress, t);
 		expBar.setFillPercent(f);
