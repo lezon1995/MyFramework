@@ -431,6 +431,11 @@ namespace MoreMountains
             log(relic.relicId + " is undefined tier.");
         }
 
+        public static ARelic getRelic(RelicType type)
+        {
+            return getRelic(type.ToString());
+        }
+
         public static ARelic getRelic(string key)
         {
             ARelic relic;

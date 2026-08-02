@@ -33,6 +33,10 @@ namespace MoreMountains
         Action<IBallOperationTarget> _onOperationConfirmed;
         Action _onOperationCancelled;
 
+        // RelicOperationStateManager 事件处理
+        Action<IRelicOperationTarget> _onRelicOperationConfirmed;
+        Action _onRelicOperationCancelled;
+
         public OperationPanelBinder(
             OperationPanel panel,
             BallInventoryBinder ballInv,
@@ -56,6 +60,8 @@ namespace MoreMountains
             // 预分配事件处理,避免在 Subscribe 时创建 lambda
             _onOperationConfirmed = HandleOperationConfirmed;
             _onOperationCancelled = HandleOperationCancelled;
+            _onRelicOperationConfirmed = HandleRelicOperationConfirmed;
+            _onRelicOperationCancelled = HandleRelicOperationCancelled;
         }
 
         public BallInventoryBinder BallInventory => _ballInv;
@@ -99,6 +105,10 @@ namespace MoreMountains
             BallOperationStateManager.Instance.OperationConfirmed += _onOperationConfirmed;
             BallOperationStateManager.Instance.OperationCancelled += _onOperationCancelled;
 
+            // 订阅遗物操作状态管理器
+            RelicOperationStateManager.Instance.OperationConfirmed += _onRelicOperationConfirmed;
+            RelicOperationStateManager.Instance.OperationCancelled += _onRelicOperationCancelled;
+
             // 钱变化时刷新 coin 显示
             _player.Wallet.OnBalanceChanged += OnWalletChanged;
 
@@ -114,6 +124,8 @@ namespace MoreMountains
             _player.Wallet.OnBalanceChanged -= OnWalletChanged;
             BallOperationStateManager.Instance.OperationConfirmed -= _onOperationConfirmed;
             BallOperationStateManager.Instance.OperationCancelled -= _onOperationCancelled;
+            RelicOperationStateManager.Instance.OperationConfirmed -= _onRelicOperationConfirmed;
+            RelicOperationStateManager.Instance.OperationCancelled -= _onRelicOperationCancelled;
 
             _ballInv.EquipRequested -= OnEquipBallRequested;
             _ballInv.UpgradeRequested -= OnUpgradeBallRequested;
@@ -166,6 +178,30 @@ namespace MoreMountains
         }
 
         void HandleOperationCancelled()
+        {
+            // 右键取消,什么都不做
+        }
+
+        // ============================================================
+        //         遗物操作状态事件处理
+        // ============================================================
+
+        void HandleRelicOperationConfirmed(IRelicOperationTarget hoveredTarget)
+        {
+            if (_player == null)
+                return;
+
+            var source = RelicOperationStateManager.Instance.CurrentSource;
+            if (source == null)
+                return;
+
+            if (hoveredTarget == null)
+                return;
+
+            source.ExecuteOperation(hoveredTarget);
+        }
+
+        void HandleRelicOperationCancelled()
         {
             // 右键取消,什么都不做
         }
@@ -238,34 +274,53 @@ namespace MoreMountains
 
         void OnShopSellZoneClicked()
         {
-            if (_player == null) return;
+            if (_player == null)
+                return;
 
-            var source = BallOperationStateManager.Instance.CurrentSource;
-            if (source == null) return;
-
-            // 根据 source 类型决定出售什么
-            if (source is BallSlotItem slotItem)
+            // 球操作状态中的出售
+            var ballSource = BallOperationStateManager.Instance.CurrentSource;
+            if (ballSource != null)
             {
-                int slotIndex = -1;
-                _slotBinder.GetSlotIndexForItem(slotItem, out slotIndex);
-                var slots = _player.BallManagement.Slots;
-                if (slots != null && slotIndex >= 0 && slotIndex < slots.Slots.Count)
+                if (ballSource is BallSlotItem slotItem)
                 {
-                    var ball = slots.Slots[slotIndex].Item;
-                    if (ball != null)
-                        _player.Shop.Controller.OnPlayerSellBall(_player, ball);
+                    int slotIndex = -1;
+                    _slotBinder.GetSlotIndexForItem(slotItem, out slotIndex);
+                    var slots = _player.BallManagement.Slots;
+                    if (slots != null && slotIndex >= 0 && slotIndex < slots.Slots.Count)
+                    {
+                        var ball = slots.Slots[slotIndex].Item;
+                        if (ball != null)
+                            _player.Shop.Controller.OnPlayerSellBall(_player, ball);
+                    }
                 }
+                else if (ballSource is BallInventoryItem invItem)
+                {
+                    int slotIndex = -1;
+                    _ballInv.GetSlotIndexForItem(invItem, out slotIndex);
+                    var bag = _player.Inventory.BallBag;
+                    if (bag != null && slotIndex >= 0 && slotIndex < bag.SlotList.Count)
+                    {
+                        var ball = bag.SlotList[slotIndex].Item;
+                        if (ball != null)
+                            _player.Shop.Controller.OnPlayerSellBall(_player, ball);
+                    }
+                }
+
+                return;
             }
-            else if (source is BallInventoryItem invItem)
+
+            // 遗物操作状态中的出售
+            var relicSource = RelicOperationStateManager.Instance.CurrentSource;
+            if (relicSource is RelicInventoryItem relicItem)
             {
                 int slotIndex = -1;
-                _ballInv.GetSlotIndexForItem(invItem, out slotIndex);
-                var bag = _player.Inventory.BallBag;
+                _relicInv.GetSlotIndexForItem(relicItem, out slotIndex);
+                var bag = _player.Inventory.RelicBag;
                 if (bag != null && slotIndex >= 0 && slotIndex < bag.SlotList.Count)
                 {
-                    var ball = bag.SlotList[slotIndex].Item;
-                    if (ball != null)
-                        _player.Shop.Controller.OnPlayerSellBall(_player, ball);
+                    var relic = bag.SlotList[slotIndex].Item;
+                    if (relic != null)
+                        _player.Shop.Controller.OnPlayerSellRelic(relic);
                 }
             }
         }
@@ -293,19 +348,6 @@ namespace MoreMountains
                 _player.BallManagement.EquipBall(ball, slotIndex);
                 _ballInv.ClearSelection();
                 return;
-            }
-        }
-
-        /// <summary>遗物背包里的遗物被拖出去,转发到此处理。</summary>
-        internal void OnRelicInventoryDragReleased(RelicInventoryItem src, RelicItem relic, UIDragReleaseEventData data)
-        {
-            if (_player == null || relic == null) return;
-
-            // 遗物:释放到 sellZone → 出售;否则不处理
-            if (TryFindSellZone(data))
-            {
-                _player.Shop.Controller.OnPlayerSellRelic(relic);
-                _relicInv.ClearSelection();
             }
         }
 
@@ -351,6 +393,7 @@ namespace MoreMountains
                 if (go.transform == sellTransform || go.transform.IsChildOf(sellTransform))
                     return true;
             }
+
             return false;
         }
 
@@ -374,8 +417,10 @@ namespace MoreMountains
                         return true;
                     }
                 }
+
                 i++;
             }
+
             return false;
         }
 
@@ -394,8 +439,10 @@ namespace MoreMountains
                     if (t != null && HitContains(t, data))
                         return true;
                 }
+
                 i++;
             }
+
             return false;
         }
 
@@ -409,6 +456,7 @@ namespace MoreMountains
                 if (t != null && (t == target || t.IsChildOf(target)))
                     return true;
             }
+
             return false;
         }
 
@@ -482,24 +530,14 @@ namespace MoreMountains
                     return;
 
                 ARelic underlying = null;
-                if (string.IsNullOrEmpty(relicOffer.Def.RelicTypeName))
+                if (relicOffer.Def.Type == RelicType.None)
                 {
                     logError($"OperationPanelBinder: RelicDef '{relicOffer.Def.name}' missing RelicTypeName; cannot instantiate.");
                     _player.Wallet.Earn(price, EarnType.OTHER, "rollback_buy_relic");
                     return;
                 }
 
-                try
-                {
-                    var t = Type.GetType(relicOffer.Def.RelicTypeName);
-                    if (t != null && typeof(ARelic).IsAssignableFrom(t))
-                        underlying = (ARelic)Activator.CreateInstance(t);
-                }
-                catch (Exception ex)
-                {
-                    logError($"OperationPanelBinder: failed to create relic '{relicOffer.Def.RelicTypeName}': {ex.Message}");
-                }
-
+                underlying = RelicLibrary.getRelic(relicOffer.Def.Type);
                 if (underlying == null)
                 {
                     _player.Wallet.Earn(price, EarnType.OTHER, "rollback_buy_relic");

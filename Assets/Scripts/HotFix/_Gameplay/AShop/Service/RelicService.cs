@@ -16,39 +16,18 @@ namespace MoreMountains
         /// </summary>
         public static RelicItem CreateItem(RelicDef def)
         {
-            if (def == null) return null;
-            var relic = CreateRelicByTypeName(def.RelicTypeName, def.DisplayName, def.RelicDefId);
+            if (def == null) 
+                return null;
+
+            var relic = RelicLibrary.getRelic(def.Type);
             if (relic == null)
             {
-                logError($"RelicService: cannot create relic, RelicTypeName missing: {def.RelicTypeName}");
+                logError($"RelicService: cannot create relic, RelicTypeName missing: {def.Type}");
                 return null;
             }
 
             int refund = def.SellRefund > 0 ? def.SellRefund : Math.Max(1, def.BasePrice / 2);
             return new RelicItem(relic, def);
-        }
-
-        static ARelic CreateRelicByTypeName(string typeName, string displayName, int defId)
-        {
-            if (string.IsNullOrEmpty(typeName)) return null;
-            var type = Type.GetType(typeName) ?? Type.GetType(typeName + ", Assembly-CSharp");
-            if (type == null) return null;
-            try
-            {
-                if (Activator.CreateInstance(type) is ARelic relic)
-                {
-                    relic.relicId = displayName ?? relic.relicId ?? type.Name;
-                    relic.name = displayName ?? relic.name ?? relic.relicId;
-                    relic.cost = defId;
-                    return relic;
-                }
-            }
-            catch (Exception ex)
-            {
-                logError($"RelicService.CreateRelicByTypeName failed: {ex.Message}");
-            }
-
-            return null;
         }
     }
 }

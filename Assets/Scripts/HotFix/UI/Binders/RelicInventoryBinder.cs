@@ -31,6 +31,9 @@ namespace MoreMountains
         public event Action<RelicItem /*selected*/> RelicSelected;
         public event Action<RelicItem> SellRequested;
 
+        /// <summary>当前挂载的 RelicBag,供子模块(如操作状态)读取。</summary>
+        public RelicBag Bag => _bag;
+
         public void Attach(RelicBag bag)
         {
             if (_bag != null)
@@ -81,10 +84,33 @@ namespace MoreMountains
                 item.SetIconVisible(!isEmpty);
                 item.SetEnabled(!isEmpty);
 
+                // 把 slot 写回 item,便于 item 在操作状态中判断 isOccupied
+                item.SetRelicInventorySlot(slot);
+
                 // 不创建 lambda;item 的 UnityEvent 在 init() 中已一次性订阅,
-                // 这里只更新数据字段,转发走 item 自身的 onBtnClick / onDragReleased。
+                // 这里只更新数据字段,转发走 item 自身的 onBtnClick / onPointerPressed。
                 item.SetSlotData(index, this);
             });
+        }
+
+        /// <summary>由 RelicInventoryItem 在操作状态中调用,从 item 反查它对应的 slot 索引。</summary>
+        public void GetSlotIndexForItem(RelicInventoryItem item, out int slotIndex)
+        {
+            slotIndex = -1;
+            if (_bag == null || item == null)
+                return;
+
+            int i = 0;
+            foreach (var slot in _bag.SlotList)
+            {
+                if (_view.GetUsedItem(i, out var usedItem) && usedItem == item)
+                {
+                    slotIndex = slot.Index;
+                    return;
+                }
+
+                i++;
+            }
         }
 
         // ------------- item 事件转发入口(item 直接调过来,无 lambda 中转)-------------
@@ -100,22 +126,6 @@ namespace MoreMountains
 
             var relic = _bag.SlotList[slotIndex].Item;
             OnRelicClicked(relic);
-        }
-
-        /// <summary>由 RelicInventoryItem.onDragReleased 转发。</summary>
-        public void OnRelicDragReleased(RelicInventoryItem src, int slotIndex, UIDragReleaseEventData data)
-        {
-            if (_bag == null) 
-                return;
-
-            if (slotIndex < 0 || slotIndex >= _bag.SlotList.Count) 
-                return;
-
-            var relic = _bag.SlotList[slotIndex].Item;
-            if (relic == null) 
-                return;
-
-            _owner?.OnRelicInventoryDragReleased(src, relic, data);
         }
 
         // ------------- 选择/出售事件(由外部按钮触发)-------------

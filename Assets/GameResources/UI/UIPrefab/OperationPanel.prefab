@@ -13406,7 +13406,7 @@ GameObject:
   - component: {fileID: 2970252052334890522}
   m_Layer: 0
   m_Name: RelicInventoryItem
-  m_TagString: Untagged
+  m_TagString: RelicOperationTarget
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

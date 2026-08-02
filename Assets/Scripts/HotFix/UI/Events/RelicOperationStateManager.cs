@@ -5,37 +5,38 @@ using UnityEngine.EventSystems;
 namespace MoreMountains
 {
     /// <summary>
-    /// 球操作状态管理器 —— 单例,管理全局的"球操作状态"。
+    /// 遗物操作状态管理器 —— 单例,管理全局的"遗物操作状态"。
     ///
-    /// 什么是"球操作状态":
-    ///   玩家在 BallSlotItem / BallInventoryItem 上按下左键后进入,
-    ///   icon 跟随鼠标移动,所有球 item 的 highlight 显示,
+    /// 什么是"遗物操作状态":
+    ///   玩家在 RelicInventoryItem 上按下左键后进入,
+    ///   icon 跟随鼠标移动,所有遗物 item 的 highlight 显示,
     ///   鼠标悬停的 item 额外显示 highlightHovered,
     ///   sellZone 显示,其他 UI 按钮屏蔽指针事件。
     ///
     /// 退出条件(任一):
     ///   • 右键点击 → icon 归位,退出操作状态
-    ///   • 左键点击在任意 BallSlotItem/BallInventoryItem 上 → 执行操作后 icon 归位,退出
+    ///   • 左键点击在任意 RelicInventoryItem 上 → 执行操作后 icon 归位,退出
     ///   • 左键点击在 SellZone 上 → 出售操作后 icon 归位,退出
     ///   • 左键点击在空白区域 → icon 归位,退出
     ///
     /// 状态是独占的:进入时记录 source,退出前不能再次进入。
+    /// 与 BallOperationStateManager 互斥:球进入操作状态后遗物不能再进入,反之亦然。
     /// </summary>
-    public sealed class BallOperationStateManager
+    public sealed class RelicOperationStateManager
     {
-        public static BallOperationStateManager Instance { get; } = new();
+        public static RelicOperationStateManager Instance { get; } = new();
 
         public bool IsActive => _state != State.Idle;
 
         /// <summary>当前操作的源。</summary>
-        public IBallOperationTarget CurrentSource => _source;
+        public IRelicOperationTarget CurrentSource => _source;
 
         /// <summary>当前鼠标悬停的目标。</summary>
-        public IBallOperationTarget CurrentHovered => _hovered;
+        public IRelicOperationTarget CurrentHovered => _hovered;
 
         // 事件
         /// <summary>操作确认,回调传入悬停的目标(null=空白区域)。</summary>
-        public event Action<IBallOperationTarget> OperationConfirmed;
+        public event Action<IRelicOperationTarget> OperationConfirmed;
 
         /// <summary>操作取消(右键或左键在空白)。</summary>
         public event Action OperationCancelled;
@@ -43,15 +44,19 @@ namespace MoreMountains
         /// <summary>sellZone 显隐变化。</summary>
         public event Action<bool> SellZoneVisibilityChanged;
 
-        IBallOperationTarget _source;
-        IBallOperationTarget _hovered;
+        IRelicOperationTarget _source;
+        IRelicOperationTarget _hovered;
         bool _sourceConsumed;
 
         // ==================== Enter / Exit ====================
 
-        public void TryEnter(IBallOperationTarget source, RectTransform iconSource)
+        public void TryEnter(IRelicOperationTarget source, RectTransform iconSource)
         {
             if (_state != State.Idle)
+                return;
+
+            // 与 Ball 操作状态互斥
+            if (BallOperationStateManager.Instance.IsActive)
                 return;
 
             _source = source;
@@ -123,6 +128,15 @@ namespace MoreMountains
             return true;
         }
 
+        public void ForceExit()
+        {
+            if (_state == State.Idle)
+                return;
+
+            OperationCancelled?.Invoke();
+            Exit();
+        }
+
         void Exit()
         {
             if (_state == State.Idle)
@@ -161,7 +175,7 @@ namespace MoreMountains
 
         PointerEventData ptrData = new(UnityEngine.EventSystems.EventSystem.current);
 
-        IBallOperationTarget RaycastHovered()
+        IRelicOperationTarget RaycastHovered()
         {
             ptrData.position = Input.mousePosition;
             using var _ = new ListScope<RaycastResult>(out var results);
@@ -172,30 +186,33 @@ namespace MoreMountains
                 if (go == null)
                     continue;
 
-                if (_blockerGO != null && go == _blockerGO)
+                if (_blockerGO && go == _blockerGO)
                     continue;
 
-                if (!go.CompareTag("BallOperationTarget")) 
+                if (!go.CompareTag("RelicOperationTarget")) 
                     continue;
-                
-                if (!go.TryGetComponent<BallOperationTargetBridge>(out var bridge)) 
+
+                if (!go.TryGetComponent<RelicOperationTargetBridge>(out var bridge)) 
                     continue;
-                
-                if (bridge.Target != null/* && !ReferenceEquals(bridge.Target, _source)*/)
-                {
+
+                if (bridge.Target == null) 
                     return bridge.Target;
-                }
+                
+                // if (!ReferenceEquals(bridge.Target, _source))
+                // {
+                //     return bridge.Target;
+                // }
             }
 
             return null;
         }
 
-        void BroadcastHighlightChanged(IBallOperationTarget source, bool visible)
+        void BroadcastHighlightChanged(IRelicOperationTarget source, bool visible)
         {
             BroadcastHighlightEvent?.Invoke(source, visible);
         }
 
-        internal static event Action<IBallOperationTarget, bool> BroadcastHighlightEvent;
+        internal static event Action<IRelicOperationTarget, bool> BroadcastHighlightEvent;
 
         // ==================== Blocker ====================
 
@@ -226,9 +243,9 @@ namespace MoreMountains
         int _stateActiveFrame;
     }
 
-    // ==================== IBallOperationTarget ====================
+    // ==================== IRelicOperationTarget ====================
 
-    public interface IBallOperationTarget
+    public interface IRelicOperationTarget
     {
         void BeginFollowMouse(RectTransform iconSource);
         void UpdateFollowMouse(Vector2 screenMousePos);
@@ -236,31 +253,30 @@ namespace MoreMountains
         void SetHovered(bool isHovered);
         void SetHighlightVisible(bool visible);
         void SetEventBlocking(bool blocking);
-        void ExecuteOperation(IBallOperationTarget hoveredTarget);
+        void ExecuteOperation(IRelicOperationTarget hoveredTarget);
     }
 
     // ==================== Bridge ====================
 
     /// <summary>
-    /// 挂到每个 BallSlotItem / BallInventoryItem 根 GameObject 上的 MonoBehaviour。
+    /// 挂到每个 RelicInventoryItem 根 GameObject 上的 MonoBehaviour。
     /// 职责:①持有 Target 引用(供 RaycastHovered 查找) ②响应 highlight 广播。
-    /// 不负责 Update/输入,那些集中在 BallOperationStateController 中。
     /// </summary>
-    public class BallOperationTargetBridge : MonoBehaviour
+    public class RelicOperationTargetBridge : MonoBehaviour
     {
-        public IBallOperationTarget Target;
+        public IRelicOperationTarget Target;
 
         void OnEnable()
         {
-            BallOperationStateManager.BroadcastHighlightEvent += OnHighlightChanged;
+            RelicOperationStateManager.BroadcastHighlightEvent += OnHighlightChanged;
         }
 
         void OnDisable()
         {
-            BallOperationStateManager.BroadcastHighlightEvent -= OnHighlightChanged;
+            RelicOperationStateManager.BroadcastHighlightEvent -= OnHighlightChanged;
         }
 
-        void OnHighlightChanged(IBallOperationTarget source, bool visible)
+        void OnHighlightChanged(IRelicOperationTarget source, bool visible)
         {
             Target?.SetHighlightVisible(visible);
             if (visible && source == Target)
@@ -274,8 +290,9 @@ namespace MoreMountains
 
     /// <summary>
     /// 挂到 Blocker GameObject 上,负责注册到 manager。
+    /// Relic 与 Ball 共用同一个 sellZone 区域,但 blocker 是独立的(由各自的 manager 控制)。
     /// </summary>
-    public class BlockerController : MonoBehaviour
+    public class RelicBlockerController : MonoBehaviour
     {
         [SerializeField]
         bool blocksRaycasts = true;
@@ -286,21 +303,22 @@ namespace MoreMountains
             if (cg != null)
             {
                 cg.blocksRaycasts = false;
-                BallOperationStateManager.Instance.RegisterBlocker(gameObject);
+                RelicOperationStateManager.Instance.RegisterBlocker(gameObject);
             }
         }
     }
 
-    // ==================== BallOperationStateController ====================
+    // ==================== RelicOperationStateController ====================
 
     /// <summary>
-    /// 球操作状态控制器 —— 集中处理 FrameUpdate、鼠标右键取消、左键点击确认。
-    /// 挂到一个始终激活的 GameObject 上(推荐挂在 BallOperationPanel 同级或 Canvas 根)。
+    /// 遗物操作状态控制器 —— 集中处理 FrameUpdate、鼠标右键取消、左键点击确认。
+    /// 挂到一个始终激活的 GameObject 上(推荐挂在 RelicOperationPanel 同级或 Canvas 根)。
     /// </summary>
-    public class BallOperationStateController : MonoBehaviour
+    public class RelicOperationStateController : MonoBehaviour
     {
         void Update()
         {
+            RelicOperationStateManager.Instance.Update();
         }
     }
 }

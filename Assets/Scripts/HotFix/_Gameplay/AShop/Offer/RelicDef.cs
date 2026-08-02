@@ -18,6 +18,6 @@ namespace MoreMountains
         public Sprite Icon;
 
         /// <summary>对应 ARelic 子类的 Type 名（FullName）。RelicService 据此反射创建。</summary>
-        public string RelicTypeName => Type.ToString();
+        // public string RelicTypeName => Type.ToString();
     }
 }

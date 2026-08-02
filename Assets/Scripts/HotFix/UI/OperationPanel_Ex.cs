@@ -35,6 +35,7 @@ public partial class OperationPanel
     {
         base.update(elapsedTime);
         BallOperationStateManager.Instance.Update();
+        RelicOperationStateManager.Instance.Update();
     }
 
     public override void onGameState()
@@ -74,6 +75,8 @@ public partial class OperationPanel
 
         // 添加 BlockerController,自动注册 Blocker 到 BallOperationStateManager
         go.AddComponent<BlockerController>();
+        // 添加 RelicBlockerController,自动注册 Blocker 到 RelicOperationStateManager
+        go.AddComponent<RelicBlockerController>();
 
         _blockerGO = go;
         go.SetActive(false);

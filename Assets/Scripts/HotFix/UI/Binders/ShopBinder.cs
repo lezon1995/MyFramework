@@ -23,6 +23,7 @@ namespace MoreMountains
         Action<int, string> _onGoldEarned;
         Action<int, string> _onGoldSpent;
         Action<bool> _onSellZoneVisibilityChanged;
+        Action<bool> _onRelicSellZoneVisibilityChanged;
 
         List<IPurchasable> _orderedOffers = new();
 
@@ -35,6 +36,7 @@ namespace MoreMountains
             _onGoldEarned = (g, _) => RefreshCoin();
             _onGoldSpent = (g, _) => RefreshCoin();
             _onSellZoneVisibilityChanged = visible => _view.SetSellZoneVisible(visible);
+            _onRelicSellZoneVisibilityChanged = visible => _view.SetSellZoneVisible(visible);
         }
 
         public event Action<IPurchasable> OfferBuyClicked;
@@ -68,6 +70,8 @@ namespace MoreMountains
 
             // 订阅球操作状态管理器:sellZone 显隐
             BallOperationStateManager.Instance.SellZoneVisibilityChanged += _onSellZoneVisibilityChanged;
+            // 订阅遗物操作状态管理器:sellZone 显隐
+            RelicOperationStateManager.Instance.SellZoneVisibilityChanged += _onRelicSellZoneVisibilityChanged;
             // 初始 sellZone 隐藏
             _view.SetSellZoneVisible(false);
 
@@ -88,6 +92,7 @@ namespace MoreMountains
             ShopEvents.OnGoldSpent -= _onGoldSpent;
 
             BallOperationStateManager.Instance.SellZoneVisibilityChanged -= _onSellZoneVisibilityChanged;
+            RelicOperationStateManager.Instance.SellZoneVisibilityChanged -= _onRelicSellZoneVisibilityChanged;
             _view.SetSellZoneVisible(false);
 
             _player = null;
