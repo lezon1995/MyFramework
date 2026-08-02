@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using static UnityUtility;
-using static StringUtility;
 
 // Sprite的序列帧
 public class myUGUISpriteAnim : myUGUISprite, IUIAnimation
@@ -20,14 +19,14 @@ public class myUGUISpriteAnim : myUGUISprite, IUIAnimation
 	public override void init()
 	{
 		base.init();
+		mControl.setObject(this);
+		mControl.setPlayEndCallback(onPlayEnd);
+		mControl.setPlayingCallback(onPlaying);
 		string spriteName = getSpriteName();
 		if (spriteName.contains('_'))
 		{
 			setTextureSet(spriteName.rangeToLast('_'));
 		}
-		mControl.setObject(this);
-		mControl.setPlayEndCallback(onPlayEnd);
-		mControl.setPlayingCallback(onPlaying);
 	}
 	public override void destroy()
 	{
@@ -75,7 +74,8 @@ public class myUGUISpriteAnim : myUGUISprite, IUIAnimation
 		if (mAtlasPtr != null && mAtlasPtr.isValid() && !mTextureSetName.isEmpty())
 		{
 			int index = 0;
-			while (mSpriteList.addNotNull(mAtlasPtr.getSprite(mTextureSetName + "_" + IToS(index++)))){}
+			while (mSpriteList.addNotNull(mAtlasPtr.getSprite(mTextureSetName + "_" + index++.IToS())))
+			{}
 			if (getTextureFrameCount() == 0)
 			{
 				logError("invalid sprite anim! atlas : " + mAtlasPtr.getFilePath() + ", anim set : " + textureSetName);

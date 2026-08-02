@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 using static MathUtility;
 using static UnityUtility;
 
+// 补间序列,按顺序依次播放多个补间动画
 public class TweenSequence : MonoBehaviour
 {
 	public List<TweenGroup> mGroupList = new();
@@ -138,7 +139,7 @@ public class TweenSequence : MonoBehaviour
 				// 当前Track正在播放
 				else
 				{
-					percent = clampMax((curTime - currentStartTime) / clampMin(track.mDuration, 0.0001f), 1.0f);
+					percent = ((curTime - currentStartTime) / track.mDuration.clampMin(0.0001f)).clampMax(1.0f);
 				}
 
 				Vector3 result = lerpSimple(track.getStartValue(), track.getTargetValue(transform), curve.evaluate(percent));

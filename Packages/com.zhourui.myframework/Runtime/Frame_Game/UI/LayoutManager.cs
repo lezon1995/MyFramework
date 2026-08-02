@@ -18,7 +18,7 @@ public class LayoutManager : FrameSystem
 	public LayoutManager()
 	{
 		// 在构造中获取UI根节点,确保其他组件能在任意时刻正常访问
-		mUGUIRoot = getRootGameObject(UGUI_ROOT, true).GetComponent<Canvas>();
+		mUGUIRoot = findRootGameObject(UGUI_ROOT, true).GetComponent<Canvas>();
 	}
 	public Vector2 getRootSize() { return (mUGUIRoot.transform as RectTransform).rect.size; }
 	public Canvas getUIRoot() { return mUGUIRoot; }
@@ -57,11 +57,6 @@ public class LayoutManager : FrameSystem
 		if (mLayoutList.TryGetValue(info.mType, out GameLayout existLayout))
 		{
 			return existLayout;
-		}
-		if (isWebGL())
-		{
-			logErrorBase("webgl无法同步加载界面");
-			return null;
 		}
 		return newLayout(info, mResourceManager.loadInResource<GameObject>(R_UI_PREFAB_PATH + getLayoutPathByType(info.mType) + ".prefab"));
 	}

@@ -54,8 +54,6 @@ public class SceneSystem : FrameSystem
 			return;
 		}
 		string name = getFileNameNoSuffixNoDir(filePath);
-		// 路径需要以/结尾
-		validPath(ref filePath);
 		SceneRegisteInfo info = mSceneRegisteList.add(name, new());
 		info.mName = name;
 		info.mScenePath = filePath;
@@ -123,8 +121,13 @@ public class SceneSystem : FrameSystem
 	{
 		CustomAsyncOperation op = new();
 		// 如果场景已经加载,则直接返回
-		if (mSceneList.ContainsKey(sceneName))
+		if (mSceneList.TryGetValue(sceneName, out SceneInstance scene0))
 		{
+			if (scene0.getState() != LOAD_STATE.LOADED)
+			{
+				logError("场景正在加载中,无法再次开始加载! name:" + sceneName);
+				return null;
+			}
 			showScene(sceneName, false, mainScene);
 			if (loadingCallback != null || loadedCallback != null)
 			{
@@ -145,7 +148,8 @@ public class SceneSystem : FrameSystem
 			scene.setLoadingCallback(loadingCallback);
 			scene.setLoadedCallback(loadedCallback);
 			// scenePath + sceneName表示场景文件AssetBundle的路径,包含文件名
-			mResourceManager.preloadAssetBundleAsync(getScenePath(sceneName), (AssetBundleInfo bundle) =>
+			string path = getScenePath(sceneName);
+            mResourceManager.preloadAssetBundleAsync(generateFileAssetBundleName(path), (AssetBundleInfo bundle) =>
 			{
 				GameEntryBase.startCoroutine(loadSceneCoroutine(scene, op));
 			});
@@ -200,7 +204,7 @@ public class SceneSystem : FrameSystem
 			// 首先获得场景
 			scene.setScene(SceneManager.GetSceneByName(scene.getName()));
 			// 获得了场景根节点才能使场景显示或隐藏,为了尽量避免此处查找节点错误,所以不能使用容易重名的名字
-			scene.setRoot(getRootGameObject(scene.getName() + "_Root", true));
+			scene.setRoot(findRootGameObject(scene.getName() + "_Root", true));
 			// 加载完毕后就立即初始化
 			scene.init();
 			if (scene.isActiveLoaded())

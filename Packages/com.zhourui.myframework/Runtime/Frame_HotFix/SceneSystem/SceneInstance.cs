@@ -6,78 +6,174 @@ using static UnityUtility;
 // 3D场景的实例
 public class SceneInstance : DelayCmdWatcher
 {
-	protected FloatCallback mLoadingCallback;   // 加载中回调
-	protected Action mLoadedCallback;           // 加载完成回调
-	protected GameObject mRoot;                 // 场景根节点,每个场景都应该添加一个名称格式固定的根节点,场景名_Root
-	protected Scene mScene;                     // Unity场景实例
-	protected Type mType;                       // 类型
-	protected string mName;                     // 场景名
-	protected bool mActiveLoaded;               // 加载完毕后是否立即显示
-	protected bool mMainScene;                  // 是否为主场景
-	protected bool mInited;                     // 是否已经执行了初始化
-	protected LOAD_STATE mState;                // 加载状态
-	public SceneInstance()
-	{
-		mState = LOAD_STATE.NONE;
-	}
-	public virtual void init()
-	{
-		if (mInited)
-		{
-			return;
-		}
-		findShaders(mRoot);
-		mInited = true;
-	}
-	public override void resetProperty()
-	{
-		base.resetProperty();
-		mLoadingCallback = null;
-		mLoadedCallback = null;
-		mRoot = null;
-		mScene = default;
-		mType = null;
-		mName = null;
-		mActiveLoaded = false;
-		mMainScene = false;
-		mInited = false;
-		mState = LOAD_STATE.NONE;
-	}
-	public override void destroy()
-	{
-		base.destroy();
-		mInited = false;
-	}
-	public virtual void onShow() { }
-	public virtual void onHide() { }
-	public virtual void update(float elapsedTime) { }
-	public virtual void lateUpdate(float elapsedTime) { }
-	// 不要直接调用SceneInstance的setActive,应该使用SceneSystem的showScene或者hideScene
-	public void setActive(bool active)
-	{
-		if (mRoot != null && mRoot.activeSelf != active)
-		{
-			mRoot.SetActive(active);
-		}
-	}
-	public void setType(Type type)							{ mType = type; }
-	public void setName(string name)						{ mName = name; }
-	public void setState(LOAD_STATE state)					{ mState = state; }
-	public void setActiveLoaded(bool active)				{ mActiveLoaded = active; }
-	public void setLoadedCallback(Action callback)			{ mLoadedCallback = callback; }
-	public void setLoadingCallback(FloatCallback callback)	{ mLoadingCallback = callback; }
-	public void setScene(Scene scene)						{ mScene = scene; }
-	public void setRoot(GameObject root)					{ mRoot = root; }
-	public void setMainScene(bool main)						{ mMainScene = main; }
-	public Type getType()									{ return mType; }
-	public bool getActive()									{ return mRoot != null && mRoot.activeSelf; }
-	public GameObject getRoot()								{ return mRoot; }
-	public string getName()									{ return mName; }
-	public LOAD_STATE getState()							{ return mState; }
-	public bool isActiveLoaded()							{ return mActiveLoaded; }
-	public bool isInited()									{ return mInited; }
-	public bool isMainScene()								{ return mMainScene; }
-	public Scene getScene()									{ return mScene; }
-	public void callLoading(float percent)					{ mLoadingCallback?.Invoke(percent); }
-	public void callLoaded()								{ mLoadedCallback?.Invoke(); }
+    protected FloatCallback onLoading; // 加载中回调
+    protected Action onLoaded; // 加载完成回调
+    protected GameObject root; // 场景根节点,每个场景都应该添加一个名称格式固定的根节点,场景名_Root
+    protected Scene scene; // Unity场景实例
+    protected Type type; // 类型
+    protected string name; // 场景名
+    protected bool activeLoaded; // 加载完毕后是否立即显示
+    protected bool mainScene; // 是否为主场景
+    protected bool initialized; // 是否已经执行了初始化
+    protected LOAD_STATE state; // 加载状态
+
+    public SceneInstance()
+    {
+        state = LOAD_STATE.NONE;
+    }
+
+    public virtual void init()
+    {
+        if (initialized)
+            return;
+
+        findShaders(root);
+        initialized = true;
+    }
+
+    public override void resetProperty()
+    {
+        base.resetProperty();
+        onLoading = null;
+        onLoaded = null;
+        root = null;
+        scene = default;
+        type = null;
+        name = null;
+        activeLoaded = false;
+        mainScene = false;
+        initialized = false;
+        state = LOAD_STATE.NONE;
+    }
+
+    public override void destroy()
+    {
+        base.destroy();
+        initialized = false;
+    }
+
+    public virtual void onShow()
+    {
+    }
+
+    public virtual void onHide()
+    {
+    }
+
+    public virtual void update(float dt)
+    {
+    }
+
+    public virtual void lateUpdate(float dt)
+    {
+    }
+
+    // 不要直接调用SceneInstance的setActive,应该使用SceneSystem的showScene或者hideScene
+    public void setActive(bool active)
+    {
+        if (root && root.activeSelf != active)
+        {
+            root.SetActive(active);
+        }
+    }
+
+    public void setType(Type t)
+    {
+        type = t;
+    }
+
+    public void setName(string n)
+    {
+        name = n;
+    }
+
+    public void setState(LOAD_STATE s)
+    {
+        state = s;
+    }
+
+    public void setActiveLoaded(bool active)
+    {
+        activeLoaded = active;
+    }
+
+    public void setLoadedCallback(Action callback)
+    {
+        onLoaded = callback;
+    }
+
+    public void setLoadingCallback(FloatCallback callback)
+    {
+        onLoading = callback;
+    }
+
+    public void setScene(Scene s)
+    {
+        scene = s;
+    }
+
+    public void setRoot(GameObject r)
+    {
+        root = r;
+    }
+
+    public void setMainScene(bool main)
+    {
+        mainScene = main;
+    }
+
+    public Type getType()
+    {
+        return type;
+    }
+
+    public bool isActive()
+    {
+        return root && root.activeSelf;
+    }
+
+    public GameObject getRoot()
+    {
+        return root;
+    }
+
+    public string getName()
+    {
+        return name;
+    }
+
+    public LOAD_STATE getState()
+    {
+        return state;
+    }
+
+    public bool isActiveLoaded()
+    {
+        return activeLoaded;
+    }
+
+    public bool isInited()
+    {
+        return initialized;
+    }
+
+    public bool isMainScene()
+    {
+        return mainScene;
+    }
+
+    public Scene getScene()
+    {
+        return scene;
+    }
+
+    public void callLoading(float percent)
+    {
+        onLoading?.Invoke(percent);
+    }
+
+    public void callLoaded()
+    {
+        onLoaded?.Invoke();
+    }
 }

@@ -1,11 +1,12 @@
-﻿using System;
+using System;
 using UnityEngine;
 
 [CommonControl]
+// 图例按钮控件,通常用于地图或图表中的图例项
 public class LegendButton : WindowObjectUGUI
 {
 	protected myUGUIObject mGray;
-	protected myUGUITextTMP mText;
+	protected myUGUITextAuto mText;
 	protected Vector3 mOriginTextPosition;
 	protected Color mOriginTextColor;
 	public LegendButton(IWindowObjectOwner parent) : base(parent) { }
@@ -63,7 +64,7 @@ public class LegendButton : WindowObjectUGUI
 	}
 	public void setText(string str) { mText?.setText(str); }
 	public void setText(int value) { mText?.setText(value); }
-	public myUGUITextTMP getTextObject() { return mText; }
+	public myUGUITextAuto getTextObject() { return mText; }
 	public void setHandleInput(bool handle) { mRoot?.setHandleInput(handle); }
 	public void setGray(bool gray) { mGray?.setActive(gray); }
 	//------------------------------------------------------------------------------------------------------------------------------

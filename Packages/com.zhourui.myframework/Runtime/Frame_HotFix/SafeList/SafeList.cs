@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using static UnityUtility;
 using static FrameUtility;
@@ -22,9 +22,9 @@ public class SafeList<T> : ClassObject
 		mLastFileName = null;
 		mForeaching = false;
 	}
-	// 获取用于更新的列表,会自动从主列表同步,遍历结束时需要调用endForeach
-	// 搭配SafeListScope使用,using var a = new SafeListScope<T>(safeList);然后遍历a.mReadList
-	public List<T> startForeach(string fileName = null)
+    // 获取用于更新的列表,会自动从主列表同步,遍历结束时需要调用endForeach
+    // 搭配SafeListReader使用,using var a = new SafeListReader<T>(safeList);然后遍历a.mReadList
+    public List<T> startForeach(string fileName = null)
 	{
 		if (mForeaching)
 		{
@@ -121,12 +121,14 @@ public class SafeList<T> : ClassObject
 		mModifyList.Add(new(value, true, -1));
 		return value;
 	}
-	public void addUnique(T value)
+	public bool addUnique(T value)
 	{
 		if (!contains(value))
 		{
 			add(value);
+			return true;
 		}
+		return false;
 	}
 	public void addNotNull(T value)
 	{
@@ -161,6 +163,14 @@ public class SafeList<T> : ClassObject
 	{
 		clear();
 		addRange(list);
+	}
+	public bool removeIf(T value, bool condition)
+	{
+		if (condition)
+		{
+			return remove(value);
+		}
+		return false;
 	}
 	public bool remove(T value)
 	{
@@ -203,6 +213,7 @@ public class SafeList<T> : ClassObject
 	}
 }
 
+// SafeList的扩展方法,提供便捷的添加ClassObject操作
 public static class SafeListExtension
 {
 	public static T0 addClass<T0>(this SafeList<T0> list) where T0 : ClassObject, new()

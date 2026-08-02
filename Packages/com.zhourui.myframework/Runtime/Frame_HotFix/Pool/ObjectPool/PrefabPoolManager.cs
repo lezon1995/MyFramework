@@ -11,9 +11,9 @@ using static FrameBaseUtility;
 public class PrefabPoolManager : FrameSystem
 {
 	protected Dictionary<GameObject, GameObjectInfo> mInstanceList = new(); // 根据实例化的物体查找的列表
-	protected SafeDictionary<string, PrefabPool> mPrefabPoolList = new();	// 已实例化对象的实例池列表
+	protected SafeDictionary<string, PrefabPool> mPrefabPoolList = new();   // 已实例化对象的实例池列表
 	protected HashSet<string> mDontUnloadPrefab = new();                    // 即使已经没有实例化对象了,也不会卸载的prefab
-	protected float mTimerInterval = 3.0f;									// 扫描间隔,默认3秒
+	protected float mTimerInterval = 3.0f;                                  // 扫描间隔,默认3秒
 	protected float mDestroyTimer;                                          // 扫描是否有需要卸载的资源的计时器
 	public PrefabPoolManager()
 	{
@@ -26,22 +26,20 @@ public class PrefabPoolManager : FrameSystem
 		{
 			mObject.AddComponent<ObjectPoolDebug>();
 		}
-		mResourceManager.addUnloadPathCallback((string path)=>
+		mResourceManager.addUnloadPathCallback((string path) =>
 		{
 			// 找到此路径中所有的Prefab,将PrefabPool销毁
 			using var a = new SafeDictionaryReader<string, PrefabPool>(mPrefabPoolList);
 			foreach (var item in a.mReadList)
 			{
-				if (!item.Key.startWith(path))
+				if (mPrefabPoolList.removeIf(item.Key, item.Key.startWith(path)))
 				{
-					continue;
+					// 需要将实例化列表中的属于此对象池的所有对象也一起销毁
+					PrefabPool pool = item.Value;
+					pool.getInuseList().For(obj => mInstanceList.Remove(obj.getObject()));
+					pool.getUnuseList().For(obj => mInstanceList.Remove(obj.getObject()));
+					UN_CLASS(ref pool);
 				}
-				mPrefabPoolList.remove(item.Key);
-				// 需要将实例化列表中的属于此对象池的所有对象也一起销毁
-				PrefabPool pool = item.Value;
-				pool.getInuseList().For(obj => mInstanceList.Remove(obj.getObject()));
-				pool.getUnuseList().For(obj => mInstanceList.Remove(obj.getObject()));
-				UN_CLASS(ref pool);
 			}
 		});
 		mResourceManager.addUnloadObjectCallback((UObject obj) =>
@@ -61,11 +59,11 @@ public class PrefabPoolManager : FrameSystem
 		mPrefabPoolList.clear();
 		base.destroy();
 	}
-	public override void update(float elapsedTime)
+	public override void update(float dt)
 	{
-		base.update(elapsedTime);
+		base.update(dt);
 		// 每隔一定时间销毁不再使用的对象池
-		if (tickTimerLoop(ref mDestroyTimer, elapsedTime, mTimerInterval))
+		if (tickTimerLoop(ref mDestroyTimer, dt, mTimerInterval))
 		{
 			using var a = new SafeDictionaryReader<string, PrefabPool>(mPrefabPoolList);
 			foreach (var item in a.mReadList)
@@ -102,20 +100,20 @@ public class PrefabPoolManager : FrameSystem
 	public void setTimerInterval(float interval) { mTimerInterval = interval; }
 	public void addDontUnloadPrefab(string name) { mDontUnloadPrefab.Add(name); }
 	// 异步预加载prefab,加载prefab文件,并实例化对象,fileWithPath是GameResource下的相对路径
-	public CustomAsyncOperation initObjectToPoolAsync(string fileWithPath, int objectTag, int count, bool moveToHide, Action callback)
+	public CustomAsyncOperation initObjectToPoolAsync(string fileWithPath, int count, bool moveToHide, Action callback, int objectTag = 0)
 	{
 		return getPrefabPool(fileWithPath).initToPoolAsync(objectTag, count, moveToHide, callback);
 	}
 	// 同步预加载prefab,加载prefab文件,并实例化对象,fileWithPath是GameResource下的相对路径
-	public void initObjectToPool(string fileWithPath, int objectTag, int count, bool moveToHide)
+	public void initObjectToPool(string fileWithPath, int count, bool moveToHide, int objectTag = 0)
 	{
 		getPrefabPool(fileWithPath).initToPool(objectTag, count, moveToHide);
 	}
 	// 异步加载物体列表,当列表中的所有物体加载完成时才会调用回调,fileWithPath是GameResource下的相对路径
-	public void createObjectGroupAsync(List<string> fileWithPath, CreateObjectGroupCallback callback, int objectTag, bool moveToHide)
+	public void createObjectGroupAsync(List<string> fileWithPath, CreateObjectGroupCallback callback, bool moveToHide, int objectTag = 0)
 	{
 		DIC_PERSIST<string, GameObject>(out var list);
-		AsyncTaskGroup group = mAsyncTaskGroupManager.createGroup(()=> 
+		AsyncTaskGroup group = mAsyncTaskGroupManager.createGroup(() =>
 		{
 			callback?.Invoke(list);
 			UN_DIC(ref list);
@@ -123,16 +121,16 @@ public class PrefabPoolManager : FrameSystem
 
 		// 遍历所有需要创建的对象
 		int count = fileWithPath.Count;
-		for(int i = 0; i < count; ++i)
+		for (int i = 0; i < count; ++i)
 		{
 			string fileName = fileWithPath[i];
-			group.addTask(createObjectAsync(fileName, objectTag, moveToHide, false, (GameObject go) => { list.Add(fileName, go); }));
+			group.addTask(createObjectAsync(fileName, moveToHide, false, (GameObject go) => { list.Add(fileName, go); }, objectTag));
 		}
 	}
 	// 异步创建物体,实际上只是异步加载,实例化还是同步的
 	// fileWithPath是GameResource下的相对路径
 	// failCallback的参数表示是否为资源加载失败而失败
-	public CustomAsyncOperation createObjectAsyncSafe(IRecyclable relatedObj, string fileWithPath, int objectTag, bool moveToHide, bool active, GameObjectCallback callback, BoolCallback failCallback = null)
+	public CustomAsyncOperation createObjectAsyncSafe(IRecyclable relatedObj, string fileWithPath, bool moveToHide, bool active, GameObjectCallback callback, int objectTag = 0, BoolCallback failCallback = null)
 	{
 		if (fileWithPath.isEmpty())
 		{
@@ -140,7 +138,8 @@ public class PrefabPoolManager : FrameSystem
 		}
 		using var a = new ProfilerScope(0);
 		long assignID = relatedObj?.getAssignID() ?? 0;
-		return getPrefabPool(fileWithPath).getOneUnusedAsync(objectTag, (GameObjectInfo objInfo, bool poolDestroy) =>
+		CustomAsyncOperation op = new();
+		getPrefabPool(fileWithPath).getOneUnusedAsync(objectTag, (GameObjectInfo objInfo, bool poolDestroy) =>
 		{
 			using var a = new ProfilerScope(0);
 			if (objInfo == null)
@@ -156,6 +155,7 @@ public class PrefabPoolManager : FrameSystem
 				}
 				// 资源加载失败而失败
 				failCallback?.Invoke(true);
+				op.setFinish();
 				return;
 			}
 			PrefabPool pool = getPrefabPool(fileWithPath);
@@ -165,16 +165,19 @@ public class PrefabPoolManager : FrameSystem
 				pool.destroyObject(objInfo, false);
 				// 因为关联对象被销毁而失败
 				failCallback?.Invoke(false);
+				op.setFinish();
 				return;
 			}
 			postCreateObject(pool, objInfo, moveToHide, null, active);
 			callback?.Invoke(objInfo.getObject());
+			op.setFinish();
 		});
+		return op;
 	}
 	// 异步创建物体,实际上只是异步加载,实例化还是同步的,fileWithPath是GameResource下的相对路径
-	public CustomAsyncOperation createObjectAsync(string fileWithPath, int objectTag, bool moveToHide, bool active, GameObjectCallback callback)
+	public CustomAsyncOperation createObjectAsync(string fileWithPath, bool moveToHide, bool active, GameObjectCallback callback, int objectTag = 0)
 	{
-		return createObjectAsyncSafe(null, fileWithPath, objectTag, moveToHide, active, callback, null);
+		return createObjectAsyncSafe(null, fileWithPath, moveToHide, active, callback, objectTag, null);
 	}
 
 	public GameObject createObject(string fileWithPath)
@@ -188,7 +191,7 @@ public class PrefabPoolManager : FrameSystem
 	}
 	
 	// 同步创建物体,fileWithPath是GameResource下的相对路径
-	public GameObject createObject(string fileWithPath, int objectTag, bool moveToHide, bool active, GameObject parent = null)
+	public GameObject createObject(string fileWithPath, bool moveToHide, bool active, int objectTag = 0, GameObject parent = null)
 	{
 		using var a = new ProfilerScope(0);
 		PrefabPool pool = getPrefabPool(fileWithPath);

@@ -6,14 +6,16 @@ using static FrameBaseHotFix;
 
 // 可显示数字的窗口,只支持整数,且每个数字图片的大小必须一样,不能显示小数,负数
 // 因为使用了自定义的组件,所以性能上比myUGUINumber更高,只是相比之下myUGUINumber更加灵活一点
+// 性能和易用性夹在myUGUINumber和myUGUIDamageNumber之间,定位比较尴尬
 public class myUGUIImageNumber : myUGUIObject
 {
 	protected ImageNumber mRenderer;					// 渲染组件
 	protected AtlasRef mOriginAtlasPtr = new();			// 初始的图片图集,用于卸载,当前类只关心初始图集的卸载,后续再次设置的图集不关心是否需要卸载,需要外部设置的地方自己关心
 	protected AtlasRef mAtlasPtr = new();				// 当前正在使用的图片图集
 	protected Sprite mOriginSprite;                     // 备份加载物体时原始的精灵图片
-	protected string mNumberStyle;						// 数字图集名
-	public override void init()
+	protected string mOriginSpriteName;					// 备份的初始图片的名字
+	protected string mNumberStyle;                      // 数字图集名
+    public override void init()
 	{
 		base.init();
 		// 获取image组件,如果没有则添加,这样是为了使用代码新创建一个image窗口时能够正常使用image组件
@@ -33,6 +35,8 @@ public class myUGUIImageNumber : myUGUIObject
 		// 获取初始的精灵所在图集
 		if (mOriginSprite != null)
 		{
+			mOriginSpriteName = mOriginSprite.name;
+			mNumberStyle = mOriginSpriteName.rangeToLast('_');
 			if (!mObject.TryGetComponent<ImageAtlasPath>(out var imageAtlasPath))
 			{
 				logError("找不到图集,请添加ImageAtlasPath组件, window:" + mName + ", layout:" + mLayout.getName());
@@ -45,17 +49,16 @@ public class myUGUIImageNumber : myUGUIObject
 			// unity_builtin_extra是unity内置的资源,不需要再次加载
 			if (!atlasPath.endWith("/unity_builtin_extra"))
 			{
-				atlasPath = atlasPath.removeStartString(P_GAME_RESOURCES_PATH);
-				mOriginAtlasPtr = mAtlasManager.getAtlas(atlasPath, false);
+				atlasPath = atlasPath.removeStart(P_GAME_RESOURCES_PATH);
+				mOriginAtlasPtr = mAtlasManager.getAtlas(atlasPath);
 				if (mOriginAtlasPtr == null || !mOriginAtlasPtr.isValid())
 				{
-					logWarning("无法加载初始化的图集:" + atlasPath + ", window:" + mName + ", layout:" + mLayout.getName() +
+					logWarning("无法加载初始化的图集:" + atlasPath + ", GameObject:" + getGameObjectPath() +
 						",请确保ImageAtlasPath中记录的图片路径正确,记录的路径:" + (imageAtlasPath != null ? imageAtlasPath.mAtlasPath : EMPTY));
 				}
+				mAtlasPtr = mOriginAtlasPtr;
+				refreshSpriteList();
 			}
-			mAtlasPtr = mOriginAtlasPtr;
-			mNumberStyle = mRenderer.sprite.name.rangeToLast('_');
-			refreshSpriteList();
 		}
 	}
 	public override void destroy()
@@ -83,6 +86,7 @@ public class myUGUIImageNumber : myUGUIObject
 		mRenderer.setNumber(source.getNumber());
 		mRenderer.setSpriteList(source.mRenderer.getSpriteList());
 		mRenderer.setDocking(source.getDocking());
+		mOriginSpriteName = source.mOriginSpriteName;
 	}
 	public void setAtlas(AtlasRef atlas)
 	{
@@ -96,8 +100,8 @@ public class myUGUIImageNumber : myUGUIObject
 	}
 	public void setInterval(int interval)					{ mRenderer.setInterval(interval); }
 	public void setDocking(DOCKING_POSITION dock)			{ mRenderer.setDocking(dock); }
-	public void setNumber(int num, int limitLen = 0)		{ mRenderer.setNumber(IToS(num, limitLen)); }
-	public void setNumber(long num, int limitLen = 0)		{ mRenderer.setNumber(LToS(num, limitLen)); }
+	public void setNumber(int num, int limitLen = 0)		{ setNumber((long)num, limitLen); }
+	public void setNumber(long num, int limitLen = 0)		{ mRenderer.setNumber(num.LToS(limitLen)); }
 	public void clearNumber()								{ mRenderer.clearNumber(); }
 	public int getContentWidth()							{ return mRenderer.getContentWidth(); }
 	public string getNumber()								{ return mRenderer.getNumber(); }
@@ -110,7 +114,7 @@ public class myUGUIImageNumber : myUGUIObject
 		using var a = new DicScope<char, Sprite>(out var spriteList);
 		for (int i = 0; i < 10; ++i)
 		{
-			spriteList.add((char)('0' + i), mAtlasPtr.getSprite(mNumberStyle + "_" + IToS(i)));
+			spriteList.add((char)('0' + i), mAtlasPtr.getSprite(mNumberStyle + "_" + i.IToS()));
 		}
 		mRenderer.sprite = spriteList.firstValue();
 		mRenderer.setSpriteList(spriteList);

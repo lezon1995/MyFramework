@@ -7,11 +7,10 @@ using static FrameBaseHotFix;
 using static BinaryUtility;
 using static FrameBaseUtility;
 using static TimeUtility;
-using static StringUtility;
 using static FrameUtility;
-using static MathUtility;
 
 // 使用json作为通信协议的WebSocket连接封装类
+// 维护消息类型与字符串的双向映射,以JSON字符串格式收发数据
 public class NetConnectWebSocketJson : NetConnectWebSocket
 {
 	protected Dictionary<Type, string> mPacketTypeIDList = new();
@@ -45,7 +44,7 @@ public class NetConnectWebSocketJson : NetConnectWebSocket
 		string msgType = mPacketTypeIDList.get(netPacket.GetType());
 		if (msgType.isEmpty())
 		{
-			logError("消息类型未注册:" + IToS(netPacket.getPacketType()));
+			logError("消息类型未注册:" + netPacket.getPacketType().IToS());
 			return;
 		}
 		WebSocketPacketBodyJson body = new(msgType, netPacket.writeContent(), (int)getNowUTCTimeStamp());
@@ -83,7 +82,7 @@ public class NetConnectWebSocketJson : NetConnectWebSocket
 	protected override PARSE_RESULT preParsePacket(byte[] buffer, int size, out int index, out byte[] outPacketData, out ushort packetType, out int packetSize, out uint sequence, out ulong fieldFlag, out bool hasSign)
 	{
 		index = size;
-		ARRAY_BYTE_PERSIST(out outPacketData, getGreaterPow2(size));
+		ARRAY_BYTE_PERSIST(out outPacketData, size.getGreaterPow2());
 		memcpy(outPacketData, mRecvBuff, 0, 0, size);
 		packetType = 0;
 		packetSize = size;

@@ -162,11 +162,8 @@ public class GlobalTouchSystem : FrameSystem
 		}
 		else if (obj is MovableObject)
 		{
-			camera ??= mCameraManager.getMainCamera();
-			if (camera == null)
-			{
-				logError("need a camera!");
-			}
+			// 如果没有指定一个摄像机,则会使用当前主摄像机
+			camera ??= getMainCamera();
 			MouseCastObjectSet mouseCastSet = null;
 			foreach (MouseCastObjectSet item in mMouseCastObjectList)
 			{
@@ -616,7 +613,7 @@ public class GlobalTouchSystem : FrameSystem
 				box.getCollider() != null && 
 				box.getCollider().Raycast(ray, out RaycastHit hit, 10000.0f))
 			{
-				sortList.Add(new(getSquaredLength(hit.point - ray.origin), box));
+				sortList.Add(new((hit.point - ray.origin).getSquaredLength(), box));
 			}
 		}
 		// 根据相交点由近到远的顺序排序

@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.Text;
 using static MathUtility;
 using static BinaryUtility;
 
+// Span扩展方法,提供对Span的便捷操作
 public static class SpanExtension
 {
 	public static void ForI<T>(this Span<T> list, Action<int> action)
@@ -123,6 +124,8 @@ public static class SpanExtension
 	}
 	public static bool isEmpty<T>(this Span<T> list)								{ return list == null || list.Length == 0; }
 	public static bool contains<T>(this Span<T> list, Predicate<T> match)			{ return list != null && list.find(match) != null; }
+	// 字节Span转字符串，默认UTF8编码，自动去除末尾的'\0'字符
+	// bytes为null时返回null，长度为0时返回空字符串
 	public static string bytesToString(this Span<byte> bytes, Encoding encoding = null)
 	{
 		if (bytes == null)

@@ -14,8 +14,9 @@ public class myUGUIDamageNumber : myUGUIObject
 	protected AtlasRef mOriginAtlasPtr = new();		// 初始的图片图集,用于卸载,当前类只关心初始图集的卸载,后续再次设置的图集不关心是否需要卸载,需要外部设置的地方自己关心
 	protected AtlasRef mAtlasPtr = new();			// 当前正在使用的图片图集
 	protected Sprite mOriginSprite;                 // 备份加载物体时原始的精灵图片
-	protected string mNumberStyle;					// 数字图集名
-	public override void init()
+	protected string mOriginSpriteName;             // 原始的精灵图片名字
+	protected string mNumberStyle;                  // 数字图集名
+    public override void init()
 	{
 		base.init();
 		// 获取image组件,如果没有则添加,这样是为了使用代码新创建一个image窗口时能够正常使用image组件
@@ -35,6 +36,8 @@ public class myUGUIDamageNumber : myUGUIObject
 		// 获取初始的精灵所在图集
 		if (mOriginSprite != null)
 		{
+			mOriginSpriteName = mOriginSprite.name;
+			mNumberStyle = mOriginSpriteName.rangeToLast('_');
 			if (!mObject.TryGetComponent<ImageAtlasPath>(out var imageAtlasPath))
 			{
 				logError("找不到图集,请添加ImageAtlasPath组件, window:" + mName + ", layout:" + mLayout.getName());
@@ -47,17 +50,16 @@ public class myUGUIDamageNumber : myUGUIObject
 			// unity_builtin_extra是unity内置的资源,不需要再次加载
 			if (!atlasPath.endWith("/unity_builtin_extra"))
 			{
-				atlasPath = atlasPath.removeStartString(P_GAME_RESOURCES_PATH);
-				mOriginAtlasPtr = mAtlasManager.getAtlas(atlasPath, false);
+				atlasPath = atlasPath.removeStart(P_GAME_RESOURCES_PATH);
+				mOriginAtlasPtr = mAtlasManager.getAtlas(atlasPath);
 				if (mOriginAtlasPtr == null || !mOriginAtlasPtr.isValid())
 				{
 					logWarning("无法加载初始化的图集:" + atlasPath + ", window:" + mName + ", layout:" + mLayout.getName() +
 						",请确保ImageAtlasPath中记录的图片路径正确,记录的路径:" + (imageAtlasPath != null ? imageAtlasPath.mAtlasPath : EMPTY));
 				}
+				mAtlasPtr = mOriginAtlasPtr;
+				refreshSpriteList();
 			}
-			mAtlasPtr = mOriginAtlasPtr;
-			mNumberStyle = mRenderer.mImage.name.rangeToLast('_');
-			refreshSpriteList();
 		}
 	}
 	public override void destroy()
@@ -176,8 +178,8 @@ public class myUGUIDamageNumber : myUGUIObject
 	public float getInterval()									{ return mRenderer.getInterval(); }
 	public string getNumberStyle()								{ return mNumberStyle; }
 	public DOCKING_POSITION getDocking()						{ return mRenderer.getDocking(); }
-	public Sprite getSprite(string name)						{ return mAtlasPtr.getSprite(name); }
-	public Sprite getSpriteWithNumberStyle(string name)			{ return mAtlasPtr.getSprite(mNumberStyle + "_" + name); }
+	public Sprite getSprite(string name)						{ return mAtlasPtr?.getSprite(name); }
+	public Sprite getSpriteWithNumberStyle(string name)			{ return mAtlasPtr?.getSprite(mNumberStyle + "_" + name); }
 	//------------------------------------------------------------------------------------------------------------------------------
 	protected void refreshSpriteList()
 	{
@@ -185,7 +187,7 @@ public class myUGUIDamageNumber : myUGUIObject
 		for (int i = 0; i < 10; ++i)
 		{
 			SpriteData data = new();
-			data.init(mAtlasPtr.getSprite(mNumberStyle + "_" + IToS(i)));
+			data.init(mAtlasPtr.getSprite(mNumberStyle + "_" + i.IToS()));
 			spriteList.add(data);
 		}
 		mRenderer.mImage = spriteList.first().mSprite;

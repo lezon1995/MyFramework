@@ -3,10 +3,8 @@ using Obfuz;
 using Obfuz.EncryptionVM;
 #endif
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Networking;
 using static FrameBaseHotFix;
 using static FrameBaseDefine;
 using static UnityUtility;
@@ -23,11 +21,10 @@ public abstract class GameHotFixBase<T> where T : GameHotFixBase<T>
 	protected static GameHotFixBase<T> mInstance;               // 在子类中创建
 	protected List<FrameSystem> mFrameComponentInit = new();    // 存储框架组件,用于初始化,由于这里向GameFrameworkHotFix注册后,已经过了GameFrameworkHotFix集中调用init的时机,所以需要单独进行初始化操作
 	protected Action mFinishCallback;                           // 存储的启动热更完成的回调
-	protected bool mCanCallback = true;                         // 是否允许在初始化以后自动调用start传递的callback参数,如果不自动调用,就需要手动调用
+	protected bool mAutoCallFinish = true;                      // 是否允许在初始化以后自动调用start传递的callback参数,如果不自动调用,就需要手动调用,可以在派生类的构造中设置此变量
 	public void start(Action callback)
 	{
 		mFinishCallback = callback;
-		GameFrameworkHotFix.mOnPackageName += getAndroidPluginBundleName;
 		GameFrameworkHotFix.startHotFix(() =>
 		{
 			// 创建系统组件
@@ -35,27 +32,33 @@ public abstract class GameHotFixBase<T> where T : GameHotFixBase<T>
 			mGameFrameworkHotFix.sortList();
 			mFrameComponentInit.Sort(FrameSystem.compareInit);
 
-			// 注册对象类型
-			registerAll();
+			// 注册表格类型,单独将注册表格写到一个函数中,是因为其他的注册系统很可能会访问表格
+			// 所以尽量先把表格加载完,再去注册其他的系统
+			registerAllTable();
 
 #if USE_SQLITE
-			mSQLiteManager.loadAllAsync(() => 
+			mSQLiteManager.loadAllAsync(() =>
 			{
 #endif
-				mExcelManager.loadAllAsync(() => { onAllLoaded(); });
+				mExcelManager.loadAllAsync(() =>
+				{
+					// 表格加载完后才注册对象类型
+					registerAll();
+					onAllLoaded();
+				});
 #if USE_SQLITE
 			});
 #endif
 		});
 	}
-	public static void callback() { mInstance.mFinishCallback?.Invoke(); }
-    public static GameHotFixBase<T> createHotFixInstance()
-    {
-        mInstance = createInstance<GameHotFixBase<T>>(typeof(T));
-        return mInstance;
-    }
-    //----------------------------------------------------------------------------------------------------------------------------------
-    protected void onAllLoaded()
+	public static void callbackFinish() { mInstance.mFinishCallback?.Invoke(); }
+	public static GameHotFixBase<T> createHotFixInstance()
+	{
+		mInstance = createInstance<GameHotFixBase<T>>(typeof(T));
+		return mInstance;
+	}
+	//----------------------------------------------------------------------------------------------------------------------------------
+	protected void onAllLoaded()
 	{
 		if (isEditor())
 		{
@@ -102,15 +105,15 @@ public abstract class GameHotFixBase<T> where T : GameHotFixBase<T>
 		onPostInit();
 		mGameFrameworkHotFix.setAllInited(true);
 		log("启动游戏耗时:" + (int)(DateTime.Now - mGameFrameworkHotFix.getStartTime()).TotalMilliseconds + "毫秒");
-		if (mCanCallback)
+		if (mAutoCallFinish)
 		{
 			mFinishCallback?.Invoke();
 		}
 		// 进入主场景
 		enterScene(getStartGameSceneType());
 	}
-	protected abstract string getAndroidPluginBundleName();
 	protected abstract void registerAll();
+	protected abstract void registerAllTable();
 	protected abstract void initFrameSystem();
 	protected virtual void onPreInit() { }
 	protected virtual void onPostInit() { }
@@ -119,11 +122,11 @@ public abstract class GameHotFixBase<T> where T : GameHotFixBase<T>
 	{
 		mFrameComponentInit.Add(mGameFrameworkHotFix.registeFrameSystem(callback));
 	}
-    // [ObfuzIgnore]指示Obfuz不要混淆这个函数
-    // 初始化EncryptionService后被混淆的代码才能正常运行，
-    // 此函数通过反射进行调用,并且不能使用任何会被混淆的代码
+	// [ObfuzIgnore]指示Obfuz不要混淆这个函数
+	// 初始化EncryptionService后被混淆的代码才能正常运行，
+	// 此函数通过反射进行调用,并且不能使用任何会被混淆的代码
 #if USE_OBFUZ
-    [ObfuzIgnore]
+	[ObfuzIgnore]
 #endif
 	protected static void preStart(Action callback)
 	{
@@ -132,20 +135,17 @@ public abstract class GameHotFixBase<T> where T : GameHotFixBase<T>
 			callback?.Invoke();
 			return;
 		}
-		// 在这之前需要确保PersistentAssets中的密钥文件是最新的,webgl只会在StreamingAssets中读取
-		string filePath;
-		if (isWebGL())
+
+		// 在这之前需要确保PersistentAssets中的密钥文件是最新的
+		string filePath = F_PERSISTENT_ASSETS_PATH + DYNAMIC_SECRET_FILE;
+		if (!isWebGL())
 		{
-			filePath = F_ASSET_BUNDLE_PATH + DYNAMIC_SECRET_FILE;
+			filePath = "file://" + filePath;
 		}
-		else
-		{
-			filePath = "file://" + F_PERSISTENT_ASSETS_PATH + DYNAMIC_SECRET_FILE;
-		}
-		GameEntryBase.startCoroutine(openFileAsync(filePath, (byte[] bytes) =>
+		GameEntryBase.startCoroutine(openFileAsyncInternal(filePath, true, (byte[] bytes) =>
 		{
 #if USE_OBFUZ
-            EncryptionService<DefaultDynamicEncryptionScope>.Encryptor = new GeneratedEncryptionVirtualMachine(bytes);
+			EncryptionService<DefaultDynamicEncryptionScope>.Encryptor = new GeneratedEncryptionVirtualMachine(bytes);
 #endif
 			try
 			{
@@ -156,26 +156,5 @@ public abstract class GameHotFixBase<T> where T : GameHotFixBase<T>
 				Debug.LogException(e);
 			}
 		}));
-	}
-    // fileName为绝对路径
-#if USE_OBFUZ
-    [ObfuzIgnore]
-#endif
-	protected static IEnumerator openFileAsync(string fileName, BytesCallback callback)
-	{
-		using var www = UnityWebRequest.Get(fileName);
-		yield return www.SendWebRequest();
-		if (www.downloadHandler.data == null)
-		{
-			Debug.LogError("open file failed:" + fileName + ", info:" + www.error + ", error:" + www.downloadHandler.error);
-		}
-		try
-		{
-			callback?.Invoke(www.downloadHandler.data);
-		}
-		catch (Exception e)
-		{
-			Debug.LogException(e);
-		}
 	}
 }

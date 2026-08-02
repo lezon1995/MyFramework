@@ -126,6 +126,30 @@ public class FrameHotFixTest
         Register("NetPacketJsonHttpTest", NetPacketJsonHttpTest.Run);
         Register("DoubleBufferReaderTest", DoubleBufferReaderTest.Run);
         Register("PurchaseAndCurveInfoTest", PurchaseAndCurveInfoTest.Run);
+        Register("ResourceManagerTest", ResourceManagerTest.Run);
+        Register("Vector2IntMyTest", Vector2IntMyTest.Run);
+        Register("AStarMinHeapTest", AStarMinHeapTest.Run);
+        Register("PointTest", PointTest.Run);
+        Register("Vector2ShortTest", Vector2ShortTest.Run);
+        Register("Vector2UIntTest", Vector2UIntTest.Run);
+        Register("Vector2UShortTest", Vector2UShortTest.Run);
+        Register("Line2Test", Line2Test.Run);
+        Register("Line3Test", Line3Test.Run);
+        Register("Rect3Test", Rect3Test.Run);
+        Register("Circle3Test", Circle3Test.Run);
+        Register("PrefsUtilityTest", PrefsUtilityTest.Run);
+        Register("SQLUtilityTest", SQLUtilityTest.Run);
+        Register("WidgetUtilityTest", WidgetUtilityTest.Run);
+        Register("ConvexPolygonTest", ConvexPolygonTest.Run);
+        Register("HttpUtilityTest", HttpUtilityTest.Run);
+        Register("RectTransformExtensionTest", RectTransformExtensionTest.Run);
+        Register("MathExtensionTest", MathExtensionTest.Run);
+        Register("SerializeBitUtilityTest", SerializeBitUtilityTest.Run);
+        Register("TweenUtilityTest", TweenUtilityTest.Run);
+        Register("ClassObjectExtensionTest", ClassObjectExtensionTest.Run);
+        Register("WavSoundTest", WavSoundTest.Run);
+        Register("SpriteAtlasExtensionTest", SpriteAtlasExtensionTest.Run);
+        Register("LayoutScriptExtensionTest", LayoutScriptExtensionTest.Run);
 
         doRunAll(sTests);
     }
@@ -142,11 +166,9 @@ public class FrameHotFixTest
     {
         int pass = 0;
         int fail = 0;
-        List<TestResult> results = new();
         foreach (var test in list)
         {
-            var result = runOne(test.Key, test.Value);
-            results.Add(result);
+			TestResult result = runOne(test.Key, test.Value);
             if (result.mPassed)
             {
                 pass++;

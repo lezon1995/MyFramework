@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 using static FrameBaseUtility;
-using static MathUtility;
 using static UnityUtility;
 
 [CommonWindowPool]
+// 窗口池,管理窗口对象的缓存和复用
 public class WindowPool<T> : WindowPoolBase where T : myUGUIObject, new()
 {
 	protected List<T> mUnusedList = new();			// 未使用的窗口列表
@@ -156,7 +156,7 @@ public class WindowPool<T> : WindowPoolBase where T : myUGUIObject, new()
 		}
 		else
 		{
-			clampMax(ref count, usedCount - startIndex);
+			count.clampMax(usedCount - startIndex);
 		}
 		for (int i = 0; i < count; ++i)
 		{

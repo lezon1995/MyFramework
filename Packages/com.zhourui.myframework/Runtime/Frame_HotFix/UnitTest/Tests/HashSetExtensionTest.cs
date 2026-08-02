@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using static TestAssert;
+using static FrameUtility;
 
 public class HashSetExtensionTest
 {
@@ -28,6 +29,9 @@ public class HashSetExtensionTest
 		testIsEmpty();
 		testSafe();
 		testCount();
+		testGetEmptyList();
+		testSetRangeList();
+		testAddClass();
 	}
 	
 	// 测试 For 方法
@@ -314,7 +318,18 @@ public class HashSetExtensionTest
 	}
 	
 	// 测试 addClass 方法 - 需要 ClassObject 类
-	// 由于 ClassObject 依赖 Unity，这里暂时跳过
+	// 注意: CLASS 宏依赖 ClassPool，需要在 PlayMode 框架环境下运行
+	private static void testAddClass()
+	{
+		HashSet<TestHashSetClass> set = new();
+		TestHashSetClass obj = set.addClass();
+		assertNotNull(obj, "addClass not null");
+		assertEqual(1, set.Count, "addClass count=1");
+		assertTrue(set.Contains(obj), "addClass contains obj");
+	}
+	
+	// 测试辅助类: 继承 ClassObject 用于 addClass 测试
+	public class TestHashSetClass : ClassObject { }
 	
 	// 测试 addRangeDerived 方法
 	private static void testAddRangeDerived()
@@ -499,5 +514,27 @@ public class HashSetExtensionTest
 		// null 集合
 		HashSet<int> nullSet = null;
 		assertEqual(0, nullSet.count());
+	}
+
+	// 测试 getEmptyList (EmptyHashSet)
+	private static void testGetEmptyList()
+	{
+		HashSet<int> list = EmptyHashSet<int>.getEmptyList();
+		assertNotNull(list, "getEmptyList not null");
+		assertEqual(0, list.Count, "getEmptyList empty");
+		// 验证单例：两次调用返回同一实例
+		HashSet<int> list2 = EmptyHashSet<int>.getEmptyList();
+		assertTrue(ReferenceEquals(list, list2), "getEmptyList singleton");
+	}
+
+	// 测试 setRange(List) 重载
+	private static void testSetRangeList()
+	{
+		HashSet<int> set = new() { 1, 2, 3 };
+		List<int> other = new() { 4, 5 };
+		set.setRange(other);
+		assertEqual(2, set.Count, "setRange List count");
+		assertTrue(set.Contains(4), "setRange List contains 4");
+		assertFalse(set.Contains(1), "setRange List old cleared");
 	}
 }

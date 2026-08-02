@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using static UnityUtility;
-using static MathUtility;
 
 // 追踪目标的组件
 public class ComponentTrackTarget : GameComponent, IComponentModifyPosition, IComponentBreakable
@@ -67,7 +66,7 @@ public class ComponentTrackTarget : GameComponent, IComponentModifyPosition, ICo
 		}
 		mDoneCallback = doneCallback;
 		mTarget = target;
-		mTargetAssignID = mTarget?.getAssignID() ?? 0;
+		mTargetAssignID = mTarget?.id ?? 0;
 		if (mTarget == null)
 		{
 			setActive(false);
@@ -96,7 +95,7 @@ public class ComponentTrackTarget : GameComponent, IComponentModifyPosition, ICo
 	protected virtual Vector3 getTargetPosition() { return mTarget.getWorldPosition() + mTarget.localToWorldDirection(mTargetOffset); }
 	protected virtual void tick(float elapsedTime)
 	{
-		if (mTarget != null && (mTarget.getAssignID() != mTargetAssignID || mTarget.isDestroy()))
+		if (mTarget != null && (mTarget.id != mTargetAssignID || mTarget.isDestroy()))
 		{
 			mTarget = null;
 			BoolCallback tempCallback = mDoneCallback;
@@ -111,9 +110,9 @@ public class ComponentTrackTarget : GameComponent, IComponentModifyPosition, ICo
 		Vector3 targetPos = getTargetPosition();
 		Vector3 curPos = getPosition();
 		float moveDelta = mSpeed * elapsedTime;
-		if (lengthGreater(targetPos - curPos, moveDelta + mNearRange))
+		if ((targetPos - curPos).lengthGreater(moveDelta + mNearRange))
 		{
-			setPosition(normalize(targetPos - curPos) * moveDelta + curPos);
+			setPosition((targetPos - curPos).setLength(moveDelta) + curPos);
 			mTrackingCallback?.Invoke(false);
 		}
 		else

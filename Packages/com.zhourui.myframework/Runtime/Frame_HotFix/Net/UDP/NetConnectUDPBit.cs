@@ -2,11 +2,11 @@
 using static FrameUtility;
 using static FrameBaseHotFix;
 using static FrameBaseUtility;
-using static MathUtility;
 using static BinaryUtility;
 using static FrameDefine;
 
 // Frame层默认的UDP连接封装类,按bit传输,应用层可根据实际需求仿照此类封装自己的UDP连接类
+// 使用SerializerBitWrite进行位级序列化,维护Token用于服务器识别客户端身份
 public class NetConnectUDPBit : NetConnectUDP
 {
 	protected SerializerBitWrite mBitWriter = new();	// 用于序列化
@@ -72,7 +72,7 @@ public class NetConnectUDPBit : NetConnectUDP
 		writer.writeBuffer(packetBodyData, realPacketSize);
 		writer.write(generateCRC16(writer.getBuffer(), writer.getByteCount()));
 		int curByteCount = writer.getByteCount();
-		ARRAY_BYTE_THREAD(out byte[] packetData, getGreaterPow2(curByteCount));
+		ARRAY_BYTE_THREAD(out byte[] packetData, curByteCount.getGreaterPow2());
 		memcpy(packetData, writer.getBuffer(), 0, 0, curByteCount);
 		// 添加到写缓冲中
 		mOutputBuffer.add(new(packetData, curByteCount, true, 0));
@@ -123,7 +123,7 @@ public class NetConnectUDPBit : NetConnectUDP
 		}
 		if (packetSize > 0)
 		{
-			ARRAY_BYTE_THREAD(out outPacket, getGreaterPow2(packetSize));
+			ARRAY_BYTE_THREAD(out outPacket, packetSize.getGreaterPow2());
 			if (!reader.readBuffer(outPacket, packetSize))
 			{
 				UN_ARRAY_BYTE_THREAD(ref outPacket);

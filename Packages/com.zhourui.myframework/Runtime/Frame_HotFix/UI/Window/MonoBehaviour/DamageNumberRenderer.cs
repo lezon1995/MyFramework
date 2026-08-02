@@ -3,7 +3,6 @@ using UnityEngine.Rendering;
 using System.Collections.Generic;
 using static FrameBaseUtility;
 using static FrameUtility;
-using static StringUtility;
 using static UnityUtility;
 using static MathUtility;
 
@@ -55,7 +54,7 @@ public class DamageNumberRenderer : MonoBehaviour
 	{
 		if (spriteList.Count > mNumberSpriteList.Length)
 		{
-			logError("图片的数量错误,不能超过" + IToS(mNumberSpriteList.Length) + "个");
+			logError("图片的数量错误,不能超过" + mNumberSpriteList.Length.IToS() + "个");
 			return;
 		}
 		mNumberSpriteList.setRange(spriteList);
@@ -72,7 +71,7 @@ public class DamageNumberRenderer : MonoBehaviour
 			logError("找不到RectTransform");
 		}
 		mNumberHeight = (int)(transform as RectTransform).rect.height;
-		mNumberWidth = (int)(divide(width, height) * mNumberHeight);
+		mNumberWidth = (int)(width.divide(height) * mNumberHeight);
 		mCanvasRenderer.SetTexture(firstSprite.mTexture);
 	}
 	public SpriteData[] getSpriteList() { return mNumberSpriteList; }
@@ -101,8 +100,12 @@ public class DamageNumberRenderer : MonoBehaviour
 	public void setDocking(DOCKING_POSITION docking) { mDocking = docking; }
 	public void setInterval(float interval) { mInterval = interval; }
 	public float getInterval() { return mInterval; }
-	void LateUpdate()
+	public void LateUpdate()
 	{
+		if (mNumberSpriteList.isEmpty())
+		{
+			return;
+		}
 		mDamageNumberCount = mDamageItems.Count;
 		{
 			using var a = new ProfilerScope(0);
@@ -139,7 +142,7 @@ public class DamageNumberRenderer : MonoBehaviour
 				int count = item.mNumbers.count();
 				if (mVertCount + ((flagCount + count) << 2) >= mVertices.Length)
 				{
-					logWarning("已经超出了顶点上限,最多只允许" + IToS(mVertices.Length) + "个顶点");
+					logWarning("已经超出了顶点上限,最多只允许" + mVertices.Length.IToS() + "个顶点");
 					return;
 				}
 				for (int i = 0; i < flagCount; ++i)
@@ -225,6 +228,7 @@ public class DamageNumberRenderer : MonoBehaviour
 			MeshUpdateFlags.DontRecalculateBounds | MeshUpdateFlags.DontValidateIndices | MeshUpdateFlags.DontNotifyMeshUsers);
 		mCanvasRenderer.SetMesh(mMesh);
 	}
+	//------------------------------------------------------------------------------------------------------------------------------
 	protected static void updateDamage(DamageNumberData data)
 	{
 		// 根据当前的时间找出位于哪两个点之间
@@ -257,7 +261,7 @@ public class DamageNumberRenderer : MonoBehaviour
 			{
 				startValue1 = lerpSimple(startValue1, scaleList[index1 + 1], inverseLerp(scaleTimeList[index1], scaleTimeList[index1 + 1], curTime));
 			}
-			data.mScale = multiVector3(startValue1, data.mScaleOffset);
+			data.mScale = startValue1.multi(data.mScaleOffset);
 		}
 	}
 	// 快速地找到当前位于哪两个时间点之间,因为时间是单调递增的,所以比正常的查找要简化一些
@@ -265,7 +269,7 @@ public class DamageNumberRenderer : MonoBehaviour
 	{
 		if (timeList[startIndex] > curTime)
 		{
-			return clampMin(startIndex - 1);
+			return (startIndex - 1).clampMin();
 		}
 		int count = timeList.Length;
 		for (int i = startIndex + 1; i < count; ++i)

@@ -2,14 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
-using UnityEngine.U2D;
 using UnityEditor;
-using UnityEditor.U2D;
 using static FrameBaseUtility;
 using static StringUtility;
 using static FileUtility;
+using static FrameUtility;
 using static FrameDefine;
-using static EditorFileUtility;
 using static EditorCommonUtility;
 using static FrameBaseDefine;
 using static EditorDefine;
@@ -57,14 +55,14 @@ public class MenuAssetBundle
 			showInfo("需要选中一个" + ASSET_BUNDLE_SUFFIX, true, true);
 			return;
 		}
-		findAllDependencies(selection.removeStartString(P_ASSET_BUNDLE_ANDROID_PATH));
+		findAllDependencies(selection.removeStart(P_ASSET_BUNDLE_ANDROID_PATH));
 	}
 	[MenuItem(MENU_NAME + "清除AssetBundle名称", false, 4)]
 	public static void clearAllAssetBundleName()
 	{
 		clearAssetBundleName();
 	}
-    [MenuItem(MENU_NAME + "AB依赖分析窗口")]
+    [MenuItem(MENU_NAME + "AssetBundle依赖分析窗口")]
     public static void OpenAssetBundleDependencyWindow()
     {
         var window = EditorWindow.GetWindow<AssetBundleDependencyWindow>();
@@ -72,7 +70,7 @@ public class MenuAssetBundle
         window.minSize = new Vector2(1100.0f, 720.0f);
         window.Show();
     }
-    [MenuItem(MENU_NAME + "检测已构建AB重复资源")]
+    [MenuItem(MENU_NAME + "检测已构建AssetBundle重复资源")]
     public static void OpenAssetBundleDuplicateAssetCheckWindow()
     {
         var window = EditorWindow.GetWindow<AssetBundleDuplicateAssetCheckWindow>();
@@ -80,6 +78,14 @@ public class MenuAssetBundle
         window.minSize = new Vector2(1080.0f, 700.0f);
         window.Show();
         window.setBundleRootFolder(F_ASSET_BUNDLE_PATH);
+    }
+    [MenuItem(MENU_NAME + "AssetBundle资源浏览器")]
+    public static void OpenAssetBundleStudioWindow()
+    {
+        var window = EditorWindow.GetWindow<AssetBundleStudioWindow>();
+        window.titleContent = new GUIContent("AB资源浏览器");
+        window.minSize = new Vector2(1080.0f, 700.0f);
+        window.Show();
     }
     //------------------------------------------------------------------------------------------------------------------------------
     public static bool packAssetBundle(BuildTarget target, string outputPath, bool showMessageBox, bool keepManifest = false)
@@ -89,7 +95,7 @@ public class MenuAssetBundle
 		bool result = false;
 		do
 		{
-			if (!preProcess())
+			if (!generateAltasPathConfig())
 			{
 				break;
 			}
@@ -139,116 +145,29 @@ public class MenuAssetBundle
 					deleteFile(file);
 				}
 			}
-			postProcess();
 			showInfo("资源打包结束! 耗时 : " + (DateTime.Now - time0), showMessageBox, false);
 			result = true;
 		} while (false);
 		mIsPackingAssetBundle = false;
 		return result;
 	}
-	// pathToPack为以Asset开头的相对路径,表示只单独打包此目录或此文件,已经废弃了
-	public static bool packSinglePathAssetBundle(BuildTarget target, string outputPath, string pathToPack, bool showMessageBox)
-	{
-		if (pathToPack.isEmpty())
-		{
-			Debug.Log("没有找到可打包AssetBundle的文件");
-			return false;
-		}
-		Debug.Log("单独打包:" + pathToPack);
-		AssetBundleBuild[] buildList = null;
-		findAssetBundleToBuild(pathToPack, ref buildList);
-		DateTime time0 = DateTime.Now;
-		if (buildList != null)
-		{
-			// 备份清单文件和生成的AssetBundle信息文件
-			string folderName = getFolderName(outputPath);
-			byte[] streamingAssetsBytes = openFile(outputPath + STREAMING_ASSET_FILE, false);
-			byte[] streamingFileBytes = openFile(outputPath + folderName, false);
-			byte[] manifestBytes = openFile(outputPath + folderName + ".manifest", false);
-			// 需要先删除AssetBundle和对应的manifest文件,否则无法生成新的AssetBundle
-			foreach (AssetBundleBuild item in buildList)
-			{
-				string bundleFileName = outputPath + item.assetBundleName;
-				string manifestName = bundleFileName + ".manifest";
-				deleteFile(bundleFileName);
-				deleteFile(bundleFileName + ".meta");
-				deleteFile(manifestName);
-				deleteFile(manifestName + ".meta");
-			}
-			// 使用LZMA压缩,并且不写入资源类型信息
-			var option = BuildAssetBundleOptions.StrictMode;
-#if WEIXINMINIGAME
-			// 微信的AssetBundle需要添加hash
-			option |= BuildAssetBundleOptions.AppendHashToAssetBundleName;
-#endif
-			BuildPipeline.BuildAssetBundles(outputPath, buildList, option, target);
-			AssetDatabase.Refresh();
-
-			// 还原备份的文件
-			if (streamingAssetsBytes != null)
-			{
-				writeFile(outputPath + STREAMING_ASSET_FILE, streamingAssetsBytes);
-			}
-			if (streamingFileBytes != null)
-			{
-				writeFile(outputPath + folderName, streamingFileBytes);
-			}
-			if (manifestBytes != null)
-			{
-				writeFile(outputPath + folderName + ".manifest", manifestBytes);
-			}
-		}
-		// 删除所有的manifest文件
-		foreach (string file in findFilesNonAlloc(outputPath, new List<string>() { ".manifest", ".manifest.meta" }))
-		{
-			deleteFile(file);
-		}
-		showInfo("资源打包结束! 耗时 : " + (DateTime.Now - time0), showMessageBox, false);
-		return true;
-	}
-	protected static bool preProcess()
+	public static bool generateAltasPathConfig()
 	{
 		// 收集所有图集,然后将信息写入到图集路径的配置文件中,这个文件会在AtlasManager中用到
 		List<string> pathList = new();
 		HashSet<string> fileNameList = new();
 		foreach (string file in findFilesNonAlloc(F_GAME_RESOURCES_PATH, SPRITE_ATLAS_SUFFIX))
 		{
-			pathList.Add(file.removeStartString(F_GAME_RESOURCES_PATH));
+			pathList.Add(file.removeStart(F_GAME_RESOURCES_PATH));
 			if (!fileNameList.Add(getFileNameNoSuffixNoDir(file)))
 			{
 				Debug.LogError("存在重名的图集文件:" + getFileNameNoSuffixNoDir(file));
 				return false;
 			}
 		}
-		writeTxtFile(F_GAME_RESOURCES_PATH + R_MISC_PATH + ATLAS_PATH_CONFIG, stringsToString(pathList, "\r\n"));
-
-		// 设置所有图集不打入包体,虽然不太好理解这个,不过设置为false以后AssetBundle中就不会出现冗余的图片,否则AssetBundle将会变得异常大
-		foreach (string file in findFilesNonAlloc(F_GAME_RESOURCES_PATH, SPRITE_ATLAS_SUFFIX))
-		{
-			var atlas = loadAsset<SpriteAtlas>(file);
-			if (atlas == null)
-			{
-				Debug.LogError("图集加载失败:" + file);
-			}
-			atlas.SetIncludeInBuild(false);
-		}
-		AssetDatabase.SaveAssets();
+		writeTxtFile(F_MISC_PATH + ATLAS_PATH_CONFIG, pathList.stringsToString("\r\n"));
 		AssetDatabase.Refresh();
 		return true;
-	}
-	protected static void postProcess()
-	{
-		foreach (string file in findFilesNonAlloc(F_GAME_RESOURCES_PATH, SPRITE_ATLAS_SUFFIX))
-		{
-			var atlas = loadAsset<SpriteAtlas>(file);
-			if (atlas == null)
-			{
-				Debug.LogError("图集加载失败:" + file);
-			}
-			atlas.SetIncludeInBuild(true);
-		}
-		AssetDatabase.SaveAssets();
-		AssetDatabase.Refresh();
 	}
 	protected static void findAllDependencies(string assetBundleName)
 	{
@@ -262,12 +181,12 @@ public class MenuAssetBundle
 		// List<string>表示这个依赖项的依赖链
 		Dictionary<string, List<string>> allDepList = new();
 		findAllDependenciesRecursive(dependencyList, assetBundleName, allDepList);
-		Debug.Log("开始查找" + assetBundleName + "的所有递归依赖项,共" + IToS(allDepList.Count) + "个");
+		Debug.Log("开始查找" + assetBundleName + "的所有递归依赖项,共" + allDepList.Count.IToS() + "个");
 		foreach (var item in allDepList)
 		{
 			string chain = EMPTY;
 			item.Value.For(item0 => chain += item0 + "->");
-			Debug.Log(colorString("00FF00FF", item.Key) + ",依赖链:" + chain.removeEndString("->"));
+			Debug.Log(colorString("00FF00FF", item.Key) + ",依赖链:" + chain.removeEnd("->"));
 		}
 		Debug.Log("查找" + assetBundleName + "的所有递归依赖项完成");
 	}
@@ -378,84 +297,6 @@ public class MenuAssetBundle
 			displayDialog(isError ? "错误" : "提示", str, "确认");
 		}
 	}
-	// 查找一个目录中所有需要打包的资源包
-	protected static void findAssetBundleToBuild(string path, ref AssetBundleBuild[] list)
-	{
-		Dictionary<string, List<string>> assetBundleList = new();
-		// path是文件
-		if (!getFileSuffix(path).isEmpty())
-		{
-			string bundleName = refreshFileAssetBundleName(null, path);
-			if (!bundleName.isEmpty())
-			{
-				assetBundleList.getOrAddNew(bundleName).Add(path);
-			}
-		}
-		// path是目录
-		else
-		{
-			foreach (string dir in getAllSubResDirs(path))
-			{
-				foreach (string file in Directory.GetFiles(dir))
-				{
-					string bundleName = refreshFileAssetBundleName(null, file);
-					if (!bundleName.isEmpty())
-					{
-						assetBundleList.getOrAddNew(bundleName).Add(file);
-					}
-				}
-			}
-		}
-		list = new AssetBundleBuild[assetBundleList.Count];
-		int index = 0;
-		foreach (var item in assetBundleList)
-		{
-			AssetBundleBuild build = new();
-			build.assetBundleName = item.Key;
-			int assetCount = item.Value.Count;
-			build.assetNames = new string[assetCount];
-			for (int i = 0; i < assetCount; ++i)
-			{
-				Debug.Log("部分打包的文件名:" + item.Value[i] + ", 所属AssetBundle:" + item.Key);
-				build.assetNames[i] = item.Value[i];
-			}
-			list[index++] = build;
-		}
-		EditorUtility.UnloadUnusedAssetsImmediate();
-	}
-	// 获得一个文件的所属AssetBundle名,file是以Assets开头的相对路径,这个就是AssetBundle打包最核心的规则
-	protected static string generateFileAssetBundleName(string file, bool forceSingle = false)
-	{
-		// .meta不能设置AssetBundle
-		// .DS_Store是mac的特殊文件,也不能设置AssetBundle
-		// .cginc是仅编辑器下使用的资源,不能打包AssetBundle
-		// tpsheet文件不打包
-		// LightingData.asset文件不能打包AB,这是一个特殊文件,只用于编辑器
-		if (file.endWith(".meta") ||
-			file.endWith(".DS_Store") ||
-			file.endWith(".cginc") ||
-			file.endWith(".hlsl") ||
-			file.endWith(".glslinc") ||
-			file.endWith(".tpsheet") ||
-			file.endWith("LightingData.asset") ||
-			(!file.endWith(".spriteatlasv2") && isSpriteInAtlas(file)))
-		{
-			return EMPTY;
-		}
-		string bundleName;
-		// unity(但是一般情况下unity场景文件不打包)单个文件打包,就是直接替换后缀名,或者强制为单独一个包的
-		if (file.endWith(".unity") || forceSingle)
-		{
-			bundleName = replaceSuffix(file.removeStartString(P_GAME_RESOURCES_PATH), ASSET_BUNDLE_SUFFIX);
-		}
-		// 其他文件的AssetBundle就是所属文件夹
-		else
-		{
-			bundleName = getFilePath(file).removeStartString(P_GAME_RESOURCES_PATH) + ASSET_BUNDLE_SUFFIX;
-		}
-		// AssetBundle名字必须是小写的,避免多平台可能存在的问题
-		return bundleName.ToLower();
-	}
 	// 刷新指定文件的所属AssetBundle名字
 	protected static string refreshFileAssetBundleName(Dictionary<string, BuildAssetBundleInfo> assetBundleMap, string file, bool forceSingle = false)
 	{
@@ -464,12 +305,18 @@ public class MenuAssetBundle
 		{
 			return EMPTY;
 		}
-		
+		// Unity禁止对脚本资源调用SetAssetBundleNameAndVariant,
+		// 即使只是使用null清除AssetBundle名也会报错
+		if (importer is MonoImporter)
+		{
+			return EMPTY;
+		}
+
 		string fileName = file.rightToLeft();
 		string bundleName = generateFileAssetBundleName(fileName, forceSingle);
 		if (bundleName.isEmpty())
 		{
-			importer.assetBundleName = EMPTY;
+			importer.SetAssetBundleNameAndVariant(null, null);
 			return EMPTY;
 		}
 		if (importer.assetBundleName != bundleName)
@@ -485,20 +332,20 @@ public class MenuAssetBundle
 				assetBundleMap.Add(bundleName, bundleInfo);
 			}
 			// 去除Asset/GameResources/前缀,只保留GameResources下相对路径,并且需要是小写的
-			bundleInfo.mAssetNames.Add(fileName.removeStartString(P_GAME_RESOURCES_PATH).ToLower());
+			bundleInfo.mAssetNames.Add(fileName.removeStart(P_GAME_RESOURCES_PATH).ToLower());
 		}
 		return bundleName;
 	}
 	// 判断一个路径是否是不需要打包的路径
 	protected static bool isUnpackPath(string path, List<string> unpackList)
 	{
-		string pathUnderResources = (path.removeStartString(P_GAME_RESOURCES_PATH, false) + "/").rightToLeft();
+		string pathUnderResources = (path.removeStart(P_GAME_RESOURCES_PATH, false) + "/").rightToLeft();
 		return unpackList.contains(name => pathUnderResources.startWith(name, false));
 	}
 	// 判断一个路径是否是不需要打包的路径
 	protected static bool isForceSinglePath(string path, List<string> singlePathList)
 	{
-		return singlePathList.contains((path.removeStartString(P_GAME_RESOURCES_PATH, false) + "/").rightToLeft());
+		return singlePathList.contains((path.removeStart(P_GAME_RESOURCES_PATH, false) + "/").rightToLeft());
 	}
 	// fullPath是以Asset开头的路径
 	protected static bool refreshAssetBundleNames(string fullPath, Dictionary<string, BuildAssetBundleInfo> assetBundleMap, bool showErrorMessageBox)
@@ -523,7 +370,7 @@ public class MenuAssetBundle
 		}
 		return true;
 	}
-	public static Dictionary<string, BuildAssetBundleInfo> doRefreshAllAssetBundleName()
+	protected static Dictionary<string, BuildAssetBundleInfo> doRefreshAllAssetBundleName()
 	{
 		Dictionary<string, BuildAssetBundleInfo> assetBundleMap = new();
 		foreach (string dir in getAllSubResDirs(P_GAME_RESOURCES_PATH))
@@ -617,7 +464,7 @@ public class MenuAssetBundle
 				continue;
 			}
 			string projectFileName = fullPathToProjectPath(file);
-			string fileName = projectFileName.removeStartString(P_GAME_RESOURCES_PATH, false);
+			string fileName = projectFileName.removeStart(P_GAME_RESOURCES_PATH, false);
 			foreach (string unpack in unpackList)
 			{
 				if (!fileName.startWith(unpack, false))

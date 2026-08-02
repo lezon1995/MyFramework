@@ -2,18 +2,20 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UObject = UnityEngine.Object;
-using static UnityUtility;
-using static FrameUtility;
+using UnityEngine.XR;
 using static FileUtility;
-using static FrameBaseHotFix;
-using static StringUtility;
-using static FrameDefine;
 using static FrameBaseDefine;
+using static FrameBaseHotFix;
 using static FrameBaseUtility;
+using static FrameDefine;
+using static FrameUtility;
 using static ResourceUtility;
+using static StringUtility;
+using static UnityUtility;
+using UObject = UnityEngine.Object;
 
 // 从AssetBundle中加载资源
+// 管理所有AB的加载、依赖解析、资源对象到AB的映射,提供同步/异步加载和卸载接口
 public class AssetBundleLoader
 {
 	protected Dictionary<UObject, AssetBundleInfo> mAssetToAssetBundleInfo = new(); // 根据加载的Asset查找所属AssetBundle的列表
@@ -37,42 +39,6 @@ public class AssetBundleLoader
 		unloadAll();
 		// 加载AssetBundle的配置文件
 		GameEntryBase.startCoroutine(loadStreamingAssetsConfig(callback));
-	}
-	protected IEnumerator loadStreamingAssetsConfig(Action callback)
-	{
-		string filePath = availableReadPath(STREAMING_ASSET_FILE);
-		if (filePath.isEmpty())
-		{
-			yield return loadAssetsFromUrlWaiting(mDownloadURL + STREAMING_ASSET_FILE, (byte[] bytes) =>
-			{
-				// webgl没法写到本地
-				if (bytes != null && !isWebGL())
-				{
-					// 写入到本地,并且更新资源列表
-					writeFile(F_PERSISTENT_ASSETS_PATH + STREAMING_ASSET_FILE, bytes);
-					GameFileInfo fileInfo = new()
-					{
-						mFileName = STREAMING_ASSET_FILE,
-						mFileSize = bytes.Length,
-						mMD5 = generateFileMD5(bytes)
-					};
-					mAssetVersionSystem.addPersistentFile(fileInfo);
-					// 更新本地的文件列表
-					writeFileList(F_PERSISTENT_ASSETS_PATH, mAssetVersionSystem.generatePersistentAssetFileList());
-				}
-
-				initAssetConfig(bytes, mDownloadURL + STREAMING_ASSET_FILE);
-				callback?.Invoke();
-			}, null);
-		}
-		else
-		{
-			openFileAsync(filePath, true, (byte[] fileBuffer) =>
-			{
-				initAssetConfig(fileBuffer, filePath);
-				callback?.Invoke();
-			});
-		}
 	}
 	public void setAutoLoad(bool autoLoad) { mAutoLoad = autoLoad; }
 	public void update(float elapsedTime)
@@ -143,7 +109,8 @@ public class AssetBundleLoader
 	public AssetBundleInfo getAssetBundleInfo(string name) { return mAssetBundleInfoList.get(name); }
 	public void unloadAssetBundle(string bundleName)
 	{
-		if (!mAssetBundleInfoList.TryGetValue(bundleName.ToLower(), out AssetBundleInfo info))
+        bundleName = bundleName.removeEnd(ASSET_BUNDLE_SUFFIX);
+        if (!mAssetBundleInfoList.TryGetValue(bundleName.ToLower(), out AssetBundleInfo info))
 		{
 			return;
 		}
@@ -219,16 +186,17 @@ public class AssetBundleLoader
 		string fileNameLower = fileName.ToLower();
 		return mAssetToBundleInfo.get(fileNameLower)?.getAssetBundle().getAssetInfo(fileNameLower).getAsset() as T;
 	}
-	// 检查指定的已加载的AssetBundle的依赖项是否有未加载的情况,如果有未加载的则同步加载
-	public void checkAssetBundleDependenceLoaded(string bundleName)
+	// 检查指定的已加载的AssetBundle的依赖项是否有未加载的情况,如果有未加载的则同步加载,不含后缀
+    public void checkAssetBundleDependenceLoaded(string bundleName)
 	{
 		if (!mInited)
 		{
 			return;
 		}
+		bundleName = bundleName.removeEnd(ASSET_BUNDLE_SUFFIX);
 		mAssetBundleInfoList.get(bundleName.ToLower())?.checkAssetBundleDependenceLoaded();
 	}
-	// 异步加载资源包,如果资源包未下载,则会先开始下载
+	// 异步加载资源包,如果资源包未下载,则会先开始下载,不含后缀
 	public void loadAssetBundleAsync(string bundleName, AssetBundleCallback callback)
 	{
 		if (!mInited)
@@ -237,6 +205,7 @@ public class AssetBundleLoader
 			callback?.Invoke(null);
 			return;
 		}
+		bundleName = bundleName.removeEnd(ASSET_BUNDLE_SUFFIX);
 		if (!mAssetBundleInfoList.TryGetValue(bundleName.ToLower(), out AssetBundleInfo info))
 		{
 			logError("can not find AssetBundle : " + bundleName);
@@ -244,7 +213,7 @@ public class AssetBundleLoader
 		}
 		info.loadAssetBundleAsync(callback);
 	}
-	// 同步加载资源包
+	// 同步加载资源包,不含后缀
 	public void loadAssetBundle(string bundleName, List<UObject> assetList)
 	{
 		if (!mInited)
@@ -252,6 +221,7 @@ public class AssetBundleLoader
 			logError("AssetBundleLoader is not inited!");
 			return;
 		}
+		bundleName = bundleName.removeEnd(ASSET_BUNDLE_SUFFIX);
 		if (mAssetBundleInfoList.TryGetValue(bundleName.ToLower(), out AssetBundleInfo bundleInfo))
 		{
 			if (bundleInfo.getLoadState() == LOAD_STATE.DOWNLOADING ||
@@ -388,8 +358,8 @@ public class AssetBundleLoader
 			CustomAsyncOperation op = new();
 			bundleInfo.addDownloadCallback((AssetBundleInfo info, byte[] bytes) =>
 			{
-				op.setFinish();
 				callback?.Invoke(bytes);
+				op.setFinish();
 			});
 			yield return op;
 		}
@@ -400,8 +370,7 @@ public class AssetBundleLoader
 			string bundleFileName = bundleInfo.getBundleFileName();
 			yield return loadAssetsFromUrlWaiting(mDownloadURL + bundleFileName, (byte[] bytes) =>
 			{
-				// webgl没法写到本地
-				if (bytes != null && !isWebGL())
+				if (bytes != null)
 				{
 					// 写入到本地,并且更新资源列表
 					writeFile(F_PERSISTENT_ASSETS_PATH + bundleFileName, bytes);
@@ -432,39 +401,20 @@ public class AssetBundleLoader
 		{
 			yield return null;
 		}
-		AssetBundle assetBundle = null;
 		string bundleFileName = bundleInfo.getBundleFileName();
 		string fullPath = availableReadPath(bundleFileName);
+		byte[] assetBundleBytes = null;
+		bundleInfo.setLoadState(LOAD_STATE.LOADING);
 		// 返回空表示本地没有此文件,需要先下载
 		if (fullPath == null)
 		{
-			byte[] assetBundleBytes = null;
 			yield return downloadAssetBundleCoroutine(bundleInfo, (byte[] bytes) => { assetBundleBytes = bytes; });
-			bundleInfo.setLoadState(LOAD_STATE.LOADING);
-			AssetBundleCreateRequest request = AssetBundle.LoadFromMemoryAsync(assetBundleBytes);
-			if (request != null)
-			{
-				yield return request;
-				assetBundle = request.assetBundle;
-			}
 		}
 		else
 		{
-			bundleInfo.setLoadState(LOAD_STATE.LOADING);
-			if (isWebGL())
-			{
-				yield return loadAssetsFromUrlWaiting(fullPath, (AssetBundle asset) => { assetBundle = asset; });
-			}
-			else
-			{
-				AssetBundleCreateRequest request = AssetBundle.LoadFromFileAsync(fullPath);
-				if (request != null)
-				{
-					yield return request;
-					assetBundle = request.assetBundle;
-				}
-			}
+			yield return openFileAsyncInternal(fullPath, true, (byte[] bytes)=> { assetBundleBytes = bytes; });
 		}
+		AssetBundle assetBundle = AssetBundle.LoadFromMemory(assetBundleBytes);
 		if (isDevOrEditor())
 		{
 			if (assetBundle != null)
@@ -514,6 +464,42 @@ public class AssetBundleLoader
 		catch (Exception e)
 		{
 			logException(e);
+		}
+	}
+	protected IEnumerator loadStreamingAssetsConfig(Action callback)
+	{
+		string filePath = availableReadPath(STREAMING_ASSET_FILE);
+		if (filePath.isEmpty())
+		{
+			yield return loadAssetsFromUrlWaiting(mDownloadURL + STREAMING_ASSET_FILE, (byte[] bytes) =>
+			{
+				// webgl没法写到本地
+				if (bytes != null)
+				{
+					// 写入到本地,并且更新资源列表
+					writeFile(F_PERSISTENT_ASSETS_PATH + STREAMING_ASSET_FILE, bytes);
+					GameFileInfo fileInfo = new()
+					{
+						mFileName = STREAMING_ASSET_FILE,
+						mFileSize = bytes.Length,
+						mMD5 = generateFileMD5(bytes)
+					};
+					mAssetVersionSystem.addPersistentFile(fileInfo);
+					// 更新本地的文件列表
+					writeFileList(F_PERSISTENT_ASSETS_PATH, mAssetVersionSystem.generatePersistentAssetFileList());
+				}
+
+				initAssetConfig(bytes, mDownloadURL + STREAMING_ASSET_FILE);
+				callback?.Invoke();
+			}, null);
+		}
+		else
+		{
+			openFileAsync(filePath, true, (byte[] fileBuffer) =>
+			{
+				initAssetConfig(fileBuffer, filePath);
+				callback?.Invoke();
+			});
 		}
 	}
 	protected void initAssetConfig(byte[] fileBuffer, string filePath)

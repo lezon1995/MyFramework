@@ -3,9 +3,10 @@ using static UnityUtility;
 using static FrameBaseHotFix;
 using static FrameBaseUtility;
 
+// 音频操作工具类,提供背景音乐和音效的播放/音量/暂停/恢复等快捷方法
+// 背景音乐和音效都可以通过音效辅助物体的方式播放,且不会有GameObject的隐藏问题
 public class AT
 {
-	// 背景音乐和音效都可以通过音效辅助物体的方式播放,且不会有GameObject的隐藏问题
 	// 只是设置AudioSource组件上的音量,而且只能设置背景音乐的音量,一般不会动态地去修改音效地音量
 	// 设置的是绝对音量
 	public static void MUSIC_VOLUME(float target)
@@ -260,19 +261,8 @@ public class AT
 	}
 	protected static void playInternal(AudioHelper helper, string soundName, float volume, bool loop, AudioInfoCallback callback)
 	{
-		if (isWebGL())
-		{
-			CmdMovableObjectPlayAudio.executeAsync(helper, soundName, volume, loop, (AudioInfo info)=>
-			{
-				helper.mRemainTime = loop ? -1.0f : info.getClip().length;
-				callback?.Invoke(info);
-			});
-		}
-		else
-		{
-			CmdMovableObjectPlayAudio.execute(helper, soundName, volume, loop);
-			helper.mRemainTime = loop ? -1.0f : mAudioManager.getAudioLength(soundName);
-			callback?.Invoke(mAudioManager.getAudio(soundName));
-		}
+		CmdMovableObjectPlayAudio.execute(helper, soundName, volume, loop);
+		helper.mRemainTime = loop ? -1.0f : mAudioManager.getAudioLength(soundName);
+		callback?.Invoke(mAudioManager.getAudio(soundName));
 	}
 }

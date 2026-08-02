@@ -1,18 +1,69 @@
-﻿using UnityEngine;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using UnityEngine;
 using static FrameBaseHotFix;
-using static UnityUtility;
-using static FrameUtility;
 using static FrameDefine;
+using static FrameUtility;
+using static UnityUtility;
+using UObject = UnityEngine.Object;
 
 // 特效池
 public class GameEffectPool
 {
 	protected SafeDictionary<string, SafeList<GameEffect>> mUnusedEffectList = new();       // key是特效路径,value是未使用的特效列表
 	protected Dictionary<string, List<GameEffect>> mInusedEffectList = new();           // key是特效路径,value是已使用的特效列表
-	protected float mEffectTimer;														// 检查特效回收时间的计时器
-	protected int mUnuseMaxTime = 60;													// 超过60秒未使用的特效将会被回收
+	protected float mEffectTimer;                                                       // 检查特效回收时间的计时器
+	protected int mUnuseMaxTime = 60;                                                   // 超过60秒未使用的特效将会被回收
+	public void init()
+	{
+		// 注册卸载整个路径和销毁指定物体时的回调,清理对应的对象,避免引用了悬空对象
+		mResourceManager.addUnloadPathCallback((string path) =>
+		{
+			foreach (var item0 in mUnusedEffectList)
+			{
+				var list = item0.Value;
+				using var a = new SafeListReader<GameEffect>(list);
+				foreach (var item in a.mReadList)
+				{
+					list.removeIf(item, item.getFilePath().startWith(path));
+				}
+			}
+			foreach (var item0 in mInusedEffectList)
+			{
+				var list = item0.Value;
+				for (int i = 0; i < list.Count; ++i)
+				{
+					if (list[i].getFilePath().startWith(path))
+					{
+						list.removeAt(i--);
+					}
+				}
+			}
+		});
+		mResourceManager.addUnloadObjectCallback((UObject obj) =>
+		{
+			foreach (var item0 in mUnusedEffectList)
+			{
+				var list = item0.Value;
+				using var a = new SafeListReader<GameEffect>(list);
+				foreach (var item in a.mReadList)
+				{
+					list.removeIf(item, item.getGameObject() == obj);
+				}
+			}
+			foreach (var item0 in mInusedEffectList)
+			{
+				var list = item0.Value;
+				for (int i = 0; i < list.Count; ++i)
+				{
+					if (list[i].getGameObject() == obj)
+					{
+						list.removeAt(i--);
+					}
+				}
+			}
+		});
+	}
 	public void update(float elapsedTime)
 	{
 		if (tickTimerLoop(ref mEffectTimer, elapsedTime, 1.0f))
@@ -39,8 +90,11 @@ public class GameEffectPool
 	}
 	public void unuseEffect(GameEffect effect)
 	{
+		if (!mUnusedEffectList.getOrAddNew(effect.getFilePath()).addUnique(effect))
+		{
+			return;
+		}
 		mInusedEffectList.get(effect.getFilePath())?.Remove(effect);
-		mUnusedEffectList.getOrAddNew(effect.getFilePath()).add(effect);
 		effect.setUnuseTime(DateTime.Now);
 	}
 	public void removeEffect(GameEffect effect)
@@ -59,7 +113,7 @@ public class GameEffectPool
 		GameEffect effect = effectList.removeAt(effectList.count() - 1);
 		if (effect.getGameObject() == null)
 		{
-			logError("GameObject is null:" + effect.getFilePath());
+			logError("GameObject is null:" + effect.getFilePath() + ",hash:" + effect.GetHashCode());
 		}
 		effect.setLifeTime(lifeTime);
 		effect.setDead(false);

@@ -2,7 +2,6 @@
 using UnityEngine;
 using static UnityUtility;
 using static StringUtility;
-using static MathUtility;
 
 // Image的序列帧,代码与myUGUIImageAnim一致,只是基类不一样
 public class myUGUIImageAnimPro : myUGUIImagePro, IUIAnimation
@@ -22,16 +21,16 @@ public class myUGUIImageAnimPro : myUGUIImagePro, IUIAnimation
 	public override void init()
 	{
 		base.init();
+		mControl.setObject(this);
+		mControl.setPlayEndCallback(onPlayEnd);
+		mControl.setPlayingCallback(onPlaying);
 		string spriteName = getSpriteName();
 		if (spriteName.contains('_'))
 		{
 			setTextureSet(spriteName.rangeToLast('_'));
 		}
-		mControl.setObject(this);
-		mControl.setPlayEndCallback(onPlayEnd);
-		mControl.setPlayingCallback(onPlaying);
 	}
-	public override void update(float elapsedTime)
+    public override void update(float elapsedTime)
 	{
 		base.update(elapsedTime);
 		if (mSpriteList.Count == 0)
@@ -71,7 +70,8 @@ public class myUGUIImageAnimPro : myUGUIImagePro, IUIAnimation
 		if (!mTextureSetName.isEmpty())
 		{
 			int index = 0;
-			while (mSpriteList.addNotNull(getSpriteInAtlas(mTextureSetName + "_" + IToS(index++)))){}
+			while (mSpriteList.addNotNull(getSpriteInAtlas(mTextureSetName + "_" + index++.IToS())))
+			{}
 			if (getTextureFrameCount() == 0)
 			{
 				logError("invalid sprite anim! atlas : " + (getAtlas()?.getFilePath() ?? EMPTY) + ", anim set : " + textureSetName);
@@ -142,8 +142,8 @@ public class myUGUIImageAnimPro : myUGUIImagePro, IUIAnimation
 		mPlayEndCallbackList?.Clear();
 		mPlayingCallbackList?.Clear();
 	}
-	//------------------------------------------------------------------------------------------------------------------------------
-	protected void onPlaying(int frame, bool isPlaying)
+    //------------------------------------------------------------------------------------------------------------------------------
+    protected void onPlaying(int frame, bool isPlaying)
 	{
 		int spriteCount = mSpriteList.Count;
 		if (frame >= spriteCount)

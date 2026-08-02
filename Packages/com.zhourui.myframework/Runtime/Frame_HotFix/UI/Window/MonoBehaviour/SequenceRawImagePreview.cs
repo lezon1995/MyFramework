@@ -1,10 +1,11 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 using static FrameDefine;
+using static FrameBaseUtility;
 using static StringUtility;
 using static MathUtility;
 using static FileUtility;
@@ -12,6 +13,7 @@ using static FileUtility;
 [ExecuteAlways]
 [RequireComponent(typeof(RawImageAnimPath))]
 [RequireComponent(typeof(RawImage))]
+// 序列帧RawImage预览,在编辑器中预览RawImage序列帧动画
 public class SequenceRawImagePreview : MonoBehaviour
 {
 #if UNITY_EDITOR
@@ -161,7 +163,7 @@ public class SequenceRawImagePreview : MonoBehaviour
         mPlaying = false;
 
         --mCurFrame;
-        clamp(ref mCurFrame, 0, mTextureList.Count - 1);
+		mCurFrame = mCurFrame.clamp(0, mTextureList.Count - 1);
 
         syncSliderByCurFrame();
         applyFrame(mCurFrame);
@@ -181,7 +183,7 @@ public class SequenceRawImagePreview : MonoBehaviour
         mPlaying = false;
 
         ++mCurFrame;
-        clamp(ref mCurFrame, 0, mTextureList.Count - 1);
+		mCurFrame = mCurFrame.clamp(0, mTextureList.Count - 1);
 
         syncSliderByCurFrame();
         applyFrame(mCurFrame);
@@ -236,19 +238,19 @@ public class SequenceRawImagePreview : MonoBehaviour
 
         for (int i = 0; i < 1000; ++i)
         {
-            string fileName = F_GAME_RESOURCES_PATH + mAnimPath.mTexturePath + "/" + mAnimPath.mTextureName + "_" + IToS(i) + ".png";
+            string fileName = F_GAME_RESOURCES_PATH + mAnimPath.mTexturePath + "/" + mAnimPath.mTextureName + "_" + i.IToS() + ".png";
             if (!isFileExist(fileName))
             {
                 break;
             }
-            Texture texture = AssetDatabase.LoadAssetAtPath<Texture>(fullPathToProjectPath(fileName));
+            Texture texture = loadAssetAtPath<Texture>(fullPathToProjectPath(fileName));
             if (texture == null)
             {
                 break;
             }
             mTextureList.add(texture);
         }
-        clamp(ref mCurFrame, 0, Mathf.Max(0, mTextureList.Count - 1));
+		mCurFrame = mCurFrame.clamp(0, getMax(0, mTextureList.Count - 1));
     }
     protected void refreshImageBySlider()
     {
@@ -262,8 +264,8 @@ public class SequenceRawImagePreview : MonoBehaviour
         {
             return;
         }
-        mCurFrame = ceil(mSlider * frameCount) - 1;
-        clamp(ref mCurFrame, 0, frameCount - 1);
+        mCurFrame = (mSlider * frameCount).ceil() - 1;
+		mCurFrame = mCurFrame.clamp(0, frameCount - 1);
         applyFrame(mCurFrame);
     }
     protected void applyFrame(int index)
@@ -276,7 +278,7 @@ public class SequenceRawImagePreview : MonoBehaviour
         {
             return;
         }
-        clamp(ref index, 0, mTextureList.Count - 1);
+		index= index.clamp(0, mTextureList.Count - 1);
         mRawImage.texture = mTextureList[index];
 
         EditorUtility.SetDirty(mRawImage);

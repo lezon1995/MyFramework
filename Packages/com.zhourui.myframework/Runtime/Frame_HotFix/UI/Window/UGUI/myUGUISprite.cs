@@ -1,12 +1,11 @@
 ﻿using UnityEngine;
-using static UnityUtility;
 using static FrameBaseHotFix;
-using static StringUtility;
-using static MathUtility;
-using static FrameDefine;
 using static FrameBaseUtility;
+using static FrameDefine;
+using static StringUtility;
+using static UnityUtility;
 
-// 对SpriteRenderer的封装
+// 对SpriteRenderer的封装,在UI中使用
 public class myUGUISprite : myUGUIObject, IShaderWindow
 {
 	protected SpriteRenderer mSpriteRenderer;		// 图片组件
@@ -24,11 +23,11 @@ public class myUGUISprite : myUGUIObject, IShaderWindow
 	protected bool mSpriteNameDirty;                // 图片名字是否需要更新
 	protected bool mMaterialNameDirty;              // 材质名字是否需要更新
 	protected bool mShaderNameDirty;				// shader名字是否需要更新
-	protected bool mIsNewMaterial;					// 当前的材质是否是新建的材质对象
-	public override void init()
+	protected bool mIsNewMaterial;                  // 当前的材质是否是新建的材质对象
+    public override void init()
 	{
 		base.init();
-		// 获取image组件,如果没有则添加,这样是为了使用代码新创建一个image窗口时能够正常使用image组件
+        // 获取SpriteRenderer组件,如果没有则添加,这样是为了使用代码新创建一个SpriteRenderer窗口时能够正常使用SpriteRenderer组件
 		mSpriteRenderer = getOrAddUnityComponent<SpriteRenderer>();
 		mOriginSprite = mSpriteRenderer.sprite;
 		mOriginMaterial = mSpriteRenderer.sharedMaterial;
@@ -49,14 +48,14 @@ public class myUGUISprite : myUGUIObject, IShaderWindow
 			{
 				logError("ImageAtlasPath中记录的路径为空,GameObject:" + getGameObjectPath());
 			}
-			atlasPath = atlasPath.removeStartString(P_GAME_RESOURCES_PATH);
-			mOriginAtlasPtr = mAtlasManager.getAtlas(atlasPath, false);
-			if (mOriginAtlasPtr == null || !mOriginAtlasPtr.isValid())
-			{
-				logError("无法加载初始化的图集:" + atlasPath + ",GameObject:" + getGameObjectPath() +
-					",请确保ImageAtlasPath中记录的图片路径正确,记录的路径:" + (imageAtlasPath != null ? imageAtlasPath.mAtlasPath : EMPTY));
-			}
-			mAtlasPtr = mOriginAtlasPtr;
+			atlasPath = atlasPath.removeStart(P_GAME_RESOURCES_PATH);
+			mOriginAtlasPtr = mAtlasManager.getAtlas(atlasPath);
+            if (mOriginAtlasPtr == null || !mOriginAtlasPtr.isValid())
+            {
+                logError("无法加载初始化的图集:" + atlasPath + ",GameObject:" + getGameObjectPath() +
+                    ",请确保ImageAtlasPath中记录的图片路径正确,记录的路径:" + (imageAtlasPath != null ? imageAtlasPath.mAtlasPath : EMPTY));
+            }
+            mAtlasPtr = mOriginAtlasPtr;
 		}
 		string materialName = getMaterialName().removeAll(" (Instance)");
 		// 不再将默认材质替换为自定义的默认材质,只判断其他材质
@@ -72,7 +71,7 @@ public class myUGUISprite : myUGUIObject, IShaderWindow
 			{
 				logError("没有找到MaterialPath组件,name:" + getName());
 			}
-			mOriginMaterialPath = mOriginMaterialPath.removeStartString(P_GAME_RESOURCES_PATH);
+			mOriginMaterialPath = mOriginMaterialPath.removeStart(P_GAME_RESOURCES_PATH);
 			if (!mOriginMaterialPath.endWith("/unity_builtin_extra"))
 			{
 				if (!mOriginMaterialPath.Contains('.'))
@@ -105,7 +104,7 @@ public class myUGUISprite : myUGUIObject, IShaderWindow
 	{
 		setAlpha(isCull ? 0.0f : 1.0f);
 	}
-	public override bool isCulled() { return isFloatZero(getAlpha()); }
+	public override bool isCulled() { return getAlpha().isZero(); }
 	public override bool canGenerateDepth() { return !isCulled(); }
 	public void setWindowShader(WindowShader shader)
 	{
@@ -114,9 +113,9 @@ public class myUGUISprite : myUGUIObject, IShaderWindow
 		mNeedUpdate = true;
 	}
 	public WindowShader getWindowShader() { return mWindowShader; }
-	public override void update(float elapsedTime)
+	public override void update(float dt)
 	{
-		base.update(elapsedTime);
+		base.update(dt);
 		if (mWindowShader != null && !isCulled() && mSpriteRenderer.sharedMaterial != null)
 		{
 			mWindowShader.applyShader(mSpriteRenderer.sharedMaterial);
@@ -128,8 +127,16 @@ public class myUGUISprite : myUGUIObject, IShaderWindow
 		{
 			return Vector2.zero;
 		}
-		Vector2 size = mSpriteRenderer.sprite.rect.size;
-		if (transformed)
+        Vector2 size = Vector2.zero;
+        if (mSpriteRenderer.drawMode == SpriteDrawMode.Simple)
+        {
+            size = mSpriteRenderer.sprite.rect.size;
+        }
+        else if (mSpriteRenderer.drawMode == SpriteDrawMode.Sliced || mSpriteRenderer.drawMode == SpriteDrawMode.Tiled)
+        {
+            size = mSpriteRenderer.size;
+        }
+        if (transformed)
 		{
 			return size * getScale();
 		}
@@ -150,13 +157,17 @@ public class myUGUISprite : myUGUIObject, IShaderWindow
 	}
 	public void setSpriteName(string spriteName)
 	{
-		if (mSpriteRenderer == null || mAtlasPtr == null || !mAtlasPtr.isValid())
+		if (mSpriteRenderer == null)
 		{
 			return;
 		}
 		if (spriteName.isEmpty())
 		{
 			mSpriteRenderer.sprite = null;
+			return;
+		}
+		if (mAtlasPtr == null || !mAtlasPtr.isValid())
+		{
 			return;
 		}
 		setSprite(mAtlasPtr.getSprite(spriteName));
@@ -185,7 +196,7 @@ public class myUGUISprite : myUGUIObject, IShaderWindow
 		{
 			return;
 		}
-		if (sprite != null && !isFloatEqual(sprite.pixelsPerUnit, 1.0f) && getScale().x <= 1.0f)
+		if (sprite != null && !sprite.pixelsPerUnit.isEqual(1.0f) && getScale().x <= 1.0f)
 		{
 			logWarning("sprite的pixelsPerUnit为1,且Transform缩放为1, 会使最终渲染结果缩小100倍,如果需要显示正常,请调整pixelsPerUnit或者Transform缩放, sprite:" + 
 					   sprite.name + ", transform:" + getGameObjectPath());
@@ -243,13 +254,13 @@ public class myUGUISprite : myUGUIObject, IShaderWindow
 					// 当需要复制一个新的材质时,刚加载出来的材质实际上就不会再用到了
 					// 只有当下次还加载相同的材质时才会直接返回已加载的材质
 					// 如果要卸载最开始加载出来的材质,只能通过卸载整个文件夹的资源来卸载
-					Material newMat = new(mCurMaterial.getResource());
-					newMat.name = getFileNameNoSuffixNoDir(materialPath) + "_" + IToS(mID);
+					Material newMat = new(mCurMaterial.get());
+					newMat.name = getFileNameNoSuffixNoDir(materialPath) + "_" + mID.IToS();
 					setMaterial(newMat);
 				}
 				else
 				{
-					setMaterial(mCurMaterial.getResource());
+					setMaterial(mCurMaterial.get());
 				}
 			});
 		}
@@ -259,13 +270,13 @@ public class myUGUISprite : myUGUIObject, IShaderWindow
 			mCurMaterial = mResourceManager.loadGameResource<Material>(materialPath);
 			if (mIsNewMaterial)
 			{
-				Material mat = new(mCurMaterial.getResource());
-				mat.name = getFileNameNoSuffixNoDir(materialPath) + "_" + IToS(mID);
+				Material mat = new(mCurMaterial.get());
+				mat.name = getFileNameNoSuffixNoDir(materialPath) + "_" + mID.IToS();
 				setMaterial(mat);
 			}
 			else
 			{
-				setMaterial(mCurMaterial.getResource());
+				setMaterial(mCurMaterial.get());
 			}
 		}
 	}

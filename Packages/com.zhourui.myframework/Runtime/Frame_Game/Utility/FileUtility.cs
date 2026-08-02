@@ -2,14 +2,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Security.Cryptography;
-using UnityEngine.Networking;
-using static UnityUtility;
-using static StringUtility;
-using static FrameBaseUtility;
-using static FrameBaseDefine;
 using static FrameBase;
+using static FrameBaseDefine;
+using static FrameBaseUtility;
+using static StringUtility;
 
 // 文件工具函数类
 public class FileUtility
@@ -22,42 +19,78 @@ public class FileUtility
 			path += "/";
 		}
 	}
-	public static byte[] stringToBytes(string str, Encoding encoding = null)
+	// 打开一个二进制文件,fileName为绝对路径,返回值为文件长度
+	// 使用完毕后需要使用releaseFile回收文件内存
+	// 这里添加Sync后缀是为了避免跟EditorFileUtility命名冲突
+	public static byte[] openFileSync(string fileName, bool errorIfNull)
 	{
-		if (str == null)
+		byte[] fileBuffer = null;
+		try
 		{
-			return null;
-		}
-		// 默认为UTF8
-		return (encoding ?? Encoding.UTF8).GetBytes(str);
-	}
-	public static string bytesToString(byte[] bytes, Encoding encoding = null)
-	{
-		if (bytes == null)
-		{
-			return null;
-		}
-		if (bytes.Length == 0)
-		{
-			return "";
-		}
-		// 默认为UTF8
-		return removeLastZero((encoding ?? Encoding.UTF8).GetString(bytes));
-	}
-	// 字节数组转换为字符串时,末尾可能会带有数字0,此时在字符串比较时会出现错误,所以需要移除字符串末尾的0
-	public static string removeLastZero(string str)
-	{
-		int strLen = str.Length;
-		int newLen = strLen;
-		for (int i = 0; i < strLen; ++i)
-		{
-			if (str[i] == 0)
+			if (isEditor() || isIOS() || isWindows())
 			{
-				newLen = i;
-				break;
+				using FileStream fs = new(fileName, FileMode.Open, FileAccess.Read);
+				if (fs == null)
+				{
+					if (errorIfNull)
+					{
+						logErrorBase("文件加载失败! : " + fileName);
+					}
+					return null;
+				}
+				int fileSize = (int)fs.Length;
+				fileBuffer = new byte[fileSize];
+				fs.Read(fileBuffer, 0, fileSize);
+				return fileBuffer;
+			}
+			else if (isAndroid())
+			{
+				// 安卓平台如果要读取StreamingAssets下的文件,只能使用AssetManager
+				if (fileName.startWith(F_STREAMING_ASSETS_PATH))
+				{
+					// 改为相对路径
+					fileName = fileName.removeStartCount(F_STREAMING_ASSETS_PATH.Length);
+					fileBuffer = AndroidAssetLoader.loadAsset(fileName, errorIfNull);
+				}
+				// 安卓平台如果要读取persistentDataPath的文件,则可以使用File
+				else if (fileName.startWith(F_PERSISTENT_DATA_PATH))
+				{
+					fileBuffer = AndroidAssetLoader.loadFile(fileName, errorIfNull);
+				}
+				else
+				{
+					logErrorBase("openFile invalid path : " + fileName);
+				}
+				if (fileBuffer == null && errorIfNull)
+				{
+					logErrorBase("open file failed! filename : " + fileName);
+				}
+				return fileBuffer;
+			}
+			else if (isWebGL())
+			{
+				if (isByteDance())
+				{
+					return TTFileSystem.readBytes(fileName);
+				}
+				else if (isWeiXin())
+				{
+					return WeChatFileSystem.readBytes(fileName);
+				}
+				else
+				{
+					logErrorBase("not supported openFileSync");
+				}
 			}
 		}
-		return str.startString(newLen);
+		catch (Exception e)
+		{
+			if (errorIfNull)
+			{
+				logExceptionBase(e, "文件加载失败! : " + fileName);
+			}
+		}
+		return null;
 	}
 	public static void openTxtFileAsync(string fileName, bool errorIfNull, StringCallback callback)
 	{
@@ -69,7 +102,7 @@ public class FileUtility
 	// fileName为绝对路径
 	public static void openFileAsync(string fileName, bool errorIfNull, BytesCallback callback)
 	{
-		if (!isWebGL() && !isFileExist(fileName))
+		if (!isFileExist(fileName))
 		{
 			if (errorIfNull)
 			{
@@ -97,22 +130,18 @@ public class FileUtility
 		for (int i = 0; i < count; ++i)
 		{
 			string fileName = fileNameList[i];
-			checkDownloadPath(ref fileName);
-			using var www = UnityWebRequest.Get(fileName);
-			yield return www.SendWebRequest();
-			if (errorIfNull && www.downloadHandler.data == null)
+			yield return openFileAsyncInternal(fileName, errorIfNull, (byte[] bytes) =>
 			{
-				logErrorBase("open file failed:" + fileName + ", info:" + www.error);
-			}
-			callback?.Invoke(fileNameList[i], www.downloadHandler.data);
+				callback?.Invoke(fileName, bytes);
+			});
 		}
 	}
 	// 写一个文本文件,fileName为绝对路径,content是写入的字符串
 	public static void writeFile(string fileName, byte[] buffer, int size, bool appendData = false)
 	{
-		// 检测路径是否存在,如果不存在就创建一个
 		createDir(getFilePath(fileName));
-		if (isEditor() || !isAndroid())
+		// 检测路径是否存在,如果不存在就创建一个
+		if (isEditor() || isIOS() || isWindows())
 		{
 			using FileStream file = new(fileName, appendData ? FileMode.Append : FileMode.Create, FileAccess.Write);
 			if (buffer != null && buffer.Length > 0 && size > 0)
@@ -121,9 +150,31 @@ public class FileUtility
 			}
 			file.Flush();
 		}
-		else
+		else if (isAndroid())
 		{
 			AndroidAssetLoader.writeFile(fileName, buffer, size, appendData);
+		}
+		else if (isWebGL())
+		{
+			if (buffer.Length > size)
+			{
+				logWarningBase("写入的文件长度小于buffer的长度,将会产生一次复制和GC");
+				byte[] buffer0 = new byte[size];
+				Buffer.BlockCopy(buffer, 0, buffer0, 0, buffer0.Length);
+				buffer = buffer0;
+			}
+			if (isByteDance())
+			{
+				TTFileSystem.writeBytes(fileName, buffer);
+			}
+			else if (isWeiXin())
+			{
+				WeChatFileSystem.writeBytes(fileName, buffer);
+			}
+			else
+			{
+				logErrorBase("not supported writeFile");
+			}
 		}
 	}
 	// 删除文件,参数为绝对路径
@@ -136,7 +187,7 @@ public class FileUtility
 		}
 		try
 		{
-			if (isEditor())
+			if (isEditor() || isIOS() || isWindows())
 			{
 				File.Delete(path);
 			}
@@ -144,17 +195,20 @@ public class FileUtility
 			{
 				return AndroidAssetLoader.deleteFile(path);
 			}
-			else if (isIOS())
-			{
-				File.Delete(path);
-			}
-			else if (isWindows())
-			{
-				File.Delete(path);
-			}
 			else if (isWebGL())
 			{
-				File.Delete(path);
+				if (isByteDance())
+				{
+					TTFileSystem.deleteFile(path);
+				}
+				else if (isWeiXin())
+				{
+					WeChatFileSystem.deleteFile(path);
+				}
+				else
+				{
+					logErrorBase("not supported deleteFile");
+				}
 			}
 		}
 		catch (Exception e)
@@ -189,7 +243,7 @@ public class FileUtility
 		{
 			dir += "/";
 		}
-		if (isEditor())
+		if (isEditor() || isIOS() || isWindows())
 		{
 			return Directory.Exists(dir);
 		}
@@ -209,17 +263,25 @@ public class FileUtility
 			logErrorBase("isDirExist invalid path : " + dir);
 			return false;
 		}
-		else if (isIOS())
-		{
-			return Directory.Exists(dir);
-		}
-		else if (isWindows())
-		{
-			return Directory.Exists(dir);
-		}
 		else if (isWebGL())
 		{
-			return Directory.Exists(dir);
+			// 由于小游戏的接口本身无法访问StreamingAssets,所以只要是StreamingAssets中的就直接返回true
+			if (dir.startWith(F_STREAMING_ASSETS_PATH))
+			{
+				return true;
+			}
+			if (isByteDance())
+			{
+				return TTFileSystem.isDirectoryExist(dir);
+			}
+			else if (isWeiXin())
+			{
+				return WeChatFileSystem.isDirectoryExist(dir);
+			}
+			else
+			{
+				logErrorBase("not supported isDirExist");
+			}
 		}
 		return false;
 	}
@@ -230,7 +292,7 @@ public class FileUtility
 		{
 			return false;
 		}
-		if (isEditor())
+		if (isEditor() || isIOS() || isWindows())
 		{
 			return File.Exists(fileName);
 		}
@@ -250,17 +312,25 @@ public class FileUtility
 			logErrorBase("isFileExist invalid path : " + fileName);
 			return false;
 		}
-		else if (isIOS())
-		{
-			return File.Exists(fileName);
-		}
-		else if (isWindows())
-		{
-			return File.Exists(fileName);
-		}
 		else if (isWebGL())
 		{
-			return File.Exists(fileName);
+			// 由于小游戏的接口本身无法访问StreamingAssets,所以只要是StreamingAssets中的就直接返回true
+			if (fileName.startWith(F_STREAMING_ASSETS_PATH))
+			{
+				return true;
+			}
+			if (isByteDance())
+			{
+				return TTFileSystem.isFileExist(fileName);
+			}
+			else if (isWeiXin())
+			{
+				return WeChatFileSystem.isFileExist(fileName);
+			}
+			else
+			{
+				logErrorBase("not supported isFileExist");
+			}
 		}
 		return false;
 	}
@@ -277,7 +347,7 @@ public class FileUtility
 		{
 			createDir(parentDir);
 		}
-		if (isEditor())
+		if (isEditor() || isIOS() || isWindows())
 		{
 			Directory.CreateDirectory(dir);
 		}
@@ -285,17 +355,20 @@ public class FileUtility
 		{
 			AndroidAssetLoader.createDirectoryRecursive(dir);
 		}
-		else if (isIOS())
-		{
-			Directory.CreateDirectory(dir);
-		}
-		else if (isWindows())
-		{
-			Directory.CreateDirectory(dir);
-		}
 		else if (isWebGL())
 		{
-			Directory.CreateDirectory(dir);
+			if (isByteDance())
+			{
+				TTFileSystem.createDirectory(dir);
+			}
+			else if (isWeiXin())
+			{
+				WeChatFileSystem.createDirectory(dir);
+			}
+			else
+			{
+				logErrorBase("not supported createDir");
+			}
 		}
 	}
 	// 查找指定目录下的所有文件,path为绝对路径
@@ -303,11 +376,7 @@ public class FileUtility
 	{
 		try
 		{
-			if (!isEditor() && isAndroid())
-			{
-				AndroidAssetLoader.findFiles(path, fileList, patterns, recursive);
-			}
-			else
+			if (isEditor() || isIOS() || isWindows())
 			{
 				validPath(ref path);
 				if (!isDirExist(path))
@@ -345,6 +414,14 @@ public class FileUtility
 					}
 				}
 			}
+			if (isAndroid())
+			{
+				AndroidAssetLoader.findFiles(path, fileList, patterns, recursive);
+			}
+			else if (isWebGL())
+			{
+				logErrorBase("not supported findFilesInternal");
+			}
 		}
 		// 此处暂时不抛出异常信息
 		catch (Exception e)
@@ -361,8 +438,16 @@ public class FileUtility
 		{
 			return;
 		}
+		if (isEditor() || isWindows() || isWebGL())
+		{
+			GameEntryBase.startCoroutine(generateMD5ListAsyncInternal(fileNameList, callback));
+		}
+		else if (isIOS())
+		{
+			callback?.Invoke(generateMD5ListInternalIOS(fileNameList));
+		}
 		// 安卓平台下容易oom,所以调用java的函数通过流的方式来计算md5
-		if (!isEditor() && isAndroid())
+		else if (isAndroid())
 		{
 			List<string> list = new();
 			AndroidAssetLoader.generateMD5List(fileNameList, list);
@@ -372,17 +457,6 @@ public class FileUtility
 				list[i] = list[i].ToLower();
 			}
 			callback(list);
-		}
-		else
-		{
-			if (isIOS())
-			{
-				callback?.Invoke(generateMD5ListInternalIOS(fileNameList));
-			}
-			else
-			{
-				GameEntryBase.startCoroutine(generateMD5ListAsyncInternal(fileNameList, callback));
-			}
 		}
 	}
 	// 计算一个文件的MD5
@@ -439,7 +513,21 @@ public class FileUtility
 	// 查找指定目录下的所有文件,path为StreamingAssets下的相对路径,返回的路径列表为绝对路径
 	public static void findStreamingAssetsFiles(string path, List<string> fileList, List<string> patterns = null, bool recursive = true, bool keepAbsolutePath = false)
 	{
-		if (!isEditor() && isAndroid())
+		if (isEditor() || isIOS() || isWindows())
+		{
+			path = path.ensurePrefix(F_STREAMING_ASSETS_PATH);
+			findFilesInternal(path, fileList, patterns, recursive);
+			if (!keepAbsolutePath)
+			{
+				int removeLength = F_STREAMING_ASSETS_PATH.Length;
+				int count = fileList.Count;
+				for (int i = 0; i < count; ++i)
+				{
+					fileList[i] = fileList[i].removeStartCount(removeLength);
+				}
+			}
+		}
+		else if (isAndroid())
 		{
 			// 转换为相对路径
 			path = path.removeStartString(F_STREAMING_ASSETS_PATH);
@@ -454,41 +542,15 @@ public class FileUtility
 				}
 			}
 		}
-		else
+		else if (isWebGL())
 		{
-			path = path.ensurePrefix(F_STREAMING_ASSETS_PATH);
-			findFilesInternal(path, fileList, patterns, recursive);
-			if (!keepAbsolutePath)
-			{
-				int removeLength = F_STREAMING_ASSETS_PATH.Length;
-				int count = fileList.Count;
-				for (int i = 0; i < count; ++i)
-				{
-					fileList[i] = fileList[i].removeStartCount(removeLength);
-				}
-			}
+			logErrorBase("not supported findFilesInternal");
 		}
 	}
 	// 写一个文本文件,fileName为绝对路径,content是写入的字符串
 	public static void writeTxtFile(string fileName, string content, bool appendData = false)
 	{
-		if (isEditor())
-		{
-			byte[] bytes = stringToBytes(content);
-			if (bytes != null)
-			{
-				writeFile(fileName, bytes, bytes.Length, appendData);
-			}
-		}
-		else if (isIOS())
-		{
-			byte[] bytes = stringToBytes(content);
-			if (bytes != null)
-			{
-				writeFile(fileName, bytes, bytes.Length, appendData);
-			}
-		}
-		else if (isWindows())
+		if (isEditor() || isIOS() || isWindows() || isWebGL())
 		{
 			byte[] bytes = stringToBytes(content);
 			if (bytes != null)
@@ -501,14 +563,6 @@ public class FileUtility
 			// 检测路径是否存在,如果不存在就创建一个
 			createDir(getFilePath(fileName));
 			AndroidAssetLoader.writeTxtFile(fileName, content, appendData);
-		}
-		else if (isWebGL())
-		{
-			byte[] bytes = stringToBytes(content);
-			if (bytes != null)
-			{
-				writeFile(fileName, bytes, bytes.Length, appendData);
-			}
 		}
 	}
 	// 筛选出需要删除的文件
@@ -647,16 +701,11 @@ public class FileUtility
 		}
 		for (int i = 0; i < count; ++i)
 		{
-			string fileName = fileNameList[i];
-			checkDownloadPath(ref fileName);
-			using var www = UnityWebRequest.Get(fileName);
-			yield return www.SendWebRequest();
-			if (www.downloadHandler.data == null)
+			int index = i;
+			yield return openFileAsyncInternal(fileNameList[i], true, (byte[] bytes) =>
 			{
-				logErrorBase("open file failed:" + fileName + ", info:" + www.error);
-			}
-			md5List[i] = generateFileMD5(www.downloadHandler.data);
-			yield return null;
+				md5List[index] = generateFileMD5(bytes);
+			});
 		}
 		try
 		{
@@ -693,31 +742,5 @@ public class FileUtility
 			md5List[i] = generateFileMD5(openFileIOS(fileNameList[i]));
 		}
 		return md5List;
-	}
-	// fileName为绝对路径
-	protected static IEnumerator openFileAsyncInternal(string fileName, bool errorIfNull, BytesCallback callback)
-	{
-		if (fileName.isEmpty())
-		{
-			callback?.Invoke(null);
-			yield break;
-		}
-		DateTime start = DateTime.Now;
-		checkDownloadPath(ref fileName);
-		using var www = UnityWebRequest.Get(fileName);
-		yield return www.SendWebRequest();
-		if (errorIfNull && www.downloadHandler.data == null)
-		{
-			logErrorBase("open file failed:" + fileName + ", info:" + www.error + ", error:" + www.downloadHandler.error);
-		}
-		logBase("打开文件耗时:" + (int)(DateTime.Now - start).TotalMilliseconds + "毫秒,file:" + fileName);
-		try
-		{
-			callback?.Invoke(www.downloadHandler.data);
-		}
-		catch (Exception e)
-		{
-			logExceptionBase(e);
-		}
 	}
 }

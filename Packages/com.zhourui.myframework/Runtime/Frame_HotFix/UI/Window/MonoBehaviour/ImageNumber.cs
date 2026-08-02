@@ -3,7 +3,6 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using static FrameBaseUtility;
 using static UnityUtility;
-using static MathUtility;
 
 // 使用图片来显示数字,暂时只支持TPAtlas,如果使用SpriteAtlas,纹理坐标会计算错误
 public class ImageNumber : Image
@@ -33,7 +32,7 @@ public class ImageNumber : Image
 			logError("找不到rectTransform");
 		}
 		mNumberHeight = (int)rectTransform.rect.height;
-		mNumberWidth = (int)(divide(width, height) * mNumberHeight);
+		mNumberWidth = (int)(width.divide(height) * mNumberHeight);
 		setDirty();
 	}
 	public void clearNumber()
@@ -55,7 +54,7 @@ public class ImageNumber : Image
 	{
 		mNumber = number;
 		// 检查是否包含无法显示的数字
-		if (isEditor() && !mNumber.isEmpty() && mNumber.contains(c => !mSpriteList.ContainsKey(c)))
+		if (isEditor() && !mSpriteList.isEmpty() && !mNumber.isEmpty() && mNumber.contains(c => !mSpriteList.ContainsKey(c)))
 		{
 			logError("设置的数字内容无法显示:" + mNumber);
 			return;

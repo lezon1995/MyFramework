@@ -12,42 +12,47 @@ public static class TestAssert
     }
     public static void assertEqual<T>(T expected, T actual, string message = "")
     {
-        bool eq = (expected == null && actual == null)
-               || (expected != null && expected.Equals(actual));
+        bool eq = (expected == null && actual == null) || (expected != null && expected.Equals(actual));
         if (!eq)
         {
-            throw new Exception(
-                string.IsNullOrEmpty(message)
-                    ? $"Expected [{expected}] but got [{actual}]"
-                    : $"{message} - Expected [{expected}] but got [{actual}]");
+            throw new Exception(message.isEmpty() ? $"Expected [{expected}] but got [{actual}]"
+                                                  : $"{message} - Expected [{expected}] but got [{actual}]");
         }
     }
-    public static void assertNotNull(object obj, string message = "")
+	public static void assertEqual(float expected, float actual, float precision, string message = "")
+	{
+		if (!expected.isEqual(actual, precision))
+		{
+			throw new Exception(message.isEmpty() ? $"Expected [{expected}] but got [{actual}]"
+					                              : $"{message} - Expected [{expected}] but got [{actual}]");
+		}
+	}
+	public static void assertNotNull(object obj, string message = "")
     {
         if (obj == null)
         {
-            throw new Exception(string.IsNullOrEmpty(message) ? "Object should not be null" : message);
+            throw new Exception(message.isEmpty() ? "Object should not be null" : message);
         }
     }
     public static void assertNull(object obj, string message = "")
     {
         if (obj != null)
         {
-            throw new Exception(string.IsNullOrEmpty(message) ? "Object should be null" : message);
+            throw new Exception(message.isEmpty() ? "Object should be null" : message);
         }
     }
     public static void assertTrue(bool condition, string message = "")
     {
         if (!condition)
         {
-            throw new Exception(string.IsNullOrEmpty(message) ? "Condition should be true" : message);
+            throw new Exception(message.isEmpty() ? "Condition should be true" : message);
         }
     }
     public static void assertFalse(bool condition, string message = "")
     {
         if (condition)
         {
-            throw new Exception(string.IsNullOrEmpty(message) ? "Condition should be false" : message);
+            throw new Exception(message.isEmpty() ? "Condition should be false" : message);
         }
     }
 }

@@ -4,6 +4,7 @@ using static FrameBaseUtility;
 using static StringUtility;
 using static EditorCommonUtility;
 using static FrameBaseDefine;
+using static PlatformUtility;
 
 // 以下代码为示例代码,需要根据自己项目的需求进行调整
 public class GameReleaseWindow : GameEditorWindow
@@ -28,7 +29,16 @@ public class GameReleaseWindow : GameEditorWindow
 
 		using var a = new GUILayout.ScrollViewScope(mScrollPos);
 		mScrollPos = a.scrollPosition;
-		label("当前平台:" + mPlatform.mName, 25);
+		string suffix = "";
+		if (isByteDance())
+		{
+			suffix = "抖音小游戏";
+		}
+		else if (isWeiXin())
+		{
+			suffix = "微信小游戏";
+		}
+		label("当前平台:" + mPlatform.mName + " " + suffix, 25);
 		space(30);
 
 		// 版本号
@@ -60,7 +70,7 @@ public class GameReleaseWindow : GameEditorWindow
 					}
 					if (modified)
 					{
-						mPlatform.mBuildVersion = stringsToString(mPlatform.mVersionNumber, '.');
+						mPlatform.mBuildVersion = mPlatform.mVersionNumber.stringsToString('.');
 					}
 				}
 			}
@@ -78,7 +88,7 @@ public class GameReleaseWindow : GameEditorWindow
 				// 更改游戏渠道后,需要刷新一次版本号
 				mPlatform.updateRemoteVersion();
 				mPlatform.generateFolderPreName();
-				PlayerSettings.SetScriptingDefineSymbols(getNameBuildTarget(), mPlatform.getDefaultPlatformDefine());
+				PlayerSettings.SetScriptingDefineSymbols(getNameBuildTarget(), mPlatform.getBuildTimePlatformDefine());
 				AssetDatabase.Refresh();
 			}
 			if (toggle(ref mPlatform.mTestClient, "测试客户端"))
@@ -89,11 +99,11 @@ public class GameReleaseWindow : GameEditorWindow
 				{
 					mPlatform.mEnableHotFix = !isWebGL();
 				}
-				PlayerSettings.SetScriptingDefineSymbols(getNameBuildTarget(), mPlatform.getDefaultPlatformDefine());
+				PlayerSettings.SetScriptingDefineSymbols(getNameBuildTarget(), mPlatform.getBuildTimePlatformDefine());
 				AssetDatabase.Refresh();
 			}
 
-			label("远端路径:" + ObsSystem.getURL() + mPlatform.getRemoteFolderInEditor(""));
+			label("远端路径:" + mPlatform.getRemotePathInEditor(""));
 			label("输出路径:" + mPlatform.mOutputPath);
 			label("输出文件夹前缀: " + mPlatform.mFolderPreName);
 			if (button("ProjectSettings", 130))
@@ -133,7 +143,7 @@ public class GameReleaseWindow : GameEditorWindow
 			{
 				if (toggle(ref mPlatform.mEnableHotFix, "启用热更"))
 				{
-					PlayerSettings.SetScriptingDefineSymbols(getNameBuildTarget(), mPlatform.getDefaultPlatformDefine());
+					PlayerSettings.SetScriptingDefineSymbols(getNameBuildTarget(), mPlatform.getBuildTimePlatformDefine());
 					AssetDatabase.Refresh();
 					mPlatform.generateFolderPreName();
 				}
@@ -149,7 +159,7 @@ public class GameReleaseWindow : GameEditorWindow
 					// 需要大版本号与远端一致,小版本号大于远端小版本号
 					if (!mNeedCheckVersion || mPlatform.mRemoteVersion.isEmpty() || isMinVersionGreater || mAutoVersion)
 					{
-						string buildVersion = stringsToString(mPlatform.mVersionNumber, '.');
+						string buildVersion = mPlatform.mVersionNumber.stringsToString('.');
 						if (mAutoVersion)
 						{
 							buildVersion = mPlatform.generateSubVersion();
@@ -161,7 +171,7 @@ public class GameReleaseWindow : GameEditorWindow
 							mPlatform.buildHotFix(false) &&
 							mPlatform.writeVersion() &&
 							mPlatform.writeFileList(mPlatform.mAssetBundleFullPath) &&
-							mPlatform.upload(mAutoUploadVersion);
+							mPlatform.uploadResources(mAutoUploadVersion);
 					}
 					else
 					{
@@ -173,7 +183,7 @@ public class GameReleaseWindow : GameEditorWindow
 					// 需要大版本号与远端一致,小版本号大于远端小版本号
 					if (!mNeedCheckVersion || mPlatform.mRemoteVersion.isEmpty() || isMinVersionGreater || mAutoVersion)
 					{
-						string buildVersion = stringsToString(mPlatform.mVersionNumber, '.');
+						string buildVersion = mPlatform.mVersionNumber.stringsToString('.');
 						if (mAutoVersion)
 						{
 							buildVersion = mPlatform.generateSubVersion();
@@ -184,7 +194,7 @@ public class GameReleaseWindow : GameEditorWindow
 							mPlatform.buildHotFix(false) &&
 							mPlatform.writeVersion() &&
 							mPlatform.writeFileList(mPlatform.mAssetBundleFullPath) &&
-							mPlatform.upload(mAutoUploadVersion);
+							mPlatform.uploadResources(mAutoUploadVersion);
 					}
 					else
 					{
@@ -196,7 +206,7 @@ public class GameReleaseWindow : GameEditorWindow
 					// 需要大版本号与远端一致,小版本号大于远端小版本号
 					if (!mNeedCheckVersion || mPlatform.mRemoteVersion.isEmpty() || isMinVersionGreater || mAutoVersion)
 					{
-						string buildVersion = stringsToString(mPlatform.mVersionNumber, '.');
+						string buildVersion = mPlatform.mVersionNumber.stringsToString('.');
 						if (mAutoVersion)
 						{
 							buildVersion = mPlatform.generateSubVersion();
@@ -214,15 +224,15 @@ public class GameReleaseWindow : GameEditorWindow
 					}
 				}
 
-				long localBigVersion = SToL(mPlatform.mVersionNumber[0]) * 1000000000 + SToL(mPlatform.mVersionNumber[1]);
-				long remoteBigVersion = PlatformBase.getVersionPart(mPlatform.mRemoteVersion, 0) * 1000000000 + PlatformBase.getVersionPart(mPlatform.mRemoteVersion, 1);
+				long localBigVersion = mPlatform.mVersionNumber[0].SToL() * 1000000000 + mPlatform.mVersionNumber[1].SToL();
+				long remoteBigVersion = getVersionPart(mPlatform.mRemoteVersion, 0) * 1000000000 + getVersionPart(mPlatform.mRemoteVersion, 1);
 				// 大版本更新打包
 				if (button("大版本更新,打包AB+打包程序+上传", "大版本更新打包,会执行打包AB,构建xcode工程或生成apk,并且上传StreamingAssets资源", 200, 30))
 				{
 					// 需要大版本号大于远端
 					if (!mNeedCheckVersion || localBigVersion > remoteBigVersion || mAutoVersion)
 					{
-						string buildVersion = stringsToString(mPlatform.mVersionNumber, '.');
+						string buildVersion = mPlatform.mVersionNumber.stringsToString('.');
 						if (mAutoVersion)
 						{
 							buildVersion = mPlatform.generateMainVersion();
@@ -232,7 +242,7 @@ public class GameReleaseWindow : GameEditorWindow
 							setBuildVersion(buildVersion) &&
 							MenuAssetBundle.packAssetBundle(mPlatform.mTarget, fullPathToProjectPath(mPlatform.mAssetBundleFullPath), false) &&
 							mPlatform.build(true, false) &&
-							mPlatform.upload(mAutoUploadVersion);
+							mPlatform.uploadResources(mAutoUploadVersion);
 					}
 					else
 					{
@@ -244,7 +254,7 @@ public class GameReleaseWindow : GameEditorWindow
 					// 需要大版本号大于远端
 					if (!mNeedCheckVersion || localBigVersion > remoteBigVersion || mAutoVersion)
 					{
-						string buildVersion = stringsToString(mPlatform.mVersionNumber, '.');
+						string buildVersion = mPlatform.mVersionNumber.stringsToString('.');
 						if (mAutoVersion)
 						{
 							buildVersion = mPlatform.generateMainVersion();
@@ -255,7 +265,7 @@ public class GameReleaseWindow : GameEditorWindow
 							mPlatform.build(true, false) &&
 							// 这里可以直接上传,当大版本更新不影响网络消息时,可以不用更新也能继续运行游戏
 							// 如果网络消息不兼容,则需要手动去更新大版本
-							mPlatform.upload(mAutoUploadVersion);
+							mPlatform.uploadResources(mAutoUploadVersion);
 					}
 					else
 					{
@@ -267,7 +277,7 @@ public class GameReleaseWindow : GameEditorWindow
 			{
 				if (button("打包AB+生成程序", "打包AB,生成可执行程序", 150, 30))
 				{
-					string buildVersion = stringsToString(mPlatform.mVersionNumber, '.');
+					string buildVersion = mPlatform.mVersionNumber.stringsToString('.');
 					if (mAutoVersion)
 					{
 						buildVersion = mPlatform.generateMainVersion();
@@ -282,7 +292,7 @@ public class GameReleaseWindow : GameEditorWindow
 				}
 				if (button("生成程序", "生成可执行程序", 120, 30))
 				{
-					string buildVersion = stringsToString(mPlatform.mVersionNumber, '.');
+					string buildVersion = mPlatform.mVersionNumber.stringsToString('.');
 					if (mAutoVersion)
 					{
 						buildVersion = mPlatform.generateMainVersion();
@@ -321,7 +331,7 @@ public class GameReleaseWindow : GameEditorWindow
 						messageYesNo("确认上传版本号为" + mPlatform.mLocalVersion + "的资源?"))
 					{
 						_ = mPlatform.writeFileList(mPlatform.mAssetBundleFullPath) &&
-							mPlatform.upload(mAutoUploadVersion);
+							mPlatform.uploadResources(mAutoUploadVersion);
 					}
 				}
 				else
@@ -329,7 +339,7 @@ public class GameReleaseWindow : GameEditorWindow
 					if (button("上传正式资源", 100, 35) && messageYesNo("确认上传版本号为" + mPlatform.mLocalVersion + "的资源?"))
 					{
 						_ = mPlatform.writeFileList(mPlatform.mAssetBundleFullPath) &&
-							mPlatform.upload(mAutoUploadVersion);
+							mPlatform.uploadResources(mAutoUploadVersion);
 					}
 				}
 			}
@@ -357,7 +367,7 @@ public class GameReleaseWindow : GameEditorWindow
 		mPlatform.generateFolderPreName();
 		mPlatform.updateRemoteVersion();
 		mPlatform.updateLocalVersion();
-		setBuildVersion(stringsToString(mPlatform.mVersionNumber, '.'));
+		setBuildVersion(mPlatform.mVersionNumber.stringsToString('.'));
 		mNeedCheckVersion = true;
 	}
 	protected bool setBuildVersion(string version)

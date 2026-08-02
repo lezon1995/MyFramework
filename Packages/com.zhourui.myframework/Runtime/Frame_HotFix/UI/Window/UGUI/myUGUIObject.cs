@@ -145,7 +145,7 @@ public class myUGUIObject : Transformable, IMouseEventCollect
 	public float getRightInSelf()						{ return getSize().x * (1.0f - getPivot().x); }
 	// 获取不考虑中心点偏移的坐标,也就是固定获取窗口中心的坐标
 	// 由于pivot的影响,Transform.localPosition获得的坐标并不一定等于窗口中心的坐标
-	public Vector3 getPositionNoPivot()					{ return WidgetUtility.getPositionNoPivot(mRectTransform); }
+	public Vector3 getPositionNoPivot()					{ return mRectTransform.getPositionNoPivot(); }
 	// 使当前窗口右边界对齐另外一个窗口的左边界,只修改x轴,仅限同一父节点下
 	public void setRightToOtherLeft(myUGUIObject other, float interval = 0.0f)
 	{
@@ -237,29 +237,29 @@ public class myUGUIObject : Transformable, IMouseEventCollect
 
 	public void setWidth(float width)
 	{
-		if (isFloatEqual(mRectTransform.rect.size.x, width))
+		if (mRectTransform.rect.size.x.isEqual(width))
 		{
 			return;
 		}
 		// 还是需要调用setSize,需要触发一些虚函数的调用
-		setSize(replaceX(getSize(), width));
+		setSize(getSize().replaceX(width));
 	}
 	public void setHeight(float height)
 	{
-		if (isFloatEqual(mRectTransform.rect.size.y, height))
+		if (mRectTransform.rect.size.y.isEqual(height))
 		{
 			return;
 		}
 		// 还是需要调用setSize,需要触发一些虚函数的调用
-		setSize(replaceY(getSize(), height));
+		setSize(getSize().replaceY(height));
 	}
 	public virtual void setSize(Vector2 size)
 	{
-		if (isVectorEqual(mRectTransform.rect.size, size))
+		if (mRectTransform.rect.size.isEqual(size))
 		{
 			return;
 		}
-		setRectSize(mRectTransform, size);
+		mRectTransform.setRectSize(size);
 		ensureColliderSize();
 	}
 	public virtual Vector2 getSize(bool transformed = false)
@@ -267,7 +267,7 @@ public class myUGUIObject : Transformable, IMouseEventCollect
 		Vector2 windowSize = mRectTransform.rect.size;
 		if (transformed)
 		{
-			windowSize = multiVector2(windowSize, getWorldScale());
+			windowSize = windowSize.multi(getWorldScale());
 		}
 		return windowSize;
 	}

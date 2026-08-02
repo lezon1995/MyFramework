@@ -1,16 +1,15 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-#if BYTE_DANCE
-using TTSDK;
-#endif
 using UObject = UnityEngine.Object;
 using static UnityUtility;
 using static FrameUtility;
 using static FrameBaseHotFix;
 using static FrameDefine;
 using static FrameBaseUtility;
+using static FileUtility;
 
 // AssetBundle的信息,存储了AssetBundle中相关的所有数据
+// 维护父子依赖关系(引用链)、资源列表和加载回调,AssetBundleLoader通过此类管理AB的加载与卸载
 public class AssetBundleInfo : ClassObject
 {
 	protected Dictionary<string, AssetBundleInfo> mChildren = new();		// 依赖自己的AssetBundle列表,即引用了自己的AssetBundle
@@ -70,18 +69,14 @@ public class AssetBundleInfo : ClassObject
 			// 其他资源包中的资源引用到此资源时,也会自动从此AssetBundle内存镜像中加载需要的资源
 			// 所以卸载镜像,将会造成这些自动加载失败,仅在当前资源包内已经没有任何资源在使用了,并且
 			// 其他资源包中的资源实例没有对当前资源包进行引用时才会卸载
-#if BYTE_DANCE
-			mAssetBundle.TTUnload(true);
-#else
 			mAssetBundle.Unload(true);
-#endif
 			mAssetBundle = null;
 		}
 		mObjectToAsset.Clear();
 		mAssetList.forValue(item => item.clear());
 		mLoadState = LOAD_STATE.NONE;
 		// 通知依赖项,自己被卸载了
-		mParents.forValue(item => item.notifyChildUnload());
+		mParents.forValue(item => item?.notifyChildUnload());
 	}
 	// 卸载包中单个资源
 	public bool unloadAsset(UObject obj)
@@ -165,7 +160,7 @@ public class AssetBundleInfo : ClassObject
 	{
 		foreach (var item in mParents)
 		{
-			if (item.Value.mLoadState != LOAD_STATE.LOADED)
+			if (item.Value != null && item.Value.mLoadState != LOAD_STATE.LOADED)
 			{
 				return false;
 			}
@@ -175,11 +170,6 @@ public class AssetBundleInfo : ClassObject
 	// 同步加载资源包
 	public void loadAssetBundle()
 	{
-		if (isWebGL())
-		{
-			logError("webgl无法使用loadAssetBundle");
-			return;
-		}
 		if (mAssetBundle != null)
 		{
 			return;
@@ -192,9 +182,10 @@ public class AssetBundleInfo : ClassObject
 		// 先确保所有依赖项已经加载
 		foreach (var item in mParents)
 		{
-			item.Value.loadAssetBundle();
+			item.Value?.loadAssetBundle();
 		}
-		mAssetBundle = AssetBundle.LoadFromFile(availableReadPath(mBundleFileName));
+		byte[] bytes = openFileSync(availableReadPath(mBundleFileName), true);
+		mAssetBundle = AssetBundle.LoadFromMemory(bytes);
 		if (mAssetBundle == null)
 		{
 			logError("can not load asset bundle : " + mBundleFileName);
@@ -207,13 +198,13 @@ public class AssetBundleInfo : ClassObject
 	{
 		foreach (var item in mParents)
 		{
-			item.Value.loadAssetBundleAsync(null);
+			item.Value?.loadAssetBundleAsync(null);
 		}
 	}
 	public void checkAssetBundleDependenceLoaded()
 	{
 		// 先确保所有依赖项已经加载
-		mParents.forValue(item => item.checkAssetBundleDependenceLoaded());
+		mParents.forValue(item => item?.checkAssetBundleDependenceLoaded());
 		if (mLoadState == LOAD_STATE.NONE)
 		{
 			loadAssetBundle();

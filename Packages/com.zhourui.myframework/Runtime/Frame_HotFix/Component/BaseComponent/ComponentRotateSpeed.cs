@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using static MathUtility;
 
 // 按速度旋转的组件
 public class ComponentRotateSpeed : GameComponent, IComponentModifyRotation, IComponentBreakable
@@ -22,23 +21,23 @@ public class ComponentRotateSpeed : GameComponent, IComponentModifyRotation, ICo
 		mCurRotation = Vector3.zero;
 		mUpdateInFixedTick = false;
 	}
-	public override void update(float elapsedTime)
+	public override void update(float dt)
 	{
-		base.update(elapsedTime);
+		base.update(dt);
 		if (mUpdateInFixedTick)
 		{
 			return;
 		}
-		tick(elapsedTime);
+		tick(dt);
 	}
-	public override void fixedUpdate(float elapsedTime)
+	public override void fixedUpdate(float dt)
 	{
-		base.fixedUpdate(elapsedTime);
+		base.fixedUpdate(dt);
 		if (!mUpdateInFixedTick)
 		{
 			return;
 		}
-		tick(elapsedTime);
+		tick(dt);
 	}
 	public Vector3 getRotateSpeed() { return mRotateSpeed; }
 	public Vector3 getRotateAcceleration() { return mRotateAcceleration; }
@@ -53,7 +52,7 @@ public class ComponentRotateSpeed : GameComponent, IComponentModifyRotation, ICo
 		mRotateAcceleration = rotateAcceleration;
 		applyRotation(ref mCurRotation);
 		// 如果速度和加速度都为0,则停止旋转
-		if (isVectorZero(rotateSpeed) && isVectorZero(rotateAcceleration))
+		if (rotateSpeed.isZero() && rotateAcceleration.isZero())
 		{
 			setActive(false);
 		}
@@ -71,7 +70,7 @@ public class ComponentRotateSpeed : GameComponent, IComponentModifyRotation, ICo
 	public void pause(bool pause) { mPlayState = pause ? PLAY_STATE.PAUSE : PLAY_STATE.PLAY; }
 	public void setPlayState(PLAY_STATE state)
 	{
-		if (mComponentOwner == null)
+		if (owner == null)
 		{
 			return;
 		}
@@ -95,10 +94,10 @@ public class ComponentRotateSpeed : GameComponent, IComponentModifyRotation, ICo
 	protected virtual Vector3 getCurRotation() { return Vector3.zero; }
 	protected void tick(float elapsedTime)
 	{
-		if (mPlayState == PLAY_STATE.PLAY && !(isVectorZero(mRotateSpeed) && isVectorZero(mRotateAcceleration)))
+		if (mPlayState == PLAY_STATE.PLAY && !(mRotateSpeed.isZero() && mRotateAcceleration.isZero()))
 		{
 			mCurRotation += mRotateSpeed * elapsedTime;
-			adjustAngle360(ref mCurRotation);
+			mCurRotation = mCurRotation.adjustAngle360();
 			applyRotation(ref mCurRotation);
 			mRotateSpeed += mRotateAcceleration * elapsedTime;
 		}

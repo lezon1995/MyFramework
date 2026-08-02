@@ -1,9 +1,10 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using static FrameUtility;
 using static MathUtility;
 
+// 空列表,在返回空列表时避免分配新对象
 public class EmptyList<T>
 {
 	public static List<T> mList;
@@ -14,6 +15,7 @@ public class EmptyList<T>
 	}
 }
 
+// 列表扩展方法,提供列表的便捷操作
 public static class ListExtension
 {
 	public static T random<T>(this List<T> list)
@@ -202,6 +204,7 @@ public static class ListExtension
 		}
 		removeValues.For(item => list.Remove(item));
 	}
+	// 移除第一个满足条件的元素（仅移除一个，不是全部）
 	public static bool remove<T>(this List<T> list, Predicate<T> condition)
 	{
 		if (list.isEmpty())
@@ -218,6 +221,8 @@ public static class ListExtension
 		}
 		return false;
 	}
+	// 注意：遍历中删除元素可能导致跳过相邻匹配项（RemoveAt后索引i未回退）
+	// 如果需要删除所有匹配项，请用removeAll
 	public static int removeAll<T>(this List<T> list, Predicate<T> condition)
 	{
 		if (list.isEmpty())
@@ -235,6 +240,7 @@ public static class ListExtension
 		}
 		return count;
 	}
+	// 将index处元素与最后一个元素交换，然后移除末尾元素（O(1)删除，不保持顺序）
 	public static T swapToEndAndRemove<T>(this List<T> list, int index)
 	{
 		list.swap(index, list.Count - 1);
@@ -395,9 +401,26 @@ public static class ListExtension
 		}
 		return false;
 	}
-	public static List<T> addRange<T>(this List<T> list, List<T> other, int count)
+    public static List<T> addRange<T>(this List<T> list, HashSet<T> other)
+    {
+		if (other.isEmpty())
+		{
+			return list;
+        }
+		int count = other.Count;
+        if (list.Capacity < list.Count + count)
+        {
+            list.Capacity = list.Count + count;
+        }
+        foreach (T item in other)
+        {
+            list.add(item);
+        }
+        return list;
+    }
+    public static List<T> addRange<T>(this List<T> list, List<T> other, int count)
 	{
-		clampMax(ref count, other.count());
+		count = count.clampMax(other.count());
 		if (list.Capacity < list.Count + count)
 		{
 			list.Capacity = list.Count + count;
@@ -410,7 +433,7 @@ public static class ListExtension
 	}
 	public static List<T> addRange<T>(this List<T> list, List<T> other, int startIndex, int count)
 	{
-		clampMax(ref count, other.count()- startIndex);
+		count = count.clampMax(other.count() - startIndex);
 		if (list.Capacity < list.Count + count)
 		{
 			list.Capacity = list.Count + count;
@@ -468,7 +491,7 @@ public static class ListExtension
 	}
 	public static List<T> addRange<T>(this List<T> list, T[] other, int count)
 	{
-		clampMax(ref count, other.count());
+		count = count.clampMax(other.count());
 		for (int i = 0; i < count; ++i)
 		{
 			list.add(other[i]);
@@ -477,7 +500,7 @@ public static class ListExtension
 	}
 	public static List<T> addRange<T>(this List<T> list, T[] other, int startIndex, int count)
 	{
-		clampMax(ref count, other.count() - startIndex);
+		count = count.clampMax(other.count() - startIndex);
 		if (list.Capacity < list.Count + count)
 		{
 			list.Capacity = list.Count + count;
@@ -791,6 +814,7 @@ public static class ListExtension
 		sourceList.Clear();
 		return targetList;
 	}
+	// 从列表末尾弹出最后一个元素并返回（类似栈pop操作）
 	public static T popBack<T>(this List<T> list)
 	{
 		if (list.isEmpty())
@@ -807,6 +831,7 @@ public static class ListExtension
 		}
 		return list[^1];
 	}
+	// 判断subList是否是list的连续子序列（朴素匹配，O(n*m)）
 	public static bool isSubList<T>(this List<T> list, List<T> subList)
 	{
 		if (list.isEmpty() || subList.isEmpty())

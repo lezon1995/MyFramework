@@ -1,0 +1,314 @@
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using System.Security.Cryptography;
+using System.Text;
+using System.Xml;
+using System.Net;
+using static FileUtility;
+using static ResourceUtility;
+using static StringUtility;
+using static TimeUtility;
+using static HttpUtility;
+
+// 用于执行华为云OBS文件存储服务器的访问逻辑,使用前需要确保以下4个参数已经设置正确
+// 如果只是下载,则只需要设置URL,上传或者删除则需要配置其余三个参数
+public class ObsSystem : IObjectStorageSystem
+{
+	protected string mURL;
+	protected string mBucketName;
+	protected string mAccessKey;
+	protected string mSecureKey;
+	private static ObsSystem mInstance;
+	public static ObsSystem get() { return mInstance ??= new ObsSystem(); }
+	public void init(string url, string bucketName, string accessKey, string secureKey)
+	{
+		mURL = validPath(url);
+		mBucketName = bucketName;
+		mAccessKey = accessKey;
+		mSecureKey = secureKey;
+	}
+	// 同步下载文件,remotePath是上传到服务器后存储的相对路径,带后缀
+	public byte[] downloadBytes(string remotePath)
+	{
+		if (mURL.isEmpty() || remotePath == null)
+		{
+			return null;
+		}
+		return downloadFile(mURL + remotePath);
+	}
+	// 同步下载文件,remotePath是上传到服务器后存储的相对路径,带后缀
+	public string downloadTxt(string remotePath)
+	{
+		if (mURL.isEmpty() || remotePath == null)
+		{
+			return EMPTY;
+		}
+		return downloadFile(mURL + remotePath).bytesToString();
+	}
+	// 异步下载文件,remotePath是上传到服务器后存储的相对路径,带后缀
+	public void downloadBytes(string remotePath, BytesIntCallback callback)
+	{
+		if (mURL.isEmpty() || remotePath == null)
+		{
+			callback?.Invoke(null, 0);
+			return;
+		}
+		loadAssetsFromUrl(mURL + remotePath, (byte[] bytes) => { callback?.Invoke(bytes, bytes.count()); });
+	}
+	// 异步下载文件,字符串格式,remotePath是上传到服务器后存储的相对路径,带后缀
+	public IEnumerator downloadTxtWaiting(string remotePath, StringIntCallback callback)
+	{
+		if (mURL.isEmpty() || remotePath == null)
+		{
+			callback?.Invoke(null, 0);
+			yield break;
+		}
+		yield return loadAssetsFromUrlWaiting(mURL + remotePath, (byte[] bytes) =>
+		{
+			callback?.Invoke(bytes.bytesToString(), bytes.count());
+		});
+	}
+	// 异步下载文件,byte[],remotePath是上传到服务器后存储的相对路径,带后缀
+	public IEnumerator downloadBytesWaiting(string remotePath, BytesIntCallback callback)
+	{
+		if (mURL.isEmpty() || remotePath == null)
+		{
+			callback?.Invoke(null, 0);
+			yield break;
+		}
+		yield return loadAssetsFromUrlWaiting(mURL + remotePath, (byte[] bytes) =>
+		{
+			callback?.Invoke(bytes, bytes.count());
+		});
+	}
+	// 异步下载文件,remotePath是上传到服务器后存储的相对路径,带后缀
+	public void downloadTxt(string remotePath, StringCallback callback)
+	{
+		if (mURL.isEmpty() || remotePath == null)
+		{
+			callback?.Invoke(null);
+			return;
+		}
+		loadAssetsFromUrl(mURL + remotePath, (byte[] bytes) =>
+		{
+			callback?.Invoke(bytes.bytesToString());
+		});
+	}
+	// fullPath是要上传文件的本地绝对路径,savePath是上传到服务器后存储的相对路径,带后缀
+	// noCache在这里无效
+	public HttpStatusCode upload(string fullPath, string savePath, bool noCache)
+	{
+		upload(fullPath, openFileSync(fullPath, true), savePath, out _, out HttpStatusCode code, 30000);
+		return code;
+	}
+	// fullPath是要上传文件的本地绝对路径,savePath是上传到服务器后存储的相对路径,带后缀
+	public bool upload(string fullPath, byte[] fileBuffer, string savePath, out WebExceptionStatus status, out HttpStatusCode code, int timeout)
+	{
+		status = WebExceptionStatus.Success;
+		code = HttpStatusCode.OK;
+		if (mURL.isEmpty() || fullPath == null)
+		{
+			return false;
+		}
+		return !savePath.isEmpty() && httpPostFile(mURL, out status, out code, generateUploadFormList(fullPath, fileBuffer, savePath), timeout) != null;
+	}
+	public void uploadAsync(string fullPath, string savePath, HttpCallback callback)
+	{
+		if (mURL.isEmpty() || fullPath == null)
+		{
+			return;
+		}
+		openFileAsync(fullPath, false, (byte[] fileBuffer) =>
+		{
+			httpPostFileAsync(mURL, generateUploadFormList(fullPath, fileBuffer, savePath), callback);
+		});
+	}
+	public bool delete(string path)
+	{
+		if (mURL.isEmpty() || path == null)
+		{
+			return false;
+		}
+		string contentType = "application/x-www-form-urlencoded";
+		string signature = generateURLSignature(mSecureKey, "DELETE", null, contentType, out string expires, mBucketName, path);
+		Dictionary<string, string> paramList = new()
+		{
+			{ "AccessKeyId", mAccessKey },
+			{ "Expires", expires },
+			{ "Signature", signature }
+		};
+		return httpDelete(mURL + path, out _, out _, paramList, null, contentType) != null;
+	}
+	public Dictionary<string, GameFileInfo> getFileList(string path)
+	{
+		Dictionary<string, GameFileInfo> fileMap = new();
+		getFileList(path, fileMap);
+		return fileMap;
+	}
+	public void getFileList(string path, Dictionary<string, GameFileInfo> fileMap)
+	{
+		if (mURL.isEmpty() || path == null)
+		{
+			return;
+		}
+		fileMap.Clear();
+		using var a = new ListScope<GameFileInfo>(out var fileList);
+		getFileListInternal(path, fileList);
+		foreach (GameFileInfo info in fileList)
+		{
+			info.mFileName = info.mFileName.removeStart(path);
+			fileMap.Add(info.mFileName, info);
+		}
+	}
+	public bool refreshCDN(string remoteRelativePath) { return true; }
+	//------------------------------------------------------------------------------------------------------------------------------
+	public void getFileListInternal(string path, List<GameFileInfo> fileList)
+	{
+		using var b = new DicScope<string, string>(out var paramList);
+		string marker = null;
+		string str;
+		do
+		{
+			paramList.Clear();
+			if (!marker.isEmpty())
+			{
+				paramList.Add("marker", marker);
+			}
+			paramList.Add("prefix", path);
+			str = httpGet(mURL, out _, out _, paramList);
+			if (str == null)
+			{
+				return;
+			}
+		} while (!parseFileList(str, fileList, out marker));
+	}
+	protected List<FormItem> generateUploadFormList(string fullPath, byte[] fileBuffer, string savePath)
+	{
+		if (fileBuffer == null)
+		{
+			return null;
+		}
+		string signature = generatePolicySignature(mBucketName, mSecureKey, savePath, "public-read", out string policyBase64);
+		List<FormItem> formList = new()
+		{
+			new FormItemParam("key", savePath),
+			new FormItemParam("x-obs-acl", "public-read"),
+			new FormItemParam("AccessKeyId", mAccessKey),
+			new FormItemParam("policy", policyBase64),
+			new FormItemParam("signature", signature),
+			new FormItemFile(fileBuffer, fileBuffer.Length, fullPath)
+		};
+		return formList;
+	}
+	protected static string generateHeaderSignature(string secureKey, string verb, string contentMD5_16, string contentType, DateTime date, string bucket, string file)
+	{
+		string canonicalizedResource = "/" + bucket + "/" + file;
+		string contentMD5Base64 = null;
+		if (!contentMD5_16.isEmpty())
+		{
+			contentMD5Base64 = Convert.ToBase64String(contentMD5_16.toBytes());
+		}
+		string stringToSign = verb + "\n" + contentMD5Base64 + "\n" + contentType + "\n" + date.ToString("r") + "\n" + canonicalizedResource;
+		byte[] bytes = hmacSha1(secureKey, stringToSign);
+		return bytes != null ? Convert.ToBase64String(bytes) : EMPTY;
+	}
+	protected static string generateURLSignature(string secureKey, string verb, string contentMD5_16, string contentType, out string expires, string bucket, string file)
+	{
+		string canonicalizedResource = "/" + bucket + "/" + file;
+		string contentMD5Base64 = null;
+		if (!contentMD5_16.isEmpty())
+		{
+			contentMD5Base64 = Convert.ToBase64String(contentMD5_16.toBytes());
+		}
+		expires = dateTimeToTimeStamp(DateTime.Now.AddMinutes(10)).LToS();
+		string stringToSign = verb + "\n" + contentMD5Base64 + "\n" + contentType + "\n" + expires + "\n" + canonicalizedResource;
+		byte[] bytes = hmacSha1(secureKey, stringToSign);
+		return bytes != null ? Convert.ToBase64String(bytes) : EMPTY;
+	}
+	protected static string generatePolicySignature(string bucket, string secureKey, string savePath, string acl, out string policyBase64)
+	{
+		StringBuilder policy = new();
+		// 10分钟后失效
+		policy.AppendLine("{\"expiration\": \"" + DateTime.UtcNow.AddMinutes(10).ToString("O") + "\",");
+		policy.AppendLine("\"conditions\":[");
+		policy.AppendLine("{\"x-obs-acl\": \"" + acl + "\"},");
+		policy.AppendLine("{\"bucket\":\"" + bucket + "\"},");
+		policy.AppendLine("{\"key\":\"" + savePath + "\"}");
+		policy.AppendLine("]");
+		policy.Append("}");
+		policyBase64 = Convert.ToBase64String(policy.ToString().toBytes());
+		byte[] bytes = hmacSha1(secureKey, policyBase64);
+		return bytes != null ? Convert.ToBase64String(bytes) : EMPTY;
+	}
+	// 返回值表示是否已经获取了全部的文件信息,如果没有获取全,nextMarker则会返回下一次获取所需的标记
+	protected static bool parseFileList(string str, List<GameFileInfo> fileList, out string nextMarker)
+	{
+		bool fetchFinish = false;
+		nextMarker = null;
+		StringReader strReader = new(str);
+		var reader = XmlReader.Create(strReader);
+		while (reader.Read())
+		{
+			if (reader.NodeType != XmlNodeType.Element)
+			{
+				continue;
+			}
+			if (reader.Name == "Contents")
+			{
+				GameFileInfo info = new();
+				while (reader.Read())
+				{
+					if (reader.NodeType != XmlNodeType.Element)
+					{
+						continue;
+					}
+					string name = reader.Name;
+					reader.Read();
+					if (name == "Key")
+					{
+						info.mFileName = reader.Value;
+						// 以/结尾的是目录,不需要放入列表
+						if (reader.Value[^1] == '/')
+						{
+							break;
+						}
+					}
+					else if (name == "ETag")
+					{
+						info.mMD5 = reader.Value.removeAll('\"');
+					}
+					else if (name == "Size")
+					{
+						info.mFileSize = reader.Value.SToL();
+						// 完成一个文件信息的解析
+						fileList.Add(info);
+						break;
+					}
+				}
+			}
+			else if (reader.Name == "IsTruncated")
+			{
+				reader.Read();
+				fetchFinish = !reader.Value.stringToBool();
+			}
+			else if (reader.Name == "NextMarker")
+			{
+				reader.Read();
+				nextMarker = reader.Value;
+			}
+		}
+		reader.Close();
+		strReader.Close();
+		return fetchFinish;
+	}
+	protected static byte[] hmacSha1(string key, string toSign)
+	{
+		if (key.isEmpty())
+		{
+			return null;
+		}
+		return new HMACSHA1(key.toBytes()).ComputeHash(toSign.toBytes());
+	}
+}

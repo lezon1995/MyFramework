@@ -2,9 +2,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using static FrameDefine;
-using static StringUtility;
 using static FileUtility;
-using static MathUtility;
 using static FrameBaseDefine;
 
 // 物体轨迹记录工具
@@ -132,7 +130,7 @@ public class PathRecorder : MonoBehaviour
 			string content = "";
 			foreach (var item in mTranslatePath)
 			{
-				content += FToS(item.Key) + ":" + V3ToS(item.Value) + "\n";
+				content += item.Key.FToS() + ":" + item.Value.V3ToS() + "\n";
 			}
 			writeTxtFile(pathWithName + ".translate", content);
 		}
@@ -143,7 +141,7 @@ public class PathRecorder : MonoBehaviour
 			string content = "";
 			foreach (var item in mRotatePath)
 			{
-				content += FToS(item.Key) + ":" + V3ToS(item.Value) + "\n";
+				content += item.Key.FToS() + ":" + item.Value.V3ToS() + "\n";
 			}
 			writeTxtFile(pathWithName + ".rotate", content);
 		}
@@ -154,7 +152,7 @@ public class PathRecorder : MonoBehaviour
 			string content = "";
 			foreach (var item in mScalePath)
 			{
-				content += FToS(item.Key) + ":" + V3ToS(item.Value) + "\n";
+				content += item.Key.FToS() + ":" + item.Value.V3ToS() + "\n";
 			}
 			writeTxtFile(pathWithName + ".scale", content);
 		}
@@ -164,7 +162,7 @@ public class PathRecorder : MonoBehaviour
 			string content = "";
 			foreach (var item in mAlphaPath)
 			{
-				content += FToS(item.Key) + ":" + FToS(item.Value) + "\n";
+				content += item.Key.FToS() + ":" + item.Value.FToS() + "\n";
 			}
 			writeTxtFile(pathWithName + ".alpha", content);
 		}
@@ -187,7 +185,7 @@ public class PathRecorder : MonoBehaviour
 				continue;
 			}
 			Vector3 curValue = path.get(keys[i]);
-			if (!path.removeIf(keys[i], isVectorEqual(curValue, lastValue)))
+			if (!path.removeIf(keys[i], curValue.isEqual(lastValue)))
 			{
 				lastValue = curValue;
 			}
@@ -207,7 +205,7 @@ public class PathRecorder : MonoBehaviour
 				continue;
 			}
 			float curValue = path.get(keys[i]);
-			if (!path.removeIf(keys[i], isFloatEqual(curValue, lastValue)))
+			if (!path.removeIf(keys[i], curValue.isEqual(lastValue)))
 			{
 				lastValue = curValue;
 			}

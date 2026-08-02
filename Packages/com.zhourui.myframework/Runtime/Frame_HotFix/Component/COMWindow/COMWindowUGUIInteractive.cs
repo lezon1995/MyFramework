@@ -1,7 +1,6 @@
 ﻿using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using static MathUtility;
 
 // UGUIWindow的鼠标相关事件的逻辑
 public class COMWindowUGUIInteractive : GameComponent
@@ -44,14 +43,14 @@ public class COMWindowUGUIInteractive : GameComponent
 		}
 		mMousePointer = null;
 	}
-	public override void update(float elapsedTime)
+	public override void update(float dt)
 	{
-		base.update(elapsedTime);
+		base.update(dt);
 		if (mMousePointer != null)
 		{
 			// 此处应该获取touchID的移动量
 			Vector3 delta = mMousePointer.delta;
-			if (!isVectorZero(delta))
+			if (!delta.isZero())
 			{
 				mOnUGUIMouseMove?.Invoke(delta, mMousePointer.position);
 			}
@@ -104,7 +103,7 @@ public class COMWindowUGUIInteractive : GameComponent
 		{
 			return;
 		}
-		mEventTriggerListener = (mComponentOwner as myUGUIObject).getOrAddUnityComponent<EventTriggerListener>();
+		mEventTriggerListener = (owner as myUGUIObject).getOrAddUnityComponent<EventTriggerListener>();
 		mEventTriggerListener.mOnClick += onUGUIClick;
 		mEventTriggerListener.mOnDown += onUGUIMouseDown;
 		mEventTriggerListener.mOnUp += onUGUIMouseUp;

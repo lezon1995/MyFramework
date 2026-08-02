@@ -12,7 +12,7 @@ public class myUGUINumber : myUGUIImage
 	protected List<myUGUIImageSimple> mNumberList = new();	// 数字窗口列表
 	protected DOCKING_POSITION mDockingPosition;			// 数字停靠方式
 	protected NUMBER_DIRECTION mDirection;					// 数字显示方向
-	protected Sprite[] mSpriteList;							// 该列表只有10个数字的图片
+	protected List<Sprite> mSpriteList = new();				// 该列表只有10个数字的图片
 	protected Sprite mAddSprite;							// +号的图片
 	protected Sprite mMinusSprite;							// -号的图片
 	protected Sprite mDotSprite;							// .号的图片
@@ -26,27 +26,23 @@ public class myUGUINumber : myUGUIImage
 	protected int mMaxCount;								// 数字最大个数
 	public myUGUINumber()
 	{
-		mSpriteList = new Sprite[10];
 		mDockingPosition = DOCKING_POSITION.LEFT;
 		mDirection = NUMBER_DIRECTION.HORIZONTAL;
 	}
 	public override void init()
 	{
 		base.init();
-		if (mImage == null)
-		{
-			return;
-		}
-		mNumberStyle = mImage.sprite.name.rangeToLast('_');
+		mImage.enabled = false;
+		mNumberStyle = mOriginSpriteName.rangeToLast('_');
+		setMaxCount(10);
 		for (int i = 0; i < 10; ++i)
 		{
-			mSpriteList[i] = getSpriteInAtlas(mNumberStyle + "_" + IToS(i));
+			mSpriteList.add(getSpriteInAtlas(mNumberStyle + "_" + i.IToS()));
 		}
 		mAddSprite = getSpriteInAtlas(mNumberStyle + "_add");
 		mMinusSprite = getSpriteInAtlas(mNumberStyle + "_minus");
 		mDotSprite = getSpriteInAtlas(mNumberStyle + "_dot");
-		setMaxCount(10);
-		mImage.enabled = false;
+		refreshNumber();
 	}
 	public override void notifyAnchorApply()
 	{
@@ -64,11 +60,7 @@ public class myUGUINumber : myUGUIImage
 		mAddSprite = source.mAddSprite;
 		mMinusSprite = source.mMinusSprite;
 		mDotSprite = source.mDotSprite;
-		int count = mSpriteList.Length;
-		for(int i = 0; i < count; ++i)
-		{
-			mSpriteList[i] = source.mSpriteList[i];
-		}
+		mSpriteList.setRange(source.mSpriteList);
 		mDirection = source.mDirection;
 		mDockingPosition = source.mDockingPosition;
 		setMaxCount(source.mMaxCount);
@@ -140,27 +132,27 @@ public class myUGUINumber : myUGUIImage
 		}
 		mMaxCount = maxCount;
 		// 设置的数字字符串不能超过最大数量
-		if (mNumber.Length > mMaxCount)
+		if (mNumber.length() > mMaxCount)
 		{
 			mNumber = mNumber.startString(mMaxCount);
 		}
 		mNumberList.Clear();
 		for (int i = 0; i < mMaxCount + 1; ++i)
 		{
-			mNumberList.Add(mLayout.getScript().createUGUIObject<myUGUIImageSimple>(this, mName + "_" + IToS(i), true));
+			mNumberList.Add(mLayout.getScript().createUGUIObject<myUGUIImageSimple>(this, mName + "_" + i.IToS(), true));
 		}
 		refreshNumber();
 	}
 	public void setNumber(int num, int limitLen = 0)
 	{
-		setNumber(IToS(num, limitLen));
+		setNumber(num.IToS(limitLen));
 	}
 	public void setNumber(string num)
 	{
 		mNumber = num;
 		checkUIntString(mNumber, mAllMark);
 		// 设置的数字字符串不能超过最大数量
-		if (mNumber.Length > mMaxCount)
+		if (mNumber.length() > mMaxCount)
 		{
 			mNumber = mNumber.startString(mMaxCount);
 		}
@@ -174,6 +166,10 @@ public class myUGUINumber : myUGUIImage
 	//------------------------------------------------------------------------------------------------------------------------------
 	protected void refreshNumber()
 	{
+		if (mSpriteList.isEmpty())
+		{
+			return;
+		}
 		if (mNumber.isEmpty())
 		{
 			foreach (myUGUIImageSimple item in mNumberList)
@@ -252,14 +248,14 @@ public class myUGUINumber : myUGUIImage
 		Sprite sprite = mSpriteList[mNumber[numberStartPos] - '0'];
 		if (mDirection == NUMBER_DIRECTION.HORIZONTAL)
 		{
-			float inverseHeight = divide(1.0f, sprite.rect.height);
+			float inverseHeight = sprite.rect.height.inverse();
 			numberSize.x = windowSize.y * sprite.rect.width * inverseHeight;
 			numberSize.y = windowSize.y;
 			numberScale = windowSize.y * inverseHeight;
 		}
 		else if (mDirection == NUMBER_DIRECTION.VERTICAL)
 		{
-			float inverseWidth = divide(1.0f, sprite.rect.width);
+			float inverseWidth = sprite.rect.width.inverse();
 			numberSize.x = windowSize.x;
 			numberSize.y = windowSize.x * sprite.rect.height * inverseWidth;
 			numberScale = windowSize.x * inverseWidth;

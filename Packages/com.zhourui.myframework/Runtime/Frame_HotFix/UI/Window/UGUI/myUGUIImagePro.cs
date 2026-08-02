@@ -29,7 +29,7 @@ public class myUGUIImagePro : myUGUIImage, IShaderWindow
 			{
 				logError("没有找到MaterialPath组件,name:" + getName());
 			}
-			mOriginMaterialPath = mOriginMaterialPath.removeStartString(P_GAME_RESOURCES_PATH);
+			mOriginMaterialPath = mOriginMaterialPath.removeStart(P_GAME_RESOURCES_PATH);
 			if (!mOriginMaterialPath.endWith("/unity_builtin_extra"))
 			{
 				if (!mOriginMaterialPath.Contains('.'))
@@ -58,9 +58,9 @@ public class myUGUIImagePro : myUGUIImage, IShaderWindow
 		mNeedUpdate = true;
 	}
 	public WindowShader getWindowShader() { return mWindowShader; }
-	public override void update(float elapsedTime)
+	public override void update(float dt)
 	{
-		base.update(elapsedTime);
+		base.update(dt);
 		if (isCulled())
 		{
 			return;
@@ -92,13 +92,13 @@ public class myUGUIImagePro : myUGUIImage, IShaderWindow
 					// 当需要复制一个新的材质时,刚加载出来的材质实际上就不会再用到了
 					// 只有当下次还加载相同的材质时才会直接返回已加载的材质
 					// 如果要卸载最开始加载出来的材质,只能通过卸载整个文件夹的资源来卸载
-					Material newMat = new(mCurMaterial.getResource());
-					newMat.name = materialPath + "_" + IToS(mID);
+					Material newMat = new(mCurMaterial.get());
+					newMat.name = materialPath + "_" + mID.IToS();
 					setMaterial(newMat);
 				}
 				else
 				{
-					setMaterial(mCurMaterial.getResource());
+					setMaterial(mCurMaterial.get());
 				}
 			});
 		}
@@ -108,13 +108,13 @@ public class myUGUIImagePro : myUGUIImage, IShaderWindow
 			mCurMaterial = mResourceManager.loadGameResource<Material>(materialPath);
 			if (mIsNewMaterial)
 			{
-				Material mat = new(mCurMaterial.getResource());
-				mat.name = materialPath + "_" + IToS(mID);
+				Material mat = new(mCurMaterial.get());
+				mat.name = materialPath + "_" + mID.IToS();
 				setMaterial(mat);
 			}
 			else
 			{
-				setMaterial(mCurMaterial.getResource());
+				setMaterial(mCurMaterial.get());
 			}
 		}
 	}

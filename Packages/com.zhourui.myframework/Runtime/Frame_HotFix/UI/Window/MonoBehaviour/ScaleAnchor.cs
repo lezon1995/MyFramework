@@ -1,7 +1,5 @@
 ﻿using UnityEngine;
-using static MathUtility;
 using static UnityUtility;
-using static WidgetUtility;
 using static FrameBaseUtility;
 
 // 缩放自适应组件
@@ -39,7 +37,7 @@ public class ScaleAnchor : MonoBehaviour
 		{
 			mScreenScale = getScreenScale(preview ? getGameViewSize() : getRootSize());
 			mOriginSize = rectTransform.rect.size;
-			mOriginPos = getPositionNoPivotInParent(rectTransform);
+			mOriginPos = rectTransform.getPositionNoPivotInParent();
 			mFirstUpdate = false;
 		}
 		if (!preview && !force && !mDirty)
@@ -48,21 +46,21 @@ public class ScaleAnchor : MonoBehaviour
 		}
 		mDirty = false;
 		Vector3 realScale = getRealScale();
-		float thisWidth = floor(mOriginSize.x * realScale.x);
-		float thisHeight = floor(mOriginSize.y * realScale.y);
+		float thisWidth = (mOriginSize.x * realScale.x).floor();
+		float thisHeight = (mOriginSize.y * realScale.y).floor();
 		Vector2 newSize = new(thisWidth, thisHeight);
 		// 只有在刷新时才能确定父节点,所以父节点需要实时获取
 		if (mAdjustFont)
 		{
-			setRectSizeWithFontSize(rectTransform, newSize, mMinFontSize);
+			rectTransform.setRectSizeWithFontSize(newSize, mMinFontSize);
 		}
 		else
 		{
-			setRectSize(rectTransform, newSize);
+			rectTransform.setRectSize(newSize);
 		}
 		if (mAdjustPosition)
 		{
-			setPositionNoPivotInParent(rectTransform, round(multiVector3(mOriginPos, realScale)));
+			rectTransform.setPositionNoPivotInParent(mOriginPos.multi(realScale).round());
 		}
 	}
 	// 获取实际的可直接用于计算的宽高缩放值,会考虑保持宽高比以及缩放基准

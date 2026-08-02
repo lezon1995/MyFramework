@@ -1,4 +1,4 @@
-﻿using UnityEngine.U2D;
+using UnityEngine.U2D;
 using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -7,8 +7,11 @@ using UnityEditor.U2D;
 using UObject = UnityEngine.Object;
 using static FrameBaseUtility;
 
+// 精灵图集扩展方法,提供对SpriteAtlas的便捷操作
 public static class SpriteAtlasExtension
 {
+	// 判断指定Sprite是否属于某个SpriteAtlas（仅编辑器模式有效）
+	// 支持两种匹配：直接Sprite对象匹配和通过文件夹路径+文件名拼接匹配
 	public static bool isSpriteInAtlas(this SpriteAtlas atlas, Sprite targetSprite)
 	{
 #if UNITY_EDITOR
@@ -24,7 +27,8 @@ public static class SpriteAtlasExtension
 				return true;
 			}
 			// 通过路径拼接出完整的文件路径,加载后判断是否为指定的图片对象
-			else if (packable is DefaultAsset folder && loadAssetAtPath<Sprite>(getAssetPath(folder) + "/" + targetSprite.name + ".png") == targetSprite)
+
+			if (packable is DefaultAsset folder && loadAssetAtPath<Sprite>(getAssetPath(folder) + "/" + targetSprite.name + ".png") == targetSprite)
 			{
 				return true;
 			}

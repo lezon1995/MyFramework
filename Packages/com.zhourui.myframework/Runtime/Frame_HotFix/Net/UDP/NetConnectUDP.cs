@@ -11,6 +11,7 @@ using static FrameDefine;
 using static FrameBaseUtility;
 
 // 当前程序作为客户端时使用,表示一个与UDP服务器的连接
+// 提供双缓冲收发、消息缓冲区、网络状态回调,支持多线程安全的输出缓冲锁定
 public abstract class NetConnectUDP : NetConnect
 {
 	protected DoubleBuffer<PacketReceiveInfo> mReceiveBuffer = new();	// 在主线程中执行的消息列表
@@ -241,7 +242,7 @@ public abstract class NetConnectUDP : NetConnect
 					}
 					if (isDevOrEditor())
 					{
-						string info = "已接收 : " + IToS(packetType) + ", 字节数:" + IToS(bitCountToByteCount(bitIndex));
+						string info = "已接收 : " + packetType.IToS() + ", 字节数:" + bitCountToByteCount(bitIndex).IToS();
 						log(info, LOG_LEVEL.LOW);
 						mReceivePacketHistory.Enqueue(info);
 						if (mReceivePacketHistory.Count > 10)

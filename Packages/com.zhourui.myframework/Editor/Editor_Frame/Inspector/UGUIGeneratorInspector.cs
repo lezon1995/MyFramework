@@ -90,7 +90,7 @@ public class UGUIGeneratorInspector : GameInspector
 				string goName = generator.gameObject.name;
 				if (goName.endWith("_Mobile"))
 				{
-					goName = goName.removeEndString("_Mobile");
+					goName = goName.removeEnd("_Mobile");
 				}
 				AssetDatabase.OpenAsset(loadAsset(findScript(goName)));
 			}
@@ -111,7 +111,7 @@ public class UGUIGeneratorInspector : GameInspector
 				continue;
 			}
 			// 如果将移动端和PC端都放到同一个目录中,则需要排除一下移动端的(这里只是一种自定义的规则,不同项目可能不一样)
-			string className = getFileNameNoSuffixNoDir(fileList[i]).removeEndString("_Mobile");
+			string className = getFileNameNoSuffixNoDir(fileList[i]).removeEnd("_Mobile");
 			if (!uiList.addUnique(className))
 			{
 				continue;
@@ -127,7 +127,7 @@ public class UGUIGeneratorInspector : GameInspector
 				lineString = "\t\tregisteLayout<" + className + ">(script =>";
 			}
 			string endString;
-			string subPath = fileList[i].removeStartString(F_UI_PREFAB_PATH).removeEndString(getFileNameWithSuffix(fileList[i]));
+			string subPath = fileList[i].removeStart(F_UI_PREFAB_PATH).removeEnd(getFileNameWithSuffix(fileList[i]));
 			if (subPath.isEmpty())
 			{
 				endString = "m" + className + " = script);";
@@ -150,7 +150,7 @@ public class UGUIGeneratorInspector : GameInspector
 			{
 				insertList.For(str => codeList.Insert(++lineStart0, str));
 			}
-			writeTxtFile(registerFileFullPath, stringsToString(codeList, "\r\n"), true);
+			writeTxtFile(registerFileFullPath, codeList.stringsToString("\r\n"), true);
 		}
 
 		// GameBaseILR
@@ -164,7 +164,7 @@ public class UGUIGeneratorInspector : GameInspector
 			{
 				uiList.For(str => codeList.Insert(++lineStart0, "\tpublic static " + str + " m" + str + ";"));
 			}
-			writeTxtFile(gameBaseFileFullPath, stringsToString(codeList, "\r\n"), true);
+			writeTxtFile(gameBaseFileFullPath, codeList.stringsToString("\r\n"), true);
 		}
 	}
 	// 生成UI对应的脚本
@@ -173,7 +173,7 @@ public class UGUIGeneratorInspector : GameInspector
 		string className = generator.gameObject.name;
 		if (className.endWith("_Mobile"))
 		{
-			className = className.removeEndString("_Mobile");
+			className = className.removeEnd("_Mobile");
 		}
 
 		// 先找一下有没有已经存在的UI脚本
@@ -400,6 +400,10 @@ public class UGUIGeneratorInspector : GameInspector
 					memberDefineList.For(str => codeList.Insert(++lineStart, str));
 					codeList.Insert(++lineStart, "\t// auto generate member end");
 				}
+				else
+				{
+					Debug.LogError("找不到类名所属行,class " + className + " 请确保类名定义行的空格规范且无换行");
+				}
 			}
 
 			// 构造函数
@@ -433,6 +437,10 @@ public class UGUIGeneratorInspector : GameInspector
 						codeList.Insert(++lineStart, "\t\t// auto generate constructor end");
 						codeList.Insert(++lineStart, "\t}");
 					}
+					else
+					{
+						Debug.LogError("没有找到构造函数,也找不到自动生成的成员变量");
+					}
 				}
 			}
 
@@ -453,6 +461,10 @@ public class UGUIGeneratorInspector : GameInspector
 					generatedAssignLines.For(str => codeList.Insert(++lineStart, str));
 					codeList.Insert(++lineStart, "\t\t// auto generate assignWindow end");
 				}
+				else
+				{
+					Debug.LogError("找不到assignWindow的定义行");
+				}
 			}
 
 			// init
@@ -472,6 +484,10 @@ public class UGUIGeneratorInspector : GameInspector
 					generatedInitLines.For(str => codeList.Insert(++lineStart, str));
 					codeList.Insert(++lineStart, "\t\t// auto generate init end");
 				}
+				else
+				{
+                    Debug.LogError("找不到init中调用base.init的行");
+                }
 			}
 
 			// 查找是否有缺失的点击事件回调函数
@@ -490,7 +506,7 @@ public class UGUIGeneratorInspector : GameInspector
 					}
 				}
 			}
-			writeTxtFile(fileFullPath, stringsToString(codeList, "\r\n"), true);
+			writeTxtFile(fileFullPath, codeList.stringsToString("\r\n"), true);
 		}
 	}
 }

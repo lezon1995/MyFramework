@@ -28,9 +28,9 @@ public class ByteArrayPool : FrameSystem
 			mObject.AddComponent<ArrayPoolDebug>();
 		}
 	}
-	public override void update(float elapsedTime)
+	public override void update(float dt)
 	{
-		base.update(elapsedTime);
+		base.update(dt);
 		if (isEditor())
 		{
 			foreach (var itemList in mInusedList)

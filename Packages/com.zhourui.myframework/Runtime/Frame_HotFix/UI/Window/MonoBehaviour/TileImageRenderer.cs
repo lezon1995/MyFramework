@@ -2,7 +2,6 @@
 using UnityEngine.Rendering;
 using System.Collections.Generic;
 using static FrameUtility;
-using static StringUtility;
 using static UnityUtility;
 
 // 纯Sprite显示,不支持更多的操作,暂时只支持TPAtlas,如果使用SpriteAtlas,纹理坐标会计算错误
@@ -86,7 +85,7 @@ public class TileImageRenderer : MonoBehaviour
 				mTileCount = mTileItems.Count;
 				if (mTileCount * 4 >= mVertices.Length)
 				{
-					logWarning("已经超出了顶点上限,最多只允许" + IToS(mVertices.Length) + "个顶点");
+					logWarning("已经超出了顶点上限,最多只允许" + mVertices.Length.IToS() + "个顶点");
 					return;
 				}
 				// 这里的属性名字固定的,一般也就使用默认的材质即可
@@ -135,7 +134,7 @@ public class TileImageRenderer : MonoBehaviour
 				mTileCount = mTileMap.Count;
 				if (mTileCount * 4 >= mVertices.Length)
 				{
-					logWarning("已经超出了顶点上限,最多只允许" + IToS(mVertices.Length) + "个顶点");
+					logWarning("已经超出了顶点上限,最多只允许" + mVertices.Length.IToS() + "个顶点");
 					return;
 				}
 				Texture tex = mTileMap.firstValue().mSpriteData.mTexture;

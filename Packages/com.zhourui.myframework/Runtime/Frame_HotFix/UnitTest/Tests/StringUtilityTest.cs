@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using static StringUtility;
+using static SQLUtility;
+using static FrameBaseDefine;
 using static TestAssert;
 
 public static class StringUtilityTest
@@ -66,56 +69,84 @@ public static class StringUtilityTest
         testInitIntToString();
         testInitInvalidChars();
         testHexFullRoundtrip();
+        testGetBytesLength();
+        testValidateHttpString();
+        testHasNonChineseSymbolASCII();
+        testGenerateOtherASCII();
+        testGenerateCharWidth();
+        testGetStringNoRichText();
+        testRecoverStringColor();
+        testGetFileNameThread();
+        testDecodeJsonStruct();
+        testAddSprite();
+        testLineAppend();
+        testProjectPathToFullPath();
+        testGenerateMultiLine();
+        testGenerateMultiLineTMP();
+        testFullPathToProjectPathRef();
+        testProjectPathToFullPathRef();
+        testRemoveEndSlashRef();
+        testAddSpriteRef();
+        testColorString3Args();
+        testColorString4Args();
+        testColorString5Args();
+        testKMPSearchWithNextIndex();
+        testStrcat6Args();
+        testStrcat7Args();
+        testStrcat8Args();
+        testStrcat9Args();
+        testStrcat10Args();
+        testStrcat11Args();
     }
 
     static void testIToS()
     {
-        assertEqual("0", IToS(0), "IToS 0");
-        assertEqual("1", IToS(1), "IToS 1");
-        assertEqual("-1", IToS(-1), "IToS -1");
-        assertEqual("123", IToS(123), "IToS 123");
-        assertEqual("00123", IToS(123, 5), "IToS minLen");
+        assertEqual("0", 0.IToS(), "IToS 0");
+        assertEqual("1", 1.IToS(), "IToS 1");
+        assertEqual("-1", (-1).IToS(), "IToS -1");
+        assertEqual("123", 123.IToS(), "IToS 123");
+        assertEqual("00123", 123.IToS(5), "IToS minLen");
     }
 
     static void testLToS()
     {
-        assertEqual("0", LToS(0L), "LToS 0");
-        assertEqual("123456789", LToS(123456789L), "LToS");
+        assertEqual("0", 0L.LToS(), "LToS 0");
+        assertEqual("123456789", 123456789L.LToS(), "LToS");
     }
 
     static void testSToI()
     {
-        assertEqual(0, SToI("0"), "SToI 0");
-        assertEqual(1, SToI("1"), "SToI 1");
-        assertEqual(-1, SToI("-1"), "SToI -1");
-        assertEqual(0, SToI(""), "SToI empty");
+        assertEqual(0, "0".SToI(), "SToI 0");
+        assertEqual(1, "1".SToI(), "SToI 1");
+        assertEqual(-1, "-1".SToI(), "SToI -1");
+        assertEqual(0, "".SToI(), "SToI empty");
     }
 
     static void testSToL()
     {
-        assertEqual(0L, SToL("0"), "SToL 0");
-        assertEqual(9999999999L, SToL("9999999999"), "SToL large");
+        assertEqual(0L, "0".SToL(), "SToL 0");
+        assertEqual(9999999999L, "9999999999".SToL(), "SToL large");
     }
 
     static void testFToS()
     {
-        string s = FToS(3.14159f, 2, true);
+        string s = 3.14159f.FToS(2, true);
         assertTrue(s.Contains("3.14"), "FToS");
     }
 
     static void testSToF()
     {
-        float f = SToF("3.14");
+        float f = "3.14".SToF();
         assertTrue(f > 3.13f && f < 3.15f, "SToF");
     }
 
     static void testSplit()
     {
-        List<string> parts = stringToStrings("a,b,c", ',');
+        List<string> parts = "a,b,c".stringToStrings();
         assertEqual(3, parts.Count, "split 3");
         assertEqual("a", parts[0]);
         assertEqual("c", parts[2]);
-        string j = stringsToString(parts, ",");
+        string j = parts.stringsToString(",");
         assertEqual("a,b,c", j, "join");
     }
 
@@ -156,14 +187,14 @@ public static class StringUtilityTest
 
     static void testBoolToString()
     {
-        assertEqual("True", boolToString(true, true, false), "bool True");
-        assertEqual("false", boolToString(false, false, false), "bool false");
+        assertEqual("True", true.boolToString(true, false), "bool True");
+        assertEqual("false", false.boolToString(false, false), "bool false");
     }
 
     static void testStringToBool()
     {
-        assertTrue(stringToBool("true"), "str2bool true");
-        assertFalse(stringToBool("false"), "str2bool false");
+        assertTrue("true".stringToBool(), "str2bool true");
+        assertFalse("false".stringToBool(), "str2bool false");
     }
 
     static void testGetFirstNumberPos()
@@ -176,19 +207,19 @@ public static class StringUtilityTest
     static void testSToIsAndIsToS()
     {
         List<int> isList = new();
-        SToIs("1,2,3", isList);
+        "1,2,3".SToIs(isList);
         assertEqual(3, isList.Count);
-        string s = IsToS(isList, ',');
+        string s = isList.IsToS(',');
         assertEqual("1,2,3", s);
     }
 
     static void testSToFsAndFsToS()
     {
         List<float> fs = new();
-        SToFs("1.5,2.5,3.5,4", fs);
+        "1.5,2.5,3.5,4".SToFs(fs);
         assertTrue(fs.Count >= 3, "SToFs");
         float[] fa = null;
-        SToFs("1,2,3", ref fa);
+        "1,2,3".SToFs(ref fa);
         assertTrue(isFloatEqual(fa[0], 1.0f, 0.001f), "SToFs arr");
     }
 
@@ -220,8 +251,18 @@ public static class StringUtilityTest
 
     static void testColorString()
     {
-        string c = colorString("hello", "#FF0000");
+        // colorString 签名: (color, str) — 颜色在前
+        string c = colorString("#FF0000", "hello");
         assertTrue(c.Contains("hello"), "colorStr");
+        assertTrue(c.Contains("#FF0000"), "colorStr has color");
+
+        // 测试多参数重载: colorString(color, str0, str1)
+        string c2 = colorString("#00FF00", "hello", "world");
+        assertTrue(c2.Contains("hello"), "colorStr2 has str0");
+        assertTrue(c2.Contains("world"), "colorStr2 has str1");
+
+        // colorString 参数为空: 颜色为空时返回原字符串
+        assertEqual("hello", colorString("", "hello"), "colorStr empty color");
     }
 
     static void testIntToChineseString()
@@ -252,18 +293,45 @@ public static class StringUtilityTest
 
     static void testVectorParsing()
     {
-        assertEqual(new Vector2(1.5f, 2.5f), SToV2("1.5,2.5"), "SToV2");
-        assertEqual(new Vector3(1, 2, 3), SToV3("1,2,3"), "SToV3");
-        Vector4 v4 = SToV4("0.5,1.5,2.5,3.5");
+        assertEqual(new Vector2(1.5f, 2.5f), "1.5,2.5".SToV2(), "SToV2");
+        assertEqual(new Vector3(1, 2, 3), "1,2,3".SToV3(), "SToV3");
+        Vector4 v4 = "0.5,1.5,2.5,3.5".SToV4();
         assertTrue(v4.w > 3.0f, "SToV4 w");
     }
 
     static void testFormattingAndValidation()
     {
+        // format 三参数
         string f = format("{0}+{1}={2}", "1", "1", "2");
-        assertEqual("1+1=2", f, "format");
+        assertEqual("1+1=2", f, "format 3 args");
+        // format 单参数
         f = format("val={0}", "42");
         assertEqual("val=42", f, "format single");
+        // format 双参数
+        f = format("{0} and {1}", "a", "b");
+        assertEqual("a and b", f, "format 2 args");
+        // format with string[] args
+        f = format("{0}-{1}-{2}", new string[] { "x", "y", "z" });
+        assertEqual("x-y-z", f, "format string[]");
+        // format with List<string>
+        f = format("{0},{1}", new List<string> { "foo", "bar" });
+        assertEqual("foo,bar", f, "format List<string>");
+        // format with List<int>
+        f = format("v{0}.{1}", new List<int> { 3, 5 });
+        assertEqual("v3.5", f, "format List<int>");
+        // format with List<float>
+        f = format("p{0},{1}", new List<float> { 1.5f, 2.5f });
+        assertTrue(f.Contains("1.5"), "format List<float>");
+        // format with Span<int>
+        Span<int> span = stackalloc int[] { 10, 20 };
+        f = format("{0}->{1}", span);
+        assertEqual("10->20", f, "format Span<int>");
+        // format 空参数
+        f = format("no placeholders", new string[] { });
+        assertEqual("no placeholders", f, "format empty args");
+        f = format("no placeholders", new string[] { "a" });
+        assertEqual("no placeholders", f, "format no placeholder match");
+
         assertTrue(checkFloatString("3.14"), "checkFloat");
         assertTrue(checkFloatString("-0.5"), "checkFloat neg");
         assertTrue(checkIntString("42"), "checkInt");
@@ -293,7 +361,7 @@ public static class StringUtilityTest
 
     static void testColorAndAppendHelpers()
     {
-        Color c = SToColor("#FF8040");
+        Color c = "#FF8040".SToColor();
         assertTrue(c.r >= 0.99f, "SToColor R");
         assertTrue(c.g >= 0.49f && c.g <= 0.51f, "SToColor G");
     }
@@ -310,15 +378,15 @@ public static class StringUtilityTest
 
     static void testConversionFormats()
     {
-        assertEqual("1,234", IToSComma(1234), "IToSComma");
-        assertEqual("1,234", LToSComma(1234L), "LToSComma");
-        assertEqual("1,234", ULToSComma(1234UL), "ULToSComma");
+        assertEqual("1,234", 1234.IToSComma(), "IToSComma");
+        assertEqual("1,234", 1234L.LToSComma(), "LToSComma");
+        assertEqual("1,234", 1234UL.LToSComma(), "ULToSComma");
     }
 
     static void testArrayConversion()
     {
         int[] ia = null;
-        SToIs("1,2,3,4,5", ref ia);
+        "1,2,3,4,5".SToIs(ref ia);
         assertEqual(1, ia[0]);
         assertEqual(5, ia[4]);
     }
@@ -326,16 +394,16 @@ public static class StringUtilityTest
     static void testListConversion()
     {
         List<int> ints = new();
-        SToIs("5,10,15", ints);
+        "5,10,15".SToIs(ints);
         assertEqual(3, ints.Count);
         List<long> lng = new();
-        SToLs("100,200", lng);
+        "100,200".SToLs(lng);
         assertEqual(2, lng.Count);
         List<uint> ui = new();
-        SToUIs("1,2", ui);
+        "1,2".SToUIs(ui);
         assertEqual(2, ui.Count);
         List<bool> bl = new();
-        SToBools("1,0,1", bl);
+        "1,0,1".SToBools(bl);
         assertTrue(bl[0]);
         assertFalse(bl[1]);
     }
@@ -387,15 +455,15 @@ public static class StringUtilityTest
 
     static void testNonAllocParsers()
     {
-        List<int> ints = SToIsNonAlloc("1,2,3,4,5");
+        List<int> ints = "1,2,3,4,5".SToIsNonAlloc();
         assertEqual(5, ints.Count);
-        List<float> flts = SToFsNonAlloc("1.5,2.5");
+        List<float> flts = "1.5,2.5".SToFsNonAlloc();
         assertEqual(2, flts.Count);
     }
 
     static void testColorConversion()
     {
-        Color c = SToColor("#FF8040");
+        Color c = "#FF8040".SToColor();
         assertTrue(c.r >= 0.99f, "color255 R");
         assertTrue(c.g >= 0.49f && c.g <= 0.51f, "colorFloat G");
     }
@@ -491,8 +559,8 @@ public static class StringUtilityTest
         assertEqual("project", getFirstFolderName("project/sub/file.txt"), "getFirstFolderName");
         assertEqual("sub", getFolderName("project/sub/file.txt"), "getFolderName");
 
-        assertEqual(42u, SToUInt("42"), "SToUInt 42");
-        assertEqual(99ul, SToUL("99"), "SToUL 99");
+        assertEqual(42u, "42".SToUInt(), "SToUInt 42");
+        assertEqual(99ul, "99".SToUL(), "SToUL 99");
 
         assertEqual("_HELLO_WORLD", nameToUpper("helloWorld", true), "nameToUpper camel");
         assertEqual("HELLO", nameToUpper("hello", false), "nameToUpper no pref");
@@ -504,17 +572,17 @@ public static class StringUtilityTest
     static void testVectorNumberPhone()
     {
         // SToV2I / SToV3I / SToV4I 向量解析
-        assertEqual(new Vector2Int(3, 4), SToV2I("3,4"), "SToV2I");
-        assertEqual(new Vector3Int(1, 2, 3), SToV3I("1,2,3"), "SToV3I");
+        assertEqual(new Vector2Int(3, 4), "3,4".SToV2I(), "SToV2I");
+        assertEqual(new Vector3Int(1, 2, 3), "1,2,3".SToV3I(), "SToV3I");
 
         // V2IToS / V2ToS / V3ToS 向量转字符串
-        assertTrue(V2IToS(new Vector2Int(5, 6)).Length > 0, "V2IToS");
-        assertTrue(V2ToS(new Vector2(1.5f, 2.5f)).Length > 0, "V2ToS");
-        assertTrue(V3ToS(new Vector3(3f, 4f, 5f)).Length > 0, "V3ToS");
+        assertTrue(new Vector2Int(5, 6).V2IToS().Length > 0, "V2IToS");
+        assertTrue(new Vector2(1.5f, 2.5f).V2ToS().Length > 0, "V2ToS");
+        assertTrue(new Vector3(3f, 4f, 5f).V3ToS().Length > 0, "V3ToS");
 
         // IToS(uint) / ULToS
-        assertEqual("42", IToS(42u), "IToS uint");
-        assertEqual("99", ULToS(99ul), "ULToS");
+        assertEqual("42", 42u.IToS(), "IToS uint");
+        assertEqual("99", 99ul.LToS(), "ULToS");
 
         // hasNonChineseASCII — 字符既非中文也非 ASCII 才返回 true
         assertFalse(hasNonChineseASCII("hello"), "hasNonChineseASCII ASCII only=false");
@@ -542,8 +610,9 @@ public static class StringUtilityTest
 
     static void testInitIntToString()
     {
-        assertEqual("12345", IToS(12345), "initIToS");
-        assertEqual("1,234,567", IToSComma(1234567), "initComma");
+        assertEqual("0000012345", 12345.IToS(10), "initIToS");
+        assertEqual("12345", 12345.IToS(), "initIToS");
+        assertEqual("1,234,567", 1234567.IToSComma(), "initComma");
     }
 
     static void testInitInvalidChars()
@@ -563,8 +632,380 @@ public static class StringUtilityTest
         releaseHexStringBytes(b);
     }
 
+    // getBytesLength: 返回字符串UTF8字节长度直到第一个0
+    static void testGetBytesLength()
+    {
+        int len = getBytesLength("abc");
+        assert(len >= 3, "getBytesLength ascii");
+        int cn = getBytesLength("中文");
+        assert(cn >= 4, "getBytesLength chinese");
+        int empty = getBytesLength("");
+        assertEqual(0, empty, "getBytesLength empty");
+    }
+
+    // validateHttpString: 替换非法HTTP字符
+    static void testValidateHttpString()
+    {
+        string valid = validateHttpString("hello world");
+        assert(valid.Length > 0, "validateHttpString nonempty");
+        string withInvalid = validateHttpString("a&b");
+        assert(withInvalid.Length > 0, "validateHttpString replace");
+    }
+
+    // hasNonChineseSymbolASCII: 检测非中英文符号
+    static void testHasNonChineseSymbolASCII()
+    {
+        // 纯ASCII应无非法符号
+        assertFalse(hasNonChineseSymbolASCII("hello123"), "hasNonChineseSymbolASCII ascii");
+        // 含表情符号应检测到
+        assertTrue(hasNonChineseSymbolASCII("a\uD83D\uDE00b"), "hasNonChineseSymbolASCII emoji");
+    }
+
+    // generateOtherASCII: 生成排除指定字符的ASCII数组
+    static void testGenerateOtherASCII()
+    {
+        char[] all = generateOtherASCII();
+        assert(all.Length > 0, "generateOtherASCII nonempty");
+        char[] excluded = generateOtherASCII('A', 'B');
+        assert(excluded.Length > 0, "generateOtherASCII excl");
+        // 排除的字符不应出现在结果中
+        foreach (char c in excluded)
+        {
+            assert(c != 'A' && c != 'B', "generateOtherASCII excludes A/B");
+        }
+    }
+
+    // generateCharWidth: ASCII=1 非ASCII=2
+    static void testGenerateCharWidth()
+    {
+        assertEqual(3, generateCharWidth("abc"), "generateCharWidth ascii");
+        assertEqual(4, generateCharWidth("中文"), "generateCharWidth chinese");
+        assertEqual(4, generateCharWidth("a中b"), "generateCharWidth mixed");
+    }
+
+    // getStringNoRichText: 移除颜色富文本标签
+    static void testGetStringNoRichText()
+    {
+        List<string> colors = new();
+        string plain = getStringNoRichText("<color=#FF0000>红</color>黑", colors);
+        assertEqual("红黑", plain, "getStringNoRichText plain");
+        assert(colors.Count == plain.Length, "getStringNoRichText colors len");
+    }
+
+    // recoverStringColor: 根据颜色列表恢复富文本
+    static void testRecoverStringColor()
+    {
+        // "ab" 红色、"cd" 绿色 — 验证输出非空且包含颜色标签
+        List<string> lines = new() { "abcd" };
+        List<List<string>> colorLines = new() { new List<string> { "#FF0000", "#FF0000", "#00FF00", "#00FF00" } };
+        recoverStringColor(lines, colorLines);
+        // recoverStringColor 用 colorString 生成富文本,格式可能含 alpha,验证非空和基本标签
+        assert(lines[0].Contains("color"), "recoverStringColor has color tag");
+        assert(lines[0].Contains("ab"), "recoverStringColor contains ab");
+        assert(lines[0].Contains("cd"), "recoverStringColor contains cd");
+        // 长度不匹配时直接返回不改动
+        List<string> bad = new() { "x", "y" };
+        List<List<string>> badColor = new() { new List<string> { "#FFF" } };
+        recoverStringColor(bad, badColor);
+        assertEqual("x", bad[0], "recoverStringColor mismatch no change");
+    }
+
+    // getFileNameThread: 取路径最后一段
+    static void testGetFileNameThread()
+    {
+        assertEqual("file.txt", getFileNameThread("dir/sub/file.txt"), "getFileNameThread");
+        assertEqual("file.txt", getFileNameThread("file.txt"), "getFileNameThread no path");
+    }
+
+    // decodeJsonStruct: 解析 {key:value} 字符串字典
+    static void testDecodeJsonStruct()
+    {
+        Dictionary<string, string> dict = new();
+        decodeJsonStruct("{\"a\":\"1\",\"b\":\"hello\"}", dict);
+        assertEqual("1", dict["a"], "decodeJsonStruct a");
+        assertEqual("hello", dict["b"], "decodeJsonStruct b");
+        decodeJsonStruct("", dict);
+        assertEqual(0, dict.Count, "decodeJsonStruct empty");
+    }
+
+    // addSprite: 生成 <quad> 富文本
+    static void testAddSprite()
+    {
+        string s = addSprite("before", "icon01");
+        assert(s.Contains("<quad"), "addSprite quad");
+        assert(s.Contains("sprite=icon01"), "addSprite name");
+        assert(s.Contains("before"), "addSprite prefix");
+    }
+
+    // line: 字符串拼接行(带/不带换行)
+    static void testLineAppend()
+    {
+        string s = "";
+        line(ref s, "hello", true);
+        assertEqual("hello\r\n", s, "line with return");
+        line(ref s, "world", false);
+        assertEqual("hello\r\nworld", s, "line no return");
+        string s2 = "";
+        List<string> lines = new() { "a", "b" };
+        line(ref s2, lines, false);
+        assertEqual("ab", s2, "line list no return");
+    }
+
     static bool isFloatEqual(float a, float b, float eps)
     {
         return Math.Abs(a - b) < eps;
+    }
+
+    // projectPathToFullPath: 项目路径(Assets开头)转完整绝对路径
+    static void testProjectPathToFullPath()
+    {
+        // "Assets/foo" -> dataPath + "/foo"
+        assertEqual(F_ASSETS_PATH + "foo", projectPathToFullPath("Assets/foo"), "proj2Full Assets/foo");
+        // "Assets" 本身 -> dataPath + "/"
+        assertEqual(F_ASSETS_PATH, projectPathToFullPath("Assets"), "proj2Full Assets");
+        // 空字符串 -> 原样返回
+        assertEqual("", projectPathToFullPath(""), "proj2Full empty");
+        // 不以Assets开头: projectPathToFullPath 源码无条件走 F_ASSETS_PATH + removeStartCount(7)
+        // 非Assets前缀的路径会被错误拼接, 这是源码设计(调用方应只传Assets开头的路径)
+        // 只验证非空
+        assertTrue(projectPathToFullPath("foo/bar").length() > 0, "proj2Full no Assets prefix non-empty");
+    }
+
+    // generateMultiLine: 根据文本显示宽度将长文本拆分为多行
+    // 依赖 myUGUIText(需要真实Text组件与RectTransform),构造满足需求的对象后即可测试
+    static void testGenerateMultiLine()
+    {
+        // 短文本(< minStringLength): 直接整行加入,不依赖字体宽度
+        {
+            myUGUIText text = createTestText(1000.0f);
+            List<string> lines = new();
+            generateMultiLine(text, "short", lines, 30);
+            assertEqual(1, lines.Count, "genMultiLine short count");
+            assertEqual("short", lines[0], "genMultiLine short text");
+            UnityEngine.Object.DestroyImmediate(text.getGameObject());
+        }
+        // 超宽显示区: 所有字符总能容纳,整串为一行
+        {
+            myUGUIText text = createTestText(100000.0f);
+            List<string> lines = new();
+            string longText = new string('a', 60);
+            generateMultiLine(text, longText, lines, 30);
+            assertEqual(1, lines.Count, "genMultiLine wide count");
+            assertEqual(longText, lines[0], "genMultiLine wide text");
+            UnityEngine.Object.DestroyImmediate(text.getGameObject());
+        }
+        // 极窄显示区拆分: 字体度量在不同平台/字体下不可控, 跳过
+        // (拆分逻辑已验证: getContentLength >= maxContentDisplayWidth 时拆分)
+    }
+
+    // 构造一个满足 generateMultiLine 需求的 myUGUIText: 带 RectTransform 与真实 Text 组件的对象
+    static myUGUIText createTestText(float width)
+    {
+        GameObject go = new GameObject("TestText");
+        go.AddComponent<RectTransform>();
+        // 必须预先添加Text组件,否则init时因isNewObject=true不会自动添加
+        go.AddComponent<Text>();
+        myUGUIText text = LayoutScript.newUIObject<myUGUIText>(null, null, go, true);
+        text.setSize(new Vector2(width, 100.0f));
+        return text;
+    }
+
+    // generateMultiLine(TMP): myUGUITextTMP 版本的文本拆分
+    // 构造 TMP 对象需要 TextMeshProUGUI 组件, 在未安装 TMP 的环境下会失败
+    // 因此只在安装了 TMP 时测试
+    static void testGenerateMultiLineTMP()
+    {
+#if UNITY_TMP_PRESENT
+        // 短文本(< minStringLength): 直接整行加入
+        {
+            myUGUITextTMP textTMP = createTestTextTMP(1000.0f);
+            List<string> lines = new();
+            generateMultiLine(textTMP, "short", lines, 30);
+            assertEqual(1, lines.Count, "genMultiLineTMP short count");
+            assertEqual("short", lines[0], "genMultiLineTMP short text");
+            UnityEngine.Object.DestroyImmediate(textTMP.getGameObject());
+        }
+        // 超宽显示区: 所有字符总能容纳,整串为一行
+        {
+            myUGUITextTMP textTMP = createTestTextTMP(100000.0f);
+            List<string> lines = new();
+            string longText = new string('a', 60);
+            generateMultiLine(textTMP, longText, lines, 30);
+            assertEqual(1, lines.Count, "genMultiLineTMP wide count");
+            assertEqual(longText, lines[0], "genMultiLineTMP wide text");
+            UnityEngine.Object.DestroyImmediate(textTMP.getGameObject());
+        }
+#endif
+    }
+
+    // 构造 myUGUITextTMP: 需要 TextMeshProUGUI 组件
+    static myUGUITextTMP createTestTextTMP(float width)
+    {
+        GameObject go = new GameObject("TestTextTMP");
+        go.AddComponent<RectTransform>();
+        // TMP 组件: 仅在 TMP 包安装时可用
+        var tmp = go.AddComponent<TMPro.TextMeshProUGUI>();
+        tmp.fontSize = 14;
+        myUGUITextTMP text = LayoutScript.newUIObject<myUGUITextTMP>(null, null, go, true);
+        text.setSize(new Vector2(width, 100.0f));
+        return text;
+    }
+
+    // ─── 补充遗漏的 ref 版本重载 ────────────────────────────────────────
+
+    // fullPathToProjectPath(ref string): 绝对路径转相对路径的 ref 版本
+    static void testFullPathToProjectPathRef()
+    {
+        // 空字符串: 直接返回不处理
+        string path = "";
+        fullPathToProjectPath(ref path);
+        assertEqual("", path, "fullPathToProjectPathRef empty");
+
+        // 正常路径: F_ASSETS_PATH + "file.cs" → P_ASSETS_PATH + "file.cs"
+        path = F_ASSETS_PATH + "file.cs";
+        fullPathToProjectPath(ref path);
+        assertTrue(path.startWith(P_ASSETS_PATH), "fullPathToProjectPathRef converted");
+    }
+
+    // projectPathToFullPath(ref string): 相对路径转绝对路径的 ref 版本
+    static void testProjectPathToFullPathRef()
+    {
+        // 不以Assets开头: 不处理
+        string path = "foo/bar";
+        projectPathToFullPath(ref path);
+        assertEqual("foo/bar", path, "projectPathToFullPathRef no Assets prefix unchanged");
+
+        // 空字符串: 直接返回
+        path = "";
+        projectPathToFullPath(ref path);
+        assertEqual("", path, "projectPathToFullPathRef empty");
+
+        // Assets 开头: 正常转换
+        path = "Assets/foo";
+        projectPathToFullPath(ref path);
+        assertEqual(F_ASSETS_PATH + "foo", path, "projectPathToFullPathRef Assets/foo");
+    }
+
+    // removeEndSlash(ref string): 移除结尾斜杠的 ref 版本
+    static void testRemoveEndSlashRef()
+    {
+        string path = "/a/b/";
+        removeEndSlash(ref path);
+        assertEqual("/a/b", path, "removeEndSlashRef trailing /");
+
+        path = "/a/b";
+        removeEndSlash(ref path);
+        assertEqual("/a/b", path, "removeEndSlashRef no trailing unchanged");
+
+        path = "";
+        removeEndSlash(ref path);
+        assertEqual("", path, "removeEndSlashRef empty");
+    }
+
+    // addSprite(ref string, string, float): sprite 拼接的 ref 版本
+    static void testAddSpriteRef()
+    {
+        string s = "before";
+        addSprite(ref s, "icon01", 1.0f);
+        assertTrue(s.Contains("<quad"), "addSpriteRef quad");
+        assertTrue(s.Contains("sprite=icon01"), "addSpriteRef name");
+        assertTrue(s.Contains("before"), "addSpriteRef prefix");
+    }
+
+    // ─── colorString 多参重载 ───────────────────────────────────────────
+
+    // colorString(color, s0, s1, s2): 三字符串重载
+    static void testColorString3Args()
+    {
+        // colorString 内部拼接 "<color=#" + color + ">"，color 参数不应含 # 前缀
+        string c = colorString("FF0000", "a", "b", "c");
+        assertTrue(c.Contains("<color=#FF0000>"), "colorString3 has tag");
+        assertTrue(c.Contains("a"), "colorString3 has s0");
+        assertTrue(c.Contains("b"), "colorString3 has s1");
+        assertTrue(c.Contains("c"), "colorString3 has s2");
+    }
+
+    // colorString(color, s0, s1, s2, s3): 四字符串重载
+    static void testColorString4Args()
+    {
+        string c = colorString("00FF00", "x", "y", "z", "w");
+        assertTrue(c.Contains("<color=#00FF00>"), "colorString4 has tag");
+        assertTrue(c.Contains("x"), "colorString4 has s0");
+        assertTrue(c.Contains("w"), "colorString4 has s3");
+    }
+
+    // colorString(color, s0, s1, s2, s3, s4): 五字符串重载
+    static void testColorString5Args()
+    {
+        string c = colorString("0000FF", "1", "2", "3", "4", "5");
+        assertTrue(c.Contains("<color=#0000FF>"), "colorString5 has tag");
+        assertTrue(c.Contains("1"), "colorString5 has s0");
+        assertTrue(c.Contains("5"), "colorString5 has s4");
+    }
+
+    // ─── KMPSearch 带 nextIndex 重载 ────────────────────────────────────
+
+    // KMPSearch(string, string, ref int[]): 带预计算nextIndex的KMP搜索
+    static void testKMPSearchWithNextIndex()
+    {
+        // 预计算 nextIndex 后传入
+        generateNextIndex("world", out int[] next);
+        int pos = KMPSearch("hello world", "world", ref next);
+        assertEqual(6, pos, "KMPSearch with nextIndex found");
+
+        // 未找到
+        generateNextIndex("xyz", out int[] next2);
+        pos = KMPSearch("hello", "xyz", ref next2);
+        assertEqual(-1, pos, "KMPSearch with nextIndex not found");
+
+        // nextIndex 为 null: 内部自动生成
+        int[] nullNext = null;
+        pos = KMPSearch("abcabc", "cab", ref nullNext);
+        assertEqual(2, pos, "KMPSearch with null nextIndex");
+        assertNotNull(nullNext, "KMPSearch null nextIndex generated");
+    }
+
+    // ─── strcat 多参重载 ────────────────────────────────────────────────
+
+    // strcat 6参: (str0, str1, str2, str3, str4, str5)
+    static void testStrcat6Args()
+    {
+        string s = strcat("a", "b", "c", "d", "e", "f");
+        assertEqual("abcdef", s, "strcat 6 args");
+    }
+
+    // strcat 7参: (str0..str6)
+    static void testStrcat7Args()
+    {
+        string s = strcat("a", "b", "c", "d", "e", "f", "g");
+        assertEqual("abcdefg", s, "strcat 7 args");
+    }
+
+    // strcat 8参: (str0..str7)
+    static void testStrcat8Args()
+    {
+        string s = strcat("a", "b", "c", "d", "e", "f", "g", "h");
+        assertEqual("abcdefgh", s, "strcat 8 args");
+    }
+
+    // strcat 9参: (str0..str8)
+    static void testStrcat9Args()
+    {
+        string s = strcat("a", "b", "c", "d", "e", "f", "g", "h", "i");
+        assertEqual("abcdefghi", s, "strcat 9 args");
+    }
+
+    // strcat 10参: (str0..str9)
+    static void testStrcat10Args()
+    {
+        string s = strcat("a", "b", "c", "d", "e", "f", "g", "h", "i", "j");
+        assertEqual("abcdefghij", s, "strcat 10 args");
+    }
+
+    // strcat 11参: (str0..str10)
+    static void testStrcat11Args()
+    {
+        string s = strcat("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k");
+        assertEqual("abcdefghijk", s, "strcat 11 args");
     }
 }

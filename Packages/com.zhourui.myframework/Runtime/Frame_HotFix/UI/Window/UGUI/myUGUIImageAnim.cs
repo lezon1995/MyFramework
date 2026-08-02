@@ -21,14 +21,14 @@ public class myUGUIImageAnim : myUGUIImage, IUIAnimation
 	public override void init()
 	{
 		base.init();
+		mControl.setObject(this);
+		mControl.setPlayEndCallback(onPlayEnd);
+		mControl.setPlayingCallback(onPlaying);
 		string spriteName = getSpriteName();
 		if (spriteName.contains('_'))
 		{
 			setTextureSet(spriteName.rangeToLast('_'));
 		}
-		mControl.setObject(this);
-		mControl.setPlayEndCallback(onPlayEnd);
-		mControl.setPlayingCallback(onPlaying);
 	}
 	public override void update(float elapsedTime)
 	{
@@ -83,7 +83,8 @@ public class myUGUIImageAnim : myUGUIImage, IUIAnimation
 		if (!mTextureSetName.isEmpty())
 		{
 			int index = 0;
-			while (mSpriteList.addNotNull(getSpriteInAtlas(mTextureSetName + "_" + IToS(index++)))){}
+			while (mSpriteList.addNotNull(getSpriteInAtlas(mTextureSetName + "_" + index++.IToS())))
+			{}
 			if (getTextureFrameCount() == 0)
 			{
 				logError("invalid sprite anim! atlas : " + (getAtlas()?.getFilePath() ?? EMPTY) + ", anim set : " + textureSetName);
@@ -154,8 +155,8 @@ public class myUGUIImageAnim : myUGUIImage, IUIAnimation
 		mPlayEndCallbackList?.Clear();
 		mPlayingCallbackList?.Clear();
 	}
-	//------------------------------------------------------------------------------------------------------------------------------
-	protected void onPlaying(int frame, bool isPlaying)
+    //------------------------------------------------------------------------------------------------------------------------------
+    protected void onPlaying(int frame, bool isPlaying)
 	{
 		int spriteCount = mSpriteList.Count;
 		if (frame >= spriteCount)

@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
-using static MathUtility;
 using static FrameUtility;
 using static UnityUtility;
 
+// 伤害数字数据,存储单个伤害数字的显示信息
 public class DamageNumberData : ClassObject
 {
 	public Dictionary<float, Vector3> mPositionKeyFrames;	// 位置关键帧列表
@@ -115,7 +115,7 @@ public class DamageNumberData : ClassObject
 		if (!mPositionTimeList.isEmpty())
 		{
 			mKeyFrameMaxTime = mPositionTimeList[^1];
-			if (!isFloatEqual(mPositionTimeList[^1], mScaleTimeList[^1]))
+			if (!mPositionTimeList[^1].isEqual(mScaleTimeList[^1]))
 			{
 				logError("两个关键帧的最大时间需要一致!");
 			}

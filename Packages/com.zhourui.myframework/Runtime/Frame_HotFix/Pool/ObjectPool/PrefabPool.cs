@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using static UnityUtility;
-using static MathUtility;
 using static FrameBaseHotFix;
 using static FrameDefine;
 using static FrameUtility;
@@ -41,7 +40,7 @@ public class PrefabPool : ClassObject
 	}
 	public void setFileName(string fileName)				{ mFileName = fileName; }
 	public void setPrefab(ResourceRef<GameObject> prefab)	{ mPrefab = prefab; }
-	public GameObject getPrefab()							{ return mPrefab != null ? mPrefab.getResource() : null; }
+	public GameObject getPrefab()							{ return mPrefab != null ? mPrefab.get() : null; }
 	public string getFileName()								{ return mFileName; }
 	public List<GameObjectInfo> getUnuseList()				{ return mUnuseList; }
 	public HashSet<GameObjectInfo> getInuseList()			{ return mInuseList; }
@@ -52,34 +51,39 @@ public class PrefabPool : ClassObject
 	// 向池中异步初始化一定数量的对象
 	public CustomAsyncOperation initToPoolAsync(int tag, int count, bool moveToHide, Action callback)
 	{
+		CustomAsyncOperation op = new();
 		if (mPrefab != null)
 		{
 			doInitToPool(tag, count, moveToHide);
 			callback?.Invoke();
-			return new CustomAsyncOperation().setFinish();
+			return op.setFinish();
 		}
 		// 预设未加载,异步加载预设
 		++mAsyncLoadingCount;
 		long assignID = getAssignID();
-		return mResourceManager.loadGameResourceAsync<GameObject>(mFileName, (asset) =>
+        mResourceManager.loadGameResourceAsync<GameObject>(mFileName, (asset) =>
 		{
 			--mAsyncLoadingCount;
 			if (asset == null)
 			{
 				callback?.Invoke();
-				return;
+				op.setFinish();
+                return;
 			}
 			if (assignID != getAssignID())
 			{
 				mResourceManager.unload(ref asset);
 				callback?.Invoke();
-				return;
+                op.setFinish();
+                return;
 			}
 			setPrefab(asset);
 			doInitToPool(tag, count, moveToHide);
 			callback?.Invoke();
-		});
-	}
+            op.setFinish();
+        });
+		return op;
+    }
 	// 向池中同步初始化一定数量的对象
 	public void initToPool(int tag, int count, bool moveToHide)
 	{
@@ -98,31 +102,39 @@ public class PrefabPool : ClassObject
 	// 从池中异步获取一个对象
 	public CustomAsyncOperation getOneUnusedAsync(int tag, Action<GameObjectInfo, bool> callback)
 	{
-		if (mPrefab != null)
+		CustomAsyncOperation op = new();
+        if (mPrefab != null)
 		{
 			getOneUnusedAsyncInternal(tag, (GameObjectInfo info) => { callback?.Invoke(info, false); });
-			return new CustomAsyncOperation().setFinish();
+			return op.setFinish();
 		}
 		// 预设未加载,异步加载预设
 		++mAsyncLoadingCount;
 		long assignID = getAssignID();
-		return mResourceManager.loadGameResourceAsync<GameObject>(mFileName, (asset) =>
+		mResourceManager.loadGameResourceAsync<GameObject>(mFileName, (asset) =>
 		{
 			--mAsyncLoadingCount;
 			if (asset == null)
 			{
 				callback?.Invoke(null, false);
-				return;
+				op.setFinish();
+                return;
 			}
 			if (assignID != getAssignID())
 			{
 				mResourceManager.unload(ref asset);
 				callback?.Invoke(null, true);
-				return;
+                op.setFinish();
+                return;
 			}
 			setPrefab(asset);
-			getOneUnusedAsyncInternal(tag, (GameObjectInfo info)=> { callback?.Invoke(info, false); });
+			getOneUnusedAsyncInternal(tag, (GameObjectInfo info)=> 
+			{
+				callback?.Invoke(info, false);
+                op.setFinish();
+            });
 		});
+		return op;
 	}
 	// 从对象池中同步获取或者创建一个物体
 	public GameObjectInfo getOneUnused(int tag)
@@ -142,7 +154,7 @@ public class PrefabPool : ClassObject
 		else
 		{
 			// 实例化
-			CLASS(out objInfo).createObject(mPrefab.getResource(), mFileName);
+			CLASS(out objInfo).createObject(mPrefab.get(), mFileName);
 			objInfo.setTag(tag);
 		}
 		objInfo.setUsing(true);
@@ -198,7 +210,7 @@ public class PrefabPool : ClassObject
 		{
 			return;
 		}
-		int needCreate = clampMin(count - mInuseList.Count - mUnuseList.Count);
+		int needCreate = (count - mInuseList.Count - mUnuseList.Count).clampMin();
 		int needCapacity = mUnuseList.count() + needCreate;
 		if (mUnuseList.Capacity < needCapacity)
 		{
@@ -209,7 +221,7 @@ public class PrefabPool : ClassObject
 			GameObjectInfo objInfo = mUnuseList.addClass();
 			objInfo.setTag(tag);
 			// 实例化,同步进行
-			objInfo.createObject(mPrefab.getResource(), mFileName);
+			objInfo.createObject(mPrefab.get(), mFileName);
 			GameObject go = objInfo.getObject();
 			if (go != null)
 			{
@@ -246,7 +258,7 @@ public class PrefabPool : ClassObject
 		{
 			// 实例化
 			++mAsyncInstantiateCount;
-			CLASS<GameObjectInfo>().createObjectAsync(mPrefab.getResource(), mFileName, (GameObjectInfo info) =>
+			CLASS<GameObjectInfo>().createObjectAsync(mPrefab.get(), mFileName, (GameObjectInfo info) =>
 			{
 				--mAsyncInstantiateCount;
 				if (info == null)

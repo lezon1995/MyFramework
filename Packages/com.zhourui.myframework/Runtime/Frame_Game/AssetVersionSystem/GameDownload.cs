@@ -17,9 +17,14 @@ public class GameDownload
 	protected string mDownloadWritePath = F_PERSISTENT_ASSETS_PATH; // 默认下载到PersistentPath中
 	protected int mDownloadedCount;									// 已经下载的文件数量
 	protected int mDownloadSpeed;                                   // 下载速度
-	protected int mRemainRetryCount = 3;							// 文件下载失败的剩余自动重试次数,没有剩余次数时将会提示玩家是否重试
+	protected int mRemainRetryCount = 3;							// 文件下载失败的剩余自动重试次数,没有剩余次数时才会提示玩家是否重试
 	protected bool mAllFinish = true;								// 是否已经全部完成
 	protected bool mNeedWritePersistentFileList;					// 是否在完成时写入Persist的文件列表
+	public GameDownload()
+	{
+		// 设置动态下载的列表
+		mDynamicDownloadList.AddRange(FrameSettings.getDynamicDownloadList());
+	}
 	public void willDestroy()
 	{
 		// 如果在未更新完成就关闭了程序,则确保在关闭之前更新文件列表
@@ -31,20 +36,28 @@ public class GameDownload
 			mAllFinish = true;
 		}
 	}
-	public void setDynamicDownloadList(List<string> list) { mDynamicDownloadList.setRange(list); }
-	public void setTipCallback(GameDownloadTipCallback callback) { mTipCallback = callback; }
+	public void setErrorCallback(GameDownloadTipCallback callback) { mTipCallback = callback; }
 	public void setProgressCallback(GameDownloadCallback callback) { mProgressCallback = callback; }
-	public void skipDownload()
+	public void setAutoRetryCount(int count) { mRemainRetryCount = count; }
+	public void start()
 	{
-		allFinished();
+		// 未启用热更时可以不进行下载
+		if (isEditor() || !isEnableHotFix())
+		{
+			allFinished();
+		}
+		else
+		{
+			startCheckVersion();
+		}
 	}
-	public void startCheckVersion()
+	//------------------------------------------------------------------------------------------------------------------------------
+	protected void startCheckVersion()
 	{
 		logBase("下载目录:" + mDownloadWritePath);
 		logBase("资源下载地址:" + mResourceManager.getDownloadURL());
 		mAllFinish = false;
 
-		mTipCallback?.Invoke(DOWNLOAD_TIP.CHECKING_UPDATE);
 		mProgressCallback?.Invoke(0.0f, PROGRESS_TYPE.CHECKING_UPDATE, "", 0, 0);
 
 		// 检查是否需要更新安装包,移动端会判断是否需要重新下载整个安装包
@@ -61,7 +74,7 @@ public class GameDownload
 				logErrorBase("当前不是全量安装包,且本地版本号大于远端版本号,无法运行游戏");
 			}
 			mAssetVersionSystem.setAssetReadPath(ASSET_READ_PATH.STREAMING_ASSETS_ONLY);
-			mTipCallback?.Invoke(DOWNLOAD_TIP.NONE);
+			mTipCallback?.Invoke(DOWNLOAD_ERROR.NONE);
 			allFinished();
 			return;
 		}
@@ -69,7 +82,7 @@ public class GameDownload
 		if (bigCompare == VERSION_COMPARE.LOCAL_LOWER)
 		{
 			mAssetVersionSystem.setAssetReadPath(ASSET_READ_PATH.PERSISTENT_FIRST);
-			mTipCallback?.Invoke(DOWNLOAD_TIP.NONE);
+			mTipCallback?.Invoke(DOWNLOAD_ERROR.NONE);
 			allFinished();
 			return;
 		}
@@ -86,7 +99,7 @@ public class GameDownload
 		// 删除文件,只能删除Persistent中的文件,但是列表中的元素还是需要都删除掉
 		// Persistent中需要删除列表记录,删除文件
 		DateTime start = DateTime.Now;
-		List<string> deleteFileList = checkDeleteFile(persistentFiles, remoteFiles);
+		List<string> deleteFileList = checkDeleteFile(remoteFiles, persistentFiles);
 		logBase("需要删除" + deleteFileList.Count + "个文件");
 		foreach (string fileToDelete in deleteFileList)
 		{
@@ -101,7 +114,7 @@ public class GameDownload
 		}
 
 		// StreamingAssets中无法删除文件,只能删除列表记录
-		foreach (string fileToDelete in checkDeleteFile(streamingFiles, remoteFiles))
+		foreach (string fileToDelete in checkDeleteFile(remoteFiles, streamingFiles))
 		{
 			streamingFiles.Remove(fileToDelete);
 		}
@@ -114,7 +127,7 @@ public class GameDownload
 		logBase("对比需要下载的文件列表耗时:" + (int)(DateTime.Now - start1).TotalMilliseconds + "毫秒");
 		mNeedDownloadFileList.Remove(VERSION);
 		logBase("需要下载" + mNeedDownloadFileList.Count + "个文件");
-		mTipCallback?.Invoke(DOWNLOAD_TIP.NONE);
+		mTipCallback?.Invoke(DOWNLOAD_ERROR.NONE);
 		if (mNeedDownloadFileList.Count == 0)
 		{
 			allFinished();
@@ -125,18 +138,18 @@ public class GameDownload
 			downloadFile(mDownloadedCount);
 		}
 	}
-	//------------------------------------------------------------------------------------------------------------------------------
 	// 下载普通资源文件
 	protected void downloadFile(int index)
 	{
 		string fileName = mNeedDownloadFileList[index];
 		downloadProgress(fileName, index, 0.0f);
-		ResourceManager.loadAssetsFromUrl(mResourceManager.getDownloadURL() + fileName, (byte[] bytes) =>
+		ResourceUtility.loadAssetsFromUrl(mResourceManager.getDownloadURL() + fileName, (byte[] bytes) =>
 		{
 			// 单个资源文件下载完毕
 			if (bytes == null)
 			{
 				logWarningBase("下载失败! " + fileName);
+				// 还有次数就直接重试
 				if (mRemainRetryCount > 0)
 				{
 					--mRemainRetryCount;
@@ -144,7 +157,7 @@ public class GameDownload
 				}
 				else
 				{
-					mTipCallback?.Invoke(DOWNLOAD_TIP.DOWNLOAD_FAILED);
+					mTipCallback?.Invoke(DOWNLOAD_ERROR.DOWNLOAD_FAILED);
 				}
 				return;
 			}
@@ -158,7 +171,7 @@ public class GameDownload
 			if (!mAssetVersionSystem.getRemoteAssetsFile().TryGetValue(fileName, out GameFileInfo remoteInfo))
 			{
 				logWarningBase("已下载的文件不存在与远端文件列表, 下载的文件:" + fileName);
-				mTipCallback?.Invoke(DOWNLOAD_TIP.NOT_IN_REMOTE_FILE_LIST);
+				mTipCallback?.Invoke(DOWNLOAD_ERROR.NOT_IN_REMOTE_FILE_LIST);
 				return;
 			}
 
@@ -173,6 +186,7 @@ public class GameDownload
 			{
 				logWarningBase("下载的文件信息与远端的信息不一致:下载的信息:" + localInfo.mFileName + ", " + localInfo.mFileSize + ", " + localInfo.mMD5 +
 						", 远端的信息:" + remoteInfo.mFileName + ", " + remoteInfo.mFileSize + ", " + remoteInfo.mMD5);
+				// 还有次数就直接重试
 				if (mRemainRetryCount > 0)
 				{
 					--mRemainRetryCount;
@@ -180,7 +194,7 @@ public class GameDownload
 				}
 				else
 				{
-					mTipCallback?.Invoke(DOWNLOAD_TIP.VERIFY_FAILED);
+					mTipCallback?.Invoke(DOWNLOAD_ERROR.VERIFY_FAILED);
 				}
 			}
 

@@ -5,6 +5,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 using static MathUtility;
+using static FrameBaseUtility;
 
 // 预览一个Image或者SpriteRenderer的序列帧,不带位置偏移,不要直接将这个组件添加到GameObject上,应该需要添加派生出的子类
 public abstract class SequenceSpritePreviewBase : MonoBehaviour
@@ -244,10 +245,8 @@ public abstract class SequenceSpritePreviewBase : MonoBehaviour
         }
 
         int frameCount = mFrames.Length;
-        int index = ceil(mSlider * frameCount) - 1;
-        clamp(ref index, 0, frameCount - 1);
-
-        mCurFrame = index;
+        int index = (mSlider * frameCount).ceil() - 1;
+		mCurFrame = index.clamp(0, frameCount - 1);
         applyFrame(mCurFrame);
     }
     private void reloadFramesFromCurrentSprite()
@@ -263,7 +262,7 @@ public abstract class SequenceSpritePreviewBase : MonoBehaviour
         {
             return;
         }
-        string path = AssetDatabase.GetAssetPath(curSprite.texture);
+        string path = getAssetPath(curSprite.texture);
         if (string.IsNullOrEmpty(path))
         {
             return;
@@ -272,7 +271,7 @@ public abstract class SequenceSpritePreviewBase : MonoBehaviour
         string spriteSetName = getSpriteSetName(curSprite.name);
         if (spriteSetName.isEmpty())
         {
-            mFrames = AssetDatabase.LoadAllAssetsAtPath(path)
+            mFrames = loadAllAssetsAtPath(path)
                 .OfType<Sprite>()
                 .OrderBy(getSpriteFrameIndex)
                 .ThenBy(s => s.name)
@@ -280,14 +279,14 @@ public abstract class SequenceSpritePreviewBase : MonoBehaviour
         }
         else
         {
-            mFrames = AssetDatabase.LoadAllAssetsAtPath(path)
+            mFrames = loadAllAssetsAtPath(path)
                 .OfType<Sprite>()
                 .Where(s => s.name.StartsWith(spriteSetName + "_"))
                 .OrderBy(getSpriteFrameIndex)
                 .ThenBy(s => s.name)
                 .ToArray();
         }
-        clamp(ref mCurFrame, 0, getMax(0, mFrames.Length - 1));
+		mCurFrame = mCurFrame.clamp(0, getMax(0, mFrames.Length - 1));
     }
     private void applyFrame(int index)
     {
@@ -301,8 +300,7 @@ public abstract class SequenceSpritePreviewBase : MonoBehaviour
         {
             return;
         }
-        clamp(ref index, 0, mFrames.Length - 1);
-        setImage(image, mFrames[index]);
+        setImage(image, mFrames[index.clamp(0, mFrames.Length - 1)]);
         EditorUtility.SetDirty(this);
         SceneView.RepaintAll();
     }

@@ -1,21 +1,22 @@
-﻿using TMPro;
-using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.U2D;
-using UnityEditor;
-using UnityEditor.SceneManagement;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using static MathUtility;
-using static WidgetUtility;
-using static FrameBaseUtility;
+using System.IO;
+using TMPro;
+using UnityEditor;
+using UnityEditor.Compilation;
+using UnityEditor.SceneManagement;
+using UnityEngine;
+using UnityEngine.U2D;
+using UnityEngine.UI;
 using static EditorCommonUtility;
-using static FileUtility;
-using static FrameDefine;
-using static StringUtility;
-using static FrameBaseDefine;
-using UObject = UnityEngine.Object;
 using static EditorDefine;
+using static FileUtility;
+using static FrameBaseDefine;
+using static FrameBaseUtility;
+using static FrameDefine;
+using static MathUtility;
+using static StringUtility;
+using UObject = UnityEngine.Object;
 
 public class MenuShortcutOperation
 {
@@ -113,10 +114,10 @@ public class MenuShortcutOperation
 
 			// 生成的高度不能小于半径的2倍,且不能大于4
 			controller.height = bounds.size.y;
-			controller.radius = clamp(bounds.size.x * 0.5f, 0.001f, controller.height * 0.5f);
+			controller.radius = (bounds.size.x * 0.5f).clamp(0.001f, controller.height * 0.5f);
 			controller.center = new(0.0f, bounds.center.y - bounds.size.y * 0.5f + controller.height * 0.5f, 0.0f);
 			controller.slopeLimit = 80.0f;
-			controller.stepOffset = clampMax(0.3f, controller.height + controller.radius * 2.0f);
+			controller.stepOffset = 0.3f.clampMax(controller.height + controller.radius * 2.0f);
 			controller.enabled = true;
 			controller.skinWidth = 0.01f;
 		}
@@ -154,9 +155,9 @@ public class MenuShortcutOperation
 			AssetDatabase.Refresh();
 		}
 	}
-	// 此处仅做示例,请在应用层中重写此方法,传入正确的密钥获取方法
-	//[MenuItem(mMenuName + "dll解密", false, 41)]
-	public static void decryptDllFile()
+    // 此处仅做示例,请在应用层中重写此方法,传入正确的密钥获取方法
+    //[MenuItem(mMenuName + "dll解密", false, 41)]
+    public static void decryptDllFile()
 	{
 		EditorWindow.GetWindow<DecryptDllWindow>(true, "解密dll", true).start(null, null);
 	}
@@ -254,6 +255,11 @@ public class MenuShortcutOperation
 			}
 		}
 	}
+	[MenuItem(mMenuName + "生成" + ATLAS_PATH_CONFIG)]
+	public static void BuildAtlasPathConfig()
+	{
+		MenuAssetBundle.generateAltasPathConfig();
+	}
 	[MenuItem(mMenuName + "生成图集索引(暂时用不上)")]
 	public static void BuildAtlasSearchMap()
 	{
@@ -281,7 +287,7 @@ public class MenuShortcutOperation
 				{
 					logErrorBase("sprite is null,atlas:" + file);
 				}
-				atlasMap.addOrSet(sprite.name.removeEndString("(Clone)"), assetPath.removeStartString(P_GAME_RESOURCES_PATH));
+				atlasMap.addOrSet(sprite.name.removeEnd("(Clone)"), assetPath.removeStart(P_GAME_RESOURCES_PATH));
 			}
 		}
 		// MultiSprite
@@ -292,7 +298,7 @@ public class MenuShortcutOperation
 			{
 				if (obj is Sprite sprite && sprite.name != sprite.texture.name)
 				{
-					atlasMap.addOrSet(sprite.name, assetPath.removeStartString(P_GAME_RESOURCES_PATH));
+					atlasMap.addOrSet(sprite.name, assetPath.removeStart(P_GAME_RESOURCES_PATH));
 				}
 			}
 		}
@@ -301,11 +307,25 @@ public class MenuShortcutOperation
 		{
 			fileContent += item.Key + "," + item.Value + "\n";
 		}
-		writeTxtFile(F_GAME_RESOURCES_PATH + R_MISC_PATH + "SpritePathConfig.txt", fileContent);
+		writeTxtFile(F_MISC_PATH + "SpritePathConfig.txt", fileContent);
 		logBase("耗时:" + (DateTime.Now - start));
 	}
 	//------------------------------------------------------------------------------------------------------------------------------
-	protected static void doTextReplaceToTMPro(Text comText)
+    // 查找指定asmdef文件路径。
+    protected static string findAsmdefPath(string fileName)
+    {
+        string[] guidList = AssetDatabase.FindAssets("t:AssemblyDefinitionAsset");
+        foreach (string guid in guidList)
+        {
+            string path = AssetDatabase.GUIDToAssetPath(guid).Replace("\\", "/");
+            if (path.EndsWith("/" + fileName))
+            {
+                return path;
+            }
+        }
+        return string.Empty;
+    }
+    protected static void doTextReplaceToTMPro(Text comText)
 	{
 		GameObject go = comText.gameObject;
 		int fontSize = comText.fontSize;
@@ -353,15 +373,15 @@ public class MenuShortcutOperation
 		}
 		switch (alignment)
 		{
-			case TextAnchor.UpperLeft: comTMP.alignment = TextAlignmentOptions.TopLeft; break;
-			case TextAnchor.UpperCenter: comTMP.alignment = TextAlignmentOptions.Top; break;
-			case TextAnchor.UpperRight: comTMP.alignment = TextAlignmentOptions.TopRight; break;
-			case TextAnchor.MiddleLeft: comTMP.alignment = TextAlignmentOptions.Left; break;
-			case TextAnchor.MiddleCenter: comTMP.alignment = TextAlignmentOptions.Center; break;
-			case TextAnchor.MiddleRight: comTMP.alignment = TextAlignmentOptions.Right; break;
-			case TextAnchor.LowerLeft: comTMP.alignment = TextAlignmentOptions.BottomLeft; break;
-			case TextAnchor.LowerCenter: comTMP.alignment = TextAlignmentOptions.Bottom; break;
-			case TextAnchor.LowerRight: comTMP.alignment = TextAlignmentOptions.BottomRight; break;
+			case TextAnchor.UpperLeft:		comTMP.alignment = TextAlignmentOptions.TopLeft; break;
+			case TextAnchor.UpperCenter:	comTMP.alignment = TextAlignmentOptions.Top; break;
+			case TextAnchor.UpperRight:		comTMP.alignment = TextAlignmentOptions.TopRight; break;
+			case TextAnchor.MiddleLeft:		comTMP.alignment = TextAlignmentOptions.Left; break;
+			case TextAnchor.MiddleCenter:	comTMP.alignment = TextAlignmentOptions.Center; break;
+			case TextAnchor.MiddleRight:	comTMP.alignment = TextAlignmentOptions.Right; break;
+			case TextAnchor.LowerLeft:		comTMP.alignment = TextAlignmentOptions.BottomLeft; break;
+			case TextAnchor.LowerCenter:	comTMP.alignment = TextAlignmentOptions.Bottom; break;
+			case TextAnchor.LowerRight:		comTMP.alignment = TextAlignmentOptions.BottomRight; break;
 		}
 	}
 	protected static void doInputFieldReplaceToInputFieldTMP(InputField comInput)
@@ -378,22 +398,22 @@ public class MenuShortcutOperation
 		comTMP.characterLimit = characterLimit;
 		switch (contentType)
 		{
-			case InputField.ContentType.Standard: comTMP.contentType = TMP_InputField.ContentType.Standard; break;
-			case InputField.ContentType.Autocorrected: comTMP.contentType = TMP_InputField.ContentType.Autocorrected; break;
-			case InputField.ContentType.IntegerNumber: comTMP.contentType = TMP_InputField.ContentType.IntegerNumber; break;
-			case InputField.ContentType.DecimalNumber: comTMP.contentType = TMP_InputField.ContentType.DecimalNumber; break;
-			case InputField.ContentType.Alphanumeric: comTMP.contentType = TMP_InputField.ContentType.Alphanumeric; break;
-			case InputField.ContentType.Name: comTMP.contentType = TMP_InputField.ContentType.Name; break;
-			case InputField.ContentType.EmailAddress: comTMP.contentType = TMP_InputField.ContentType.EmailAddress; break;
-			case InputField.ContentType.Password: comTMP.contentType = TMP_InputField.ContentType.Password; break;
-			case InputField.ContentType.Pin: comTMP.contentType = TMP_InputField.ContentType.Pin; break;
-			case InputField.ContentType.Custom: comTMP.contentType = TMP_InputField.ContentType.Custom; break;
+			case InputField.ContentType.Standard:		comTMP.contentType = TMP_InputField.ContentType.Standard; break;
+			case InputField.ContentType.Autocorrected:	comTMP.contentType = TMP_InputField.ContentType.Autocorrected; break;
+			case InputField.ContentType.IntegerNumber:	comTMP.contentType = TMP_InputField.ContentType.IntegerNumber; break;
+			case InputField.ContentType.DecimalNumber:	comTMP.contentType = TMP_InputField.ContentType.DecimalNumber; break;
+			case InputField.ContentType.Alphanumeric:	comTMP.contentType = TMP_InputField.ContentType.Alphanumeric; break;
+			case InputField.ContentType.Name:			comTMP.contentType = TMP_InputField.ContentType.Name; break;
+			case InputField.ContentType.EmailAddress:	comTMP.contentType = TMP_InputField.ContentType.EmailAddress; break;
+			case InputField.ContentType.Password:		comTMP.contentType = TMP_InputField.ContentType.Password; break;
+			case InputField.ContentType.Pin:			comTMP.contentType = TMP_InputField.ContentType.Pin; break;
+			case InputField.ContentType.Custom:			comTMP.contentType = TMP_InputField.ContentType.Custom; break;
 		}
 		switch (lineType)
 		{
-			case InputField.LineType.SingleLine: comTMP.lineType = TMP_InputField.LineType.SingleLine; break;
-			case InputField.LineType.MultiLineSubmit: comTMP.lineType = TMP_InputField.LineType.MultiLineSubmit; break;
-			case InputField.LineType.MultiLineNewline: comTMP.lineType = TMP_InputField.LineType.MultiLineNewline; break;
+			case InputField.LineType.SingleLine:		comTMP.lineType = TMP_InputField.LineType.SingleLine; break;
+			case InputField.LineType.MultiLineSubmit:	comTMP.lineType = TMP_InputField.LineType.MultiLineSubmit; break;
+			case InputField.LineType.MultiLineNewline:	comTMP.lineType = TMP_InputField.LineType.MultiLineNewline; break;
 		}
 		comTMP.textComponent = go.GetComponentInChildren<TextMeshProUGUI>();
 		GameObject textArea = new("TextArea");
@@ -403,7 +423,7 @@ public class MenuShortcutOperation
 		comTMP.textComponent.gameObject.transform.SetParent(textArea.transform);
 		comTMP.textComponent.gameObject.transform.localPosition = Vector3.zero;
 		comTMP.textViewport = textArea.transform as RectTransform;
-		setRectSize(textArea.transform as RectTransform, (comTMP.transform as RectTransform).rect.size);
+		(textArea.transform as RectTransform).setRectSize((comTMP.transform as RectTransform).rect.size);
 	}
 	protected static void doTMProReplaceToText(TextMeshProUGUI comTextTMP)
 	{
@@ -465,15 +485,15 @@ public class MenuShortcutOperation
 		}
 		switch (alignment)
 		{
-			case TextAlignmentOptions.TopLeft: comText.alignment = TextAnchor.UpperLeft; break;
-			case TextAlignmentOptions.Top: comText.alignment = TextAnchor.UpperCenter; break;
-			case TextAlignmentOptions.TopRight: comText.alignment = TextAnchor.UpperRight; break;
-			case TextAlignmentOptions.Left: comText.alignment = TextAnchor.MiddleLeft; break;
-			case TextAlignmentOptions.Center: comText.alignment = TextAnchor.MiddleCenter; break;
-			case TextAlignmentOptions.Right: comText.alignment = TextAnchor.MiddleRight; break;
-			case TextAlignmentOptions.BottomLeft: comText.alignment = TextAnchor.LowerLeft; break;
-			case TextAlignmentOptions.Bottom: comText.alignment = TextAnchor.LowerCenter; break;
-			case TextAlignmentOptions.BottomRight: comText.alignment = TextAnchor.LowerRight; break;
+			case TextAlignmentOptions.TopLeft:		comText.alignment = TextAnchor.UpperLeft; break;
+			case TextAlignmentOptions.Top:			comText.alignment = TextAnchor.UpperCenter; break;
+			case TextAlignmentOptions.TopRight:		comText.alignment = TextAnchor.UpperRight; break;
+			case TextAlignmentOptions.Left:			comText.alignment = TextAnchor.MiddleLeft; break;
+			case TextAlignmentOptions.Center:		comText.alignment = TextAnchor.MiddleCenter; break;
+			case TextAlignmentOptions.Right:		comText.alignment = TextAnchor.MiddleRight; break;
+			case TextAlignmentOptions.BottomLeft:	comText.alignment = TextAnchor.LowerLeft; break;
+			case TextAlignmentOptions.Bottom:		comText.alignment = TextAnchor.LowerCenter; break;
+			case TextAlignmentOptions.BottomRight:	comText.alignment = TextAnchor.LowerRight; break;
 		}
 	}
 	protected static void doInputFieldTMPReplaceToInputField(TMP_InputField comInputTMP)
@@ -490,22 +510,22 @@ public class MenuShortcutOperation
 		comText.characterLimit = characterLimit;
 		switch (contentType)
 		{
-			case TMP_InputField.ContentType.Standard: comText.contentType = InputField.ContentType.Standard; break;
-			case TMP_InputField.ContentType.Autocorrected: comText.contentType = InputField.ContentType.Autocorrected; break;
-			case TMP_InputField.ContentType.IntegerNumber: comText.contentType = InputField.ContentType.IntegerNumber; break;
-			case TMP_InputField.ContentType.DecimalNumber: comText.contentType = InputField.ContentType.DecimalNumber; break;
-			case TMP_InputField.ContentType.Alphanumeric: comText.contentType = InputField.ContentType.Alphanumeric; break;
-			case TMP_InputField.ContentType.Name: comText.contentType = InputField.ContentType.Name; break;
-			case TMP_InputField.ContentType.EmailAddress: comText.contentType = InputField.ContentType.EmailAddress; break;
-			case TMP_InputField.ContentType.Password: comText.contentType = InputField.ContentType.Password; break;
-			case TMP_InputField.ContentType.Pin: comText.contentType = InputField.ContentType.Pin; break;
-			case TMP_InputField.ContentType.Custom: comText.contentType = InputField.ContentType.Custom; break;
+			case TMP_InputField.ContentType.Standard:		comText.contentType = InputField.ContentType.Standard; break;
+			case TMP_InputField.ContentType.Autocorrected:	comText.contentType = InputField.ContentType.Autocorrected; break;
+			case TMP_InputField.ContentType.IntegerNumber:	comText.contentType = InputField.ContentType.IntegerNumber; break;
+			case TMP_InputField.ContentType.DecimalNumber:	comText.contentType = InputField.ContentType.DecimalNumber; break;
+			case TMP_InputField.ContentType.Alphanumeric:	comText.contentType = InputField.ContentType.Alphanumeric; break;
+			case TMP_InputField.ContentType.Name:			comText.contentType = InputField.ContentType.Name; break;
+			case TMP_InputField.ContentType.EmailAddress:	comText.contentType = InputField.ContentType.EmailAddress; break;
+			case TMP_InputField.ContentType.Password:		comText.contentType = InputField.ContentType.Password; break;
+			case TMP_InputField.ContentType.Pin:			comText.contentType = InputField.ContentType.Pin; break;
+			case TMP_InputField.ContentType.Custom:			comText.contentType = InputField.ContentType.Custom; break;
 		}
 		switch (lineType)
 		{
-			case TMP_InputField.LineType.SingleLine: comText.lineType = InputField.LineType.SingleLine; break;
-			case TMP_InputField.LineType.MultiLineSubmit: comText.lineType = InputField.LineType.MultiLineSubmit; break;
-			case TMP_InputField.LineType.MultiLineNewline: comText.lineType = InputField.LineType.MultiLineNewline; break;
+			case TMP_InputField.LineType.SingleLine:		comText.lineType = InputField.LineType.SingleLine; break;
+			case TMP_InputField.LineType.MultiLineSubmit:	comText.lineType = InputField.LineType.MultiLineSubmit; break;
+			case TMP_InputField.LineType.MultiLineNewline:	comText.lineType = InputField.LineType.MultiLineNewline; break;
 		}
 		comText.textComponent = go.GetComponentInChildren<Text>();
 		UObject.DestroyImmediate(go.GetComponentInChildren<RectMask2D>().gameObject);

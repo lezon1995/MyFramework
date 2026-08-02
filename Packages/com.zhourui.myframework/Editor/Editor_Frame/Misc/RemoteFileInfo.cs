@@ -1,5 +1,4 @@
-﻿using static StringUtility;
-
+﻿
 public struct RemoteFileInfo
 {
 	public string mReadType;
@@ -14,18 +13,18 @@ public struct RemoteFileInfo
 	public GameFileInfo toGameFileInfo()
 	{
 		GameFileInfo info = new();
-		info.mFileName = mFileName;
-		info.mFileSize = mFileSize;
+		info.name = mFileName;
+		info.size = mFileSize;
 		return info;
 	}
 	public static RemoteFileInfo parse(string[] infos)
 	{
 		RemoteFileInfo fileInfo = new();
 		fileInfo.mReadType = infos[0];
-		fileInfo.mLinkCount = SToI(infos[1]);
+		fileInfo.mLinkCount = infos[1].SToI();
 		fileInfo.mUserName = infos[2];
 		fileInfo.mGroupName = infos[3];
-		fileInfo.mFileSize = SToL(infos[4]);
+		fileInfo.mFileSize = infos[4].SToL();
 		fileInfo.mModifyMonth = infos[5];
 		fileInfo.mModifyDay = infos[6];
 		fileInfo.mModifyTime = infos[7];

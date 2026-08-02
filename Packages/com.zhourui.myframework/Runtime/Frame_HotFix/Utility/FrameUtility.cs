@@ -9,7 +9,9 @@ using System.Text;
 using System.Threading;
 using System.Runtime.InteropServices;
 using System.IO;
+#if !UNITY_WEBGL
 using System.IO.Compression;
+#endif
 #if USE_SEVEN_ZIP
 using SevenZip;
 #endif
@@ -55,28 +57,6 @@ public class FrameUtility
 	public static GameScene getCurScene() { return mGameSceneManager.getCurScene(); }
 	public static bool atProcedure(Type type) { return getCurScene().atProcedure(type); }
 	public static bool atProcedure<T>() where T : SceneProcedure { return getCurScene().atProcedure(typeof(T)); }
-	// 百分比一般用于属性增幅之类的
-	public static string toPercent(string value, int precision = 1) { return FToS(SToF(value) * 100, precision) + "%"; }
-	public static string toPercent(float value, int precision = 1) { return FToS(value * 100, precision) + "%"; }
-	// 几率类的一般是万分比的格式填写的,10000表示100%
-	public static string toProbability(string value) { return FToS(SToF(value) * 0.01f) + "%"; }
-	public static string toProbability(float value) { return FToS(value * 0.01f) + "%"; }
-	public static string fixedAndPercent(int value, float percent)
-	{
-		if (value > 0 && percent > 0.0f)
-		{
-			return IToS(value) + "+" + toPercent(percent);
-		}
-		if (value > 0)
-		{
-			return IToS(value);
-		}
-		if (percent > 0.0f)
-		{
-			return toPercent(percent);
-		}
-		return "";
-	}
 	public static myUGUIObject getUGUIRoot() { return mLayoutManager?.getUIRoot(); }
 	public static Canvas getUGUIRootComponent() { return mLayoutManager?.getUIRoot()?.getCanvas(); }
 	public static Camera getUICamera() { return mCameraManager.getUICamera()?.getCamera(); }
@@ -84,11 +64,11 @@ public class FrameUtility
 	public static void makeSizeEven(myUGUIObject obj)
 	{
 		Vector2 scrollRectSize = obj.getSize();
-		int intScrollSizeX = ceil(scrollRectSize.x);
-		int intScrollSizeY = ceil(scrollRectSize.y);
+		int intScrollSizeX = scrollRectSize.x.ceil();
+		int intScrollSizeY = scrollRectSize.y.ceil();
 		float newScrollSizeX = intScrollSizeX + (intScrollSizeX & 1);
 		float newScrollSizeY = intScrollSizeY + (intScrollSizeY & 1);
-		if (!isFloatEqual(newScrollSizeX, scrollRectSize.x) || !isFloatEqual(newScrollSizeY, scrollRectSize.y))
+		if (!newScrollSizeX.isEqual(scrollRectSize.x) || !newScrollSizeY.isEqual(scrollRectSize.y))
 		{
 			obj.setSize(new(newScrollSizeX, newScrollSizeY));
 		}
@@ -1181,7 +1161,7 @@ public class FrameUtility
 		sbyte maxValue = list[0];
 		for (int i = 1; i < count; ++i)
 		{
-			clampMin(ref maxValue, list[i]);
+			maxValue = maxValue.clampMin(list[i]);
 		}
 		return maxValue;
 	}
@@ -1191,7 +1171,7 @@ public class FrameUtility
 		sbyte maxValue = list[0];
 		for (int i = 1; i < count; ++i)
 		{
-			clampMin(ref maxValue, list[i]);
+			maxValue = maxValue.clampMin(list[i]);
 		}
 		return maxValue;
 	}
@@ -1201,7 +1181,7 @@ public class FrameUtility
 		byte maxValue = list[0];
 		for (int i = 1; i < count; ++i)
 		{
-			clampMin(ref maxValue, list[i]);
+			maxValue = maxValue.clampMin(list[i]);
 		}
 		return maxValue;
 	}
@@ -1211,7 +1191,7 @@ public class FrameUtility
 		byte maxValue = list[0];
 		for (int i = 1; i < count; ++i)
 		{
-			clampMin(ref maxValue, list[i]);
+			maxValue = maxValue.clampMin(list[i]);
 		}
 		return maxValue;
 	}
@@ -1221,7 +1201,7 @@ public class FrameUtility
 		short maxValue = list[0];
 		for (int i = 1; i < count; ++i)
 		{
-			clampMin(ref maxValue, list[i]);
+			maxValue = maxValue.clampMin(list[i]);
 		}
 		return maxValue;
 	}
@@ -1231,7 +1211,7 @@ public class FrameUtility
 		short maxValue = list[0];
 		for (int i = 1; i < count; ++i)
 		{
-			clampMin(ref maxValue, list[i]);
+			maxValue = maxValue.clampMin(list[i]);
 		}
 		return maxValue;
 	}
@@ -1241,7 +1221,7 @@ public class FrameUtility
 		ushort maxValue = list[0];
 		for (int i = 1; i < count; ++i)
 		{
-			clampMin(ref maxValue, list[i]);
+			maxValue = maxValue.clampMin(list[i]);
 		}
 		return maxValue;
 	}
@@ -1251,7 +1231,7 @@ public class FrameUtility
 		ushort maxValue = list[0];
 		for (int i = 1; i < count; ++i)
 		{
-			clampMin(ref maxValue, list[i]);
+			maxValue = maxValue.clampMin(list[i]);
 		}
 		return maxValue;
 	}
@@ -1261,7 +1241,7 @@ public class FrameUtility
 		int maxValue = list[0];
 		for (int i = 1; i < count; ++i)
 		{
-			clampMin(ref maxValue, list[i]);
+			maxValue = maxValue.clampMin(list[i]);
 		}
 		return maxValue;
 	}
@@ -1271,7 +1251,7 @@ public class FrameUtility
 		int maxValue = list[0];
 		for (int i = 1; i < count; ++i)
 		{
-			clampMin(ref maxValue, list[i]);
+			maxValue = maxValue.clampMin(list[i]);
 		}
 		return maxValue;
 	}
@@ -1281,7 +1261,7 @@ public class FrameUtility
 		uint maxValue = list[0];
 		for (int i = 1; i < count; ++i)
 		{
-			clampMin(ref maxValue, list[i]);
+			maxValue = maxValue.clampMin(list[i]);
 		}
 		return maxValue;
 	}
@@ -1291,7 +1271,7 @@ public class FrameUtility
 		uint maxValue = list[0];
 		for (int i = 1; i < count; ++i)
 		{
-			clampMin(ref maxValue, list[i]);
+			maxValue = maxValue.clampMin(list[i]);
 		}
 		return maxValue;
 	}
@@ -1301,7 +1281,7 @@ public class FrameUtility
 		long maxValue = list[0];
 		for (int i = 1; i < count; ++i)
 		{
-			clampMin(ref maxValue, list[i]);
+			maxValue = maxValue.clampMin(list[i]);
 		}
 		return maxValue;
 	}
@@ -1311,7 +1291,7 @@ public class FrameUtility
 		long maxValue = list[0];
 		for (int i = 1; i < count; ++i)
 		{
-			clampMin(ref maxValue, list[i]);
+			maxValue = maxValue.clampMin(list[i]);
 		}
 		return maxValue;
 	}
@@ -1321,7 +1301,7 @@ public class FrameUtility
 		ulong maxValue = list[0];
 		for (int i = 1; i < count; ++i)
 		{
-			clampMin(ref maxValue, list[i]);
+			maxValue = maxValue.clampMin(list[i]);
 		}
 		return maxValue;
 	}
@@ -1331,7 +1311,7 @@ public class FrameUtility
 		ulong maxValue = list[0];
 		for (int i = 1; i < count; ++i)
 		{
-			clampMin(ref maxValue, list[i]);
+			maxValue = maxValue.clampMin(list[i]);
 		}
 		return maxValue;
 	}
@@ -1341,7 +1321,7 @@ public class FrameUtility
 		float maxValue = list[0];
 		for (int i = 1; i < count; ++i)
 		{
-			clampMin(ref maxValue, list[i]);
+			maxValue = maxValue.clampMin(list[i]);
 		}
 		return maxValue;
 	}
@@ -1351,7 +1331,7 @@ public class FrameUtility
 		float maxValue = list[0];
 		for (int i = 1; i < count; ++i)
 		{
-			clampMin(ref maxValue, list[i]);
+			maxValue = maxValue.clampMin(list[i]);
 		}
 		return maxValue;
 	}
@@ -1361,7 +1341,7 @@ public class FrameUtility
 		double maxValue = list[0];
 		for (int i = 1; i < count; ++i)
 		{
-			clampMin(ref maxValue, list[i]);
+			maxValue = maxValue.clampMin(list[i]);
 		}
 		return maxValue;
 	}
@@ -1371,127 +1351,127 @@ public class FrameUtility
 		double maxValue = list[0];
 		for (int i = 1; i < count; ++i)
 		{
-			clampMin(ref maxValue, list[i]);
+			maxValue = maxValue.clampMin(list[i]);
 		}
 		return maxValue;
 	}
 	public static sbyte findMaxAbs(Span<sbyte> list)
 	{
 		int count = list.Length;
-		sbyte maxValue = abs(list[0]);
+		sbyte maxValue = list[0].abs();
 		for (int i = 1; i < count; ++i)
 		{
-			clampMin(ref maxValue, abs(list[i]));
+			maxValue = maxValue.clampMin(list[i].abs());
 		}
 		return maxValue;
 	}
 	public static sbyte findMaxAbs(List<sbyte> list)
 	{
 		int count = list.Count;
-		sbyte maxValue = abs(list[0]);
+		sbyte maxValue = list[0].abs();
 		for (int i = 1; i < count; ++i)
 		{
-			clampMin(ref maxValue, abs(list[i]));
+			maxValue = maxValue.clampMin(list[i].abs());
 		}
 		return maxValue;
 	}
 	public static short findMaxAbs(Span<short> list)
 	{
 		int count = list.Length;
-		short maxValue = abs(list[0]);
+		short maxValue = list[0].abs();
 		for (int i = 1; i < count; ++i)
 		{
-			clampMin(ref maxValue, abs(list[i]));
+			maxValue = maxValue.clampMin(list[i].abs());
 		}
 		return maxValue;
 	}
 	public static short findMaxAbs(List<short> list)
 	{
 		int count = list.Count;
-		short maxValue = abs(list[0]);
+		short maxValue = list[0].abs();
 		for (int i = 1; i < count; ++i)
 		{
-			clampMin(ref maxValue, abs(list[i]));
+			maxValue = maxValue.clampMin(list[i].abs());
 		}
 		return maxValue;
 	}
 	public static int findMaxAbs(Span<int> list)
 	{
 		int count = list.Length;
-		int maxValue = abs(list[0]);
+		int maxValue = list[0].abs();
 		for (int i = 1; i < count; ++i)
 		{
-			clampMin(ref maxValue, abs(list[i]));
+			maxValue = maxValue.clampMin(list[i].abs());
 		}
 		return maxValue;
 	}
 	public static int findMaxAbs(List<int> list)
 	{
 		int count = list.Count;
-		int maxValue = abs(list[0]);
+		int maxValue = list[0].abs();
 		for (int i = 1; i < count; ++i)
 		{
-			clampMin(ref maxValue, abs(list[i]));
+			maxValue = maxValue.clampMin(list[i].abs());
 		}
 		return maxValue;
 	}
 	public static long findMaxAbs(Span<long> list)
 	{
 		int count = list.Length;
-		long maxValue = abs(list[0]);
+		long maxValue = list[0].abs();
 		for (int i = 1; i < count; ++i)
 		{
-			clampMin(ref maxValue, abs(list[i]));
+			maxValue = maxValue.clampMin(list[i].abs());
 		}
 		return maxValue;
 	}
 	public static long findMaxAbs(List<long> list)
 	{
 		int count = list.Count;
-		long maxValue = abs(list[0]);
+		long maxValue = list[0].abs();
 		for (int i = 1; i < count; ++i)
 		{
-			clampMin(ref maxValue, abs(list[i]));
+			maxValue = maxValue.clampMin(list[i].abs());
 		}
 		return maxValue;
 	}
 	public static float findMaxAbs(Span<float> list)
 	{
 		int count = list.Length;
-		float maxValue = abs(list[0]);
+		float maxValue = list[0].abs();
 		for (int i = 1; i < count; ++i)
 		{
-			clampMin(ref maxValue, abs(list[i]));
+			maxValue = maxValue.clampMin(list[i].abs());
 		}
 		return maxValue;
 	}
 	public static float findMaxAbs(List<float> list)
 	{
 		int count = list.Count;
-		float maxValue = abs(list[0]);
+		float maxValue = list[0].abs();
 		for (int i = 1; i < count; ++i)
 		{
-			clampMin(ref maxValue, abs(list[i]));
+			maxValue = maxValue.clampMin(list[i].abs());
 		}
 		return maxValue;
 	}
 	public static double findMaxAbs(Span<double> list)
 	{
 		int count = list.Length;
-		double maxValue = abs(list[0]);
+		double maxValue = list[0].abs();
 		for (int i = 1; i < count; ++i)
 		{
-			clampMin(ref maxValue, abs(list[i]));
+			maxValue = maxValue.clampMin(list[i].abs());
 		}
 		return maxValue;
 	}
 	public static double findMaxAbs(List<double> list)
 	{
 		int count = list.Count;
-		double maxValue = abs(list[0]);
+		double maxValue = list[0].abs();
 		for (int i = 1; i < count; ++i)
 		{
-			clampMin(ref maxValue, abs(list[i]));
+			maxValue = maxValue.clampMin(list[i].abs());
 		}
 		return maxValue;
 	}
@@ -1593,7 +1573,7 @@ public class FrameUtility
 			fullTrace.Append("at ");
 			fullTrace.Append(frame.GetFileName());
 			fullTrace.Append(":");
-			fullTrace.AppendLine(IToS(frame.GetFileLineNumber()));
+			fullTrace.AppendLine(frame.GetFileLineNumber().IToS());
 		}
 		return fullTrace.ToString();
 	}
@@ -1717,7 +1697,7 @@ public class FrameUtility
 	}
 	public static void executeBat(string batFullPath, string[] args)
 	{
-		executeExeBatch(batFullPath, stringsToString(args, " "), getFilePath(batFullPath));
+		executeExeBatch(batFullPath, args.stringsToString(" "), getFilePath(batFullPath));
 	}
 	public static void executeBat(string batFullPath, string arg0, string arg1)
 	{
@@ -1736,11 +1716,11 @@ public class FrameUtility
 	{
 		if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
 		{
-			executeExeBatch("cmd.exe", "/c " + stringsToString(cmdList, " & "), null, -1, showError, showInfo, infoCallback);
+			executeExeBatch("cmd.exe", "/c " + cmdList.stringsToString(" & "), null, -1, showError, showInfo, infoCallback);
 		}
 		else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
 		{
-			executeExeBatch("/bin/bash", "-c \"" + stringsToString(cmdList, " ; ") + "\"", null, -1, showError, showInfo, infoCallback);
+			executeExeBatch("/bin/bash", "-c \"" + cmdList.stringsToString(" ; ") + "\"", null, -1, showError, showInfo, infoCallback);
 		}
 	}
 	// 在指定仓库中执行git命令
@@ -1755,8 +1735,51 @@ public class FrameUtility
 		log("execute shell : " + args);
 		executeExeBatch("/bin/sh", args, null, -1, showError, showInfo, infoCallback);
 	}
-	// 压缩为zip文件,路径为绝对路径
-	public static void compressZipFile(string fileNameWithPath, string zipFileNameWithPath)
+    // 获得一个文件的所属AssetBundle名,file是以Assets开头的相对路径,这个就是AssetBundle打包最核心的规则
+    public static string generateFileAssetBundleName(string file, bool forceSingle = false)
+    {
+        // .meta不能设置AssetBundle
+        // .DS_Store是mac的特殊文件,也不能设置AssetBundle
+        // .cginc是仅编辑器下使用的资源,不能打包AssetBundle
+        // tpsheet文件不打包
+        // LightingData.asset文件不能打包AB,这是一个特殊文件,只用于编辑器
+        if (file.endWith(".meta") ||
+            file.endWith(".cs") ||
+            file.endWith(".DS_Store") ||
+            file.endWith(".cginc") ||
+            file.endWith(".hlsl") ||
+            file.endWith(".glslinc") ||
+            file.endWith(".tpsheet") ||
+            file.endWith("LightingData.asset") )
+        {
+            return EMPTY;
+        }
+        string bundleName;
+        // unity(但是一般情况下unity场景文件不打包)单个文件打包,就是直接替换后缀名,或者强制为单独一个包的
+        if (file.endWith(".unity") || forceSingle)
+        {
+            bundleName = replaceSuffix(file.removeStart(P_GAME_RESOURCES_PATH), ASSET_BUNDLE_SUFFIX);
+        }
+        // 其他文件的AssetBundle就是所属文件夹
+        else
+        {
+            bundleName = getFilePath(file).removeStart(P_GAME_RESOURCES_PATH) + ASSET_BUNDLE_SUFFIX;
+        }
+        // AssetBundle名字必须是小写的,避免多平台可能存在的问题
+        return bundleName.ToLower();
+    }
+    public static bool isSpriteInAtlas(string assetPath)
+    {
+        if (assetPath.startWith(P_ASSETS_PATH))
+        {
+            assetPath = projectPathToFullPath(assetPath);
+        }
+        // 如果是属于一个SpriteAtlas的图片,则不进行压缩
+        return isFileExist(getFilePath(assetPath, true) + getFolderName(assetPath) + ".spriteatlasv2");
+    }
+#if !UNITY_WEBGL
+    // 压缩为zip文件,路径为绝对路径
+    public static void compressZipFile(string fileNameWithPath, string zipFileNameWithPath)
 	{
 		using ZipArchive zip = ZipFile.Open(zipFileNameWithPath, ZipArchiveMode.Create);
 		zip.CreateEntryFromFile(fileNameWithPath, getFileNameWithSuffix(fileNameWithPath), System.IO.Compression.CompressionLevel.Optimal);
@@ -1771,7 +1794,8 @@ public class FrameUtility
 			entry.ExtractToFile(extractPath + "/" + entry.FullName, true);
 		}
 	}
-	// 目前7z只能在windows下使用
+#endif
+    // 目前7z只能在windows下使用
 #if USE_SEVEN_ZIP && UNITY_STANDALONE_WIN
 	// 压缩为7z文件,路径为绝对路径
 	public static void compress7ZFile(string fileNameWithPath, string zipFileNameWithPath)
@@ -1846,7 +1870,7 @@ public class FrameUtility
 		outFileBuffer = stream.ToArray();
 	}
 #endif
-	public static void recoverCrossParam()
+    public static void recoverCrossParam()
 	{
 		mResourceManager.setDownloadURL(FrameCrossParam.mDownloadURL);
 		mLocalizationManager.setCurrentLanguage(FrameCrossParam.mLocalizationName);

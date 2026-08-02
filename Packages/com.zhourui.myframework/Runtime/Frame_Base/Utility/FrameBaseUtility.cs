@@ -1,7 +1,12 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading;
+using System.Collections;
+#if BYTE_DANCE
+using TTSDK;
+#endif
 using UnityEngine;
+using UnityEngine.Networking;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -108,6 +113,14 @@ public class FrameBaseUtility
 	public static bool isWeiXin()
 	{
 #if UNITY_WEIXINMINIGAME
+		return true;
+#else
+		return false;
+#endif
+	}
+	public static bool isByteDance()
+	{
+#if BYTE_DANCE
 		return true;
 #else
 		return false;
@@ -221,6 +234,14 @@ public class FrameBaseUtility
 		return false;
 #endif
 	}
+	public static bool isUseHybridCLR()
+	{
+#if USE_HYBRID_CLR
+		return true;
+#else
+		return false;
+#endif
+	}
 	public static string getPlatformName()
 	{
 		if (isIOS())
@@ -315,13 +336,13 @@ public class FrameBaseUtility
 		Screen.SetResolution(size.x, size.y, fullScreen);
 
 		// UGUI
-		GameObject uguiRootObj = getRootGameObject(UGUI_ROOT);
+		GameObject uguiRootObj = findRootGameObject(UGUI_ROOT);
 		uguiRootObj.TryGetComponent<RectTransform>(out var uguiRectTransform);
 		uguiRectTransform.offsetMin = -size / 2;
 		uguiRectTransform.offsetMax = size / 2;
 		uguiRectTransform.anchorMax = Vector2.one * 0.5f;
 		uguiRectTransform.anchorMin = Vector2.one * 0.5f;
-		Camera camera = getGameObject("UICamera", uguiRootObj).GetComponent<Camera>();
+		Camera camera = findGameObject("UICamera", uguiRootObj).GetComponent<Camera>();
 		if (camera.orthographic)
 		{
 			camera.orthographicSize = size.y * 0.5f;
@@ -331,7 +352,7 @@ public class FrameBaseUtility
 			camera.transform.localPosition = new(0.0f, 0.0f, -size.y * 0.5f / Mathf.Tan(camera.fieldOfView * Mathf.Deg2Rad * 0.5f));
 		}
 	}
-	public static GameObject getRootGameObject(string name, bool errorIfNull = false)
+	public static GameObject findRootGameObject(string name, bool errorIfNull = false)
 	{
 		if (string.IsNullOrEmpty(name))
 		{
@@ -344,7 +365,7 @@ public class FrameBaseUtility
 		}
 		return go;
 	}
-
+	
 	public static Transform find(Transform parent, string name, bool recursive = true)
 	{
 		var o = getGameObject(name, parent.gameObject, false, recursive);
@@ -353,7 +374,8 @@ public class FrameBaseUtility
 
 		return o.transform;
 	}
-	public static GameObject getGameObject(string name, GameObject parent, bool errorIfNull = false, bool recursive = true)
+	
+	public static GameObject findGameObject(string name, GameObject parent, bool errorIfNull = false, bool recursive = true)
 	{
 		if (string.IsNullOrEmpty(name))
 		{
@@ -376,7 +398,7 @@ public class FrameBaseUtility
 			int childCount = parent.transform.childCount;
 			for (int i = 0; i < childCount; ++i)
 			{
-				go = getGameObject(name, parent.transform.GetChild(i).gameObject, false, recursive);
+				go = findGameObject(name, parent.transform.GetChild(i).gameObject, false, recursive);
 				if (go != null)
 				{
 					break;
@@ -430,7 +452,7 @@ public class FrameBaseUtility
 	public static Vector2 getScreenScale(Vector2 rootSize)
 	{
 		Vector2Int uiSize = FrameSettings.getUISize();
-        return new(rootSize.x * (1.0f / uiSize.x), rootSize.y * (1.0f / uiSize.y));
+		return new(rootSize.x * (1.0f / uiSize.x), rootSize.y * (1.0f / uiSize.y));
 	}
 	public static void destroyUnityObject(UObject obj, bool immediately = false, bool allowDestroyAssets = false)
 	{
@@ -599,5 +621,120 @@ public class FrameBaseUtility
 			}
 		}
 		return true;
+	}
+#if BYTE_DANCE
+	public static string GetTTPersistantPath()
+	{
+		switch (TT.GetSystemInfo().platform)
+		{
+			case "devtools":
+			case "windows":
+				return "ttfile://user/";
+			default:
+				return "scfile://user/";
+		}
+	}
+#endif
+	public static UnityWebRequest unityWebRequest(string url)
+	{
+		if (isWebGL() && url.StartsWith(F_PERSISTENT_ASSETS_PATH))
+		{
+			logErrorBase("webgl下无法使用UnityWebRequest读取PersistentDataPath中的资源");
+			return null;
+		}
+		return UnityWebRequest.Get(url);
+	}
+	// 如果str不以prefix开头,则在str开头加上prefix
+	public static string ensurePrefix(string str, string prefix)
+	{
+		if (!str.StartsWith(prefix))
+		{
+			return prefix + str;
+		}
+		return str;
+	}
+	// 通过WWW加载本地资源时,需要确保路径的前缀正确
+	public static void checkDownloadPath(ref string path)
+	{
+		if (isEditor() || isWindows())
+		{
+			path = ensurePrefix(path, "file:///");
+		}
+		else if (isIOS() || isLinux() || isMacOS())
+		{
+			path = ensurePrefix(path, "file://");
+		}
+		else if (isAndroid())
+		{
+			// android本地加载需要添加jar:file://前缀
+			path = ensurePrefix(path, "jar:file://");
+		}
+	}
+	// fileName为绝对路径
+	public static IEnumerator openFileAsyncInternal(string fileName, bool errorIfNull, BytesCallback callback)
+	{
+		if (string.IsNullOrEmpty(fileName))
+		{
+			callBytesCallback(callback, null);
+			yield break;
+		}
+		DateTime start = DateTime.Now;
+		// 小游戏里面由于路径前缀不同,所以只能使用小游戏的sdk来读取persistPath
+		if (!isEditor() && isWebGL() && fileName.StartsWith(F_PERSISTENT_DATA_PATH))
+		{
+			if (isByteDance())
+			{
+				yield return TTFileSystem.readBytesAsync(fileName, (byte[] bytes) =>
+				{
+					if (errorIfNull && bytes == null)
+					{
+						logErrorBase("open file failed:" + fileName);
+					}
+					logBase("打开文件耗时:" + (int)(DateTime.Now - start).TotalMilliseconds + "毫秒,file:" + fileName);
+					callBytesCallback(callback, bytes);
+				});
+			}
+			else if (isWeiXin())
+			{
+				yield return WeChatFileSystem.readBytesAsync(fileName, (byte[] bytes) =>
+				{
+					if (errorIfNull && bytes == null)
+					{
+						logErrorBase("open file failed:" + fileName);
+					}
+					logBase("打开文件耗时:" + (int)(DateTime.Now - start).TotalMilliseconds + "毫秒,file:" + fileName);
+					callBytesCallback(callback, bytes);
+				});
+			}
+			else
+			{
+				logErrorBase("not supported");
+				callBytesCallback(callback, null);
+			}
+		}
+		else
+		{
+			checkDownloadPath(ref fileName);
+			using var www = unityWebRequest(fileName);
+			yield return www.SendWebRequest();
+			if (errorIfNull && www.downloadHandler.data == null)
+			{
+				logErrorBase("open file failed:" + fileName + ", info:" + www.error + ", error:" + www.downloadHandler.error);
+			}
+			logBase("打开文件耗时:" + (int)(DateTime.Now - start).TotalMilliseconds + "毫秒,file:" + fileName);
+			callBytesCallback(callback, www.downloadHandler.data);
+		}
+	}
+	//------------------------------------------------------------------------------------------------------------------------------
+	protected static void callBytesCallback(BytesCallback callback, byte[] bytes)
+	{
+		try
+		{
+			callback?.Invoke(bytes);
+		}
+		catch (Exception e)
+		{
+			logExceptionBase(e);
+		}
 	}
 }

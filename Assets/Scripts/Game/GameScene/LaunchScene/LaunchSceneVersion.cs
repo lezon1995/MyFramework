@@ -1,4 +1,5 @@
 ﻿using static FrameBaseUtility;
+using static StringUtility;
 using static FrameBaseDefine;
 using static FrameBase;
 
@@ -11,7 +12,7 @@ public class LaunchSceneVersion : SceneProcedure
 		base.init();
 		CmdLayoutManagerLoad.executeAsync<UIDemo>(0, () =>
 		{
-			if (isEditor() || !isEnableHotFix() || isWebGL())
+			if (isEditor() || !isEnableHotFix())
 			{
 				mAssetVersionSystem.setStreamingAssetsVersion(null);
 				mGameSceneManager.getCurScene().changeProcedure<LaunchSceneDownload>();
@@ -29,8 +30,9 @@ public class LaunchSceneVersion : SceneProcedure
 	}
 	protected void doGetRemoteVersion()
 	{
-		ObsSystem.downloadTxt(/*getRemoteFolder("") +*/ VERSION, (string version) =>
+		ResourceUtility.loadAssetsFromUrl(/*OBS_URL + getRemoteFolder("") +*/ VERSION, (byte[] versionBytes) =>
 		{
+			string version = bytesToString(versionBytes);
 			if (version.isEmpty())
 			{
 				// 可选弹窗提示是否重试

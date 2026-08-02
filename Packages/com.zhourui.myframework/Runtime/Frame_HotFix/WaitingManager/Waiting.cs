@@ -1,7 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using static MathUtility;
 
+// 等待对象,用于等待一段时间或条件满足后执行回调
 public class Waiting : ClassObject
 {
 	protected List<CustomAsyncOperation> mAsyncList;
@@ -42,7 +42,7 @@ public class Waiting : ClassObject
 				++doneCount;
 			}
 		}
-		return divide(doneCount, mAsyncList.count() + mConditionList.count());
+		return doneCount.divide(mAsyncList.count() + mConditionList.count());
 	}
 	public void setCancelCondition(BoolFunction func) { mCancelCondition = func; }
 	public void addCondition(BoolFunction func) 

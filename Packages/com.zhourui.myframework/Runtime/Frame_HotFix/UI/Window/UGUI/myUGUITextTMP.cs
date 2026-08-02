@@ -2,7 +2,6 @@
 using TMPro;
 using System;
 using System.Collections.Generic;
-using static StringUtility;
 using static FrameBaseHotFix;
 using static UnityUtility;
 
@@ -44,11 +43,11 @@ public class myUGUITextTMP : myUGUIObject, IUGUIText
 	}
 	public void setText(int value)
 	{
-		setText(IToS(value));
+		setText(value.IToS());
 	}
 	public void setText(long value)
 	{
-		setText(LToS(value));
+		setText(value.LToS());
 	}
 	public void applyPreferredWidth(float height = 0.0f, float extraWidth = 0.0f)
 	{

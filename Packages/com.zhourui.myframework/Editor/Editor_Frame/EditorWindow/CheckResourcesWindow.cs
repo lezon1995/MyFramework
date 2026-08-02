@@ -8,7 +8,6 @@ using static StringUtility;
 using static EditorCommonUtility;
 using static FrameDefine;
 using static FileUtility;
-using static MathUtility;
 
 public class RefInfo
 {
@@ -58,7 +57,7 @@ public class CheckResourcesWindow : GameEditorWindow
 						{
 							mFileReferenceList.Clear();
 							Dictionary<string, List<string>> tempList = new();
-							doCheck(path, tempList, getAllResourceGuidInverseRefList());
+							doCheck(path, tempList, getAllGuidInverseRefList());
 							// 这里的GameMenu,collectUsedFile需要在Game层自己实现,
 							HashSet<string> outerRefList = mCollectUsedFileFunc?.Invoke() ?? new();
 							foreach (var item in tempList)
@@ -78,7 +77,7 @@ public class CheckResourcesWindow : GameEditorWindow
 					{
 						if (EditorUtility.DisplayDialog("查找资源引用", "确认查找文件夹中所有文件的引用? " + path, "确认", "取消"))
 						{
-							var allFileText = getAllResourceGuidInverseRefList();
+							var allFileText = getAllGuidInverseRefList();
 							// 不查找meta文件的引用
 							List<string> validFiles = new();
 							foreach (string item in Directory.GetFiles(path, "*.*", SearchOption.AllDirectories))
@@ -121,9 +120,8 @@ public class CheckResourcesWindow : GameEditorWindow
 				textField(ref mInputGUID, 300);
 				if (button("根据GUID查找文件", 150))
 				{
-					var allMeta = getAllResourceMeta();
-					allMeta.TryGetValue(mInputGUID, out string filePath);
-					filePath = fullPathToProjectPath(filePath).removeEndString(".meta");
+					getAllMeta().TryGetValue(mInputGUID, out string filePath);
+					filePath = fullPathToProjectPath(filePath).removeEnd(".meta");
 					Debug.Log("查找到的文件:" + filePath + ", guid:" + mInputGUID, loadAsset(filePath));
 				}
 			}
@@ -211,7 +209,7 @@ public class CheckResourcesWindow : GameEditorWindow
 						}
 						List<string> refList = item.Value.mRefInGameRes;
 						// 引用次数
-						labelWidth(IToS(refList.Count), 100);
+						labelWidth(refList.Count.IToS(), 100);
 						// 是否被外部引用
 						labelWidth(item.Value.mOuterRefCount ? "是" : "/", 100);
 
@@ -240,7 +238,7 @@ public class CheckResourcesWindow : GameEditorWindow
 						string refTipString = EMPTY;
 						foreach (string refFile in refList)
 						{
-							refString += refFile.removeStartString(P_GAME_RESOURCES_PATH) + ",";
+							refString += refFile.removeStart(P_GAME_RESOURCES_PATH) + ",";
 							refTipString += refFile + "\n";
 						}
 						if (!refString.isEmpty())
@@ -317,13 +315,13 @@ public class CheckResourcesWindow : GameEditorWindow
 			{
 				if (button("上一页"))
 				{
-					mCurPage = clampMin(mCurPage - 1);
+					mCurPage = (mCurPage - 1).clampMin();
 				}
-				int pageCount = ceil(tempFileRefList.Count / (float)mPageSize);
-				label("第" + IToS(clampMax(mCurPage + 1, pageCount)) + "/" + IToS(pageCount) + "页");
+				int pageCount = (tempFileRefList.Count / (float)mPageSize).ceil();
+				label("第" + (mCurPage + 1).clampMax(pageCount).IToS() + "/" + pageCount.IToS() + "页");
 				if (button("下一页"))
 				{
-					mCurPage = clampMax(mCurPage + 1, pageCount - 1);
+					mCurPage = (mCurPage + 1).clampMax(pageCount - 1);
 				}
 				if (needMoveFileList.Count > 0)
 				{
@@ -352,7 +350,7 @@ public class CheckResourcesWindow : GameEditorWindow
 			}
 		}
 	}
-	protected void doCheck(string path, Dictionary<string, List<string>> refList, Dictionary<string, List<FileGUIDLines>> allFileText)
+	protected void doCheck(string path, Dictionary<string, List<string>> refList, Dictionary<string, List<FileRefGUIDs>> allFileText)
 	{
 		DateTime start = DateTime.Now;
 		Dictionary<string, UObject> referenceList = new();

@@ -1,11 +1,12 @@
-﻿using UnityEngine;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using static UnityUtility;
-using static FrameUtility;
+using UnityEngine;
 using static FrameBaseHotFix;
-using static FrameDefine;
 using static FrameBaseUtility;
+using static FrameDefine;
+using static FrameUtility;
+using static UnityUtility;
+using UObject = UnityEngine.Object;
 
 // 特效管理器,用于管理所有的3D特效
 // 特效有三种
@@ -15,12 +16,12 @@ using static FrameBaseUtility;
 public class EffectManager : FrameSystem
 {
 	protected Dictionary<Transformable, HashSet<GameEffect>> mEffectAttachList = new(); // 记录每个物体上都挂了哪些特效,防止特效由于父物体的销毁而意外被销毁
-	protected SafeDictionary<string, QuickEffect> mQuickEffectList = new();				// 用于快速播放的特效列表
+	protected SafeDictionary<string, QuickEffect> mQuickEffectList = new();             // 用于快速播放的特效列表
 	protected SafeList<GameEffect> mEffectList = new();                                 // 正在使用中的特效列表,不含快速播放的特效
 	protected GameEffectPool mGameEffectPool = new();                                   // 特效池,用于存储临时特效
 	protected ClassObjectCallback mObjectDestroyCallback;                               // 物体销毁时的回调,用于在物体销毁时确认销毁所有挂接到此物体上的特效
-	protected float mQuickEffectTimer;													// 检查QuickEffect的计时器
-	protected int mQuickEffectTime = 60;												// 超过60秒未播放的快速特效将会被回收
+	protected float mQuickEffectTimer;                                                  // 检查QuickEffect的计时器
+	protected int mQuickEffectTime = 60;                                                // 超过60秒未播放的快速特效将会被回收
 	public EffectManager()
 	{
 		mCreateObject = true;
@@ -33,6 +34,36 @@ public class EffectManager : FrameSystem
 		{
 			mObject.AddComponent<EffectManagerDebug>();
 		}
+		mGameEffectPool.init();
+		// 注册卸载整个路径和销毁指定物体时的回调,清理对应的对象,避免引用了悬空对象
+		mResourceManager.addUnloadPathCallback((string path) =>
+		{
+			// 找到此路径中所有的QuickEffect,将其销毁
+			using var a = new SafeDictionaryReader<string, QuickEffect>(mQuickEffectList);
+			foreach (var item in a.mReadList)
+			{
+				mQuickEffectList.removeIf(item.Key, item.Key.startWith(path));
+			}
+			using var b = new SafeListReader<GameEffect>(mEffectList);
+			foreach (var item in b.mReadList)
+			{
+				mEffectList.removeIf(item, item.getFilePath().startWith(path));
+			}
+		});
+		mResourceManager.addUnloadObjectCallback((UObject obj) =>
+		{
+			// 找到此路径中所有的QuickEffect,将其销毁
+			using var a = new SafeDictionaryReader<string, QuickEffect>(mQuickEffectList);
+			foreach (var item in a.mReadList)
+			{
+				mQuickEffectList.removeIf(item.Key, item.Value.getGameObject() == obj);
+			}
+			using var b = new SafeListReader<GameEffect>(mEffectList);
+			foreach (var item in b.mReadList)
+			{
+				mEffectList.removeIf(item, item.getGameObject() == obj);
+			}
+		});
 	}
 	public override void update(float elapsedTime)
 	{
@@ -96,120 +127,122 @@ public class EffectManager : FrameSystem
 	}
 	// 在attachedParent销毁时确认销毁所有挂接到此物体上的特效
 	// 同步从prefab中加载一个特效
-	public GameEffect createEffectNoPool(string nameWithPath, Transformable attachedParent, GameObject parent, int tag, bool active, bool moveToHide, float lifeTime = -1.0f)
+	public GameEffect createEffectNoPool(string nameWithPath, Transformable attachedParent, GameObject parent, bool active, bool moveToHide, int tag = 0, float lifeTime = -1.0f)
 	{
 		if (nameWithPath.isEmpty())
 		{
 			return null;
 		}
-		return createEffectNoPool(nameWithPath, attachedParent, parent, tag, active, moveToHide, Vector3.zero, lifeTime, false);
+		return createEffectNoPool(nameWithPath, attachedParent, parent, active, moveToHide, Vector3.zero, tag, lifeTime, false);
 	}
 	// 在attachedParent销毁时确认销毁所有挂接到此物体上的特效
 	// 同步从prefab中加载一个特效
-	public GameEffect createEffectNoPool(string nameWithPath, Transformable attachedParent, GameObject parent, int tag, bool active, bool moveToHide, Vector3 pos, float lifeTime = -1.0f, bool isTemp = false)
+	public GameEffect createEffectNoPool(string nameWithPath, Transformable attachedParent, GameObject parent, bool active, bool moveToHide, Vector3 pos, int tag = 0, float lifeTime = -1.0f, bool isInEffectPool = false)
 	{
 		if (nameWithPath.isEmpty())
 		{
 			return null;
 		}
 		// 在parent下创建一个资源路径为nameWithPath的GameObject
-		GameObject go = mPrefabPoolManager.createObject(nameWithPath, tag, moveToHide, true, parent);
-		return postCreateFromPrefabPool(go, nameWithPath, attachedParent, parent, tag, pos, moveToHide, active, lifeTime, isTemp, false);
+		GameObject go = mPrefabPoolManager.createObject(nameWithPath, moveToHide, true, tag, parent);
+		GameEffect effect = postCreateFromPrefabPool(go, nameWithPath, attachedParent, parent, tag, moveToHide, active, lifeTime, isInEffectPool, false);
+		effect.setPosition(pos);
+		return effect;
 	}
 	// 在attachedParent销毁时确认销毁所有挂接到此物体上的特效
 	// 异步从prefab中加载一个特效
-	public CustomAsyncOperation createEffectNoPoolAsync(Transformable attachedParent, string nameWithPath, int tag, float lifeTime, bool moveToHide)
+	public CustomAsyncOperation createEffectNoPoolAsync(Transformable attachedParent, string nameWithPath, float lifeTime, bool moveToHide, int tag = 0)
 	{
-		return createEffectNoPoolAsync(attachedParent, attachedParent?.getGameObject(), nameWithPath, tag, moveToHide, null, true, lifeTime, false);
+		return createEffectNoPoolAsync(attachedParent, attachedParent?.getGameObject(), nameWithPath, moveToHide, null, true, lifeTime, false, tag);
 	}
 	// 在attachedParent销毁时确认销毁所有挂接到此物体上的特效
 	// 异步从prefab中加载一个特效
-	public CustomAsyncOperation createEffectNoPoolAsync(Transformable attachedParent, string nameWithPath, int tag, bool active, float lifeTime, bool moveToHide)
+	public CustomAsyncOperation createEffectNoPoolAsync(Transformable attachedParent, string nameWithPath, bool active, float lifeTime, bool moveToHide, int tag = 0)
 	{
-		return createEffectNoPoolAsync(attachedParent, attachedParent?.getGameObject(), nameWithPath, tag, moveToHide, null, active, lifeTime, false);
+		return createEffectNoPoolAsync(attachedParent, attachedParent?.getGameObject(), nameWithPath, moveToHide, null, active, lifeTime, false, tag);
 	}
 	// 在attachedParent销毁时确认销毁所有挂接到此物体上的特效
 	// 异步从prefab中加载一个特效
-	public CustomAsyncOperation createEffectNoPoolAsync(Transformable attachedParent, string nameWithPath, int tag, bool moveToHide, GameEffectCallback callback)
+	public CustomAsyncOperation createEffectNoPoolAsync(Transformable attachedParent, string nameWithPath, bool moveToHide, GameEffectCallback callback, int tag = 0)
 	{
-		return createEffectNoPoolAsync(attachedParent, attachedParent?.getGameObject(), nameWithPath, tag, moveToHide, callback, false, -1.0f, false);
+		return createEffectNoPoolAsync(attachedParent, attachedParent?.getGameObject(), nameWithPath, moveToHide, callback, false, -1.0f, false, tag);
 	}
 	// 在attachedParent销毁时确认销毁所有挂接到此物体上的特效
 	// 异步从prefab中加载一个特效
-	public CustomAsyncOperation createEffectNoPoolAsync(Transformable attachedParent, string nameWithPath, int tag, bool moveToHide, GameEffectCallback callback, bool active)
+	public CustomAsyncOperation createEffectNoPoolAsync(Transformable attachedParent, string nameWithPath, bool moveToHide, GameEffectCallback callback, bool active, int tag = 0)
 	{
-		return createEffectNoPoolAsync(attachedParent, attachedParent?.getGameObject(), nameWithPath, tag, moveToHide, callback, active, -1.0f, false);
+		return createEffectNoPoolAsync(attachedParent, attachedParent?.getGameObject(), nameWithPath, moveToHide, callback, active, -1.0f, false, tag);
 	}
 	// 在attachedParent销毁时确认销毁所有挂接到此物体上的特效
 	// 异步从prefab中加载一个特效
-	public CustomAsyncOperation createEffectNoPoolAsync(Transformable attachedParent, GameObject parent, string nameWithPath, int tag, float lifeTime, bool moveToHide)
+	public CustomAsyncOperation createEffectNoPoolAsync(Transformable attachedParent, GameObject parent, string nameWithPath, float lifeTime, bool moveToHide, int tag = 0)
 	{
-		return createEffectNoPoolAsync(attachedParent, parent, nameWithPath, tag, moveToHide, null, true, lifeTime, false);
+		return createEffectNoPoolAsync(attachedParent, parent, nameWithPath, moveToHide, null, true, lifeTime, false, tag);
 	}
 	// 在attachedParent销毁时确认销毁所有挂接到此物体上的特效
 	// 异步从prefab中加载一个特效
-	public CustomAsyncOperation createEffectNoPoolAsync(Transformable attachedParent, GameObject parent, string nameWithPath, int tag, bool active, float lifeTime, bool moveToHide)
+	public CustomAsyncOperation createEffectNoPoolAsync(Transformable attachedParent, GameObject parent, string nameWithPath, bool active, float lifeTime, bool moveToHide, int tag = 0)
 	{
-		return createEffectNoPoolAsync(attachedParent, parent, nameWithPath, tag, moveToHide, null, active, lifeTime, false);
+		return createEffectNoPoolAsync(attachedParent, parent, nameWithPath, moveToHide, null, active, lifeTime, false, tag);
 	}
 	// 在attachedParent销毁时确认销毁所有挂接到此物体上的特效
 	// 异步从prefab中加载一个特效
-	public CustomAsyncOperation createEffectNoPoolAsync(Transformable attachedParent, GameObject parent, string nameWithPath, int tag, bool moveToHide, GameEffectCallback callback)
+	public CustomAsyncOperation createEffectNoPoolAsync(Transformable attachedParent, GameObject parent, string nameWithPath, bool moveToHide, GameEffectCallback callback, int tag = 0)
 	{
-		return createEffectNoPoolAsync(attachedParent, parent, nameWithPath, tag, moveToHide, callback, false, -1.0f, false);
+		return createEffectNoPoolAsync(attachedParent, parent, nameWithPath, moveToHide, callback, false, -1.0f, false, tag);
 	}
 	// 在attachedParent销毁时确认销毁所有挂接到此物体上的特效
 	// 异步从prefab中加载一个特效
-	public CustomAsyncOperation createEffectNoPoolAsync(Transformable attachedParent, GameObject parent, string nameWithPath, int tag, bool moveToHide, GameEffectCallback callback, bool active)
+	public CustomAsyncOperation createEffectNoPoolAsync(Transformable attachedParent, GameObject parent, string nameWithPath, bool moveToHide, GameEffectCallback callback, bool active, int tag = 0)
 	{
-		return createEffectNoPoolAsync(attachedParent, parent, nameWithPath, tag, moveToHide, callback, active, -1.0f, false);
+		return createEffectNoPoolAsync(attachedParent, parent, nameWithPath, moveToHide, callback, active, -1.0f, false, tag);
 	}
 	// 在attachedParent销毁时确认销毁所有挂接到此物体上的特效
 	// 异步从prefab中加载一个特效
-	public CustomAsyncOperation createEffectNoPoolAsync(Transformable attachedParent, GameObject parent, string nameWithPath, int tag, bool moveToHide, GameEffectCallback callback, bool active, float lifeTime, bool isQuick)
+	public CustomAsyncOperation createEffectNoPoolAsync(Transformable attachedParent, GameObject parent, string nameWithPath, bool moveToHide, GameEffectCallback callback, bool active, float lifeTime, bool isQuick, int tag = 0)
 	{
-		return createEffectNoPoolAsyncSafe(nameWithPath, null, attachedParent, parent, moveToHide, callback, Vector3.zero, tag, active, lifeTime, null, false, isQuick);
+		return createEffectNoPoolAsyncSafe(nameWithPath, null, attachedParent, parent, moveToHide, callback, tag, active, lifeTime, null, false, isQuick);
 	}
 	// 如果特效加载完成之前relatedObject被销毁了,则不会播放特效,并且会将特效挂在attachedParent节点下,并且会在attachedParent销毁时确认销毁所有挂接到此物体上的特效
 	// 异步从prefab中加载一个特效
-	public CustomAsyncOperation createEffectNoPoolAsyncSafe(string nameWithPath, IRecyclable relatedObject, bool moveToHide, GameEffectCallback callback, int tag, bool active, bool isQuick)
+	public CustomAsyncOperation createEffectNoPoolAsyncSafe(string nameWithPath, IRecyclable relatedObject, bool moveToHide, GameEffectCallback callback, bool active, bool isQuick, int tag = 0)
 	{
-		return createEffectNoPoolAsyncSafe(nameWithPath, relatedObject, null, null, moveToHide, callback, Vector3.zero, tag, active, -1.0f, null, isQuick);
+		return createEffectNoPoolAsyncSafe(nameWithPath, relatedObject, null, null, moveToHide, callback, tag, active, -1.0f, null, isQuick);
 	}
 	// 如果特效加载完成之前relatedObject被销毁了,则不会播放特效,并且会将特效挂在attachedParent节点下,并且会在attachedParent销毁时确认销毁所有挂接到此物体上的特效
 	// 异步从prefab中加载一个特效
-	public CustomAsyncOperation createEffectNoPoolAsyncSafe(string nameWithPath, IRecyclable relatedObject, bool moveToHide, GameEffectCallback callback, Vector3 pos, int tag, bool active)
+	public CustomAsyncOperation createEffectNoPoolAsyncSafe(string nameWithPath, IRecyclable relatedObject, bool moveToHide, GameEffectCallback callback, bool active, int tag = 0)
 	{
-		return createEffectNoPoolAsyncSafe(nameWithPath, relatedObject, null, null, moveToHide, callback, pos, tag, active, -1.0f, null);
+		return createEffectNoPoolAsyncSafe(nameWithPath, relatedObject, null, null, moveToHide, callback, tag, active, -1.0f, null);
 	}
 	// 如果特效加载完成之前relatedObject被销毁了,则不会播放特效,并且会将特效挂在attachedParent节点下,并且会在attachedParent销毁时确认销毁所有挂接到此物体上的特效
 	// 异步从prefab中加载一个特效
-	public CustomAsyncOperation createEffectNoPoolAsyncSafe(string nameWithPath, IRecyclable relatedObject, bool moveToHide, int tag, GameEffectCallback callback)
+	public CustomAsyncOperation createEffectNoPoolAsyncSafe(string nameWithPath, IRecyclable relatedObject, bool moveToHide, GameEffectCallback callback, int tag = 0)
 	{
-		return createEffectNoPoolAsyncSafe(nameWithPath, relatedObject, null, null, moveToHide, callback, Vector3.zero, tag, true, -1.0f, null);
+		return createEffectNoPoolAsyncSafe(nameWithPath, relatedObject, null, null, moveToHide, callback, tag, true, -1.0f, null);
 	}
 	// 如果特效加载完成之前relatedObject被销毁了,则不会播放特效,并且会将特效挂在attachedParent节点下,并且会在attachedParent销毁时确认销毁所有挂接到此物体上的特效
 	// 异步从prefab中加载一个特效
-	public CustomAsyncOperation createEffectNoPoolAsyncSafe(string nameWithPath, IRecyclable relatedObject, Transformable attachedParent, bool moveToHide, GameEffectCallback callback, int tag, bool active = true)
+	public CustomAsyncOperation createEffectNoPoolAsyncSafe(string nameWithPath, IRecyclable relatedObject, Transformable attachedParent, bool moveToHide, GameEffectCallback callback, int tag = 0, bool active = true)
 	{
-		return createEffectNoPoolAsyncSafe(nameWithPath, relatedObject, attachedParent, attachedParent?.getGameObject(), moveToHide, callback, Vector3.zero, tag, active, -1.0f, null);
+		return createEffectNoPoolAsyncSafe(nameWithPath, relatedObject, attachedParent, attachedParent?.getGameObject(), moveToHide, callback, tag, active, -1.0f, null);
 	}
 	// 如果特效加载完成之前relatedObject被销毁了,则不会播放特效,并且会将特效挂在attachedParent节点下,并且会在attachedParent销毁时确认销毁所有挂接到此物体上的特效
 	// 异步从prefab中加载一个特效
-	public CustomAsyncOperation createEffectNoPoolAsyncSafe(string nameWithPath, IRecyclable relatedObject, Transformable attachedParent, bool moveToHide, GameEffectCallback callback, Vector3 pos, int tag, bool active = true, float lifeTime = -1.0f, BoolCallback failCallback = null)
+	public CustomAsyncOperation createEffectNoPoolAsyncSafe(string nameWithPath, IRecyclable relatedObject, Transformable attachedParent, bool moveToHide, GameEffectCallback callback, int tag = 0, bool active = true, float lifeTime = -1.0f, BoolCallback failCallback = null)
 	{
-		return createEffectNoPoolAsyncSafe(nameWithPath, relatedObject, attachedParent, attachedParent?.getGameObject(), moveToHide, callback, pos, tag, active, lifeTime, failCallback);
+		return createEffectNoPoolAsyncSafe(nameWithPath, relatedObject, attachedParent, attachedParent?.getGameObject(), moveToHide, callback, tag, active, lifeTime, failCallback);
 	}
 	// 如果特效加载完成之前relatedObject被销毁了,则不会播放特效,并且会将特效挂在parent节点下,并且会在attachedParent销毁时确认销毁所有挂接到此物体上的特效
 	// 异步从prefab中加载一个特效
 	// 当前管理器中所有的异步加载最终都是调的这个函数
-	public CustomAsyncOperation createEffectNoPoolAsyncSafe(string nameWithPath, IRecyclable relatedObject, Transformable attachedParent, GameObject parent, bool moveToHide, GameEffectCallback callback, Vector3 pos, int tag, bool active = true, float lifeTime = -1.0f, BoolCallback failCallback = null, bool isTemp = false, bool isQuick = false)
+	public CustomAsyncOperation createEffectNoPoolAsyncSafe(string nameWithPath, IRecyclable relatedObject, Transformable attachedParent, GameObject parent, bool moveToHide, GameEffectCallback callback, int tag = 0, bool active = true, float lifeTime = -1.0f, BoolCallback failCallback = null, bool isInEffectPool = false, bool isQuick = false)
 	{
-		var op = mPrefabPoolManager.createObjectAsyncSafe(relatedObject, nameWithPath, tag, moveToHide, active, (GameObject go) =>
+		var op = mPrefabPoolManager.createObjectAsyncSafe(relatedObject, nameWithPath, moveToHide, active, (GameObject go) =>
 		{
-			GameEffect effect = postCreateFromPrefabPool(go, nameWithPath, attachedParent, parent, tag, pos, moveToHide, active, lifeTime, isTemp, isQuick);
+			GameEffect effect = postCreateFromPrefabPool(go, nameWithPath, attachedParent, parent, tag, moveToHide, active, lifeTime, isInEffectPool, isQuick);
 			callback?.Invoke(effect);
-		}, failCallback);
+		}, tag, failCallback);
 		return op;
 	}
 	
@@ -231,7 +264,7 @@ public class EffectManager : FrameSystem
 	// 会从当前类中缓存的特效对象来获取,而不是从通用对象池中获取一个已经被重置过的对象
 	// 在attachedParent销毁时确认销毁所有挂接到此物体上的特效
 	// 同步从prefab中加载一个特效
-	public GameEffect createEffect(string nameWithPath, Transformable attachedParent, GameObject parent, int tag, bool active, bool moveToHide, Vector3 pos, float lifeTime = -1.0f)
+	public GameEffect createEffect(string nameWithPath, Transformable attachedParent, GameObject parent, bool active, bool moveToHide, Vector3 pos, int tag = 0, float lifeTime = -1.0f)
 	{
 		if (nameWithPath.isEmpty())
 		{
@@ -243,88 +276,105 @@ public class EffectManager : FrameSystem
 		{
 			return mEffectList.add(effect);
 		}
-		return createEffectNoPool(nameWithPath, attachedParent, parent, tag, active, moveToHide, pos, lifeTime, true);
+		return createEffectNoPool(nameWithPath, attachedParent, parent, active, moveToHide, pos, tag, lifeTime, true);
+	}
+	public GameEffect createEffect(string nameWithPath, Transformable attachedParent, GameObject parent, bool active, bool moveToHide, int tag = 0)
+	{
+		return createEffect(nameWithPath, attachedParent, parent, active, moveToHide, Vector3.zero, tag, -1);
 	}
 	// 会从当前类中缓存的特效对象来获取,而不是从通用对象池中获取一个已经被重置过的对象
 	// 如果特效加载完成之前relatedObject被销毁了,则不会播放特效,并且会将特效挂在attachedParent节点下,并且会在attachedParent销毁时确认销毁所有挂接到此物体上的特效
 	// 异步从prefab中加载一个特效
-	public CustomAsyncOperation createEffectAsyncSafe(string nameWithPath, IRecyclable relatedObject, Transformable attachedParent, bool moveToHide, GameEffectCallback callback, Vector3 pos, int tag, bool active = true, float lifeTime = -1.0f, BoolCallback failCallback = null)
+	public CustomAsyncOperation createEffectAsyncSafe(string nameWithPath, IRecyclable relatedObject, Transformable attachedParent, bool moveToHide, GameEffectCallback callback, int tag = 0, bool active = true, float lifeTime = -1.0f, BoolCallback failCallback = null)
 	{
-		return createEffectAsyncSafe(nameWithPath, relatedObject, attachedParent, attachedParent?.getGameObject(), moveToHide, callback, pos, tag, active, lifeTime, failCallback);
+		return createEffectAsyncSafe(nameWithPath, relatedObject, attachedParent, attachedParent?.getGameObject(), moveToHide, callback, tag, active, lifeTime, failCallback);
+	}
+	public CustomAsyncOperation createEffectAsyncSafe(string nameWithPath, Transformable attachedParent, bool moveToHide, GameEffectCallback callback, int tag = 0)
+	{
+		return createEffectAsyncSafe(nameWithPath, attachedParent, attachedParent, attachedParent?.getGameObject(), moveToHide, callback, tag, true, -1, null);
 	}
 	// 会从当前类中缓存的特效对象来获取,而不是从通用对象池中获取一个已经被重置过的对象
 	// 如果特效加载完成之前relatedObject被销毁了,则不会播放特效,并且会将特效挂在attachedParent节点下,并且会在attachedParent销毁时确认销毁所有挂接到此物体上的特效
 	// 异步从prefab中加载一个特效
-	public CustomAsyncOperation createEffectAsyncSafe(string nameWithPath, IRecyclable relatedObject, bool moveToHide, int tag, GameEffectCallback callback)
+	public CustomAsyncOperation createEffectAsyncSafe(string nameWithPath, IRecyclable relatedObject, bool moveToHide, GameEffectCallback callback, int tag = 0)
 	{
-		return createEffectAsyncSafe(nameWithPath, relatedObject, null, null, moveToHide, callback, Vector3.zero, tag, true, -1.0f, null);
+		return createEffectAsyncSafe(nameWithPath, relatedObject, null, null, moveToHide, callback, tag, true, -1.0f, null);
 	}
 	// 会从当前类中缓存的特效对象来获取,而不是从通用对象池中获取一个已经被重置过的对象
 	// 如果特效加载完成之前relatedObject被销毁了,则不会播放特效,并且会将特效挂在parent节点下,并且会在attachedParent销毁时确认销毁所有挂接到此物体上的特效
 	// 异步从prefab中加载一个特效
-	public CustomAsyncOperation createEffectAsyncSafe(string nameWithPath, IRecyclable relatedObject, Transformable attachedParent, GameObject parent, bool moveToHide, GameEffectCallback callback, Vector3 pos, int tag, bool active = true, float lifeTime = -1.0f, BoolCallback failCallback = null)
+	// 异步创建时不再传一个位置了,因为加载完毕时真正需要的位置不一定跟传的一致,可能会导致隐式的bug,所以还是在回调中自己去设置位置
+	public CustomAsyncOperation createEffectAsyncSafe(string nameWithPath, IRecyclable relatedObject, Transformable attachedParent, GameObject parent, bool moveToHide, GameEffectCallback callback, int tag = 0, bool active = true, float lifeTime = -1.0f, BoolCallback failCallback = null)
 	{
 		// 先从未使用列表中获取一个特效
-		GameEffect effect = mGameEffectPool.getOneEffect(parent, nameWithPath, pos, moveToHide, active, lifeTime);
+		GameEffect effect = mGameEffectPool.getOneEffect(parent, nameWithPath, Vector3.zero, moveToHide, active, lifeTime);
 		if (effect != null)
 		{
 			callback?.Invoke(mEffectList.add(effect));
 			return new CustomAsyncOperation().setFinish();
 		}
-		return createEffectNoPoolAsyncSafe(nameWithPath, relatedObject, attachedParent, parent, moveToHide, callback, pos, tag, active, lifeTime, failCallback, true);
+		return createEffectNoPoolAsyncSafe(nameWithPath, relatedObject, attachedParent, parent, moveToHide, callback, tag, active, lifeTime, failCallback, true);
 	}
 	// 会从当前类中缓存的特效对象来获取,而不是从通用对象池中获取一个已经被重置过的对象
 	// 在attachedParent销毁时确认销毁所有挂接到此物体上的特效
 	// 异步从prefab中加载一个特效
-	public CustomAsyncOperation createEffectAsync(Transformable attachedParent, GameObject parent, string nameWithPath, int tag, Vector3 pos, bool moveToHide, GameEffectCallback callback, bool active, float lifeTime)
+	public CustomAsyncOperation createEffectAsync(Transformable attachedParent, GameObject parent, string nameWithPath, bool moveToHide, GameEffectCallback callback, bool active, float lifeTime, int tag = 0)
 	{
 		// 先从未使用列表中获取一个特效
-		GameEffect effect = mGameEffectPool.getOneEffect(parent, nameWithPath, pos, moveToHide, active, lifeTime);
+		GameEffect effect = mGameEffectPool.getOneEffect(parent, nameWithPath, Vector3.zero, moveToHide, active, lifeTime);
 		if (effect != null)
 		{
 			callback?.Invoke(mEffectList.add(effect));
 			return new CustomAsyncOperation().setFinish();
 		}
-		return createEffectNoPoolAsync(attachedParent, parent, nameWithPath, tag, moveToHide, callback, true, lifeTime, false);
+		return createEffectNoPoolAsync(attachedParent, parent, nameWithPath, moveToHide, callback, true, lifeTime, false, tag);
 	}
 	// 带Quick后缀的函数是创建一个可以快速播放的特效,调用GameEffect对象的playQuick可快速播放,效率很高
 	// 在attachedParent销毁时确认销毁所有挂接到此物体上的特效
 	// 异步从prefab中加载一个特效
-	public CustomAsyncOperation createEffectAsyncQuick(Transformable attachedParent, GameObject parent, string nameWithPath, int tag, GameEffectCallback callback)
+	public CustomAsyncOperation createEffectAsyncQuick(Transformable attachedParent, GameObject parent, string nameWithPath, GameEffectCallback callback, int tag = 0)
 	{
 		if (mQuickEffectList.tryGetValue(nameWithPath, out QuickEffect effect))
 		{
 			callback?.Invoke(effect);
 			return new CustomAsyncOperation().setFinish();
 		}
-		return createEffectNoPoolAsync(attachedParent, parent, nameWithPath, tag, false, (effect) =>
+		return createEffectNoPoolAsync(attachedParent, parent, nameWithPath, false, (effect) =>
 		{
 			effect.stop();
 			callback?.Invoke(effect);
-		}, true, -1.0f, true);
+		}, true, -1.0f, true, tag);
 	}
 	// 在relatedObject的位置上播放一个特效,如果特效加载完成之前relatedObject被销毁了,则不会播放特效
-	public CustomAsyncOperation playEffectAsync(string nameWithPath, Transformable relatedObject, float lifeTime, bool moveToHide, int tag)
+	public CustomAsyncOperation playEffectAsync(string nameWithPath, Transformable relatedObject, float lifeTime, bool moveToHide, int tag = 0)
 	{
-		return createEffectAsyncSafe(nameWithPath, relatedObject, null, moveToHide, null, relatedObject.getPosition(), tag, true, lifeTime);
-	}
-	public CustomAsyncOperation playEffectAsyncAtPosition(string nameWithPath, Vector3 pos, float lifeTime, bool moveToHide, int tag)
-	{
-		return createEffectAsync(null, null, nameWithPath, tag, pos, moveToHide, null, true, lifeTime);
-	}
-	public CustomAsyncOperation playEffectAsyncAtPosition(string nameWithPath, Vector3 pos, Vector3 rotation, float lifeTime, bool moveToHide, int tag)
-	{
-		return createEffectAsync(null, null, nameWithPath, tag, pos, moveToHide, (GameEffect effect) =>
+		return createEffectAsyncSafe(nameWithPath, relatedObject, null, moveToHide, (effect) =>
 		{
-			effect.setRotation(rotation);
-		}, true, lifeTime);
+			effect.setPosition(relatedObject.getPosition());
+		}, tag, true, lifeTime);
 	}
-	public CustomAsyncOperation playEffectAsyncAtPositionQuick(string nameWithPath, Vector3 pos, int tag)
+	public CustomAsyncOperation playEffectAsyncAtPosition(string nameWithPath, Vector3 pos, float lifeTime, bool moveToHide, int tag = 0)
 	{
-		return createEffectAsyncQuick(null, null, nameWithPath, tag, effect => (effect as QuickEffect).playQuick(pos));
+		return createEffectAsync(null, null, nameWithPath, moveToHide, (effect) => { effect.setPosition(pos); }, true, lifeTime, tag);
+	}
+	public CustomAsyncOperation playEffectAsyncAtPosition(string nameWithPath, Vector3 pos, Vector3 rotation, float lifeTime, bool moveToHide, int tag = 0)
+	{
+		return createEffectAsync(null, null, nameWithPath, moveToHide, (GameEffect effect) =>
+		{
+			effect.setPosition(pos);
+			effect.setRotation(rotation);
+		}, true, lifeTime, tag);
+	}
+	public CustomAsyncOperation playEffectAsyncAtPositionQuick(string nameWithPath, Vector3 pos, int tag = 0)
+	{
+		return createEffectAsyncQuick(null, null, nameWithPath, effect => (effect as QuickEffect).playQuick(pos), tag);
 	}
 	public void destroyEffect(ref GameEffect effect, bool destroyReally = false, bool removeFromAttachList = true)
 	{
+		if (effect == null)
+		{
+			return;
+		}
 		if (effect.isInEffectPool())
 		{
 			destroyEffectInPool(ref effect, destroyReally, removeFromAttachList);
@@ -391,7 +441,7 @@ public class EffectManager : FrameSystem
 		gameEffect.setMoveToHide(moveToHide);
 		return gameEffect;
 	}
-	protected GameEffect postCreateFromPrefabPool(GameObject go, string nameWithPath, Transformable attachedParent, GameObject parent, int tag, Vector3 pos, bool moveToHide, bool active, float lifeTime, bool isTemp, bool isQuick)
+	protected GameEffect postCreateFromPrefabPool(GameObject go, string nameWithPath, Transformable attachedParent, GameObject parent, int tag, bool moveToHide, bool active, float lifeTime, bool isInEffectPool, bool isQuick)
 	{
 		if (go == null)
 		{
@@ -408,17 +458,16 @@ public class EffectManager : FrameSystem
 		{
 			effect.setParent(parent);
 		}
-		effect.setPosition(pos);
 		effect.clearTrail();
 		if (active)
 		{
 			effect.play();
 		}
-		if (isTemp)
+		if (isInEffectPool)
 		{
 			mGameEffectPool.useEffect(effect);
 		}
-		effect.setInEffectPool(isTemp);
+		effect.setInEffectPool(isInEffectPool);
 		if (effect is QuickEffect quickEffect)
 		{
 			mQuickEffectList.add(nameWithPath, quickEffect);
@@ -465,12 +514,14 @@ public class EffectManager : FrameSystem
 		if (!effect.isInEffectPool())
 		{
 			logError("需要使用destroyEffect销毁非临时特效:" + effect.getFilePath());
+			effect = null;
 			return;
 		}
 		// 当GameObject为空时,可能是在销毁无效的特效,所以只能彻底清除
 		if (destroyReally || effect.getGameObject() == null)
 		{
 			mGameEffectPool.removeEffect(effect);
+			effect.setInEffectPool(false);
 			destroyEffectNoPool(ref effect);
 			return;
 		}
@@ -493,6 +544,7 @@ public class EffectManager : FrameSystem
 			effect.setActive(false);
 			effect.setParent(mPrefabPoolManager.getObject());
 		}
+		effect = null;
 	}
 	protected void destroyEffectInPool(GameEffect effect, bool destroyReally = false)
 	{
@@ -507,7 +559,8 @@ public class EffectManager : FrameSystem
 		}
 		if (effect.isInEffectPool())
 		{
-			logWarning("需要使用destroyEffectTemp销毁临时特效:" + effect.getFilePath());
+			logError("需要使用destroyEffectTemp销毁临时特效:" + effect.getFilePath());
+			effect = null;
 			return;
 		}
 		// 从mEffectAttachList中移除

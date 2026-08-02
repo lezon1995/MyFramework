@@ -47,6 +47,13 @@ public class UGUIGeneratorUtility
 				generator.addScrollList();
 			}
 		}
+		if (generator is UGUISubGenerator subGenerator)
+		{
+            using (new GUILayout.HorizontalScope(GUILayout.Width(200)))
+            {
+                drawRootMemberLine(subGenerator);
+            }
+        }
 		List<MemberData> tempNeedRemoveData = null;
 		for (int i = 0; i < generator.mMemberList.Count; ++i)
 		{
@@ -136,7 +143,7 @@ public class UGUIGeneratorUtility
     }
     protected static void drawMemberLine(UGUIGeneratorBase generator, MemberData item, ref List<MemberData> tempNeedRemoveData)
 	{
-		if (button("X", 25))
+		if (button("X", 32))
 		{
 			tempNeedRemoveData ??= new();
 			tempNeedRemoveData.addUnique(item);
@@ -263,7 +270,24 @@ public class UGUIGeneratorUtility
 			}
 		}
 	}
-	protected static void drawTemplateParamUGUIDragViewLoop(MemberData data)
+    protected static void drawRootMemberLine(UGUISubGenerator generator)
+    {
+		label("Root");
+        objectField(generator.gameObject, 160);
+        if (toggle(ref generator.mRootRegisterCollider, "注册点击") && generator.mRootRegisterCollider)
+        {
+            generator.mRootHasClickEvent = true;
+        }
+        if (generator.mRootRegisterCollider)
+        {
+            toggle(ref generator.mRootHasClickEvent, "点击事件");
+        }
+        else
+        {
+            generator.mRootHasClickEvent = false;
+        }
+    }
+    protected static void drawTemplateParamUGUIDragViewLoop(MemberData data)
 	{
 		using (new GUILayout.HorizontalScope(GUILayout.Width(200)))
 		{
@@ -468,7 +492,7 @@ public class UGUIGeneratorUtility
 	}
 	public static void appendWithAlign(ref string oriStr, string appendStr, int alignWidth)
 	{
-		int tabCount = ceil(clampMin(alignWidth - getStringWidth(oriStr)) / 4.0f);
+		int tabCount = ((alignWidth - getStringWidth(oriStr)).clampMin() / 4.0f).ceil();
 		for (int i = 0; i < tabCount; ++i)
 		{
 			oriStr += '\t';

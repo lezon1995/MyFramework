@@ -8,6 +8,7 @@ using static UnityUtility;
 using static FrameBaseHotFix;
 using static FrameBaseUtility;
 using static FrameUtility;
+using static FileUtility;
 using UObject = UnityEngine.Object;
 
 // 用于管理SpriteAtlas和MultiSprite封装以后的对象
@@ -18,7 +19,7 @@ public class AtlasManager : FrameSystem
 	protected SafeDictionary<string, AtlasBase> mAtlasList = new();                 // key是图集的路径,相对于GameResources
 	protected HashSet<string> mDontUnloadAtlas = new();                             // 即使没有引用也不会卸载的图集
 	protected Dictionary<string, ResourceRef<SpriteAtlas>> mSpriteAtlasList = new();// 已加载的SpriteAtlas列表
-	protected Dictionary<string, string> mAtlasPathList;							// 根据图集名字查找SpriteAtlas文件的路径
+	protected Dictionary<string, string> mAtlasPathList = new();                    // 根据图集名字查找SpriteAtlas文件的路径
 	protected float mCheckTimer;                                                    // 检查的计时器
 	protected const int MAX_LOADING_COUNT = 20;                                     // 同时加载的最大数量
 	protected const float CHECK_INTERVAL = 2.0f;                                    // 检查的间隔时间
@@ -29,15 +30,27 @@ public class AtlasManager : FrameSystem
 			mCreateObject = true;
 		}
 	}
-	public override void init()
+	public override void initAsync(Action callback)
 	{
-		base.init();
 		// 注册一下SpriteAtlas的回调,否则在真机上没办法自动加载SpriteAtlas中的Sprite
 		SpriteAtlasManager.atlasRequested += onAtlasRequested;
 		if (isEditor())
 		{
 			mObject.AddComponent<TPSpriteManagerDebug>();
+			if (!isFileExist(F_MISC_PATH + ATLAS_PATH_CONFIG))
+			{
+				logError("找不到文件" + F_MISC_PATH + ATLAS_PATH_CONFIG + ",可以执行菜单:快捷操作->生成" + ATLAS_PATH_CONFIG);
+			}
 		}
+		mResourceManager.loadGameResourceAsync<TextAsset>(R_MISC_PATH + ATLAS_PATH_CONFIG, text =>
+		{
+			foreach (string line in text.get().text.splitLine().safe())
+			{
+				mAtlasPathList.Add(getFileNameNoSuffixNoDir(line), line);
+			}
+			mResourceManager.unload(ref text);
+			callback?.Invoke();
+		});
 	}
 	public override void destroy()
 	{
@@ -154,15 +167,14 @@ public class AtlasManager : FrameSystem
 		return null;
 	}
 	// 异步加载位于GameResources中的图集,atlasName是GameResources下的相对路径,带后缀
-	public CustomAsyncOperation getAtlasAsyncSafe(IRecyclable owner, string atlasName, UGUIAtlasPtrCallback callback, bool errorInNull = true, bool loadIfNull = true)
+	public CustomAsyncOperation getAtlasAsyncSafe(IRecyclable owner, string atlasName, AtlasPtrCallback callback, bool errorInNull = true, bool loadIfNull = true)
 	{
 		CustomAsyncOperation op = new();
 		if (mAtlasList.tryGetValue(atlasName, out AtlasBase atlas))
 		{
 			CLASS(out AtlasRef ptr).setAtlas(atlas);
 			callback?.Invoke(ptr);
-			op.setFinish();
-			return op;
+			return op.setFinish();
 		}
 		if (loadIfNull)
 		{
@@ -233,31 +245,24 @@ public class AtlasManager : FrameSystem
 	//------------------------------------------------------------------------------------------------------------------------------
 	protected void onAtlasRequested(string name, Action<SpriteAtlas> action)
 	{
-		if (mAtlasPathList == null)
-		{
-			mAtlasPathList = new();
-			var text = mResourceManager.loadGameResource<TextAsset>(R_MISC_PATH + ATLAS_PATH_CONFIG);
-			foreach(string line in text.getResource().text.splitLine())
-			{
-				mAtlasPathList.Add(getFileNameNoSuffixNoDir(line), line);
-			}
-			mResourceManager.unload(ref text);
-		}
-
 		ResourceRef<SpriteAtlas> atlas = mSpriteAtlasList.get(name);
-		if (atlas == null)
+		if (atlas != null)
 		{
-			string path = mAtlasPathList.get(name);
-			if (path == null)
-			{
-				Debug.LogError("在AtlasPathConfig中找不到指定名字的图集:" + name);
-				action(null);
-				return;
-			}
-			atlas = mResourceManager.loadGameResource<SpriteAtlas>(path);
-			mSpriteAtlasList.Add(name, atlas);
+			action(atlas.get());
+			return;
 		}
-		action(atlas.getResource());
+		string path = mAtlasPathList.get(name);
+		if (path == null)
+		{
+			Debug.LogError("在AtlasPathConfig中找不到指定名字的图集:" + name);
+			action(null);
+			return;
+		}
+		mResourceManager.loadGameResourceAsync<SpriteAtlas>(path, atlas =>
+		{
+			mSpriteAtlasList.Add(name, atlas);
+			action(atlas.get());
+		});
 	}
 	// 图集资源已经加载完成,从assets中解析并创建图集信息
 	protected static AtlasBase atlasLoaded<T>(T[] assets, ResourceRef<UObject> mainAsset, string loadPath) where T : UObject
@@ -270,7 +275,7 @@ public class AtlasManager : FrameSystem
 		{
 			AtlasUGUI atlas = new(mainAsset);
 			atlas.setFilePath(loadPath);
-			var spriteAtlas = mainAsset.getResource() as SpriteAtlas;
+			var spriteAtlas = mainAsset.get() as SpriteAtlas;
 			if (spriteAtlas.spriteCount == 0)
 			{
 				if (isEditor())
@@ -294,7 +299,7 @@ public class AtlasManager : FrameSystem
 				{
 					continue;
 				}
-				string name = sprite.name.removeEndString("(Clone)");
+				string name = sprite.name.removeEnd("(Clone)");
 				sprite.name = name;
 				atlas.addSprite(sprite, name);
 			}

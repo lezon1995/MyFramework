@@ -10,11 +10,12 @@ public class myUGUIImage : myUGUIImageSimple, IUGUIImage
 	protected AtlasRef mOriginAtlasPtr;			// 图片图集,用于卸载,当前类只关心初始图集的卸载,后续再次设置的图集不关心是否需要卸载,需要外部设置的地方自己关心
 	protected AtlasRef mAtlasPtr;				// 当前正在使用的图集
 	protected Sprite mOriginSprite;             // 备份加载物体时原始的精灵图片,此图片的卸载是在prefab卸载后,没有任何地方对其有引用,在Resources.UnloadUnusedAssets中被卸载
-	protected string mOriginSpriteName;			// 初始图片的名字,用于外部根据初始名字设置其他效果的图片
+	protected string mOriginSpriteName;         // 初始图片的名字,用于外部根据初始名字设置其他效果的图片
 	public override void init()
 	{
 		base.init();
 		mOriginSprite = mImage.sprite;
+		mOriginSpriteName = getSpriteName();
 		// 获取初始的精灵所在图集
 		if (mOriginSprite != null)
 		{
@@ -30,8 +31,10 @@ public class myUGUIImage : myUGUIImageSimple, IUGUIImage
 			// unity_builtin_extra是unity内置的资源,不需要再次加载
 			if (!atlasPath.endWith("/unity_builtin_extra"))
 			{
-				atlasPath = atlasPath.removeStartString(P_GAME_RESOURCES_PATH);
-				mOriginAtlasPtr = mAtlasManager.getAtlas(atlasPath, false);
+				atlasPath = atlasPath.removeStart(P_GAME_RESOURCES_PATH);
+				// webgl中还不支持同步加载,但是异步又可能会出现很多执行时序问题.所以分开写,能同步则同步,不能才异步
+				mOriginAtlasPtr = mAtlasManager.getAtlas(atlasPath);
+				mAtlasPtr = mOriginAtlasPtr;
 				if (mOriginAtlasPtr == null || !mOriginAtlasPtr.isValid())
 				{
 					logWarning("无法加载初始化的图集:" + atlasPath + ", GameObject:" + getGameObjectPath() +
@@ -42,9 +45,7 @@ public class myUGUIImage : myUGUIImageSimple, IUGUIImage
 			{
 				logError("需要切换图片的节点上不要使用引擎内置的图片, GameObject:" + getGameObjectPath());
 			}
-			mAtlasPtr = mOriginAtlasPtr;
 		}
-		mOriginSpriteName = getSpriteName();
 	}
 	public override void destroy()
 	{
@@ -116,11 +117,6 @@ public class myUGUIImage : myUGUIImageSimple, IUGUIImage
 	//------------------------------------------------------------------------------------------------------------------------------
 	protected Sprite getSpriteInAtlas(string spriteName)
 	{
-		Sprite sprite = mAtlasPtr?.getSprite(spriteName);
-		if (sprite != null)
-		{
-			return sprite;
-		}
-		return null;
+		return mAtlasPtr?.getSprite(spriteName);
 	}
 }

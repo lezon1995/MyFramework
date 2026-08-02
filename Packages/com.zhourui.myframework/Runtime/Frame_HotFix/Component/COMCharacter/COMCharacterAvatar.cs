@@ -2,7 +2,6 @@
 using UnityEngine;
 using static UnityUtility;
 using static FrameBaseHotFix;
-using static MathUtility;
 using static FrameDefine;
 
 // 制作角色的动画状态机时需要注意
@@ -78,27 +77,27 @@ public class COMCharacterAvatar : GameComponent
 	public override void init(ComponentOwner owner)
 	{
 		base.init(owner);
-		mCharacter = mComponentOwner as Character;
+		mCharacter = base.owner as Character;
 	}
-	public override void update(float elapsedTime)
+	public override void update(float dt)
 	{
-		base.update(elapsedTime);
+		base.update(dt);
 		if (mTransformSyncTime == TRANSFORM_SYNC_TIME.UPDATE)
 		{
 			syncTransform();
 		}
 	}
-	public override void lateUpdate(float elapsedTime)
+	public override void lateUpdate(float dt)
 	{
-		base.lateUpdate(elapsedTime);
+		base.lateUpdate(dt);
 		if (mTransformSyncTime == TRANSFORM_SYNC_TIME.LATE_UPDATE)
 		{
 			syncTransform();
 		}
 	}
-	public override void fixedUpdate(float elapsedTime)
+	public override void fixedUpdate(float dt)
 	{
-		base.fixedUpdate(elapsedTime);
+		base.fixedUpdate(dt);
 		if (mTransformSyncTime == TRANSFORM_SYNC_TIME.FIXED_UPDATE)
 		{
 			syncTransform();
@@ -155,10 +154,10 @@ public class COMCharacterAvatar : GameComponent
 		{
 			return null;
 		}
-		return mPrefabPoolManager.createObjectAsyncSafe(this, mModelPath, mModelTag, true, true, (GameObject go) =>
+		return mPrefabPoolManager.createObjectAsyncSafe(this, mModelPath, true, true, (GameObject go) =>
 		{
 			onModelLoaded(go);
-		});
+		}, mModelTag);
 	}
 	// 同步加载模型
 	public void loadModel(string modelPath, string animationControllerPath = null)
@@ -168,7 +167,7 @@ public class COMCharacterAvatar : GameComponent
 		mCharacterLoadedCallback = null;
 		if (!mModelPath.isEmpty())
 		{
-			onModelLoaded(mPrefabPoolManager.createObject(mModelPath, mModelTag, true, true));
+			onModelLoaded(mPrefabPoolManager.createObject(mModelPath, true, true, mModelTag));
 		}
 	}
 	public void setTransformSync(TRANSFORM_SYNC posSync, TRANSFORM_SYNC rotSync, TRANSFORM_SYNC scaleSync)
@@ -231,7 +230,7 @@ public class COMCharacterAvatar : GameComponent
 		if (mPositionSync == TRANSFORM_SYNC.USE_AVATAR)
 		{
 			Vector3 pos = getPosition();
-			if (!isVectorEqual(mCharacter.getPosition(), pos))
+			if (!mCharacter.getPosition().isEqual(pos))
 			{
 				mCharacter.setPosition(pos);
 			}
@@ -239,7 +238,7 @@ public class COMCharacterAvatar : GameComponent
 		else if (mPositionSync == TRANSFORM_SYNC.USE_CHARACTER)
 		{
 			Vector3 pos = mCharacter.getPosition();
-			if (!isVectorEqual(getPosition(), pos))
+			if (!getPosition().isEqual(pos))
 			{
 				setPosition(pos);
 			}
@@ -247,7 +246,7 @@ public class COMCharacterAvatar : GameComponent
 		if (mRotationSync == TRANSFORM_SYNC.USE_AVATAR)
 		{
 			Quaternion rot = getRotationQuaternion();
-			if (!isQuaternionEqual(mCharacter.getRotationQuaternion(), rot))
+			if (!mCharacter.getRotationQuaternion().isEqual(rot))
 			{
 				mCharacter.setRotation(rot);
 			}
@@ -255,7 +254,7 @@ public class COMCharacterAvatar : GameComponent
 		else if (mRotationSync == TRANSFORM_SYNC.USE_CHARACTER)
 		{
 			Quaternion rot = mCharacter.getRotationQuaternion();
-			if (!isQuaternionEqual(getRotationQuaternion(), rot))
+			if (!getRotationQuaternion().isEqual(rot))
 			{
 				setRotation(rot);
 			}
@@ -263,7 +262,7 @@ public class COMCharacterAvatar : GameComponent
 		if (mScaleSync == TRANSFORM_SYNC.USE_AVATAR)
 		{
 			Vector3 scale = getScale();
-			if (!isVectorEqual(mCharacter.getScale(), scale))
+			if (!mCharacter.getScale().isEqual(scale))
 			{
 				mCharacter.setScale(scale);
 			}
@@ -271,7 +270,7 @@ public class COMCharacterAvatar : GameComponent
 		else if (mScaleSync == TRANSFORM_SYNC.USE_CHARACTER)
 		{
 			Vector3 scale = mCharacter.getScale();
-			if (!isVectorEqual(getScale(), scale))
+			if (!getScale().isEqual(scale))
 			{
 				setScale(scale);
 			}
@@ -359,7 +358,7 @@ public class COMCharacterAvatar : GameComponent
 			mResourceManager.loadGameResourceAsyncSafe<RuntimeAnimatorController>(this, mAnimatorControllerPath, (res) => 
 			{
 				mAnimatorControllerRef = res;
-				mAnimator.runtimeAnimatorController = mAnimatorControllerRef.getResource();
+				mAnimator.runtimeAnimatorController = mAnimatorControllerRef.get();
 			});
 		}
 		// 回调顺序是先通知组件的子类,再通知所属角色,最后执行异步加载的回调
@@ -382,9 +381,9 @@ public class COMCharacterAvatar : GameComponent
 		{
 			return;
 		}
-		if (mObject.activeSelf != mActive)
+		if (mObject.activeSelf != active)
 		{
-			mObject.SetActive(mActive);
+			mObject.SetActive(active);
 		}
 		mObject.TryGetComponent(out mController);
 		mObject.TryGetComponent(out mModelTransform);

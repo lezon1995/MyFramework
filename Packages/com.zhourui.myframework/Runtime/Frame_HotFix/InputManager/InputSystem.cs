@@ -6,6 +6,8 @@ using static FrameBaseUtility;
 using static FrameUtility;
 
 // 输入系统,用于封装Input
+// 管理触屏/鼠标触点状态及键盘按键监听,支持焦点掩码控制输入屏蔽
+// 提供单击/双击检测,每帧自动更新触点位置和按键状态
 public class InputSystem : FrameSystem
 {
 	protected Dictionary<IEventListener, Dictionary<Action, KeyListenInfo>> mListenerList = new();		// 以监听者为索引的快捷键监听列表
@@ -293,8 +295,13 @@ public class InputSystem : FrameSystem
 		}
 		return null;
 	}
-	// 是否有任意触点在这一帧完成一次双击操作,如果有,则返回第一个在这一帧完成双击的触点
-	public TouchPoint isTouchDoubleClick()
+    public bool getTouchClick(out TouchPoint touch)
+	{
+		touch = getTouchClick();
+		return touch != null;
+	}
+    // 是否有任意触点在这一帧完成一次双击操作,如果有,则返回第一个在这一帧完成双击的触点
+    public TouchPoint getTouchDoubleClick()
 	{
 		foreach (var item in mTouchPointList)
 		{
@@ -305,8 +312,13 @@ public class InputSystem : FrameSystem
 		}
 		return null;
 	}
-	// 指定触点是否处于持续按下状态
-	public bool isTouchKeepDown(int pointerID)
+    public bool getTouchDoubleClick(out TouchPoint touch)
+    {
+        touch = getTouchDoubleClick();
+        return touch != null;
+    }
+    // 指定触点是否处于持续按下状态
+    public bool isTouchKeepDown(int pointerID)
 	{
 		if (!mTouchPointList.tryGetValue(pointerID, out TouchPoint point))
 		{

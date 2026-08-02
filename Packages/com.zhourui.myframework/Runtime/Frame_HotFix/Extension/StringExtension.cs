@@ -1,15 +1,35 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using System.Text;
-using static StringUtility;
+using UnityEngine;
 using static BinaryUtility;
-using static MathUtility;
+using static UnityUtility;
 using static FrameBaseUtility;
+using static StringUtility;
 
+// 字符串扩展方法,提供字符串的便捷操作
 public static class StringExtension
 {
-	public static int length(this string list) { return list?.Length ?? 0; }
-	public static bool isEmpty(this string str) { return string.IsNullOrEmpty(str); }
+    private static List<byte> mTempByteList0 = new();											// 避免GC,给stringToBytesNonAlloc使用的
+    private static List<int> mTempIntList = new();												// 避免GC
+    private static List<long> mTempLongList = new();											// 避免GC
+    private static List<float> mTempFloatList = new();											// 避免GC
+    private static List<string> mTempStringList = new();										// 避免GC
+    private static Dictionary<string, int> mStringToInt;										// 用于快速查找字符串转换后的整数
+    private static string[] mIntToString;														// 用于快速获取整数转换后的字符串
+    private static Dictionary<int, string> mIntToStringCache = new(STRING_MAX_CACHE);			// 整数转字符串的缓存
+    private static Dictionary<uint, string> mUIntToStringCache = new(STRING_MAX_CACHE);			// 整数转字符串的缓存
+    private static Dictionary<long, string> mLongToStringCache = new(STRING_MAX_CACHE);			// 整数转字符串的缓存
+    private static Dictionary<ulong, string> mULongToStringCache = new(STRING_MAX_CACHE);		// 整数转字符串的缓存
+    private static Dictionary<string, Vector2Int> mStringToVector2Cache = new(STRING_MAX_CACHE);// 字符串转换为2维向量的缓存
+    private static Dictionary<string, Vector3Int> mStringToVector3Cache = new(STRING_MAX_CACHE);// 字符串转换为3维向量的缓存
+    private static string[] mFloatConvertPercision = new string[] { "f0", "f1", "f2", "f3", "f4", "f5", "f6", "f7" };    // 浮点数转换时精度
+	private static List<string> mZeroStringList = new();
+    private static int STRING_MAX_CACHE = 10240;												// 各个缓存列表的最大长度
+    public static int length(this string list) { return list?.Length ?? 0; }
+	public static bool isEmpty(this string str) { return str == null || str.Length == 0; }
 	public static bool contains(this string str, char c) { return str != null && str.Contains(c); }
+	// 判断字符串是否包含满足条件的任意字符，str为空或action为空返回false
 	public static bool contains(this string str, Predicate<char> action) 
 	{
 		if (str.isEmpty() || action == null)
@@ -25,6 +45,7 @@ public static class StringExtension
 		}
 		return false;
 	}
+	// 截取[startIndex, endIndexNotInclude)范围的子串，endIndexNotInclude<0表示截取到结尾
 	public static string range(this string str, int startIndex, int endIndexNotInclude)
 	{
 		if (str == null)
@@ -96,6 +117,7 @@ public static class StringExtension
 		return str[startIndex..(endIndex + 1)];
 	}
 	// 截取从第一个key0到第一个key1之间的字符串,不包含key0和key1
+	// 注意：如果找不到key1，则截取key0之后到字符串末尾的所有内容
 	public static string rangeBetweenKeyToKey(this string str, string key0, string key1)
 	{
 		if (str == null)
@@ -304,7 +326,7 @@ public static class StringExtension
 		{
 			return str;
 		}
-		clampMax(ref startLength, str.Length);
+		startLength = startLength.clampMax(str.Length);
 		return str[0..startLength];
 	}
 	// 移除最后一定长度的字符串
@@ -326,7 +348,7 @@ public static class StringExtension
 		return str[removeCount..];
 	}
 	// 如果str以pattern开头,则移除pattern的部分
-	public static string removeStartString(this string str, string pattern, bool caseSensitive = true)
+	public static string removeStart(this string str, string pattern, bool caseSensitive = true)
 	{
 		if (str == null || pattern == null || str.Length < pattern.Length)
 		{
@@ -348,7 +370,7 @@ public static class StringExtension
 		return str;
 	}
 	// 如果str以pattern开头,则移除pattern的部分
-	public static string removeStartString(this string str, char pattern)
+	public static string removeStart(this string str, char pattern)
 	{
 		if (str == null || str.Length < 1)
 		{
@@ -361,7 +383,7 @@ public static class StringExtension
 		return str;
 	}
 	// 如果str以pattern结尾,则移除pattern的部分
-	public static string removeEndString(this string str, string pattern, bool caseSensitive = true)
+	public static string removeEnd(this string str, string pattern, bool caseSensitive = true)
 	{
 		if (str == null || pattern == null || str.Length < pattern.Length)
 		{
@@ -383,7 +405,7 @@ public static class StringExtension
 		return str;
 	}
 	// 如果str以pattern结尾,则移除pattern的部分
-	public static string removeEndString(this string str, char pattern)
+	public static string removeEnd(this string str, char pattern)
 	{
 		if (str == null || str.Length < 1)
 		{
@@ -396,6 +418,7 @@ public static class StringExtension
 		return str;
 	}
 	// 移除str中开头所有的key,直到遇到一个不是key的字符
+	// 注意：如果全是指定字符，则返回空字符串
 	public static string removeStartAll(this string str, char key)
 	{
 		int removeStartCount = str.Length;
@@ -424,6 +447,9 @@ public static class StringExtension
 		return str[removeStartCount..];
 	}
 	// 从后往前移除str中结尾所有的key,直到遇到一个不是key的字符
+	// removeStartCount 记录保留部分的结束位置（exclusive），初始为全保留(str.Length)
+	// 如果全是key字符，removeStartCount保持为str.Length，最终返回原字符串
+	// 如果首字符也不是key，removeStartCount为0+1=1，只保留首字符
 	public static string removeEndAll(this string str, char key)
 	{
 		int removeStartCount = str.Length;
@@ -435,6 +461,7 @@ public static class StringExtension
 				break;
 			}
 		}
+		// 只有在有字符被移除时才截取，避免空字符串→空字符串的冗余操作
 		if (removeStartCount > 0 && removeStartCount < str.Length)
 		{
 			return str[0..removeStartCount];
@@ -476,6 +503,22 @@ public static class StringExtension
 			return startString.ToLower() == pattern.ToLower();
 		}
 	}
+	// 判断是否以pattern开头
+	public static bool startWith(this string str, char pattern, bool sensitive = true)
+	{
+		if (str.Length < 1)
+		{
+			return false;
+		}
+		if (sensitive)
+		{
+			return str[0] == pattern;
+		}
+		else
+		{
+			return char.ToLower(str[0]) == char.ToLower(pattern);
+		}
+	}
 	// 判断是否以pattern结尾
 	public static bool endWith(this string str, string pattern, bool sensitive = true)
 	{
@@ -493,6 +536,23 @@ public static class StringExtension
 			return endString.ToLower() == pattern.ToLower();
 		}
 	}
+	// 判断是否以pattern结尾
+	public static bool endWith(this string str, char pattern, bool sensitive = true)
+	{
+		if (str.Length < 1)
+		{
+			return false;
+		}
+		if (sensitive)
+		{
+			return str[^1] == pattern;
+		}
+		else
+		{
+			return char.ToLower(str[^1]) == char.ToLower(pattern);
+		}
+	}
+	// 移除str中所有出现的指定字符串（可传入多个），使用MyStringBuilder避免多次字符串分配
 	public static string removeAll(this string str, params string[] key)
 	{
 		using var a = new MyStringBuilderScope(out var builder);
@@ -504,6 +564,8 @@ public static class StringExtension
 		}
 		return builder.ToString();
 	}
+	// 移除str中所有出现的指定字符（可传入多个）
+	// 从后往前遍历，避免删除字符后索引偏移导致漏检
 	public static string removeAll(this string str, params char[] key)
 	{
 		using var a = new MyStringBuilderScope(out var builder);
@@ -532,7 +594,8 @@ public static class StringExtension
 		}
 		return builder.ToString();
 	}
-	// 将str中的[begin,end)替换为reStr
+	// 将str中[begin, end)范围内的子串替换为reStr
+	// 主线程使用MyStringBuilderScope（池化避免GC），子线程使用原生string API（线程安全）
 	public static string replace(this string str, int begin, int end, string reStr)
 	{
 		if (isMainThread())
@@ -552,6 +615,7 @@ public static class StringExtension
 			return str;
 		}
 	}
+	// 将str中第一个出现的key替换为newWords，仅替换一次
 	public static string replace(this string str, string key, string newWords)
 	{
 		if (isMainThread())
@@ -572,6 +636,9 @@ public static class StringExtension
 			return replace(str, pos, pos + key.Length, newWords);
 		}
 	}
+	// 将str中所有出现的key替换为newWords
+	// 子线程路径：循环查找并替换，替换后跳过已替换部分（startPos = pos + newWords.Length）避免死循环
+	// 主线程路径：委托给MyStringBuilder的replaceAll
 	public static string replaceAll(this string str, string key, string newWords)
 	{
 		if (isMainThread())
@@ -661,7 +728,10 @@ public static class StringExtension
 		}
 		return posFind;
 	}
-	// returnEndIndex表示返回值是否是字符串结束的下一个字符的下标
+	// 查找pattern在res中第一次出现的位置
+	// returnEndIndex: true时返回pattern结束位置的下一个下标（即startIndex+pattern.Length），用于replace等场景
+	// sensitive: false时忽略大小写
+	// startPos: 从该位置开始查找
 	public static int findFirstSubstr(this string res, string pattern, int startPos = 0, bool returnEndIndex = false, bool sensitive = true)
 	{
 		if (res == null)
@@ -712,6 +782,9 @@ public static class StringExtension
 		}
 		return posFind;
 	}
+	// 从后往前查找pattern在res中最后一次出现的位置
+	// sensitive: false时先将res和pattern全转为小写再比较
+	// startPos: 搜索的起始位置（从该位置往前搜索）
 	public static int findLastSubstr(this string res, string pattern, bool sensitive, int startPos = 0)
 	{
 		if (!sensitive)
@@ -757,7 +830,9 @@ public static class StringExtension
 		}
 		return -1;
 	}
-	// 从前往后去除两个成对字符之间的所有字符(包含两个字符)，并返回他们的下标
+	// 从前往后去除第一对成对字符之间的所有字符(包含两个成对字符)，并返回它们的下标
+	// 使用unpaired计数器处理嵌套配对，如"a(b(c)d)e"中移除'(',')'会得到"ae"
+	// 未配对则返回原字符串（如"a(b"没有配对的')'则返回"a(b"）
 	public static string removeFirstBetweenPairChars(this string str, char startChar, char endChar, out int startCharIndex, out int endCharIndex)
 	{
 		endCharIndex = -1;
@@ -786,7 +861,8 @@ public static class StringExtension
 		}
 		return str;
 	}
-	// 从后往前去除两个成对个字符之间的所有字符(包含两个字符)，并返回他们的下标
+	// 从后往前去除最后一对成对字符之间的所有字符(包含两个成对字符)，并返回它们的下标
+	// 与removeFirstBetweenPairChars对称，但搜索方向相反，同样支持嵌套配对
 	public static string removeLastBetweenPairChars(this string str, char startChar, char endChar, out int startCharIndex, out int endCharIndex)
 	{
 		startCharIndex = -1;
@@ -851,7 +927,8 @@ public static class StringExtension
 		}
 		return path;
 	}
-	// 去除字符串中所有非数字的字符串,也就是只包含0到9的字符,连小数点,负号都要去掉
+	// 去除字符串中所有非数字的字符，只保留0-9，小数点、负号等也会被移除
+	// 使用MyStringBuilder的addIf按条件添加，避免多次字符串分配
 	public static string keepNumberOnly(this string str)
 	{
 		using var a = new MyStringBuilderScope(out var builder);
@@ -861,6 +938,8 @@ public static class StringExtension
 		}
 		return builder.ToString();
 	}
+	// 移除字符串末尾的连续数字字符
+	// 如果整个字符串全是数字，返回空字符串
 	public static string removeEndNumber(this string str)
 	{
 		if (isNumeric(str))
@@ -885,9 +964,15 @@ public static class StringExtension
 		// 默认为UTF8
 		return (encoding ?? Encoding.UTF8).GetBytes(str);
 	}
+	// 字符串编码转换：str → bytes(source编码) → string(target编码)
+	// 注意：不使用bytesToString（会removeLastZero截断\0），直接调用Encoding.GetString
 	public static string convertStringFormat(this string str, Encoding source, Encoding target)
 	{
-		return str.toBytes(source).bytesToString(target);
+		if (str == null)
+		{
+			return null;
+		}
+		return target.GetString(source.GetBytes(str));
 	}
 	public static string UTF8ToUnicode(this string str)
 	{
@@ -913,6 +998,8 @@ public static class StringExtension
 	{
 		return convertStringFormat(str, getGB2312(), Encoding.Unicode);
 	}
+	// 按换行符'\n'分割字符串，并自动移除每行末尾的'\r'（兼容Windows换行\r\n）
+	// str为空时lines=null
 	public static void splitLine(this string str, out string[] lines, bool removeEmpty = true)
 	{
 		if (str.isEmpty())
@@ -923,12 +1010,12 @@ public static class StringExtension
 		lines = str.split(removeEmpty, '\n');
 		for (int i = 0; i < lines.Length; ++i)
 		{
-			lines[i] = removeAll(lines[i], '\r');
+			lines[i] = lines[i].removeAll('\r');
 		}
 	}
 	public static string[] splitLine(this string str, bool removeEmpty = true)
 	{
-		splitLine(str, out string[] lines, removeEmpty);
+		str.splitLine(out string[] lines, removeEmpty);
 		return lines;
 	}
 	public static string[] split(this string str, params string[] keyword)
@@ -955,4 +1042,873 @@ public static class StringExtension
 		}
 		return str.Split(keyword, removeEmpty ? StringSplitOptions.RemoveEmptyEntries : StringSplitOptions.None);
 	}
+	public static int SToI(this string str)
+	{
+        checkIntString(str);
+        if (str.isEmpty() || str == "-")
+        {
+            return 0;
+        }
+        if (mStringToInt == null)
+        {
+            initIntToString();
+        }
+        return mStringToInt.TryGetValue(str, out int value) ? value : int.Parse(str);
+    }
+    public static uint SToUInt(this string str)
+    {
+        checkUIntString(str);
+        return !str.isEmpty() ? uint.Parse(str) : 0;
+    }
+    public static long SToL(this string str)
+    {
+        checkIntString(str);
+        return !str.isEmpty() ? long.Parse(str) : 0;
+    }
+    public static ulong SToUL(this string str)
+    {
+        checkUIntString(str);
+        return !str.isEmpty() ? ulong.Parse(str) : 0;
+    }
+    public static float SToF(this string str)
+    {
+        checkFloatString(str);
+        if (str.isEmpty() || str == "-")
+        {
+            return 0.0f;
+        }
+        return float.Parse(str);
+    }
+    public static Vector2 SToV2(this string str, char separate = ',')
+    {
+        if (str.isEmpty() || str == "0,0")
+        {
+            return Vector2.zero;
+        }
+        string[] splitList = str.split(separate);
+        if (splitList.count() < 2)
+        {
+            return Vector2.zero;
+        }
+        return new(splitList[0].SToF(), splitList[1].SToF());
+    }
+    public static Vector2Int SToV2I(this string str, char separate = ',')
+    {
+        if (str.isEmpty() || str == "0,0")
+        {
+            return Vector2Int.zero;
+        }
+        if (mStringToVector2Cache.TryGetValue(str, out Vector2Int result))
+        {
+            return result;
+        }
+        string[] splitList = str.split(separate);
+        if (splitList.count() < 2)
+        {
+            return Vector2Int.zero;
+        }
+        result = new(splitList[0].SToI(), splitList[1].SToI());
+        if (mStringToVector2Cache.Count < STRING_MAX_CACHE)
+        {
+            mStringToVector2Cache.Add(str, result);
+        }
+        return result;
+    }
+    public static Vector3 SToV3(this string str, char separate = ',')
+    {
+        if (str.isEmpty() || str == "0,0,0")
+        {
+            return Vector3.zero;
+        }
+        string[] splitList = str.split(separate);
+        if (splitList.count() < 3)
+        {
+            return Vector3.zero;
+        }
+        return new(splitList[0].SToF(), splitList[1].SToF(), splitList[2].SToF());
+    }
+    public static Vector3Int SToV3I(this string str, char separate = ',')
+    {
+        if (str.isEmpty() || str == "0,0,0")
+        {
+            return Vector3Int.zero;
+        }
+        if (mStringToVector3Cache.TryGetValue(str, out Vector3Int result))
+        {
+            return result;
+        }
+        string[] splitList = str.split(separate);
+        if (splitList.count() < 3)
+        {
+            return Vector3Int.zero;
+        }
+        result = new(splitList[0].SToI(), splitList[1].SToI(), splitList[2].SToI());
+        if (mStringToVector3Cache.Count < STRING_MAX_CACHE)
+        {
+            mStringToVector3Cache.Add(str, result);
+        }
+        return result;
+    }
+    public static Vector4 SToV4(this string str, char separate = ',')
+    {
+        if (str.isEmpty() || str == "0,0,0,0")
+        {
+            return Vector4.zero;
+        }
+        string[] splitList = str.split(separate);
+        if (splitList.count() < 4)
+        {
+            return Vector4.zero;
+        }
+        return new(splitList[0].SToF(), splitList[1].SToF(), splitList[2].SToF(), splitList[3].SToF());
+    }
+    public static Vector4Int SToV4I(this string str, char separate = ',')
+    {
+        if (str.isEmpty() || str == "0,0,0,0")
+        {
+            return Vector4Int.zero;
+        }
+        string[] splitList = str.split(separate);
+        if (splitList.count() < 4)
+        {
+            return Vector4Int.zero;
+        }
+        return new(splitList[0].SToI(), splitList[1].SToI(), splitList[2].SToI(), splitList[3].SToI());
+    }
+    public static string IToS(this byte value, int minLength = 0)
+    {
+        return IToS((int)value, minLength);
+    }
+    public static string IToS(this sbyte value, int minLength = 0)
+    {
+        return IToS((int)value, minLength);
+    }
+    public static string IToS(this ushort value, int minLength = 0)
+	{
+        return IToS((int)value, minLength);
+    }
+    public static string IToS(this short value, int minLength = 0)
+    {
+        return IToS((int)value, minLength);
+    }
+    // minLength表示返回字符串的最少数字个数,等于0表示不限制个数,大于0表示如果转换后的数字数量不足minLength个,则在前面补0
+	// 转换策略：1) 查预计算表(mIntToString, 0~10239)  2) 查运行时缓存(mIntToStringCache)  3) 直接ToString
+	// 缓存上限STRING_MAX_CACHE(10240)条，超出后不再缓存新值
+    public static string IToS(this int value, int minLength = 0)
+    {
+        if (mIntToString == null)
+        {
+            initIntToString();
+        }
+        string retString;
+        // 先尝试查表获取
+        if (value >= 0 && value < mIntToString.Length)
+        {
+            retString = mIntToString[value];
+        }
+		// 再尝试从缓存中获取,缓存也没有就直接转换
+		else if (!mIntToStringCache.TryGetValue(value, out retString))
+		{
+			retString = value.ToString();
+			// 加入缓存
+			if (mIntToStringCache.Count < STRING_MAX_CACHE)
+			{
+				mIntToStringCache.Add(value, retString);
+			}
+		}
+        int addLen = minLength - retString.Length;
+		if (addLen > 0)
+		{
+			retString = mZeroStringList[addLen] + retString;
+		}
+		return retString;
+    }
+    public static string IToS(this uint value, int minLength = 0)
+    {
+        if (mIntToString == null)
+        {
+            initIntToString();
+        }
+        string retString;
+        // 先尝试查表获取
+        if (value >= 0 && value < mIntToString.Length)
+        {
+            retString = mIntToString[value];
+        }
+		// 再尝试从缓存中获取,缓存也没有就直接转换
+		else if (!mUIntToStringCache.TryGetValue(value, out retString))
+		{
+			retString = value.ToString();
+			// 加入缓存
+			if (mUIntToStringCache.Count < STRING_MAX_CACHE)
+			{
+				mUIntToStringCache.Add(value, retString);
+			}
+		}
+		int addLen = minLength - retString.Length;
+		if (addLen > 0)
+		{
+			retString = mZeroStringList[addLen] + retString;
+		}
+		return retString;
+    }
+    public static string IToSComma(this int value)
+    {
+        return insertNumberComma(value.IToS());
+    }
+    public static string IToSComma(this uint value)
+    {
+        return insertNumberComma(value.IToS());
+    }
+    public static string FToS(this float value, int precision = 4, bool removeTailZero = true)
+    {
+		value = value.checkInt();
+		int intValue = (int)value;
+        if (precision == 0)
+        {
+            return intValue.IToS();
+        }
+        if (removeTailZero)
+        {
+            // 是否非常接近数轴左边的整数
+            if (value.isEqual(intValue))
+            {
+                return intValue.IToS();
+            }
+            // 是否非常接近数轴右边的整数
+            if ((intValue + 1 - value).isZero())
+            {
+                return IToS(intValue + 1);
+            }
+        }
+        string str = value.ToString(mFloatConvertPercision[precision]);
+        // 去除末尾的0
+        if (removeTailZero && str.IndexOf('.') != -1)
+        {
+            int removeCount = 0;
+            int curLen = str.Length;
+            // 从后面开始遍历
+            for (int i = 0; i < curLen; ++i)
+            {
+                char c = str[curLen - 1 - i];
+                // 遇到不是0的就退出循环
+                if (c != '0' && c != '.')
+                {
+                    removeCount = i;
+                    break;
+                }
+                // 遇到小数点就退出循环并且需要将小数点一起去除
+                else if (c == '.')
+                {
+                    removeCount = i + 1;
+                    break;
+                }
+            }
+            str = str.removeEndCount(removeCount);
+        }
+        return str;
+    }
+    public static string LToS(this long value, int minLength = 0)
+    {
+        if (mIntToString == null)
+        {
+            initIntToString();
+        }
+        string retString;
+        // 先尝试查表获取
+        if (value >= 0 && value < mIntToString.Length)
+        {
+            retString = mIntToString[value];
+        }
+		// 再尝试从缓存中获取,缓存也没有就直接转换
+		else if (!mLongToStringCache.TryGetValue(value, out retString))
+		{
+			retString = value.ToString();
+			// 加入缓存
+			if (mLongToStringCache.Count < STRING_MAX_CACHE)
+			{
+				mLongToStringCache.Add(value, retString);
+			}
+		}
+		int addLen = minLength - retString.Length;
+        if (addLen > 0)
+        {
+            retString = mZeroStringList[addLen] + retString;
+        }
+        return retString;
+    }
+    public static string LToSComma(this long value)
+    {
+        return insertNumberComma(value.LToS());
+    }
+    public static string LToS(this ulong value, int minLength = 0)
+    {
+        if (mIntToString == null)
+        {
+            initIntToString();
+        }
+        string retString;
+        // 先尝试查表获取
+        if (value >= 0 && value < (ulong)mIntToString.Length)
+        {
+            retString = mIntToString[value];
+        }
+		// 再尝试从缓存中获取,缓存也没有就直接转换
+		else if (!mULongToStringCache.TryGetValue(value, out retString))
+		{
+			retString = value.ToString();
+			// 加入缓存
+			if (mULongToStringCache.Count < STRING_MAX_CACHE)
+			{
+				mULongToStringCache.Add(value, retString);
+			}
+		}
+		int addLen = minLength - retString.Length;
+        if (addLen > 0)
+        {
+            retString = mZeroStringList[addLen] + retString;
+        }
+        return retString;
+    }
+    public static string LToSComma(this ulong value)
+    {
+        return insertNumberComma(value.LToS());
+    }
+    public static string V2ToS(this Vector2 value, int precision = 4)
+    {
+        return value.x.FToS(precision) + "," + value.y.FToS(precision);
+    }
+    public static string V2IToS(this Vector2Int value, int minLength = 0)
+    {
+        return value.x.IToS(minLength) + "," + value.y.IToS(minLength);
+    }
+    public static string V3ToS(this Vector3 value, int precision = 4)
+    {
+        return strcat(value.x.FToS(precision), ",", value.y.FToS(precision), ",", value.z.FToS(precision));
+    }
+    public static string V3IToS(this Vector3Int value, int minLength = 0)
+    {
+        return strcat(value.x.IToS(minLength), ",", value.y.IToS(minLength), ",", value.z.IToS(minLength));
+    }
+    public static string V4ToS(this Vector4 value, int precision = 4)
+    {
+        return strcat(value.x.FToS(precision), ",", value.y.FToS(precision), ",", value.z.FToS(precision), ",", value.w.FToS(precision));
+    }
+    public static string V4IToS(this Vector4Int value, int minLength = 0)
+    {
+        return strcat(value.x.IToS(minLength), ",", value.y.IToS(minLength), ",", value.z.IToS(minLength), value.w.IToS(minLength));
+    }
+	// 将字符串按keyword分割为List<string>（非分配版本，复用静态List）
+	// ⚠️ 返回值引用静态mTempStringList，在使用返回值期间禁止再调用任何stringToStrings重载
+	public static List<string> stringToStrings(this string str, bool removeEmpty, params string[] keyword)
+    {
+        mTempStringList.Clear();
+        if (!str.isEmpty())
+        {
+            mTempStringList.AddRange(str.split(removeEmpty, keyword));
+        }
+        return mTempStringList;
+    }
+	// 将字符串按keyword分割为List<string>（非分配版本，复用静态List）
+	// ⚠️ 返回值引用静态mTempStringList，在使用返回值期间禁止再调用任何stringToStrings重载
+	public static List<string> stringToStrings(this string str, bool removeEmpty, params char[] keyword)
+    {
+        mTempStringList.Clear();
+        if (!str.isEmpty())
+        {
+            mTempStringList.AddRange(str.split(removeEmpty, keyword));
+        }
+        return mTempStringList;
+    }
+	public static List<string> stringToStrings(this string str, char separate = ',')
+	{
+		return str.stringToStrings(true, separate);
+	}
+	public static List<string> stringToStrings(this string str, bool removeEmpty, char separate = ',')
+	{
+		List<string> strList = new();
+		if (!str.isEmpty())
+		{
+			strList.addRange(str.split(removeEmpty, separate).safe());
+		}
+		return strList;
+	}
+	public static void stringToStrings(this string str, List<string> values, char separate = ',')
+	{
+		str.stringToStrings(values, true, separate);
+	}
+	public static void stringToStrings(this string str, List<string> values, bool removeEmpty, char separate = ',')
+	{
+		if (values == null)
+		{
+			logError("values can not be null");
+			return;
+		}
+		values.Clear();
+		if (str.isEmpty())
+		{
+			return;
+		}
+		foreach (string item in str.split(removeEmpty, separate).safe())
+		{
+			values.Add(item);
+		}
+	}
+	// 字符串转List<float>（非分配版本，复用静态mTempFloatList）
+	// ⚠️ 返回值引用静态List，在使用返回值期间禁止再调用此函数
+	public static List<float> SToFsNonAlloc(this string str, char separate = ',')
+    {
+        SToFs(str, mTempFloatList, separate);
+        return mTempFloatList;
+    }
+    public static List<float> SToFs(this string str, char separate = ',')
+    {
+        List<float> values = new();
+        SToFs(str, values, separate);
+        return values;
+    }
+    public static void SToFs(this string str, ref float[] values, char separate = ',')
+    {
+        if (str.isEmpty())
+        {
+            return;
+        }
+        string[] rangeList = str.split(separate);
+        int len = rangeList.Length;
+        if (values != null && len != values.Length)
+        {
+            logError("count is not equal " + str.Length);
+            return;
+        }
+        values ??= new float[len];
+        for (int i = 0; i < len; ++i)
+        {
+            values[i] = rangeList[i].SToF();
+        }
+    }
+    public static void SToFs(this string str, List<float> values, char separate = ',')
+    {
+        if (values == null)
+        {
+            logError("values can not be null");
+            return;
+        }
+        values.Clear();
+        if (str.isEmpty())
+        {
+            return;
+        }
+        foreach (string item in str.split(separate))
+        {
+            values.Add(item.SToF());
+        }
+    }
+    public static string FsToS(this List<float> values, char separate = ',')
+    {
+        using var a = new MyStringBuilderScope(out var builder);
+        int count = values.Count;
+        for (int i = 0; i < count; ++i)
+        {
+            builder.add(values[i].FToS(2));
+            builder.addIf(separate, i != count - 1);
+        }
+        return builder.ToString();
+    }
+    public static List<long> SToLs(this string str, char separate = ',')
+    {
+        List<long> values = new();
+        SToLs(str, values, separate);
+        return values;
+    }
+    public static void SToLs(this string str, List<long> values, char separate = ',')
+    {
+        if (values == null)
+        {
+            logError("values can not be null");
+            return;
+        }
+        values.Clear();
+        if (str.isEmpty())
+        {
+            return;
+        }
+        foreach (string item in str.split(separate).safe())
+        {
+            values.Add(item.SToL());
+        }
+    }
+    public static void SToLs(this string str, ref long[] values, char separate = ',')
+    {
+        if (str.isEmpty())
+        {
+            return;
+        }
+        string[] rangeList = str.split(separate);
+        int len = rangeList.Length;
+        if (values != null && len != values.Length)
+        {
+            logError("value.Length is not equal " + len + ", str:" + str);
+            return;
+        }
+        values ??= new long[len];
+        for (int i = 0; i < len; ++i)
+        {
+            values[i] = rangeList[i].SToL();
+        }
+    }
+	// 字符串转List<long>（非分配版本，复用静态mTempLongList）
+	// ⚠️ 返回值引用静态List，在使用返回值期间禁止再调用此函数
+	public static List<long> SToLsNonAlloc(this string str, char separate = ',')
+    {
+        SToLs(str, mTempLongList, separate);
+        return mTempLongList;
+    }
+    public static List<int> SToIs(this string str, char separate = ',')
+    {
+        List<int> values = new();
+        SToIs(str, values, separate);
+        return values;
+    }
+    public static void SToIs(this string str, List<int> values, char separate = ',')
+    {
+        if (values == null)
+        {
+            logError("values can not be null");
+            return;
+        }
+        values.Clear();
+        if (str.isEmpty())
+        {
+            return;
+        }
+        foreach (string item in str.split(separate).safe())
+        {
+            values.Add(item.SToI());
+        }
+    }
+    public static void SToIs(this string str, ref int[] values, char separate = ',')
+    {
+        if (str.isEmpty())
+        {
+            return;
+        }
+        string[] rangeList = str.split(separate);
+        int len = rangeList.Length;
+        if (values != null && len != values.Length)
+        {
+            logError("value.Length is not equal " + len + ", str:" + str);
+            return;
+        }
+        values ??= new int[len];
+        for (int i = 0; i < len; ++i)
+        {
+            values[i] = rangeList[i].SToI();
+        }
+    }
+	// 字符串转List<int>（非分配版本，复用静态mTempIntList）
+	// ⚠️ 返回值引用静态List，在使用返回值期间禁止再调用此函数
+	public static List<int> SToIsNonAlloc(this string str, char separate = ',')
+    {
+        SToIs(str, mTempIntList, separate);
+        return mTempIntList;
+    }
+    public static void SToUIs(this string str, List<uint> values, char separate = ',')
+    {
+        if (values == null)
+        {
+            logError("values can not be null");
+            return;
+        }
+        values.Clear();
+        if (str.isEmpty())
+        {
+            return;
+        }
+        foreach (string item in str.split(separate).safe())
+        {
+            values.Add((uint)item.SToI());
+        }
+    }
+    public static void SToUSs(this string str, List<ushort> values, char separate = ',')
+    {
+        if (values == null)
+        {
+            logError("values can not be null");
+            return;
+        }
+        values.Clear();
+        if (str.isEmpty())
+        {
+            return;
+        }
+        foreach (string item in str.split(separate).safe())
+        {
+            values.Add((ushort)item.SToI());
+        }
+    }
+    public static void SToSs(this string str, List<short> values, char separate = ',')
+    {
+        if (values == null)
+        {
+            logError("values can not be null");
+            return;
+        }
+        values.Clear();
+        if (str.isEmpty())
+        {
+            return;
+        }
+        foreach (string item in str.split(separate).safe())
+        {
+            values.Add((short)item.SToI());
+        }
+    }
+    public static void SToBools(this string str, List<bool> values, char separate = ',')
+    {
+        if (values == null)
+        {
+            logError("values can not be null");
+            return;
+        }
+        values.Clear();
+        if (str.isEmpty())
+        {
+            return;
+        }
+        foreach (string item in str.split(separate).safe())
+        {
+            values.Add(item.SToI() > 0);
+        }
+    }
+	// 字符串转List<byte>（非分配版本，复用静态mTempByteList0）
+	// ⚠️ 返回值引用静态List，在使用返回值期间禁止再调用此函数
+	public static List<byte> SToBsNonAlloc(this string str, char separate = ',')
+    {
+        mTempByteList0.Clear();
+        if (str.isEmpty())
+        {
+            return mTempByteList0;
+        }
+        foreach (string item in str.split(separate).safe())
+        {
+            mTempByteList0.Add((byte)item.SToI());
+        }
+        return mTempByteList0;
+    }
+    public static void SToBs(this string str, List<byte> values, char separate = ',')
+    {
+        if (values == null)
+        {
+            logError("values can not be null");
+            return;
+        }
+        values.Clear();
+        if (str.isEmpty())
+        {
+            return;
+        }
+        foreach (string item in str.split(separate).safe())
+        {
+            values.Add((byte)item.SToI());
+        }
+    }
+    public static void SToSBs(this string str, List<sbyte> values, char separate = ',')
+    {
+        if (values == null)
+        {
+            logError("values can not be null");
+            return;
+        }
+        values.Clear();
+        if (str.isEmpty())
+        {
+            return;
+        }
+        foreach (string item in str.split(separate).safe())
+        {
+            values.Add((sbyte)item.SToI());
+        }
+    }
+    public static string LsToS(this List<long> values, char separate = ',')
+    {
+        if (values.isEmpty())
+        {
+            return EMPTY;
+        }
+        using var a = new MyStringBuilderScope(out var builder);
+        int count = values.Count;
+        for (int i = 0; i < count; ++i)
+        {
+            builder.add(values[i].LToS());
+            builder.addIf(separate, i != count - 1);
+        }
+        return builder.ToString();
+    }
+    public static string IsToS(this List<int> values, char separate = ',')
+    {
+        if (values.isEmpty())
+        {
+            return EMPTY;
+        }
+        using var a = new MyStringBuilderScope(out var builder);
+        int count = values.Count;
+        for (int i = 0; i < count; ++i)
+        {
+            builder.add(values[i].IToS());
+            builder.addIf(separate, i != count - 1);
+        }
+        return builder.ToString();
+    }
+    public static string stringsToString(this List<string> values, string separate)
+    {
+        if (values.isEmpty())
+        {
+            return EMPTY;
+        }
+        using var a = new MyStringBuilderScope(out var builder);
+        int count = values.Count;
+        for (int i = 0; i < count; ++i)
+        {
+            builder.add(values[i]);
+            builder.addIf(separate, i != count - 1);
+        }
+        return builder.ToString();
+    }
+    public static string stringsToString(this string[] values, string separate)
+    {
+        if (values.isEmpty())
+        {
+            return EMPTY;
+        }
+        using var a = new MyStringBuilderScope(out var builder);
+        int count = values.Length;
+        for (int i = 0; i < count; ++i)
+        {
+            builder.add(values[i]);
+            builder.addIf(separate, i != count - 1);
+        }
+        return builder.ToString();
+    }
+    public static string stringsToString(this List<string> values, char separate = ',')
+    {
+        if (values.isEmpty())
+        {
+            return EMPTY;
+        }
+        using var a = new MyStringBuilderScope(out var builder);
+        int count = values.Count;
+        for (int i = 0; i < count; ++i)
+        {
+            builder.add(values[i]);
+            builder.addIf(separate, i != count - 1);
+        }
+        return builder.ToString();
+    }
+    public static string stringsToString(this string[] values, char separate = ',')
+    {
+        if (values.isEmpty())
+        {
+            return EMPTY;
+        }
+        using var a = new MyStringBuilderScope(out var builder);
+        int count = values.Length;
+        for (int i = 0; i < count; ++i)
+        {
+            builder.add(values[i]);
+            builder.addIf(separate, i != count - 1);
+        }
+        return builder.ToString();
+    }
+    public static string boolToString(this bool value, bool firstUpper = false, bool fullUpper = false)
+    {
+        if (fullUpper)
+        {
+            return value ? "TRUE" : "FALSE";
+        }
+        if (firstUpper)
+        {
+            return value ? "True" : "False";
+        }
+        return value ? "true" : "false";
+    }
+    public static bool stringToBool(this string str)
+    {
+        return str == "true" || str == "True" || str == "TRUE";
+    }
+    public static Color SToColor(this string str)
+    {
+        if (str[0] != '#')
+        {
+            str = "#" + str;
+        }
+        ColorUtility.TryParseHtmlString(str, out Color color);
+        return color;
+    }
+    // 百分比一般用于属性增幅之类的
+    public static string toPercent(this string value, int precision = 1) { return (value.SToF() * 100).FToS(precision) + "%"; }
+    public static string toPercent(this float value, int precision = 1) { return (value * 100).FToS(precision) + "%"; }
+    // 几率类的一般是万分比的格式填写的,10000表示100%
+    public static string toProbability(this string value) { return (value.SToF() * 0.01f).FToS() + "%"; }
+    public static string toProbability(this float value) { return (value * 0.01f).FToS() + "%"; }
+    public static string toProbability(this int value) { return (value * 0.01f).FToS() + "%"; }
+    public static string fixedAndPercent(this int value, float percent)
+    {
+        if (value > 0 && percent > 0.0f)
+        {
+            return value.IToS() + "+" + toPercent(percent);
+        }
+        if (value > 0)
+        {
+            return value.IToS();
+        }
+        if (percent > 0.0f)
+        {
+            return toPercent(percent);
+        }
+        return "";
+    }
+	// 使用制表符(\t)将字符串补到指定的显示长度
+	// 每4个字符宽度补一个\t（一个tab通常显示为4个空格宽度），不足4也补1个tab
+	public static string fixedLength(this string str, int fixedLength)
+	{
+		if (str.Length >= fixedLength)
+		{
+			return str;
+		}
+		int needLength = fixedLength - str.Length;
+		int needTable = needLength / 4 + (needLength % 4 == 0 ? 0 : 1);
+		for (int i = 0; i < needTable; ++i)
+		{
+			str += "\t";
+		}
+		return str;
+	}
+	// 初始化数值↔字符串的预计算表和补零字符串池
+	// mIntToString: 预计算0~10239的字符串表示（数组索引即数值）
+	// mStringToInt: 反向查找表（字符串→数值）
+	// mZeroStringList: 补零字符串池，mZeroStringList[5]="00000"，用于minLength补零
+	public static void initIntToString()
+    {
+        if (mIntToString != null || mStringToInt != null)
+        {
+            return;
+        }
+        mIntToString = new string[10240];
+        mStringToInt = new();
+        for (int i = 0; i < mIntToString.Length; ++i)
+        {
+            string iStr = i.ToString();
+            mStringToInt.Add(iStr, i);
+            mIntToString[i] = iStr;
+        }
+		for (int i = 0; i < 100; ++i)
+		{
+			string zeroStr = "";
+			for (int j = 0; j < i; ++j)
+			{
+				zeroStr += "0";
+            }
+            mZeroStringList.add(zeroStr);
+        }
+    }
 }

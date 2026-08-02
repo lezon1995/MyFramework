@@ -5,11 +5,6 @@ using static FrameUtility;
 using static MathUtility;
 using static FrameBaseUtility;
 
-public interface IPoolItem<T>
-{
-	void setData(T data);
-}
-
 // 负责窗口对象池,UsedList是有序的
 [CommonWindowPool]
 public class WindowStructPool<T> : WindowStructPoolBase where T : WindowObjectBase, IRecyclableUI
@@ -132,7 +127,7 @@ public class WindowStructPool<T> : WindowStructPoolBase where T : WindowObjectBa
 		{
 			mUnusedItemList.RemoveRange(mUnusedItemList.Count - fetchFromPool, fetchFromPool);
 		}
-		int newCount = clampMin(count - countInPool);
+		int newCount = (count - countInPool).clampMin();
 		for (int i = 0; i < newCount; ++i)
 		{
 			T item = createInstance<T>(mObjectType, this);
@@ -299,8 +294,7 @@ public class WindowStructPool<T> : WindowStructPoolBase where T : WindowObjectBa
 		}
 		else
 		{
-			clampMax(ref count, usedCount - startIndex);
-			clampMin(ref count);
+			count = count.clamp(0, usedCount - startIndex);
 		}
 		for (int i = 0; i < count; ++i)
 		{

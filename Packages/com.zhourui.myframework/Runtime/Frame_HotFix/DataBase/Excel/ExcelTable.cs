@@ -5,7 +5,6 @@ using static UnityUtility;
 using static FrameBaseHotFix;
 using static FileUtility;
 using static FrameUtility;
-using static StringUtility;
 using static FrameDefine;
 using static FrameBaseUtility;
 
@@ -25,6 +24,7 @@ public class ExcelTable
 	public void setResourceAvailable(bool available) { mResourceAvailable = available; }
 	public bool isFileOpened() { return mDataMap.Count > 0 || mTableFileData != null || mTableFileBytes != null; }
 	public virtual void checkAllData() { checkAllDataDefault(); }
+	// 异步打开表格文件,从资源包加载bytes并解析
 	public void openFileAsync(Action callback)
 	{
 		if (!mResourceAvailable && isPlaying())
@@ -50,26 +50,17 @@ public class ExcelTable
 		});
 	}
 	public void setTableFileBytes(byte[] bytes) { mTableFileBytes = bytes; }
-	public void reload()
-	{
-		//  如果已经有数据了，需要重新读一遍替换掉已有的
-		if (mDataMap.Count > 0)
-		{
-			clearCache();
-			clear();
-			parseFileReload(mTableFileBytes ?? mTableFileData?.getResource().bytes);
-			mResourceManager?.unload(ref mTableFileData);
-		}
-	}
+	// 解析bytes数据,解密后按序列化格式逐条读取数据
 	public void parseFile(byte[] fileBuffer)
 	{
 		if (fileBuffer == null)
 		{
-			return;
+			logError("文件内容为空,无法解析表格,table name:" + mTableName);
+            return;
 		}
 
 		// 解密
-		decodeFile(fileBuffer);
+		decodeFile(fileBuffer, mTableName);
 
 		// 解析数据
 		using var a = new ClassScope<SerializerRead>(out var reader);
@@ -93,7 +84,7 @@ public class ExcelTable
 	{
 		if (!isEnumValid(value))
 		{
-			logError("enum value error,name:" + varName + " in " + mTableName + ", ID:" + IToS(dataID) + ", Table:" + getTableName());
+			logError("enum value error,name:" + varName + " in " + mTableName + ", ID:" + dataID.IToS() + ", Table:" + getTableName());
 		}
 	}
 	public void checkEnum<T>(List<T> valueList, string varName, int dataID) where T : Enum
@@ -187,6 +178,7 @@ public class ExcelTable
 			}
 		}
 	}
+	// 检查路径合法性,不允许反斜杠和空格,编辑器下验证文件是否存在
 	public static void checkPath(string path, bool checkSpace = true)
 	{
 		if (!mCheckPathResultMap.TryAdd(path, true))
@@ -210,87 +202,35 @@ public class ExcelTable
 	// 清除数据和查询缓存
 	public virtual void clear(){}
 	public virtual void clearCache(){}
-	//------------------------------------------------------------------------------------------------------------------------------
-	protected virtual void onOpenFile() { }
-	// 解密
-	protected void decodeFile(byte[] fileBuffer)
-	{
-		string key = generateFileMD5(("ASLD" + mTableName).toBytes()).ToUpper() + "23y35y983";
-		int keyIndex = 0;
-		int fileLength = fileBuffer.Length;
-		for (int i = 0; i < fileLength; ++i)
-		{
-			fileBuffer[i] = (byte)((fileBuffer[i] ^ (byte)key[keyIndex]) + ((i << 1) & 0xFF));
-			if (++keyIndex >= key.Length)
-			{
-				keyIndex = 0;
-			}
-		}
-	}
+    // 解密,这里都是简单加密,表格文件复杂加密没多大意义,客户端的所有东西只要想逆向,所有文件都能够被还原
+    public static void decodeFile(byte[] fileBuffer, string tableName)
+    {
+        string key = generateFileMD5(("ASLD" + tableName).toBytes()).ToUpper() + "23y35y983";
+        int keyIndex = 0;
+        int fileLength = fileBuffer.Length;
+        for (int i = 0; i < fileLength; ++i)
+        {
+            fileBuffer[i] = (byte)((fileBuffer[i] ^ (byte)key[keyIndex]) + ((i << 1) & 0xFF));
+            if (++keyIndex >= key.Length)
+            {
+                keyIndex = 0;
+            }
+        }
+    }
+    //------------------------------------------------------------------------------------------------------------------------------
+    protected virtual void onOpenFile() { }
+	// 读取文件并解析,然后卸载资源包数据
 	protected void readFile()
 	{
 		{
 			using var a = new ProfilerScope("excel read:" + mTableName);
-			parseFile(mTableFileBytes ?? mTableFileData?.getResource().bytes);
+			parseFile(mTableFileBytes ?? mTableFileData?.get().bytes);
 		}
 		// 解析以后就可以卸载文件数据
 		mResourceManager?.unload(ref mTableFileData);
 	}
-	// 热重载表格数据
-	protected void parseFileReload(byte[] fileBuffer)
-	{
-		if (!mResourceAvailable)
-		{
-			logError("表格资源当前不可使用,无法加载,type:" + mTableName);
-			return;
-		}
-		if (fileBuffer == null)
-		{
-			return;
-		}
-
-		// 解密
-		decodeFile(fileBuffer);
-
-		using var a = new HashSetScope<int>(out var idsToRemove);
-		idsToRemove.addRangeKeys(mDataMap);
-		// 解析数据
-		using var b = new ClassScope<SerializerRead>(out var reader);
-		reader.init(fileBuffer);
-		while (reader.getIndex() < reader.getDataSize())
-		{
-			// 假定id是不会变的。先读一个id用于和已有数据对应
-			int index = reader.getIndex();
-			reader.read(out int id);
-			reader.setIndex(index);
-			idsToRemove.Remove(id);
-			// 如果已有同id的数据，那就重新读一遍来替换；否则需要创建并添加。
-			if (mDataMap.TryGetValue(id, out ExcelData data))
-			{
-				if (!data.read(reader))
-				{
-					break;
-				}
-			}
-			else
-			{
-				data = createInstance<ExcelData>(mDataType);
-				if (!data.read(reader))
-				{
-					logError("表格解析失败,表格:" + mTableName + ", ID:" + data.mID);
-					break;
-				}
-				if (!mDataMap.TryAdd(data.mID, data))
-				{
-					logError("表格中存在重复ID,表格:" + mTableName + ", ID:" + data.mID);
-				}
-			}
-		}
-		// 最后删除减少的行
-		idsToRemove.For(k => mDataMap.Remove(k));
-		log("热重载表格数据：" + mTableName);
-	}
 	// 为了避免歧义,getData,getDataMap设置为不允许外部访问
+	// 按ID查询数据(泛型版本),首次访问触发延迟加载
 	protected T getData<T>(int id, bool errorIfNull = true) where T : ExcelData
 	{
 		ExcelData data = null;
@@ -308,6 +248,7 @@ public class ExcelTable
 		}
 		return data as T;
 	}
+	// 按ID查询数据,首次访问触发延迟加载
 	protected ExcelData getData(int id, bool errorIfNull = true)
 	{
 		if (mDataMap.Count == 0)
@@ -321,6 +262,7 @@ public class ExcelTable
 		}
 		return data;
 	}
+	// 获取所有数据的字典,首次访问触发延迟加载
 	protected Dictionary<int, ExcelData> getDataMap()
 	{
 		if (mDataMap.Count == 0)

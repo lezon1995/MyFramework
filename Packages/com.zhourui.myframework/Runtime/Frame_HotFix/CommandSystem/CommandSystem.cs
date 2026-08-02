@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
 using System;
 using static UnityUtility;
-using static StringUtility;
-using static MathUtility;
 using static FrameBaseHotFix;
 using static FrameBaseUtility;
 
@@ -88,7 +86,7 @@ public class CommandSystem : FrameSystem
 			{
 				using var a = new MyStringBuilderScope(out var builder);
 				cmd.onInterrupted();
-				builder.add("CMD : interrupt command ", LToS(assignID), " : ");
+				builder.add("CMD : interrupt command ", assignID.LToS(), " : ");
 				cmd.debugInfo(builder);
 				builder.add(", receiver : ", cmd.getReceiver().getName());
 				log(builder.ToString(), LOG_LEVEL.HIGH);
@@ -130,7 +128,7 @@ public class CommandSystem : FrameSystem
 		if (cmd.isDelayCommand())
 		{
 			using var a = new MyStringBuilderScope(out var builder);
-			builder.add("cmd is a delay cmd! can not use pushCommand!", LToS(cmd.getAssignID()), ", ");
+			builder.add("cmd is a delay cmd! can not use pushCommand!", cmd.getAssignID().LToS(), ", ");
 			cmd.debugInfo(builder);
 			logError(builder.ToString());
 			return;
@@ -144,7 +142,7 @@ public class CommandSystem : FrameSystem
 				if (isMainThread())
 				{
 					using var a = new MyStringBuilderScope(out var builder);
-					builder.add(cmd.GetType().ToString(), " : ", LToS(cmd.getAssignID()), ", ");
+					builder.add(cmd.GetType().ToString(), " : ", cmd.getAssignID().LToS(), ", ");
 					cmd.debugInfo(builder);
 					builder.add(", receiver : ", cmdReceiver.getName());
 					log(builder.ToString(), cmd.getCmdLogLevel());
@@ -152,7 +150,7 @@ public class CommandSystem : FrameSystem
 				else
 				{
 					using var a = new ClassThreadScope<MyStringBuilder>(out var builder);
-					builder.add(cmd.GetType().ToString(), " : ", LToS(cmd.getAssignID()), ", ");
+					builder.add(cmd.GetType().ToString(), " : ", cmd.getAssignID().LToS(), ", ");
 					cmd.debugInfo(builder);
 					builder.add(", receiver : ", cmdReceiver.getName());
 					log(builder.ToString(), cmd.getCmdLogLevel());
@@ -197,12 +195,12 @@ public class CommandSystem : FrameSystem
 		if (!cmd.isDelayCommand())
 		{
 			using var a = new MyStringBuilderScope(out var builder);
-			builder.add("cmd is not a delay command, Command : ", LToS(cmd.getAssignID()), ", ");
+			builder.add("cmd is not a delay command, Command : ", cmd.getAssignID().LToS(), ", ");
 			cmd.debugInfo(builder);
 			logError(builder.ToString());
 			return;
 		}
-		clampMin(ref delayExecute);
+		delayExecute = delayExecute.clampMin();
 		if (isDevOrEditor())
 		{
 			if (cmd.getCmdLogLevel() >= getLogLevel())
@@ -210,7 +208,7 @@ public class CommandSystem : FrameSystem
 				if (isMainThread())
 				{
 					using var b = new MyStringBuilderScope(out var builder);
-					builder.add("CMD : delay cmd : ", LToS(cmd.getAssignID()), ", ", FToS(delayExecute), ", info : ");
+					builder.add("CMD : delay cmd : ", cmd.getAssignID().LToS(), ", ", delayExecute.FToS(), ", info : ");
 					cmd.debugInfo(builder);
 					builder.add(", receiver : ", cmdReceiver.getName());
 					log(builder.ToString(), cmd.getCmdLogLevel());
@@ -218,7 +216,7 @@ public class CommandSystem : FrameSystem
 				else
 				{
 					using var c = new ClassThreadScope<MyStringBuilder>(out var builder);
-					builder.add("CMD : delay cmd : ", LToS(cmd.getAssignID()), ", ", FToS(delayExecute), ", info : ");
+					builder.add("CMD : delay cmd : ", cmd.getAssignID().LToS(), ", ", delayExecute.FToS(), ", info : ");
 					cmd.debugInfo(builder);
 					builder.add(", receiver : ", cmdReceiver.getName());
 					log(builder.ToString(), cmd.getCmdLogLevel());

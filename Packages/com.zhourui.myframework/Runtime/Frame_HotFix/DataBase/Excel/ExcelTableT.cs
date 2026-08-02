@@ -1,10 +1,15 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
+// 泛型Excel表格基类,提供对表格数据的增删改查操作
 public class ExcelTableT<T> : ExcelTable where T : ExcelData
 {
 	protected List<T> mDataList = new();
 	protected bool mDataAvailable;
-	public T query(int id, bool errorIfNull = true)
+	public ExcelTableT()
+	{
+		ExcelDataT<T>.setTable(this);
+	}
+    public T query(int id, bool errorIfNull = true)
 	{
 		return getData<T>(id, errorIfNull);
 	}

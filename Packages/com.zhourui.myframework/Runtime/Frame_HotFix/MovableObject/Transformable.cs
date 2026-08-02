@@ -36,7 +36,7 @@ public class Transformable : ComponentOwner, ITransformable
 		if (!mWorldScaleModifyCallback.isEmpty())
 		{
 			Vector3 worldScale = getWorldScale();
-			if (!isVectorEqual(mLastWorldScale, worldScale))
+			if (!mLastWorldScale.isEqual(worldScale))
 			{
 				foreach (Action item in mWorldScaleModifyCallback)
 				{
@@ -52,9 +52,9 @@ public class Transformable : ComponentOwner, ITransformable
 		if (mObject != null)
 		{
 			mTransform = mObject.transform;
-			if (mObject.name != mName)
+			if (mObject.name != name)
 			{
-				mObject.name = mName;
+				mObject.name = name;
 			}
 			mActive = mObject.activeSelf;
 			mLastWorldScale = getWorldScale();
@@ -202,7 +202,7 @@ public class Transformable : ComponentOwner, ITransformable
 	// 从指定的子节点中查找指定组件
 	public T getUnityComponentInChild<T>(string childName) where T : Component
 	{
-		GameObject go = FrameBaseUtility.getGameObject(childName, mObject);
+		GameObject go = FrameBaseUtility.findGameObject(childName, mObject);
 		if (go == null)
 		{
 			return null;
@@ -223,10 +223,10 @@ public class Transformable : ComponentOwner, ITransformable
 	public GameObject gameObject => mObject;
 	public Transform transform => mTransform;
 	public Transform getTransform() { return mTransform; }
-	public Vector3 getLeft(bool ignoreY = false) { return ignoreY ? normalize(resetY(-mTransform.right)) : -mTransform.right; }
-	public Vector3 getRight(bool ignoreY = false) { return ignoreY ? normalize(resetY(mTransform.right)) : mTransform.right; }
-	public Vector3 getBack(bool ignoreY = false) { return ignoreY ? normalize(resetY(-mTransform.forward)) : -mTransform.forward; }
-	public Vector3 getForward(bool ignoreY = false) { return ignoreY ? normalize(resetY(mTransform.forward)) : mTransform.forward; }
+	public Vector3 getLeft(bool ignoreY = false) { return ignoreY ? (-mTransform.right).resetY().normalize() : -mTransform.right; }
+	public Vector3 getRight(bool ignoreY = false) { return ignoreY ? mTransform.right.resetY().normalize() : mTransform.right; }
+	public Vector3 getBack(bool ignoreY = false) { return ignoreY ? (-mTransform.forward).resetY().normalize() : -mTransform.forward; }
+	public Vector3 getForward(bool ignoreY = false) { return ignoreY ? mTransform.forward.resetY().normalize() : mTransform.forward; }
 	public virtual bool isActive() { return mActive; }
 	public virtual bool isActiveInHierarchy() { return mObject != null && mObject.activeInHierarchy; }
 	public string getLayerName() { return LayerMask.LayerToName(mObject.layer); }
@@ -261,7 +261,7 @@ public class Transformable : ComponentOwner, ITransformable
 	public Vector3 getRotation()
 	{
 		Vector3 vector3 = mTransform.localEulerAngles;
-		adjustAngle180(ref vector3.z);
+		vector3.z = vector3.z.adjustAngle180();
 		return vector3;
 	}
 	public int getSiblingIndex() { return mTransform != null ? mTransform.GetSiblingIndex() : 0; }
@@ -277,15 +277,15 @@ public class Transformable : ComponentOwner, ITransformable
 		{
 			return Vector3.zero;
 		}
-		Vector3 vector3 = toRadian(mTransform.localEulerAngles);
-		adjustRadian180(ref vector3.z);
+		Vector3 vector3 = mTransform.localEulerAngles.toRadian();
+		vector3.z = vector3.z.adjustRadian180();
 		return vector3;
 	}
 	public Quaternion getRotationQuaternion() { return mTransform != null ? mTransform.localRotation : Quaternion.identity; }
 	public Quaternion getWorldQuaternionRotation() { return mTransform != null ? mTransform.rotation : Quaternion.identity; }
 	public void setPosition(Vector3 pos)
 	{
-		if (mTransform == null || isVectorEqual(mTransform.localPosition, pos))
+		if (mTransform == null || mTransform.localPosition.isEqual(pos))
 		{
 			return;
 		}
@@ -301,7 +301,7 @@ public class Transformable : ComponentOwner, ITransformable
 	}
 	public void setScale(Vector3 scale)
 	{
-		if (mTransform == null || isVectorEqual(mTransform.localScale, scale))
+		if (mTransform == null || mTransform.localScale.isEqual(scale))
 		{
 			return;
 		}
@@ -314,7 +314,7 @@ public class Transformable : ComponentOwner, ITransformable
 	// 角度制的欧拉角,分别是绕xyz轴的旋转角度
 	public void setRotation(Vector3 rot)
 	{
-		if (mTransform == null || isVectorEqual(mTransform.localEulerAngles, rot))
+		if (mTransform == null || mTransform.localEulerAngles.isEqual(rot))
 		{
 			return;
 		}
@@ -381,7 +381,7 @@ public class Transformable : ComponentOwner, ITransformable
 		}
 		if (mTransform.parent != null)
 		{
-			mTransform.localScale = divideVector3(scale, mTransform.parent.lossyScale);
+			mTransform.localScale = scale.divide(mTransform.parent.lossyScale);
 		}
 		else
 		{
@@ -400,21 +400,22 @@ public class Transformable : ComponentOwner, ITransformable
 	public Vector3 worldToLocal(Vector3 point) { return UnityUtility.worldToLocal(mTransform, point); }
 	public Vector3 localToWorldDirection(Vector3 direction) { return UnityUtility.localToWorldDirection(mTransform, direction); }
 	public Vector3 worldToLocalDirection(Vector3 direction) { return UnityUtility.worldToLocalDirection(mTransform, direction); }
-	public void setPositionX(float x) { setPosition(replaceX(getPosition(), x)); }
-	public void setPositionY(float y) { setPosition(replaceY(getPosition(), y)); }
-	public void setPositionZ(float z) { setPosition(replaceZ(getPosition(), z)); }
-	public void setWorldPositionX(float x) { setWorldPosition(replaceX(getWorldPosition(), x)); }
-	public void setWorldPositionY(float y) { setWorldPosition(replaceY(getWorldPosition(), y)); }
-	public void setWorldPositionZ(float z) { setWorldPosition(replaceZ(getWorldPosition(), z)); }
-	public void setRotationX(float rotX) { setRotation(replaceX(mTransform.localEulerAngles, rotX)); }
-	public void setRotationY(float rotY) { setRotation(replaceY(mTransform.localEulerAngles, rotY)); }
-	public void setRotationZ(float rotZ) { setRotation(replaceZ(mTransform.localEulerAngles, rotZ)); }
-	public void setScaleX(float x) { setScale(replaceX(mTransform.localScale, x)); }
+	public void setPositionX(float x) { setPosition(getPosition().replaceX(x)); }
+	public void setPositionY(float y) { setPosition(getPosition().replaceY(y)); }
+	public void setPositionZ(float z) { setPosition(getPosition().replaceZ(z)); }
+	public void setWorldPositionX(float x) { setWorldPosition(getWorldPosition().replaceX(x)); }
+	public void setWorldPositionY(float y) { setWorldPosition(getWorldPosition().replaceY(y)); }
+	public void setWorldPositionZ(float z) { setWorldPosition(getWorldPosition().replaceZ(z)); }
+
+	public void setRotationX(float rotX) { setRotation(mTransform.localEulerAngles.replaceX(rotX)); }
+	public void setRotationY(float rotY) { setRotation(mTransform.localEulerAngles.replaceY(rotY)); }
+	public void setRotationZ(float rotZ) { setRotation(mTransform.localEulerAngles.replaceZ(rotZ)); }
+	public void setScaleX(float x) { setScale(mTransform.localScale.replaceX(x)); }
 	public virtual void move(Vector3 moveDelta, Space space = Space.Self)
 	{
 		if (space == Space.Self)
 		{
-			moveDelta = rotateVector3(moveDelta, getRotationQuaternion());
+			moveDelta = moveDelta.rotate(getRotationQuaternion());
 		}
 		setPosition(getPosition() + moveDelta);
 	}
@@ -462,7 +463,7 @@ public class Transformable : ComponentOwner, ITransformable
 	}
 	public void lookAt(Vector3 direction)
 	{
-		if (isVectorZero(direction))
+		if (direction.isZero())
 		{
 			return;
 		}
@@ -470,7 +471,7 @@ public class Transformable : ComponentOwner, ITransformable
 	}
 	public void lookAtPoint(Vector3 point)
 	{
-		if (!isVectorEqual(point, getPosition()))
+		if (!point.isEqual(getPosition()))
 		{
 			setRotation(getLookAtQuaternion(point - getPosition()));
 		}
