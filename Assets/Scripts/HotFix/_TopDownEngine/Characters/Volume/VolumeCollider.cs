@@ -69,7 +69,7 @@ namespace MoreMountains
             _cachedPosition = _collider.bounds.center;
 
             // 确保不是 Trigger（避免被 Unity 物理系统吃掉碰撞）
-            _collider.isTrigger = false;
+            // _collider.isTrigger = false;
 
             Vector3 lossy = _collider.transform.lossyScale;
 

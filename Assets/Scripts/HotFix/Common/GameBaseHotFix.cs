@@ -1,4 +1,6 @@
 ﻿using MoreMountains;
+using Unity.Cinemachine;
+using UnityEngine;
 
 // 这个类的添加是方便代码的书写
 // 因为使用很频繁所以简写为GBH,全称为GameBaseHotFix
@@ -44,6 +46,8 @@ public class GBR
     public static SoundMaster sound { get; set; }
     public static MusicMaster music { get; set; }
     public static FxMaster fx { get; set; }
+    public static Camera camera { get; set; }
+    public static CinemachineCamera cinemachineCamera { get; set; }
 
     public static ARoom room
     {

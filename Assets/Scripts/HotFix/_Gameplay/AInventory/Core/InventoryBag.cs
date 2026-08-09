@@ -275,7 +275,7 @@ namespace MoreMountains
 
         // ---- 实现 IInventoryHolder 所需：供其它系统增删 ----
 
-        public bool TryRemoveByInstance(TItem item)
+        public bool TryRemoveByItem(TItem item)
         {
             return Remove(item);
         }
@@ -325,7 +325,7 @@ namespace MoreMountains
     /// </summary>
     public interface IInventoryHolder<in T> : IInventoryHolder where T : IInventoryItem
     {
-        bool TryRemoveByInstance(T item);
+        bool TryRemoveByItem(T item);
         bool TryInsert(T item);
         bool FindIndex(T item, out int index);
     }

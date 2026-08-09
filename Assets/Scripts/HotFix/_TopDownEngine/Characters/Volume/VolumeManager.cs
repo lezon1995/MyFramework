@@ -1085,7 +1085,8 @@ namespace MoreMountains
                 int currentLevel = entityLevels[current];
 
                 // 超过最大层级，不再传播
-                if (currentLevel >= MaxChainLevel) continue;
+                if (currentLevel >= MaxChainLevel) 
+                    continue;
 
                 // 当前层级的检测范围（考虑层级衰减）
                 float levelFactor = 1f - (currentLevel * 0.1f);

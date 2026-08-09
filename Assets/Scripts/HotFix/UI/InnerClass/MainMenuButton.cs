@@ -1,17 +1,22 @@
 ﻿using System;
 using PrimeTween;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Components;
+using UnityEngine.Localization.Tables;
+
 namespace MoreMountains;
 // auto generate classname start
 // generate from:Assets/GameResources/UI/UIPrefab/MainMenuScreen.prefab
 // 
-public class MainMenuButton : WindowRecyclableUGUI
+public partial class MainMenuButton : WindowRecyclableUGUI
 // auto generate classname end
 {
 	// auto generate member start
 	protected myUGUIButton btn;
-	protected myUGUIText text;
+	protected myUGUITextTMP text;
 	// auto generate member end
 	Action onClick;
+	LocalizeStringEvent _stringEvent;
 	
 	public MainMenuButton(IWindowObjectOwner parent) : base(parent)
 	{
@@ -24,6 +29,8 @@ public class MainMenuButton : WindowRecyclableUGUI
 		newObject(out btn, "Btn");
 		newObject(out text, "Btn/Text");
 		// auto generate assignWindowInternal end
+
+		text.tryGetUnityComponent(out _stringEvent);
 	}
 	public override void init()
 	{
@@ -61,4 +68,11 @@ public class MainMenuButton : WindowRecyclableUGUI
 	}
 
 	public void setOnClick(Action callback) => onClick = callback;
+
+	public void setStringReference(string table, string entry)
+	{
+		_stringEvent.SetTable(table);
+		_stringEvent.SetEntry(entry);
+		// _stringEvent.RefreshString();
+	}
 }

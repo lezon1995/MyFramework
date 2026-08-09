@@ -32,11 +32,11 @@ namespace MoreMountains
         public IRelicOperationTarget CurrentSource => _source;
 
         /// <summary>当前鼠标悬停的目标。</summary>
-        public IRelicOperationTarget CurrentHovered => _hovered;
+        public IItemOperationTarget CurrentHovered => _hovered;
 
         // 事件
         /// <summary>操作确认,回调传入悬停的目标(null=空白区域)。</summary>
-        public event Action<IRelicOperationTarget> OperationConfirmed;
+        public event Action<IItemOperationTarget> OperationConfirmed;
 
         /// <summary>操作取消(右键或左键在空白)。</summary>
         public event Action OperationCancelled;
@@ -45,7 +45,7 @@ namespace MoreMountains
         public event Action<bool> SellZoneVisibilityChanged;
 
         IRelicOperationTarget _source;
-        IRelicOperationTarget _hovered;
+        IItemOperationTarget _hovered;
         bool _sourceConsumed;
 
         // ==================== Enter / Exit ====================
@@ -66,8 +66,8 @@ namespace MoreMountains
             _stateActiveFrame = Time.frameCount;
 
             source.BeginFollowMouse(iconSource);
-            BroadcastHighlightChanged(source, true);
             SellZoneVisibilityChanged?.Invoke(true);
+            BroadcastHighlightChanged(source, true);
             ActivateBlocker(true);
         }
 
@@ -171,11 +171,20 @@ namespace MoreMountains
                 prev?.SetHovered(false);
                 _hovered?.SetHovered(true);
             }
+            
+            if (hoveredTarget == null)
+            {
+                _hovered?.SetHovered(false);
+            }
+            else
+            {
+                hoveredTarget.SetHovered(true);
+            }
         }
 
         PointerEventData ptrData = new(UnityEngine.EventSystems.EventSystem.current);
 
-        IRelicOperationTarget RaycastHovered()
+        IItemOperationTarget RaycastHovered()
         {
             ptrData.position = Input.mousePosition;
             using var _ = new ListScope<RaycastResult>(out var results);
@@ -189,10 +198,10 @@ namespace MoreMountains
                 if (_blockerGO && go == _blockerGO)
                     continue;
 
-                if (!go.CompareTag("RelicOperationTarget")) 
+                if (!go.CompareTag("OperationTarget")) 
                     continue;
 
-                if (!go.TryGetComponent<RelicOperationTargetBridge>(out var bridge)) 
+                if (!go.TryGetComponent<ItemOperationTargetBridge>(out var bridge)) 
                     continue;
 
                 if (bridge.Target != null) 
@@ -245,15 +254,9 @@ namespace MoreMountains
 
     // ==================== IRelicOperationTarget ====================
 
-    public interface IRelicOperationTarget
+    public interface IRelicOperationTarget : IItemOperationTarget
     {
-        void BeginFollowMouse(RectTransform iconSource);
-        void UpdateFollowMouse(Vector2 screenMousePos);
-        void EndFollowMouse();
-        void SetHovered(bool isHovered);
-        void SetHighlightVisible(bool visible);
-        void SetEventBlocking(bool blocking);
-        void ExecuteOperation(IRelicOperationTarget hoveredTarget);
+        void ExecuteOperation(IItemOperationTarget hoveredTarget);
     }
 
     // ==================== Bridge ====================
@@ -262,10 +265,8 @@ namespace MoreMountains
     /// 挂到每个 RelicInventoryItem 根 GameObject 上的 MonoBehaviour。
     /// 职责:①持有 Target 引用(供 RaycastHovered 查找) ②响应 highlight 广播。
     /// </summary>
-    public class RelicOperationTargetBridge : MonoBehaviour
+    public class RelicOperationTargetBridge : ItemOperationTargetBridge
     {
-        public IRelicOperationTarget Target;
-
         void OnEnable()
         {
             RelicOperationStateManager.BroadcastHighlightEvent += OnHighlightChanged;
@@ -274,15 +275,6 @@ namespace MoreMountains
         void OnDisable()
         {
             RelicOperationStateManager.BroadcastHighlightEvent -= OnHighlightChanged;
-        }
-
-        void OnHighlightChanged(IRelicOperationTarget source, bool visible)
-        {
-            Target?.SetHighlightVisible(visible);
-            if (visible && source == Target)
-            {
-                Target?.SetHovered(true);
-            }
         }
     }
 

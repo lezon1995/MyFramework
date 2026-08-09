@@ -15,7 +15,7 @@ namespace MoreMountains
         public bool IsPenetrable; //是否可穿透砖块
 
         [Tooltip("the layers you want this projectile to bounce on")]
-        public LayerMask BounceLayers = LayerManager.Obstacles_Mask | LayerManager.Brick_Mask;
+        public LayerMask BounceLayers = LayerManager.Obstacles_Mask | LayerManager.Brick_Mask | LayerManager.Border_Mask;
 
         public LayerMask PenetrableLayers = LayerManager.Brick_Mask;
 

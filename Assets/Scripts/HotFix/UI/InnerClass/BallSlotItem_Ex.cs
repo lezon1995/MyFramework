@@ -100,11 +100,17 @@ public partial class BallSlotItem : IBallOperationTarget
         highlightHovered?.setActive(_highlightVisible && _highlightHoveredVisible);
     }
 
-    public void ExecuteOperation(IBallOperationTarget hoveredTarget)
+    public void ExecuteOperation(IItemOperationTarget hoveredTarget)
     {
         var source = BallOperationStateManager.Instance.CurrentSource;
         if (source == null)
             return;
+
+        if (hoveredTarget is ShopSellZoneView shopSellZoneView)
+        {
+            shopSellZoneView.shopBinder.OnPlayerSellBall(ballSlot.Item);
+            return;
+        }
 
         // source 来自 BallInventoryItem → Equip 或 Swap 到此槽
         if (source is BallInventoryItem srcInv)

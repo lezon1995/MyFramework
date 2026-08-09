@@ -158,8 +158,6 @@ MonoBehaviour:
   ObjectPooler: {fileID: 0}
   SpawnFeedbacks: []
   TestShootButton: 0
-  ballType: 4
-  OverrideBallType: 10
 --- !u!114 &114345180357598506
 MonoBehaviour:
   m_ObjectHideFlags: 0

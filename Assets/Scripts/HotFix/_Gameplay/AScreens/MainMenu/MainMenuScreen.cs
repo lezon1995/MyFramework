@@ -8,7 +8,7 @@ public enum MainMenuType
     RESUME_GAME, //继续
     ABANDON_RUN, //放弃当前游戏
     INFO, //百科大全
-    STAT, //统计内容
+    STATS, //统计内容
     SETTINGS, //设定
     PATCH_NOTES, //补丁内容清单
     QUIT, //退出

@@ -43,7 +43,7 @@ namespace MoreMountains
             if (!InventoryLocate.FindHolderOf(ball, out var holder)) 
                 return 0;
 
-            holder.TryRemoveByInstance(ball);
+            holder.TryRemoveByItem(ball);
 
             int refund = ball.SellPrice > 0 ? ball.SellPrice : 1;
             _owner.Player.gainGold(refund, EarnType.SELL_BALL);

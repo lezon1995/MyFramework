@@ -42,10 +42,9 @@ public partial class OperationPanel : LayoutScript
 	}
 	public override void init()
 	{
+		initBinder();
 		base.init();
 		// auto generate init start
 		// auto generate init end
-
-		initBinder();
 	}
 }

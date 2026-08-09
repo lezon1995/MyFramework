@@ -128,24 +128,6 @@ namespace MoreMountains
             }
         }
 
-        /// <summary>由 BallSlotItem.onDragReleased 转发。
-        /// 这里只取 slot 索引,具体 ball 通过该 slot 实时读出,避免在 Rebuild 时持有 ball 引用。</summary>
-        public void OnSlotDragReleased(BallSlotItem src, int slotIndex, UIDragReleaseEventData data)
-        {
-            if (_model == null)
-                return;
-
-            if (slotIndex < 0 || slotIndex >= _model.Slots.Count)
-                return;
-
-            var slot = _model.Slots[slotIndex];
-            var ball = slot.Item;
-            if (ball == null)
-                return;
-
-            _owner?.OnSlotDragReleased(src, slotIndex, ball, data);
-        }
-
         /// <summary>
         /// 球操作状态中,在 BallSlotItem 上左键点击时调用。
         /// source 是槽位上的球:

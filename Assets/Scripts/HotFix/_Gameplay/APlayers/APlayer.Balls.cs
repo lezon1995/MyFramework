@@ -21,7 +21,7 @@ namespace MoreMountains
         protected InventorySystem inventory;
         protected ShopSystem shop;
         protected PlayerWallet wallet;
-        
+
         public BallManagementSystem BallManagement => ballManagement;
         public InventorySystem Inventory => inventory;
         public ShopSystem Shop => shop;
@@ -30,17 +30,17 @@ namespace MoreMountains
         protected override void Initialization()
         {
             base.Initialization();
-            
+
             Exp.ResetLevel();
             // Exp.SetOnLevelUp(onLevelUp);
-            
+
             FindAbility(out playerRecollectBall);
 
             getOrAddUnityComponent(out ballManagement);
             getOrAddUnityComponent(out inventory);
             getOrAddUnityComponent(out shop);
             getOrAddUnityComponent(out wallet);
-            
+
             originalShootPosition = shootPosition = getWorldPosition();
             setOriginalShootPositionX(shootPosition.x);
 
@@ -77,9 +77,9 @@ namespace MoreMountains
             actionManager.addToTop<ReturnBallsAction>().with(shootPosition);
         }
 
-        public void recollectBall(Ball ball)
+        public void recollectBall(Ball ball, float collectDuration = 0.75F, bool immediately = false)
         {
-            playerRecollectBall.RecollectBall(ball, 0.75F);
+            playerRecollectBall.RecollectBall(ball, collectDuration, immediately);
         }
 
         public void setCurrentShootPosition(Vector2 p)
@@ -109,17 +109,14 @@ namespace MoreMountains
             {
                 isFirstBallReturn = true;
                 setOriginalShootPositionX(ball.getWorldPosition().x);
-                BallManagement.Instance.enqueueBallToShootQueue(ball);
+                BallManagement.Instance.releaseBall(ball);
                 return;
             }
 
             ball.setEnabled(false);
             Tween
                 .Position(ball.getTransform(), endValue: shootPosition, duration: 0.15F, ease: Ease.OutCubic)
-                .OnComplete(ball, b =>
-                {
-                    BallManagement.Instance.enqueueBallToShootQueue(b);
-                });
+                .OnComplete(ball, b => { BallManagement.Instance.releaseBall(b); });
 
             return;
         }

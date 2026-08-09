@@ -7,7 +7,6 @@ namespace MoreMountains;
 public partial class BallInventoryItem : IBallOperationTarget
 {
     BallInventorySlot ballInventorySlot;
-    BallItem ballItem;
     RectTransform _iconRect;
     Transform _originalParent;
     int _originalSiblingIndex;
@@ -28,7 +27,6 @@ public partial class BallInventoryItem : IBallOperationTarget
 
     public void SetIconVisible(bool on) => icon?.setActive(on);
     public void SetBallIcon(Sprite s) => icon?.setSpriteOnly(s);
-    public void SetBallItem(BallItem item) => ballItem = item;
     public void SetBallInventorySlot(BallInventorySlot slot) => ballInventorySlot = slot;
 
     public void SetStarCount(int count)
@@ -121,11 +119,17 @@ public partial class BallInventoryItem : IBallOperationTarget
         highlightHovered?.setActive(_highlightVisible && _highlightHoveredVisible);
     }
 
-    public void ExecuteOperation(IBallOperationTarget hoveredTarget)
+    public void ExecuteOperation(IItemOperationTarget hoveredTarget)
     {
         var source = BallOperationStateManager.Instance.CurrentSource;
         if (source == null)
             return;
+        
+        if (hoveredTarget is ShopSellZoneView shopSellZoneView)
+        {
+            shopSellZoneView.shopBinder.OnPlayerSellBall(ballInventorySlot.Item);
+            return;
+        }
 
         // source 来自 BallSlotItem → Equip 或 Swap 到此背包格
         if (source is BallSlotItem srcSlot)

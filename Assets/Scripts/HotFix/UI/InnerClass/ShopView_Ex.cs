@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using UnityEngine;
 using UnityEngine.EventSystems;
 
 namespace MoreMountains;
@@ -13,7 +12,7 @@ public partial class ShopView
     public void SetTitle(string s) => shopTitle?.setText(s ?? string.Empty);
     public void SetRemainCoin(int n) => remainCoin?.setText(n.IToS());
     public myUGUIObject ShopItemsRoot => shopItems;
-    public myUGUIObject SellZoneRoot => sellZone;
+    public ShopSellZoneView SellZoneRoot => shopSellZoneView;
     public myUGUIButton BtnReroll => btnReroll;
     public myUGUIButton BtnBuyExp => btnBuyExp;
 
@@ -40,21 +39,6 @@ public partial class ShopView
     /// <summary>设置 sellZone 是否显示(由 ShopBinder 根据操作状态调用)。</summary>
     public void SetSellZoneVisible(bool visible)
     {
-        if (sellZone != null)
-            sellZone.setActive(visible);
-    }
-
-    /// <summary>sellZone 点击检测,需要绑定到 sellZone 的 UIEventListener。
-    /// 由 ShopBinder 在 init 时调用。</summary>
-    public void SetupSellZoneClick(Action onClicked)
-    {
-        if (sellZone != null && sellZone.getGameObject().TryGetComponent(out UIEventListener l))
-        {
-            l.SetOnPointerPressed(data =>
-            {
-                if (data.button == PointerEventData.InputButton.Left)
-                    onClicked?.Invoke();
-            });
-        }
+        shopSellZoneView.setActive(visible);
     }
 }

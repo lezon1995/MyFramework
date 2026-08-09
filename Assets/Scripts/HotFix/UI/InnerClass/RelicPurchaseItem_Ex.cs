@@ -8,13 +8,13 @@ public partial class RelicPurchaseItem
 
     public void SetHovered(bool on)
     {
-        if (hovered != null) hovered.setActive(on);
+        hovered?.setActive(on);
     }
 
     public void SetRarity(Color top, Color bot)
     {
-        if (rarityTop != null) rarityTop.setColor(new(top.r, top.g, top.b));
-        if (rarityBot != null) rarityBot.setColor(new(bot.r, bot.g, bot.b));
+        rarityTop?.setColor(new(top.r, top.g, top.b));
+        rarityBot?.setColor(new(bot.r, bot.g, bot.b));
     }
 
     public void SetNewTag(bool on) => newTag.setActive(on);
@@ -22,4 +22,16 @@ public partial class RelicPurchaseItem
     public void SetName(string s) => itemName.setText(s ?? string.Empty);
     public void SetDesc(string s) => itemDesc.setText(s ?? string.Empty);
     public void SetPrice(int price) => itemPrice.setText(price.IToS());
+
+    public void SetSold(bool sold)
+    {
+        hovered.setActive(!sold);
+        rarityTop.setActive(!sold);
+        itemSold.setActive(sold);
+        if (btn.tryGetUnityComponent<ButtonScaleAnim>(out var btnScaleAnim))
+        {
+            btnScaleAnim.ResetToNormal();
+            btnScaleAnim.enabled = !sold;
+        }
+    }
 }

@@ -8,12 +8,10 @@ public class Border : MovableObject
     , IEventRouter
 {
     public IEventRouter Event => this;
-    protected SpriteRenderer renderer;
 
     public override void resetProperty()
     {
         base.resetProperty();
-        renderer = null;
     }
 
     public Border()
@@ -28,8 +26,6 @@ public class Border : MovableObject
     public override void setObject(GameObject obj)
     {
         base.setObject(obj);
-
-        obj.find(out renderer, "Renderer");
     }
 
     protected override void initComponents()
@@ -52,7 +48,6 @@ public class Border : MovableObject
         if (c.TryGetComponent(out Ball ball))
             onBallExit(ball);
     }
-
 
     protected virtual void onBallEnter(Ball ball)
     {
@@ -80,9 +75,6 @@ public class HBorder : Border
 {
     public void setWidth(float width)
     {
-        var size = renderer.size;
-        size.x = width;
-        renderer.size = size;
     }
 }
 
@@ -90,9 +82,6 @@ public class VBorder : Border
 {
     public void setHeight(float height)
     {
-        var size = renderer.size;
-        size.y = height;
-        renderer.size = size;
     }
 }
 

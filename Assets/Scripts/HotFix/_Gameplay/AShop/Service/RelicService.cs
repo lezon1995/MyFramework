@@ -27,7 +27,7 @@ namespace MoreMountains
             }
 
             int refund = def.SellRefund > 0 ? def.SellRefund : Math.Max(1, def.BasePrice / 2);
-            return new RelicItem(relic, def);
+            return RelicItem.New(def, relic);
         }
     }
 }

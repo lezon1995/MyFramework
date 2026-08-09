@@ -17,7 +17,8 @@
 
             foreach (var ballDef in _charSelectInfo.balls)
             {
-                p.BallManagement.EquipBallAtInitialization(BallItem.New(ballDef, 1));
+                var ballItem = BallItem.New(ballDef, 1);
+                p.BallManagement.EquipBallAtInitialization(ballItem);
             }
         }
 

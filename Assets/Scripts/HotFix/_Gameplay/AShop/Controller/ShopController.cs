@@ -198,26 +198,29 @@ namespace MoreMountains
         // ------------- 出售 -------------
 
         /// <summary>出售球 — 走球管理服务的 SellToShop 自身事务。</summary>
-        public int OnPlayerSellBall(APlayer p, BallItem ball)
+        public int OnPlayerSellBall(APlayer p, BallItem item)
         {
-            int gold = p.BallManagement.Shop.SellToShop(ball);
+            int gold = p.BallManagement.Shop.SellToShop(item);
             if (gold > 0)
-                ShopEvents.RaiseSoldFromBag(ball);
+                ShopEvents.RaiseSoldFromBag(item);
+            
+            BallItem.Release(ref item);
             return gold;
         }
 
-        public int OnPlayerSellRelic(RelicItem item)
+        public int OnPlayerSellRelic(APlayer p, RelicItem item)
         {
             if (item == null)
                 return 0;
 
             int gold = item.SellPrice;
 
-            shopSystem.Player.Inventory.RemoveRelic(item);
-
-            shopSystem.Player.gainGold(gold, EarnType.SELL_RELIC);
+            p.Inventory.RemoveRelic(item);
+            p.gainGold(gold, EarnType.SELL_RELIC);
             ShopEvents.RaiseGoldEarned(gold, "relic_sell");
             ShopEvents.RaiseSoldFromBag(item);
+            
+            RelicItem.Release(ref item);
             return gold;
         }
     }

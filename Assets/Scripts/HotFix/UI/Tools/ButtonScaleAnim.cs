@@ -84,7 +84,7 @@ namespace MoreMountains
         {
             _isHovering = false;
             _isPressed = false;
-            Tween.Scale(transform, endValue: normalScale, duration: tweenDuration, ease: tweenEase);
+            transform.localScale = Vector3.one * normalScale;
         }
     }
 }

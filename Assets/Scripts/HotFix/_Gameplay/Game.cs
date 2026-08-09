@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using Unity.Cinemachine;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace MoreMountains
 {
@@ -135,7 +137,8 @@ namespace MoreMountains
 
                 Settings.initialize(false);
 
-                // camera = Camera.main;
+                camera = Camera.main;
+                cinemachineCamera = Object.FindFirstObjectByType<CinemachineCamera>();
                 // languagePack = new();
                 // Gdx.graphics.setCursor(Gdx.graphics.newCursor(new Pixmap(Gdx.files. internal ("images/blank.png")), 0, 0));
                 music = new();
@@ -269,7 +272,7 @@ namespace MoreMountains
 
         void onUpdate(float dt)
         {
-            screenShake.update(dt);
+            // screenShake.update(dt);
 
             if (mode != GameMode.SPLASH)
                 updateFade(dt);
@@ -393,6 +396,10 @@ namespace MoreMountains
 
             var p = createCharacter(chosenClass);
             player = p;
+            cinemachineCamera.Target = new()
+            {
+                TrackingTarget = p.transform,
+            };
 
             if (loadingSave)
             {

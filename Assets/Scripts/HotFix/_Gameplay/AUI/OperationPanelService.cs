@@ -25,6 +25,7 @@ namespace MoreMountains
 
         OperationPanelBinder _binder;
         APlayer _boundPlayer;
+        ARoom _room;
 
         public OperationPanelBinder Binder => _binder;
         public APlayer CurrentPlayer => _boundPlayer;
@@ -32,15 +33,22 @@ namespace MoreMountains
         public void Register(OperationPanelBinder binder)
         {
             _binder = binder;
+
+            WaveBridge.OnShopPhaseFinished = () =>
+            {
+                _room.ToPhase = RoomPhaseType.BATTLE;
+            };
         }
 
         public void Unregister()
         {
             _binder = null;
+
+            WaveBridge.OnShopPhaseFinished = null;
         }
 
         /// <summary>绑定 APlayer 并打开面板。</summary>
-        public void Open(APlayer player)
+        public void Open(ARoom room, APlayer player)
         {
             if (_binder == null)
             {
@@ -56,6 +64,7 @@ namespace MoreMountains
                 _binder.Bind(player);
             }
 
+            _room =  room;
             _binder.Open();
         }
 
@@ -64,7 +73,7 @@ namespace MoreMountains
         {
             if (_boundPlayer)
             {
-                Open(_boundPlayer);
+                Open(_room, _boundPlayer);
                 return;
             }
             logError("OperationPanelService.Open: no player bound; please call Open(APlayer) or Register then Bind.");

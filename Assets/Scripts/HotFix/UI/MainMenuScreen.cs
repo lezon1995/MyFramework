@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Obfuz;
 using UnityEngine;
+using UnityEngine.Localization.Settings;
 
 namespace MoreMountains;
 
@@ -53,7 +54,7 @@ public partial class MainMenuScreen : LayoutScript
     {
         var item = MainMenuButtonPool.newItem();
         item.getRoot().setName(type.ToString());
-        item.setName(type.ToString());
+        item.setStringReference("MainMenuScreen", type.ToString());
         switch (type)
         {
             case MainMenuType.PLAY:
@@ -66,7 +67,7 @@ public partial class MainMenuScreen : LayoutScript
                 break;
             case MainMenuType.INFO:
                 break;
-            case MainMenuType.STAT:
+            case MainMenuType.STATS:
                 break;
             case MainMenuType.SETTINGS:
                 break;
@@ -88,7 +89,7 @@ public partial class MainMenuScreen : LayoutScript
 
     public void setShowStatAndInfoButton(bool show)
     {
-        buttons[MainMenuType.STAT].setActive(show);
+        buttons[MainMenuType.STATS].setActive(show);
         buttons[MainMenuType.INFO].setActive(show);
     }
 
@@ -113,7 +114,7 @@ public partial class MainMenuScreen : LayoutScript
         addButton(MainMenuType.ABANDON_RUN);
         addButton(MainMenuType.RESUME_GAME);
         addButton(MainMenuType.PLAY);
-        addButton(MainMenuType.STAT);
+        addButton(MainMenuType.STATS);
         addButton(MainMenuType.INFO);
         addButton(MainMenuType.SETTINGS);
         addButton(MainMenuType.QUIT);

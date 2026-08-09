@@ -11,7 +11,7 @@ namespace MoreMountains
     ///   1) 我们不修改 ARelic 任何字段/方法（最小侵入）
     ///   2) 遗物可以用 RelicItem 作 slot 排序的唯一身份（与球对称）
     /// </summary>
-    public class RelicItem : IInventoryItem
+    public class RelicItem : ClassObject, IInventoryItem
     {
         public int ItemId => Def.RelicDefId;
         public RelicType Type => Def.Type;
@@ -22,12 +22,27 @@ namespace MoreMountains
         public int SellPrice => Def.BasePrice;
 
         /// <summary>关联的 ARelic 实例（或其子类）；由 RelicService 解析回传。</summary>
-        public ARelic UnderlyingRelic { get; }
+        public ARelic UnderlyingRelic;
 
-        public RelicItem(ARelic underlying, RelicDef def)
+        public override void resetProperty()
         {
-            UnderlyingRelic = underlying ?? throw new ArgumentNullException(nameof(underlying));
-            Def = def;
+            base.resetProperty();
+            Def = null;
+            UnderlyingRelic = null;
+        }
+        
+        /// <summary>工厂方法。系统内部创建都用它。</summary>
+        public static RelicItem New(RelicDef def, ARelic underlying)
+        {
+            var item = CLASS<RelicItem>();
+            item.Def = def;
+            item.UnderlyingRelic = underlying;
+            return item;
+        }
+        
+        public static void Release(ref RelicItem item)
+        {
+            UN_CLASS(ref item);
         }
     }
 }

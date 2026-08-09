@@ -14,7 +14,7 @@ public class ShoppingPhase : ARoomPhase
         log("进入 商店购买阶段 按数字键盘1 开启下一波");
 
         // 通过全局 Service 打开 OperationPanel；面板内部已经绑定或会重绑当前玩家。
-        OperationPanelService.Instance.Open(_room.Player);
+        OperationPanelService.Instance.Open(_room, _room.Player);
     }
 
     public override void onEnd()
@@ -26,11 +26,6 @@ public class ShoppingPhase : ARoomPhase
     public override void update(float dt)
     {
         base.update(dt);
-        if (Input.GetKeyDown(KeyCode.Alpha1))
-        {
-            _room.ToPhase = RoomPhaseType.BATTLE;
-        }
-
         ADungeon.operationPanel.update(dt);
     }
 

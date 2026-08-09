@@ -193,6 +193,7 @@ MonoBehaviour:
   VelocityDamping: 0.9
   ShowGizmos: 1
   GizmosColor: {r: 0, g: 1, b: 0, a: 0.3}
+  Collider2D: {fileID: 0}
 --- !u!114 &3643635927955792360
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -225,7 +226,6 @@ MonoBehaviour:
   Movement: {fileID: 5502210496497539059}
   id: 
   isBloodied: 0
-  gold: 0
   displayGold: 0
   isDying: 0
   isDead: 0
@@ -234,7 +234,6 @@ MonoBehaviour:
   isReturnBall: 0
   ballMaxCount: 1
   ballCount: 1
-  activeBalls: []
   originalShootPosition: {x: 0, y: 0, z: 0}
   shootPosition: {x: 0, y: 0, z: 0}
   isFirstBallReturn: 0
@@ -452,7 +451,7 @@ MonoBehaviour:
   UseSecondaryAxisThresholdToShoot: 0
   ForceWeaponAimControl: 0
   ForcedWeaponAimControl: 1
-  ForceAlwaysShoot: 0
+  ForceAlwaysShoot: 1
   BufferInput: 0
   NewInputExtendsBuffer: 0
   MaximumBufferDuration: 0.25
@@ -480,6 +479,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f4bfb2b5dfb44708ba80fad84e8b6d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: HotFix::MoreMountains.CoinPickerAdapter
+  InitializeOnAwake: 1
+  AbilityStartSfx: {fileID: 0}
+  AbilityInProgressSfx: {fileID: 0}
+  AbilityStopSfx: {fileID: 0}
+  AbilityStartFeedbacks: {fileID: 0}
+  AbilityStopFeedbacks: {fileID: 0}
+  AbilityPermitted: 1
+  BlockingMovementStates: 
+  BlockingConditionStates: 
+  BlockingWeaponStates: 
   coinManager: {fileID: 0}
   PickupRangeOverride: 2
   AutoPickupInterval: 0.1

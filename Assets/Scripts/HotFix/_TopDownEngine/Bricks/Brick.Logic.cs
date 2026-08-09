@@ -35,7 +35,7 @@ namespace MoreMountains
             brickRenderer.setHealthBarActive(false);
             brickRenderer.playBornAnimation();
             Health.onAcquire();
-            volumeCollider.RegisterToVolumeManager();
+            _controller2D.RegisterToVolumeManager();
         }
 
         public void setOnBornCompleted(Action<Brick> a)
@@ -53,7 +53,7 @@ namespace MoreMountains
 
         public override void onRelease()
         {
-            volumeCollider.UnregisterToVolumeManager();
+            _controller2D.UnregisterToVolumeManager();
             Health.onRelease();
             base.onRelease();
         }

@@ -78,7 +78,7 @@ namespace MoreMountains
             _owner.Player.loseGold(defA.MergeGoldCost, PayType.BALL_MERGE);
 
             // 拆 a
-            if (!holderA.TryRemoveByInstance(a))
+            if (!holderA.TryRemoveByItem(a))
             {
                 logError("BallMergeService: failed to remove a");
                 return null;
@@ -89,7 +89,7 @@ namespace MoreMountains
             // 拆 b（若 a/b 同 holder，已经移除 a 不会再找到 b；用同样的 holder 再 RemoveByInstance 是 noop）
             if (!ReferenceEquals(holderA, holderB))
             {
-                if (!holderB.TryRemoveByInstance(b))
+                if (!holderB.TryRemoveByItem(b))
                 {
                     logError("BallMergeService: failed to remove b");
                 }
@@ -97,7 +97,7 @@ namespace MoreMountains
             else
             {
                 // 同 holder：a 已删，b 仍在；显式 RemoveByInstance
-                holderA.TryRemoveByInstance(b);
+                holderA.TryRemoveByItem(b);
             }
 
             BallEvents.RaiseDestroyed(b);

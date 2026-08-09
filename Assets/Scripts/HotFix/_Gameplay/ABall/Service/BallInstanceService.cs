@@ -19,7 +19,6 @@ namespace MoreMountains
             _owner = owner;
         }
 
-        Queue<Ball> shootQueue = new();
         HashSet<Ball> activeBalls = new(); //发射后运动中的Ball
         HashSet<Ball> inactiveBalls = new(); //回到底板后待发射的Ball
         Dictionary<BallType, ObjectPool<Ball>> ballPools = new();
@@ -131,34 +130,6 @@ namespace MoreMountains
             {
                 pool.Release(ball);
             }
-        }
-
-        public bool dequeueBallFromShootQueue(Vector2 pos, out Ball ball)
-        {
-            if (shootQueue.TryDequeue(out ball))
-            {
-                prepareToShoot(ball, pos, Vector2.up);
-                return true;
-            }
-
-            return false;
-        }
-
-        public bool hasAnyBallInShootQueue()
-        {
-            return shootQueue.Count > 0;
-        }
-
-        public void enqueueBallToShootQueue(Ball ball)
-        {
-            ball.onRelease();
-            ball.setActive(false);
-            ball.setEnabled(false);
-
-            activeBalls.Remove(ball);
-            inactiveBalls.Add(ball);
-
-            shootQueue.Enqueue(ball);
         }
 
         public void destroyAllBall()

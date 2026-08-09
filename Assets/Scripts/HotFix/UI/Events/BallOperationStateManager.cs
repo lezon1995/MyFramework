@@ -31,11 +31,11 @@ namespace MoreMountains
         public IBallOperationTarget CurrentSource => _source;
 
         /// <summary>当前鼠标悬停的目标。</summary>
-        public IBallOperationTarget CurrentHovered => _hovered;
+        public IItemOperationTarget CurrentHovered => _hovered;
 
         // 事件
         /// <summary>操作确认,回调传入悬停的目标(null=空白区域)。</summary>
-        public event Action<IBallOperationTarget> OperationConfirmed;
+        public event Action<IItemOperationTarget> OperationConfirmed;
 
         /// <summary>操作取消(右键或左键在空白)。</summary>
         public event Action OperationCancelled;
@@ -44,7 +44,7 @@ namespace MoreMountains
         public event Action<bool> SellZoneVisibilityChanged;
 
         IBallOperationTarget _source;
-        IBallOperationTarget _hovered;
+        IItemOperationTarget _hovered;
         bool _sourceConsumed;
 
         // ==================== Enter / Exit ====================
@@ -61,8 +61,8 @@ namespace MoreMountains
             _stateActiveFrame = Time.frameCount;
 
             source.BeginFollowMouse(iconSource);
-            BroadcastHighlightChanged(source, true);
             SellZoneVisibilityChanged?.Invoke(true);
+            BroadcastHighlightChanged(source, true);
             ActivateBlocker(true);
         }
 
@@ -157,11 +157,20 @@ namespace MoreMountains
                 prev?.SetHovered(false);
                 _hovered?.SetHovered(true);
             }
+            
+            if (hoveredTarget == null)
+            {
+                _hovered?.SetHovered(false);
+            }
+            else
+            {
+                hoveredTarget.SetHovered(true);
+            }
         }
 
         PointerEventData ptrData = new(UnityEngine.EventSystems.EventSystem.current);
 
-        IBallOperationTarget RaycastHovered()
+        IItemOperationTarget RaycastHovered()
         {
             ptrData.position = Input.mousePosition;
             using var _ = new ListScope<RaycastResult>(out var results);
@@ -175,10 +184,10 @@ namespace MoreMountains
                 if (_blockerGO != null && go == _blockerGO)
                     continue;
 
-                if (!go.CompareTag("BallOperationTarget")) 
+                if (!go.CompareTag("OperationTarget")) 
                     continue;
                 
-                if (!go.TryGetComponent<BallOperationTargetBridge>(out var bridge)) 
+                if (!go.TryGetComponent<ItemOperationTargetBridge>(out var bridge)) 
                     continue;
                 
                 if (bridge.Target != null/* && !ReferenceEquals(bridge.Target, _source)*/)
@@ -228,7 +237,7 @@ namespace MoreMountains
 
     // ==================== IBallOperationTarget ====================
 
-    public interface IBallOperationTarget
+    public interface IItemOperationTarget
     {
         void BeginFollowMouse(RectTransform iconSource);
         void UpdateFollowMouse(Vector2 screenMousePos);
@@ -236,7 +245,11 @@ namespace MoreMountains
         void SetHovered(bool isHovered);
         void SetHighlightVisible(bool visible);
         void SetEventBlocking(bool blocking);
-        void ExecuteOperation(IBallOperationTarget hoveredTarget);
+    }
+    
+    public interface IBallOperationTarget : IItemOperationTarget
+    {
+        void ExecuteOperation(IItemOperationTarget hoveredTarget);
     }
 
     // ==================== Bridge ====================
@@ -246,10 +259,8 @@ namespace MoreMountains
     /// 职责:①持有 Target 引用(供 RaycastHovered 查找) ②响应 highlight 广播。
     /// 不负责 Update/输入,那些集中在 BallOperationStateController 中。
     /// </summary>
-    public class BallOperationTargetBridge : MonoBehaviour
+    public class BallOperationTargetBridge : ItemOperationTargetBridge
     {
-        public IBallOperationTarget Target;
-
         void OnEnable()
         {
             BallOperationStateManager.BroadcastHighlightEvent += OnHighlightChanged;
@@ -259,8 +270,13 @@ namespace MoreMountains
         {
             BallOperationStateManager.BroadcastHighlightEvent -= OnHighlightChanged;
         }
+    }
 
-        void OnHighlightChanged(IBallOperationTarget source, bool visible)
+    public class ItemOperationTargetBridge : MonoBehaviour
+    {
+        public IItemOperationTarget Target;
+        
+        protected void OnHighlightChanged(IItemOperationTarget source, bool visible)
         {
             Target?.SetHighlightVisible(visible);
             if (visible && source == Target)

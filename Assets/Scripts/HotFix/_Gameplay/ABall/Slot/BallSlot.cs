@@ -9,24 +9,29 @@ namespace MoreMountains
     /// </summary>
     public sealed class BallSlot : IInventorySlot<BallItem>
     {
+        BallManagementSystem _owner;
         public int Index { get; }
         public BallItem Item { get; set; }
         public bool IsEmpty => Item == null;
         public bool IsOccupied => Item != null;
 
+        public bool ReadyToShoot { get; set; } = true;
+        public Ball BallInstance { get; set; }
+
         public event Action<IInventorySlot<BallItem>> OnSlotChanged;
 
-        public BallSlot(int index)
+        public BallSlot(BallManagementSystem owner, int index)
         {
+            _owner = owner;
             Index = index;
         }
-        
+
         public BallItem Set(BallItem item)
         {
             if (ReferenceEquals(Item, item))
                 return Item;
 
-            BallItem previous = Item;
+            var previous = Item;
             Item = item;
             OnSlotChanged?.Invoke(this);
             return previous;
@@ -66,6 +71,41 @@ namespace MoreMountains
                 BallEvents.RaiseUnequipped(old, Index);
 
             return old;
+        }
+
+        public bool TryShoot(out Ball ballInstance)
+        {
+            if (IsEmpty)
+            {
+                ballInstance = null;
+                return false;
+            }
+
+            ballInstance = _owner.Instance.acquireBall(Item.Type);
+            var valid = ballInstance != null;
+            if (valid)
+            {
+                ReadyToShoot = false;
+                BallInstance = ballInstance;
+                return true;
+            }
+
+            return false;
+        }
+
+        public bool TryReload(Ball ballInstance)
+        {
+            if (ballInstance == null)
+                return false;
+
+            if (IsEmpty)
+                return false;
+
+            _owner.Instance.releaseBall(ballInstance);
+
+            ReadyToShoot = true;
+            BallInstance = null;
+            return true;
         }
     }
 }

@@ -12,6 +12,7 @@ namespace MoreMountains
     /// </summary>
     public sealed class ShopBinder
     {
+        OperationPanelBinder _owner;
         ShopView _view;
         ShopController _ctrl;
         APlayer _player;
@@ -43,9 +44,6 @@ namespace MoreMountains
         public event Action RerollClicked;
         public event Action BuyExpClicked;
 
-        /// <summary>由 OperationPanelBinder 订阅,在操作状态中点击 sellZone 时触发。</summary>
-        public event Action SellZoneClicked;
-
         public ShopController Controller => _ctrl;
 
         public void Attach(APlayer player, ShopController ctrl)
@@ -57,9 +55,6 @@ namespace MoreMountains
 
             _view.BtnReroll.setUGUIButtonClick(OnRerollClicked);
             _view.BtnBuyExp.setUGUIButtonClick(OnBuyExpClicked);
-
-            // 设置 sellZone 点击回调
-            _view.SetupSellZoneClick(() => SellZoneClicked?.Invoke());
 
             ShopEvents.OnBoardOpened += _onBoardRefreshed;
             ShopEvents.OnBoardRerolled += _onBoardRefreshed;
@@ -98,6 +93,11 @@ namespace MoreMountains
             _player = null;
             _ctrl = null;
         }
+        
+        public void SetOwner(OperationPanelBinder owner)
+        {
+            _owner = owner;
+        }
 
         public void Rebuild()
         {
@@ -119,6 +119,7 @@ namespace MoreMountains
                     item.SetIcon(offer.Def.Icon);
                 item.SetHovered(false);
                 item.SetNewTag(offer.Enabled);
+                item.SetSold(offer.Sold);
                 item.Btn.setInteractable(offer.Enabled);
                 item.Btn.setUGUIButtonClick(() => OnOfferClicked(offer));
             });
@@ -134,6 +135,7 @@ namespace MoreMountains
                     item.SetIcon(offer.Def.Icon);
                 item.SetHovered(false);
                 item.SetNewTag(offer.Enabled);
+                item.SetSold(offer.Sold);
                 item.Btn.setInteractable(offer.Enabled);
                 item.Btn.setUGUIButtonClick(() => OnOfferClicked(offer));
             });
@@ -141,7 +143,9 @@ namespace MoreMountains
 
         void OnOfferClicked(IPurchasable offer)
         {
-            if (offer == null) return;
+            if (offer == null) 
+                return;
+
             OfferBuyClicked?.Invoke(offer);
         }
 
@@ -155,5 +159,15 @@ namespace MoreMountains
         }
 
         public IReadOnlyList<IPurchasable> OrderedOffers => _orderedOffers;
+
+        public void OnPlayerSellBall(BallItem item)
+        {
+            _owner.OnSellBallRequested(item);
+        }
+
+        public void OnPlayerSellRelic(RelicItem item)
+        {
+            _owner.OnSellRelicRequested(item);
+        }
     }
 }

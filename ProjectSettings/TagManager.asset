@@ -7,8 +7,9 @@ TagManager:
   - NoClick
   - Block
   - Ball
-  - BallOperationTarget
-  - RelicOperationTarget
+  - BorderBot
+  - BorderTop
+  - OperationTarget
   layers:
   - Default
   - TransparentFX
@@ -18,10 +19,10 @@ TagManager:
   - UI
   - Ball
   - Brick
-  - BorderLeft
-  - BorderRight
-  - BorderTop
-  - BorderBot
+  - BallInteractable
+  - 
+  - 
+  - 
   - Character
   - Ground
   - Obstacle

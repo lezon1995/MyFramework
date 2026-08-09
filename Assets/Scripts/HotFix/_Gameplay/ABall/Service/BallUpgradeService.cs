@@ -34,7 +34,7 @@ namespace MoreMountains
         /// materials：参与合成的材料球（不含 representative，N - 1 个）。
         /// 如果调用方不区分代表球与材料，可以把所有 N 个球全放 materials，由服务自动选出第一个作为代表。
         /// </summary>
-        public BallItem TryUpgrade(IReadOnlyList<BallItem> candidates, out BallUpgradeInvalidReason reason)
+        public BallItem TryUpgrade(List<BallItem> candidates, out BallUpgradeInvalidReason reason)
         {
             reason = BallUpgradeInvalidReason.None;
             if (candidates == null || candidates.Count == 0)
@@ -129,7 +129,7 @@ namespace MoreMountains
                 // ball 可能与 representative 在同一 holder 或不同 holder；先精确查询。
                 if (InventoryLocate.FindHolderOf(b, out var holder))
                 {
-                    holder.TryRemoveByInstance(b);
+                    holder.TryRemoveByItem(b);
                     BallEvents.RaiseDestroyed(b);
                 }
             }

@@ -2,7 +2,7 @@
 
 // auto generate classname start
 // generate from:Assets/GameResources/UI/UIPrefab/OperationPanel.prefab
-//
+// 
 public partial class ShopView : WindowObjectUGUI
 // auto generate classname end
 {
@@ -12,13 +12,14 @@ public partial class ShopView : WindowObjectUGUI
 	protected myUGUIObject shopItems;
 	protected myUGUIButton btnReroll;
 	protected myUGUIButton btnBuyExp;
-	protected myUGUIObject sellZone;
+	protected ShopSellZoneView shopSellZoneView;
 	protected WindowStructPool<BallPurchaseItem> BallPurchaseItemPool;
 	protected WindowStructPool<RelicPurchaseItem> RelicPurchaseItemPool;
 	// auto generate member end
 	public ShopView(IWindowObjectOwner parent) : base(parent)
 	{
 		// auto generate constructor start
+		shopSellZoneView = new(this);
 		BallPurchaseItemPool = new(this);
 		RelicPurchaseItemPool = new(this);
 		// auto generate constructor end
@@ -31,7 +32,7 @@ public partial class ShopView : WindowObjectUGUI
 		newObject(out shopItems, "ShopItems");
 		newObject(out btnReroll, "BtnReroll");
 		newObject(out btnBuyExp, "BtnBuyExp");
-		newObject(out sellZone, "SellZone");
+		shopSellZoneView.assignWindow(mRoot, "ShopSellZoneView");
 		BallPurchaseItemPool.assignTemplate(mRoot, "ShopItems/BallPurchaseItem");
 		RelicPurchaseItemPool.assignTemplate(mRoot, "ShopItems/RelicPurchaseItem");
 		// auto generate assignWindowInternal end
@@ -41,6 +42,8 @@ public partial class ShopView : WindowObjectUGUI
 		base.init();
 		// auto generate init start
 		// auto generate init end
+
+		shopSellZoneView.shopBinder = binder;
 	}
 	public override void onShow()
 	{

@@ -109,11 +109,18 @@ public partial class RelicInventoryItem : IRelicOperationTarget
     /// <summary>
     /// Relic 操作状态确认:只能 RelicInventoryItem 之间交换/移动。
     /// </summary>
-    public void ExecuteOperation(IRelicOperationTarget hoveredTarget)
+    public void ExecuteOperation(IItemOperationTarget hoveredTarget)
     {
         var source = RelicOperationStateManager.Instance.CurrentSource;
         if (source == null)
             return;
+        
+        if (hoveredTarget is ShopSellZoneView shopSellZoneView)
+        {
+            var relicItem = relicInventorySlot.Item;
+            shopSellZoneView.shopBinder.OnPlayerSellRelic(relicItem);
+            return;
+        }
 
         // source 来自 RelicInventoryItem → 交换位置
         if (source is RelicInventoryItem srcInv)

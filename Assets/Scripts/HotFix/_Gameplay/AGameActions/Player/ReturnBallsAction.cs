@@ -65,7 +65,7 @@ namespace MoreMountains
                 foreach (var ball in list)
                 {
                     ball.setWorldPosition(targetPosition);
-                    player.BallManagement.Instance.enqueueBallToShootQueue(ball);
+                    player.BallManagement.Instance.releaseBall(ball);
                 }
 
                 player.setOriginalShootPositionX(targetPosition.x);

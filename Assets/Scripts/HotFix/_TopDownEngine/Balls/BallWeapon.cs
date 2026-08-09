@@ -16,7 +16,7 @@ namespace MoreMountains
 
         public override void ShootRequest()
         {
-            if (_player.BallManagement.Instance.hasAnyBallInShootQueue())
+            if (_player.BallManagement.Slots.HasAnySlotReadyToShoot())
             {
                 State.ChangeState(States.Use);
             }
@@ -28,8 +28,10 @@ namespace MoreMountains
 
         public override GameObject SpawnProjectile(Vector3 spawnPosition, int projectileIndex, int totalProjectiles, bool triggerObjectActivation = true)
         {
-            var success = _player.BallManagement.Instance.dequeueBallFromShootQueue(spawnPosition, out var ball);
-            success &= ball != null;
+            Ball ball = null;
+            var success = _player.BallManagement.Slots.TryGetFirstReadyToShootSlot(out var slot);
+            if (success)
+                success &= slot.TryShoot(out ball);
 
             // mandatory checks
             if (!success)

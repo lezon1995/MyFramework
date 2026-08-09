@@ -369,7 +369,7 @@ MonoBehaviour:
   IsPenetrable: 0
   BounceLayers:
     serializedVersion: 2
-    m_Bits: 16512
+    m_Bits: 49280
   PenetrableLayers:
     serializedVersion: 2
     m_Bits: 128
@@ -377,13 +377,13 @@ MonoBehaviour:
   AmountOfBounces: {x: 10, y: 10}
   instanceID: 0
   guid: 0
+  Def: {fileID: 0}
   isTemp: 0
   horizontalBorderTeleportable: 0
   usePhysics: 1
   ballRenderer: {fileID: 7955953674840904570}
   targetPos: {x: 0, y: 0, z: 0}
   isOverlappingBrick: 0
-  character: {fileID: 0}
   _circleCollider: {fileID: 5298713422270032604}
   RepositionRigidbodyIfHitTrigger: 1
   RepositionRigidbodyIfHitNonTrigger: 1
@@ -410,6 +410,7 @@ MonoBehaviour:
     Type: 0
     ActualType: 0
     Algo: 0
+    MetaType: 0
     IsCrit: 0
     CritRate: 0
     DmgRate:

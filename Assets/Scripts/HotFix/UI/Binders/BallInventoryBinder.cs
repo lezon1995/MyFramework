@@ -117,23 +117,6 @@ namespace MoreMountains
             OnBallClicked(ball);
         }
 
-        /// <summary>由 BallInventoryItem.onDragReleased 转发。
-        /// 无 ball 参数,从 Bag 的 SlotList 中按 slotIndex 实时读取。</summary>
-        public void OnBallDragReleased(BallInventoryItem src, int slotIndex, UIDragReleaseEventData data)
-        {
-            if (_bag == null)
-                return;
-
-            if (slotIndex < 0 || slotIndex >= _bag.SlotList.Count)
-                return;
-
-            var ball = _bag.SlotList[slotIndex].Item;
-            if (ball == null)
-                return;
-
-            _owner?.OnBallInventoryDragReleased(src, ball, data);
-        }
-
         /// <summary>
         /// 根据 BallInventoryItem 查找对应的 slotIndex。
         /// 用于操作状态中点击 BallInventoryItem 时确定目标背包格子。
@@ -141,7 +124,8 @@ namespace MoreMountains
         public void GetSlotIndexForItem(BallInventoryItem item, out int slotIndex)
         {
             slotIndex = -1;
-            if (_bag == null || item == null) return;
+            if (_bag == null || item == null) 
+                return;
 
             int i = 0;
             foreach (var slot in _bag.SlotList)

@@ -31,12 +31,14 @@ namespace MoreMountains
         public int FreeSlotCount => Capacity - OccupiedCount;
 
         public event Action OnSlotsChanged;
-
-        public BallSlotGroup(int initialCapacity)
+        BallManagementSystem _owner;
+        
+        public BallSlotGroup(BallManagementSystem owner, int initialCapacity)
         {
+            _owner = owner;
             _slots = new(initialCapacity);
             for (int i = 0; i < initialCapacity; i++)
-                _slots.Add(new(i));
+                _slots.Add(new(_owner, i));
         }
 
         public BallSlot GetSlot(int index)
@@ -163,14 +165,14 @@ namespace MoreMountains
 
             int baseCount = _slots.Count;
             for (int i = 0; i < delta; i++)
-                _slots.Add(new(baseCount + i));
+                _slots.Add(new(_owner, baseCount + i));
 
             OnSlotsChanged?.Invoke();
         }
 
         // -------- IInventoryHolder --------
 
-        public bool TryRemoveByInstance(BallItem item)
+        public bool TryRemoveByItem(BallItem item)
         {
             for (int i = 0; i < _slots.Count; i++)
             {
@@ -202,6 +204,49 @@ namespace MoreMountains
             }
 
             index = -1;
+            return false;
+        }
+
+        public bool HasAnySlotReadyToShoot()
+        {
+            foreach (var slot in _slots)
+            {
+                if (slot.ReadyToShoot)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public bool TryGetFirstReadyToShootSlot(out BallSlot result)
+        {
+            foreach (var slot in _slots)
+            {
+                if (slot.ReadyToShoot)
+                {
+                    result = slot;
+                    return true;
+                }
+            }
+
+            result = null;
+            return false;
+        }
+
+        public bool TryGetAlreadyShootSlotByBallInstance(Ball ballInstance, out BallSlot result)
+        {
+            foreach (var slot in _slots)
+            {
+                if (!slot.ReadyToShoot && slot.BallInstance == ballInstance)
+                {
+                    result = slot;
+                    return true;
+                }
+            }
+
+            result = null;
             return false;
         }
     }

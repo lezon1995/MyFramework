@@ -16,6 +16,7 @@ public partial class BallPurchaseItem : WindowRecyclableUGUI
 	protected myUGUIObject rarityBot;
 	protected myUGUITextTMP itemName;
 	protected myUGUITextTMP itemPrice;
+	protected myUGUIObject itemSold;
 	// auto generate member end
 	public BallPurchaseItem(IWindowObjectOwner parent) : base(parent)
 	{
@@ -34,12 +35,14 @@ public partial class BallPurchaseItem : WindowRecyclableUGUI
 		newObject(out rarityBot, "Btn/RarityBot");
 		newObject(out itemName, "Btn/Name/TextName");
 		newObject(out itemPrice, "Btn/Price/TextPrice");
+		newObject(out itemSold, "Btn/Sold");
 		// auto generate assignWindowInternal end
 	}
 	public override void init()
 	{
 		base.init();
 		// auto generate init start
+		newTag.registeCollider(onnewTagClick);
 		// auto generate init end
 	}
 	public override void onShow()
@@ -47,4 +50,8 @@ public partial class BallPurchaseItem : WindowRecyclableUGUI
 		base.onShow();
 	}
 	//--------------------------------------------------------------------------------------------------------------------------------------------
+	protected void onnewTagClick()
+	{
+		;
+	}
 }

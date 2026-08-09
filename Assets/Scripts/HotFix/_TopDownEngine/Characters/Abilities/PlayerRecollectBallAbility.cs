@@ -38,7 +38,7 @@ namespace MoreMountains
         {
             if (!BallLayerMask.MMContains(other.gameObject.layer))
                 return;
-            
+
             if (!other.TryGetComponent(out Ball ball))
                 return;
 
@@ -62,10 +62,10 @@ namespace MoreMountains
         {
             if (!BallLayerMask.MMContains(other.gameObject.layer))
                 return;
-            
+
             if (!other.TryGetComponent(out Ball ball))
                 return;
-            
+
             if (!ball.Player.equalWith(_player))
                 return;
 
@@ -95,6 +95,7 @@ namespace MoreMountains
             public float _fallDuration; // 实际坠落时间（秒）
             public float _fallElapsed;
             public float _fallProgress;
+            public bool _immediately;
 
             public override void resetProperty()
             {
@@ -109,13 +110,14 @@ namespace MoreMountains
                 _fallDuration = 0;
                 _fallElapsed = 0;
                 _fallProgress = 0;
+                _immediately = false;
             }
         }
 
         /// <summary>
         /// 进入引力范围的瞬间：计算入射角 → 查表得到坠落时间 → 锁定所有轨迹参数。
         /// </summary>
-        public void RecollectBall(Ball ball, float collectDuration = 0F)
+        public void RecollectBall(Ball ball, float collectDuration = 0F, bool immediately = false)
         {
             if (ball.IsRecollecting)
                 return;
@@ -148,10 +150,11 @@ namespace MoreMountains
 
             // 坠落时间：angle=0 → minDuration，angle=90 → maxDuration
             float t = angleDeg / 90f;
-            
+
             if (collectDuration.isZero())
                 collectDuration = Mathf.Lerp(minCollectDuration, maxCollectDuration, t);
 
+            data._immediately = immediately;
             data._fallDuration = collectDuration;
 
             // 切向单位向量：在 XY 平面内与 entry 半径方向垂直
@@ -195,9 +198,8 @@ namespace MoreMountains
             data._velocity = (nextPos - data.ball.getWorldPosition()) / dt;
 
             // 坠毁检测：抵达行星中心附近
-            if (t >= 1f || (data._planetPos - data.ball.getWorldPosition()).magnitude <= 0.01F)
+            if (t >= 1f || (data._planetPos - data.ball.getWorldPosition()).magnitude <= 0.01F || data._immediately)
             {
-                data.ball.setWorldPosition(data._planetPos);
                 OnCrash(data.ball);
                 return true;
             }
@@ -208,12 +210,18 @@ namespace MoreMountains
         /// <summary>坠毁回调，可被子类重写。</summary>
         protected virtual void OnCrash(Ball ball)
         {
-            _player.BallManagement.Instance.enqueueBallToShootQueue(ball);
+            ball.setWorldPosition(_player.getWorldPosition());
+
+            if (_player.BallManagement.Slots.TryGetAlreadyShootSlotByBallInstance(ball, out var slot))
+            {
+                slot.TryReload(ball);
+            }
+
             foreach (var h in _handleWeaponList)
             {
                 h.CurrentWeapon.CurrentAmmoLoaded++;
             }
-            
+
             if (_testWeapon)
             {
                 _testWeapon.CurrentAmmoLoaded++;

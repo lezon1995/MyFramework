@@ -57,7 +57,7 @@ namespace MoreMountains
         {
             base.Initialization();
             int cnt = Mathf.Max(1, slotCount);
-            _slots   = new(cnt);
+            _slots   = new(this, cnt);
             _instance = new(this);
             _upgrade = new(this);
             _merge   = new(this);
@@ -114,12 +114,6 @@ namespace MoreMountains
                 return false;
 
             var success = _slots.TryPlaceFirstEmpty(item, out _);
-            if (success)
-            {
-                var ball = _instance.acquireBall(item.Type);
-                _instance.enqueueBallToShootQueue(ball);
-            }
-
             return success;
         }
         
@@ -132,12 +126,6 @@ namespace MoreMountains
             // 从背包里拿出（如果还在）
             _player?.Inventory?.BallBag?.Remove(item);
             var success = _slots.TryPlaceFirstEmpty(item, out _);
-            if (success)
-            {
-                var ball = _instance.acquireBall(item.Type);
-                _instance.enqueueBallToShootQueue(ball);
-            }
-            
             return success;
         }
 
@@ -149,12 +137,6 @@ namespace MoreMountains
 
             _player.Inventory.BallBag.Remove(item);
             var success = _slots.TryPlaceAt(slotIndex, item);
-            if (success)
-            {
-                var ball = _instance.acquireBall(item.Type);
-                _instance.enqueueBallToShootQueue(ball);
-            }
-
             return success;
         }
 
