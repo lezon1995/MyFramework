@@ -319,7 +319,7 @@ namespace MoreMountains
                             var item = list[i];
                             if (!item.IsEnabled())
                                 continue;
-                            
+
                             if (results.Contains(item))
                                 continue;
 
@@ -363,66 +363,95 @@ namespace MoreMountains
     /// </summary>
     public class VolumeManager : MMSingleton<VolumeManager>
     {
-        [Header("系统设置")] [Tooltip("是否启用体积碰撞系统")]
+        [Header("系统设置")]
+        [Tooltip("是否启用体积碰撞系统")]
         public bool Enabled = true;
 
-        [Tooltip("每帧最大碰撞检测次数（防止性能问题）")] public int MaxCollisionChecksPerFrame = 1000;
+        [Tooltip("每帧最大碰撞检测次数（防止性能问题）")]
+        public int MaxCollisionChecksPerFrame = 1000;
 
-        [Tooltip("系统更新频率（秒），设为0表示每帧更新")] public float UpdateInterval;
+        [Tooltip("系统更新频率（秒），设为0表示每帧更新")]
+        public float UpdateInterval;
 
-        [Header("空间分区设置")] [Tooltip("空间分区网格大小（建议设置为最大碰撞半径的2-4倍）")]
+        [Header("空间分区设置")]
+        [Tooltip("空间分区网格大小（建议设置为最大碰撞半径的2-4倍）")]
         public float SpatialHashCellSize = 2f;
 
         [Tooltip("是否启用空间分区优化（关闭则使用O(N²)暴力检测）")]
         public bool EnableSpatialHash = true;
 
-        [Header("碰撞参数")] [Tooltip("基础分离力")] public float BaseSeparationForce = 10f;
+        [Header("碰撞参数")]
+        [Tooltip("基础分离力")]
+        public float BaseSeparationForce = 10f;
 
-        [Tooltip("质量差影响系数")] [Range(0f, 2f)] public float MassDifferenceInfluence = 0.5f;
+        [Tooltip("质量差影响系数")]
+        [Range(0f, 2f)]
+        public float MassDifferenceInfluence = 0.5f;
 
-        [Tooltip("速度差影响系数")] [Range(0f, 2f)] public float VelocityDifferenceInfluence = 0.3f;
+        [Tooltip("速度差影响系数")]
+        [Range(0f, 2f)]
+        public float VelocityDifferenceInfluence = 0.3f;
 
-        [Header("链式击退参数")] [Tooltip("链式击退开关")] public bool EnableChainKnockback = true;
+        [Header("链式击退参数")]
+        [Tooltip("链式击退开关")]
+        public bool EnableChainKnockback = true;
 
-        [Tooltip("链式击退最大传播层级")] [Range(1, 10)] public int MaxChainLevel = 5;
+        [Tooltip("链式击退最大传播层级")]
+        [Range(1, 10)]
+        public int MaxChainLevel = 5;
 
-        [Tooltip("每级链式击退的衰减比率（0-1）")] [Range(0f, 1f)]
+        [Tooltip("每级链式击退的衰减比率（0-1）")]
+        [Range(0f, 1f)]
         public float ChainDecayRatio = 0.6f;
 
-        [Tooltip("链式击退检测半径乘数")] [Range(1f, 3f)]
+        [Tooltip("链式击退检测半径乘数")]
+        [Range(1f, 3f)]
         public float ChainKnockbackRadiusMultiplier = 1.5f;
 
-        [Tooltip("触发链式击退的最小击退力")] public float MinChainKnockbackForce = 2f;
+        [Tooltip("触发链式击退的最小击退力")]
+        public float MinChainKnockbackForce = 2f;
 
-        [Header("软排斥参数（防止抖动）")] [Tooltip("启用软排斥：当两实体距离小于此距离乘数时，产生柔和的排斥力，避免贴在一起")]
+        [Header("软排斥参数（防止抖动）")]
+        [Tooltip("启用软排斥：当两实体距离小于此距离乘数时，产生柔和的排斥力，避免贴在一起")]
         public bool EnableSoftRepulsion = true;
 
-        [Tooltip("软排斥作用距离（乘以两实体半径和），大于此距离无排斥力")] [Range(1f, 3f)]
+        [Tooltip("软排斥作用距离（乘以两实体半径和），大于此距离无排斥力")]
+        [Range(1f, 3f)]
         public float SoftRepulsionDistanceRatio = 1.5f;
 
-        [Tooltip("软排斥力强度")] [Range(0f, 20f)] public float SoftRepulsionStrength = 5f;
+        [Tooltip("软排斥力强度")]
+        [Range(0f, 20f)]
+        public float SoftRepulsionStrength = 5f;
 
         [Tooltip("软排斥力作用于速度还是位置（true=位置瞬移，false=力影响速度）")]
         public bool SoftRepulsionAffectsPosition = false;
 
-        [Header("调试")] [Tooltip("显示所有实体的碰撞范围")]
+        [Header("调试")]
+        [Tooltip("显示所有实体的碰撞范围")]
         public bool ShowAllGizmos;
 
-        [Tooltip("显示碰撞连线")] public bool ShowCollisionLines;
+        [Tooltip("显示碰撞连线")]
+        public bool ShowCollisionLines;
 
-        [Tooltip("显示击退方向")] public bool ShowKnockbackDirections;
+        [Tooltip("显示击退方向")]
+        public bool ShowKnockbackDirections;
 
-        [Tooltip("显示软排斥力")] public bool ShowSoftRepulsion;
+        [Tooltip("显示软排斥力")]
+        public bool ShowSoftRepulsion;
 
-        [Tooltip("显示空间分区网格")] public bool ShowSpatialHashGrid = true;
+        [Tooltip("显示空间分区网格")]
+        public bool ShowSpatialHashGrid = true;
 
-        [Tooltip("空间分区网格透明度")] [Range(0.1f, 1f)]
+        [Tooltip("空间分区网格透明度")]
+        [Range(0.1f, 1f)]
         public float SpatialHashGridAlpha = 0.3f;
 
-        [Header("固体碰撞体（边界/障碍物）")] [Tooltip("启用固体碰撞体碰撞检测")]
+        [Header("固体碰撞体（边界/障碍物）")]
+        [Tooltip("启用固体碰撞体碰撞检测")]
         public bool EnableSolidColliders = true;
 
-        [Tooltip("是否自动检测场景中的 VolumeCollider")] public bool AutoDetectVolumeColliders = true;
+        [Tooltip("是否自动检测场景中的 VolumeCollider")]
+        public bool AutoDetectVolumeColliders = true;
 
         // 空间分区
         VolumeSpatialHash _spatialHash;
@@ -970,7 +999,7 @@ namespace MoreMountains
         protected virtual void CalculateSeparation(TopDownController2D a, TopDownController2D b, VolumeCollisionResult result, float dt)
         {
             float totalMass = a.CollisionMass + b.CollisionMass;
-            if (totalMass <= 0) 
+            if (totalMass <= 0)
                 return;
 
             float ratioA = b.CollisionMass / totalMass;
@@ -995,19 +1024,19 @@ namespace MoreMountains
         protected virtual void CalculateSqueeze(TopDownController2D a, TopDownController2D b, VolumeCollisionResult result, float dt)
         {
             float overlap = result.Overlap;
-            if (overlap < 0.01f) 
+            if (overlap < 0.01f)
                 return;
 
             // 挤压作用在"总速度"上（包括意图和击退），因为挤压需要反映真实的相对运动
             Vector2 relativeVel = a.TotalVelocity - b.TotalVelocity;
             float relativeSpeed = relativeVel.magnitude;
 
-            if (relativeSpeed < 0.01f) 
+            if (relativeSpeed < 0.01f)
                 return;
 
             float velAlongCollision = Vector2.Dot(relativeVel, result.Direction);
 
-            if (velAlongCollision <= 0) 
+            if (velAlongCollision <= 0)
                 return;
 
             float totalMass = a.CollisionMass + b.CollisionMass;
@@ -1089,7 +1118,7 @@ namespace MoreMountains
                 int currentLevel = entityLevels[current];
 
                 // 超过最大层级，不再传播
-                if (currentLevel >= MaxChainLevel) 
+                if (currentLevel >= MaxChainLevel)
                     continue;
 
                 // 当前层级的检测范围（考虑层级衰减）

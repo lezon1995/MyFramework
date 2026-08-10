@@ -17,7 +17,7 @@ MonoBehaviour:
   waves:
   - waveNumber: 1
     waveName: Wave 1
-    duration: 10
+    duration: 120
     clearStrategy: 0
     availableMonsters:
     - monsterId: Test1
@@ -72,8 +72,8 @@ MonoBehaviour:
       spawnWeight: 1
       baseSpawnInterval: 3
       forceSpawnOnce: 0
-    maxActiveMonsters: 35
-    minActiveMonsters: 8
+    maxActiveMonsters: 40
+    minActiveMonsters: 20
     defeatAllMaxTotalSpawn: 0
     healthScaling: 1
     damageScaling: 1
@@ -95,7 +95,7 @@ MonoBehaviour:
     edgeBiasProbability: 0.5
     edgeBiasPercent: 0.7
     edgeBiasPercentAmplitude: 0.15
-    enableShapeSpawning: 0
+    enableShapeSpawning: 1
     shapeSpawnWeight: 30
     shapeSpawnMaxRetries: 20
     spawnMonstersOnShape: 1
