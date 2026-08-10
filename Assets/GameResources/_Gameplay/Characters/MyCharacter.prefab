@@ -180,9 +180,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: HotFix::MoreMountains.PlayerController
   Character: {fileID: 0}
+  Volume:
+    Shape: 1
+    Offset: {x: 0, y: 0}
+    Radius: 0.5
+    Size: {x: 0.6, y: 0.6}
   Radius: 0.35
   Mass: 1
-  MaxOverlapRatio: 0.3
+  MaxOverlapRatio: 0
   PushForceWeight: 1
   SpeedMultiplier: 1
   KnockbackResistance: 0

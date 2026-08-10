@@ -923,7 +923,7 @@ namespace MoreMountains
         /// </summary>
         protected virtual void CalculateSoftRepulsion(TopDownController2D a, TopDownController2D b, VolumeCollisionResult result, float dt)
         {
-            float repulsionRadius = (a.Radius + b.Radius) * SoftRepulsionDistanceRatio;
+            float repulsionRadius = (a.Volume.BoundingRadius + b.Volume.BoundingRadius) * SoftRepulsionDistanceRatio;
 
             // 超出软排斥范围，无作用
             if (result.CenterDistance >= repulsionRadius)
@@ -970,7 +970,8 @@ namespace MoreMountains
         protected virtual void CalculateSeparation(TopDownController2D a, TopDownController2D b, VolumeCollisionResult result, float dt)
         {
             float totalMass = a.CollisionMass + b.CollisionMass;
-            if (totalMass <= 0) return;
+            if (totalMass <= 0) 
+                return;
 
             float ratioA = b.CollisionMass / totalMass;
             float ratioB = a.CollisionMass / totalMass;
@@ -994,17 +995,20 @@ namespace MoreMountains
         protected virtual void CalculateSqueeze(TopDownController2D a, TopDownController2D b, VolumeCollisionResult result, float dt)
         {
             float overlap = result.Overlap;
-            if (overlap < 0.01f) return;
+            if (overlap < 0.01f) 
+                return;
 
             // 挤压作用在"总速度"上（包括意图和击退），因为挤压需要反映真实的相对运动
             Vector2 relativeVel = a.TotalVelocity - b.TotalVelocity;
             float relativeSpeed = relativeVel.magnitude;
 
-            if (relativeSpeed < 0.01f) return;
+            if (relativeSpeed < 0.01f) 
+                return;
 
             float velAlongCollision = Vector2.Dot(relativeVel, result.Direction);
 
-            if (velAlongCollision <= 0) return;
+            if (velAlongCollision <= 0) 
+                return;
 
             float totalMass = a.CollisionMass + b.CollisionMass;
             float massRatioA = a.CollisionMass / totalMass;
@@ -1090,7 +1094,7 @@ namespace MoreMountains
 
                 // 当前层级的检测范围（考虑层级衰减）
                 float levelFactor = 1f - (currentLevel * 0.1f);
-                float checkRadius = current.Radius * ChainKnockbackRadiusMultiplier * 2f * levelFactor;
+                float checkRadius = current.Volume.BoundingRadius * ChainKnockbackRadiusMultiplier * 2f * levelFactor;
 
                 // 获取当前位置周围的实体
                 List<TopDownController2D> neighbors;
@@ -1157,7 +1161,7 @@ namespace MoreMountains
                 if (entity == null)
                     continue;
 
-                float distSq = (entity.Position - position).sqrMagnitude;
+                float distSq = (entity.VolumeCenter - position).sqrMagnitude;
                 if (distSq <= radiusSq)
                 {
                     _potentialColliders.Add(entity);
@@ -1222,12 +1226,50 @@ namespace MoreMountains
                     if (entity == null)
                         continue;
 
-                    float distSq = (entity.Position - position).sqrMagnitude;
+                    float distSq = (entity.VolumeCenter - position).sqrMagnitude;
                     if (distSq <= radiusSq)
                     {
                         result.Add(entity);
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        /// 通用形状查询：在指定形状范围内的所有实体。形状参数支持圆形与不旋转的矩形。
+        /// </summary>
+        public void GetEntitiesInShape(VolumeShape shape, Vector2 center, ref List<TopDownController2D> result)
+        {
+            result.Clear();
+            if (shape == null)
+                return;
+
+            float boundingRadius = shape.BoundingRadius;
+            if (EnableSpatialHash && _spatialHash != null)
+            {
+                _spatialHash.GetEntitiesInCircle(center, boundingRadius, result);
+            }
+            else
+            {
+                float radiusSq = boundingRadius * boundingRadius;
+                foreach (var entity in _registeredEntities)
+                {
+                    if (entity == null)
+                        continue;
+
+                    float distSq = (entity.VolumeCenter - center).sqrMagnitude;
+                    if (distSq <= radiusSq)
+                    {
+                        result.Add(entity);
+                    }
+                }
+            }
+
+            // 粗筛后再用精确形状裁剪
+            for (int i = result.Count - 1; i >= 0; i--)
+            {
+                if (!VolumeUtils.ContainsShape(shape, center, result[i].VolumeCenter, result[i].Volume))
+                    result.RemoveAt(i);
             }
         }
 
@@ -1288,7 +1330,11 @@ namespace MoreMountains
                         if (entity == null)
                             continue;
 
-                        Gizmos.DrawWireSphere(entity.Position, entity.Radius);
+                        Vector2 center = entity.VolumeCenter;
+                        if (entity.Volume.Shape == VolumeShapeType.Rectangle)
+                            Gizmos.DrawWireCube(center, entity.Volume.Size);
+                        else
+                            Gizmos.DrawWireSphere(center, entity.Volume.Radius);
                     }
                 }
 

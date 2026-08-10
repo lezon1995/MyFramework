@@ -30,8 +30,12 @@ namespace MoreMountains
             if (body == null)
             {
                 body = brick.gameObject.AddComponent<TopDownController2D>();
-                // 根据Brick的size设置默认半径
-                body.Radius = Mathf.Min(brick.size.x, brick.size.y) * 0.5f;
+                // 根据Brick的size设置默认体积
+                body.Volume = new VolumeShape
+                {
+                    Shape = VolumeShapeType.Circle,
+                    Radius = Mathf.Min(brick.size.x, brick.size.y) * 0.5f
+                };
             }
             return body;
         }
@@ -65,7 +69,7 @@ namespace MoreMountains
                 return results;
 
             using var _ = new ListScope<TopDownController2D>(out var entities);
-            VolumeManager.Instance.GetEntitiesInRadius(body.Position, body.Radius * 3f, ref entities);
+            VolumeManager.Instance.GetEntitiesInRadius(body.VolumeCenter, body.Volume.BoundingRadius * 3f, ref entities);
             foreach (var entity in entities)
             {
                 if (entity == body) 

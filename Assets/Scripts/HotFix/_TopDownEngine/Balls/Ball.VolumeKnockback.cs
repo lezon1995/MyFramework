@@ -139,7 +139,7 @@ namespace MoreMountains
             if (ball == null || entity == null) return false;
 
             float dist = Vector2.Distance(ball.curPos, entity.Position);
-            return dist <= ball.Radius + entity.Radius + extraRadius;
+            return dist <= ball.Radius + (entity.Volume?.BoundingRadius ?? 0f) + extraRadius;
         }
 
         /// <summary>

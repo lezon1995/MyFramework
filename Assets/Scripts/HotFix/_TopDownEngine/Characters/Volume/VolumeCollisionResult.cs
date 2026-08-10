@@ -10,25 +10,27 @@ namespace MoreMountains
         public TopDownController2D Other;// 碰撞检测到的其他实体
         public Vector2 Direction;// 从本实体指向对方的归一化方向
         public float Distance;// 两实体之间的距离
-        public float CenterDistance;// 两实体圆心之间的距离（未减去半径）
-        public float CombinedRadius;// 两实体的半径和
+        public float CenterDistance;// 两实体中心之间的距离（未减去半径）
+        public float CombinedRadius;// 两实体的包围圆半径和
         public float Overlap;// 重叠量（正值表示重叠，负值表示有空隙）
         public float MaxAllowedOverlap;// 重叠方向上的最大可允许重叠量
         public float RequiredSeparation;// 实际需要修正的重叠量
-        public float OtherEffectiveRadius;// 对方实体的有效半径
+        public float OtherEffectiveRadius;// 对方实体的有效包围半径
         public bool IsColliding => Overlap > 0;// 是否发生碰撞
         public bool IsExceedingMaxOverlap => RequiredSeparation > 0;// 是否超出最大允许重叠
 
         public VolumeCollisionResult(TopDownController2D self, TopDownController2D other)
         {
             Other = other;
-            CenterDistance = Vector2.Distance(self.Position, other.Position);
-            CombinedRadius = self.Radius + other.Radius;
+            Vector2 centerA = self.VolumeCenter;
+            Vector2 centerB = other.VolumeCenter;
+            CenterDistance = Vector2.Distance(centerA, centerB);
+            CombinedRadius = self.Volume.BoundingRadius + other.Volume.BoundingRadius;
             Overlap = CombinedRadius - CenterDistance;
 
             if (Overlap > 0)
             {
-                Direction = (other.Position - self.Position).normalized;
+                Direction = (centerB - centerA).normalized;
                 Distance = CenterDistance;
             }
             else
@@ -37,7 +39,7 @@ namespace MoreMountains
                 Distance = CenterDistance;
             }
 
-            OtherEffectiveRadius = other.Radius * (1f - other.MaxOverlapRatio);
+            OtherEffectiveRadius = other.Volume.BoundingRadius * (1f - other.MaxOverlapRatio);
             MaxAllowedOverlap = self.MaxOverlapDistance + other.MaxOverlapDistance;
             RequiredSeparation = Mathf.Max(0, Overlap - MaxAllowedOverlap);
         }

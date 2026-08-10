@@ -92,7 +92,7 @@ namespace MoreMountains
             go.GetComponent<Renderer>().material.color = Color.blue;
 
             _playerBody = go.AddComponent<TopDownController2D>();
-            _playerBody.Radius = PlayerRadius;
+            _playerBody.Volume = new VolumeShape { Shape = VolumeShapeType.Circle, Radius = PlayerRadius };
             _playerBody.Mass = PlayerMass;
             _playerBody.MaxOverlapRatio = 0.2f;
             _playerBody.SpeedMultiplier = 1f;
@@ -125,7 +125,7 @@ namespace MoreMountains
             go.GetComponent<Renderer>().material.color = randomColor;
 
             var body = go.AddComponent<TopDownController2D>();
-            body.Radius = radius;
+            body.Volume = new VolumeShape { Shape = VolumeShapeType.Circle, Radius = radius };
             body.Mass = Random.Range(0.5f, 3f);
             body.MaxOverlapRatio = Random.Range(0.1f, 0.4f);
             body.SpeedMultiplier = Random.Range(0.5f, 1.5f);

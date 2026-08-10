@@ -148,7 +148,7 @@ namespace MoreMountains
             renderer.material.color = PlayerColor;
 
             _player = go.AddComponent<TopDownController2D>();
-            _player.Radius = PlayerRadius;
+            _player.Volume = new VolumeShape { Shape = VolumeShapeType.Circle, Radius = PlayerRadius };
             _player.Mass = PlayerMass;
             _player.MaxOverlapRatio = PlayerMaxOverlapRatio;
             _player.GizmosColor = PlayerColor;
@@ -182,7 +182,7 @@ namespace MoreMountains
             go.GetComponent<Renderer>().material.color = color;
 
             var body = go.AddComponent<TopDownController2D>();
-            body.Radius = radius;
+            body.Volume = new VolumeShape { Shape = VolumeShapeType.Circle, Radius = radius };
             body.Mass = Random.Range(MonsterMassRange.x, MonsterMassRange.y);
             body.MaxOverlapRatio = Random.Range(0.1f, 0.3f);
             body.GizmosColor = color;

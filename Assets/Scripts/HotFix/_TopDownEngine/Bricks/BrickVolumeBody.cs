@@ -14,6 +14,15 @@ namespace MoreMountains
         [Tooltip("碰撞半径（为空则根据Brick的size自动计算）")]
         public float? OverrideRadius;
 
+        [Tooltip("覆盖中心偏移（为空则使用 (0,0)）")]
+        public Vector2? OverrideOffset;
+
+        [Tooltip("强制使用矩形形状（默认圆形）")]
+        public bool UseRectangle;
+
+        [Tooltip("覆盖矩形尺寸（留空则按 Brick 的 size 计算）")]
+        public Vector2? OverrideSize;
+
         [Tooltip("质量（越大越难被推开）")]
         [Range(0.1f, 10f)]
         public float Mass = 1f;
@@ -119,8 +128,22 @@ namespace MoreMountains
             }
 
             // 设置参数
-            float radius = OverrideRadius ?? CalculateRadius();
-            _body.Radius = radius;
+            if (_body.Volume == null)
+                _body.Volume = new VolumeShape();
+
+            _body.Volume.Shape = UseRectangle ? VolumeShapeType.Rectangle : VolumeShapeType.Circle;
+            _body.Volume.Offset = OverrideOffset ?? Vector2.zero;
+
+            if (UseRectangle)
+            {
+                Vector2 size = OverrideSize ?? (_brick != null ? _brick.size : Vector2.one);
+                _body.Volume.Size = new Vector2(Mathf.Max(0.01f, size.x), Mathf.Max(0.01f, size.y));
+            }
+            else
+            {
+                float radius = OverrideRadius ?? CalculateRadius();
+                _body.Volume.Radius = radius;
+            }
             _body.Mass = Mass;
             _body.MaxOverlapRatio = MaxOverlapRatio;
             _body.PushForceWeight = PushForceWeight;
@@ -217,16 +240,26 @@ namespace MoreMountains
 
         protected virtual void OnDrawGizmosSelected()
         {
-            if (!ShowGizmos || _body == null) 
+            if (!ShowGizmos || _body == null)
                 return;
 
+            Vector2 center = _body.VolumeCenter;
+            Vector2 size = _body.Volume != null ? _body.Volume.GetWorldSize() : Vector2.one;
+
             Gizmos.color = GizmosColor;
-            Gizmos.DrawWireSphere(transform.position, _body.Radius);
+            if (_body.Volume != null && _body.Volume.Shape == VolumeShapeType.Rectangle)
+                Gizmos.DrawWireCube(center, size);
+            else
+                Gizmos.DrawWireSphere(center, _body.Volume?.Radius ?? 0.5f);
 
             // 绘制有效半径
             Color effectiveColor = new Color(1, 0, 0, 0.3f);
             Gizmos.color = effectiveColor;
-            Gizmos.DrawWireSphere(transform.position, _body.EffectiveRadius);
+            float effective = _body.EffectiveRadius;
+            if (_body.Volume != null && _body.Volume.Shape == VolumeShapeType.Rectangle)
+                Gizmos.DrawWireCube(center, size * (1f - _body.MaxOverlapRatio));
+            else
+                Gizmos.DrawWireSphere(center, effective);
         }
     }
 }

@@ -25,15 +25,14 @@ namespace MoreMountains
             // 获取实体中心到碰撞体表面的距离
             // 如果实体中心在碰撞体内部，distance 为负数或 0
             // 如果实体中心在碰撞体外部，distance 为正数
-            collider.TryGetDistanceAndNormal(entity.Position, entity.Radius, out float distance, out Vector2 normal);
+            // 使用包围圆半径作为穿透深度基准
+            collider.TryGetDistanceAndNormal(entity.VolumeCenter, entity.Volume.BoundingRadius, out float distance, out Vector2 normal);
 
             SurfaceDistance = distance;
             SurfaceNormal = normal;
 
-            // 重叠量 = 实体半径 - 实体中心到碰撞体表面的距离
-            // 当实体半径 > distance（即 entity.Radius > surfaceDist）时，有重叠
-            // 当实体完全在碰撞体外部时，distance >= entity.Radius，Overlap <= 0
-            Overlap = entity.Radius - distance;
+            // 重叠量 = 实体包围圆半径 - 实体中心到碰撞体表面的距离
+            Overlap = entity.Volume.BoundingRadius - distance;
         }
     }
 }

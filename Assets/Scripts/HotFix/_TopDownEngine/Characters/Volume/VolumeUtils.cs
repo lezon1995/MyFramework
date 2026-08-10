@@ -11,6 +11,116 @@ namespace MoreMountains
     public static class VolumeUtils
     {
         /// <summary>
+        /// 使用分离轴定理检测两个未旋转体积，并返回从 A 指向 B 的分离方向及穿透深度。
+        /// </summary>
+        public static bool TryGetCollision(TopDownController2D a, TopDownController2D b, out Vector2 direction, out float overlap)
+        {
+            Vector2 centerA = a.VolumeCenter;
+            Vector2 centerB = b.VolumeCenter;
+            Vector2 centerDelta = centerB - centerA;
+            Vector2 fallbackAxis = centerDelta.sqrMagnitude > 0.000001f ? centerDelta.normalized : Vector2.right;
+
+            Vector2[] axes =
+            {
+                Vector2.right,
+                Vector2.up,
+                fallbackAxis
+            };
+
+            if (a.Volume.Shape == VolumeShapeType.Circle && b.Volume.Shape == VolumeShapeType.Rectangle)
+                AddCircleRectangleAxis(a.Volume, centerA, centerB, axes, 2);
+            else if (a.Volume.Shape == VolumeShapeType.Rectangle && b.Volume.Shape == VolumeShapeType.Circle)
+                AddCircleRectangleAxis(b.Volume, centerB, centerA, axes, 2);
+
+            float minimumOverlap = float.MaxValue;
+            Vector2 minimumAxis = fallbackAxis;
+            for (int i = 0; i < axes.Length; i++)
+            {
+                Vector2 axis = axes[i];
+                if (axis.sqrMagnitude < 0.000001f)
+                    continue;
+                axis.Normalize();
+
+                float projectedA = a.Volume.GetProjectionRadius(axis);
+                float projectedB = b.Volume.GetProjectionRadius(axis);
+                float axisOverlap = projectedA + projectedB - Mathf.Abs(Vector2.Dot(centerDelta, axis));
+                if (axisOverlap <= 0f)
+                {
+                    direction = Vector2.zero;
+                    overlap = 0f;
+                    return false;
+                }
+
+                if (axisOverlap < minimumOverlap)
+                {
+                    minimumOverlap = axisOverlap;
+                    minimumAxis = axis;
+                }
+            }
+
+            direction = Vector2.Dot(centerDelta, minimumAxis) < 0f ? -minimumAxis : minimumAxis;
+            overlap = minimumOverlap;
+            return true;
+        }
+
+        static void AddCircleRectangleAxis(VolumeShape circleShape, Vector2 circleCenter, Vector2 rectangleCenter, Vector2[] axes, int axisIndex)
+        {
+            Vector2 halfSize = circleShape == null ? Vector2.zero : circleShape.GetHalfSize();
+            // 实际传入的是矩形体积，使用 GetHalfSize 取得矩形半尺寸。
+            Vector2 closest = rectangleCenter + Vector2.ClampMagnitude(circleCenter - rectangleCenter, halfSize.magnitude);
+            Vector2 axis = circleCenter - closest;
+            if (axis.sqrMagnitude > 0.000001f)
+                axes[axisIndex] = axis.normalized;
+        }
+
+        /// <summary>
+        /// 形状内是否包含某点
+        /// </summary>
+        public static bool ContainsShape(VolumeShape shape, Vector2 shapeCenter, Vector2 point, VolumeShape pointShape)
+        {
+            if (shape == null)
+                return false;
+
+            Vector2 local = point - shapeCenter;
+            if (shape.Shape == VolumeShapeType.Rectangle)
+            {
+                Vector2 half = shape.GetHalfSize();
+                if (Mathf.Abs(local.x) > half.x || Mathf.Abs(local.y) > half.y)
+                    return false;
+            }
+            else
+            {
+                if (local.sqrMagnitude > shape.Radius * shape.Radius)
+                    return false;
+            }
+
+            // 兼容点也是体积的情况：先以小尺度测试即可
+            if (pointShape == null)
+                return true;
+
+            Vector2 rel = point - shapeCenter;
+            if (pointShape.Shape == VolumeShapeType.Circle)
+            {
+                return rel.sqrMagnitude <= (shape.Shape == VolumeShapeType.Circle
+                    ? (shape.Radius + pointShape.Radius) * (shape.Radius + pointShape.Radius)
+                    : shape.GetHalfSize().magnitude + pointShape.Radius);
+            }
+            else
+            {
+                Vector2 half = pointShape.GetHalfSize();
+                Vector2 clamped = new Vector2(
+                    Mathf.Clamp(rel.x, -half.x, half.x),
+                    Mathf.Clamp(rel.y, -half.y, half.y));
+                return rel == clamped;
+            }
+        }
+
+        public static float GetBoundingRadius(TopDownController2D body)
+        {
+            return body == null || body.Volume == null ? 0f : body.Volume.BoundingRadius;
+        }
+
+        /// <summary>
         /// 计算两个圆形碰撞体是否相交
         /// </summary>
         public static bool CircleIntersectsCircle(Vector2 centerA, float radiusA, Vector2 centerB, float radiusB)
@@ -236,7 +346,12 @@ namespace MoreMountains
             if (body == null) 
                 return;
 
-            body.Radius = Radius;
+            if (body.Volume == null)
+                body.Volume = new VolumeShape();
+
+            if (body.Volume.Shape == VolumeShapeType.Circle)
+                body.Volume.Radius = Radius;
+            body.Volume.Shape = VolumeShapeType.Circle;
             body.Mass = Mass;
             body.MaxOverlapRatio = MaxOverlapRatio;
             body.KnockbackResistance = KnockbackResistance;
@@ -345,7 +460,7 @@ namespace MoreMountains
             if (manager == null || source == null) 
                 return;
 
-            float checkRadius = radius ?? source.Radius * 5f;
+            float checkRadius = radius ?? source.Volume.BoundingRadius * 5f;
             using var _ = new ListScope<TopDownController2D>(out var entities);
             manager.GetEntitiesInRadius(source.Position, checkRadius, ref entities);
 

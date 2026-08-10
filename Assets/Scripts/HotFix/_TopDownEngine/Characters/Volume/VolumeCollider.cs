@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 namespace MoreMountains
 {
@@ -9,17 +10,19 @@ namespace MoreMountains
     [RequireComponent(typeof(Collider2D))]
     public class VolumeCollider : MonoBehaviour
     {
-        [Header("碰撞设置")] [Tooltip("是否启用此碰撞体")] public bool Enabled = true;
+        [Header("碰撞设置")]
+        [Tooltip("是否启用此碰撞体")]
+        public bool Enabled = true;
 
-        [Tooltip("碰撞优先级，数值越高越优先被推开（用于实体↔实体碰撞）")] [Range(0f, 10f)]
+        [Tooltip("碰撞优先级，数值越高越优先被推开（用于实体↔实体碰撞）")]
+        [Range(0f, 10f)]
         public float CollisionPriority = 1f;
 
-        [Header("调试")] [Tooltip("Gizmos 颜色")] public Color GizmosColor = new(0.3f, 0.8f, 0.3f, 0.5f);
+        [Header("调试")]
+        [Tooltip("Gizmos 颜色")]
+        public Color GizmosColor = new(0.3f, 0.8f, 0.3f, 0.5f);
 
-        public bool IsEnabled()
-        {
-            return Enabled && _collider.enabled;
-        }
+        public bool IsEnabled() => Enabled && _collider.enabled;
 
         protected Collider2D _collider;
         protected Vector2 _cachedPosition;
@@ -50,7 +53,7 @@ namespace MoreMountains
         {
             UpdateColliderCache();
         }
-        
+
         public void RegisterToVolumeManager()
         {
             VolumeManager.Instance.RegisterSolidCollider(this);
@@ -89,6 +92,9 @@ namespace MoreMountains
                     _halfExtents = b.extents;
                     _radius = b.extents.magnitude;
                     _centerOffset = bc.offset;
+                    break;
+                case TilemapCollider2D tc:
+                    
                     break;
                 default:
                     _isCircle = true;

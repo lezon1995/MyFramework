@@ -464,6 +464,8 @@ GameObject:
   - component: {fileID: 4842351296904125510}
   - component: {fileID: 754006816191615645}
   - component: {fileID: 3273235108152660052}
+  - component: {fileID: 2150085947680840426}
+  - component: {fileID: -7163407582791623378}
   m_Layer: 7
   m_Name: Brick_3x1
   m_TagString: Block
@@ -621,6 +623,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: HotFix::MoreMountains.BrickController
   Character: {fileID: 0}
+  Volume:
+    Shape: 0
+    Offset: {x: 0, y: 0}
+    Radius: 0.5
+    Size: {x: 1, y: 1}
   Radius: 0.5
   Mass: 1
   MaxOverlapRatio: 0.3
@@ -793,7 +800,6 @@ MonoBehaviour:
   Movement: {fileID: 0}
   id: 
   isBloodied: 0
-  gold: 0
   displayGold: 0
   isDying: 0
   isDead: 0
@@ -889,12 +895,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: HotFix::MoreMountains.EnemyBrain
   Owner: {fileID: 0}
-  States: []
+  States:
+  - StateName: Chasing
+    Actions:
+      array:
+      - {fileID: 2150085947680840426}
+    Transitions:
+      array:
+      - Decision: {fileID: -7163407582791623378}
+        TrueState: 
+        FalseState: 
   TimeInThisState: 0
   Target: {fileID: 0}
   _lastKnownTargetPosition: {x: 0, y: 0, z: 0}
   BrainActive: 1
-  ResetBrainOnStart: 1
+  ResetBrainOnStart: 0
   ResetBrainOnEnable: 0
   ActionsFrequency: 0
   DecisionFrequency: 0
@@ -909,7 +924,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3237124602915234066}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b73f05b31212f0d419ada6564e9c4ddf, type: 3}
   m_Name: 
@@ -924,7 +939,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3237124602915234066}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0f2751167f3ca2649934ca5b4fa4a4e3, type: 3}
   m_Name: 
@@ -935,11 +950,55 @@ MonoBehaviour:
   AbilityStopSfx: {fileID: 0}
   AbilityStartFeedbacks: {fileID: 0}
   AbilityStopFeedbacks: {fileID: 0}
-  AbilityPermitted: 1
+  AbilityPermitted: 0
   BlockingMovementStates: 
   BlockingConditionStates: 
   BlockingWeaponStates: 
   config: {fileID: 11400000, guid: 27a312c52d7dde941a9cc001cd127977, type: 2}
+--- !u!114 &2150085947680840426
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3237124602915234066}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47557c9dd44293a41bc6710b083332de, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: HotFix::MoreMountains.TopDownEngine.EnemyMoveTowardsTargetAction
+  InitializationMode: 0
+  Label: 
+  UseMinimumXDistance: 1
+  MinimumXDistance: 0.1
+  MonsterAttractionForce: 1
+  MonsterWanderForce: 0.5
+--- !u!114 &-7163407582791623378
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3237124602915234066}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a946a428cb16e1409d657b9041c69be, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: HotFix::MoreMountains.TopDownEngine.EnemyDetectTargetRadiusDecision
+  Label: 
+  Radius: 50
+  DetectionOriginOffset: {x: 0, y: 0, z: 0}
+  TargetLayer:
+    serializedVersion: 2
+    m_Bits: 4096
+  ObstacleDetection: 0
+  ObstacleMask:
+    serializedVersion: 2
+    m_Bits: 16384
+  ObstaclesDetectionMode: 0
+  CanTargetSelf: 0
+  TargetCheckFrequency: 1
+  OverlapMaximum: 10
 --- !u!1 &3490370333130838258
 GameObject:
   m_ObjectHideFlags: 0

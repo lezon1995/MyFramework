@@ -6,8 +6,8 @@ namespace MoreMountains
     public class TopDownController2D : TopDownController
     {
         [Header("体积参数")]
-        [Tooltip("碰撞半径（当作圆形碰撞体）")]
-        public float Radius = 0.5f;
+        [Tooltip("体积形状，可配置圆形或不旋转的矩形、中心偏移及对应尺寸")]
+        public VolumeShape Volume = new();
 
         [Tooltip("质量，影响碰撞时谁推谁动")]
         [Range(0.1f, 10f)]
@@ -64,9 +64,11 @@ namespace MoreMountains
 
 
 
-        public float MaxOverlapDistance => Radius * 2f * MaxOverlapRatio;// 计算实际可重叠的最大距离
-        public float EffectiveRadius => Radius * (1f - MaxOverlapRatio);// 计算有效半径（考虑最大重叠）
+        public float MaxOverlapDistance => Volume.BoundingRadius * 2f * MaxOverlapRatio;// 计算实际可重叠的最大距离
+        public float EffectiveRadius => Volume.BoundingRadius * (1f - MaxOverlapRatio);// 计算有效包围半径（考虑最大重叠）
         public float CollisionMass => Mass * PushForceWeight;// 碰撞质量（考虑推力权重）
+
+        public Vector2 VolumeCenter => Volume.GetWorldCenter(Position);
 
         /// <summary>
         /// 当前总速度 = 意图速度 + 击退速度
@@ -350,11 +352,26 @@ namespace MoreMountains
                 return;
 
             Gizmos.color = GizmosColor;
-            Gizmos.DrawWireSphere(transform.position, Radius);
+            Vector2 center = VolumeCenter;
+            if (Volume.Shape == VolumeShapeType.Rectangle)
+            {
+                Gizmos.DrawWireCube(center, Volume.Size);
+            }
+            else
+            {
+                Gizmos.DrawWireSphere(center, Volume.Radius);
+            }
 
             Color overlapColor = new Color(1, 0, 0, 0.2f);
             Gizmos.color = overlapColor;
-            Gizmos.DrawWireSphere(transform.position, Radius * (1f - MaxOverlapRatio));
+            if (Volume.Shape == VolumeShapeType.Rectangle)
+            {
+                Gizmos.DrawWireCube(center, Volume.Size * (1f - MaxOverlapRatio));
+            }
+            else
+            {
+                Gizmos.DrawWireSphere(center, Volume.Radius * (1f - MaxOverlapRatio));
+            }
         }
     }
 }
