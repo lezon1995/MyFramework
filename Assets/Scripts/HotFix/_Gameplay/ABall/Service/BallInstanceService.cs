@@ -11,6 +11,7 @@ namespace MoreMountains
     public sealed class BallInstanceService :
         IEvent<OnBallDeath>
         , IEvent<OnBallDeathTotally>
+        , IEvent<OnBallExpired>
     {
         BallManagementSystem _owner;
 
@@ -62,13 +63,15 @@ namespace MoreMountains
             ball.setEnabled(true);
             ball.setTeleportPosition(pos, BORDER_BOT_LAYER_MASK);
             ball.setShootDirection(direction);
-            ball.setInitialHealth(int.MaxValue);
+            ball.refreshInitialHealth();
             ball.setRendererActive(true);
             ball.SetColliderEnabled(true);
+            ball.refreshDuration();
             ball.onAcquire();
 
             ball.Event.addListener<OnBallDeath>(this);
             ball.Event.addListener<OnBallDeathTotally>(this);
+            ball.Event.addListener<OnBallExpired>(this);
 
             activeBalls.Add(ball);
             inactiveBalls.Remove(ball);
@@ -152,6 +155,7 @@ namespace MoreMountains
 
             ball.Event.removeListener<OnBallDeath>(this);
             ball.Event.removeListener<OnBallDeathTotally>(this);
+            ball.Event.removeListener<OnBallExpired>(this);
         }
 
         public void destroyBallList<T>(List<T> characterList) where T : Ball
@@ -198,6 +202,11 @@ namespace MoreMountains
         }
 
         public void onEvent(OnBallDeathTotally e)
+        {
+            releaseBall(e.ball);
+        }
+
+        public void onEvent(OnBallExpired e)
         {
             releaseBall(e.ball);
         }

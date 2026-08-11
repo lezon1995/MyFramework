@@ -68,6 +68,11 @@ namespace MoreMountains.Tools
 	        components.AddRange(children);
         }
 
+        public static void TryGetComponentsInChildren<T>(this Component @this, out T[] components, bool includeInactive = true) where T : Component
+        {
+	        components = @this.GetComponentsInChildren<T>(includeInactive);
+        }
+
         public static void TryGetComponentsInChildren<T>(this GameObject @this, ref List<T> components, bool includeInactive = true, bool clearFirst = false) where T : Component
         {
 	        if (clearFirst)

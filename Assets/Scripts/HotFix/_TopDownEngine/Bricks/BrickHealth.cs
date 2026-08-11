@@ -251,15 +251,30 @@ namespace MoreMountains
                     _invincibleTime = invincibleTime;
                 }
             }
-            
+
             if (dmg is { TriggerEffect: true, IsLethal: false })
             {
                 //触发本次伤害所造成的攻击特效/技能特效
                 if (dmg.hasAttackEffect())
                 {
-                    var e = new DoHitEffect(ball, brick, dmg.Direction);
-                    ball.Event.trigger(e);
-                    ball.getPlayer().Event.trigger(e);
+                    if (ball.GetStat(Ball.Stat.HitEffectChance, out var stat))
+                    {
+                        var count = stat.Value.toInt();
+                        var pct = stat.Value - count;
+                        var e = new DoHitEffect(ball, brick, dmg.Direction);
+
+                        for (int i = 0; i < count; i++)
+                        {
+                            ball.Event.trigger(e);
+                            ball.getPlayer().Event.trigger(e);
+                        }
+
+                        if (randomHit(pct))
+                        {
+                            ball.Event.trigger(e);
+                            ball.getPlayer().Event.trigger(e);
+                        }
+                    }
                 }
 
                 if (dmg.hasSkillEffect())

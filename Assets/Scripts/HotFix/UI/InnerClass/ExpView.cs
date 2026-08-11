@@ -3,13 +3,13 @@
 // auto generate classname start
 // generate from:Assets/GameResources/UI/UIPrefab/OverlayMenu.prefab
 // 
-public class ExpView : WindowObjectUGUI
+public partial class ExpView : WindowObjectUGUI
 // auto generate classname end
 {
 	// auto generate member start
 	protected myUGUIImageSimple expBar;
-	protected myUGUIText curExp;
-	protected myUGUIText maxExp;
+	protected myUGUITextTMP curExp;
+	protected myUGUITextTMP maxExp;
 	// auto generate member end
 	
 	float curProgress, targetProgress;
@@ -25,7 +25,7 @@ public class ExpView : WindowObjectUGUI
 	protected override void assignWindowInternal()
 	{
 		// auto generate assignWindowInternal start
-		newObject(out expBar, "ImgExpBar");
+		newObject(out expBar, "Fill");
 		newObject(out curExp, "Exp/TextCurExp");
 		newObject(out maxExp, "Exp/TextMaxExp");
 		// auto generate assignWindowInternal end

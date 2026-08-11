@@ -15,8 +15,9 @@ namespace MoreMountains
 
         public WaveGameMode waveGameMode;
         public WaveLevelConfig waveLevelConfig;
-        
+
         public CoinManager coinManager;
+        public ExpManager expManager;
 
         public MonsterRoom()
         {
@@ -32,6 +33,7 @@ namespace MoreMountains
         {
             loadWaveManager();
             loadCoinManager();
+            loadExpManager();
         }
 
         public override void onPlayerEntry(APlayer p)
@@ -68,6 +70,23 @@ namespace MoreMountains
             if (player.gameObject.TryGetComponent(out CoinPickerAdapter adapter))
             {
                 adapter.SetCoinManager(coinManager);
+            }
+        }
+
+        protected void loadExpManager()
+        {
+            string path = $"{GAMEPLAY_PATH}/Exp/ExpManager.prefab";
+            var res = resource.loadGameResource<ExpManager>(path);
+            expManager = Object.Instantiate(res.get());
+
+            // 给玩家添加（或复用）经验值拾取适配器
+            if (player != null)
+            {
+                if (!player.gameObject.TryGetComponent(out ExpPickerAdapter expAdapter))
+                {
+                    expAdapter = player.gameObject.AddComponent<ExpPickerAdapter>();
+                }
+                expAdapter.SetExpManager(expManager);
             }
         }
 

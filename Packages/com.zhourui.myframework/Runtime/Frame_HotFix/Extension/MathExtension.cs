@@ -167,6 +167,9 @@ public static class MathExtension
 		vec.z = vec.z.checkInt(precision);
 		return vec;
 	}
+
+	public static int toInt(this float value) => (int)value;
+
 	// 检查浮点数是否接近整数（误差<precision），是则修正为整数值
 	// 例如：checkInt(1.0000001f) → 1.0f, checkInt(0.9999999f) → 1.0f
 	// 处理策略：大于0时检查与intValue或intValue+1的差距；小于0时检查与intValue或intValue-1的差距

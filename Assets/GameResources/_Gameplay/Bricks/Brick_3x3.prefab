@@ -624,13 +624,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: HotFix::MoreMountains.BrickController
   Character: {fileID: 0}
   Volume:
-    Shape: 0
-    Offset: {x: 0, y: 0}
+    Shape: 1
+    Offset: {x: 0.675, y: 0.675}
     Radius: 0.5
-    Size: {x: 1, y: 1}
-  Radius: 0.5
+    Size: {x: 2.025, y: 2.025}
   Mass: 1
-  MaxOverlapRatio: 0.3
+  MaxOverlapRatio: 0
   PushForceWeight: 1
   SpeedMultiplier: 1
   KnockbackResistance: 0
@@ -930,8 +929,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: HotFix::MoreMountains.VolumeCollider
   Enabled: 1
+  AutoRegister: 0
   CollisionPriority: 1
   GizmosColor: {r: 0.3, g: 0.8, b: 0.3, a: 0.5}
+  DrawTilemapCellsGizmo: 1
 --- !u!114 &-7766670013407732616
 MonoBehaviour:
   m_ObjectHideFlags: 0

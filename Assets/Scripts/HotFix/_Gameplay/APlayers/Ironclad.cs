@@ -18,6 +18,11 @@ namespace MoreMountains
             charStat = new CharStat(this);
         }
 
+        protected override void Initialization()
+        {
+            base.Initialization();
+        }
+
         public override List<string> getStartingRelics()
         {
             List<string> retVal = new();

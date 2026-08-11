@@ -6,244 +6,63 @@ using UnityEngine.Pool;
 
 namespace MoreMountains
 {
+    #region Solid Collider Spatial Hash (embedded)
+
     /// <summary>
-    /// Hash Grid 空间分区
-    /// 用于优化碰撞检测，将空间划分成网格，只检测相邻网格中的实体
+    /// 固体碰撞体专用空间分区（从 VolumeSpatialHash 独立出来）
+    /// 负责管理场景中静态固体碰撞体的空间索引。
     /// </summary>
-    public class VolumeSpatialHash
+    class VolumeSolidSpatialHash
     {
+        public float CellSize => _cellSize;
         float _cellSize;
         float _invCellSize;
-        Dictionary<(int, int), List<TopDownController2D>> _cells = new();
-        Dictionary<TopDownController2D, (int, int)> _entityCells = new();
-        HashSet<int> _tempNeighborCells = new();
+        Dictionary<(int, int), List<VolumeCollider>> _cells = new();
+        Dictionary<VolumeCollider, int> _solidColliderCells = new();
+        Dictionary<VolumeCollider, List<(int, int)>> _solidColliderKeys = new();
 
-        public VolumeSpatialHash(float cellSize)
+        public VolumeSolidSpatialHash(float cellSize)
         {
             _cellSize = cellSize;
             _invCellSize = 1f / cellSize;
         }
 
-        /// <summary>
-        /// 重建整个空间分区（每帧调用）
-        /// </summary>
-        public void Rebuild(List<TopDownController2D> entities)
+        public void Rebuild(List<VolumeCollider> solids)
         {
             Clear();
-
-            foreach (var entity in entities)
+            int count = solids.Count;
+            for (int i = 0; i < count; i++)
             {
-                if (entity == null)
-                    continue;
-
-                Insert(entity);
+                var solid = solids[i];
+                if (solid != null)
+                    Insert(solid);
             }
         }
 
-        /// <summary>
-        /// 清空所有数据
-        /// </summary>
         public void Clear()
         {
-            foreach (var (key, list) in _cells)
-            {
-                ListPool<TopDownController2D>.Release(list);
-            }
-
-            _cells.Clear();
-            _entityCells.Clear();
-        }
-
-        /// <summary>
-        /// 插入实体到网格
-        /// </summary>
-        public void Insert(TopDownController2D entity)
-        {
-            if (entity == null)
-                return;
-
-            var cellKey = GetCellKey(entity.Position);
-            if (!_cells.TryGetValue(cellKey, out var list))
-            {
-                list = ListPool<TopDownController2D>.Get();
-                _cells[cellKey] = list;
-            }
-
-            list.Add(entity);
-            _entityCells[entity] = cellKey;
-        }
-
-        /// <summary>
-        /// 移除实体
-        /// </summary>
-        public void Remove(TopDownController2D entity)
-        {
-            if (entity == null)
-                return;
-
-            if (_entityCells.TryGetValue(entity, out var cellKey))
-            {
-                if (_cells.TryGetValue(cellKey, out var list))
-                {
-                    list.Remove(entity);
-                }
-
-                _entityCells.Remove(entity);
-            }
-        }
-
-        /// <summary>
-        /// 更新实体的网格位置
-        /// </summary>
-        public void UpdatePosition(TopDownController2D entity)
-        {
-            if (entity == null)
-                return;
-
-            var newKey = GetCellKey(entity.Position);
-            if (_entityCells.TryGetValue(entity, out var oldKey) && oldKey == newKey)
-            {
-                return;
-            }
-
-            Remove(entity);
-            Insert(entity);
-        }
-
-        /// <summary>
-        /// 获取与指定实体可能发生碰撞的所有实体
-        /// </summary>
-        public void GetPotentialColliders(TopDownController2D entity, List<TopDownController2D> results)
-        {
-            results.Clear();
-
-            if (entity == null)
-                return;
-
-            int cellX = WorldToCell(entity.Position.x);
-            int cellY = WorldToCell(entity.Position.y);
-
-            // 检测周围3x3的网格
-            for (int dx = -1; dx <= 1; dx++)
-            {
-                for (int dy = -1; dy <= 1; dy++)
-                {
-                    var key = CellToKey(cellX + dx, cellY + dy);
-                    if (_cells.TryGetValue(key, out var list))
-                    {
-                        for (int i = 0; i < list.Count; i++)
-                        {
-                            var other = list[i];
-                            if (other != entity)
-                            {
-                                results.Add(other);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// 获取圆形区域内所有实体
-        /// </summary>
-        public void GetEntitiesInCircle(Vector2 center, float radius, List<TopDownController2D> results)
-        {
-            results.Clear();
-
-            int minX = WorldToCell(center.x - radius);
-            int maxX = WorldToCell(center.x + radius);
-            int minY = WorldToCell(center.y - radius);
-            int maxY = WorldToCell(center.y + radius);
-
-            float radiusSq = radius * radius;
-
-            for (int x = minX; x <= maxX; x++)
-            {
-                for (int y = minY; y <= maxY; y++)
-                {
-                    var key = CellToKey(x, y);
-                    if (_cells.TryGetValue(key, out var list))
-                    {
-                        for (int i = 0; i < list.Count; i++)
-                        {
-                            var entity = list[i];
-                            float distSq = (entity.Position - center).sqrMagnitude;
-                            if (distSq <= radiusSq)
-                            {
-                                results.Add(entity);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        public int CellCount => _cells.Count; // 获取网格单元数量
-        public int EntityCount => _entityCells.Count; // 获取总实体数量
-
-        /// <summary>
-        /// 获取网格单元大小
-        /// </summary>
-        public float CellSize => _cellSize;
-
-        #region Solid Collider Support
-
-        // 固体碰撞体的空间分区数据
-        Dictionary<(int, int), List<VolumeCollider>> _solidCells = new();
-        Dictionary<VolumeCollider, int> _solidColliderCells = new();
-        Dictionary<VolumeCollider, List<(int, int)>> _solidColliderKeys = new();
-
-        /// <summary>
-        /// 重建固体碰撞体空间分区
-        /// </summary>
-        public void RebuildSolids(List<VolumeCollider> solids)
-        {
-            ClearSolids();
-            foreach (var solid in solids)
-            {
-                if (solid != null)
-                    InsertAsSolid(solid);
-            }
-        }
-
-        /// <summary>
-        /// 清空固体碰撞体数据
-        /// </summary>
-        public void ClearSolids()
-        {
-            foreach (var (key, list) in _solidCells)
+            foreach (var list in _cells.Values)
                 ListPool<VolumeCollider>.Release(list);
-
-            _solidCells.Clear();
+            _cells.Clear();
             _solidColliderCells.Clear();
-
-            foreach (var (key, list) in _solidColliderKeys)
+            foreach (var list in _solidColliderKeys.Values)
                 ListPool<(int, int)>.Release(list);
             _solidColliderKeys.Clear();
         }
 
-        /// <summary>
-        /// 插入固体碰撞体到网格（覆盖所有重叠的格子）
-        /// </summary>
-        public void InsertAsSolid(VolumeCollider solid)
+        public void Insert(VolumeCollider solid)
         {
             if (solid == null) return;
-
-            // 已经在列表中，跳过
-            if (_solidColliderCells.ContainsKey(solid))
-                return;
+            if (_solidColliderCells.ContainsKey(solid)) return;
 
             solid.RefreshAfterMove();
-
-            // 用包围半径覆盖所有可能涉及的格子
             var bounds = solid.Collider.bounds;
+
             int minX = WorldToCell(bounds.min.x);
             int maxX = WorldToCell(bounds.max.x);
             int minY = WorldToCell(bounds.min.y);
             int maxY = WorldToCell(bounds.max.y);
 
-            // 记录所有涉及的格子 key（用于 Remove 时完整清理）
             var keys = ListPool<(int, int)>.Get();
             for (int cx = minX; cx <= maxX; cx++)
             {
@@ -251,115 +70,73 @@ namespace MoreMountains
                 {
                     var key = CellToKey(cx, cy);
                     keys.Add(key);
-                    if (!_solidCells.TryGetValue(key, out var list))
+                    if (!_cells.TryGetValue(key, out var list))
                     {
                         list = ListPool<VolumeCollider>.Get();
-                        _solidCells[key] = list;
+                        _cells[key] = list;
                     }
-
                     if (!list.Contains(solid))
-                    {
                         list.Add(solid);
-                    }
                 }
             }
-
-            // 记录 solid 涉及的格子数量（移除时需要全部清理）
             _solidColliderCells[solid] = keys.Count;
             _solidColliderKeys[solid] = keys;
         }
 
-        /// <summary>
-        /// 移除固体碰撞体（从所有涉及的格子中删除）
-        /// </summary>
-        public void RemoveSolid(VolumeCollider solid)
+        public void Remove(VolumeCollider solid)
         {
             if (solid == null) return;
-
-            // 获取所有涉及的格子并删除
-            if (_solidColliderKeys.TryGetValue(solid, out var keys))
+            if (!_solidColliderKeys.TryGetValue(solid, out var keys)) return;
+            int keyCount = keys.Count;
+            for (int i = 0; i < keyCount; i++)
             {
-                foreach (var key in keys)
-                {
-                    if (_solidCells.TryGetValue(key, out var list))
-                    {
-                        list.Remove(solid);
-                    }
-                }
-
-                ListPool<(int, int)>.Release(keys);
-                _solidColliderKeys.Remove(solid);
+                if (_cells.TryGetValue(keys[i], out var list))
+                    list.Remove(solid);
             }
-
+            ListPool<(int, int)>.Release(keys);
+            _solidColliderKeys.Remove(solid);
             _solidColliderCells.Remove(solid);
         }
 
-        /// <summary>
-        /// 获取与指定实体可能发生碰撞的固体碰撞体
-        /// </summary>
+        /// <param name="results">结果追加到末尾，不清空。</param>
         public void GetPotentialSolids(TopDownController2D entity, List<VolumeCollider> results)
         {
-            results.Clear();
-            if (entity == null)
-                return;
-
+            if (entity == null) return;
             int cellX = WorldToCell(entity.Position.x);
             int cellY = WorldToCell(entity.Position.y);
 
-            // 检测周围 3x3 的网格（固体碰撞体可能比较大）
             for (int dx = -1; dx <= 1; dx++)
             {
                 for (int dy = -1; dy <= 1; dy++)
                 {
                     var key = CellToKey(cellX + dx, cellY + dy);
-                    if (_solidCells.TryGetValue(key, out var list))
+                    if (_cells.TryGetValue(key, out var list))
                     {
-                        for (int i = 0; i < list.Count; i++)
+                        int listCount = list.Count;
+                        for (int i = 0; i < listCount; i++)
                         {
                             var item = list[i];
                             if (!item.IsEnabled())
                                 continue;
-
-                            if (results.Contains(item))
-                                continue;
-
-                            results.Add(item);
+                            if (!results.Contains(item))
+                                results.Add(item);
                         }
                     }
                 }
             }
         }
 
-        #endregion
-
-        #region Private Methods
-
-        int WorldToCell(float worldPos)
-        {
-            return Mathf.FloorToInt(worldPos * _invCellSize);
-        }
-
-        (int, int) GetCellKey(Vector2 worldPos)
-        {
-            int x = WorldToCell(worldPos.x);
-            int y = WorldToCell(worldPos.y);
-            return CellToKey(x, y);
-        }
-
-        (int, int) CellToKey(int x, int y)
-        {
-            return (x, y);
-            // 使用较大的质数来减少哈希冲突
-            // return x * 73856093 ^ y * 19349663;
-        }
-
-        #endregion
+        int WorldToCell(float worldPos) => Mathf.FloorToInt(worldPos * _invCellSize);
+        static (int, int) CellToKey(int x, int y) => (x, y);
     }
+
+    #endregion
 
     /// <summary>
     /// 2D体积碰撞系统管理器
     /// 处理怪物/玩家之间的体积感、挤压感、链式击退等逻辑
     /// 不使用Unity内置物理系统，纯靠速度、质量和碰撞体大小来计算
+    /// 性能优化：位运算配对去重 + 增量空间哈希 + 旁路式碰撞处理 + 预分配缓冲区
     /// </summary>
     public class VolumeManager : MMSingleton<VolumeManager>
     {
@@ -379,6 +156,9 @@ namespace MoreMountains
 
         [Tooltip("是否启用空间分区优化（关闭则使用O(N²)暴力检测）")]
         public bool EnableSpatialHash = true;
+
+        [Tooltip("是否使用增量空间哈希更新（仅移动的实体才更新网格，默认开启）")]
+        public bool UseIncrementalSpatialHash = true;
 
         [Header("碰撞参数")]
         [Tooltip("基础分离力")]
@@ -455,16 +235,18 @@ namespace MoreMountains
 
         // 空间分区
         VolumeSpatialHash _spatialHash;
-        VolumeSpatialHash _solidColliderSpatialHash;
+        VolumeSolidSpatialHash _solidSpatialHash;
 
         // 运行时数据 - 实体
         List<TopDownController2D> _registeredEntities = new();
         List<TopDownController2D> _potentialColliders = new();
-        List<VolumeCollisionResult> _collisionResults = new();
         List<KnockbackChainResult> _knockbackChain = new();
         Queue<TopDownController2D> _entityQueue = new();
         HashSet<TopDownController2D> _visitedSet = new();
-        HashSet<int> _processedPairKeys = new();
+
+        // 配对去重：位运算版（避免每帧 new HashSet）
+        uint[] _pairKeysBuffer = new uint[4096];
+        int _pairKeysCount;
 
         // 运行时数据 - 固体碰撞体
         List<VolumeCollider> _solidColliders = new();
@@ -502,8 +284,8 @@ namespace MoreMountains
 
         void InitializeSpatialHash()
         {
-            _spatialHash = new(SpatialHashCellSize);
-            _solidColliderSpatialHash = new(SpatialHashCellSize);
+            _spatialHash = new VolumeSpatialHash(SpatialHashCellSize);
+            _solidSpatialHash = new VolumeSolidSpatialHash(SpatialHashCellSize);
         }
 
         protected virtual void Start()
@@ -555,7 +337,7 @@ namespace MoreMountains
         #region Spatial Hash
 
         /// <summary>
-        /// 更新空间分区
+        /// 更新空间分区（增量版：仅移动的实体才更新网格）
         /// </summary>
         void UpdateSpatialHash()
         {
@@ -564,11 +346,19 @@ namespace MoreMountains
                 InitializeSpatialHash();
             }
 
-            // 重建整个网格（实体位置变化了）
-            _spatialHash.Rebuild(_registeredEntities);
+            if (UseIncrementalSpatialHash)
+            {
+                // 增量更新：仅当格子变化时才重建
+                _spatialHash.IncrementalUpdate(_registeredEntities);
+            }
+            else
+            {
+                // 全量重建（实体大幅变化时使用）
+                _spatialHash.Rebuild(_registeredEntities);
+            }
 
-            // 重建固体碰撞体的空间分区
-            if (EnableSolidColliders && _solidColliderSpatialHash != null)
+            // 固体碰撞体通常不移动，保持全量重建
+            if (EnableSolidColliders && _solidSpatialHash != null)
             {
                 RebuildSolidColliderSpatialHash();
             }
@@ -630,7 +420,7 @@ namespace MoreMountains
                 return;
 
             _solidColliders.Add(collider);
-            _solidColliderSpatialHash?.InsertAsSolid(collider);
+            _solidSpatialHash?.Insert(collider);
         }
 
         /// <summary>
@@ -642,7 +432,7 @@ namespace MoreMountains
                 return;
 
             _solidColliders.Remove(collider);
-            _solidColliderSpatialHash?.RemoveSolid(collider);
+            _solidSpatialHash?.Remove(collider);
         }
 
         /// <summary>
@@ -658,7 +448,7 @@ namespace MoreMountains
         /// </summary>
         void RebuildSolidColliderSpatialHash()
         {
-            _solidColliderSpatialHash.RebuildSolids(_solidColliders);
+            _solidSpatialHash.Rebuild(_solidColliders);
         }
 
         /// <summary>
@@ -668,9 +458,9 @@ namespace MoreMountains
         {
             _potentialSolidColliders.Clear();
 
-            if (EnableSpatialHash && _solidColliderSpatialHash != null)
+            if (EnableSpatialHash && _solidSpatialHash != null)
             {
-                _solidColliderSpatialHash.GetPotentialSolids(entity, _potentialSolidColliders);
+                _solidSpatialHash.GetPotentialSolids(entity, _potentialSolidColliders);
             }
             else
             {
@@ -815,16 +605,16 @@ namespace MoreMountains
         #region Collision Detection
 
         /// <summary>
-        /// 处理所有碰撞检测（优化版）
+        /// 处理所有碰撞检测（优化版，无 GC 路径）
         /// </summary>
         protected virtual void ProcessAllCollisions(float dt)
         {
             _collisionCheckCount = 0;
-            _collisionResults.Clear();
+            _pairKeysCount = 0;
 
             if (EnableSpatialHash && _spatialHash != null)
             {
-                ProcessCollisionsWithSpatialHash(dt);
+                ProcessCollisionsOptimized(dt);
             }
             else
             {
@@ -833,35 +623,50 @@ namespace MoreMountains
         }
 
         /// <summary>
-        /// 使用空间分区的碰撞检测
+        /// 优化版空间分区碰撞检测。
+        /// 关键优化：
+        /// 1. 位运算配对去重（无 GC）
+        /// 2. 旁路式直接处理，不缓冲结果
+        /// 3. 减少 struct 构造函数调用
         /// </summary>
-        void ProcessCollisionsWithSpatialHash(float dt)
+        void ProcessCollisionsOptimized(float dt)
         {
-            _processedPairKeys.Clear();
+            int entityCount = _registeredEntities.Count;
 
-            foreach (var entity in _registeredEntities)
+            for (int i = 0; i < entityCount; i++)
             {
-                if (entity == null)
-                    continue;
+                var entity = _registeredEntities[i];
+                if (entity == null) continue;
 
-                // 获取潜在碰撞体
-                GetPotentialColliders(entity);
+                _potentialColliders.Clear();
+                _spatialHash.GetPotentialColliders(entity, _potentialColliders);
 
-                foreach (var other in _potentialColliders)
+                int otherCount = _potentialColliders.Count;
+                for (int j = 0; j < otherCount; j++)
                 {
-                    if (other == null)
-                        continue;
+                    var other = _potentialColliders[j];
+                    if (other == null) continue;
 
-                    // 生成配对唯一键（使用 InstanceID 保证唯一性）
-                    int idA = entity.GetInstanceID();
-                    int idB = other.GetInstanceID();
-                    int pairKey = idA < idB ? idA * 31 + idB : idB * 31 + idA;
+                    // 位运算配对去重（无 GC）
+                    uint idA = (uint)entity.GetInstanceID();
+                    uint idB = (uint)other.GetInstanceID();
+                    uint pairKey = idA < idB
+                        ? (idA << 16) | (idB & 0xFFFF)
+                        : (idB << 16) | (idA & 0xFFFF);
 
-                    // 避免重复检测同一对
-                    if (_processedPairKeys.Contains(pairKey))
-                        continue;
+                    bool alreadyProcessed = false;
+                    for (int k = 0; k < _pairKeysCount; k++)
+                    {
+                        if (_pairKeysBuffer[k] == pairKey)
+                        {
+                            alreadyProcessed = true;
+                            break;
+                        }
+                    }
+                    if (alreadyProcessed) continue;
 
-                    _processedPairKeys.Add(pairKey);
+                    if (_pairKeysCount < _pairKeysBuffer.Length)
+                        _pairKeysBuffer[_pairKeysCount++] = pairKey;
 
                     if (_collisionCheckCount >= MaxCollisionChecksPerFrame)
                         return;
@@ -880,16 +685,16 @@ namespace MoreMountains
             int count = _registeredEntities.Count;
             for (int i = 0; i < count; i++)
             {
+                var entityA = _registeredEntities[i];
+                if (entityA == null) continue;
+
                 for (int j = i + 1; j < count; j++)
                 {
+                    var entityB = _registeredEntities[j];
+                    if (entityB == null) continue;
+
                     if (_collisionCheckCount >= MaxCollisionChecksPerFrame)
                         return;
-
-                    var entityA = _registeredEntities[i];
-                    var entityB = _registeredEntities[j];
-
-                    if (entityA == null || entityB == null)
-                        continue;
 
                     ProcessPairCollision(entityA, entityB, dt);
                     _collisionCheckCount++;
@@ -898,161 +703,120 @@ namespace MoreMountains
         }
 
         /// <summary>
-        /// 处理一对实体的碰撞
+        /// 处理一对实体的碰撞。
+        /// 旁路式：不 new VolumeCollisionResult，用临时变量承载结果。
         /// </summary>
-        protected virtual void ProcessPairCollision(TopDownController2D a, TopDownController2D b, float dt)
+        void ProcessPairCollision(TopDownController2D a, TopDownController2D b, float dt)
         {
-            var result = new VolumeCollisionResult(a, b);
+            // 计算碰撞结果（直接用 struct，避免 new）
+            Vector2 centerA = a.VolumeCenter;
+            Vector2 centerB = b.VolumeCenter;
+            float centerDist = Vector2.Distance(centerA, centerB);
+            float combinedRadius = a.Volume.BoundingRadius + b.Volume.BoundingRadius;
+            float overlap = combinedRadius - centerDist;
 
-            // 软排斥：在实体未重叠时也施加柔和的排斥力，避免贴在一起导致抖动
-            if (EnableSoftRepulsion)
+            if (overlap <= 0f && !EnableSoftRepulsion)
+                return;
+
+            // 计算方向（仅在需要时）
+            Vector2 dir = overlap > 0f ? (centerB - centerA).normalized : Vector2.zero;
+            float softRepulsionRadius = combinedRadius * SoftRepulsionDistanceRatio;
+
+            // 软排斥（如果启用）
+            if (EnableSoftRepulsion && centerDist < softRepulsionRadius && centerDist > 0.0001f)
             {
-                CalculateSoftRepulsion(a, b, result, dt);
+                float strength = 1f - (centerDist / softRepulsionRadius);
+                strength *= strength;
+                float totalMass = a.CollisionMass + b.CollisionMass;
+                if (totalMass > 0f)
+                {
+                    float ratioA = b.CollisionMass / totalMass;
+                    float ratioB = a.CollisionMass / totalMass;
+                    Vector2 repelDir = (centerB - centerA) / centerDist;
+                    float repelForce = SoftRepulsionStrength * strength * dt;
+                    if (SoftRepulsionAffectsPosition)
+                    {
+                        a.Position -= repelDir * (repelForce * ratioA);
+                        b.Position += repelDir * (repelForce * ratioB);
+                        a.transform.position = a.Position;
+                        b.transform.position = b.Position;
+                    }
+                    else
+                    {
+                        a.IntentVelocity -= (Vector3)repelDir * (repelForce * ratioA);
+                        b.IntentVelocity += (Vector3)repelDir * (repelForce * ratioB);
+                    }
+                }
             }
 
-            if (!result.IsColliding)
+            if (overlap <= 0f)
                 return;
 
-            _collisionResults.Add(result);
+            // 计算最大允许重叠与所需分离量
+            float otherEffectiveRadius = b.Volume.BoundingRadius * (1f - b.MaxOverlapRatio);
+            float maxAllowedOverlap = a.MaxOverlapDistance + b.MaxOverlapDistance;
+            float requiredSeparation = Mathf.Max(0f, overlap - maxAllowedOverlap);
 
-            // 计算分离
-            if (result.IsExceedingMaxOverlap)
+            // 分离
+            if (requiredSeparation > 0f)
             {
-                CalculateSeparation(a, b, result, dt);
+                float totalMass = a.CollisionMass + b.CollisionMass;
+                if (totalMass > 0f)
+                {
+                    float ratioA = b.CollisionMass / totalMass;
+                    float ratioB = a.CollisionMass / totalMass;
+                    float separationForce = BaseSeparationForce * dt;
+                    float sepA = requiredSeparation * ratioA * separationForce;
+                    float sepB = requiredSeparation * ratioB * separationForce;
+                    a.Position -= dir * sepA;
+                    b.Position += dir * sepB;
+                    a.transform.position = a.Position;
+                    b.transform.position = b.Position;
+                }
             }
 
-            // 计算挤压
-            CalculateSqueeze(a, b, result, dt);
-
-            // 触发事件
-            var evt = new VolumeCollisionEvent
+            // 挤压
+            float relativeSpeed = (a.TotalVelocity - b.TotalVelocity).magnitude;
+            if (relativeSpeed > 0.01f)
             {
-                Self = a,
-                Other = b,
-                Result = result,
-                DeltaTime = dt
-            };
-            OnCollisionDetected?.Invoke(evt);
-
-            // 反向触发
-            var evtB = new VolumeCollisionEvent
-            {
-                Self = b,
-                Other = a,
-                Result = new(b, a),
-                DeltaTime = dt
-            };
-            OnCollisionDetected?.Invoke(evtB);
-        }
-
-        /// <summary>
-        /// 计算软排斥力
-        /// 当两实体的距离小于"半径和 × SoftRepulsionDistanceRatio"时，产生柔和的排斥力
-        /// 这可以防止实体因为"分离阈值"过低而挤在一起抖动
-        /// </summary>
-        protected virtual void CalculateSoftRepulsion(TopDownController2D a, TopDownController2D b, VolumeCollisionResult result, float dt)
-        {
-            float repulsionRadius = (a.Volume.BoundingRadius + b.Volume.BoundingRadius) * SoftRepulsionDistanceRatio;
-
-            // 超出软排斥范围，无作用
-            if (result.CenterDistance >= repulsionRadius)
-                return;
-
-            if (result.CenterDistance < 0.001f)
-                return;
-
-            // 计算排斥强度（0-1之间，距离越近越强）
-            float strength = 1f - (result.CenterDistance / repulsionRadius);
-            strength *= strength; // 平方曲线让近距离排斥更明显
-
-            float totalMass = a.CollisionMass + b.CollisionMass;
-            if (totalMass <= 0)
-                return;
-
-            // 质量大的排斥小，质量小的排斥大（与分离方向相反）
-            float ratioA = b.CollisionMass / totalMass;
-            float ratioB = a.CollisionMass / totalMass;
-
-            // 从 A 指向 B 的方向（无论是否重叠都要正确计算）
-            Vector2 repelDir = (b.Position - a.Position) / result.CenterDistance;
-            float repelForce = SoftRepulsionStrength * strength * dt;
-
-            if (SoftRepulsionAffectsPosition)
-            {
-                // 直接修改位置
-                a.Position -= repelDir * (repelForce * ratioA);
-                b.Position += repelDir * (repelForce * ratioB);
-                a.transform.position = a.Position;
-                b.transform.position = b.Position;
+                float velAlongCollision = Vector2.Dot(a.TotalVelocity - b.TotalVelocity, dir);
+                if (velAlongCollision > 0f)
+                {
+                    float totalMass = a.CollisionMass + b.CollisionMass;
+                    if (totalMass > 0f)
+                    {
+                        float massRatioA = a.CollisionMass / totalMass;
+                        float massRatioB = b.CollisionMass / totalMass;
+                        float squeezeStrength = relativeSpeed * (1f + MassDifferenceInfluence) * (1f + VelocityDifferenceInfluence);
+                        float squeezeA = velAlongCollision * massRatioB * squeezeStrength * dt * 0.5f;
+                        float squeezeB = velAlongCollision * massRatioA * squeezeStrength * dt * 0.5f;
+                        a.IntentVelocity += (Vector3)(-dir) * squeezeA;
+                        b.IntentVelocity += (Vector3)(-dir) * squeezeB;
+                    }
+                }
             }
-            else
+
+            // 触发事件（仅在真正重叠且需要分离时）
+            if (overlap > 0.001f)
             {
-                // 作用在意图速度上（更平滑，符合物理直觉）
-                a.IntentVelocity -= (Vector3)repelDir * (repelForce * ratioA);
-                b.IntentVelocity += (Vector3)repelDir * (repelForce * ratioB);
+                var evt = new VolumeCollisionEvent
+                {
+                    Self = a,
+                    Other = b,
+                    Result = new VolumeCollisionResult(a, b),
+                    DeltaTime = dt
+                };
+                OnCollisionDetected?.Invoke(evt);
+
+                var evtB = new VolumeCollisionEvent
+                {
+                    Self = b,
+                    Other = a,
+                    Result = new VolumeCollisionResult(b, a),
+                    DeltaTime = dt
+                };
+                OnCollisionDetected?.Invoke(evtB);
             }
-        }
-
-        /// <summary>
-        /// 计算分离（当重叠超出最大允许时）
-        /// </summary>
-        protected virtual void CalculateSeparation(TopDownController2D a, TopDownController2D b, VolumeCollisionResult result, float dt)
-        {
-            float totalMass = a.CollisionMass + b.CollisionMass;
-            if (totalMass <= 0)
-                return;
-
-            float ratioA = b.CollisionMass / totalMass;
-            float ratioB = a.CollisionMass / totalMass;
-
-            float separationForce = BaseSeparationForce * dt;
-            Vector2 separationDir = result.Direction;
-
-            float sepA = result.RequiredSeparation * ratioA * separationForce;
-            float sepB = result.RequiredSeparation * ratioB * separationForce;
-
-            a.Position -= separationDir * sepA;
-            b.Position += separationDir * sepB;
-
-            a.transform.position = a.Position;
-            b.transform.position = b.Position;
-        }
-
-        /// <summary>
-        /// 计算挤压（基于速度和质量）
-        /// </summary>
-        protected virtual void CalculateSqueeze(TopDownController2D a, TopDownController2D b, VolumeCollisionResult result, float dt)
-        {
-            float overlap = result.Overlap;
-            if (overlap < 0.01f)
-                return;
-
-            // 挤压作用在"总速度"上（包括意图和击退），因为挤压需要反映真实的相对运动
-            Vector2 relativeVel = a.TotalVelocity - b.TotalVelocity;
-            float relativeSpeed = relativeVel.magnitude;
-
-            if (relativeSpeed < 0.01f)
-                return;
-
-            float velAlongCollision = Vector2.Dot(relativeVel, result.Direction);
-
-            if (velAlongCollision <= 0)
-                return;
-
-            float totalMass = a.CollisionMass + b.CollisionMass;
-            float massRatioA = a.CollisionMass / totalMass;
-            float massRatioB = b.CollisionMass / totalMass;
-
-            float squeezeStrength = relativeSpeed * (1f + MassDifferenceInfluence) * (1f + VelocityDifferenceInfluence);
-
-            float squeezeA = velAlongCollision * massRatioB * squeezeStrength * dt;
-            float squeezeB = velAlongCollision * massRatioA * squeezeStrength * dt;
-
-            Vector2 squeezeDir = -result.Direction;
-
-            // 挤压结果加在意图速度上（影响后续的 AI 决策）
-            a.IntentVelocity += (Vector3)squeezeDir * (squeezeA * 0.5f);
-            b.IntentVelocity += (Vector3)squeezeDir * (squeezeB * 0.5f);
         }
 
         #endregion
@@ -1369,12 +1133,12 @@ namespace MoreMountains
 
                 if (ShowSpatialHashGrid && _spatialHash != null)
                 {
-                    DrawSpatialHashGrid(_spatialHash, Color.green);
+                    // DrawSpatialHashGrid(_spatialHash, Color.green);
                 }
 
-                if (ShowSpatialHashGrid && EnableSolidColliders && _solidColliderSpatialHash != null)
+                if (ShowSpatialHashGrid && EnableSolidColliders && _solidSpatialHash != null)
                 {
-                    DrawSpatialHashGrid(_solidColliderSpatialHash, Color.yellow);
+                    DrawSolidSpatialHashGrid(_solidSpatialHash, Color.yellow);
                 }
             }
             else
@@ -1432,46 +1196,29 @@ namespace MoreMountains
             Gizmos.DrawWireSphere(center, 0.2f);
         }
 
-        void DrawSpatialHashGrid(VolumeSpatialHash spatialHash, Color color)
+        void DrawSolidSpatialHashGrid(VolumeSolidSpatialHash solidHash, Color color)
         {
-            float cellSize = spatialHash.CellSize;
+            float cellSize = solidHash.CellSize;
             float alpha = SpatialHashGridAlpha;
+            Color c = new Color(color.r, color.g, color.b, alpha);
 
-            foreach (var entity in _registeredEntities)
+            foreach (var solid in _solidColliders)
             {
-                if (entity == null)
-                    continue;
-
-                // 获取实体所在的格子坐标
-                int cellX = Mathf.FloorToInt(entity.Position.x / cellSize);
-                int cellY = Mathf.FloorToInt(entity.Position.y / cellSize);
-
-                // 绘制周围 3x3 的格子
-                for (int dx = -1; dx <= 1; dx++)
+                if (solid == null) continue;
+                var bounds = solid.Collider.bounds;
+                int minX = Mathf.FloorToInt(bounds.min.x / cellSize);
+                int maxX = Mathf.FloorToInt(bounds.max.x / cellSize);
+                int minY = Mathf.FloorToInt(bounds.min.y / cellSize);
+                int maxY = Mathf.FloorToInt(bounds.max.y / cellSize);
+                for (int cx = minX; cx <= maxX; cx++)
                 {
-                    for (int dy = -1; dy <= 1; dy++)
+                    for (int cy = minY; cy <= maxY; cy++)
                     {
-                        int cx = cellX + dx;
-                        int cy = cellY + dy;
-
-                        Vector3 center = new Vector3(
-                            (cx + 0.5f) * cellSize,
-                            (cy + 0.5f) * cellSize,
-                            0f
-                        );
-
-                        Vector3 size = Vector3.one * cellSize;
-
-                        Gizmos.color = new Color(color.r, color.g, color.b, alpha);
-                        Gizmos.DrawWireCube(center, size);
+                        Vector3 center = new Vector3((cx + 0.5f) * cellSize, (cy + 0.5f) * cellSize, 0f);
+                        Gizmos.color = c;
+                        Gizmos.DrawWireCube(center, Vector3.one * cellSize);
                     }
                 }
-            }
-
-            // 如果有实体，也绘制它们所在格子边框（更明显）
-            if (_registeredEntities.Count > 0)
-            {
-                Gizmos.color = new Color(color.r, color.g, color.b, alpha * 2f);
             }
         }
     }

@@ -127,7 +127,7 @@ MonoBehaviour:
       Data: MS
     - Name: $v
       Entry: 4
-      Data: 100
+      Data: 50
     - Name: 
       Entry: 8
       Data: 

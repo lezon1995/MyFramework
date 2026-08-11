@@ -258,7 +258,7 @@ namespace MoreMountains
         /// Changes the status of the ability's permission
         /// </summary>
         /// <param name="abilityPermitted">If set to <c>true</c> ability permitted.</param>
-        public virtual void PermitAbility(bool abilityPermitted)
+        public virtual void SetAbilityPermitted(bool abilityPermitted)
         {
             AbilityPermitted = abilityPermitted;
         }

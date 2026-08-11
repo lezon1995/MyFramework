@@ -14,12 +14,19 @@ namespace MoreMountains
         public int instanceID; //GameObject的instanceID，可以根据不同GameObject而变化
         public long guid; // Ball这个对象的guid，
         public BallDef Def;
-        
+
         #region Stats
 
         public bool isTemp; //是否是临时生成出来的球
         public bool horizontalBorderTeleportable; //是否可在左右边界来回传送
         public bool usePhysics = true;
+
+        public void refreshInitialHealth()
+        {
+            GetStat(Stat.HealthMax, out var stat);
+            var health = stat.Value.toInt();
+            _health.SetHealth(health, health, RefreshHealthBarType.Immediately);
+        }
 
         public void setInitialHealth(int value)
         {
@@ -70,6 +77,8 @@ namespace MoreMountains
         bool enabled;
         bool hasBeenCollided;
         int delayCounter;
+
+        Timer lifeDuration;
 
         public IHittable lastHittable;
         public bool isOverlappingBrick;
@@ -277,6 +286,11 @@ namespace MoreMountains
 
             if (FaceMovement)
                 FaceMovementDirection(Direction);
+
+            if (lifeDuration.update(dt))
+            {
+                new OnBallExpired(this).trigger(this);
+            }
         }
 
         void fixedUpdate(float dt)
@@ -608,6 +622,12 @@ namespace MoreMountains
             GetStat(Stat.DmgRate, out var stat);
             dmg.SetDmgRate(stat.Value);
             return dmg;
+        }
+
+        public void refreshDuration()
+        {
+            GetStat(Stat.Duration, out var stat);
+            lifeDuration = stat.Value;
         }
 
         /*public void returnBall(Vector3 nextPosition)

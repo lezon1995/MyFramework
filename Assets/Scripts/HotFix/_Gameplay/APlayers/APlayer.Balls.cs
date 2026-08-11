@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using MoreMountains.Tools;
 using PrimeTween;
 using UnityEngine;
 
@@ -26,6 +27,9 @@ namespace MoreMountains
         public InventorySystem Inventory => inventory;
         public ShopSystem Shop => shop;
         public PlayerWallet Wallet => wallet;
+        
+        CharacterHandleWeapon[] handleWeapons;
+        public BallWeaponAttachmentRoot ballWeaponAttachmentRoot;
 
         protected override void Initialization()
         {
@@ -55,6 +59,25 @@ namespace MoreMountains
             ballBuffs.add(typeof(LightningStrike3));
 
             addListeners();
+
+            this.TryGetComponentInChildren(out ballWeaponAttachmentRoot);
+            this.TryGetComponentsInChildren(out handleWeapons);
+            for (var i = 0; i < handleWeapons.Length; i++)
+            {
+                handleWeapons[i].SetAbilityPermitted(false);
+            }
+        }
+
+        public void OnBallInventorySlotChanged(BallInventorySlot slot)
+        {
+            var handleWeapon = handleWeapons[slot.Index];
+            handleWeapon.SetAbilityPermitted(slot.IsOccupied);
+            if (handleWeapon.CurrentWeapon is BallGunWeapon ballGunWeapon)
+            {
+                ballGunWeapon.SetBallDef(slot.Item.Def);
+            }
+            
+            ballWeaponAttachmentRoot.RefreshLayout();
         }
 
         protected override void OnDestroy()

@@ -1,5 +1,4 @@
-﻿using System;
-using MoreMountains.Tools;
+﻿using MoreMountains.Tools;
 using UnityEngine;
 
 namespace MoreMountains
@@ -15,8 +14,11 @@ namespace MoreMountains
 
             if (other.TryGetComponent(out Ball ball))
             {
-                if (player)
-                    player.recollectBall(ball, 0F, true);
+                if (ball.SourceWeapon is BallSlotWeapon)
+                {
+                    if (player)
+                        player.recollectBall(ball, 0F, true);
+                }
             }
         }
 
@@ -27,8 +29,11 @@ namespace MoreMountains
 
             if (other.TryGetComponent(out Ball ball))
             {
-                if (player)
-                    player.recollectBall(ball, 0F, true);
+                if (ball.SourceWeapon is BallSlotWeapon)
+                {
+                    if (player)
+                        player.recollectBall(ball, 0F, true);
+                }
             }
         }
     }

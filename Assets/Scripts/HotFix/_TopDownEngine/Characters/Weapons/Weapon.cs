@@ -53,9 +53,12 @@ namespace MoreMountains
             None,
             BasicAttack, //普通攻击
         }
-        
+
         public UniStats.Stat GetStat(Stat key)
         {
+            if (Stats == null)
+                TryGetComponent(out Stats);
+
             return Stats == null ? null : Stats.GetStat(key.Key());
         }
 
@@ -531,8 +534,13 @@ namespace MoreMountains
                 if (weaponAS)
                     totalAS += weaponAS.Value;
 
-                var baseWindupTime = DelayBeforeUsePct / characterAS.Initial;
-                var currentAttackTotalTime = 1 / totalAS;
+                float baseWindupTime = 0F;
+                if (characterAS.Initial > 0)
+                    baseWindupTime = DelayBeforeUsePct / characterAS.Initial;
+
+                float currentAttackTotalTime = 0F;
+                if (totalAS > 0)
+                    currentAttackTotalTime = 1 / totalAS;
 
                 var windupTime = baseWindupTime + DelayBeforeUseMultiplier * (currentAttackTotalTime * DelayBeforeUsePct - baseWindupTime);
                 raw = currentAttackTotalTime - windupTime;
@@ -624,7 +632,7 @@ namespace MoreMountains
         {
             OnFixedUpdate(Time.fixedDeltaTime);
         }
-        
+
         /// <summary>
         /// On LateUpdate, processes the weapon state
         /// </summary>
@@ -646,7 +654,7 @@ namespace MoreMountains
         protected virtual void OnFixedUpdate(float dt)
         {
         }
-        
+
         protected virtual void OnLateUpdate(float dt)
         {
             ProcessWeaponState(dt);

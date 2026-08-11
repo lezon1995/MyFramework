@@ -31,5 +31,7 @@ namespace MoreMountains
         [Header("Visual")]
         public Sprite Icon;
         public Color LevelColor = Color.white;
+        
+        public BallStatsTemplate StatsTemplate;
     }
 }

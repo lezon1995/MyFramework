@@ -15,6 +15,9 @@ namespace MoreMountains
             CritChance,
             CritDamage,
             DmgRate,
+            Duration,
+            HealthMax,
+            HitEffectChance,
         }
 
         public APlayer Player { get; set; }

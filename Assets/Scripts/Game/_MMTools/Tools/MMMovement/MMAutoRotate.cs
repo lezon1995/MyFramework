@@ -179,7 +179,7 @@ namespace MoreMountains.Tools
                 _radius = OrbitRadius * Vector3.Normalize(_snappedPosition - _orbitCenter);
                 _newRotation = Quaternion.AngleAxis(OrbitRotationSpeed * Time.deltaTime, _worldRotationAxis);
                 _desiredOrbitPosition = _orbitCenter + _newRotation * _radius;
-                this.transform.position = Vector3.Lerp(this.transform.position, _desiredOrbitPosition, OrbitCorrectionSpeed * Time.deltaTime);
+                transform.position = Vector3.Lerp(transform.position, _desiredOrbitPosition, OrbitCorrectionSpeed * Time.deltaTime);
                 _previousPosition = _desiredOrbitPosition;
             }
         }

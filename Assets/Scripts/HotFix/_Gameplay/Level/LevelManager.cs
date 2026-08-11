@@ -18,7 +18,7 @@ public class LevelManager : FrameSystem
     public override void init()
     {
         base.init();
-        var go = findRootGameObject("Borders");
+        var go = findRootGameObject("ReflectBorders");
         go.find(out var left, "BorderLeft");
         go.find(out var right, "BorderRight");
         go.find(out var top, "BorderTop");

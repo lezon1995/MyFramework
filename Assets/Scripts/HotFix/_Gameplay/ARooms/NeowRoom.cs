@@ -18,7 +18,7 @@
             foreach (var ballDef in _charSelectInfo.balls)
             {
                 var ballItem = BallItem.New(ballDef, 1);
-                p.BallManagement.EquipBallAtInitialization(ballItem);
+                p.Inventory.BallBag.TryInsert(ballItem);
             }
         }
 

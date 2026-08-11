@@ -38,13 +38,14 @@ namespace MoreMountains
             _relicBag = new(RelicBagCapacity, MaxRelicBagCapacity);
 
             // 把背包变更桥接到 InventoryEvents，便于跨模块订阅。
-            _ballBag.OnItemAdded += item => InventoryEvents.RaiseBallAdded(item);
-            _ballBag.OnItemRemoved += item => InventoryEvents.RaiseBallRemoved(item);
-            _ballBag.OnBagChanged += () => InventoryEvents.RaiseBallBagChanged();
+            _ballBag.OnItemAdded += InventoryEvents.RaiseBallAdded;
+            _ballBag.OnItemRemoved += InventoryEvents.RaiseBallRemoved;
+            _ballBag.OnBagChanged += InventoryEvents.RaiseBallBagChanged;
+            _ballBag.OnSlotChanged = _player.OnBallInventorySlotChanged;
 
-            _relicBag.OnItemAdded += item => InventoryEvents.RaiseRelicAdded(item);
-            _relicBag.OnItemRemoved += item => InventoryEvents.RaiseRelicRemoved(item);
-            _relicBag.OnBagChanged += () => InventoryEvents.RaiseRelicBagChanged();
+            _relicBag.OnItemAdded += InventoryEvents.RaiseRelicAdded;
+            _relicBag.OnItemRemoved += InventoryEvents.RaiseRelicRemoved;
+            _relicBag.OnBagChanged += InventoryEvents.RaiseRelicBagChanged;
 
             if (!_systemReadyRaised)
             {

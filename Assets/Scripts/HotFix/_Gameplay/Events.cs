@@ -41,13 +41,14 @@ public struct OnBallDeath
 public struct OnBallDeathTotally
 {
     public Ball ball;
-
-    public OnBallDeathTotally(Ball b)
-    {
-        ball = b;
-    }
+    public OnBallDeathTotally(Ball b) => ball = b;
 }
 
+public struct OnBallExpired
+{
+    public Ball ball;
+    public OnBallExpired(Ball b) => ball = b;
+}
 
 public struct OnBallHitBorderBot
 {

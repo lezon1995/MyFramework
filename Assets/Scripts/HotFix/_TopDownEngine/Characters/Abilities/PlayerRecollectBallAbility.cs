@@ -44,6 +44,9 @@ namespace MoreMountains
 
             if (!ball.Player.equalWith(_player))
                 return;
+            
+            if (ball.SourceWeapon is BallGunWeapon)
+                return;
 
             if (capturedBalls.contains(ball))
             {
@@ -67,6 +70,9 @@ namespace MoreMountains
                 return;
 
             if (!ball.Player.equalWith(_player))
+                return;
+            
+            if (ball.SourceWeapon is BallGunWeapon)
                 return;
 
             if (ball.inUse)

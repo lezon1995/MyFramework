@@ -4,9 +4,34 @@ using Random = UnityEngine.Random;
 
 namespace MoreMountains
 {
-    public class BallWeapon : ProjectileWeapon
+    public class BallGunWeapon : ProjectileWeapon
     {
         APlayer _player;
+
+        [MMInspectorGroup("ID")]
+        public BallDef BallDef;
+
+        [MMInspectorGroup("ID")]
+        public SpriteRenderer BallWeaponSpriteRenderer;
+
+        public override void Initialization()
+        {
+            base.Initialization();
+
+            if (BallWeaponSpriteRenderer)
+            {
+                BallWeaponSpriteRenderer.sprite = BallDef.Icon;
+            }
+        }
+
+        public void SetBallDef(BallDef def)
+        {
+            BallDef = def;
+            if (BallWeaponSpriteRenderer)
+            {
+                BallWeaponSpriteRenderer.sprite = def.Icon;
+            }
+        }
 
         public override void SetOwner(Character owner, CharacterHandleWeapon handleWeapon = null)
         {
@@ -16,23 +41,13 @@ namespace MoreMountains
 
         public override void ShootRequest()
         {
-            if (_player.BallManagement.Slots.HasAnySlotReadyToShoot())
-            {
-                State.ChangeState(States.Use);
-            }
-            else
-            {
-                State.ChangeState(States.Idle);
-            }
+            State.ChangeState(States.Use);
         }
 
         public override GameObject SpawnProjectile(Vector3 spawnPosition, int projectileIndex, int totalProjectiles, bool triggerObjectActivation = true)
         {
-            Ball ball = null;
-            var success = _player.BallManagement.Slots.TryGetFirstReadyToShootSlot(out var slot);
-            if (success)
-                success &= slot.TryShoot(out ball);
-
+            var ball = _player.BallManagement.Instance.acquireBall(BallDef.Type, spawnPosition);
+            var success = ball != null;
             // mandatory checks
             if (!success)
                 return null;

@@ -93,6 +93,9 @@ namespace MoreMountains
                 Ball.Stat.CritChance => "CritChance",
                 Ball.Stat.CritDamage => "CritDamage",
                 Ball.Stat.DmgRate => "DmgRate",
+                Ball.Stat.Duration => "Duration",
+                Ball.Stat.HealthMax => "HealthMax",
+                Ball.Stat.HitEffectChance => "HitEffectChance",
                 _ => throw new ArgumentOutOfRangeException(nameof(stat), stat, null)
             };
         }

@@ -135,6 +135,15 @@ namespace MoreMountains
 
             ChangeWeapon(InitialWeapon, InitialWeapon.WeaponName);
         }
+        
+        public override void SetAbilityPermitted(bool abilityPermitted)
+        {
+            base.SetAbilityPermitted(abilityPermitted);
+            if (WeaponAttachment)
+            {
+                WeaponAttachment.gameObject.SetActive(abilityPermitted);
+            }
+        }
 
         /// <summary>
         /// Every frame we check if it's needed to update the ammo display
