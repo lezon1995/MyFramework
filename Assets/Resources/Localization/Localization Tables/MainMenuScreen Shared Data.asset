@@ -1,0 +1,61 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b11a58205ec3474ca216360e9fa74a8, type: 3}
+  m_Name: MainMenuScreen Shared Data
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.SharedTableData
+  m_TableCollectionName: MainMenuScreen
+  m_TableCollectionNameGuidString: 2e1c5bbbc3581b4499bdbd5127f79fbe
+  m_Entries:
+  - m_Id: 1134372081664
+    m_Key: STATS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1207168421888
+    m_Key: SETTINGS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 533710000128
+    m_Key: RESUME_GAME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1378757398528
+    m_Key: QUIT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 139478978560
+    m_Key: PLAY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1279423696896
+    m_Key: PATCH_NOTES
+    m_Metadata:
+      m_Items: []
+  - m_Id: 888539729920
+    m_Key: INFO
+    m_Metadata:
+      m_Items: []
+  - m_Id: 657454551040
+    m_Key: ABANDON_RUN
+    m_Metadata:
+      m_Items: []
+  m_Metadata:
+    m_Items: []
+  m_KeyGenerator:
+    rid: 4149408543829917913
+  references:
+    version: 2
+    RefIds:
+    - rid: 4149408543829917913
+      type: {class: DistributedUIDGenerator, ns: UnityEngine.Localization.Tables,
+        asm: Unity.Localization}
+      data:
+        m_CustomEpoch: 1785817959761
