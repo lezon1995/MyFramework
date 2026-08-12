@@ -20,9 +20,11 @@ namespace MoreMountains
         public VolumeCollider volumeCollider;
         Action<Brick> onBornCompleted;
         APlayer player;
+        BrickDef def;
     
         public void setID(long id) => guid = id;
         public Type getType() => GetType();
+        public BrickDef getDef() => def;
         public long getGUID() => guid;
         public APlayer getTargetPlayer() => player;
 
@@ -77,6 +79,13 @@ namespace MoreMountains
         public void setPlayerAsTarget(APlayer p)
         {
             player = p;
+        }
+        
+        public void setBrickDef(BrickDef d)
+        {
+            def = d;
+            brickRenderer.setBlockSprite(d.BlockIcon);
+            brickRenderer.setUnitSprite(d.UnitIcon);
         }
     }
 }

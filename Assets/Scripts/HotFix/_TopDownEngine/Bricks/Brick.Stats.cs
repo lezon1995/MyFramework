@@ -1,6 +1,6 @@
 ﻿namespace MoreMountains
 {
-    public partial class Brick
+    public partial class Brick : IStatsGetter<Brick.Stat>
     {
         public new enum Stat
         {
@@ -16,7 +16,23 @@
             CritDamage, //Crit Damage
             DmgRate, //DmgRate
             DodgeChance, //Dodge Chance
+            KnockbackResistance,
         }
-    
+
+        public UniStats.Stat GetStat(Stat key)
+        {
+            return Stats == null ? null : Stats.GetStat(key.Key());
+        }
+
+        public bool GetStat(Stat key, out UniStats.Stat stat)
+        {
+            if (Stats == null)
+            {
+                stat = null;
+                return false;
+            }
+
+            return Stats.GetStat(key.Key(), out stat);
+        }
     }
 }

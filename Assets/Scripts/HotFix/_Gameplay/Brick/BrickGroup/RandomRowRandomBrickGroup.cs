@@ -47,7 +47,8 @@ public class RandomRowRandomBrickGroup : BrickGroup
         foreach (var index in selectIndexes)
         {
             var rect = grids.get(index);
-            templates.add(new(rect.center, new(1, 1),  health));
+            var randomDef = brickManager.GetRandomDef(new(1, 1));
+            templates.add(new(rect.center, randomDef,  health));
         }
     }
 

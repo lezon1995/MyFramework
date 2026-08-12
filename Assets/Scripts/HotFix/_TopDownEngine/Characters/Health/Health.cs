@@ -79,7 +79,8 @@ namespace MoreMountains
     [AddComponentMenu("TopDown Engine/Character/Core/Health")]
     public class Health : TopDownMonoBehaviour, IEventRouter, IReusable
     {
-        [MMInspectorGroup("Bindings")] [Tooltip("the model to disable (if set so)")]
+        [MMInspectorGroup("Bindings")]
+        [Tooltip("the model to disable (if set so)")]
         public GameObject Model;
 
         [MMInspectorGroup("Status")]
@@ -97,7 +98,8 @@ namespace MoreMountains
 
         public bool IsDeadTotally { get; set; }
 
-        [MMInspectorGroup("Health")] public int InitialHealth = 10;
+        [MMInspectorGroup("Health")]
+        public int InitialHealth = 10;
 
         public bool InitialHealthDrivenByMaximumHealth;
 
@@ -117,7 +119,8 @@ namespace MoreMountains
         [Tooltip("if this is true, health values will be reset everytime this character is enabled (usually at the start of a scene)")]
         public bool ResetHealthOnEnable = true;
 
-        [MMInspectorGroup("Health Regen")] [Tooltip("the base amount of health regen (receive health X per 1 second)")]
+        [MMInspectorGroup("Health Regen")]
+        [Tooltip("the base amount of health regen (receive health X per 1 second)")]
         public float BaseHealthRegen;
 
         public ValueModifier HealthRegenModifier { get; set; }
@@ -131,7 +134,8 @@ namespace MoreMountains
             }
         }
 
-        [MMInspectorGroup("Defence")] [Tooltip("基础护甲（AD防御）")]
+        [MMInspectorGroup("Defence")]
+        [Tooltip("基础护甲（AD防御）")]
         public float BaseAR;
 
         public ValueModifier AR_Modifier { get; set; }
@@ -145,7 +149,8 @@ namespace MoreMountains
             }
         }
 
-        [Tooltip("基础魔抗（AP防御）")] public float BaseMR;
+        [Tooltip("基础魔抗（AP防御）")]
+        public float BaseMR;
 
         public ValueModifier MR_Modifier { get; set; }
 
@@ -159,7 +164,8 @@ namespace MoreMountains
         }
 
 
-        [Tooltip("基础闪避率")] public float BaseDodgeChance;
+        [Tooltip("基础闪避率")]
+        public float BaseDodgeChance;
 
         public ValueModifier DodgeChance_Modifier { get; set; }
 
@@ -172,7 +178,9 @@ namespace MoreMountains
             }
         }
 
-        [MMInspectorGroup("Damage")] [MMInformation("Here you can specify an effect and a sound FX to instantiate when the object gets damaged, and also how long the object should flicker when hit (only works for sprites).")] [Tooltip("whether or not this Health object can be damaged")]
+        [MMInspectorGroup("Damage")]
+        [MMInformation("Here you can specify an effect and a sound FX to instantiate when the object gets damaged, and also how long the object should flicker when hit (only works for sprites).")]
+        [Tooltip("whether or not this Health object can be damaged")]
         public bool ImmuneToDamage;
 
         [Tooltip("the feedback to play when getting damage")]
@@ -184,7 +192,8 @@ namespace MoreMountains
         [Tooltip("if you set this to true, other objects damaging this one won't take any self damage")]
         public bool PreventTakeSelfDamage;
 
-        [MMInspectorGroup("Knockback")] [Tooltip("whether or not this object is immune to damage knockback")]
+        [MMInspectorGroup("Knockback")]
+        [Tooltip("whether or not this object is immune to damage knockback")]
         public bool ImmuneToKnockback;
 
         [Tooltip("whether or not this object is immune to damage knockback if the damage received is zero")]
@@ -193,7 +202,9 @@ namespace MoreMountains
         [Tooltip("a multiplier applied to the incoming knockback forces. 0 will cancel all knockback, 0.5 will cut it in half, 1 will have no effect, 2 will double the knockback force, etc")]
         public float KnockbackForceMultiplier = 1f;
 
-        [MMInspectorGroup("Death")] [MMInformation("Here you can set an effect to instantiate when the object dies, a force to apply to it (topdown controller required), how many points to add to the game score, and where the character should respawn (for non-player characters only).")] [Tooltip("whether or not this object should get destroyed on death")]
+        [MMInspectorGroup("Death")]
+        [MMInformation("Here you can set an effect to instantiate when the object dies, a force to apply to it (topdown controller required), how many points to add to the game score, and where the character should respawn (for non-player characters only).")]
+        [Tooltip("whether or not this object should get destroyed on death")]
         public bool DestroyOnDeath = true;
 
         [Tooltip("the time (in seconds) before the character is destroyed or disabled")]
@@ -226,13 +237,15 @@ namespace MoreMountains
         [Tooltip("if this is true, color will be reset on revive")]
         public bool ResetColorOnRevive = true;
 
-        [Tooltip("the name of the property on your renderer's shader that defines its color")] [MMCondition("ResetColorOnRevive", true)]
+        [Tooltip("the name of the property on your renderer's shader that defines its color")]
+        [MMCondition("ResetColorOnRevive", true)]
         public string ColorMaterialPropertyName = "_Color";
 
         [Tooltip("if this is true, this component will use material property blocks instead of working on an instance of the material.")]
         public bool UseMaterialPropertyBlocks;
 
-        [MMInspectorGroup("Animator")] [Tooltip("the target animator to pass a Death animation parameter to. The Health component will try to auto bind this if left empty")]
+        [MMInspectorGroup("Animator")]
+        [Tooltip("the target animator to pass a Death animation parameter to. The Health component will try to auto bind this if left empty")]
         public Animator TargetAnimator;
 
         /// if this is true, animator logs for the associated animator will be turned off to avoid potential spam
@@ -305,14 +318,14 @@ namespace MoreMountains
             if (IsDead())
                 return;
 
-            _timeElapsed += dt;
-            if (_timeElapsed >= 0.5F)
+            if (healthRegen > 0)
             {
-                _timeElapsed = 0F;
-                if (healthRegen == 0)
-                    return;
-
-                ReceiveHealth(Heal.Fixed((int)healthRegen), source: Character);
+                _timeElapsed += dt;
+                if (_timeElapsed >= 1F)
+                {
+                    _timeElapsed = 0F;
+                    ReceiveHealth(Heal.Fixed((int)healthRegen), source: Character);
+                }
             }
         }
 
@@ -550,7 +563,7 @@ namespace MoreMountains
         {
             return CurrentHealth <= 0;
         }
-        
+
         public bool IsAlive()
         {
             return CurrentHealth > 0;
@@ -666,7 +679,7 @@ namespace MoreMountains
 
                     dmg.IsLethal = isLethal;
                 }
-                
+
                 // we prevent the character from colliding with Projectiles, Player and Enemies
                 if (invincibleTime > 0 && !dmg.IsLethal)
                 {

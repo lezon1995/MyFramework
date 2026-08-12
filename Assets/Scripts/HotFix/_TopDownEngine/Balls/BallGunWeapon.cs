@@ -4,7 +4,7 @@ using Random = UnityEngine.Random;
 
 namespace MoreMountains
 {
-    public class BallGunWeapon : ProjectileWeapon
+    public class BallGunWeapon : ProjectileWeapon, IStatsGetter<Ball.Stat>
     {
         APlayer _player;
 
@@ -22,6 +22,9 @@ namespace MoreMountains
             {
                 BallWeaponSpriteRenderer.sprite = BallDef.Icon;
             }
+
+            Stats.InitializeStats(BallDef.StatsTemplate);
+            InitializeStats();
         }
 
         public void SetBallDef(BallDef def)
@@ -29,7 +32,17 @@ namespace MoreMountains
             BallDef = def;
             if (BallWeaponSpriteRenderer)
             {
-                BallWeaponSpriteRenderer.sprite = def.Icon;
+                if (def)
+                {
+                    BallWeaponSpriteRenderer.sprite = def.Icon;
+                    BallWeaponSpriteRenderer.gameObject.SetActive(true);
+                    Stats.InitializeStats(def.StatsTemplate);
+                    InitializeStats();
+                }
+                else
+                {
+                    BallWeaponSpriteRenderer.gameObject.SetActive(false);
+                }
             }
         }
 
@@ -42,6 +55,68 @@ namespace MoreMountains
         public override void ShootRequest()
         {
             State.ChangeState(States.Use);
+        }
+
+        protected override void OnOwnerStatsSet()
+        {
+        }
+
+        void InitializeStats()
+        {
+            var characterAS = Owner.GetStat(Character.Stat.AS);
+            var ballAS = GetStat(Ball.Stat.AS);
+            //Weapon的DelayBeforeUseF = (1 + Character.AS + Weapon.AS) * Weapon.DelayBeforeUseF
+            DelayBeforeUseModifier = (ref float raw) =>
+            {
+                float totalAS = 0F;
+                if (characterAS)
+                    totalAS += characterAS.Value;
+                if (ballAS)
+                    totalAS += ballAS.Value;
+
+                var baseWindupTime = DelayBeforeUsePct / characterAS.Initial;
+                var currentAttackTotalTime = 1 / totalAS;
+
+                var windupTime = baseWindupTime + DelayBeforeUseMultiplier * (currentAttackTotalTime * DelayBeforeUsePct - baseWindupTime);
+                raw = windupTime;
+            };
+
+            //Weapon的TimeBetweenUsesF = (1 + Character.AS + Weapon.AS) * Weapon.TimeBetweenUsesF
+            TimeBetweenUsesModifier = (ref float raw) =>
+            {
+                float totalAS = 0F;
+                if (characterAS)
+                    totalAS += characterAS.Value;
+                if (ballAS)
+                    totalAS += ballAS.Value;
+
+                float baseWindupTime = 0F;
+                if (characterAS.Initial > 0)
+                    baseWindupTime = DelayBeforeUsePct / characterAS.Initial;
+
+                float currentAttackTotalTime = 0F;
+                if (totalAS > 0)
+                    currentAttackTotalTime = 1 / totalAS;
+
+                var windupTime = baseWindupTime + DelayBeforeUseMultiplier * (currentAttackTotalTime * DelayBeforeUsePct - baseWindupTime);
+                raw = currentAttackTotalTime - windupTime;
+            };
+
+            var characterAD = Owner.GetStat(Character.Stat.AD);
+            var weaponAD = GetStat(Ball.Stat.HitDamage);
+            //Weapon的Damage = (Character.AD + Weapon.AD) * Weapon.AD_Coeff
+            DamageModifier = (ref float raw) =>
+            {
+                float v1 = 0F, v2 = 0F;
+
+                if (characterAD)
+                    v1 = characterAD.Value;
+
+                if (weaponAD)
+                    v2 = weaponAD.Value;
+
+                raw = v1 + v2;
+            };
         }
 
         public override GameObject SpawnProjectile(Vector3 spawnPosition, int projectileIndex, int totalProjectiles, bool triggerObjectActivation = true)
@@ -124,6 +199,25 @@ namespace MoreMountains
             // }
 
             return ball.getGameObject();
+        }
+
+        public UniStats.Stat GetStat(Ball.Stat key)
+        {
+            if (Stats == null)
+                TryGetComponent(out Stats);
+
+            return Stats == null ? null : Stats.GetStat(key.Key());
+        }
+
+        public bool GetStat(Ball.Stat key, out UniStats.Stat stat)
+        {
+            if (Stats == null)
+            {
+                stat = null;
+                return false;
+            }
+
+            return Stats.GetStat(key.Key(), out stat);
         }
     }
 }

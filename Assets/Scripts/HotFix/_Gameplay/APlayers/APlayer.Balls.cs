@@ -27,8 +27,8 @@ namespace MoreMountains
         public InventorySystem Inventory => inventory;
         public ShopSystem Shop => shop;
         public PlayerWallet Wallet => wallet;
-        
-        CharacterHandleWeapon[] handleWeapons;
+
+        public CharacterHandleWeapon[] handleWeapons;
         public BallWeaponAttachmentRoot ballWeaponAttachmentRoot;
 
         protected override void Initialization()
@@ -65,6 +65,7 @@ namespace MoreMountains
             for (var i = 0; i < handleWeapons.Length; i++)
             {
                 handleWeapons[i].SetAbilityPermitted(false);
+                handleWeapons[i].SetWeaponAttachmentActive(false);
             }
         }
 
@@ -72,11 +73,12 @@ namespace MoreMountains
         {
             var handleWeapon = handleWeapons[slot.Index];
             handleWeapon.SetAbilityPermitted(slot.IsOccupied);
+            handleWeapon.SetWeaponAttachmentActive(slot.IsOccupied);
             if (handleWeapon.CurrentWeapon is BallGunWeapon ballGunWeapon)
             {
-                ballGunWeapon.SetBallDef(slot.Item.Def);
+                ballGunWeapon.SetBallDef(slot.Item == null ? null : slot.Item.Def);
             }
-            
+
             ballWeaponAttachmentRoot.RefreshLayout();
         }
 

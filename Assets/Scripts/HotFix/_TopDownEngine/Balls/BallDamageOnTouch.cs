@@ -13,12 +13,45 @@ namespace MoreMountains
             base.Awake();
             TryGetComponent(out ball);
         }
-        
+
+        protected override void ApplyKnockback(Dmg damage)
+        {
+            if (ShouldApplyKnockback(damage))
+            {
+                Vector3 force;
+                if (damage.IsLethal)
+                    force = LethalDamageKnockbackForce;
+                else
+                    force = DamageKnockbackForce;
+
+                float knockbackValue = 0F;
+                var b1 = ball.GetStat(Ball.Stat.Knockback, out var knockbackStat1);
+                var b2 = ball.getPlayer().GetStat(Character.Stat.Knockback, out var knockbackStat2);
+                if (b1)
+                    knockbackValue += knockbackStat1.Value;
+                if (b2)
+                    knockbackValue += knockbackStat2.Value;
+
+                _knockbackForce = force * (_colliderHealth.KnockbackForceMultiplier + knockbackValue);
+                _knockbackForce = _colliderHealth.ComputeKnockbackForce(_knockbackForce);
+
+                if (_knockbackForce != Vector3.zero)
+                {
+                    ApplyKnockback2D();
+
+                    if (DamageCausedKnockbackType == KnockbackStyles.AddForce)
+                    {
+                        _colliderTopDownController.AddImpact(_knockbackForce.normalized, _knockbackForce.magnitude);
+                    }
+                }
+            }
+        }
+
         public override void OnTriggerEnter2D(Collider2D c)
         {
             if (ManuallyColliding)
                 return;
-            
+
             if (0 == (TriggerFilter & TriggerMask.OnTriggerEnter2D))
                 return;
 
@@ -30,6 +63,7 @@ namespace MoreMountains
                         var dmg = ball.getHitDmg(brick, Vector2.up);
                         Colliding(brick, dmg);
                     }
+
                     break;
                 case LayerManager.Obstacles:
                     if (c.TryGetComponent(out Obstacle obstacle))
@@ -37,10 +71,11 @@ namespace MoreMountains
                         var dmg = ball.getHitDmg(obstacle, Vector2.up);
                         Colliding(obstacle, dmg);
                     }
+
                     break;
             }
         }
-        
+
         protected override void DetermineDamageDirection()
         {
             _damageDirection = ball.Direction;

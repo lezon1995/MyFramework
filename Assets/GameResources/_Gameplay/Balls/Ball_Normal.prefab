@@ -431,10 +431,10 @@ MonoBehaviour:
       PctAP: 0
       PctTrue: 0
   DamageDirectionMode: 0
-  DamageCausedKnockbackType: 0
+  DamageCausedKnockbackType: 1
   DamageCausedKnockbackDirection: 3
-  DamageKnockbackForce: {x: 2, y: 0, z: 0}
-  LethalDamageKnockbackForce: {x: 5, y: 0, z: 0}
+  DamageKnockbackForce: {x: 1, y: 0, z: 0}
+  LethalDamageKnockbackForce: {x: 1, y: 0, z: 0}
   InvincibilityDuration: 0
   DamageTakenHealth: {fileID: 7506332256038837395}
   DamageTakenEveryTime: 0
@@ -525,7 +525,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9bcba2d95a9841fda3f97dac37b38f7b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: HotFix::MoreMountains.BallStats
-  Debug: 0
+  AutoInitialize: 1
   StatsConfig: {fileID: 11400000, guid: b2e411f365f96d24f8ad790bcf218186, type: 2}
 --- !u!1 &7153978691015391763
 GameObject:

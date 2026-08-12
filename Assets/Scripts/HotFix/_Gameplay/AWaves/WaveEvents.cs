@@ -123,12 +123,12 @@ namespace MoreMountains
     /// </summary>
     public struct OnMonsterSpawned
     {
-        public AMonster Monster;
+        public Brick Monster;
         public SpawnEnemyType Type;
         public Vector3 Position;
         public int WaveNumber;
 
-        public OnMonsterSpawned(AMonster monster, SpawnEnemyType type, Vector3 position, int waveNumber)
+        public OnMonsterSpawned(Brick monster, SpawnEnemyType type, Vector3 position, int waveNumber)
         {
             Monster = monster;
             Type = type;
@@ -142,12 +142,12 @@ namespace MoreMountains
     /// </summary>
     public struct OnMonsterKilled_Wave
     {
-        public AMonster Monster;
+        public Brick Monster;
         public SpawnEnemyType Type;
         public int WaveNumber;
         public float TimeSinceWaveStart;
 
-        public OnMonsterKilled_Wave(AMonster monster, SpawnEnemyType type, int waveNumber, float elapsedTime)
+        public OnMonsterKilled_Wave(Brick monster, SpawnEnemyType type, int waveNumber, float elapsedTime)
         {
             Monster = monster;
             Type = type;
@@ -161,11 +161,11 @@ namespace MoreMountains
     /// </summary>
     public struct OnBossSpawned
     {
-        public AMonster Boss;
+        public Brick Boss;
         public int WaveNumber;
         public string BossId;
 
-        public OnBossSpawned(AMonster boss, int waveNumber, string bossId)
+        public OnBossSpawned(Brick boss, int waveNumber, string bossId)
         {
             Boss = boss;
             WaveNumber = waveNumber;
@@ -178,10 +178,10 @@ namespace MoreMountains
     /// </summary>
     public struct OnBossDefeated
     {
-        public AMonster Boss;
+        public Brick Boss;
         public int WaveNumber;
 
-        public OnBossDefeated(AMonster boss, int waveNumber)
+        public OnBossDefeated(Brick boss, int waveNumber)
         {
             Boss = boss;
             WaveNumber = waveNumber;

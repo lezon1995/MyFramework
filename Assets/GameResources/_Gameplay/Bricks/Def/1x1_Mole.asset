@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eb4e6f4626e14ce988bbce44e5e5156d, type: 3}
+  m_Name: 1x1_Mole
+  m_EditorClassIdentifier: HotFix::MoreMountains.BrickDef
+  Size: {x: 1, y: 1}
+  UnitIcon: {fileID: 21300000, guid: 82f7bae576ecde04eb533e7a4fa27bd9, type: 3}
+  BlockIcon: {fileID: -883576727, guid: 8a17480229ec54c4fba2799554e7030a, type: 3}
+  StatsTemplate: {fileID: 11400000, guid: e37b62a0f590cbe4cb11d266c422d36e, type: 2}

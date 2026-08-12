@@ -33,6 +33,7 @@ namespace MoreMountains
                 Brick.Stat.CritDamage => Stats.CritDamage,
                 Brick.Stat.DmgRate => Stats.DmgRate,
                 Brick.Stat.DodgeChance => Stats.DodgeChance,
+                Brick.Stat.KnockbackResistance => Stats.KnockbackResistance,
                 _ => throw new ArgumentOutOfRangeException(nameof(stat), stat, null)
             };
         }

@@ -31,10 +31,7 @@ namespace MoreMountains
     public class MonsterSpawnConfig
     {
         [Tooltip("怪物ID或预设路径")]
-        public string monsterId;
-
-        [Tooltip("怪物类型")]
-        public SpawnEnemyType enemyType = SpawnEnemyType.Normal;
+        public BrickDef monsterDef;
 
         [Tooltip("生成权重（数值越高越容易被选中）")]
         public float spawnWeight = 1f;
@@ -102,7 +99,7 @@ namespace MoreMountains
 
         [Header("Boss Settings")]
         [Tooltip("Boss怪物ID（当clearStrategy为DefeatBoss时使用）")]
-        public string bossMonsterId;
+        public BrickDef bossMonsterId;
 
         [Tooltip("Boss出现的时间点（波次开始后的秒数）")]
         public float bossSpawnTime = 30f;

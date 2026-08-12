@@ -75,12 +75,12 @@ namespace MoreMountains
 
         protected virtual void InitializeVolumeManager()
         {
-            if (VolumeManager.Instance == null)
+            if (volumeManager == null)
             {
                 var go = new GameObject("VolumeManager");
                 go.AddComponent<VolumeManager>();
             }
-            VolumeManager.Instance.ShowAllGizmos = ShowAllRadius;
+            volumeManager.ShowAllGizmos = ShowAllRadius;
         }
 
         protected virtual void CreatePlayer()
@@ -98,7 +98,7 @@ namespace MoreMountains
             _playerBody.SpeedMultiplier = 1f;
             _playerBody.GizmosColor = Color.blue;
 
-            VolumeManager.Instance.Register(_playerBody);
+            volumeManager.Register(_playerBody);
         }
 
         protected virtual void CreateTestEntities()
@@ -131,7 +131,7 @@ namespace MoreMountains
             body.SpeedMultiplier = Random.Range(0.5f, 1.5f);
             body.GizmosColor = randomColor;
 
-            VolumeManager.Instance.Register(body);
+            volumeManager.Register(body);
             _testEntities.Add(body);
 
             return body;
@@ -176,7 +176,7 @@ namespace MoreMountains
             GUILayout.BeginArea(new Rect(10, 10, 300, 400));
             GUILayout.Label("=== 体积感系统测试 ===");
             GUILayout.Label($"实体数量: {_testEntities.Count + 1}");
-            var str = VolumeManager.Instance ? "N/A" : "0";
+            var str = volumeManager ? "N/A" : "0";
             GUILayout.Label($"碰撞检测次数: {str}");
             GUILayout.Space(10);
             GUILayout.Label("操作:");
@@ -220,14 +220,14 @@ namespace MoreMountains
 
         protected virtual void TestKnockback()
         {
-            if (_playerBody == null || VolumeManager.Instance == null) 
+            if (_playerBody == null || volumeManager == null) 
                 return;
 
             // 对所有测试实体施打击退力
             foreach (var entity in _testEntities)
             {
                 Vector2 dir = (entity.Position - _playerBody.Position).normalized;
-                VolumeManager.Instance.ApplyKnockback(entity, dir, 10f);
+                volumeManager.ApplyKnockback(entity, dir, 10f);
             }
         }
 
@@ -238,16 +238,16 @@ namespace MoreMountains
             // 清理
             foreach (var entity in _testEntities)
             {
-                if (entity && VolumeManager.Instance)
+                if (entity && volumeManager)
                 {
-                    VolumeManager.Instance.Unregister(entity);
+                    volumeManager.Unregister(entity);
                 }
             }
             _testEntities.Clear();
 
-            if (_playerBody && VolumeManager.Instance)
+            if (_playerBody && volumeManager)
             {
-                VolumeManager.Instance.Unregister(_playerBody);
+                volumeManager.Unregister(_playerBody);
             }
         }
     }

@@ -188,7 +188,7 @@ namespace UniStats
 
         public override string ToString()
         {
-            return $"{Value} = {Initial}+({Bonus.Value}+{Initial}*{BonusPct.Value})*{BonusRatio.Value}";
+            return $"{Value} = {Initial} + ({Bonus.Value} + {Initial} * {BonusPct.Value}) * {BonusRatio.Value}";
         }
 
         public void Release()

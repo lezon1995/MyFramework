@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using MoreMountains.Tools;
 using UnityEngine;
 using UnityEngine.Pool;
 
@@ -138,7 +137,7 @@ namespace MoreMountains
     /// 不使用Unity内置物理系统，纯靠速度、质量和碰撞体大小来计算
     /// 性能优化：位运算配对去重 + 增量空间哈希 + 旁路式碰撞处理 + 预分配缓冲区
     /// </summary>
-    public class VolumeManager : MMSingleton<VolumeManager>
+    public class VolumeManager : MainManagerBehaviour
     {
         [Header("系统设置")]
         [Tooltip("是否启用体积碰撞系统")]
@@ -261,25 +260,10 @@ namespace MoreMountains
         public event Action<VolumeCollisionEvent> OnCollisionDetected;
         public event Action<KnockbackEvent> OnKnockbackApplied;
 
-        /// <summary>
-        /// Statics initialization to support enter play modes
-        /// </summary>
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        protected static void InitializeStatics()
+        protected override void OnAwake()
         {
-            _instance = null;
-        }
-
-        protected override void Awake()
-        {
-            base.Awake();
+            base.OnAwake();
             InitializeSpatialHash();
-        }
-
-        protected virtual void OnDestroy()
-        {
-            if (Instance == this)
-                _instance = null;
         }
 
         void InitializeSpatialHash()
@@ -296,12 +280,12 @@ namespace MoreMountains
             }
         }
 
-        protected virtual void Update()
+        public override void OnUpdate(float dt)
         {
+            base.OnUpdate(dt);
             if (!Enabled)
                 return;
 
-            var dt = Time.deltaTime;
             _updateTimer += dt;
             if (UpdateInterval > 0 && _updateTimer < UpdateInterval)
                 return;
@@ -402,7 +386,7 @@ namespace MoreMountains
             var colliders = FindObjectsByType<VolumeCollider>(FindObjectsSortMode.None);
             foreach (var col in colliders)
             {
-                if (col.IsEnabled())
+                if (col.IsEnabled() && col.AutoRegister)
                 {
                     RegisterSolidCollider(col);
                 }

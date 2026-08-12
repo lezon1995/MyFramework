@@ -139,9 +139,13 @@ namespace MoreMountains
         public override void SetAbilityPermitted(bool abilityPermitted)
         {
             base.SetAbilityPermitted(abilityPermitted);
+        }
+
+        public void SetWeaponAttachmentActive(bool active)
+        {
             if (WeaponAttachment)
             {
-                WeaponAttachment.gameObject.SetActive(abilityPermitted);
+                WeaponAttachment.gameObject.SetActive(active);
             }
         }
 

@@ -540,29 +540,42 @@ namespace MoreMountains
         {
             if (lastRadius.isEqual(Radius))
                 return;
+
             setRadius(Radius);
         }
 
-        public int getPhysicDamage()
+        public int getHitDamage()
         {
-            float physicDamage = 0;
-            if (GetStat(Stat.AD, out var ballAD))
+            float hitDamage = 0;
+            if (GetStat(Stat.HitDamage, out var ballHitDamage))
             {
-                physicDamage += ballAD.Value;
+                hitDamage += ballHitDamage.Value;
             }
 
             if (Player.GetStat(Character.Stat.AD, out var characterAD))
             {
-                physicDamage += characterAD.Value;
+                GetStat(Stat.HitDamageRate, out var ballHitDamageRate);
+                hitDamage += (characterAD.Value * ballHitDamageRate.Value);
             }
 
-            return (int)physicDamage;
+            return (int)hitDamage;
         }
 
-        public int getMagicDamage()
+        public int getEffectDamage()
         {
-            GetStat(Stat.AP, out var stat);
-            return (int)stat.Value;
+            float effectDamage = 0;
+            if (GetStat(Stat.EffectDamage, out var ballEffectDamage))
+            {
+                effectDamage += ballEffectDamage.Value;
+            }
+            
+            if (Player.GetStat(Character.Stat.AP, out var characterAP))
+            {
+                GetStat(Stat.EffectDamageRate, out var ballEffectDamageRate);
+                effectDamage += (characterAP.Value * ballEffectDamageRate.Value);
+            }
+            
+            return (int)effectDamage;
         }
 
         public virtual bool getSelfDamage(Brick brick, out int selfDamage)
@@ -591,7 +604,7 @@ namespace MoreMountains
 
         public virtual Dmg getHitDmg(Brick brick, Vector2 normal)
         {
-            var d = getPhysicDamage();
+            var d = getHitDamage();
             var dmg = Dmg.AD(d);
             dmg.setAttackEffect();
             GetStat(Stat.DmgRate, out var dmgRate);
@@ -615,7 +628,7 @@ namespace MoreMountains
 
         public virtual Dmg getSkillDmg(Brick brick)
         {
-            var d = getMagicDamage();
+            var d = getEffectDamage();
             var dmg = Dmg.AP(d);
             dmg.setSkillEffect();
 

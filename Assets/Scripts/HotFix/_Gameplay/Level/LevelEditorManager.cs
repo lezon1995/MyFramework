@@ -137,11 +137,11 @@ namespace MoreMountains
 
                     if (add)
                     {
-                        brickTemplates.add(new(grid.center, t, 1));
+                        // brickTemplates.add(new(grid.center, t, 1));
                     }
                     else if (remove)
                     {
-                        brickTemplates.remove(new(grid.center, t, 1));
+                        // brickTemplates.remove(new(grid.center, t, 1));
                     }
                 }
 

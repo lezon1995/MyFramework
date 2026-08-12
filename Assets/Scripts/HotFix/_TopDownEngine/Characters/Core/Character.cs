@@ -41,6 +41,8 @@ namespace MoreMountains
             Range, //Attack Range
             DodgeChance, //Dodge Chance
             BallisticSpeed, //Ballistic Speed
+            HitEffectChance,
+            Knockback,
         }
 
         /// The possible Movement States the character can be in. These usually correspond to their own class, 
@@ -964,6 +966,14 @@ namespace MoreMountains
             }
 
             return Stats.GetStat(key.Key(), out stat);
+        }
+
+        public override void onRelease()
+        {
+            if (Stats)
+                Stats.ClearStats();
+
+            base.onRelease();
         }
     }
 }

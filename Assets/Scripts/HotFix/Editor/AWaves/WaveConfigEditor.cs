@@ -35,6 +35,7 @@ namespace MoreMountains
             {
                 CreateNewConfig();
             }
+
             EditorGUILayout.EndHorizontal();
 
             if (_currentConfig == null)
@@ -119,6 +120,7 @@ namespace MoreMountains
             {
                 AddNewWave();
             }
+
             GUILayout.FlexibleSpace();
             EditorGUILayout.EndHorizontal();
 
@@ -168,6 +170,7 @@ namespace MoreMountains
                     GUIUtility.ExitGUI();
                 }
             }
+
             EditorGUILayout.EndHorizontal();
 
             // 展开内容
@@ -232,7 +235,7 @@ namespace MoreMountains
             if (wave.clearStrategy == WaveClearStrategy.DefeatBoss)
             {
                 EditorGUILayout.LabelField("Boss Settings", EditorStyles.miniLabel);
-                wave.bossMonsterId = EditorGUILayout.TextField("Boss Monster ID", wave.bossMonsterId);
+                wave.bossMonsterId = (BrickDef)EditorGUILayout.ObjectField("Boss Monster Def", wave.bossMonsterId, typeof(BrickDef), false);
                 wave.bossSpawnTime = EditorGUILayout.FloatField("Boss Spawn Time", wave.bossSpawnTime);
             }
 
@@ -277,8 +280,7 @@ namespace MoreMountains
                     EditorGUILayout.BeginHorizontal();
 
                     EditorGUI.BeginChangeCheck();
-                    monster.monsterId = EditorGUILayout.TextField(monster.monsterId, GUILayout.Width(80));
-                    monster.enemyType = (SpawnEnemyType)EditorGUILayout.EnumPopup(monster.enemyType, GUILayout.Width(80));
+                    monster.monsterDef = (BrickDef)EditorGUILayout.ObjectField("Monster Def", monster.monsterDef, typeof(BrickDef), false);
                     monster.spawnWeight = EditorGUILayout.FloatField(monster.spawnWeight, GUILayout.Width(60));
                     monster.forceSpawnOnce = EditorGUILayout.Toggle(monster.forceSpawnOnce, GUILayout.Width(50));
 
@@ -286,6 +288,7 @@ namespace MoreMountains
                     {
                         wave.availableMonsters.RemoveAt(i);
                     }
+
                     EditorGUILayout.EndHorizontal();
                 }
             }
@@ -299,6 +302,7 @@ namespace MoreMountains
             {
                 wave.availableMonsters.Add(new MonsterSpawnConfig());
             }
+
             GUILayout.FlexibleSpace();
             EditorGUILayout.EndHorizontal();
         }

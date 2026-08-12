@@ -76,33 +76,33 @@ namespace MoreMountains
         protected virtual void Start()
         {
             // 注册到体积管理器
-            if (VolumeManager.Instance != null)
+            if (volumeManager != null)
             {
-                VolumeManager.Instance.Register(_body);
+                volumeManager.Register(_body);
             }
         }
 
         protected virtual void OnEnable()
         {
-            if (_body != null && VolumeManager.Instance != null)
+            if (_body != null && volumeManager != null)
             {
-                VolumeManager.Instance.Register(_body);
+                volumeManager.Register(_body);
             }
         }
 
         protected virtual void OnDisable()
         {
-            if (_body != null && VolumeManager.Instance != null)
+            if (_body != null && volumeManager != null)
             {
-                VolumeManager.Instance.Unregister(_body);
+                volumeManager.Unregister(_body);
             }
         }
 
         protected virtual void OnDestroy()
         {
-            if (_body != null && VolumeManager.Instance != null)
+            if (_body != null && volumeManager != null)
             {
-                VolumeManager.Instance.Unregister(_body);
+                volumeManager.Unregister(_body);
             }
         }
 
@@ -216,9 +216,9 @@ namespace MoreMountains
             _body.AddImpact(direction, actualForce);
 
             // 如果可以触发链式击退
-            if (CanTriggerChainKnockback && VolumeManager.Instance != null)
+            if (CanTriggerChainKnockback && volumeManager != null)
             {
-                VolumeManager.Instance.ApplyKnockback(_body, direction, force);
+                volumeManager.ApplyKnockback(_body, direction, force);
             }
         }
 
@@ -232,9 +232,9 @@ namespace MoreMountains
             ApplyKnockback(knockbackDir, knockbackForce);
 
             // 触发链式击退
-            if (CanTriggerChainKnockback && VolumeManager.Instance != null)
+            if (CanTriggerChainKnockback && volumeManager != null)
             {
-                VolumeManager.Instance.ApplyKnockback(_body, knockbackDir, knockbackForce);
+                volumeManager.ApplyKnockback(_body, knockbackDir, knockbackForce);
             }
         }
 

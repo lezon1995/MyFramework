@@ -17,7 +17,6 @@ public class GBR
     public static GameDesign gameDesign { get; set; }
 
     // FrameSystem
-    public static BrickManager brickManager;
     public static LevelManager levelManager;
     public static FTextManager textManager;
     public static LocalizedStrings languagePack;
@@ -62,6 +61,7 @@ public class GBR
     public static PrefabPoolManager prefabPool => mPrefabPoolManager;
 
     public static BallManager ballManager;
+    public static BrickManager brickManager;
     public static RelicManager relicManager;
     public static VolumeManager volumeManager;
     public static MoreMountains.CharacterManager characterManager;

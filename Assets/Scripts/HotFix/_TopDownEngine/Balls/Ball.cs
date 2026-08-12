@@ -9,8 +9,11 @@ namespace MoreMountains
     {
         public enum Stat
         {
-            AD,
-            AP,
+            HitDamage,
+            EffectDamage,
+            HitDamageRate,
+            EffectDamageRate,
+            AS,
             MS,
             CritChance,
             CritDamage,
@@ -18,6 +21,8 @@ namespace MoreMountains
             Duration,
             HealthMax,
             HitEffectChance,
+            Knockback,
+            LifeSteal,
         }
 
         public APlayer Player { get; set; }

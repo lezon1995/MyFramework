@@ -68,26 +68,20 @@ namespace MoreMountains
         protected virtual void Start()
         {
             UpdateColliderCache();
-
-            if (AutoRegister)
-            {
-                RegisterToVolumeManager();
-            }
         }
 
         void OnDestroy()
         {
-            UnregisterToVolumeManager();
         }
 
         public void RegisterToVolumeManager()
         {
-            VolumeManager.Instance.RegisterSolidCollider(this);
+            volumeManager.RegisterSolidCollider(this);
         }
 
         public void UnregisterToVolumeManager()
         {
-            VolumeManager.Instance.UnregisterSolidCollider(this);
+            volumeManager.UnregisterSolidCollider(this);
         }
 
         /// <summary>

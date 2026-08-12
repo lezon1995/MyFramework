@@ -57,7 +57,7 @@ public class ElectricityStrikeEffect : ALogicEffect, IArgs<Ball, Brick, int>
         if (duration.unstarted && !lastOne)
         {
             var excludePos = history[count.elapsed].getWorldPosition();
-            if (brickManager.getRandomActiveBrick(out var b, history, excludePos, 1.5F))
+            if (brickManager.getRandomActiveBrick(out var b, history, excludePos))
             {
                 if (brick)
                 {

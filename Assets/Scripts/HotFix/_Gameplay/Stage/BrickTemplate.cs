@@ -7,8 +7,9 @@ namespace MoreMountains;
 public struct BrickTemplate : IEquatable<BrickTemplate>
 {
     public static Vector2 cellSize = new(0.675F, 0.675F);
+    public BrickDef def;
     public Vector2 position;
-    public Vector2Int size;
+    public Vector2Int size => def.Size;
     public int health;
 
     public Rect rect => getRect();
@@ -20,24 +21,17 @@ public struct BrickTemplate : IEquatable<BrickTemplate>
         return new(p, size * cellSize);
     }
 
-    public BrickTemplate()
-    {
-        position = default;
-        size = default;
-        health = 1;
-    }
-    
-    public BrickTemplate(Vector2 _position, Vector2Int _size)
+    public BrickTemplate(Vector2 _position, BrickDef _def)
     {
         position = _position;
-        size = _size;
+        def = _def;
         health = 0;
     }
 
-    public BrickTemplate(Vector2 _position, Vector2Int _size, int _health)
+    public BrickTemplate(Vector2 _position, BrickDef _def, int _health)
     {
         position = _position;
-        size = _size;
+        def = _def;
         health = _health;
     }
 

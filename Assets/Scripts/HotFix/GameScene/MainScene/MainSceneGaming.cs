@@ -50,7 +50,7 @@ public class MainSceneGaming : SceneProcedure
             // var rect = brickManager.brickLayout.getRectAtPos(worldPos);
             // var brick = brickManager.showBrick(worldPos, new(1.14F, 0.82F), 20);
             var cellPos = grid2DView.WorldToCellPos(worldPos);
-            var brick = brickManager.acquireBrick(cellPos, new(1, 1));
+            var brick = brickManager.acquireBrick(brickManager.GetRandomDef(new(1, 1)), cellPos);
             // balls.add(ball);
         }
 

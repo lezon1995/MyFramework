@@ -65,13 +65,13 @@ namespace MoreMountains
         /// </summary>
         public static void Apply(TopDownController2D target, in KnockbackInfo info)
         {
-            if (target == null || VolumeManager.Instance == null) 
+            if (target == null || volumeManager == null) 
                 return;
             
             if (info.Force < 0.01f)
                 return;
 
-            VolumeManager.Instance.ApplyKnockback(target, info.Direction, info.Force);
+            volumeManager.ApplyKnockback(target, info.Direction, info.Force);
         }
 
         /// <summary>
@@ -79,12 +79,12 @@ namespace MoreMountains
         /// </summary>
         public static void Apply(TopDownController2D target, IKnockbackSource source)
         {
-            if (target == null || source == null || VolumeManager.Instance == null) 
+            if (target == null || source == null || volumeManager == null) 
                 return;
 
             var direction = source.GetKnockbackDirection();
             var force = source.GetKnockbackForce();
-            VolumeManager.Instance.ApplyKnockback(target, direction, force);
+            volumeManager.ApplyKnockback(target, direction, force);
         }
 
         /// <summary>
@@ -92,11 +92,11 @@ namespace MoreMountains
         /// </summary>
         public static void ApplyAreaKnockback(Vector2 center, float radius, in KnockbackInfo info)
         {
-            if (VolumeManager.Instance == null) 
+            if (volumeManager == null) 
                 return;
 
             using var _ = new ListScope<TopDownController2D>(out var entities);
-            VolumeManager.Instance.GetEntitiesInRadius(center, radius, ref entities);
+            volumeManager.GetEntitiesInRadius(center, radius, ref entities);
             foreach (var entity in entities)
             {
                 Vector2 toEntity = entity.Position - center;
@@ -121,14 +121,14 @@ namespace MoreMountains
         /// </summary>
         public static void ApplyConeKnockback(Vector2 origin, Vector2 direction, float angle, float radius, in KnockbackInfo info)
         {
-            if (VolumeManager.Instance == null)
+            if (volumeManager == null)
                 return;
 
             float halfAngle = angle * 0.5f;
             float cosThreshold = Mathf.Cos(halfAngle * Mathf.Deg2Rad);
 
             using var _ = new ListScope<TopDownController2D>(out var entities);
-            VolumeManager.Instance.GetEntitiesInRadius(origin, radius, ref entities);
+            volumeManager.GetEntitiesInRadius(origin, radius, ref entities);
             foreach (var entity in entities)
             {
                 Vector2 toEntity = entity.Position - origin;

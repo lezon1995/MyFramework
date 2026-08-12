@@ -34,7 +34,7 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 12
-      Data: 23
+      Data: 25
     - Name: 
       Entry: 7
       Data: 
@@ -43,7 +43,7 @@ MonoBehaviour:
       Data: AD
     - Name: $v
       Entry: 4
-      Data: 5
+      Data: 0
     - Name: 
       Entry: 8
       Data: 
@@ -151,7 +151,7 @@ MonoBehaviour:
       Data: CritChance
     - Name: $v
       Entry: 4
-      Data: 0.2
+      Data: 0
     - Name: 
       Entry: 8
       Data: 
@@ -163,7 +163,7 @@ MonoBehaviour:
       Data: CritDamage
     - Name: $v
       Entry: 4
-      Data: 2
+      Data: 1.5
     - Name: 
       Entry: 8
       Data: 
@@ -199,7 +199,7 @@ MonoBehaviour:
       Data: LS
     - Name: $v
       Entry: 4
-      Data: 0.01
+      Data: 0
     - Name: 
       Entry: 8
       Data: 
@@ -211,7 +211,7 @@ MonoBehaviour:
       Data: HealthMax
     - Name: $v
       Entry: 4
-      Data: 100
+      Data: 20
     - Name: 
       Entry: 8
       Data: 
@@ -223,7 +223,7 @@ MonoBehaviour:
       Data: HealthRegen
     - Name: $v
       Entry: 4
-      Data: 1
+      Data: 0
     - Name: 
       Entry: 8
       Data: 
@@ -259,7 +259,7 @@ MonoBehaviour:
       Data: AR
     - Name: $v
       Entry: 4
-      Data: 10
+      Data: 0
     - Name: 
       Entry: 8
       Data: 
@@ -308,6 +308,30 @@ MonoBehaviour:
     - Name: $v
       Entry: 4
       Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: HitEffectChance
+    - Name: $v
+      Entry: 4
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: Knockback
+    - Name: $v
+      Entry: 4
+      Data: 0
     - Name: 
       Entry: 8
       Data: 

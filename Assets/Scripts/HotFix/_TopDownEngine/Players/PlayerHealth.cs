@@ -29,8 +29,6 @@ namespace MoreMountains
             player.playerRenderer.refreshHealthByHealing((int)CurrentHealth, (int)maximumHealth);
         }
         
-        
-        
         public override void Damage(ref Dmg dmg, GameObject instigator, Character source = null, float invincibleTime = 0F, Vector3 direction = default, IDmgCalculator calculator = null)
         {
             if (!CanTakeDamageThisFrame(out _))

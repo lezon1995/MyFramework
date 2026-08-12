@@ -295,7 +295,7 @@ namespace MoreMountains
             }
         }
 
-        void HandleMonsterSpawned(AMonster monster)
+        void HandleMonsterSpawned(Brick monster)
         {
             if (monster && waveManager)
             {
@@ -308,7 +308,7 @@ namespace MoreMountains
             }
         }
 
-        void HandleMonsterKilled(AMonster monster)
+        void HandleMonsterKilled(Brick monster)
         {
             if (monster)
             {
@@ -357,7 +357,7 @@ namespace MoreMountains
 
         #region Private Methods
 
-        SpawnEnemyType GetSpawnType(AMonster monster)
+        SpawnEnemyType GetSpawnType(Brick monster)
         {
             if (monster == null) 
                 return SpawnEnemyType.Normal;

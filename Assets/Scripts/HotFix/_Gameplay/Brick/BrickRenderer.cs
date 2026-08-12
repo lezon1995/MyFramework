@@ -102,6 +102,16 @@ namespace MoreMountains
             spriteShadow.gameObject.SetActive(active);
         }
 
+        public void setBlockSprite(Sprite s)
+        {
+            spriteBlock.sprite = s;
+        }
+
+        public void setUnitSprite(Sprite s)
+        {
+            spriteUnit.sprite = s;
+        }
+        
         public void setHealthBarActive(bool active)
         {
             healthBar.setActive(active);

@@ -221,8 +221,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f19857cd957b4aac9c5066a83393dc00, type: 3}
   m_Name: 
   m_EditorClassIdentifier: HotFix::MoreMountains.WeaponStats
-  Debug: 0
-  StatsConfig: {fileID: 11400000, guid: 6a118413fb257af4894bddd13cb3e04e, type: 2}
+  AutoInitialize: 0
+  StatsConfig: {fileID: 0}
 --- !u!1 &1806446063217534
 GameObject:
   m_ObjectHideFlags: 0

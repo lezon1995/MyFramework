@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UniStats;
 using UnityEngine;
 using Random = System.Random;
 
@@ -44,8 +45,8 @@ namespace MoreMountains
         public WaveState State { get; set; } // 当前波次状态
         public float WaveTimeRemaining { get; set; } // 当前波次剩余时间
         public float WaveTimeElapsed { get; set; } // 当前波次已用时间
-        public List<AMonster> ActiveMonsters { get; } = new();
-        public List<AMonster> ActiveBosses { get; } = new();
+        public List<Brick> ActiveMonsters { get; } = new();
+        public List<Brick> ActiveBosses { get; } = new();
         public int WaveKillCount { get; set; } // 波次内的怪物击杀数
         public int WaveSpawnCount { get; set; } // 波次内的总生成怪物数
         public GameResult FinalResult { get; set; } // 游戏最终结果
@@ -160,8 +161,8 @@ namespace MoreMountains
         public event Action<WaveLevelConfig> OnLevelStart;
         public event Action<WaveLevelConfig> OnLevelComplete;
         public event Action<GameResult> OnGameEnd;
-        public event Action<AMonster> OnMonsterSpawned;
-        public event Action<AMonster> OnMonsterKilled;
+        public event Action<Brick> OnMonsterSpawned;
+        public event Action<Brick> OnMonsterKilled;
         public event Action<WaveState> OnStateChanged;
         public event Action<float> OnWaveTimeUpdate;
         public event Action OnRewardSelectionStarted;
@@ -386,7 +387,7 @@ namespace MoreMountains
         /// <summary>
         /// 生成一个怪物
         /// </summary>
-        public AMonster SpawnMonster(string monsterId, SpawnEnemyType type, Vector3? position = null, Vector2Int? size = null)
+        public Brick SpawnMonster(BrickDef monsterDef, Vector3? position = null)
         {
             if (CurWave == null)
                 return null;
@@ -418,15 +419,8 @@ namespace MoreMountains
                 return null;
             }
 
-            // 生成砖块大小
-            Vector2Int spawnSize;
-            if (size.HasValue)
-                spawnSize = size.Value;
-            else
-                spawnSize = new(1, 1);
-
             // 创建怪物
-            var monster = CreateMonster(monsterId, type, spawnPos, spawnSize);
+            var monster = CreateMonster(monsterDef, spawnPos);
             if (monster)
             {
                 // 应用属性增长
@@ -434,7 +428,7 @@ namespace MoreMountains
 
                 // 添加到活跃列表
                 ActiveMonsters.Add(monster);
-                if (type == SpawnEnemyType.Boss)
+                if (monsterDef.Type == SpawnEnemyType.Boss)
                 {
                     ActiveBosses.Add(monster);
                 }
@@ -443,7 +437,7 @@ namespace MoreMountains
                 _waveCurrentTotalSpawn++;
                 OnMonsterSpawned?.Invoke(monster);
 
-                Debug.Log($"[WaveManager] Spawned {type} monster: {monsterId} at {spawnPos}");
+                Debug.Log($"[WaveManager] Spawned {monsterDef.Type} monster: {monsterDef.name} at {spawnPos}");
             }
 
             return monster;
@@ -452,7 +446,7 @@ namespace MoreMountains
         /// <summary>
         /// 注册一个外部生成的怪物
         /// </summary>
-        public void RegisterExternalMonster(AMonster monster, SpawnEnemyType type)
+        public void RegisterExternalMonster(Brick monster, SpawnEnemyType type)
         {
             if (monster == null)
                 return;
@@ -467,7 +461,7 @@ namespace MoreMountains
         /// <summary>
         /// 注销一个怪物
         /// </summary>
-        public void UnregisterMonster(AMonster monster)
+        public void UnregisterMonster(Brick monster)
         {
             if (monster == null)
                 return;
@@ -511,7 +505,7 @@ namespace MoreMountains
         /// 改造后: 优先使用 Grid2D 系统的 grid 信息 (GridView), 不再依赖 brickLayout.
         /// 在网格上的所有空置 cell 中挑选 "周围最稀疏" 的那个 cell, 返回其中心世界坐标.
         /// </summary>
-        public bool GetSmartSpawnPosition(out Vector2  spawnPos)
+        public bool GetSmartSpawnPosition(out Vector2 spawnPos)
         {
             if (CurWave is not { enableSmartSpawning: true })
             {
@@ -637,16 +631,16 @@ namespace MoreMountains
         /// <summary>
         /// 根据类型选择合适的怪物
         /// </summary>
-        public bool SelectMonsterByType(SpawnEnemyType type, out string monsterId)
+        public bool SelectMonsterByType(SpawnEnemyType type, out BrickDef monsterDef)
         {
-            monsterId = null;
+            monsterDef = null;
             if (CurWave == null || CurWave.availableMonsters.Count == 0)
                 return false;
 
             using var _ = new ListScope<MonsterSpawnConfig>(out var candidates);
             foreach (var config in CurWave.availableMonsters)
             {
-                if (config.enemyType == type)
+                if (config.monsterDef.Type == type)
                 {
                     candidates.Add(config);
                 }
@@ -675,13 +669,13 @@ namespace MoreMountains
                 roll -= candidate.spawnWeight;
                 if (roll <= 0)
                 {
-                    monsterId = candidate.monsterId;
-                    return !string.IsNullOrEmpty(monsterId);
+                    monsterDef = candidate.monsterDef;
+                    return monsterDef != null;
                 }
             }
 
-            monsterId = candidates[0].monsterId;
-            return !string.IsNullOrEmpty(monsterId);
+            monsterDef = candidates[0].monsterDef;
+            return monsterDef != null;
         }
 
         /// <summary>
@@ -753,11 +747,14 @@ namespace MoreMountains
             // Debug.Log("[WaveManager] Clearing map drops...");
         }
 
-        public void RecollectAllBalls(APlayer p)
+        public void SetPlayerHandleWeaponAbilityPermitted(APlayer p, bool active)
         {
-            foreach (var ball in p.BallManagement.Instance.getActiveBalls())
+            foreach (var handleWeapon in p.handleWeapons)
             {
-                p.recollectBall(ball);
+                if (!active)
+                    handleWeapon.ForceStop();
+
+                handleWeapon.SetAbilityPermitted(active);
             }
         }
 
@@ -798,6 +795,8 @@ namespace MoreMountains
             // 例如显示波次信息、播放音效等
             SetState(WaveState.Active);
             OnWaveStart?.Invoke(CurWave);
+
+            SetPlayerHandleWeaponAbilityPermitted(player, true);
         }
 
         void UpdateActive(float dt)
@@ -951,7 +950,7 @@ namespace MoreMountains
 
                 // 生成一个强制怪物
                 var config = _pendingForceSpawns[_forceSpawnIndex];
-                SpawnMonster(config.monsterId, config.enemyType);
+                SpawnMonster(config.monsterDef);
                 _forceSpawnIndex++;
 
                 if (_forceSpawnIndex >= _pendingForceSpawns.Count)
@@ -1047,7 +1046,7 @@ namespace MoreMountains
             // 检查是否可以生成更多怪物
             int maxMonsters = Mathf.Min(CurWave.maxActiveMonsters, CurLevel.globalMaxActiveMonsters);
             maxMonsters = Mathf.Max(maxMonsters, targetMonsterCount); // 确保至少能达到目标数量
-            
+
             int minCount = Mathf.Max(CurWave.minActiveMonsters, CurLevel.globalMinActiveMonsters);
 
             // 如果怪物数量低于目标，增加紧迫感
@@ -1156,13 +1155,13 @@ namespace MoreMountains
 
         void SpawnBoss()
         {
-            if (string.IsNullOrEmpty(CurWave.bossMonsterId))
+            if (CurWave.bossMonsterId == null)
             {
                 Debug.LogWarning("[WaveManager] Boss monster ID not configured!");
                 return;
             }
 
-            SpawnMonster(CurWave.bossMonsterId, SpawnEnemyType.Boss);
+            SpawnMonster(CurWave.bossMonsterId);
             _bossSpawnedThisWave = true;
             HasBossSpawned = true;
         }
@@ -1182,9 +1181,9 @@ namespace MoreMountains
             }
 
             var type = GetWeightedEnemyType();
-            if (SelectMonsterByType(type, out var monsterId))
+            if (SelectMonsterByType(type, out var monsterDef))
             {
-                SpawnMonster(monsterId, type);
+                SpawnMonster(monsterDef);
             }
         }
 
@@ -1196,7 +1195,6 @@ namespace MoreMountains
             if (shapeDict.Count == 0)
             {
                 Debug.LogWarning("[WaveManager] ShapeLibraries is empty, falling back to single brick spawn.");
-                SpawnMonster(null, SpawnEnemyType.Normal);
                 return;
             }
 
@@ -1234,9 +1232,9 @@ namespace MoreMountains
                 foreach (var template in spawnedBricks)
                 {
                     var type = GetWeightedEnemyType();
-                    if (SelectMonsterByType(type, out var monsterId))
+                    if (SelectMonsterByType(type, out var monsterDef))
                     {
-                        SpawnMonster(monsterId, type, template.position, template.size);
+                        SpawnMonster(template.def, template.position);
                     }
                 }
             }
@@ -1400,23 +1398,45 @@ namespace MoreMountains
             return count;
         }
 
-        AMonster CreateMonster(string monsterId, SpawnEnemyType type, Vector3 position, Vector2Int size)
+        Brick CreateMonster(BrickDef monsterDef, Vector3 position)
         {
             // Debug.Log($"[WaveManager] Creating monster: {monsterId}, Type: {type}, Position: {position}");
-            var brick = brickManager.acquireBrick(position, size);
+            var brick = brickManager.acquireBrick(monsterDef, position);
             return brick;
         }
 
-        void ApplyScalingToMonster(AMonster monster)
+        void ApplyScalingToMonster(Brick monster)
         {
             // 应用属性增长到怪物
             if (monster == null)
                 return;
 
-            // TODO: 根据项目的属性系统实现
             // 例如：
-            // monster.Stats.SetStat(Character.Stat.HealthMax, baseValue * _scalingData.healthMultiplier);
-            // monster.Stats.SetStat(Character.Stat.AD, baseValue * _scalingData.damageMultiplier);
+            if (monster.GetStat(Brick.Stat.HealthMax, out var healthMax))
+            {
+                var bonusHealthPerWave = monster.getDef().BonusHealthPerWave;
+                var bonusHealth = bonusHealthPerWave * (WaveNumber - 1);
+                if (bonusHealth > 0)
+                    healthMax.Bonus.AddFlat(bonusHealth);
+
+                var bonusPct = _scalingData.healthMultiplier - 1;
+                if (bonusPct > 0)
+                    healthMax.BonusPct.AddFlat(bonusPct);
+
+                monster.Health.InitializeCurrentHealth(RefreshHealthBarType.Immediately);
+            }
+
+            if (monster.GetStat(Brick.Stat.AD, out var damage))
+            {
+                var bonusDamagePerWave = monster.getDef().BonusDamagePerWave;
+                var bonusDamage = bonusDamagePerWave * (WaveNumber - 1);
+                if (bonusDamage > 0)
+                    damage.Bonus.AddFlat(bonusDamage);
+
+                var bonusPct = _scalingData.damageMultiplier - 1;
+                if (bonusPct > 0)
+                    damage.BonusPct.AddFlat(bonusPct);
+            }
         }
 
         void CleanupDeadMonsters()
@@ -1443,7 +1463,7 @@ namespace MoreMountains
         {
             SetState(WaveState.Clearing);
 
-            RecollectAllBalls(player);
+            SetPlayerHandleWeaponAbilityPermitted(player, false);
             // 清理地图掉落物
             ClearMapDrops();
 

@@ -68,6 +68,7 @@ namespace MoreMountains
             statList.Add(player.GetStat(Character.Stat.LS));
             statList.Add(player.GetStat(Character.Stat.DodgeChance));
             statList.Add(player.GetStat(Character.Stat.BallisticSpeed));
+            statList.Add(player.GetStat(Character.Stat.HitEffectChance));
             _view.BuildPlayerStats(statList, (item, stat) =>
             {
                 // item.SetIcon();

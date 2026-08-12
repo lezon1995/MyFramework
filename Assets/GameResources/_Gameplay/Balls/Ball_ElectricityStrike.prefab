@@ -525,8 +525,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9bcba2d95a9841fda3f97dac37b38f7b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: HotFix::MoreMountains.BallStats
-  Debug: 0
-  StatsConfig: {fileID: 11400000, guid: 6cd40ccff7313aa468faa352d82cece6, type: 2}
+  AutoInitialize: 1
+  StatsConfig: {fileID: 11400000, guid: 0c309f44cf90039459e892f715bcd8a4, type: 2}
 --- !u!1 &7153978691015391763
 GameObject:
   m_ObjectHideFlags: 0

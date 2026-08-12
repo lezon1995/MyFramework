@@ -107,6 +107,16 @@ namespace MoreMountains
                 DamageByOther(ref dmg, instigator, source, invincibleTime, direction, calculator);
             }
         }
+        
+        public override Vector3 ComputeKnockbackForce(Vector3 knockbackForce)
+        {
+            if (brick.GetStat(Brick.Stat.KnockbackResistance, out var stat))
+            {
+                knockbackForce *= Mathf.Clamp01(1 - stat.Value);
+            }
+
+            return knockbackForce;
+        }
 
         void DamageByBall(ref Dmg dmg, Ball ball, Character source, float invincibleTime, Vector3 direction, IDmgCalculator calculator)
         {
@@ -176,10 +186,12 @@ namespace MoreMountains
                 {
                     if (dmg.Effect == Dmg.Effects.Attack)
                     {
-                        if (source.Stats && source.Stats.TryGetStat(Stats.LS, out var lifeSteal))
+                        if (source.Stats && source.Stats.GetStat(Stats.LS, out var lifeSteal))
                         {
-                            var healing = lifeSteal.Value * dmg.DamageDealt;
-                            source.Health.ReceiveHealth(Heal.Fixed((int)healing), source: source);
+                            if (lifeSteal.Value>0 && randomHit(lifeSteal.Value))
+                            {
+                                source.Health.ReceiveHealth(Heal.Fixed(1), source: source);
+                            }
                         }
                     }
 
@@ -257,10 +269,13 @@ namespace MoreMountains
                 //触发本次伤害所造成的攻击特效/技能特效
                 if (dmg.hasAttackEffect())
                 {
-                    if (ball.GetStat(Ball.Stat.HitEffectChance, out var stat))
+                    var b1 = ball.GetStat(Ball.Stat.HitEffectChance, out var stat1);
+                    var b2 = ball.getPlayer().GetStat(Character.Stat.HitEffectChance, out var stat2);
+                    if (b1 && b2)
                     {
-                        var count = stat.Value.toInt();
-                        var pct = stat.Value - count;
+                        var value = stat1.Value + stat2.Value;
+                        var count = value.toInt();
+                        var pct = value - count;
                         var e = new DoHitEffect(ball, brick, dmg.Direction);
 
                         for (int i = 0; i < count; i++)

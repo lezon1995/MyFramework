@@ -10,6 +10,7 @@ namespace MoreMountains
             loadVolumeManager();
             loadGridManager();
             loadBallManager();
+            loadBrickManager();
             loadRelicManager();
         }
         
@@ -64,6 +65,19 @@ namespace MoreMountains
             string path = $"{GAMEPLAY_PATH}/Balls/BallManager.prefab";
             var res = resource.loadGameResource<BallManager>(path);
             ballManager = Object.Instantiate(res.get());
+        }
+
+        protected virtual void loadBrickManager()
+        {
+            var manager = Object.FindFirstObjectByType<BrickManager>();
+            if (manager)
+            {
+                brickManager = manager;
+                return;
+            }
+            string path = $"{GAMEPLAY_PATH}/Bricks/BrickManager.prefab";
+            var res = resource.loadGameResource<BrickManager>(path);
+            brickManager = Object.Instantiate(res.get());
         }
 
         protected virtual void loadRelicManager()

@@ -59,7 +59,7 @@ public abstract class BrickGroup : ClassObject, IEvent<OnBrickDeath>
 
     public void createOne(BrickTemplate t)
     {
-        var brick = brickManager.acquireBrick(t.position, t.size);
+        var brick = brickManager.acquireBrick(t.def, t.position);
         // brick.addBlock(10);
         brick.Event.addListener(this);
         addBrick(brick);

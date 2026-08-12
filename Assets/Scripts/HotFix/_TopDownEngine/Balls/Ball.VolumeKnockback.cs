@@ -25,7 +25,7 @@ namespace MoreMountains
         /// </summary>
         /*public static void TriggerChainKnockbackOnHit(this Ball ball, Vector2 hitNormal)
         {
-            if (ball == null || VolumeManager.Instance == null)
+            if (ball == null || volumeManager == null)
                 return;
 
             if (!ball.IsChainKnockbackEnabled())
@@ -33,7 +33,7 @@ namespace MoreMountains
 
             // 获取球的击退力
             float knockbackForce = ball.GetKnockbackForce();
-            if (knockbackForce < VolumeManager.Instance.MinChainKnockbackForce)
+            if (knockbackForce < volumeManager.MinChainKnockbackForce)
                 return;
 
             // 从碰撞法线获取击退方向
@@ -45,7 +45,7 @@ namespace MoreMountains
                 if (brick.TryGetComponent<TopDownController2D>(out var body))
                 {
                     // 对被击中的怪物施打击退
-                    VolumeManager.Instance.ApplyKnockback(body, knockbackDir, knockbackForce);
+                    volumeManager.ApplyKnockback(body, knockbackDir, knockbackForce);
                 }
             }
         }*/
@@ -96,12 +96,12 @@ namespace MoreMountains
 
         public override void onHitBrick(Brick brick, Vector2 hitNormal)
         {
-            if (!ChainEnabled || VolumeManager.Instance == null)
+            if (!ChainEnabled || volumeManager == null)
                 return;
 
             float force = KnockbackForce;
             Vector2 knockbackDir = -hitNormal;
-            VolumeManager.Instance.ApplyKnockback(brick.Controller2D, knockbackDir, force);
+            volumeManager.ApplyKnockback(brick.Controller2D, knockbackDir, force);
         }
 
         public override void onLosePower(Ball ball)

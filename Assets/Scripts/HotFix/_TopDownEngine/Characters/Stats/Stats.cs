@@ -30,13 +30,16 @@ namespace MoreMountains
         public const string LS = "LS";
         public const string Range = "Range";
         public const string DodgeChance = "DodgeChance";
+        public const string KnockbackResistance = "KnockbackResistance";
         public const string BallisticSpeed = "BallisticSpeed";
-
+        public const string HitEffectChance = "HitEffectChance";
+        public const string Knockback = "Knockback";
         public const string AF_Mod = "AdaptiveForceMod";
 
-        public bool Debug;
+        public bool AutoInitialize = true;
 
-        [SerializeField] StatsTemplate StatsConfig;
+        [SerializeField]
+        StatsTemplate StatsConfig;
 
         IStatsTemplate _statsTemplate;
 
@@ -49,11 +52,13 @@ namespace MoreMountains
         public UniStats.Stat StatAP;
         public UniStats.Stat StatAF;
         MMObservable<bool> IsBonusAdOverAp;
-        bool initialized;
 
         void Awake()
         {
-            InitializeStats(StatsConfig);
+            if (AutoInitialize)
+            {
+                InitializeStats(StatsConfig);
+            }
         }
 
         public void InitializeStats(IStatsTemplate template)
@@ -67,6 +72,11 @@ namespace MoreMountains
 
             if (_statsTemplate == null)
                 return;
+
+            _stats.Clear();
+            StatAD = null;
+            StatAP = null;
+            StatAF = null;
 
             if (_statsTemplate.useExpression)
             {
@@ -86,7 +96,7 @@ namespace MoreMountains
                         continue;
                     }
 
-                    stat = new (initialGetter, ratio);
+                    stat = new(initialGetter, ratio);
                     _stats[statName] = stat;
                     stat.Event.Add(Action);
 
@@ -152,16 +162,14 @@ namespace MoreMountains
                 }
             }
 
-            if (initialized)
-                return;
-
-            initialized = true;
             IsBonusAdOverAp.OnValueChangedTo = CheckIsBonusAdOverAp;
 
             if (StatAF)
             {
-                StatAD.AddFlat(StatAF.Select(f => f * AF_CoeffAD), AF_Mod);
-                StatAP.AddFlat(StatAF.Select(f => f * AF_CoeffAP), AF_Mod);
+                if (StatAD)
+                    StatAD.AddFlat(StatAF.Select(f => f * AF_CoeffAD), AF_Mod);
+                if (StatAP)
+                    StatAP.AddFlat(StatAF.Select(f => f * AF_CoeffAP), AF_Mod);
             }
 
             void Check(IVar<float> stat)
@@ -171,11 +179,16 @@ namespace MoreMountains
 
             bool GetIsBonusAdOverAp()
             {
-                return StatAD.PeekBonus(AF_Mod) >= StatAP.Peek(AF_Mod);
+                if (StatAD && StatAP)
+                    return StatAD.PeekBonus(AF_Mod) >= StatAP.Peek(AF_Mod);
+
+                return false;
             }
 
-            StatAD.OnChange(Check);
-            StatAP.OnChange(Check);
+            if (StatAD)
+                StatAD.OnChange(Check);
+            if (StatAP)
+                StatAP.OnChange(Check);
 
             if (StatAF)
             {
@@ -193,13 +206,17 @@ namespace MoreMountains
         {
             if (b)
             {
-                StatAD.SetModActive(AF_Mod, true);
-                StatAP.SetModActive(AF_Mod, false);
+                if (StatAD)
+                    StatAD.SetModActive(AF_Mod, true);
+                if (StatAP)
+                    StatAP.SetModActive(AF_Mod, false);
             }
             else
             {
-                StatAD.SetModActive(AF_Mod, false);
-                StatAP.SetModActive(AF_Mod, true);
+                if (StatAD)
+                    StatAD.SetModActive(AF_Mod, false);
+                if (StatAP)
+                    StatAP.SetModActive(AF_Mod, true);
             }
         }
 

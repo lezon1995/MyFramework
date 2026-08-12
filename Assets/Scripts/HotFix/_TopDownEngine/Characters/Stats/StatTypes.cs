@@ -60,6 +60,8 @@ namespace MoreMountains
                 Character.Stat.Range => Stats.Range,
                 Character.Stat.DodgeChance => Stats.DodgeChance,
                 Character.Stat.BallisticSpeed => Stats.BallisticSpeed,
+                Character.Stat.HitEffectChance => Stats.HitEffectChance,
+                Character.Stat.Knockback => Stats.Knockback,
                 _ => throw new ArgumentOutOfRangeException(nameof(stat), stat, null)
             };
         }
@@ -87,8 +89,11 @@ namespace MoreMountains
         {
             return stat switch
             {
-                Ball.Stat.AD => "AD",
-                Ball.Stat.AP => "AP",
+                Ball.Stat.HitDamage => "HitDamage",
+                Ball.Stat.EffectDamage => "EffectDamage",
+                Ball.Stat.HitDamageRate => "HitDamageRate",
+                Ball.Stat.EffectDamageRate => "EffectDamageRate",
+                Ball.Stat.AS => "AS",
                 Ball.Stat.MS => "MS",
                 Ball.Stat.CritChance => "CritChance",
                 Ball.Stat.CritDamage => "CritDamage",
@@ -96,6 +101,8 @@ namespace MoreMountains
                 Ball.Stat.Duration => "Duration",
                 Ball.Stat.HealthMax => "HealthMax",
                 Ball.Stat.HitEffectChance => "HitEffectChance",
+                Ball.Stat.Knockback => "Knockback",
+                Ball.Stat.LifeSteal => "LifeSteal",
                 _ => throw new ArgumentOutOfRangeException(nameof(stat), stat, null)
             };
         }

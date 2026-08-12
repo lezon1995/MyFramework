@@ -27,7 +27,7 @@ public class LaserBulletEffect : ALogicEffect, IArgs<Ball, Brick, Vector2>
             var rotation = Quaternion.Euler(0, 0, Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg);
             bullet.SetDirection(dir, rotation);
             bullet.SetOwner(b1.Player);
-            bullet.SetDamage(Dmg.AP((int)(5 + ball.GetStat(Ball.Stat.AP).Value + ball.Player.GetStat(Character.Stat.AP).Value)));
+            bullet.SetDamage(Dmg.AP((int)(5 + ball.GetStat(Ball.Stat.EffectDamage).Value + ball.Player.GetStat(Character.Stat.AP).Value)));
             bullet.TryClearTrails();
         }
     }

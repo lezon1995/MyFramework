@@ -45,13 +45,13 @@ namespace MoreMountains
         /// </summary>
         public static void ApplyKnockbackForce(this Brick brick, Vector2 direction, float force)
         {
-            if (brick == null || VolumeManager.Instance == null) 
+            if (brick == null || volumeManager == null) 
                 return;
 
             var body = brick.GetVolumeBody();
             if (body != null)
             {
-                VolumeManager.Instance.ApplyKnockback(body, direction, force);
+                volumeManager.ApplyKnockback(body, direction, force);
             }
         }
 
@@ -61,7 +61,7 @@ namespace MoreMountains
         public static List<VolumeCollisionResult> GetOverlapInfo(this Brick brick)
         {
             var results = new List<VolumeCollisionResult>();
-            if (brick == null || VolumeManager.Instance == null) 
+            if (brick == null || volumeManager == null) 
                 return results;
 
             var body = brick.GetVolumeBody();
@@ -69,7 +69,7 @@ namespace MoreMountains
                 return results;
 
             using var _ = new ListScope<TopDownController2D>(out var entities);
-            VolumeManager.Instance.GetEntitiesInRadius(body.VolumeCenter, body.Volume.BoundingRadius * 3f, ref entities);
+            volumeManager.GetEntitiesInRadius(body.VolumeCenter, body.Volume.BoundingRadius * 3f, ref entities);
             foreach (var entity in entities)
             {
                 if (entity == body) 
@@ -139,15 +139,15 @@ namespace MoreMountains
             VolumeBody = brick.EnsureVolumeBody();
             if (VolumeBody != null)
             {
-                VolumeManager.Instance?.Register(VolumeBody);
+                volumeManager?.Register(VolumeBody);
             }
         }
 
         public override void onLosePower(Brick brick)
         {
-            if (VolumeBody != null && VolumeManager.Instance != null)
+            if (VolumeBody != null && volumeManager != null)
             {
-                VolumeManager.Instance.Unregister(VolumeBody);
+                volumeManager.Unregister(VolumeBody);
             }
         }
 
