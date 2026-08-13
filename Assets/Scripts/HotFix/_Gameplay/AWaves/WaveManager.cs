@@ -483,6 +483,8 @@ namespace MoreMountains
                 SetState(WaveState.RewardSelecting);
                 OnRewardSelectionStarted?.Invoke();
                 Debug.Log("[WaveManager] Entered reward selection phase.");
+                
+                GameManager.Instance.Pause();
             }
         }
 
@@ -495,6 +497,8 @@ namespace MoreMountains
             {
                 OnRewardSelectionEnded?.Invoke();
                 Debug.Log("[WaveManager] Exited reward selection phase.");
+                
+                GameManager.Instance.UnPause();
             }
         }
 
@@ -758,6 +762,11 @@ namespace MoreMountains
             }
         }
 
+        public void SetPlayerMovementAbilityPermitted(APlayer p, bool active)
+        {
+            p.Movement.SetAbilityPermitted(active);
+        }
+
         /// <summary>
         /// 重置波次管理器
         /// </summary>
@@ -797,6 +806,7 @@ namespace MoreMountains
             OnWaveStart?.Invoke(CurWave);
 
             SetPlayerHandleWeaponAbilityPermitted(player, true);
+            SetPlayerMovementAbilityPermitted(player, true);
         }
 
         void UpdateActive(float dt)
@@ -1417,7 +1427,7 @@ namespace MoreMountains
                 var bonusHealthPerWave = monster.getDef().BonusHealthPerWave;
                 var bonusHealth = bonusHealthPerWave * (WaveNumber - 1);
                 if (bonusHealth > 0)
-                    healthMax.Bonus.AddFlat(bonusHealth);
+                    healthMax.BonusFlat.AddFlat(bonusHealth);
 
                 var bonusPct = _scalingData.healthMultiplier - 1;
                 if (bonusPct > 0)
@@ -1431,7 +1441,7 @@ namespace MoreMountains
                 var bonusDamagePerWave = monster.getDef().BonusDamagePerWave;
                 var bonusDamage = bonusDamagePerWave * (WaveNumber - 1);
                 if (bonusDamage > 0)
-                    damage.Bonus.AddFlat(bonusDamage);
+                    damage.BonusFlat.AddFlat(bonusDamage);
 
                 var bonusPct = _scalingData.damageMultiplier - 1;
                 if (bonusPct > 0)
@@ -1463,7 +1473,6 @@ namespace MoreMountains
         {
             SetState(WaveState.Clearing);
 
-            SetPlayerHandleWeaponAbilityPermitted(player, false);
             // 清理地图掉落物
             ClearMapDrops();
 
@@ -1482,7 +1491,10 @@ namespace MoreMountains
             // Debug.Log($"[WaveManager] Wave {WaveNumber} completed! Kills: {WaveKillCount}, Spawns: {WaveSpawnCount}");
 
             // 清理剩余怪物
-            ClearAllActiveMonsters();
+            // ClearAllActiveMonsters();
+            
+            SetPlayerHandleWeaponAbilityPermitted(player, false);
+            SetPlayerMovementAbilityPermitted(player, false);
         }
 
         void CompleteLevel()

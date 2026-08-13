@@ -167,5 +167,6 @@ namespace MoreMountains
         }
 
         public void ClearSelection() => _selected = null;
+        public void SetViewActive(bool active) => _view.setActive(active);
     }
 }

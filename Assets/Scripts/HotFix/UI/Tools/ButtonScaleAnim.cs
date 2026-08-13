@@ -43,26 +43,26 @@ namespace MoreMountains
         {
             _isHovering = true;
             float targetScale = _isPressed ? pressScale : hoverScale;
-            Tween.Scale(transform, endValue: targetScale, duration: tweenDuration, ease: tweenEase);
+            Tween.Scale(transform, endValue: targetScale, duration: tweenDuration, ease: tweenEase, useUnscaledTime: true);
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
             _isHovering = false;
-            Tween.Scale(transform, endValue: normalScale, duration: tweenDuration, ease: tweenEase);
+            Tween.Scale(transform, endValue: normalScale, duration: tweenDuration, ease: tweenEase, useUnscaledTime: true);
         }
 
         public void OnPointerDown(PointerEventData eventData)
         {
             _isPressed = true;
-            Tween.Scale(transform, endValue: pressScale, duration: tweenDuration, ease: tweenEase);
+            Tween.Scale(transform, endValue: pressScale, duration: tweenDuration, ease: tweenEase, useUnscaledTime: true);
         }
 
         public void OnPointerUp(PointerEventData eventData)
         {
             _isPressed = false;
             float targetScale = _isHovering ? hoverScale : normalScale;
-            Tween.Scale(transform, endValue: targetScale, duration: tweenDuration, ease: tweenEase);
+            Tween.Scale(transform, endValue: targetScale, duration: tweenDuration, ease: tweenEase, useUnscaledTime: true);
         }
 
         /// <summary>

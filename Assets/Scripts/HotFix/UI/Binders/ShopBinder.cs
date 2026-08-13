@@ -117,6 +117,7 @@ namespace MoreMountains
                     item.SetDesc(offer.Def.GetType().Name);
                 if (offer.Def.Icon)
                     item.SetIcon(offer.Def.Icon);
+                item.SetRarity(offer.Def.Rarity);
                 item.SetHovered(false);
                 item.SetNewTag(offer.Enabled);
                 item.SetSold(offer.Sold);
@@ -133,6 +134,7 @@ namespace MoreMountains
                     item.SetDesc(offer.Def.GetType().Name);
                 if (offer.Def.Icon)
                     item.SetIcon(offer.Def.Icon);
+                item.SetRarity(offer.Def.Rarity);
                 item.SetHovered(false);
                 item.SetNewTag(offer.Enabled);
                 item.SetSold(offer.Sold);
@@ -169,5 +171,7 @@ namespace MoreMountains
         {
             _owner.OnSellRelicRequested(item);
         }
+
+        public void SetViewActive(bool active) => _view.setActive(active);
     }
 }

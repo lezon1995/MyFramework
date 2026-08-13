@@ -639,8 +639,9 @@ namespace MoreMountains
 
         public void refreshDuration()
         {
-            GetStat(Stat.Duration, out var stat);
-            lifeDuration = stat.Value;
+            player.GetStat(Character.Stat.Duration, out var stat1);
+            GetStat(Stat.Duration, out var stat2);
+            lifeDuration = stat1.Value + stat2.Value;
         }
 
         /*public void returnBall(Vector3 nextPosition)

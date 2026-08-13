@@ -9,11 +9,12 @@ public partial class RelicPurchaseItem : WindowRecyclableUGUI
 	// auto generate member start
 	protected myUGUIButton btn;
 	protected myUGUIObject hovered;
-	protected myUGUIObject rarityTop;
+	protected myUGUIImageSimple itemBorder;
+	protected myUGUIImageSimple itemBg;
 	protected myUGUIObject newTag;
+	protected myUGUIImageSimple IconBg;
 	protected myUGUIImageSimple itemIcon;
 	protected myUGUITextTMP itemDesc;
-	protected myUGUIObject rarityBot;
 	protected myUGUITextTMP itemName;
 	protected myUGUITextTMP itemPrice;
 	protected myUGUIObject itemSold;
@@ -28,11 +29,12 @@ public partial class RelicPurchaseItem : WindowRecyclableUGUI
 		// auto generate assignWindowInternal start
 		newObject(out btn, "Btn");
 		newObject(out hovered, "Btn/Hovered");
-		newObject(out rarityTop, "Btn/RarityTop");
+		newObject(out itemBorder, "Btn/Border");
+		newObject(out itemBg, "Btn/Bg");
 		newObject(out newTag, "Btn/New");
+		newObject(out IconBg, "Btn/Icon/IconBg");
 		newObject(out itemIcon, "Btn/Icon/Image");
 		newObject(out itemDesc, "Btn/Desc/TextDesc");
-		newObject(out rarityBot, "Btn/RarityBot");
 		newObject(out itemName, "Btn/Name/TextName");
 		newObject(out itemPrice, "Btn/Price/TextPrice");
 		newObject(out itemSold, "Btn/Sold");

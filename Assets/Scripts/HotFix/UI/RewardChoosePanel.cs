@@ -14,6 +14,9 @@ public partial class RewardChoosePanel : LayoutScript
     , IArgs<string, string, string>
 {
     // auto generate member start
+	protected myUGUIObject textTitle;
+	protected myUGUIObject rewardItems;
+	protected myUGUIButton btnReroll;
 	protected WindowStructPool<RewardChooseItem> RewardChooseItemPool;
     // auto generate member end
 
@@ -29,7 +32,10 @@ public partial class RewardChoosePanel : LayoutScript
     public override void assignWindow()
     {
         // auto generate assignWindow start
-		RewardChooseItemPool.assignTemplate(mRoot, "Content/Mid/H/RewardChooseItem");
+		newObject(out textTitle, "Content/Title/TextTitle");
+		newObject(out rewardItems, "Content/RewardItems");
+		newObject(out btnReroll, "Content/BtnReroll");
+		RewardChooseItemPool.assignTemplate(mRoot, "Content/RewardItems/RewardChooseItem");
         // auto generate assignWindow end
     }
 
@@ -50,8 +56,8 @@ public partial class RewardChoosePanel : LayoutScript
         mRoot.setScale(0);
         mRoot.setAlpha(0);
 
-        Tween.Alpha(mCanvasGroup, endValue: 1F, duration: 0.5F, ease: Ease.OutCubic);
-        Tween.Scale(mTransform, endValue: 1F, duration: 0.5F, ease: Ease.OutCubic)
+        Tween.Alpha(mCanvasGroup, endValue: 1F, duration: 0.5F, ease: Ease.OutCubic, useUnscaledTime: true);
+        Tween.Scale(mTransform, endValue: 1F, duration: 0.5F, ease: Ease.OutCubic, useUnscaledTime: true)
             .OnComplete(this, script =>
             {
                 script.setActive(true);
@@ -70,8 +76,8 @@ public partial class RewardChoosePanel : LayoutScript
         base.onHide();
         mRoot.setScale(1);
         mRoot.setAlpha(1);
-        Tween.Alpha(mCanvasGroup, endValue: 0F, duration: 0.5F, ease: Ease.OutCubic);
-        Tween.Scale(mTransform, endValue: 0F, duration: 0.5F, ease: Ease.OutCubic)
+        Tween.Alpha(mCanvasGroup, endValue: 0F, duration: 0.5F, ease: Ease.OutCubic, useUnscaledTime: true);
+        Tween.Scale(mTransform, endValue: 0F, duration: 0.5F, ease: Ease.OutCubic, useUnscaledTime: true)
             .OnComplete(this, script =>
             {
                 script.setActive(false);

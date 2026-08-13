@@ -11,6 +11,8 @@ namespace MoreMountains
         None  = 0,
         Ball  = 1 << 0,
         Relic = 1 << 1,
+        BallStatMod = 1 << 2,
+        PlayerStatMod = 1 << 3,
     }
 
     /// <summary>

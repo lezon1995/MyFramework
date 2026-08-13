@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using MoreMountains.Feedbacks;
 // using MoreMountains.InventoryEngine;
 using MoreMountains.Tools;
@@ -212,6 +213,17 @@ namespace MoreMountains
             Application.targetFrameRate = TargetFrameRate;
             _initialCurrentLives = CurrentLives;
             _initialMaximumLives = MaximumLives;
+        }
+
+        void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.Tab))
+            {
+                if (Paused)
+                    TopDownEngineEvent.Trigger(TopDownEngineEventTypes.UnPause, null);
+                else
+                    TopDownEngineEvent.Trigger(TopDownEngineEventTypes.Pause, null);
+            }
         }
 
         /// <summary>

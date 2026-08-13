@@ -27,7 +27,7 @@ namespace MoreMountains
             Stats.CritDamage ,
             Stats.DmgRate ,
             Stats.AF ,
-            Stats.LS ,
+            Stats.LifeSteal ,
         };
     }
 
@@ -55,13 +55,16 @@ namespace MoreMountains
                 Character.Stat.CritChance => Stats.CritChance,
                 Character.Stat.CritDamage => Stats.CritDamage,
                 Character.Stat.DmgRate => Stats.DmgRate,
-                Character.Stat.AF => Stats.AF,
-                Character.Stat.LS => Stats.LS,
+                Character.Stat.AdaptiveForce => Stats.AF,
+                Character.Stat.LifeSteal => Stats.LifeSteal,
                 Character.Stat.Range => Stats.Range,
                 Character.Stat.DodgeChance => Stats.DodgeChance,
                 Character.Stat.BallisticSpeed => Stats.BallisticSpeed,
                 Character.Stat.HitEffectChance => Stats.HitEffectChance,
                 Character.Stat.Knockback => Stats.Knockback,
+                Character.Stat.Duration => Stats.Duration,
+                Character.Stat.Luck => Stats.Luck,
+                Character.Stat.Greed => Stats.Greed,
                 _ => throw new ArgumentOutOfRangeException(nameof(stat), stat, null)
             };
         }
@@ -74,12 +77,12 @@ namespace MoreMountains
                 Weapon.Stat.AP => "AP",
                 Weapon.Stat.AS => "AS",
                 Weapon.Stat.CD => "CD",
-                Weapon.Stat.CritChance => "CritChance",
-                Weapon.Stat.CritDamage => "CritDamage",
+                Weapon.Stat.CritChance => Stats.CritChance,
+                Weapon.Stat.CritDamage => Stats.CritDamage,
 
                 Weapon.Stat.Range => "Range",
                 Weapon.Stat.Scale => "Scale",
-                Weapon.Stat.Duration => "Duration",
+                Weapon.Stat.Duration => Stats.Duration,
                 Weapon.Stat.Count => "Count",
                 _ => throw new ArgumentOutOfRangeException(nameof(stat), stat, null)
             };
@@ -95,14 +98,14 @@ namespace MoreMountains
                 Ball.Stat.EffectDamageRate => "EffectDamageRate",
                 Ball.Stat.AS => "AS",
                 Ball.Stat.MS => "MS",
-                Ball.Stat.CritChance => "CritChance",
-                Ball.Stat.CritDamage => "CritDamage",
-                Ball.Stat.DmgRate => "DmgRate",
-                Ball.Stat.Duration => "Duration",
-                Ball.Stat.HealthMax => "HealthMax",
-                Ball.Stat.HitEffectChance => "HitEffectChance",
-                Ball.Stat.Knockback => "Knockback",
-                Ball.Stat.LifeSteal => "LifeSteal",
+                Ball.Stat.CritChance => Stats.CritChance,
+                Ball.Stat.CritDamage => Stats.CritDamage,
+                Ball.Stat.DmgRate => Stats.DmgRate,
+                Ball.Stat.Duration => Stats.Duration,
+                Ball.Stat.HealthMax => Stats.HealthMax,
+                Ball.Stat.HitEffectChance => Stats.HitEffectChance,
+                Ball.Stat.Knockback => Stats.Knockback,
+                Ball.Stat.LifeSteal => Stats.LifeSteal,
                 _ => throw new ArgumentOutOfRangeException(nameof(stat), stat, null)
             };
         }

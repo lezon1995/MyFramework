@@ -3,6 +3,7 @@ namespace MoreMountains;
 public partial class OperationPanel
 {
     /// <summary>直接访问 auto-gen 的子节点。</summary>
+    public RewardChooseView RewardChoose           => rewardChooseView;
     public ShopView Shop           => shopView;
     public PlayerInfoView PlayerInfo => playerInfoView;
     public RelicInventoryView RelicInventory => relicInventoryView;
@@ -25,6 +26,7 @@ public partial class OperationPanel
             relicInventoryView.initBinder(),
             playerInfoView.SlotGroup.initBinder(),
             shopView.initBinder(),
+            rewardChooseView.initBinder(),
             playerInfoView.initBinder()
         );
 

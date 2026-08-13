@@ -62,6 +62,7 @@ public class GBR
 
     public static BallManager ballManager;
     public static BrickManager brickManager;
+    public static WaveManager waveManager;
     public static RelicManager relicManager;
     public static VolumeManager volumeManager;
     public static MoreMountains.CharacterManager characterManager;

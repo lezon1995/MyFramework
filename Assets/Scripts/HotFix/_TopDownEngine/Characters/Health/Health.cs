@@ -648,7 +648,7 @@ namespace MoreMountains
                 {
                     if (dmg.Effect == Dmg.Effects.Attack)
                     {
-                        if (source.GetStat(Character.Stat.LS, out var lifeSteal))
+                        if (source.GetStat(Character.Stat.LifeSteal, out var lifeSteal))
                         {
                             var healing = lifeSteal.Value * dmg.DamageDealt;
                             source.Health.ReceiveHealth(Heal.Fixed((int)healing), source: source);

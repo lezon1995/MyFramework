@@ -149,7 +149,7 @@ public class GameplayPanel : LayoutScript
                 if (tweenExpTimer <= 0)
                 {
                     curXp.transform.localScale = Vector3.one * 2F;
-                    Tween.Scale(curXp.transform, endValue: 1, duration: 0.5F, ease: Ease.OutCubic);
+                    Tween.Scale(curXp.transform, endValue: 1, duration: 0.5F, ease: Ease.OutCubic, useUnscaledTime: true);
                     curXp.text = toXpValue.ToString();
                 }
             }
@@ -158,14 +158,14 @@ public class GameplayPanel : LayoutScript
         public void refreshTurn(int v)
         {
             turn.transform.localScale = Vector3.one * 2F;
-            Tween.Scale(turn.transform, endValue: 1, duration: 0.5F, ease: Ease.OutCubic);
+            Tween.Scale(turn.transform, endValue: 1, duration: 0.5F, ease: Ease.OutCubic, useUnscaledTime: true);
             turn.text = v.ToString();
         }
 
         public void refreshLevel(int v)
         {
             level.transform.localScale = Vector3.one * 2F;
-            Tween.Scale(level.transform, endValue: 1, duration: 0.5F, ease: Ease.OutCubic);
+            Tween.Scale(level.transform, endValue: 1, duration: 0.5F, ease: Ease.OutCubic, useUnscaledTime: true);
             level.text = v.ToString();
         }
 

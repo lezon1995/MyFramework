@@ -1,7 +1,16 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace MoreMountains
 {
+    public enum ItemRarity
+    {
+        Tier1 = 0, //基础
+        Tier2 = 1, //普通
+        Tier3 = 2, //罕见
+        Tier4 = 3, //稀有
+    }
+
     [CreateAssetMenu(fileName = "GameDesign", menuName = "MoreMountains/GameDesign", order = 0)]
     public class GameDesign : ScriptableObject
     {
@@ -61,6 +70,43 @@ namespace MoreMountains
         {
             var path = $"{GAMEPLAY_PATH}/GameDesign.asset";
             gameDesign = resource.loadGameResource<GameDesign>(path).get();
+        }
+
+        public UniversalColor universalColor;
+        public RarityColor[] rarityColor;
+
+        [Serializable]
+        public class RarityColor
+        {
+            public ItemRarity rarity;
+            public Color bg;
+            public Color border;
+            public Color title;
+            public Color iconBg;
+        }
+
+        [Serializable]
+        public class UniversalColor
+        {
+            public Color enhanced;
+            public Color reduced;
+            public Color cursed;
+            public Color unafforded;
+            public Color statEntry;
+        }
+
+        public RarityColor getRarityColor(ItemRarity rarity)
+        {
+            foreach (var c in rarityColor)
+                if (c.rarity == rarity)
+                    return c;
+
+            return null;
+        }
+
+        public UniversalColor getUniversalColor()
+        {
+            return universalColor;
         }
     }
 }

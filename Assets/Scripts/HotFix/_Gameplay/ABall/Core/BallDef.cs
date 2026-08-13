@@ -14,24 +14,27 @@ namespace MoreMountains
         public string DisplayName = "Ball";
 
         [Header("Price")]
-        public int BasePrice = 10;   // 商店售价 / 售出回收基于它
+        public int BasePrice = 10; // 商店售价 / 售出回收基于它
 
         [Header("Level")]
         public int MaxLevel = 3;
 
         [Header("Upgrade Recipe")]
         public int UpgradeCombineCount = 2;
+
         public int UpgradeGoldCost;
 
         [Header("Merge Recipe")]
         /// <summary>融合后产物的 def id。0 / -1 表示不可融合。</summary>
         public int MergeResultDefId;
+
         public int MergeGoldCost = 100;
 
         [Header("Visual")]
         public Sprite Icon;
+
         public Color LevelColor = Color.white;
-        
+        public ItemRarity Rarity;
         public BallStatsTemplate StatsTemplate;
     }
 }

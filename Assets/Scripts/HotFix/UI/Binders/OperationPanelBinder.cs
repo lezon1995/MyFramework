@@ -25,6 +25,7 @@ namespace MoreMountains
         RelicInventoryBinder _relicInv;
         BallSlotGroupBinder _slotBinder;
         ShopBinder _shop;
+        RewardChooseBinder _rewardChoose;
         PlayerInfoBinder _playerInfo;
         APlayer _player;
 
@@ -42,6 +43,7 @@ namespace MoreMountains
             RelicInventoryBinder relicInv,
             BallSlotGroupBinder slotBinder,
             ShopBinder shop,
+            RewardChooseBinder rewardChoose,
             PlayerInfoBinder playerInfo)
         {
             _panel = panel ?? throw new ArgumentNullException(nameof(panel));
@@ -49,6 +51,7 @@ namespace MoreMountains
             _relicInv = relicInv ?? throw new ArgumentNullException(nameof(relicInv));
             _slotBinder = slotBinder ?? throw new ArgumentNullException(nameof(slotBinder));
             _shop = shop ?? throw new ArgumentNullException(nameof(shop));
+            _rewardChoose = rewardChoose ?? throw new ArgumentNullException(nameof(rewardChoose));
             _playerInfo = playerInfo ?? throw new ArgumentNullException(nameof(playerInfo));
 
             // 子 binder 互相认识
@@ -56,6 +59,7 @@ namespace MoreMountains
             _relicInv.SetOwner(this);
             _slotBinder.SetOwner(this);
             _shop.SetOwner(this);
+            _rewardChoose.SetOwner(this);
 
             // 预分配事件处理,避免在 Subscribe 时创建 lambda
             _onBallOperationConfirmed = HandleOperationConfirmed;
@@ -68,6 +72,7 @@ namespace MoreMountains
         public RelicInventoryBinder RelicInventory => _relicInv;
         public BallSlotGroupBinder SlotGroup => _slotBinder;
         public ShopBinder Shop => _shop;
+        public RewardChooseBinder RewardChoose => _rewardChoose;
         public PlayerInfoBinder PlayerInfo => _playerInfo;
 
         public void Bind(APlayer player)
@@ -86,6 +91,7 @@ namespace MoreMountains
             _ballInv.Attach(_player.Inventory.BallBag);
             _relicInv.Attach(_player.Inventory.RelicBag);
             _shop.Attach(_player, _player.Shop.Controller);
+            _rewardChoose.Attach(_player, _player.RewardSystem.Controller);
 
             // 监听子 binder 的事件
             _ballInv.EquipRequested += OnEquipBallRequested;
@@ -97,6 +103,9 @@ namespace MoreMountains
             _shop.RerollClicked += OnShopRerollRequested;
             _shop.BuyExpClicked += OnShopBuyExpRequested;
             _shop.OfferBuyClicked += OnShopBuyRequested;
+
+            _rewardChoose.RerollClicked += OnRewardRerollRequested;
+            _rewardChoose.OfferBuyClicked += OnRewardBuyRequested;
 
             _slotBinder.SelectionChanged += OnSlotSelectionChanged;
 
@@ -133,6 +142,8 @@ namespace MoreMountains
             _shop.RerollClicked -= OnShopRerollRequested;
             _shop.BuyExpClicked -= OnShopBuyExpRequested;
             _shop.OfferBuyClicked -= OnShopBuyRequested;
+            _rewardChoose.RerollClicked -= OnRewardRerollRequested;
+            _rewardChoose.OfferBuyClicked -= OnRewardBuyRequested;
             _slotBinder.SelectionChanged -= OnSlotSelectionChanged;
 
             _playerInfo.Detach();
@@ -140,6 +151,7 @@ namespace MoreMountains
             _ballInv.Detach();
             _relicInv.Detach();
             _shop.Detach();
+            _rewardChoose.Detach();
 
             _player = null;
         }
@@ -148,7 +160,26 @@ namespace MoreMountains
         public void Open()
         {
             _panel.setActive(true);
+        }
+
+        public void EnterReward(int waveNumber)
+        {
+            _player?.RewardSystem?.EnterReward(waveNumber);
+
+            _rewardChoose.SetViewActive(true);
+            _ballInv.SetViewActive(false);
+            _relicInv.SetViewActive(false);
+            _shop.SetViewActive(false);
+        }
+
+        public void EnterShop()
+        {
             _player?.Shop?.EnterShop();
+
+            _rewardChoose.SetViewActive(false);
+            _ballInv.SetViewActive(true);
+            _relicInv.SetViewActive(true);
+            _shop.SetViewActive(true);
         }
 
         /// <summary>外部调用:本阶段结束。</summary>
@@ -397,5 +428,29 @@ namespace MoreMountains
         }
 
         public APlayer Player => _player;
+
+        void OnRewardRerollRequested()
+        {
+            _player?.RewardSystem?.Controller.OnPlayerClickReroll();
+            _rewardChoose.Rebuild();
+        }
+
+        void OnRewardBuyRequested(IPurchasable offer)
+        {
+            if (_player == null || offer == null)
+                return;
+
+            switch (offer)
+            {
+                case BallStatOffer ballStatOffer:
+                    ballStatOffer.MarkSold();
+                    RewardEvents.RaiseOfferSold(ballStatOffer);
+                    break;
+                case PlayerStatOffer playerStatOffer:
+                    playerStatOffer.MarkSold();
+                    RewardEvents.RaiseOfferSold(playerStatOffer);
+                    break;
+            }
+        }
     }
 }

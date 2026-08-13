@@ -22,4 +22,5 @@ MonoBehaviour:
   MergeGoldCost: 100
   Icon: {fileID: 21300000, guid: 8cbbc24840e2d474f9a1c58fed647cf9, type: 3}
   LevelColor: {r: 1, g: 1, b: 1, a: 1}
+  Rarity: 2
   StatsTemplate: {fileID: 11400000, guid: 0c309f44cf90039459e892f715bcd8a4, type: 2}

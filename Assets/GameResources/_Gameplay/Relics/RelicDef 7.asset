@@ -13,8 +13,7 @@ MonoBehaviour:
   m_Name: RelicDef 7
   m_EditorClassIdentifier: HotFix::MoreMountains.RelicDef
   Type: 30007
-  DisplayName: Relic
   BasePrice: 50
   SellRefund: 25
   Icon: {fileID: 21300000, guid: d7ad4ecc13c4e244788e38b398b5bac3, type: 3}
-  RelicTypeName: 
+  Rarity: 1

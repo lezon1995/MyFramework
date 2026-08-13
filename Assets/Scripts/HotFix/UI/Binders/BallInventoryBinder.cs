@@ -215,5 +215,7 @@ namespace MoreMountains
                 return 3;
             return level;
         }
+        
+        public void SetViewActive(bool active) => _view.setActive(active);
     }
 }

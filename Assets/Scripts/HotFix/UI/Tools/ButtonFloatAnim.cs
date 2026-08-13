@@ -41,27 +41,27 @@ namespace MoreMountains
         {
             _isHovering = true;
             float targetY = _isPressed ? _originalPosition.y + hoverOffset - pressOffset : _originalPosition.y + hoverOffset;
-            Tween.LocalPositionY(transform, endValue: targetY, duration: tweenDuration, ease: tweenEase);
+            Tween.LocalPositionY(transform, endValue: targetY, duration: tweenDuration, ease: tweenEase, useUnscaledTime: true);
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
             _isHovering = false;
-            Tween.LocalPositionY(transform, endValue: _originalPosition.y, duration: tweenDuration, ease: tweenEase);
+            Tween.LocalPositionY(transform, endValue: _originalPosition.y, duration: tweenDuration, ease: tweenEase, useUnscaledTime: true);
         }
 
         public void OnPointerDown(PointerEventData eventData)
         {
             _isPressed = true;
             float baseY = _isHovering ? _originalPosition.y + hoverOffset : _originalPosition.y;
-            Tween.LocalPositionY(transform, endValue: baseY - pressOffset, duration: tweenDuration, ease: tweenEase);
+            Tween.LocalPositionY(transform, endValue: baseY - pressOffset, duration: tweenDuration, ease: tweenEase, useUnscaledTime: true);
         }
 
         public void OnPointerUp(PointerEventData eventData)
         {
             _isPressed = false;
             float targetY = _isHovering ? _originalPosition.y + hoverOffset : _originalPosition.y;
-            Tween.LocalPositionY(transform, endValue: targetY, duration: tweenDuration, ease: tweenEase);
+            Tween.LocalPositionY(transform, endValue: targetY, duration: tweenDuration, ease: tweenEase, useUnscaledTime: true);
         }
 
         /// <summary>
@@ -82,7 +82,7 @@ namespace MoreMountains
         {
             _isHovering = false;
             _isPressed = false;
-            Tween.LocalPositionY(transform, endValue: _originalPosition.y, duration: tweenDuration, ease: tweenEase);
+            Tween.LocalPositionY(transform, endValue: _originalPosition.y, duration: tweenDuration, ease: tweenEase, useUnscaledTime: true);
         }
     }
 }

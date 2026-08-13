@@ -27,13 +27,16 @@ namespace MoreMountains
         public const string CritDamage = "CritDamage";
         public const string DmgRate = "DmgRate";
         public const string AF = "AF";
-        public const string LS = "LS";
+        public const string LifeSteal = "LifeSteal";
         public const string Range = "Range";
         public const string DodgeChance = "DodgeChance";
         public const string KnockbackResistance = "KnockbackResistance";
         public const string BallisticSpeed = "BallisticSpeed";
         public const string HitEffectChance = "HitEffectChance";
         public const string Knockback = "Knockback";
+        public const string Duration = "Duration";
+        public const string Luck = "Luck";
+        public const string Greed = "Greed";
         public const string AF_Mod = "AdaptiveForceMod";
 
         public bool AutoInitialize = true;

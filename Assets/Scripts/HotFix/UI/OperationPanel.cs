@@ -10,6 +10,7 @@ public partial class OperationPanel : LayoutScript
 // auto generate classname end
 {
 	// auto generate member start
+	protected RewardChooseView rewardChooseView;
 	protected ShopView shopView;
 	protected PlayerInfoView playerInfoView;
 	protected RelicInventoryView relicInventoryView;
@@ -21,6 +22,7 @@ public partial class OperationPanel : LayoutScript
 	public OperationPanel()
 	{
 		// auto generate constructor start
+		rewardChooseView = new(this);
 		shopView = new(this);
 		playerInfoView = new(this);
 		relicInventoryView = new(this);
@@ -31,6 +33,7 @@ public partial class OperationPanel : LayoutScript
 	public override void assignWindow()
 	{
 		// auto generate assignWindow start
+		rewardChooseView.assignWindow(mRoot, "RewardChooseView");
 		shopView.assignWindow(mRoot, "ShopView");
 		playerInfoView.assignWindow(mRoot, "PlayerInfoView");
 		relicInventoryView.assignWindow(mRoot, "InventoryView/RelicInventoryView");

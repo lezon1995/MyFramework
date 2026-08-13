@@ -36,13 +36,16 @@ namespace MoreMountains
             CritChance, //Crit Chance
             CritDamage, //Crit Damage
             DmgRate, //DmgRate
-            AF, //Adaptive Force
-            LS, //Life Steal
+            AdaptiveForce, //Adaptive Force
+            LifeSteal, //Life Steal
             Range, //Attack Range
             DodgeChance, //Dodge Chance
             BallisticSpeed, //Ballistic Speed
             HitEffectChance,
             Knockback,
+            Duration,
+            Luck,
+            Greed,
         }
 
         /// The possible Movement States the character can be in. These usually correspond to their own class, 

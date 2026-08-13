@@ -21,7 +21,7 @@ namespace UniStats
     /// Represents a stat that can be modified.
     /// Initial           基础数值
     /// 
-    /// Bonus          额外数值
+    /// BonusFlat          额外数值
     /// BonusRatio  额外数值收益率
     /// 
     /// Value = Initial + BonusFlat * BonusPct.
@@ -36,7 +36,7 @@ namespace UniStats
         static IOperator<T> op = Mod.GetOperator<T>();
         public string Name { get; set; }
 
-        public Attr<T> Bonus { get; }
+        public Attr<T> BonusFlat { get; }
         public Attr<T> BonusPct { get; }
         public Attr<T> BonusRatio { get; }
 
@@ -48,13 +48,13 @@ namespace UniStats
         public Stat(T initial, T bonusRatio)
         {
             Initial = initial;
-            Bonus = new();
+            BonusFlat = new();
             BonusPct = new();
             BonusRatio = new(bonusRatio);
 
             Event = new();
             OnChanged = (_, _) => SetDirty();
-            Bonus.Event.Add(OnChanged);
+            BonusFlat.Event.Add(OnChanged);
             BonusPct.Event.Add(OnChanged);
 
             Dirty = true;
@@ -109,14 +109,14 @@ namespace UniStats
             private set => _dirty = value;
         }
 
-        public List<IMod<T>> Mods => Bonus.Mods;
+        public List<IMod<T>> Mods => BonusFlat.Mods;
 
         T _cache;
         T _cacheBonus;
 
         public T Compute()
         {
-            var bonus = Bonus.Value;
+            var bonus = BonusFlat.Value;
             var bonusPct = BonusPct.Value;
             var bonusRatio = BonusRatio.Value;
 
@@ -139,12 +139,12 @@ namespace UniStats
 
         public void AddMod(IMod<T> mod, int order = 0)
         {
-            Bonus.AddMod(mod, order);
+            BonusFlat.AddMod(mod, order);
         }
 
         public bool RemoveMod(string key, bool release = true)
         {
-            if (Bonus.RemoveMod(key, release))
+            if (BonusFlat.RemoveMod(key, release))
                 return true;
 
             if (BonusPct.RemoveMod(key, release))
@@ -155,7 +155,7 @@ namespace UniStats
 
         public bool GetMod(string key, out NumMod<T> result)
         {
-            if (Bonus.GetMod(key, out result))
+            if (BonusFlat.GetMod(key, out result))
                 return true;
 
             if (BonusPct.GetMod(key, out result))
@@ -166,7 +166,7 @@ namespace UniStats
 
         public bool HasMod(string key)
         {
-            if (Bonus.HasMod(key))
+            if (BonusFlat.HasMod(key))
                 return true;
 
             if (BonusPct.HasMod(key))
@@ -177,7 +177,7 @@ namespace UniStats
 
         public void ClearMods(bool release = true)
         {
-            Bonus.ClearMods(release);
+            BonusFlat.ClearMods(release);
             BonusPct.ClearMods(release);
         }
 
@@ -188,7 +188,7 @@ namespace UniStats
 
         public override string ToString()
         {
-            return $"{Value} = {Initial} + ({Bonus.Value} + {Initial} * {BonusPct.Value}) * {BonusRatio.Value}";
+            return $"{Value} = {Initial} + ({BonusFlat.Value} + {Initial} * {BonusPct.Value}) * {BonusRatio.Value}";
         }
 
         public void Release()

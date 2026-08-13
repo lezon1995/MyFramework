@@ -1883,6 +1883,24 @@ public static class StringExtension
 		}
 		return str;
 	}
+
+	public static string color(this string str, Color color)
+	{
+		var rgbaString = colorToRGBAString(color);
+		return colorString(rgbaString, str);
+	}
+
+	public static string color(this string str, Color32 color)
+	{
+		var rgbaString = colorToRGBAString(color);
+		return colorString(rgbaString, str);
+	}
+
+	public static string color(this string str, string color)
+	{
+		return colorString(color, str);
+	}
+
 	// 初始化数值↔字符串的预计算表和补零字符串池
 	// mIntToString: 预计算0~10239的字符串表示（数组索引即数值）
 	// mStringToInt: 反向查找表（字符串→数值）

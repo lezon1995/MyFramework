@@ -104,7 +104,7 @@ namespace MoreMountains.Feedbacks
     }
 
     /// <summary>
-    /// Put this component in your scene and it'll catch MMFreezeFrameEvents and MMTimeScaleEvents, allowing you to control the flow of time.
+    /// Put this component in your scene, and it'll catch MMFreezeFrameEvents and MMTimeScaleEvents, allowing you to control the flow of time.
     /// </summary>
     [AddComponentMenu("More Mountains/Feedbacks/Shakers/Various/MMTimeManager")]
     public class MMTimeManager : MMSingleton<MMTimeManager>

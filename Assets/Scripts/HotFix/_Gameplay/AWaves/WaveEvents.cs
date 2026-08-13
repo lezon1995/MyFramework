@@ -26,19 +26,19 @@ namespace MoreMountains
     /// </summary>
     public struct OnWaveComplete
     {
-        public int WaveNumber;
         public WaveConfig Config;
+        public int WaveNumber;
         public int KillCount;
         public int SpawnCount;
         public float ElapsedTime;
 
-        public OnWaveComplete(int waveNumber, WaveConfig config, int killCount, int spawnCount, float elapsedTime)
+        public OnWaveComplete(WaveConfig config)
         {
-            WaveNumber = waveNumber;
             Config = config;
-            KillCount = killCount;
-            SpawnCount = spawnCount;
-            ElapsedTime = elapsedTime;
+            WaveNumber = config.waveNumber;
+            KillCount = config.KillCount;
+            SpawnCount = config.SpawnCount;
+            ElapsedTime = config.duration;
         }
     }
 
@@ -52,10 +52,10 @@ namespace MoreMountains
         public GameResult Result;
         public string Reason;
 
-        public OnWaveFailed(int waveNumber, WaveConfig config, GameResult result, string reason = "")
+        public OnWaveFailed(WaveConfig config, GameResult result, string reason = "")
         {
-            WaveNumber = waveNumber;
             Config = config;
+            WaveNumber = config.waveNumber;
             Result = result;
             Reason = reason;
         }
@@ -223,55 +223,6 @@ namespace MoreMountains
             TimeRemaining = timeRemaining;
             TotalTime = totalTime;
             Progress = totalTime > 0 ? 1f - (timeRemaining / totalTime) : 0f;
-        }
-    }
-
-    #endregion
-
-    #region Reward Events
-
-    /// <summary>
-    /// 奖励生成事件
-    /// </summary>
-    public struct OnRewardsGenerated
-    {
-        public int WaveNumber;
-        public WaveReward[] Rewards;
-
-        public OnRewardsGenerated(int waveNumber, WaveReward[] rewards)
-        {
-            WaveNumber = waveNumber;
-            Rewards = rewards;
-        }
-    }
-
-    /// <summary>
-    /// 奖励选择事件
-    /// </summary>
-    public struct OnRewardSelected
-    {
-        public WaveReward Reward;
-        public int WaveNumber;
-
-        public OnRewardSelected(WaveReward reward, int waveNumber)
-        {
-            Reward = reward;
-            WaveNumber = waveNumber;
-        }
-    }
-
-    /// <summary>
-    /// 奖励选择完成事件
-    /// </summary>
-    public struct OnRewardSelectionComplete
-    {
-        public int WaveNumber;
-        public int SelectedCount;
-
-        public OnRewardSelectionComplete(int waveNumber, int selectedCount)
-        {
-            WaveNumber = waveNumber;
-            SelectedCount = selectedCount;
         }
     }
 

@@ -186,7 +186,7 @@ namespace MoreMountains
                 {
                     if (dmg.Effect == Dmg.Effects.Attack)
                     {
-                        if (source.Stats && source.Stats.GetStat(Stats.LS, out var lifeSteal))
+                        if (source.Stats && source.Stats.GetStat(Stats.LifeSteal, out var lifeSteal))
                         {
                             if (lifeSteal.Value>0 && randomHit(lifeSteal.Value))
                             {

@@ -158,6 +158,9 @@ namespace MoreMountains
         [Tooltip("形状生成后，是否在形状上随机放置怪物（取代单独刷怪）")]
         public bool spawnMonstersOnShape = true;
 
+        public int KillCount { get; set; }
+        public int SpawnCount { get; set; }
+
         /// <summary>
         /// 获取击败所有怪物策略的最大生成总数
         /// </summary>
@@ -165,6 +168,7 @@ namespace MoreMountains
         {
             if (defeatAllMaxTotalSpawn > 0)
                 return defeatAllMaxTotalSpawn;
+
             return maxActiveMonsters * 3;
         }
     }

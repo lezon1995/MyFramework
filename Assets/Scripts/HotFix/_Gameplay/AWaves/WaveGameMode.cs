@@ -8,7 +8,6 @@ namespace MoreMountains
     public class WaveGameMode : MonoBehaviour
     {
         public WaveManager waveManager;
-        public WaveRewardManager waveRewardManager;
 
         #region Properties
         // 当前关卡配置
@@ -64,12 +63,6 @@ namespace MoreMountains
                 waveManager.OnRewardSelectionStarted += HandleRewardSelectionStarted;
                 waveManager.OnRewardSelectionEnded += HandleRewardSelectionEnded;
             }
-
-            // 注册奖励管理器事件
-            if (waveRewardManager)
-            {
-                waveRewardManager.OnRewardSelectionComplete += HandleRewardManagerSelectionComplete;
-            }
         }
 
         void UnregisterEventListeners()
@@ -89,11 +82,6 @@ namespace MoreMountains
                 // 取消监听奖励选择相关事件
                 waveManager.OnRewardSelectionStarted -= HandleRewardSelectionStarted;
                 waveManager.OnRewardSelectionEnded -= HandleRewardSelectionEnded;
-            }
-
-            if (waveRewardManager)
-            {
-                waveRewardManager.OnRewardSelectionComplete -= HandleRewardManagerSelectionComplete;
             }
         }
 
@@ -158,7 +146,6 @@ namespace MoreMountains
         public void QuitGame()
         {
             waveManager.Reset();
-            waveRewardManager.EndRewardSelection();
             TotalPlayTime = 0f;
             TotalKills = 0;
             Time.timeScale = 1f;
@@ -178,12 +165,6 @@ namespace MoreMountains
             }
 
             OnRewardPhaseStarted?.Invoke();
-
-            // 生成奖励选项
-            int waveNumber = CurWave;
-            waveRewardManager.GenerateRewards(waveNumber, 3);
-
-            Debug.Log($"[WaveGameMode] Showing reward options for wave {waveNumber}");
         }
 
         /// <summary>
@@ -196,9 +177,6 @@ namespace MoreMountains
                 Debug.LogWarning("[WaveGameMode] Cannot confirm reward: not in reward selection state.");
                 return;
             }
-
-            // 完成奖励选择
-            waveRewardManager.EndRewardSelection();
 
             // 通知WaveManager离开奖励选择阶段，开始下一波
             waveManager.ExitRewardSelection();
@@ -214,9 +192,6 @@ namespace MoreMountains
                 Debug.LogWarning("[WaveGameMode] Cannot skip reward: not in reward selection state.");
                 return;
             }
-
-            // 跳过奖励选择
-            waveRewardManager.SkipRewardSelection();
 
             // 通知WaveManager离开奖励选择阶段，开始下一波
             waveManager.ExitRewardSelection();
@@ -258,6 +233,8 @@ namespace MoreMountains
 
         void HandleWaveComplete(WaveConfig config)
         {
+            new OnWaveComplete(config).trigger();
+
             // WaveManager已经进入RewardSelecting状态
             // 这里生成奖励选项让玩家选择
             EnterRewardPhase();
@@ -265,6 +242,8 @@ namespace MoreMountains
 
         void HandleWaveFailed(WaveConfig config, GameResult result)
         {
+            new OnWaveFailed(config, result).trigger();
+            
             Debug.Log($"[WaveGameMode] Wave failed: {result}");
             // 可以在这里显示失败UI
         }
@@ -345,12 +324,6 @@ namespace MoreMountains
         {
             OnRewardPhaseEnded?.Invoke();
             Debug.Log("[WaveGameMode] Reward selection ended.");
-        }
-
-        // 处理奖励管理器完成选择
-        void HandleRewardManagerSelectionComplete()
-        {
-            Debug.Log("[WaveGameMode] Reward manager selection complete.");
         }
 
         #endregion

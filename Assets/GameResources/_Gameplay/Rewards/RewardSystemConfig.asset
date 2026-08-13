@@ -1,0 +1,414 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 738fefa39b6b4835badf39a46bd69932, type: 3}
+  m_Name: RewardSystemConfig
+  m_EditorClassIdentifier: HotFix::MoreMountains.RewardSystemConfig
+  BallOfferCount: 4
+  RelicOfferCount: 4
+  MixedOfferCount: 4
+  BallBoardRerollCost: 0
+  RelicBoardRerollCost: 0
+  MixedBoardRerollCost: 0
+  BallStatModOfferPool:
+  - def: {fileID: 11400000, guid: d554479a48e190e4baec5a02623aa9ff, type: 2}
+    configs:
+    - rarity: 0
+      bonusFlat: 0
+      bonusPct: 0.05
+    - rarity: 1
+      bonusFlat: 0
+      bonusPct: 0.1
+    - rarity: 2
+      bonusFlat: 0
+      bonusPct: 0.15
+    - rarity: 3
+      bonusFlat: 0
+      bonusPct: 0.2
+  - def: {fileID: 11400000, guid: cd15f1966ae50c04293da8db64ef803e, type: 2}
+    configs:
+    - rarity: 0
+      bonusFlat: 0.03
+      bonusPct: 0
+    - rarity: 1
+      bonusFlat: 0.05
+      bonusPct: 0
+    - rarity: 2
+      bonusFlat: 0.07
+      bonusPct: 0
+    - rarity: 3
+      bonusFlat: 0.09
+      bonusPct: 0
+  - def: {fileID: 11400000, guid: 16acdfcded2d8ca4d9a425f377bd9fab, type: 2}
+    configs:
+    - rarity: 0
+      bonusFlat: 0.01
+      bonusPct: 0
+    - rarity: 1
+      bonusFlat: 0.02
+      bonusPct: 0
+    - rarity: 2
+      bonusFlat: 0.03
+      bonusPct: 0
+    - rarity: 3
+      bonusFlat: 0.04
+      bonusPct: 0
+  - def: {fileID: 11400000, guid: 518fd490877638641bb52ab0f1288b57, type: 2}
+    configs:
+    - rarity: 0
+      bonusFlat: 0.3
+      bonusPct: 0
+    - rarity: 1
+      bonusFlat: 0.6
+      bonusPct: 0
+    - rarity: 2
+      bonusFlat: 0.9
+      bonusPct: 0
+    - rarity: 3
+      bonusFlat: 1.2
+      bonusPct: 0
+  - def: {fileID: 11400000, guid: 0feba90009b440744a203cb4b02c2b99, type: 2}
+    configs:
+    - rarity: 0
+      bonusFlat: 2
+      bonusPct: 0
+    - rarity: 1
+      bonusFlat: 4
+      bonusPct: 0
+    - rarity: 2
+      bonusFlat: 6
+      bonusPct: 0
+    - rarity: 3
+      bonusFlat: 8
+      bonusPct: 0
+  - def: {fileID: 11400000, guid: 58e6ee9889b5efd4eaad1b416a9ea02d, type: 2}
+    configs:
+    - rarity: 0
+      bonusFlat: 0.1
+      bonusPct: 0
+    - rarity: 1
+      bonusFlat: 0.2
+      bonusPct: 0
+    - rarity: 2
+      bonusFlat: 0.3
+      bonusPct: 0
+    - rarity: 3
+      bonusFlat: 0.4
+      bonusPct: 0
+  - def: {fileID: 11400000, guid: a3dd1aa1a8848b34d9decd5c3f76200c, type: 2}
+    configs:
+    - rarity: 0
+      bonusFlat: 1
+      bonusPct: 0
+    - rarity: 1
+      bonusFlat: 2
+      bonusPct: 0
+    - rarity: 2
+      bonusFlat: 3
+      bonusPct: 0
+    - rarity: 3
+      bonusFlat: 4
+      bonusPct: 0
+  - def: {fileID: 11400000, guid: 81b52e6db7a3b1c4daa62e7855ac9132, type: 2}
+    configs:
+    - rarity: 0
+      bonusFlat: 0.1
+      bonusPct: 0
+    - rarity: 1
+      bonusFlat: 0.2
+      bonusPct: 0
+    - rarity: 2
+      bonusFlat: 0.3
+      bonusPct: 0
+    - rarity: 3
+      bonusFlat: 0.4
+      bonusPct: 0
+  - def: {fileID: 11400000, guid: 310b1e795ec9c4e4992460b2226959aa, type: 2}
+    configs:
+    - rarity: 0
+      bonusFlat: 0.1
+      bonusPct: 0
+    - rarity: 1
+      bonusFlat: 0.2
+      bonusPct: 0
+    - rarity: 2
+      bonusFlat: 0.3
+      bonusPct: 0
+    - rarity: 3
+      bonusFlat: 0.4
+      bonusPct: 0
+  - def: {fileID: 11400000, guid: b86379d4bb45eac45b2eb4c951465a87, type: 2}
+    configs:
+    - rarity: 0
+      bonusFlat: 0.1
+      bonusPct: 0
+    - rarity: 1
+      bonusFlat: 0.2
+      bonusPct: 0
+    - rarity: 2
+      bonusFlat: 0.3
+      bonusPct: 0
+    - rarity: 3
+      bonusFlat: 0.4
+      bonusPct: 0
+  - def: {fileID: 11400000, guid: 542f5b3514c87bb4c8403882acb49f17, type: 2}
+    configs:
+    - rarity: 0
+      bonusFlat: 0.01
+      bonusPct: 0
+    - rarity: 1
+      bonusFlat: 0.02
+      bonusPct: 0
+    - rarity: 2
+      bonusFlat: 0.03
+      bonusPct: 0
+    - rarity: 3
+      bonusFlat: 0.04
+      bonusPct: 0
+  - def: {fileID: 11400000, guid: 93ade19cbb641fd4bb40c56282e3ec37, type: 2}
+    configs:
+    - rarity: 0
+      bonusFlat: 0.03
+      bonusPct: 0
+    - rarity: 1
+      bonusFlat: 0.06
+      bonusPct: 0
+    - rarity: 2
+      bonusFlat: 0.09
+      bonusPct: 0
+    - rarity: 3
+      bonusFlat: 0.12
+      bonusPct: 0
+  PlayerStatModOfferPool:
+  - def: {fileID: 11400000, guid: 44b49883735a5bb49a4b2f85b2fe9e45, type: 2}
+    configs:
+    - rarity: 0
+      bonusFlat: 3
+      bonusPct: 0
+    - rarity: 1
+      bonusFlat: 6
+      bonusPct: 0
+    - rarity: 2
+      bonusFlat: 9
+      bonusPct: 0
+    - rarity: 3
+      bonusFlat: 12
+      bonusPct: 0
+  - def: {fileID: 11400000, guid: e498d75c0a5676c4e93046c6540a6e81, type: 2}
+    configs:
+    - rarity: 0
+      bonusFlat: 1
+      bonusPct: 0
+    - rarity: 1
+      bonusFlat: 2
+      bonusPct: 0
+    - rarity: 2
+      bonusFlat: 3
+      bonusPct: 0
+    - rarity: 3
+      bonusFlat: 4
+      bonusPct: 0
+  - def: {fileID: 11400000, guid: 29733c908430f4445aa11514074cb3dc, type: 2}
+    configs:
+    - rarity: 0
+      bonusFlat: 3
+      bonusPct: 0
+    - rarity: 1
+      bonusFlat: 6
+      bonusPct: 0
+    - rarity: 2
+      bonusFlat: 9
+      bonusPct: 0
+    - rarity: 3
+      bonusFlat: 12
+      bonusPct: 0
+  - def: {fileID: 11400000, guid: b2eca90400d3b6140a759caa9544d689, type: 2}
+    configs:
+    - rarity: 0
+      bonusFlat: 1
+      bonusPct: 0
+    - rarity: 1
+      bonusFlat: 2
+      bonusPct: 0
+    - rarity: 2
+      bonusFlat: 3
+      bonusPct: 0
+    - rarity: 3
+      bonusFlat: 4
+      bonusPct: 0
+  - def: {fileID: 11400000, guid: 1d979439c2dd8f549b9a687039d3f4bf, type: 2}
+    configs:
+    - rarity: 0
+      bonusFlat: 1
+      bonusPct: 0
+    - rarity: 1
+      bonusFlat: 2
+      bonusPct: 0
+    - rarity: 2
+      bonusFlat: 3
+      bonusPct: 0
+    - rarity: 3
+      bonusFlat: 4
+      bonusPct: 0
+  - def: {fileID: 11400000, guid: e7b5a42889fc5f94996f0576d093b80e, type: 2}
+    configs:
+    - rarity: 0
+      bonusFlat: 0.05
+      bonusPct: 0
+    - rarity: 1
+      bonusFlat: 0.1
+      bonusPct: 0
+    - rarity: 2
+      bonusFlat: 0.15
+      bonusPct: 0
+    - rarity: 3
+      bonusFlat: 0.2
+      bonusPct: 0
+  - def: {fileID: 11400000, guid: f3fa8988cbb523240b3d34d51e4916f1, type: 2}
+    configs:
+    - rarity: 0
+      bonusFlat: 0.03
+      bonusPct: 0
+    - rarity: 1
+      bonusFlat: 0.06
+      bonusPct: 0
+    - rarity: 2
+      bonusFlat: 0.09
+      bonusPct: 0
+    - rarity: 3
+      bonusFlat: 0.12
+      bonusPct: 0
+  - def: {fileID: 11400000, guid: 478d29109c020f14791c5964f1396154, type: 2}
+    configs:
+    - rarity: 0
+      bonusFlat: 0.03
+      bonusPct: 0
+    - rarity: 1
+      bonusFlat: 0.05
+      bonusPct: 0
+    - rarity: 2
+      bonusFlat: 0.07
+      bonusPct: 0
+    - rarity: 3
+      bonusFlat: 0.09
+      bonusPct: 0
+  - def: {fileID: 11400000, guid: 7805a6c96b4e6854ca9e0398284b8106, type: 2}
+    configs:
+    - rarity: 0
+      bonusFlat: 0.02
+      bonusPct: 0
+    - rarity: 1
+      bonusFlat: 0.04
+      bonusPct: 0
+    - rarity: 2
+      bonusFlat: 0.06
+      bonusPct: 0
+    - rarity: 3
+      bonusFlat: 0.08
+      bonusPct: 0
+  - def: {fileID: 11400000, guid: fea826d152370ce4f93fb153d9e888ec, type: 2}
+    configs:
+    - rarity: 0
+      bonusFlat: 0.03
+      bonusPct: 0
+    - rarity: 1
+      bonusFlat: 0.06
+      bonusPct: 0
+    - rarity: 2
+      bonusFlat: 0.09
+      bonusPct: 0
+    - rarity: 3
+      bonusFlat: 0.12
+      bonusPct: 0
+  - def: {fileID: 11400000, guid: 02dc17e76beb4d1489a3ec09b93c181d, type: 2}
+    configs:
+    - rarity: 0
+      bonusFlat: 3
+      bonusPct: 0
+    - rarity: 1
+      bonusFlat: 6
+      bonusPct: 0
+    - rarity: 2
+      bonusFlat: 9
+      bonusPct: 0
+    - rarity: 3
+      bonusFlat: 12
+      bonusPct: 0
+  - def: {fileID: 11400000, guid: c5cba73f697b5d7489216845298cb072, type: 2}
+    configs:
+    - rarity: 0
+      bonusFlat: 0.01
+      bonusPct: 0
+    - rarity: 1
+      bonusFlat: 0.02
+      bonusPct: 0
+    - rarity: 2
+      bonusFlat: 0.03
+      bonusPct: 0
+    - rarity: 3
+      bonusFlat: 0.04
+      bonusPct: 0
+  - def: {fileID: 11400000, guid: 369396e500ba38d4996f4c98aab0a60d, type: 2}
+    configs:
+    - rarity: 0
+      bonusFlat: 0.03
+      bonusPct: 0
+    - rarity: 1
+      bonusFlat: 0.06
+      bonusPct: 0
+    - rarity: 2
+      bonusFlat: 0.09
+      bonusPct: 0
+    - rarity: 3
+      bonusFlat: 0.12
+      bonusPct: 0
+  - def: {fileID: 11400000, guid: 0c4eb02eee8149e40b3ef28a924fcda5, type: 2}
+    configs:
+    - rarity: 0
+      bonusFlat: 0.1
+      bonusPct: 0
+    - rarity: 1
+      bonusFlat: 0.15
+      bonusPct: 0
+    - rarity: 2
+      bonusFlat: 0.2
+      bonusPct: 0
+    - rarity: 3
+      bonusFlat: 0.25
+      bonusPct: 0
+  - def: {fileID: 11400000, guid: ec97e768c44c52b45bf218b12038f8ab, type: 2}
+    configs:
+    - rarity: 0
+      bonusFlat: 0.01
+      bonusPct: 0
+    - rarity: 1
+      bonusFlat: 0.02
+      bonusPct: 0
+    - rarity: 2
+      bonusFlat: 0.03
+      bonusPct: 0
+    - rarity: 3
+      bonusFlat: 0.04
+      bonusPct: 0
+  - def: {fileID: 11400000, guid: cfe3988ce90b1804b83f9219e7a19b0f, type: 2}
+    configs:
+    - rarity: 0
+      bonusFlat: 0
+      bonusPct: 0.03
+    - rarity: 1
+      bonusFlat: 0
+      bonusPct: 0.06
+    - rarity: 2
+      bonusFlat: 0
+      bonusPct: 0.09
+    - rarity: 3
+      bonusFlat: 0
+      bonusPct: 0.12

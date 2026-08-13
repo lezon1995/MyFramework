@@ -11,10 +11,13 @@ public partial class RelicPurchaseItem
         hovered?.setActive(on);
     }
 
-    public void SetRarity(Color top, Color bot)
+    public void SetRarity(ItemRarity rarity)
     {
-        rarityTop?.setColor(new(top.r, top.g, top.b));
-        rarityBot?.setColor(new(bot.r, bot.g, bot.b));
+        var c = gameDesign.getRarityColor(rarity);
+        itemBorder.setColor(c.border);
+        itemBg.setColor(c.bg);
+        IconBg.setColor(c.iconBg);
+        itemName.setColor(c.title);
     }
 
     public void SetNewTag(bool on) => newTag.setActive(on);
@@ -26,7 +29,6 @@ public partial class RelicPurchaseItem
     public void SetSold(bool sold)
     {
         hovered.setActive(!sold);
-        rarityTop.setActive(!sold);
         itemSold.setActive(sold);
         if (btn.tryGetUnityComponent<ButtonScaleAnim>(out var btnScaleAnim))
         {

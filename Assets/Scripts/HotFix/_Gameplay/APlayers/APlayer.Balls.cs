@@ -21,11 +21,13 @@ namespace MoreMountains
         protected BallManagementSystem ballManagement;
         protected InventorySystem inventory;
         protected ShopSystem shop;
+        protected RewardSystem rewardSystem;
         protected PlayerWallet wallet;
 
         public BallManagementSystem BallManagement => ballManagement;
         public InventorySystem Inventory => inventory;
         public ShopSystem Shop => shop;
+        public RewardSystem RewardSystem => rewardSystem;
         public PlayerWallet Wallet => wallet;
 
         public CharacterHandleWeapon[] handleWeapons;
@@ -43,6 +45,7 @@ namespace MoreMountains
             getOrAddUnityComponent(out ballManagement);
             getOrAddUnityComponent(out inventory);
             getOrAddUnityComponent(out shop);
+            getOrAddUnityComponent(out rewardSystem);
             getOrAddUnityComponent(out wallet);
 
             originalShootPosition = shootPosition = getWorldPosition();
