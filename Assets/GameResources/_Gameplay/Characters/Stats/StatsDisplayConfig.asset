@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3775a8dab036489ca782597ea4b4746a, type: 3}
+  m_Name: StatsDisplayConfig
+  m_EditorClassIdentifier: HotFix::MoreMountains.StatsDisplayConfig
+  configs:
+  - statName: BallisticSpeed
+    displayType: 1
+    displayDecimalDigits: 0
+  - statName: CritChance
+    displayType: 1
+    displayDecimalDigits: 0
+  - statName: CritDamage
+    displayType: 1
+    displayDecimalDigits: 0
+  - statName: DmgRate
+    displayType: 1
+    displayDecimalDigits: 0
+  - statName: DodgeChance
+    displayType: 1
+    displayDecimalDigits: 0
+  - statName: HealthRegen
+    displayType: 0
+    displayDecimalDigits: 1
+  - statName: HitEffectChance
+    displayType: 1
+    displayDecimalDigits: 0
+  - statName: LifeSteal
+    displayType: 1
+    displayDecimalDigits: 0
