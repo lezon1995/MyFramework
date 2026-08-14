@@ -22,6 +22,18 @@ MonoBehaviour:
     - Locale-zh-Hans
     - Preload
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 617fbc8ecb54e394e8cf8ef84a5211e9
+    m_Address: OperationPanel_zh-Hans
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-zh-Hans
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 98372e0aef54e1c4fac10215e450c1b2
+    m_Address: Stats_zh-Hans
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-zh-Hans
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 1
   m_Settings: {fileID: 11400000, guid: 7d173e5c722bbec4d8f75c5c5cc52807, type: 2}
   m_SchemaSet:

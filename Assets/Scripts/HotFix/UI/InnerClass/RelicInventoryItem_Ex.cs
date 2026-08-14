@@ -20,10 +20,29 @@ public partial class RelicInventoryItem : IRelicOperationTarget
     public GameObject ItemGO => mRoot.getGameObject();
     public void SetSelected(bool on) => focus?.setActive(on);
     public void SetEnabled(bool on) => disable?.setActive(!on);
-    public void SetRelicIcon(Sprite s) => icon?.setSpriteOnly(s);
+    public void SetRelicIcon(Sprite s)
+    {
+        if (s)
+        {
+            icon.gameObject.SetActive(true);
+            icon?.setSpriteOnly(s);
+        }
+        else
+        {
+            icon.gameObject.SetActive(false);
+        }
+    }
+
     public void SetIconVisible(bool on) => icon?.setActive(on);
     public void SetRelicInventorySlot(RelicInventorySlot slot) => relicInventorySlot = slot;
 
+    public void SetRarity(ItemRarity rarity)
+    {
+        var c = gameDesign.getRarityColor(rarity);
+        itemBorder.setColor(c.border);
+        iconBg.setColor(c.iconBg);
+    }
+    
     // IRelicOperationTarget 实现
 
     public void BeginFollowMouse(RectTransform iconSource)

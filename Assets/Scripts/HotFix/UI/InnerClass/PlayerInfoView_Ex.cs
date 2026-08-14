@@ -41,18 +41,9 @@ public partial class PlayerInfoView
 
 public partial class PlayerStatItem
 {
-    public void SetIcon(Sprite s)
-    {
-        statIcon.setSpriteOnly(s);
-    }
-
-    public void SetName(string s)
-    {
-        statName.setText(s);
-    }
-
-    public void SetValue(string s)
-    {
-        statValue.setText(s);
-    }
+    public void SetIcon(Sprite s) => statIcon.setSpriteOnly(s);
+    public void SetName(string s) => statName.setText(s);
+    public void SetNameColor(Color s) => statName.setColor(s);
+    public void SetValue(string s) => statValue.setText(s);
+    public void SetValueColor(Color s) => statValue.setColor(s);
 }

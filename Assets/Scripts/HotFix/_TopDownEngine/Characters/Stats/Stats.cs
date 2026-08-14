@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using MoreMountains.Tools;
 using UniStats;
@@ -144,6 +145,23 @@ namespace MoreMountains
                     _stats[statName] = stat;
                     stat.Name = statName;
                     stat.Event.Add(Action);
+
+                    _statsTemplate.TryGetDisplayConfig(statName, out var displayConfig);
+                    stat.DisplayValueGetter = () =>
+                    {
+                        using var _ = new MyStringBuilderScope(out var sb);
+                        switch (displayConfig.displayType)
+                        {
+                            case DisplayConfig.DisplayType.Flat:
+                                sb.add(stat.Value.FToS(displayConfig.displayDecimalDigits));
+                                break;
+                            case DisplayConfig.DisplayType.Pct:
+                                sb.add(stat.Value.toPercent(displayConfig.displayDecimalDigits));
+                                break;
+                        }
+
+                        return sb.ToString();
+                    };
 
                     void Action(float pre, float cur)
                     {

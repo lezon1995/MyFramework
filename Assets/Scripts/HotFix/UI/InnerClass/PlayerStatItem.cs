@@ -1,4 +1,6 @@
-﻿namespace MoreMountains;
+﻿using UnityEngine.Localization.Components;
+
+namespace MoreMountains;
 
 // auto generate classname start
 // generate from:Assets/GameResources/UI/UIPrefab/OperationPanel.prefab
@@ -11,6 +13,9 @@ public partial class PlayerStatItem : WindowRecyclableUGUI
 	protected myUGUITextTMP statName;
 	protected myUGUITextTMP statValue;
 	// auto generate member end
+	
+	LocalizeStringEvent _stringEvent;
+	
 	public PlayerStatItem(IWindowObjectOwner parent) : base(parent)
 	{
 		// auto generate constructor start
@@ -23,6 +28,8 @@ public partial class PlayerStatItem : WindowRecyclableUGUI
 		newObject(out statName, "H/Name/StatName");
 		newObject(out statValue, "H/Value/StatValue");
 		// auto generate assignWindowInternal end
+		
+		statName.tryGetUnityComponent(out _stringEvent);
 	}
 	public override void init()
 	{
@@ -33,5 +40,12 @@ public partial class PlayerStatItem : WindowRecyclableUGUI
 	public override void onShow()
 	{
 		base.onShow();
+	}
+	
+	public void setStringReference(string table, string entry)
+	{
+		_stringEvent.SetTable(table);
+		_stringEvent.SetEntry(entry);
+		// _stringEvent.RefreshString();
 	}
 }

@@ -87,6 +87,12 @@ namespace MoreMountains
                 if (isOccupied)
                 {
                     item.SetBallIcon(ball.Def.Icon);
+                    item.SetRarity(ball.Def.rarity);
+                }
+                else
+                {
+                    item.SetBallIcon(null);
+                    item.SetRarity(ItemRarity.Tier1);
                 }
 
                 item.SetIconVisible(!isEmpty);
@@ -124,7 +130,7 @@ namespace MoreMountains
         public void GetSlotIndexForItem(BallInventoryItem item, out int slotIndex)
         {
             slotIndex = -1;
-            if (_bag == null || item == null) 
+            if (_bag == null || item == null)
                 return;
 
             int i = 0;
@@ -135,6 +141,7 @@ namespace MoreMountains
                     slotIndex = slot.Index;
                     return;
                 }
+
                 i++;
             }
         }
@@ -215,7 +222,7 @@ namespace MoreMountains
                 return 3;
             return level;
         }
-        
+
         public void SetViewActive(bool active) => _view.setActive(active);
     }
 }

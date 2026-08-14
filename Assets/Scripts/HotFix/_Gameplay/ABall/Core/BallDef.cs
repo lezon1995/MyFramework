@@ -7,7 +7,7 @@ namespace MoreMountains
     /// 系统初始化时把所有 BallDef 注册到 BallDefLibrary。
     /// </summary>
     [CreateAssetMenu(menuName = "MyFramework/Gameplay/BallDef")]
-    public sealed class BallDef : ScriptableObject
+    public sealed class BallDef : ScriptableObject, IRarityObject
     {
         public int BallDefId => (int)Type;
         public BallType Type;
@@ -36,5 +36,6 @@ namespace MoreMountains
         public Color LevelColor = Color.white;
         public ItemRarity Rarity;
         public BallStatsTemplate StatsTemplate;
+        public ItemRarity rarity => Rarity;
     }
 }

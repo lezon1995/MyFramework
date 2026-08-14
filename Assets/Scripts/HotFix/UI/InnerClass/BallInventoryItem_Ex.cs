@@ -26,8 +26,28 @@ public partial class BallInventoryItem : IBallOperationTarget
     }
 
     public void SetIconVisible(bool on) => icon?.setActive(on);
-    public void SetBallIcon(Sprite s) => icon?.setSpriteOnly(s);
+
+    public void SetBallIcon(Sprite s)
+    {
+        if (s)
+        {
+            icon.gameObject.SetActive(true);
+            icon?.setSpriteOnly(s);
+        }
+        else
+        {
+            icon.gameObject.SetActive(false);
+        }
+    }
+
     public void SetBallInventorySlot(BallInventorySlot slot) => ballInventorySlot = slot;
+
+    public void SetRarity(ItemRarity rarity)
+    {
+        var c = gameDesign.getRarityColor(rarity);
+        itemBorder.setColor(c.border);
+        iconBg.setColor(c.iconBg);
+    }
 
     public void SetStarCount(int count)
     {
@@ -75,7 +95,7 @@ public partial class BallInventoryItem : IBallOperationTarget
         }
 
         if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            _iconRect.parent as RectTransform, screenMousePos, canvas?.worldCamera, out var localPos))
+                _iconRect.parent as RectTransform, screenMousePos, canvas?.worldCamera, out var localPos))
         {
             _iconRect.anchoredPosition = localPos;
         }
@@ -124,7 +144,7 @@ public partial class BallInventoryItem : IBallOperationTarget
         var source = BallOperationStateManager.Instance.CurrentSource;
         if (source == null)
             return;
-        
+
         if (hoveredTarget is ShopSellZoneView shopSellZoneView)
         {
             shopSellZoneView.shopBinder.OnPlayerSellBall(ballInventorySlot.Item);
@@ -141,7 +161,8 @@ public partial class BallInventoryItem : IBallOperationTarget
 
             var srcSlots = srcSlot.slotBinder?.Model;
             var srcBall = srcSlots != null && srcSlotIndex < srcSlots.Slots.Count
-                ? srcSlots.Slots[srcSlotIndex].Item : null;
+                ? srcSlots.Slots[srcSlotIndex].Item
+                : null;
             if (srcBall == null)
                 return;
 
@@ -179,7 +200,8 @@ public partial class BallInventoryItem : IBallOperationTarget
 
                 var targetSlots = targetSlot.slotBinder?.Model;
                 var targetBall = targetSlots != null && targetSlotIndex < targetSlots.Slots.Count
-                    ? targetSlots.Slots[targetSlotIndex].Item : null;
+                    ? targetSlots.Slots[targetSlotIndex].Item
+                    : null;
 
                 if (targetBall != null)
                 {
@@ -207,7 +229,8 @@ public partial class BallInventoryItem : IBallOperationTarget
 
             var srcBag = slotBinder?.Bag;
             var srcBall = srcBag != null && srcIdx < srcBag.SlotList.Count
-                ? srcBag.SlotList[srcIdx].Item : null;
+                ? srcBag.SlotList[srcIdx].Item
+                : null;
             if (srcBall == null)
                 return;
 
@@ -222,7 +245,8 @@ public partial class BallInventoryItem : IBallOperationTarget
                 if (targetSlots == null)
                     return;
                 var targetBall = targetSlotIndex < targetSlots.Slots.Count
-                    ? targetSlots.Slots[targetSlotIndex].Item : null;
+                    ? targetSlots.Slots[targetSlotIndex].Item
+                    : null;
 
                 if (targetBall != null)
                 {
@@ -263,12 +287,31 @@ public partial class BallInventoryItem : IBallOperationTarget
 // IDraggableItem 保留(拖拽已废弃)
 public partial class BallInventoryItem : IDraggableItem
 {
-    public void SetOnClick(UnityEngine.Events.UnityAction callback) { }
-    public void SetOnDragReleased(Action<BallInventoryItem, UIDragReleaseEventData> callback) { }
+    public void SetOnClick(UnityEngine.Events.UnityAction callback)
+    {
+    }
 
-    public void onPotentialDragInitialized(PointerEventData data) { }
-    public void onDragStarted(PointerEventData data) { }
-    public void onDragging(PointerEventData data) { }
-    public void onDragEnded(PointerEventData data) { }
-    public void onDragReleasedOverUI(UIDragReleaseEventData data) { }
+    public void SetOnDragReleased(Action<BallInventoryItem, UIDragReleaseEventData> callback)
+    {
+    }
+
+    public void onPotentialDragInitialized(PointerEventData data)
+    {
+    }
+
+    public void onDragStarted(PointerEventData data)
+    {
+    }
+
+    public void onDragging(PointerEventData data)
+    {
+    }
+
+    public void onDragEnded(PointerEventData data)
+    {
+    }
+
+    public void onDragReleasedOverUI(UIDragReleaseEventData data)
+    {
+    }
 }

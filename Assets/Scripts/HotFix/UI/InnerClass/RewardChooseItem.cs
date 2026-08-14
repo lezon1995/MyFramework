@@ -4,20 +4,20 @@ using PrimeTween;
 namespace MoreMountains;
 
 // auto generate classname start
-// generate from:Assets/GameResources/UI/UIPrefab/RewardChoosePanel.prefab
+// generate from:Assets/GameResources/UI/UIPrefab/OperationPanel.prefab
 // 
 public partial class RewardChooseItem : WindowRecyclableUGUI
 // auto generate classname end
 {
     // auto generate member start
-    protected myUGUIButton btn;
-    protected myUGUIObject hovered;
-    protected myUGUIObject itemBorder;
-    protected myUGUIObject itemBg;
-    protected myUGUIObject iconBg;
-    protected myUGUIImageSimple itemIcon;
-    protected myUGUITextTMP itemDesc;
-    protected myUGUITextTMP itemName;
+	protected myUGUIButton btn;
+	protected myUGUIObject hovered;
+	protected myUGUIImageSimple itemBorder;
+	protected myUGUIImageSimple itemBg;
+	protected myUGUIImageSimple iconBg;
+	protected myUGUIImageSimple itemIcon;
+	protected myUGUITextTMP itemDesc;
+	protected myUGUITextTMP itemName;
     // auto generate member end
 
     string relicId;
@@ -39,14 +39,14 @@ public partial class RewardChooseItem : WindowRecyclableUGUI
     protected override void assignWindowInternal()
     {
         // auto generate assignWindowInternal start
-        newObject(out btn, "Btn");
-        newObject(out hovered, "Btn/Hovered");
-        newObject(out itemBorder, "Btn/Border");
-        newObject(out itemBg, "Btn/Bg");
-        newObject(out iconBg, "Btn/Icon/IconBg");
-        newObject(out itemIcon, "Btn/Icon/Image");
-        newObject(out itemDesc, "Btn/Desc/TextDesc");
-        newObject(out itemName, "Btn/Name/TextName");
+		newObject(out btn, "Btn");
+		newObject(out hovered, "Btn/Hovered");
+		newObject(out itemBorder, "Btn/Border");
+		newObject(out itemBg, "Btn/Bg");
+		newObject(out iconBg, "Btn/Icon/IconBg");
+		newObject(out itemIcon, "Btn/Icon/Image");
+		newObject(out itemDesc, "Btn/Desc/TextDesc");
+		newObject(out itemName, "Btn/Name/TextName");
         // auto generate assignWindowInternal end
     }
 

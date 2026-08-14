@@ -71,14 +71,12 @@ namespace MoreMountains
             {
                 _orderedOffers.Add(offer);
                 item.SetName(offer.DisplayName ?? "—");
-                // item.SetPrice(offer.Price);
                 if (offer.Def)
-                    item.SetDesc(offer.Def.GetType().Name);
+                    item.SetDesc(offer);
                 if (offer.Def.Icon)
                     item.SetIcon(offer.Def.Icon);
                 item.SetRarity(offer.Rarity);
                 item.SetHovered(false);
-                // item.SetNewTag(offer.Enabled);
                 item.SetSold(offer.Sold);
                 item.Btn.setInteractable(offer.Enabled);
                 item.Btn.setUGUIButtonClick(() => OnOfferClicked(offer));
@@ -88,14 +86,12 @@ namespace MoreMountains
             {
                 _orderedOffers.Add(offer);
                 item.SetName(offer.DisplayName ?? "—");
-                // item.SetPrice(offer.Price);
                 if (offer.Def)
-                    item.SetDesc(offer.Def.GetType().Name);
+                    item.SetDesc(offer);
                 if (offer.Def.Icon)
                     item.SetIcon(offer.Def.Icon);
                 item.SetRarity(offer.Rarity);
                 item.SetHovered(false);
-                // item.SetNewTag(offer.Enabled);
                 item.SetSold(offer.Sold);
                 item.Btn.setInteractable(offer.Enabled);
                 item.Btn.setUGUIButtonClick(() => OnOfferClicked(offer));

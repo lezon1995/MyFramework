@@ -14,7 +14,7 @@ namespace MoreMountains
             HitDamageRate,
             EffectDamageRate,
             AS,
-            MS,
+            BallisticSpeed,
             CritChance,
             CritDamage,
             DmgRate,
@@ -128,7 +128,7 @@ namespace MoreMountains
             SpeedModifier = (ref float raw) =>
             {
                 float speed = raw;
-                var ballMS = GetStat(Stat.MS);
+                var ballMS = GetStat(Stat.BallisticSpeed);
                 if (ballMS)
                     speed = ballMS.Value;
 

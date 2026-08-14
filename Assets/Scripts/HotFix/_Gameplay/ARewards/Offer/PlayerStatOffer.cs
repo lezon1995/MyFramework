@@ -1,3 +1,5 @@
+using UnityEngine.Localization.Settings;
+
 namespace MoreMountains
 {
     /// <summary>
@@ -10,7 +12,24 @@ namespace MoreMountains
         public PlayerStatModDef Def;
         public ItemKind Kind => ItemKind.PlayerStatMod;
         public int ItemId => 0;
-        public string DisplayName => Def ? Def.statKey : "<missing player stat mod def>";
+        public string DisplayName
+        {
+            get
+            {
+                var str = LocalizationSettings.StringDatabase.GetTable("Stats").GetEntry(Def.statKey).Value;
+                var name = str;
+                string suffix = Rarity switch
+                {
+                    ItemRarity.Tier1 => "",
+                    ItemRarity.Tier2 => "Ⅱ",
+                    ItemRarity.Tier3 => "Ⅲ",
+                    ItemRarity.Tier4 => "Ⅳ",
+                    _ => ""
+                };
+                name += $" {suffix}";
+                return name;
+            }
+        }
         public int Price => 0;
 
         bool _sold;

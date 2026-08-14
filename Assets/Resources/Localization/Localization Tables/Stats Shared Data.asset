@@ -1,0 +1,137 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b11a58205ec3474ca216360e9fa74a8, type: 3}
+  m_Name: Stats Shared Data
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.SharedTableData
+  m_TableCollectionName: Stats
+  m_TableCollectionNameGuidString: c281b8348e3315141aa06dde12bb1333
+  m_Entries:
+  - m_Id: 57908154368
+    m_Key: HealthMax
+    m_Metadata:
+      m_Items: []
+  - m_Id: 234324774912
+    m_Key: HealthRegen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 362641117184
+    m_Key: AD
+    m_Metadata:
+      m_Items: []
+  - m_Id: 752115798016
+    m_Key: AR
+    m_Metadata:
+      m_Items: []
+  - m_Id: 798437691392
+    m_Key: AD_PT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 925214724096
+    m_Key: AP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1052679622656
+    m_Key: MR
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1126306435072
+    m_Key: AP_PT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1413742088192
+    m_Key: AS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1589449871360
+    m_Key: MS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1669988896768
+    m_Key: CritChance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1731838103552
+    m_Key: CritDamage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1946536136704
+    m_Key: DmgRate
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2012504150016
+    m_Key: LifeSteal
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2098948755456
+    m_Key: DodgeChance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2167370436608
+    m_Key: KnockbackResistance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2219685990400
+    m_Key: BallisticSpeed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2279899418624
+    m_Key: HitEffectChance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2408320618496
+    m_Key: Knockback
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2436489564160
+    m_Key: Duration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2524746108928
+    m_Key: Luck
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2557478457344
+    m_Key: Greed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2772348456960
+    m_Key: HitDamage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2837012041728
+    m_Key: EffectDamage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2911611932672
+    m_Key: HitDamageRate
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2969862426624
+    m_Key: EffectDamageRate
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4121802854400
+    m_Key: CharacterStats
+    m_Metadata:
+      m_Items: []
+  m_Metadata:
+    m_Items: []
+  m_KeyGenerator:
+    rid: 6418312583835287552
+  references:
+    version: 2
+    RefIds:
+    - rid: 6418312583835287552
+      type: {class: DistributedUIDGenerator, ns: UnityEngine.Localization.Tables,
+        asm: Unity.Localization}
+      data:
+        m_CustomEpoch: 1786669499090

@@ -71,6 +71,7 @@ namespace UniStats
         }
 
         public Func<T> InitialGetter { get; set; }
+        public Func<string> DisplayValueGetter { get; set; }
 
         public T Value
         {

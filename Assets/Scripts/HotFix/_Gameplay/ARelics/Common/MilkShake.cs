@@ -17,7 +17,7 @@ public class MilkShake : ARelic
 
     public override void onBallReflect(APlayer p, Ball ball, Vector2 normal, bool fromBrick, ref Vector2 reflectDir)
     {
-        ball.GetStat(Ball.Stat.MS, out var stat);
+        ball.GetStat(Ball.Stat.BallisticSpeed, out var stat);
         stat.AddPct(0.05F);
     }
 

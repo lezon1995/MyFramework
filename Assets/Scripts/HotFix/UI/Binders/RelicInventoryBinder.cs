@@ -79,7 +79,15 @@ namespace MoreMountains
 
                 item.SetSelected(isSel);
                 if (isOccupied)
+                {
                     item.SetRelicIcon(relic.Def.Icon);
+                    item.SetRarity(relic.Def.rarity);
+                }
+                else
+                {
+                    item.SetRelicIcon(null);
+                    item.SetRarity(ItemRarity.Tier1);
+                }
 
                 item.SetIconVisible(!isEmpty);
                 item.SetEnabled(!isEmpty);

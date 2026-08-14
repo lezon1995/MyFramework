@@ -107,7 +107,7 @@ namespace MoreMountains
                 DamageByOther(ref dmg, instigator, source, invincibleTime, direction, calculator);
             }
         }
-        
+
         public override Vector3 ComputeKnockbackForce(Vector3 knockbackForce)
         {
             if (brick.GetStat(Brick.Stat.KnockbackResistance, out var stat))
@@ -186,9 +186,12 @@ namespace MoreMountains
                 {
                     if (dmg.Effect == Dmg.Effects.Attack)
                     {
-                        if (source.Stats && source.Stats.GetStat(Stats.LifeSteal, out var lifeSteal))
+                        var b1 = source.GetStat(Character.Stat.LifeSteal, out var lifeSteal1);
+                        var b2 = ball.GetStat(Ball.Stat.LifeSteal, out var lifeSteal2);
+                        if (source.Stats && b1 && b2)
                         {
-                            if (lifeSteal.Value>0 && randomHit(lifeSteal.Value))
+                            var lifeSteal = lifeSteal1.Value + lifeSteal2.Value;
+                            if (lifeSteal > 0 && randomHit(lifeSteal))
                             {
                                 source.Health.ReceiveHealth(Heal.Fixed(1), source: source);
                             }

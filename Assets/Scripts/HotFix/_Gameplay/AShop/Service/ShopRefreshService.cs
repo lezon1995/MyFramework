@@ -11,10 +11,14 @@ namespace MoreMountains
     public sealed class ShopRefreshService
     {
         Random _rng;
+        RarityRollService _rollRarityService;
+        UniStats.Stat luck;
 
-        public ShopRefreshService(int seed = 0)
+        public ShopRefreshService(APlayer p, int seed = 0)
         {
             _rng = new Random(seed == 0 ? Environment.TickCount : seed);
+            _rollRarityService = new();
+            p.GetStat(Character.Stat.Luck, out luck);
         }
 
         public void GenerateMixedOffers(int count
@@ -119,21 +123,25 @@ namespace MoreMountains
             GenerateRelicOffers(count, pool, ref offers);
         }
 
-        void PickDistinct<T>(List<T> pool, int count, ref List<T> result)
+        void PickDistinct<T>(List<T> pool, int count, ref List<T> result) where T : IRarityObject
         {
-            // 池子够大时采不重复；不够时也允许重复。
-            using var _ = new ListScope<T>(out var working);
-            working.AddRange(pool);
-
+            int waveNumber = 1;
             result.Clear();
-            int n = Math.Min(count, working.Count);
+            int n = count;
             for (int i = 0; i < n; i++)
             {
+                var rarity = _rollRarityService.RollItem(waveNumber, luck.Value);
+
+                // 池子够大时采不重复；不够时也允许重复。
+                using var _ = new ListScope<T>(out var working);
+                foreach (var o in pool)
+                {
+                    if (o.rarity == rarity)
+                        working.Add(o);
+                }
+
                 int idx = _rng.Next(working.Count);
                 result.Add(working[idx]);
-                working.RemoveAt(idx);
-                if (working.Count == 0 && i + 1 < n)
-                    working.AddRange(pool); // 池子不够，允许重复
             }
         }
     }

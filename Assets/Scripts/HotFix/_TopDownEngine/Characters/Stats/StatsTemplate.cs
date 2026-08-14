@@ -25,10 +25,12 @@ namespace MoreMountains
         Dictionary<string, float> configs { get; }
         Dictionary<string, Func<float>> configExpressions { get; }
         Dictionary<string, float> ratios { get; }
+        bool TryGetDisplayConfig(string statName, out DisplayConfig c);
     }
 
     public abstract class StatsTemplate : SerializedScriptableObject, IStatsTemplate
     {
+        public StatsDisplayConfig displayConfig;
         public bool useExpression => false;
         public Dictionary<string, float> configs => Configs;
         public Dictionary<string, Func<float>> configExpressions => null;
@@ -39,6 +41,8 @@ namespace MoreMountains
 
         [DictionaryDrawerSettings(KeyLabel = "Stat", ValueLabel = "Ratio")]
         public Dictionary<string, float> Ratios = new();
+
+        public List<DisplayConfig> DisplayConfigs = new();
 
         List<string> names = new();
 
@@ -80,5 +84,36 @@ namespace MoreMountains
         }
 
         protected abstract IEnumerable<string> GetNames();
+
+        public bool TryGetDisplayConfig(string statName, out DisplayConfig c)
+        {
+            if (displayConfig == null)
+            {
+                c = DisplayConfig.Default;
+                return false;
+            }
+
+            return displayConfig.TryGetDisplayConfig(statName, out c);
+        }
+    }
+
+    [Serializable]
+    public class DisplayConfig
+    {
+        public static DisplayConfig Default = new()
+        {
+            displayType = DisplayType.Flat,
+            displayDecimalDigits = 0,
+        };
+
+        public enum DisplayType
+        {
+            Flat,
+            Pct,
+        }
+
+        public string statName;
+        public DisplayType displayType;
+        public int displayDecimalDigits;
     }
 }

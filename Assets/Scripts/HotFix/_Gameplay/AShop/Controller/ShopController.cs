@@ -31,7 +31,7 @@ namespace MoreMountains
         public ShopController(ShopSystem system, ShopRefreshService refresh = null)
         {
             shopSystem = system;
-            _refresh = refresh ?? new ShopRefreshService();
+            _refresh = refresh ?? new ShopRefreshService(system.Player);
         }
 
         public void EnterShop()

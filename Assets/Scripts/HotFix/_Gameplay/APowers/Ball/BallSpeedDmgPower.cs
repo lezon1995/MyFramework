@@ -28,7 +28,7 @@ public class BallSpeedDmgPower : BallPower, IArgs<float, float>
 
     public override void onBeforeHandleHitDamage(Ball ball, Brick brick, ref Dmg dmg)
     {
-        ball.GetStat(Ball.Stat.MS, out var stat);
+        ball.GetStat(Ball.Stat.BallisticSpeed, out var stat);
         var share = stat.BonusPct.Value / speedStandard;
         var extraDmgRate = dmgRateStandard * share;
         dmg.addDmgRate(extraDmgRate);

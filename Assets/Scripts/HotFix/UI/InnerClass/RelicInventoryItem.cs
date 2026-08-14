@@ -2,18 +2,20 @@
 
 // auto generate classname start
 // generate from:Assets/GameResources/UI/UIPrefab/OperationPanel.prefab
-//
+// 
 public partial class RelicInventoryItem : WindowRecyclableUGUI
 // auto generate classname end
 {
     // auto generate member start
-    protected myUGUIButton btn;
-    protected myUGUIObject highlight;
-    protected myUGUIObject highlightHovered;
-    protected myUGUIObject normal;
-    protected myUGUIObject disable;
-    protected myUGUIObject focus;
-    protected myUGUIImageSimple icon;
+	protected myUGUIButton btn;
+	protected myUGUIObject highlight;
+	protected myUGUIObject highlightHovered;
+	protected myUGUIObject normal;
+	protected myUGUIImageSimple itemBorder;
+	protected myUGUIImageSimple iconBg;
+	protected myUGUIObject disable;
+	protected myUGUIObject focus;
+	protected myUGUIImageSimple icon;
     // auto generate member end
     public RelicInventoryItem(IWindowObjectOwner parent) : base(parent)
     {
@@ -23,13 +25,15 @@ public partial class RelicInventoryItem : WindowRecyclableUGUI
     protected override void assignWindowInternal()
     {
         // auto generate assignWindowInternal start
-        newObject(out btn, "Btn");
-        newObject(out highlight, "Btn/Highlight");
-        newObject(out highlightHovered, "Btn/HighlightHovered");
-        newObject(out normal, "Btn/Normal");
-        newObject(out disable, "Btn/Disable");
-        newObject(out focus, "Btn/Focus");
-        newObject(out icon, "Btn/Icon");
+		newObject(out btn, "Btn");
+		newObject(out highlight, "Btn/Highlight");
+		newObject(out highlightHovered, "Btn/HighlightHovered");
+		newObject(out normal, "Btn/Normal");
+		newObject(out itemBorder, "Btn/Normal/Border");
+		newObject(out iconBg, "Btn/Normal/Bg");
+		newObject(out disable, "Btn/Disable");
+		newObject(out focus, "Btn/Focus");
+		newObject(out icon, "Btn/Icon");
         // auto generate assignWindowInternal end
     }
 

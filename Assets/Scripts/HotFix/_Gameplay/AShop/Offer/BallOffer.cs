@@ -23,7 +23,6 @@ namespace MoreMountains
 
         public bool Enabled => !Sold;
 
-
         public override void resetProperty()
         {
             Def = null;

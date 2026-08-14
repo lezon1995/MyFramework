@@ -40,18 +40,6 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 1
-      Data: MS
-    - Name: $v
-      Entry: 4
-      Data: 8
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 1
       Data: CritChance
     - Name: $v
       Entry: 4
@@ -187,7 +175,7 @@ MonoBehaviour:
       Data: Knockback
     - Name: $v
       Entry: 4
-      Data: 1
+      Data: 0.2
     - Name: 
       Entry: 8
       Data: 
@@ -200,6 +188,18 @@ MonoBehaviour:
     - Name: $v
       Entry: 4
       Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: BallisticSpeed
+    - Name: $v
+      Entry: 4
+      Data: 8
     - Name: 
       Entry: 8
       Data: 
@@ -229,3 +229,5 @@ MonoBehaviour:
     - Name: 
       Entry: 8
       Data: 
+  displayConfig: {fileID: 0}
+  DisplayConfigs: []

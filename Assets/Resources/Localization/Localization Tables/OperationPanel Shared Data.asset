@@ -1,0 +1,61 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b11a58205ec3474ca216360e9fa74a8, type: 3}
+  m_Name: OperationPanel Shared Data
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.SharedTableData
+  m_TableCollectionName: OperationPanel
+  m_TableCollectionNameGuidString: 0662582391858384f9c6c94ad8d480c7
+  m_Entries:
+  - m_Id: 20704677888
+    m_Key: UpgradeRewards
+    m_Metadata:
+      m_Items: []
+  - m_Id: 108529209344
+    m_Key: Reroll
+    m_Metadata:
+      m_Items: []
+  - m_Id: 203144318976
+    m_Key: Items
+    m_Metadata:
+      m_Items: []
+  - m_Id: 308387794944
+    m_Key: Balls
+    m_Metadata:
+      m_Items: []
+  - m_Id: 439308800000
+    m_Key: PreparePhase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 619403825152
+    m_Key: StartNextWave
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1536777801728
+    m_Key: Shop
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1615450361856
+    m_Key: RemainCoin
+    m_Metadata:
+      m_Items: []
+  m_Metadata:
+    m_Items: []
+  m_KeyGenerator:
+    rid: 6418312583835287625
+  references:
+    version: 2
+    RefIds:
+    - rid: 6418312583835287625
+      type: {class: DistributedUIDGenerator, ns: UnityEngine.Localization.Tables,
+        asm: Unity.Localization}
+      data:
+        m_CustomEpoch: 1786673842389

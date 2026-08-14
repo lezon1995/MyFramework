@@ -31,7 +31,7 @@ namespace MoreMountains
         public RewardController(RewardSystem system, RewardRefreshService refresh = null)
         {
             rewardSystem = system;
-            _refresh = refresh ?? new RewardRefreshService();
+            _refresh = refresh ?? new RewardRefreshService(rewardSystem.Player);
         }
 
         public void EnterReward(int waveNumber)
@@ -40,9 +40,9 @@ namespace MoreMountains
                 ExitRewardInternal(raiseClosed: false);
 
             WaveNumber =  waveNumber;
-            State = RewardSystemState.ShowingMixedBoard;
+            State = RewardSystemState.ShowingPlayerStatBoard;
             RewardEvents.RaiseRewardOpened();
-            OpenBoard(RewardBoardKind.Mixed);
+            OpenBoard(RewardBoardKind.PlayerStat);
         }
 
         public void OpenBoard(RewardBoardKind kind)
@@ -70,7 +70,7 @@ namespace MoreMountains
 
                     _refresh.GenerateMixedOffers(WaveNumber, cfg.MixedOfferCount, cfg.BallStatModOfferPool, ref _ballStatOffers, cfg.PlayerStatModOfferPool, ref _playerStatOffers);
                     State = RewardSystemState.ShowingMixedBoard;
-                    RewardEvents.RaiseBoardOpened(RewardBoardKind.Mixed);
+                    RewardEvents.RaiseBoardOpened(kind);
                     break;
                 }
                 case RewardBoardKind.BallStat:
@@ -81,7 +81,7 @@ namespace MoreMountains
                     _ballStatOffers.Clear();
                     _refresh.GenerateBallStatModDefs(WaveNumber, cfg.BallOfferCount, cfg.BallStatModOfferPool, ref _ballStatOffers);
                     State = RewardSystemState.ShowingBallStatBoard;
-                    RewardEvents.RaiseBoardOpened(RewardBoardKind.BallStat);
+                    RewardEvents.RaiseBoardOpened(kind);
                     break;
                 }
                 case RewardBoardKind.PlayerStat:
@@ -92,7 +92,7 @@ namespace MoreMountains
                     _playerStatOffers.Clear();
                     _refresh.GeneratePlayerStatOffers(WaveNumber, cfg.RelicOfferCount, cfg.PlayerStatModOfferPool, ref _playerStatOffers);
                     State = RewardSystemState.ShowingPlayerStatBoard;
-                    RewardEvents.RaiseBoardOpened(RewardBoardKind.PlayerStat);
+                    RewardEvents.RaiseBoardOpened(kind);
                     break;
                 }
             }

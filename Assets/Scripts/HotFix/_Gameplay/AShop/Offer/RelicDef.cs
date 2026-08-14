@@ -8,7 +8,7 @@ namespace MoreMountains
     /// RelicService 可以用这层把可售遗物包装成 RelicItem 入包。
     /// </summary>
     [CreateAssetMenu(menuName = "MyFramework/Gameplay/RelicDef")]
-    public sealed class RelicDef : ScriptableObject
+    public sealed class RelicDef : ScriptableObject, IRarityObject
     {
         public RelicType Type;
         public int RelicDefId => (int)Type;
@@ -20,5 +20,6 @@ namespace MoreMountains
 
         /// <summary>对应 ARelic 子类的 Type 名（FullName）。RelicService 据此反射创建。</summary>
         // public string RelicTypeName => Type.ToString();
+        public ItemRarity rarity => Rarity;
     }
 }

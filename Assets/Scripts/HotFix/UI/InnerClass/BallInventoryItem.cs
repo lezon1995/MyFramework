@@ -11,6 +11,8 @@ public partial class BallInventoryItem : WindowRecyclableUGUI
 	protected myUGUIObject highlight;
 	protected myUGUIObject highlightHovered;
 	protected myUGUIObject normal;
+	protected myUGUIImageSimple itemBorder;
+	protected myUGUIImageSimple iconBg;
 	protected myUGUIObject disable;
 	protected myUGUIObject focus;
 	protected myUGUIImageSimple icon;
@@ -28,6 +30,8 @@ public partial class BallInventoryItem : WindowRecyclableUGUI
 		newObject(out highlight, "Btn/Highlight");
 		newObject(out highlightHovered, "Btn/HighlightHovered");
 		newObject(out normal, "Btn/Normal");
+		newObject(out itemBorder, "Btn/Normal/Border");
+		newObject(out iconBg, "Btn/Normal/Bg");
 		newObject(out disable, "Btn/Disable");
 		newObject(out focus, "Btn/Focus");
 		newObject(out icon, "Btn/Icon");
@@ -44,6 +48,8 @@ public partial class BallInventoryItem : WindowRecyclableUGUI
     public override void init()
     {
         base.init();
+		// auto generate init start
+		// auto generate init end
 
         // 挂 Bridge 组件
         var go = mRoot.getGameObject();

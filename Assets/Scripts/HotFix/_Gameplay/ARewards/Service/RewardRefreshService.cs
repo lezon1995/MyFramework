@@ -11,10 +11,14 @@ namespace MoreMountains
     public sealed class RewardRefreshService
     {
         Random _rng;
-
-        public RewardRefreshService(int seed = 0)
+        RarityRollService _rollRarityService;
+        UniStats.Stat luck;
+        
+        public RewardRefreshService(APlayer p, int seed = 0)
         {
             _rng = new Random(seed == 0 ? Environment.TickCount : seed);
+            _rollRarityService = new();
+            p.GetStat(Character.Stat.Luck, out luck);
         }
 
         public void GenerateMixedOffers(int waveNumber, int count
@@ -27,10 +31,13 @@ namespace MoreMountains
 
             using var a = new ListScope<BallStatConfig>(out var pickedBalls);
             PickDistinct(ballPool, ballCount, ref pickedBalls);
+            
             foreach (var c in pickedBalls)
             {
                 var offer = CLASS<BallStatOffer>();
-                offer.with(c.def);
+                var rarity = _rollRarityService.RollReward(waveNumber, luck.Value);
+                var config = c.getConfig(rarity);
+                offer.with(c.def, config.rarity, config.bonusFlat, config.bonusPct);
                 ballResult.Add(offer);
             }
 
@@ -39,7 +46,9 @@ namespace MoreMountains
             foreach (var c in pickedPlayers)
             {
                 var offer = CLASS<PlayerStatOffer>();
-                offer.with(c.def);
+                var rarity = _rollRarityService.RollReward(waveNumber, luck.Value);
+                var config = c.getConfig(rarity);
+                offer.with(c.def, config.rarity, config.bonusFlat, config.bonusPct);
                 playerResult.Add(offer);
             }
         }
@@ -55,11 +64,9 @@ namespace MoreMountains
             foreach (var c in picked)
             {
                 var offer = CLASS<BallStatOffer>();
-                
-                using var a = new ListScope2<int>(out var odds, out var indexes);
-                randomSelect(odds, 1, indexes);
-                var e = c.configs[indexes[0]];
-                offer.with(c.def, e.rarity, e.bonusFlat, e.bonusPct);
+                var rarity = _rollRarityService.RollReward(waveNumber, luck.Value);
+                var config = c.getConfig(rarity);
+                offer.with(c.def, config.rarity, config.bonusFlat, config.bonusPct);
                 result.Add(offer);
             }
         }
@@ -74,7 +81,9 @@ namespace MoreMountains
             foreach (var c in picked)
             {
                 var offer = CLASS<PlayerStatOffer>();
-                offer.with(c.def);
+                var rarity = _rollRarityService.RollReward(waveNumber, luck.Value);
+                var config = c.getConfig(rarity);
+                offer.with(c.def, config.rarity, config.bonusFlat, config.bonusPct);
                 result.Add(offer);
             }
         }

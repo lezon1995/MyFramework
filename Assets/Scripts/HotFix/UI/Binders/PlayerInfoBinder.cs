@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UniStats;
+using UnityEngine;
 
 namespace MoreMountains
 {
@@ -55,11 +56,12 @@ namespace MoreMountains
             statList.Add(player.GetStat(Character.Stat.HealthMax));
             statList.Add(player.GetStat(Character.Stat.HealthRegen));
             statList.Add(player.GetStat(Character.Stat.AD));
-            statList.Add(player.GetStat(Character.Stat.AD_PT));
-            statList.Add(player.GetStat(Character.Stat.AD_PT_Rate));
+            // statList.Add(player.GetStat(Character.Stat.AD_PT));
+            // statList.Add(player.GetStat(Character.Stat.AD_PT_Rate));
             statList.Add(player.GetStat(Character.Stat.AP));
-            statList.Add(player.GetStat(Character.Stat.AP_PT));
-            statList.Add(player.GetStat(Character.Stat.AP_PT_Rate));
+            statList.Add(player.GetStat(Character.Stat.AS));
+            // statList.Add(player.GetStat(Character.Stat.AP_PT));
+            // statList.Add(player.GetStat(Character.Stat.AP_PT_Rate));
             statList.Add(player.GetStat(Character.Stat.CritChance));
             statList.Add(player.GetStat(Character.Stat.CritDamage));
             statList.Add(player.GetStat(Character.Stat.DmgRate));
@@ -69,16 +71,41 @@ namespace MoreMountains
             statList.Add(player.GetStat(Character.Stat.DodgeChance));
             statList.Add(player.GetStat(Character.Stat.BallisticSpeed));
             statList.Add(player.GetStat(Character.Stat.HitEffectChance));
+            statList.Add(player.GetStat(Character.Stat.Knockback));
+            statList.Add(player.GetStat(Character.Stat.Duration));
+            statList.Add(player.GetStat(Character.Stat.Luck));
+            statList.Add(player.GetStat(Character.Stat.Greed));
             _view.BuildPlayerStats(statList, (item, stat) =>
             {
                 // item.SetIcon();
-                item.SetName(stat.Name);
-                item.SetValue(((int)stat.Value).IToS());
+                var enhanced = gameDesign.universalColor.enhanced;
+                var reduced = gameDesign.universalColor.reduced;
+                var unchanged = Color.white;
+                item.setStringReference("Stats", stat.Name);
+                Color color;
+                if (stat.BonusValue > 0)
+                    color = enhanced;
+                else if (stat.BonusValue < 0)
+                    color = reduced;
+                else
+                    color = unchanged;
+                item.SetNameColor(color);
+                item.SetValueColor(color);
+                item.SetValue(stat.DisplayValueGetter());
                 var disposable = stat.OnChange(v =>
                 {
-                    item.SetValue(((int)v.Value).IToS());
+                    Color color;
+                    if (stat.BonusValue > 0)
+                        color = enhanced;
+                    else if (stat.BonusValue < 0)
+                        color = reduced;
+                    else
+                        color = unchanged;
+                    item.SetNameColor(color);
+                    item.SetValueColor(color);
+                    item.SetValue(stat.DisplayValueGetter());
                 });
-                
+
                 statsDisposables[stat.Name] = disposable;
             });
         }
@@ -111,7 +138,7 @@ namespace MoreMountains
                 _player.Exp.onExpChanged = null;
                 _player.Exp.onExpRequiredChanged = null;
             }
-            
+
             foreach (var (statName, disposable) in statsDisposables)
                 disposable.Dispose();
 

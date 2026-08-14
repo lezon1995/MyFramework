@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UniStats;
 
 namespace MoreMountains
 {
@@ -449,6 +450,20 @@ namespace MoreMountains
                 case PlayerStatOffer playerStatOffer:
                     playerStatOffer.MarkSold();
                     RewardEvents.RaiseOfferSold(playerStatOffer);
+
+                    if (_player.GetStat(playerStatOffer.Def.stat, out var stat))
+                    {
+                        if (playerStatOffer.BonusFlat > 0)
+                        {
+                            stat.BonusFlat.AddFlat(playerStatOffer.BonusFlat);
+                        }
+
+                        if (playerStatOffer.BonusPct > 0)
+                        {
+                            stat.BonusPct.AddFlat(playerStatOffer.BonusPct);
+                        }
+                    }
+
                     break;
             }
         }
