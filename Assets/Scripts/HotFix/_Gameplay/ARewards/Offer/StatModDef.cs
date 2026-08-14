@@ -8,5 +8,7 @@ namespace MoreMountains
         public string Name;
         public string statKey;
         public Sprite Icon;
+        
+        public DisplayConfig DisplayConfig;
     }
 }

@@ -48,7 +48,7 @@ MonoBehaviour:
     enableTooltip: 1
     defaultShowDelay: 0
     defaultDisplayDuration: 60
-    defaultPositionMode: 0
+    defaultPositionMode: 1
     defaultAnchorDirection: 1
     fixedPosition: {x: 100, y: -100}
     mouseOffset: {x: 20, y: -20}

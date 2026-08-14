@@ -1,9 +1,24 @@
 ﻿namespace MoreMountains
 {
+    enum WeaponType
+    {
+        BallGun,
+        BallTurret,
+    }
+    
     public enum BallType
     {
         NONE = 0,
         Normal = 10000,
+        NormalFast = 10001,//移速+100%，伤害率50%
+        NormalDouble = 10002,//一次攻击发射2个
+        NormalPierce = 10003,//移速+100%，穿透1次，伤害-50%
+        NormalTracking = 10004,
+        NormalSequence = 10005,//连珠球，前5次攻击间隔为0.2秒，第6次攻击间隔为2秒
+        NormalCrit = 10006,//每次撞击敌人，暴击率+20%，持续时间5秒
+        NormalCritDuration = 10007,//每次暴击，持续时间+1秒
+        NormalSpeedDamage = 10008,//每获得1%得弹道速度，伤害率+1%
+        NormalShareStats = 10009,//此球共享同一个Ball属性，每拥有1个此球，该Ball属性值叠加
 
         #region 元素球
 

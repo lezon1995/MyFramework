@@ -12,10 +12,5 @@ namespace MoreMountains
             
             effectManager.addLogic<LaserBulletEffect>().with(this, e.brick, e.hitDir);
         }
-        
-        protected override bool onHitEnter(Brick brick, Vector2 normal, out bool triggerRegularHit)
-        {
-            return base.onHitEnter(brick, normal, out triggerRegularHit);
-        }
     }
 }

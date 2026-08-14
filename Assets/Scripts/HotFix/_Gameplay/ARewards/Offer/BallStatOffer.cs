@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine.Localization.Settings;
+﻿using UnityEngine.Localization.Settings;
 
 namespace MoreMountains
 {

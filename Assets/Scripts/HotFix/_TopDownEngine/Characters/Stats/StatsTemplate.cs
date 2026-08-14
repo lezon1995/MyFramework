@@ -115,5 +115,21 @@ namespace MoreMountains
         public string statName;
         public DisplayType displayType;
         public int displayDecimalDigits;
+
+        public string displayValue(float raw)
+        {
+            using var _ = new MyStringBuilderScope(out var sb);
+            switch (displayType)
+            {
+                case DisplayType.Flat:
+                    sb.add(raw.FToS(displayDecimalDigits));
+                    break;
+                case DisplayType.Pct:
+                    sb.add(raw.toPercent(displayDecimalDigits));
+                    break;
+            }
+
+            return sb.ToString();
+        }
     }
 }

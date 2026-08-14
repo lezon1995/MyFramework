@@ -149,18 +149,7 @@ namespace MoreMountains
                     _statsTemplate.TryGetDisplayConfig(statName, out var displayConfig);
                     stat.DisplayValueGetter = () =>
                     {
-                        using var _ = new MyStringBuilderScope(out var sb);
-                        switch (displayConfig.displayType)
-                        {
-                            case DisplayConfig.DisplayType.Flat:
-                                sb.add(stat.Value.FToS(displayConfig.displayDecimalDigits));
-                                break;
-                            case DisplayConfig.DisplayType.Pct:
-                                sb.add(stat.Value.toPercent(displayConfig.displayDecimalDigits));
-                                break;
-                        }
-
-                        return sb.ToString();
+                        return displayConfig.displayValue(stat.Value);
                     };
 
                     void Action(float pre, float cur)

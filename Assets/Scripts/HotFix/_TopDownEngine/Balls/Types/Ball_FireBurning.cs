@@ -41,10 +41,5 @@ namespace MoreMountains
                 effect.tryApply();
             }
         }
-
-        protected override bool onHitEnter(Brick brick, Vector2 normal, out bool triggerRegularHit)
-        {
-            return base.onHitEnter(brick, normal, out triggerRegularHit);
-        }
     }
 }

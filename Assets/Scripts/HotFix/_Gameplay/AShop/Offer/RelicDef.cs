@@ -15,6 +15,8 @@ namespace MoreMountains
         public string DisplayName => Type.ToString();
         public int BasePrice = 50; // 商店售价
         public int SellRefund = 25; // 售出回收价（也可由 Seller 配置比例）
+        public int CarryLimit; //携带数量上限，0代表无携带上限
+        public PlayerStatMod[] PlayerStatMods;
         public Sprite Icon;
         public ItemRarity Rarity;
 

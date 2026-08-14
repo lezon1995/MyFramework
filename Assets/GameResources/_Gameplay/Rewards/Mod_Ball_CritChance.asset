@@ -12,10 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c4fd3f2345a245ce8e832cff9d79475e, type: 3}
   m_Name: Mod_Ball_CritChance
   m_EditorClassIdentifier: HotFix::MoreMountains.BallStatModDef
+  Name: 
   statKey: CritChance
-  displayName: 
-  bonus: 0
-  bonusPct: 0
-  Rarity: 0
   Icon: {fileID: 0}
+  DisplayConfig:
+    statName: 
+    displayType: 1
+    displayDecimalDigits: 0
   stat: 6

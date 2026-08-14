@@ -37,3 +37,6 @@ MonoBehaviour:
   - statName: LifeSteal
     displayType: 1
     displayDecimalDigits: 0
+  - statName: AS
+    displayType: 1
+    displayDecimalDigits: 0

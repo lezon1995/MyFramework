@@ -25,17 +25,19 @@ public partial class RewardChooseItem
     public void SetName(string s) => itemName.setText(s ?? string.Empty);
 
     public void SetDesc(BallStatOffer s)
-    { 
+    {
         using var _ = new MyStringBuilderScope(out var sb);
         var enhanced = gameDesign.universalColor.enhanced;
         sb.add("Ball");
         sb.add("+".color(enhanced));
 
         if (s.BonusFlat > 0)
-            sb.add(s.BonusFlat.FToS().color(enhanced));
+            sb.add(s.Def.DisplayConfig.displayValue(s.BonusFlat).color(enhanced));
 
         if (s.BonusPct > 0)
-            sb.add(s.BonusPct.FToS().color(enhanced));
+            sb.add(s.Def.DisplayConfig.displayValue(s.BonusPct).color(enhanced));
+
+        sb.add(" ");
 
         var str = LocalizationSettings.StringDatabase.GetTable("Stats").GetEntry(s.Def.statKey).Value;
         sb.add(str);
@@ -49,11 +51,13 @@ public partial class RewardChooseItem
         sb.add("+".color(enhanced));
 
         if (s.BonusFlat > 0)
-            sb.add(s.BonusFlat.FToS().color(enhanced));
+            sb.add(s.Def.DisplayConfig.displayValue(s.BonusFlat).color(enhanced));
 
         if (s.BonusPct > 0)
-            sb.add(s.BonusPct.FToS().color(enhanced));
+            sb.add(s.Def.DisplayConfig.displayValue(s.BonusPct).color(enhanced));
 
+        sb.add(" ");
+        
         var str = LocalizationSettings.StringDatabase.GetTable("Stats").GetEntry(s.Def.statKey).Value;
         sb.add(str);
         itemDesc.setText(sb.ToString());
