@@ -17,6 +17,7 @@ public partial class BallInventoryItem : IBallOperationTarget
 
     public bool isOccupied => ballInventorySlot.IsOccupied;
     public myUGUIButton Btn => btn;
+    public BallInventorySlot Slot => ballInventorySlot;
     public GameObject ItemGO => mRoot.getGameObject();
     public void SetSelected(bool on) => focus?.setActive(on);
 

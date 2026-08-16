@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Sirenix.OdinInspector;
+using UnityEngine;
 
 namespace MoreMountains
 {
@@ -26,6 +27,7 @@ namespace MoreMountains
         Dictionary<string, Func<float>> configExpressions { get; }
         Dictionary<string, float> ratios { get; }
         bool TryGetDisplayConfig(string statName, out DisplayConfig c);
+        bool TryGetStatDef(string statKey, out StatDef def);
     }
 
     public abstract class StatsTemplate : SerializedScriptableObject, IStatsTemplate
@@ -42,9 +44,9 @@ namespace MoreMountains
         [DictionaryDrawerSettings(KeyLabel = "Stat", ValueLabel = "Ratio")]
         public Dictionary<string, float> Ratios = new();
 
-        public List<DisplayConfig> DisplayConfigs = new();
-
         List<string> names = new();
+
+        public List<StatDef> StatDefs = new();
 
         void Awake()
         {
@@ -89,20 +91,47 @@ namespace MoreMountains
         {
             if (displayConfig == null)
             {
-                c = DisplayConfig.Default;
+                c = DisplayConfig.Flat;
                 return false;
             }
 
             return displayConfig.TryGetDisplayConfig(statName, out c);
+        }
+
+        public bool TryGetStatDef(string statKey, out StatDef def)
+        {
+            foreach (var statDef in StatDefs)
+            {
+                if (statDef.statKey == statKey)
+                {
+                    def = statDef;
+                    return true;
+                }
+            }
+
+            def = null;
+            return false;
         }
     }
 
     [Serializable]
     public class DisplayConfig
     {
-        public static DisplayConfig Default = new()
+        public static DisplayConfig Flat = new()
         {
             displayType = DisplayType.Flat,
+            displayDecimalDigits = 0,
+        };
+
+        public static DisplayConfig Flat1 = new()
+        {
+            displayType = DisplayType.Flat,
+            displayDecimalDigits = 0,
+        };
+
+        public static DisplayConfig Pct = new()
+        {
+            displayType = DisplayType.Pct,
             displayDecimalDigits = 0,
         };
 
@@ -115,6 +144,7 @@ namespace MoreMountains
         public string statName;
         public DisplayType displayType;
         public int displayDecimalDigits;
+        public Sprite statIcon;
 
         public string displayValue(float raw)
         {

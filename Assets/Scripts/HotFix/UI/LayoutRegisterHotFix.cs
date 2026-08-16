@@ -9,6 +9,7 @@ public class LayoutRegisterHotFix
 		// 需要添加auto generate start和auto generate end才会自动生成代码
 		// auto generate start
 		registeLayout<DebugPanel>(script =>						mDebugPanel = script);
+		registeLayout<EscPanel>(script =>						mEscPanel = script);
 		registeLayout<MainMenuScreen>(script =>					mMainMenuScreen = script);
 		registeLayout<OperationPanel>(script =>					mOperationPanel = script);
 		registeLayout<OverlayMenu>(script =>					mOverlayMenu = script);

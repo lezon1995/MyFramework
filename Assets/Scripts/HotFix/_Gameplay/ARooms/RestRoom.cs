@@ -10,6 +10,7 @@
 
         public override void onPlayerEntry(APlayer p)
         {
+            base.onPlayerEntry(p);
             // if (ADungeon.id != ("TheEnding"))
             // music.silenceBGM();
             // fireSoundId = Game.sound.playAndLoop("REST_FIRE_WET");

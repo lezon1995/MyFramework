@@ -41,7 +41,7 @@ namespace MoreMountains
         public event Action OperationCancelled;
 
         /// <summary>sellZone 显隐变化。</summary>
-        public event Action<bool> SellZoneVisibilityChanged;
+        public event Action<bool, int> SellZoneVisibilityChanged;
 
         IBallOperationTarget _source;
         IItemOperationTarget _hovered;
@@ -61,7 +61,14 @@ namespace MoreMountains
             _stateActiveFrame = Time.frameCount;
 
             source.BeginFollowMouse(iconSource);
-            SellZoneVisibilityChanged?.Invoke(true);
+            int sellPrice = source switch
+            {
+                BallInventoryItem item => item.Slot.Item.SellPrice,
+                BallSlotItem slot => slot.Slot.Item.SellPrice,
+                _ => 0
+            };
+
+            SellZoneVisibilityChanged?.Invoke(true, sellPrice);
             BroadcastHighlightChanged(source, true);
             ActivateBlocker(true);
         }
@@ -137,7 +144,7 @@ namespace MoreMountains
             _state = State.Idle;
             _stateActiveFrame = 0;
 
-            SellZoneVisibilityChanged?.Invoke(false);
+            SellZoneVisibilityChanged?.Invoke(false, 0);
             ActivateBlocker(false);
         }
 
@@ -157,7 +164,7 @@ namespace MoreMountains
                 prev?.SetHovered(false);
                 _hovered?.SetHovered(true);
             }
-            
+
             if (hoveredTarget == null)
             {
                 _hovered?.SetHovered(false);
@@ -184,13 +191,13 @@ namespace MoreMountains
                 if (_blockerGO != null && go == _blockerGO)
                     continue;
 
-                if (!go.CompareTag("OperationTarget")) 
+                if (!go.CompareTag("OperationTarget"))
                     continue;
-                
-                if (!go.TryGetComponent<ItemOperationTargetBridge>(out var bridge)) 
+
+                if (!go.TryGetComponent<ItemOperationTargetBridge>(out var bridge))
                     continue;
-                
-                if (bridge.Target != null/* && !ReferenceEquals(bridge.Target, _source)*/)
+
+                if (bridge.Target != null /* && !ReferenceEquals(bridge.Target, _source)*/)
                 {
                     return bridge.Target;
                 }
@@ -246,7 +253,7 @@ namespace MoreMountains
         void SetHighlightVisible(bool visible);
         void SetEventBlocking(bool blocking);
     }
-    
+
     public interface IBallOperationTarget : IItemOperationTarget
     {
         void ExecuteOperation(IItemOperationTarget hoveredTarget);
@@ -275,7 +282,7 @@ namespace MoreMountains
     public class ItemOperationTargetBridge : MonoBehaviour
     {
         public IItemOperationTarget Target;
-        
+
         protected void OnHighlightChanged(IItemOperationTarget source, bool visible)
         {
             Target?.SetHighlightVisible(visible);

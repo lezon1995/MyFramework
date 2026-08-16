@@ -41,6 +41,7 @@ namespace MoreMountains
 
         public WaveLevelConfig CurLevel { get; set; } // 当前关卡配置
         public WaveConfig CurWave { get; set; } // 当前波次配置
+        public WaveConfig NextWave { get; set; } // 下一波次配置
         public int WaveNumber { get; set; } // 当前波次编号（从1开始）
         public WaveState State { get; set; } // 当前波次状态
         public float WaveTimeRemaining { get; set; } // 当前波次剩余时间
@@ -150,6 +151,9 @@ namespace MoreMountains
         int _killsInLastInterval; // 上一个间隔内的击杀数
         int _killsThisInterval; // 当前间隔的击杀数
         float _spawnIntervalOverride; // 刷怪间隔覆盖值（用于紧急补充）
+
+        // 每个 MonsterSpawnConfig 在当前波次中已生成的累计数量
+        Dictionary<MonsterSpawnConfig, int> _spawnedCountByConfig = new();
 
         #endregion
 
@@ -304,6 +308,7 @@ namespace MoreMountains
 
             WaveNumber++;
             CurWave = CurLevel.GetWaveConfig(WaveNumber);
+            NextWave = CurLevel.GetWaveConfig(WaveNumber + 1);
 
             if (CurWave == null)
             {
@@ -330,6 +335,14 @@ namespace MoreMountains
             {
                 // 击败所有怪物策略：使用配置的GetDefeatAllMaxTotalSpawn()获取最大生成数量
                 _waveMaxTotalSpawn = CurWave.GetDefeatAllMaxTotalSpawn();
+            }
+
+            // 初始化每个 MonsterSpawnConfig 的累计生成计数
+            _spawnedCountByConfig.Clear();
+            foreach (var config in CurWave.availableMonsters)
+            {
+                if (config != null)
+                    _spawnedCountByConfig[config] = 0;
             }
 
             // 准备强制生成的怪物列表
@@ -387,7 +400,8 @@ namespace MoreMountains
         /// <summary>
         /// 生成一个怪物
         /// </summary>
-        public Brick SpawnMonster(BrickDef monsterDef, Vector3? position = null)
+        /// <param name="originConfig">产生本次生成的 MonsterSpawnConfig（用于跟踪每配置的最少生成个数）。仅在创建成功时计入计数。</param>
+        public Brick SpawnMonster(BrickDef monsterDef, Vector3? position = null, MonsterSpawnConfig originConfig = null)
         {
             if (CurWave == null)
                 return null;
@@ -435,6 +449,7 @@ namespace MoreMountains
 
                 WaveSpawnCount++;
                 _waveCurrentTotalSpawn++;
+                RecordConfigSpawn(originConfig); // 累计 originConfig 的生成数量
                 OnMonsterSpawned?.Invoke(monster);
 
                 Debug.Log($"[WaveManager] Spawned {monsterDef.Type} monster: {monsterDef.name} at {spawnPos}");
@@ -483,7 +498,7 @@ namespace MoreMountains
                 SetState(WaveState.RewardSelecting);
                 OnRewardSelectionStarted?.Invoke();
                 Debug.Log("[WaveManager] Entered reward selection phase.");
-                
+
                 GameManager.Instance.Pause();
             }
         }
@@ -497,7 +512,7 @@ namespace MoreMountains
             {
                 OnRewardSelectionEnded?.Invoke();
                 Debug.Log("[WaveManager] Exited reward selection phase.");
-                
+
                 GameManager.Instance.UnPause();
             }
         }
@@ -637,19 +652,47 @@ namespace MoreMountains
         /// </summary>
         public bool SelectMonsterByType(SpawnEnemyType type, out BrickDef monsterDef)
         {
+            return SelectMonsterByType(type, out monsterDef, out _);
+        }
+
+        /// <summary>
+        /// 根据类型选择合适的怪物，并返回被选中的 MonsterSpawnConfig（用于追踪每配置的最少生成量）。
+        /// 过滤掉已达到 atLeastSpawnCount 上限的配置；
+        /// 若所有匹配类型都已达标，则忽略该上限以保证波次能继续进行。
+        /// </summary>
+        public bool SelectMonsterByType(SpawnEnemyType type, out BrickDef monsterDef, out MonsterSpawnConfig selectedConfig)
+        {
             monsterDef = null;
+            selectedConfig = null;
             if (CurWave == null || CurWave.availableMonsters.Count == 0)
                 return false;
 
+            // 收集满足类型且未达到 atLeastSpawnCount 上限的候选
             using var _ = new ListScope<MonsterSpawnConfig>(out var candidates);
             foreach (var config in CurWave.availableMonsters)
             {
-                if (config.monsterDef.Type == type)
+                if (config == null || config.monsterDef == null)
+                    continue;
+                if (config.monsterDef.Type != type)
+                    continue;
+                if (IsConfigQuotaReached(config))
+                    continue;
+                candidates.Add(config);
+            }
+
+            // 如果所有匹配类型都已达标，忽略该上限以保证波次正常推进
+            if (candidates.Count == 0)
+            {
+                foreach (var config in CurWave.availableMonsters)
                 {
-                    candidates.Add(config);
+                    if (config == null || config.monsterDef == null)
+                        continue;
+                    if (config.monsterDef.Type == type)
+                        candidates.Add(config);
                 }
             }
 
+            // 仍然为空，则回退到所有怪物
             if (candidates.Count == 0)
             {
                 // 如果没有该类型，回退到所有怪物
@@ -673,13 +716,38 @@ namespace MoreMountains
                 roll -= candidate.spawnWeight;
                 if (roll <= 0)
                 {
+                    selectedConfig = candidate;
                     monsterDef = candidate.monsterDef;
                     return monsterDef != null;
                 }
             }
 
+            selectedConfig = candidates[0];
             monsterDef = candidates[0].monsterDef;
             return monsterDef != null;
+        }
+
+        /// <summary>
+        /// 判断指定 MonsterSpawnConfig 在本波次是否已生成到 atLeastSpawnCount 上限。
+        /// </summary>
+        bool IsConfigQuotaReached(MonsterSpawnConfig config)
+        {
+            if (config == null || config.atLeastSpawnCount <= 0)
+                return false;
+            if (_spawnedCountByConfig.TryGetValue(config, out var spawned))
+                return spawned >= config.atLeastSpawnCount;
+            return false;
+        }
+
+        /// <summary>
+        /// 记录指定 MonsterSpawnConfig 成功生成了一个怪物。
+        /// </summary>
+        void RecordConfigSpawn(MonsterSpawnConfig config)
+        {
+            if (config == null)
+                return;
+            _spawnedCountByConfig.TryGetValue(config, out var current);
+            _spawnedCountByConfig[config] = current + 1;
         }
 
         /// <summary>
@@ -764,6 +832,8 @@ namespace MoreMountains
 
         public void SetPlayerMovementAbilityPermitted(APlayer p, bool active)
         {
+            p.Movement.ResetSpeed();
+            p.Movement.ResetAbility();
             p.Movement.SetAbilityPermitted(active);
         }
 
@@ -775,6 +845,7 @@ namespace MoreMountains
             ClearAllActiveMonsters();
             CurLevel = null;
             CurWave = null;
+            NextWave = null;
             WaveNumber = 0;
             State = WaveState.Idle;
             FinalResult = GameResult.None;
@@ -1191,9 +1262,9 @@ namespace MoreMountains
             }
 
             var type = GetWeightedEnemyType();
-            if (SelectMonsterByType(type, out var monsterDef))
+            if (SelectMonsterByType(type, out var monsterDef, out var pickedConfig))
             {
-                SpawnMonster(monsterDef);
+                SpawnMonster(monsterDef, originConfig: pickedConfig);
             }
         }
 
@@ -1242,9 +1313,9 @@ namespace MoreMountains
                 foreach (var template in spawnedBricks)
                 {
                     var type = GetWeightedEnemyType();
-                    if (SelectMonsterByType(type, out var monsterDef))
+                    if (SelectMonsterByType(type, out var monsterDef, out var pickedConfig))
                     {
-                        SpawnMonster(template.def, template.position);
+                        SpawnMonster(template.def, template.position, originConfig: pickedConfig);
                     }
                 }
             }
@@ -1492,7 +1563,7 @@ namespace MoreMountains
 
             // 清理剩余怪物
             // ClearAllActiveMonsters();
-            
+
             SetPlayerHandleWeaponAbilityPermitted(player, false);
             SetPlayerMovementAbilityPermitted(player, false);
         }

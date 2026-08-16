@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using UnityEngine;
+using UnityEngine.Pool;
 using UnityEngine.UI;
 
 namespace MoreMountains
@@ -183,6 +184,9 @@ namespace MoreMountains
         Dictionary<string, MetaTooltipContent> _keywordCache = new();
         Regex _keywordRegex;
 
+        ObjectPool<TooltipBox> tooltipBoxPool;
+        ObjectPool<MetaTooltipBox> metaTooltipBoxPool;
+
         #endregion
 
         #region Unity Lifecycle
@@ -200,11 +204,37 @@ namespace MoreMountains
 
             InitializeCanvas();
             InitializeKeywordRegex();
+
+            tooltipBoxPool = new(
+                createFunc: () =>
+                {
+                    GameObject go = Instantiate(_tooltipBoxPrefab, transform);
+                    return go.GetComponent<TooltipBox>();
+                },
+                actionOnGet: e => e.gameObject.SetActive(true),
+                actionOnRelease: e => e.gameObject.SetActive(false),
+                actionOnDestroy: e => Destroy(e.gameObject),
+                collectionCheck: true,
+                defaultCapacity: 1,
+                maxSize: 1);
+
+            metaTooltipBoxPool = new(
+                createFunc: () =>
+                {
+                    GameObject go = Instantiate(_metaTooltipBoxPrefab, transform);
+                    return go.GetComponent<MetaTooltipBox>();
+                },
+                actionOnGet: e => e.gameObject.SetActive(true),
+                actionOnRelease: e => e.gameObject.SetActive(false),
+                actionOnDestroy: e => Destroy(e.gameObject),
+                collectionCheck: true,
+                defaultCapacity: 1,
+                maxSize: 1);
         }
 
         void Update()
         {
-            if (!_isShowing && !_isFading) 
+            if (!_isShowing && !_isFading)
                 return;
 
             if (_isShowing && _currentRequest != null)
@@ -298,7 +328,7 @@ namespace MoreMountains
         /// </summary>
         public void ShowTooltip(TooltipRequest request)
         {
-            if (!_settings.enableTooltip || request?.content == null) 
+            if (!_settings.enableTooltip || request?.content == null)
                 return;
 
             _currentRequest = request;
@@ -325,7 +355,7 @@ namespace MoreMountains
         /// </summary>
         public void HideTooltip()
         {
-            if (!_isShowing) 
+            if (!_isShowing)
                 return;
 
             _isShowing = false;
@@ -410,20 +440,8 @@ namespace MoreMountains
                 DestroyTooltipBox();
             }
 
-            GameObject prefab = _tooltipBoxPrefab;
-            if (prefab == null)
-            {
-                prefab = CreateDefaultTooltipBoxPrefab();
-            }
-
-            GameObject go = Instantiate(prefab, transform);
-            _currentTooltipBox = go.GetComponent<TooltipBox>();
-
-            if (_currentTooltipBox == null)
-            {
-                _currentTooltipBox = go.AddComponent<TooltipBox>();
-            }
-
+            tooltipBoxPool.Get(out var tooltipBox);
+            _currentTooltipBox = tooltipBox;
             _currentTooltipBox.Initialize(_settings);
             _currentTooltipBox.SetContent(_currentRequest.content);
             _currentTooltipBox.SetAlpha(0f);
@@ -434,7 +452,7 @@ namespace MoreMountains
         {
             if (_currentTooltipBox)
             {
-                Destroy(_currentTooltipBox.gameObject);
+                tooltipBoxPool.Release(_currentTooltipBox);
                 _currentTooltipBox = null;
             }
         }
@@ -485,20 +503,7 @@ namespace MoreMountains
 
         void CreateMetaTooltipBox(MetaTooltipContent content)
         {
-            GameObject prefab = _metaTooltipBoxPrefab;
-            if (prefab == null)
-            {
-                prefab = CreateDefaultMetaTooltipBoxPrefab();
-            }
-
-            GameObject go = Instantiate(prefab, transform);
-            var metaBox = go.GetComponent<MetaTooltipBox>();
-
-            if (metaBox == null)
-            {
-                metaBox = go.AddComponent<MetaTooltipBox>();
-            }
-
+            metaTooltipBoxPool.Get(out var metaBox);
             metaBox.Initialize(_settings);
             metaBox.SetContent(content);
             metaBox.SetAlpha(_isFading ? 0f : (_isShowing ? 1f : 0f));
@@ -513,7 +518,7 @@ namespace MoreMountains
             {
                 if (box)
                 {
-                    Destroy(box.gameObject);
+                    metaTooltipBoxPool.Release(box);
                 }
             }
 
@@ -522,7 +527,7 @@ namespace MoreMountains
 
         void PositionTooltipBox()
         {
-            if (_currentTooltipBox == null || _currentRequest == null) 
+            if (_currentTooltipBox == null || _currentRequest == null)
                 return;
 
             Vector2 targetPosition = CalculateTargetPosition();
@@ -560,7 +565,7 @@ namespace MoreMountains
 
         Vector2 CalculatePivotAnchoredPosition()
         {
-            if (_currentRequest.targetRect == null) 
+            if (_currentRequest.targetRect == null)
                 return _settings.fixedPosition;
 
             Vector2 pivot = _currentRequest.targetRect.pivot;
@@ -609,11 +614,11 @@ namespace MoreMountains
 
         Vector2 AdjustPositionToScreen(Vector2 position, RectTransform tooltipRect)
         {
-            if (tooltipRect == null) 
+            if (tooltipRect == null)
                 return position;
 
             Canvas canvas = GetComponentInParent<Canvas>();
-            if (canvas == null) 
+            if (canvas == null)
                 return position;
 
             float padding = _settings.screenEdgePadding;
@@ -652,7 +657,7 @@ namespace MoreMountains
 
         void PositionMetaBoxes()
         {
-            if (_currentTooltipBox == null || _currentMetaBoxes.Count == 0) 
+            if (_currentTooltipBox == null || _currentMetaBoxes.Count == 0)
                 return;
 
             RectTransform mainRect = _currentTooltipBox.GetRectTransform();
@@ -681,7 +686,7 @@ namespace MoreMountains
 
         void UpdateMousePosition()
         {
-            if (_currentTooltipBox == null) 
+            if (_currentTooltipBox == null)
                 return;
 
             Vector2 targetPosition = Input.mousePosition + (Vector3)_currentRequest.mouseOffset;

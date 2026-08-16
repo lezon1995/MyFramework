@@ -36,7 +36,7 @@ public class DmgCalculator : IDmgCalculator
     {
         return dmg.IsCrit switch
         {
-            true => damage * dmg.CritRate,
+            true => damage * dmg.CritDamage,
             false => damage,
         };
     }

@@ -17,6 +17,7 @@ namespace MoreMountains
 
         protected override void onCombatUpdate(float dt)
         {
+            base.onCombatUpdate(dt);
             curPhase?.update(dt);
         }
 

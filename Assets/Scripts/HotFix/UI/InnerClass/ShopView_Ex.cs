@@ -37,8 +37,6 @@ public partial class ShopView
     // ==================== 球操作状态中的 sellZone 控制 ====================
 
     /// <summary>设置 sellZone 是否显示(由 ShopBinder 根据操作状态调用)。</summary>
-    public void SetSellZoneVisible(bool visible)
-    {
-        shopSellZoneView.setActive(visible);
-    }
+    public void SetSellZoneVisible(bool visible) => shopSellZoneView.setActive(visible);
+    public void SetSellZoneSellPrice(int sellPrice) => shopSellZoneView.SetSellPrice(sellPrice);
 }

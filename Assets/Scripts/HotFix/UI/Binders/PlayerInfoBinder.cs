@@ -35,8 +35,6 @@ namespace MoreMountains
             _slotBinder = slotBinder ?? throw new ArgumentNullException(nameof(slotBinder));
         }
 
-        public BallSlotGroupBinder SlotBinder => _slotBinder;
-
         public void Attach(APlayer player)
         {
             _player = player ?? throw new ArgumentNullException(nameof(player));
@@ -68,6 +66,7 @@ namespace MoreMountains
             statList.Add(player.GetStat(Character.Stat.AR));
             statList.Add(player.GetStat(Character.Stat.MS));
             statList.Add(player.GetStat(Character.Stat.LifeSteal));
+            statList.Add(player.GetStat(Character.Stat.Range));
             statList.Add(player.GetStat(Character.Stat.DodgeChance));
             statList.Add(player.GetStat(Character.Stat.BallisticSpeed));
             statList.Add(player.GetStat(Character.Stat.HitEffectChance));
@@ -92,6 +91,7 @@ namespace MoreMountains
                 item.SetNameColor(color);
                 item.SetValueColor(color);
                 item.SetValue(stat.DisplayValueGetter());
+                item.SetIcon(stat.DisplayIcon);
                 var disposable = stat.OnChange(v =>
                 {
                     Color color;

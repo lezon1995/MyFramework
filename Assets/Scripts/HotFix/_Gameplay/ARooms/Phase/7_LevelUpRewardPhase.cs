@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-namespace MoreMountains;
+﻿namespace MoreMountains;
 
 public class LevelUpRewardPhase : ARoomPhase
 {

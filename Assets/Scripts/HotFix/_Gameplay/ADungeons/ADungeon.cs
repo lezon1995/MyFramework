@@ -65,6 +65,7 @@ namespace MoreMountains
 
         public static OverlayMenu overlayMenu;
         public static OperationPanel operationPanel;
+        public static EscPanel escPanel;
 
         public static CurrentScreen screen { get; set; }
         public static CurrentScreen previousScreen;

@@ -15,6 +15,7 @@
 
         public override void onPlayerEntry(APlayer p)
         {
+            base.onPlayerEntry(p);
             ADungeon.isScreenUp = true;
             // ADungeon.overlayMenu.proceedButton.hide();
             // GameCursor.hidden = true;

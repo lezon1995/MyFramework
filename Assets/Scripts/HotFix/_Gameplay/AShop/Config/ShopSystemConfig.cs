@@ -26,9 +26,9 @@ namespace MoreMountains
         }
 
         [Header("Board Size")]
-        public int BallOfferCount  = 5;
-        public int RelicOfferCount = 5;
-        public int MixedOfferCount = 5;
+        public int BallOfferCount  = 4;
+        public int RelicOfferCount = 4;
+        public int MixedOfferCount = 4;
 
         [Header("Reroll Cost")]
         public int BallBoardRerollCost  = 2;

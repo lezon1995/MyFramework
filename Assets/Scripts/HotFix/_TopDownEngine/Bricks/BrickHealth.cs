@@ -86,18 +86,6 @@ namespace MoreMountains
             if (dmg.hasSkillEffect() || dmg.hasAttackEffect())
                 brick.brickRenderer.playFxHit(dmg.HitNormal);
 
-            //应用Source的DmgRate
-            if (source)
-            {
-                var stats = source.Stats;
-                if (stats)
-                {
-                    //应用Source的DmgRate
-                    var rate = stats.GetStat(Stats.DmgRate).Value;
-                    dmg.SetDmgRate(rate);
-                }
-            }
-
             if (instigator.TryGetComponent(out Ball ball))
             {
                 DamageByBall(ref dmg, ball, source, invincibleTime, direction, calculator);

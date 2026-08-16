@@ -17,14 +17,11 @@ namespace MoreMountains
         RelicBag _bag;
 
         RelicItem _selected;
-        OperationPanelBinder _owner;
 
         public RelicInventoryBinder(RelicInventoryView view)
         {
             _view = view ?? throw new ArgumentNullException(nameof(view));
         }
-
-        internal void SetOwner(OperationPanelBinder owner) => _owner = owner;
 
         public RelicItem SelectedRelic => _selected;
 

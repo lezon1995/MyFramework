@@ -81,8 +81,8 @@ GameObject:
   - component: {fileID: 5502210496497539059}
   - component: {fileID: 1019497140884200779}
   - component: {fileID: 3735136462623606009}
+  - component: {fileID: -6967101388038728889}
   - component: {fileID: 5333265564447251252}
-  - component: {fileID: 5170665694383965172}
   - component: {fileID: 4979159710220304118}
   - component: {fileID: 2073084441764008224}
   - component: {fileID: -3402891902952751165}
@@ -254,7 +254,7 @@ MonoBehaviour:
   Health: {fileID: 3735136462623606009}
   stats: {fileID: 1019497140884200779}
   Buffable: {fileID: 5333265564447251252}
-  Exp: {fileID: 5170665694383965172}
+  Exp: {fileID: 0}
   AdditionalAbilityNodes:
   - {fileID: 3147983240292285801}
   CharacterBrain: {fileID: 0}
@@ -274,6 +274,7 @@ MonoBehaviour:
   shootPosition: {x: 0, y: 0, z: 0}
   isFirstBallReturn: 0
   toClaimRewardCount: 0
+  handleWeapons: []
   ballWeaponAttachmentRoot: {fileID: 0}
   viewingRelics: 0
   damagedThisCombat: 0
@@ -370,7 +371,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad5660961a8043088dc511b33eaf629d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: HotFix::MoreMountains.PlayerStats
-  Debug: 0
+  AutoInitialize: 1
   StatsConfig: {fileID: 11400000, guid: a11a8c894f4a1334c976a4126633c04e, type: 2}
 --- !u!114 &3735136462623606009
 MonoBehaviour:
@@ -417,6 +418,26 @@ MonoBehaviour:
   TargetAnimator: {fileID: 0}
   DisableAnimatorLogs: 1
   Character: {fileID: 0}
+--- !u!114 &-6967101388038728889
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1790328835693532}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a98bd34e29d405b9a16f9a0b5b84ece, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: HotFix::MoreMountains.PlayerExp
+  Data: {fileID: 11400000, guid: 06c7ab09b01287244917413d736fddcb, type: 2}
+  saveOnQuit: 0
+  saveOnDestroy: 0
+  loadOnStart: 0
+  Level: 0
+  Xp: 0
+  XpTotal: 0
+  XpRequired: 0
 --- !u!114 &5333265564447251252
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -432,26 +453,6 @@ MonoBehaviour:
   BuffParent: {fileID: 0}
   SelfAppliedBuffs: []
   Buffs: []
---- !u!114 &5170665694383965172
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1790328835693532}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: afe76644e41dc69449108272ca4f4932, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: HotFix::MoreMountains.TopDownEngine.Exp
-  Data: {fileID: 11400000, guid: 06c7ab09b01287244917413d736fddcb, type: 2}
-  saveOnQuit: 0
-  saveOnDestroy: 0
-  loadOnStart: 0
-  Level: 0
-  Xp: 0
-  XpTotal: 0
-  XpRequired: 0
 --- !u!114 &4979159710220304118
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1181,7 +1182,7 @@ MonoBehaviour:
   UseSecondaryAxisThresholdToShoot: 0
   ForceWeaponAimControl: 0
   ForcedWeaponAimControl: 1
-  ForceAlwaysShoot: 1
+  ForceAlwaysShoot: 0
   BufferInput: 0
   NewInputExtendsBuffer: 0
   MaximumBufferDuration: 0.25
@@ -1772,7 +1773,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &3108425734332564943
 Transform:
   m_ObjectHideFlags: 0
@@ -1803,13 +1804,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd73071dc3774d30a6a819503015bb58, type: 3}
   m_Name: 
   m_EditorClassIdentifier: HotFix::MoreMountains.PlayerShootDirectionLineAbility
-  InitializeOnAwake: 1
+  InitializeOnAwake: 0
   AbilityStartSfx: {fileID: 0}
   AbilityInProgressSfx: {fileID: 0}
   AbilityStopSfx: {fileID: 0}
   AbilityStartFeedbacks: {fileID: 0}
   AbilityStopFeedbacks: {fileID: 0}
-  AbilityPermitted: 1
+  AbilityPermitted: 0
   BlockingMovementStates: 
   BlockingConditionStates: 
   BlockingWeaponStates: 
@@ -1974,7 +1975,7 @@ MonoBehaviour:
   UseSecondaryAxisThresholdToShoot: 0
   ForceWeaponAimControl: 0
   ForcedWeaponAimControl: 1
-  ForceAlwaysShoot: 1
+  ForceAlwaysShoot: 0
   BufferInput: 0
   NewInputExtendsBuffer: 0
   MaximumBufferDuration: 0.25
@@ -2998,7 +2999,7 @@ MonoBehaviour:
   UseSecondaryAxisThresholdToShoot: 0
   ForceWeaponAimControl: 0
   ForcedWeaponAimControl: 1
-  ForceAlwaysShoot: 1
+  ForceAlwaysShoot: 0
   BufferInput: 0
   NewInputExtendsBuffer: 0
   MaximumBufferDuration: 0.25
@@ -3516,7 +3517,7 @@ MonoBehaviour:
   UseSecondaryAxisThresholdToShoot: 0
   ForceWeaponAimControl: 0
   ForcedWeaponAimControl: 1
-  ForceAlwaysShoot: 1
+  ForceAlwaysShoot: 0
   BufferInput: 0
   NewInputExtendsBuffer: 0
   MaximumBufferDuration: 0.25
@@ -3588,7 +3589,7 @@ MonoBehaviour:
   UseSecondaryAxisThresholdToShoot: 0
   ForceWeaponAimControl: 0
   ForcedWeaponAimControl: 1
-  ForceAlwaysShoot: 1
+  ForceAlwaysShoot: 0
   BufferInput: 0
   NewInputExtendsBuffer: 0
   MaximumBufferDuration: 0.25
@@ -4444,7 +4445,7 @@ MonoBehaviour:
   UseSecondaryAxisThresholdToShoot: 0
   ForceWeaponAimControl: 0
   ForcedWeaponAimControl: 1
-  ForceAlwaysShoot: 1
+  ForceAlwaysShoot: 0
   BufferInput: 0
   NewInputExtendsBuffer: 0
   MaximumBufferDuration: 0.25

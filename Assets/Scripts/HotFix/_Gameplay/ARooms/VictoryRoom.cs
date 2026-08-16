@@ -20,6 +20,7 @@
 
         public override void onPlayerEntry(APlayer p)
         {
+            base.onPlayerEntry(p);
             // ADungeon.overlayMenu.proceedButton.hide();
             // switch (eType)
             // {

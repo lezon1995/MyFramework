@@ -34,8 +34,8 @@ namespace MoreMountains
         /// </summary>
         protected virtual void Initialization()
         {
-            _weaponAutoAim = GetComponent<WeaponAutoAim>();
-            _weapon = GetComponent<Weapon>();
+            TryGetComponent(out _weaponAutoAim);
+            TryGetComponent(out _weapon);
             if (_weaponAutoAim == null)
             {
                 Debug.LogWarning(name + " : the WeaponAutoShoot on this object requires that you add either a WeaponAutoAim2D or WeaponAutoAim3D component to your weapon.");

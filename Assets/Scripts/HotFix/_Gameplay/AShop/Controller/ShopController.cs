@@ -16,6 +16,7 @@ namespace MoreMountains
         List<BallOffer> _ballOffers = new();
         List<RelicOffer> _relicOffers = new();
 
+        public int WaveNumber { get; private set; }
         public ShopState State { get; private set; } = ShopState.Idle;
         public List<BallOffer> BallOffers => _ballOffers;
         public List<RelicOffer> RelicOffers => _relicOffers;
@@ -34,8 +35,9 @@ namespace MoreMountains
             _refresh = refresh ?? new ShopRefreshService(system.Player);
         }
 
-        public void EnterShop()
+        public void EnterShop(int waveNumber)
         {
+            WaveNumber = waveNumber;
             if (State != ShopState.Idle)
                 ExitShopInternal(raiseClosed: false);
 
@@ -67,7 +69,7 @@ namespace MoreMountains
 
                     _relicOffers.Clear();
 
-                    _refresh.GenerateMixedOffers(cfg.MixedOfferCount, cfg.BallOfferPool, ref _ballOffers, cfg.RelicOfferPool, ref _relicOffers);
+                    _refresh.GenerateMixedOffers(WaveNumber, cfg.MixedOfferCount, cfg.BallOfferPool, ref _ballOffers, cfg.RelicOfferPool, ref _relicOffers);
                     State = ShopState.ShowingMixedBoard;
                     ShopEvents.RaiseBoardOpened(ShopBoardKind.Mixed);
                     break;
@@ -78,7 +80,7 @@ namespace MoreMountains
                         UN_CLASS(offer);
 
                     _ballOffers.Clear();
-                    _refresh.GenerateBallOffers(cfg.BallOfferCount, cfg.BallOfferPool, ref _ballOffers);
+                    _refresh.GenerateBallOffers(WaveNumber, cfg.BallOfferCount, cfg.BallOfferPool, ref _ballOffers);
                     State = ShopState.ShowingBallBoard;
                     ShopEvents.RaiseBoardOpened(ShopBoardKind.Ball);
                     break;
@@ -89,7 +91,7 @@ namespace MoreMountains
                         UN_CLASS(offer);
 
                     _relicOffers.Clear();
-                    _refresh.GenerateRelicOffers(cfg.RelicOfferCount, cfg.RelicOfferPool, ref _relicOffers);
+                    _refresh.GenerateRelicOffers(WaveNumber, cfg.RelicOfferCount, cfg.RelicOfferPool, ref _relicOffers);
                     State = ShopState.ShowingRelicBoard;
                     ShopEvents.RaiseBoardOpened(ShopBoardKind.Relic);
                     break;
@@ -116,7 +118,7 @@ namespace MoreMountains
                     }
 
                     shopSystem.Player.loseGold(cost, PayType.MIXED_REROLL);
-                    _refresh.RerollMixedOffers(cfg.MixedOfferCount, cfg.BallOfferPool, ref _ballOffers, cfg.RelicOfferPool, ref _relicOffers);
+                    _refresh.RerollMixedOffers(WaveNumber, cfg.MixedOfferCount, cfg.BallOfferPool, ref _ballOffers, cfg.RelicOfferPool, ref _relicOffers);
                     ShopEvents.RaiseBoardRerolled(ShopBoardKind.Mixed);
                     return true;
                 }
@@ -131,7 +133,7 @@ namespace MoreMountains
                     }
 
                     shopSystem.Player.loseGold(cost, PayType.BALL_REROLL);
-                    _refresh.RerollBallOffers(_ballOffers, cfg.BallOfferCount, cfg.BallOfferPool);
+                    _refresh.RerollBallOffers(WaveNumber, _ballOffers, cfg.BallOfferCount, cfg.BallOfferPool);
                     ShopEvents.RaiseBoardRerolled(ShopBoardKind.Ball);
                     return true;
                 }
@@ -145,7 +147,7 @@ namespace MoreMountains
                     }
 
                     shopSystem.Player.loseGold(cost, PayType.RELIC_REROLL);
-                    _refresh.RerollRelicOffers(_relicOffers, cfg.RelicOfferCount, cfg.RelicOfferPool);
+                    _refresh.RerollRelicOffers(WaveNumber, _relicOffers, cfg.RelicOfferCount, cfg.RelicOfferPool);
                     ShopEvents.RaiseBoardRerolled(ShopBoardKind.Relic);
                     return true;
                 }

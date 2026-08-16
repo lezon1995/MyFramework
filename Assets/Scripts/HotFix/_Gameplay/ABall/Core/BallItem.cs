@@ -11,7 +11,7 @@ namespace MoreMountains
     /// 两者之一存在（不可同时持有同一颗）。
     /// </summary>
     [Serializable]
-    public class BallItem : ClassObject, IInventoryItem, IEquatable<BallItem>
+    public class BallItem : ClassObject, IInventoryItem
     {
         public int ItemId => Def.BallDefId;
         public BallType Type => Def.Type;
@@ -19,6 +19,7 @@ namespace MoreMountains
 
         /// <summary>对关联的 BallDef 缓存（可选，避免反复查表）</summary>
         public BallDef Def;
+
         public int Level; // 1..MaxLevel
         public Guid Uid; // 升级 / 融合后重新生成
 
@@ -59,9 +60,6 @@ namespace MoreMountains
             UN_CLASS(ref item);
         }
 
-        public bool Equals(BallItem other) => other != null && Uid.Equals(other.Uid);
-        public override bool Equals(object obj) => obj is BallItem other && Equals(other);
-        public override int GetHashCode() => Uid.GetHashCode();
         public override string ToString() => $"{DisplayName} [{Uid:N}]";
     }
 }

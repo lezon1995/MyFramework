@@ -36,11 +36,12 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 439308800000
-    m_Localized: "\u7B2C {0} \u6CE2\u51C6\u5907\u9636\u6BB5"
+    m_Localized: Wave {waveNumber} Preparation
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 6418312583835287627
   - m_Id: 619403825152
-    m_Localized: Start {0} Wave
+    m_Localized: Start {waveNumber} Wave
     m_Metadata:
       m_Items:
       - rid: 6418312583835287627
@@ -52,6 +53,25 @@ MonoBehaviour:
     m_Localized: Remaining Coin
     m_Metadata:
       m_Items: []
+  - m_Id: 396902593482752
+    m_Localized: "\u4E00\u4F17\u654C\u7FA4\u4F1A\u51FA\u73B0\u5728\u7B2C {waveNumber}
+      \u6CE2\u654C\u88AD"
+    m_Metadata:
+      m_Items:
+      - rid: 6418312583835287627
+  - m_Id: 403069449293824
+    m_Localized: "\u5F53\u524D\u7B2C {waveNumber} \u6CE2\u654C\u88AD"
+    m_Metadata:
+      m_Items:
+      - rid: 6418312583835287627
+  - m_Id: 711238809571328
+    m_Localized: Drag and drop items into this area to sell them.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 711957302235136
+    m_Localized: Sell Price
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:
@@ -61,3 +81,6 @@ MonoBehaviour:
         m_Entries: 
         m_SharedEntries:
         - id: 619403825152
+        - id: 403069449293824
+        - id: 396902593482752
+        - id: 439308800000

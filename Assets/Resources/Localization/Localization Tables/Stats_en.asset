@@ -126,6 +126,14 @@ MonoBehaviour:
     m_Localized: Character Stats
     m_Metadata:
       m_Items: []
+  - m_Id: 801606058135552
+    m_Localized: Crit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 832983814131712
+    m_Localized: Range
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

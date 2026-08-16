@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UnityEngine.Localization.Settings;
 
 namespace MoreMountains;
 
@@ -32,14 +31,14 @@ public partial class RewardChooseItem
         sb.add("+".color(enhanced));
 
         if (s.BonusFlat > 0)
-            sb.add(s.Def.DisplayConfig.displayValue(s.BonusFlat).color(enhanced));
+            sb.add(s.DisplayConfig.displayValue(s.BonusFlat).color(enhanced));
 
         if (s.BonusPct > 0)
-            sb.add(s.Def.DisplayConfig.displayValue(s.BonusPct).color(enhanced));
+            sb.add(s.DisplayConfig.displayValue(s.BonusPct).color(enhanced));
 
         sb.add(" ");
 
-        var str = LocalizationSettings.StringDatabase.GetTable("Stats").GetEntry(s.Def.statKey).Value;
+        var str = LocalizedStats.getName(s.Def.statKey);
         sb.add(str);
         itemDesc.setText(sb.ToString());
     }
@@ -51,14 +50,14 @@ public partial class RewardChooseItem
         sb.add("+".color(enhanced));
 
         if (s.BonusFlat > 0)
-            sb.add(s.Def.DisplayConfig.displayValue(s.BonusFlat).color(enhanced));
+            sb.add(s.DisplayConfig.displayValue(s.BonusFlat).color(enhanced));
 
         if (s.BonusPct > 0)
-            sb.add(s.Def.DisplayConfig.displayValue(s.BonusPct).color(enhanced));
+            sb.add(s.DisplayConfig.displayValue(s.BonusPct).color(enhanced));
 
         sb.add(" ");
-        
-        var str = LocalizationSettings.StringDatabase.GetTable("Stats").GetEntry(s.Def.statKey).Value;
+
+        var str = LocalizedStats.getName(s.Def.statKey);
         sb.add(str);
         itemDesc.setText(sb.ToString());
     }

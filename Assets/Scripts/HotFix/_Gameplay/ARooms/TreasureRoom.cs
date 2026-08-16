@@ -20,6 +20,7 @@
 
         public override void onPlayerEntry(APlayer p)
         {
+            base.onPlayerEntry(p);
             playBGM(null);
             // chest = ADungeon.getRandomChest();
             // ADungeon.overlayMenu.proceedButton.setLabel(TEXT[0]);

@@ -123,6 +123,14 @@ MonoBehaviour:
     m_Key: CharacterStats
     m_Metadata:
       m_Items: []
+  - m_Id: 801606058135552
+    m_Key: Crit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 832983814131712
+    m_Key: Range
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

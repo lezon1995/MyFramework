@@ -23,8 +23,8 @@ namespace MoreMountains
         Action<IInventoryItem> _onSoldFromBag;
         Action<int, string> _onGoldEarned;
         Action<int, string> _onGoldSpent;
-        Action<bool> _onSellZoneVisibilityChanged;
-        Action<bool> _onRelicSellZoneVisibilityChanged;
+        Action<bool, int> _onSellZoneVisibilityChanged;
+        Action<bool, int> _onRelicSellZoneVisibilityChanged;
 
         List<IPurchasable> _orderedOffers = new();
 
@@ -36,8 +36,16 @@ namespace MoreMountains
             _onSoldFromBag = _ => Rebuild();
             _onGoldEarned = (g, _) => RefreshCoin();
             _onGoldSpent = (g, _) => RefreshCoin();
-            _onSellZoneVisibilityChanged = visible => _view.SetSellZoneVisible(visible);
-            _onRelicSellZoneVisibilityChanged = visible => _view.SetSellZoneVisible(visible);
+            _onSellZoneVisibilityChanged = (visible, sellPrice) =>
+            {
+                _view.SetSellZoneVisible(visible);
+                _view.SetSellZoneSellPrice(sellPrice);
+            };
+            _onRelicSellZoneVisibilityChanged = (visible, sellPrice) =>
+            {
+                _view.SetSellZoneVisible(visible);
+                _view.SetSellZoneSellPrice(sellPrice);
+            };
         }
 
         public event Action<IPurchasable> OfferBuyClicked;
@@ -114,7 +122,7 @@ namespace MoreMountains
                 item.SetName(offer.DisplayName ?? "—");
                 item.SetPrice(offer.Price);
                 if (offer.Def)
-                    item.SetDesc(offer.Def.GetType().Name);
+                    item.SetDesc(offer.Def);
                 if (offer.Def.Icon)
                     item.SetIcon(offer.Def.Icon);
                 item.SetRarity(offer.Def.Rarity);

@@ -147,10 +147,12 @@ namespace MoreMountains
                     stat.Event.Add(Action);
 
                     _statsTemplate.TryGetDisplayConfig(statName, out var displayConfig);
-                    stat.DisplayValueGetter = () =>
+                    stat.DisplayValueGetter = () => displayConfig.displayValue(stat.Value);
+
+                    if (_statsTemplate.TryGetStatDef(statName, out var statDef))
                     {
-                        return displayConfig.displayValue(stat.Value);
-                    };
+                        stat.DisplayIcon = statDef.Icon;
+                    }
 
                     void Action(float pre, float cur)
                     {

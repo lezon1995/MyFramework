@@ -16,27 +16,40 @@ MonoBehaviour:
   - statName: BallisticSpeed
     displayType: 1
     displayDecimalDigits: 0
+    statIcon: {fileID: 0}
   - statName: CritChance
     displayType: 1
     displayDecimalDigits: 0
+    statIcon: {fileID: 0}
   - statName: CritDamage
     displayType: 1
     displayDecimalDigits: 0
+    statIcon: {fileID: 0}
   - statName: DmgRate
     displayType: 1
     displayDecimalDigits: 0
+    statIcon: {fileID: 0}
   - statName: DodgeChance
     displayType: 1
     displayDecimalDigits: 0
+    statIcon: {fileID: 0}
   - statName: HealthRegen
     displayType: 0
     displayDecimalDigits: 1
+    statIcon: {fileID: 0}
   - statName: HitEffectChance
     displayType: 1
     displayDecimalDigits: 0
+    statIcon: {fileID: 0}
   - statName: LifeSteal
     displayType: 1
     displayDecimalDigits: 0
+    statIcon: {fileID: 0}
   - statName: AS
     displayType: 1
     displayDecimalDigits: 0
+    statIcon: {fileID: 0}
+  - statName: Duration
+    displayType: 1
+    displayDecimalDigits: 0
+    statIcon: {fileID: 0}

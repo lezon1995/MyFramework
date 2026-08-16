@@ -21,7 +21,7 @@ namespace MoreMountains
             p.GetStat(Character.Stat.Luck, out luck);
         }
 
-        public void GenerateMixedOffers(int count
+        public void GenerateMixedOffers(int waveNumber, int count
             , List<BallDef> ballPool, ref List<BallOffer> ballResult
             , List<RelicDef> relicPool, ref List<RelicOffer> relicResult)
         {
@@ -29,7 +29,7 @@ namespace MoreMountains
             var relicCount = count - ballCount;
 
             using var a = new ListScope<BallDef>(out var pickedBalls);
-            PickDistinct(ballPool, ballCount, ref pickedBalls);
+            PickDistinct(waveNumber, ballPool, ballCount, ref pickedBalls);
             foreach (var def in pickedBalls)
             {
                 var offer = CLASS<BallOffer>();
@@ -38,7 +38,7 @@ namespace MoreMountains
             }
 
             using var b = new ListScope<RelicDef>(out var pickedRelics);
-            PickDistinct(relicPool, relicCount, ref pickedRelics);
+            PickDistinct(waveNumber, relicPool, relicCount, ref pickedRelics);
             foreach (var def in pickedRelics)
             {
                 var offer = CLASS<RelicOffer>();
@@ -48,13 +48,13 @@ namespace MoreMountains
         }
 
 
-        public void GenerateBallOffers(int count, List<BallDef> pool, ref List<BallOffer> result)
+        public void GenerateBallOffers(int waveNumber, int count, List<BallDef> pool, ref List<BallOffer> result)
         {
             if (pool == null || pool.Count == 0 || count <= 0)
                 return;
 
             using var _ = new ListScope<BallDef>(out var picked);
-            PickDistinct(pool, count, ref picked);
+            PickDistinct(waveNumber, pool, count, ref picked);
             foreach (var def in picked)
             {
                 var offer = CLASS<BallOffer>();
@@ -63,13 +63,13 @@ namespace MoreMountains
             }
         }
 
-        public void GenerateRelicOffers(int count, List<RelicDef> pool, ref List<RelicOffer> result)
+        public void GenerateRelicOffers(int waveNumber, int count, List<RelicDef> pool, ref List<RelicOffer> result)
         {
             if (pool == null || pool.Count == 0 || count <= 0)
                 return;
 
             using var _ = new ListScope<RelicDef>(out var picked);
-            PickDistinct(pool, count, ref picked);
+            PickDistinct(waveNumber, pool, count, ref picked);
             foreach (var def in picked)
             {
                 var offer = CLASS<RelicOffer>();
@@ -82,7 +82,7 @@ namespace MoreMountains
         /// "重新随机"：保留所有未售出槽位的 def，重新从池子里抽；
         /// 但简单实现：直接生成新一组、复用旧的已售 Offer（位置对齐）。
         /// </summary>
-        public void RerollMixedOffers(int count
+        public void RerollMixedOffers(int waveNumber, int count
             , List<BallDef> ballPool, ref List<BallOffer> ballOffers
             , List<RelicDef> relicPool, ref List<RelicOffer> relicOffers
         )
@@ -96,10 +96,10 @@ namespace MoreMountains
 
             relicOffers.Clear();
 
-            GenerateMixedOffers(count, ballPool, ref ballOffers, relicPool, ref relicOffers);
+            GenerateMixedOffers(waveNumber, count, ballPool, ref ballOffers, relicPool, ref relicOffers);
         }
 
-        public void RerollBallOffers(List<BallOffer> offers, int count, List<BallDef> pool)
+        public void RerollBallOffers(int waveNumber, List<BallOffer> offers, int count, List<BallDef> pool)
         {
             if (offers == null)
                 return;
@@ -108,10 +108,10 @@ namespace MoreMountains
                 UN_CLASS(offer);
 
             offers.Clear();
-            GenerateBallOffers(count, pool, ref offers);
+            GenerateBallOffers(waveNumber, count, pool, ref offers);
         }
 
-        public void RerollRelicOffers(List<RelicOffer> offers, int count, List<RelicDef> pool)
+        public void RerollRelicOffers(int waveNumber, List<RelicOffer> offers, int count, List<RelicDef> pool)
         {
             if (offers == null)
                 return;
@@ -120,12 +120,11 @@ namespace MoreMountains
                 UN_CLASS(offer);
 
             offers.Clear();
-            GenerateRelicOffers(count, pool, ref offers);
+            GenerateRelicOffers(waveNumber, count, pool, ref offers);
         }
 
-        void PickDistinct<T>(List<T> pool, int count, ref List<T> result) where T : IRarityObject
+        void PickDistinct<T>(int waveNumber, List<T> pool, int count, ref List<T> result) where T : IRarityObject
         {
-            int waveNumber = 1;
             result.Clear();
             int n = count;
             for (int i = 0; i < n; i++)

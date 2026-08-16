@@ -675,7 +675,7 @@ namespace MoreMountains
         public Algos Algo;
         public int MetaType;
         public bool IsCrit;
-        public float CritRate;
+        public float CritDamage;
         public Stat DmgRate;
         public bool Self;
         public int DamageRaw;
@@ -691,7 +691,7 @@ namespace MoreMountains
         public static Dmg True(int value) => new(value, Types.True, false);
         public static Dmg Adaptive(int value) => new(value, Types.Adaptive, false);
 
-        public Dmg(int value, Types type, bool isCrit)
+        public Dmg(int value, Types type, bool isCrit, float critDamage = 2F)
         {
             Effect = Effects.Attack;
             Value = value;
@@ -700,7 +700,7 @@ namespace MoreMountains
             Algo = Algos.Fixed;
             MetaType = 0;
             IsCrit = isCrit;
-            CritRate = 2F;
+            CritDamage = critDamage;
             DmgRate = 1F;
             DamageRaw = 0;
             DamageDealt = 0;
@@ -721,7 +721,7 @@ namespace MoreMountains
             Algo = algo;
             MetaType = 0;
             IsCrit = false;
-            CritRate = 2F;
+            CritDamage = 2F;
             DmgRate = 1F;
             DamageRaw = 0;
             DamageDealt = 0;
@@ -762,14 +762,14 @@ namespace MoreMountains
         public Dmg Crit()
         {
             IsCrit = true;
-            CritRate = 2F;
+            CritDamage = 2F;
             return this;
         }
 
         public Dmg Crit(float critDamage)
         {
             IsCrit = true;
-            CritRate = critDamage;
+            CritDamage = critDamage;
             return this;
         }
 
@@ -853,6 +853,12 @@ namespace MoreMountains
         public Dmg SetDmgRate(float rate)
         {
             DmgRate = rate;
+            return this;
+        }
+
+        public Dmg SetCritDamage(float critDamage)
+        {
+            CritDamage = critDamage;
             return this;
         }
 

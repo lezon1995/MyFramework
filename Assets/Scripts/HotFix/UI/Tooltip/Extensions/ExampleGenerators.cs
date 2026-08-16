@@ -22,7 +22,7 @@ namespace MoreMountains
         [SerializeField]
         private ItemData itemData;
 
-        public TooltipContent GenerateContent(TooltipTrigger trigger)
+        public override TooltipContent GenerateContent(TooltipTrigger trigger)
         {
             if (itemData == null)
             {
@@ -69,7 +69,7 @@ namespace MoreMountains
         [SerializeField]
         private BuffData buffData;
 
-        public TooltipContent GenerateContent(TooltipTrigger trigger)
+        public override TooltipContent GenerateContent(TooltipTrigger trigger)
         {
             if (buffData == null)
             {
@@ -116,7 +116,7 @@ namespace MoreMountains
         [SerializeField]
         private SkillData skillData;
 
-        public TooltipContent GenerateContent(TooltipTrigger trigger)
+        public override TooltipContent GenerateContent(TooltipTrigger trigger)
         {
             if (skillData == null)
             {
@@ -179,7 +179,7 @@ namespace MoreMountains
         [SerializeField]
         private string dataMethodName = "GetTooltipContent";
 
-        public TooltipContent GenerateContent(TooltipTrigger trigger)
+        public override TooltipContent GenerateContent(TooltipTrigger trigger)
         {
             switch (source)
             {

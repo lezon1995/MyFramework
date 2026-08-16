@@ -42,7 +42,7 @@ namespace MoreMountains
         public event Action OperationCancelled;
 
         /// <summary>sellZone 显隐变化。</summary>
-        public event Action<bool> SellZoneVisibilityChanged;
+        public event Action<bool, int> SellZoneVisibilityChanged;
 
         IRelicOperationTarget _source;
         IItemOperationTarget _hovered;
@@ -66,7 +66,12 @@ namespace MoreMountains
             _stateActiveFrame = Time.frameCount;
 
             source.BeginFollowMouse(iconSource);
-            SellZoneVisibilityChanged?.Invoke(true);
+            int sellPrice = 0;
+            if (source is RelicInventoryItem item)
+            {
+                sellPrice = item.Slot.Item.SellPrice;
+            }
+            SellZoneVisibilityChanged?.Invoke(true, sellPrice);
             BroadcastHighlightChanged(source, true);
             ActivateBlocker(true);
         }
@@ -151,7 +156,7 @@ namespace MoreMountains
             _state = State.Idle;
             _stateActiveFrame = 0;
 
-            SellZoneVisibilityChanged?.Invoke(false);
+            SellZoneVisibilityChanged?.Invoke(false, 0);
             ActivateBlocker(false);
         }
 

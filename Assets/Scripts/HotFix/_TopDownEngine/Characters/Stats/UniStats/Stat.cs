@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 #if NET7_0_OR_GREATER
 using System.Numerics;
 #endif
@@ -72,6 +73,7 @@ namespace UniStats
 
         public Func<T> InitialGetter { get; set; }
         public Func<string> DisplayValueGetter { get; set; }
+        public Sprite DisplayIcon { get; set; }
 
         public T Value
         {

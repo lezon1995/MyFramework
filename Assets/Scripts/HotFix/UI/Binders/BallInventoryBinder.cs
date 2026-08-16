@@ -17,15 +17,11 @@ namespace MoreMountains
         BallBag _bag;
 
         BallItem _selected;
-        OperationPanelBinder _owner; // 用于把 drag 释放事件转交顶层 binder
 
         public BallInventoryBinder(BallInventoryView view)
         {
             _view = view ?? throw new ArgumentNullException(nameof(view));
         }
-
-        /// <summary>由 OperationPanelBinder 在构造后注入,让 item 的 drag 释放回调能找到上层分派逻辑。</summary>
-        internal void SetOwner(OperationPanelBinder owner) => _owner = owner;
 
         public BallItem SelectedBall => _selected;
 
@@ -144,17 +140,6 @@ namespace MoreMountains
 
                 i++;
             }
-        }
-
-        /// <summary>
-        /// 球操作状态中,在 BallInventoryItem 上左键点击时调用。
-        /// source 是背包里的球:
-        ///   • 目标是 BallSlotItem → Equip
-        ///   • 目标是 BallInventoryItem → 无效
-        /// </summary>
-        public void OnInventoryOperationConfirmed(int sourceSlotIndex)
-        {
-            _owner?.OnInventoryOperationConfirmed(sourceSlotIndex);
         }
 
         // ------------- 选择/出售/升级事件(由外部按钮触发)-------------

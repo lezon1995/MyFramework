@@ -23,7 +23,7 @@ MonoBehaviour:
     SerializationNodes: []
   Trait:
     Key: 
-    MaxLevel: 18
+    MaxLevel: 100
     StartXpRequired: 100
     MaxLevelXpRequired: 300
     XpCurve:

@@ -69,14 +69,17 @@ namespace MoreMountains
             DelayBeforeUseModifier = (ref float raw) =>
             {
                 float totalAS = 0F;
-                if (characterAS)
-                    totalAS += characterAS.Value;
                 if (ballAS)
                     totalAS += ballAS.Value;
+                
+                if (characterAS)
+                    totalAS *= (1 + characterAS.Value);
 
-                var baseWindupTime = DelayBeforeUsePct / characterAS.Initial;
+                float baseWindupTime = 0F;
+                if (ballAS.Initial > 0)
+                    baseWindupTime = DelayBeforeUsePct / ballAS.Initial;
+
                 var currentAttackTotalTime = 1 / totalAS;
-
                 var windupTime = baseWindupTime + DelayBeforeUseMultiplier * (currentAttackTotalTime * DelayBeforeUsePct - baseWindupTime);
                 raw = windupTime;
             };
@@ -85,14 +88,15 @@ namespace MoreMountains
             TimeBetweenUsesModifier = (ref float raw) =>
             {
                 float totalAS = 0F;
-                if (characterAS)
-                    totalAS += characterAS.Value;
                 if (ballAS)
                     totalAS += ballAS.Value;
+                
+                if (characterAS)
+                    totalAS *= (1 + characterAS.Value);
 
                 float baseWindupTime = 0F;
-                if (characterAS.Initial > 0)
-                    baseWindupTime = DelayBeforeUsePct / characterAS.Initial;
+                if (ballAS.Initial > 0)
+                    baseWindupTime = DelayBeforeUsePct / ballAS.Initial;
 
                 float currentAttackTotalTime = 0F;
                 if (totalAS > 0)

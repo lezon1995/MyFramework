@@ -203,6 +203,11 @@ public class MyStringBuilder : ClassObject
 	{
 		return add("<color=#", color, ">", str0, str1, str2, str3, str4, "</color>");
 	}
+	
+	public MyStringBuilder addLine()
+	{
+		return add("\r\n");
+	}
 	public MyStringBuilder addLine(string value0)
 	{
 		return add(value0, "\r\n");

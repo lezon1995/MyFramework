@@ -269,6 +269,7 @@ namespace MoreMountains
             EditorGUILayout.LabelField("Type", GUILayout.Width(80));
             EditorGUILayout.LabelField("Weight", GUILayout.Width(60));
             EditorGUILayout.LabelField("Force", GUILayout.Width(50));
+            EditorGUILayout.LabelField("Min Spawn", GUILayout.Width(70));
             EditorGUILayout.EndHorizontal();
 
             if (wave.availableMonsters.Count > 0)
@@ -283,6 +284,7 @@ namespace MoreMountains
                     monster.monsterDef = (BrickDef)EditorGUILayout.ObjectField("Monster Def", monster.monsterDef, typeof(BrickDef), false);
                     monster.spawnWeight = EditorGUILayout.FloatField(monster.spawnWeight, GUILayout.Width(60));
                     monster.forceSpawnOnce = EditorGUILayout.Toggle(monster.forceSpawnOnce, GUILayout.Width(50));
+                    monster.atLeastSpawnCount = EditorGUILayout.IntField(monster.atLeastSpawnCount, GUILayout.Width(70));
 
                     if (GUILayout.Button("X", GUILayout.Width(30)))
                     {

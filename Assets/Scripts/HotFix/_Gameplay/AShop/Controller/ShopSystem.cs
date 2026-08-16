@@ -35,7 +35,7 @@ namespace MoreMountains
             _ctrl = null;
         }
 
-        public void EnterShop()
+        public void EnterShop(int waveNumber)
         {
             if (_ctrl == null)
             {
@@ -43,7 +43,7 @@ namespace MoreMountains
                 return;
             }
 
-            _ctrl.EnterShop();
+            _ctrl.EnterShop(waveNumber);
         }
     }
 }

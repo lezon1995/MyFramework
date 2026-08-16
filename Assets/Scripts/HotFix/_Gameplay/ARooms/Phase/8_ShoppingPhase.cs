@@ -9,7 +9,8 @@ public class ShoppingPhase : ARoomPhase
     public override void onBegin(ARoomPhase last)
     {
         base.onBegin(last);
-        OperationPanelService.Instance.Binder.EnterShop();
+        var waveNumber = _room.waveGameMode.waveManager.WaveNumber;
+        OperationPanelService.Instance.Binder.EnterShop(waveNumber);
     }
 
     public override void onEnd()

@@ -17,6 +17,7 @@ public partial class RelicInventoryItem : IRelicOperationTarget
 
     public bool isOccupied => relicInventorySlot != null && relicInventorySlot.IsOccupied;
     public myUGUIButton Btn => btn;
+    public RelicInventorySlot Slot => relicInventorySlot;
     public GameObject ItemGO => mRoot.getGameObject();
     public void SetSelected(bool on) => focus?.setActive(on);
     public void SetEnabled(bool on) => disable?.setActive(!on);

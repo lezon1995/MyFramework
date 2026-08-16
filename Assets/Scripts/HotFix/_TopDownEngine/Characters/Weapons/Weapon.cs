@@ -320,6 +320,7 @@ namespace MoreMountains
         public Stats Stats;
 
         public bool IsCritThisFrame { get; set; }
+        public float CritDamageThisFrame { get; set; }
         public int BaseDamage = 5;
         public Dmg.Types BaseDamageType;
 
@@ -333,7 +334,7 @@ namespace MoreMountains
         }
 
         protected Dmg.Types DamageType => BaseDamageType;
-        protected Dmg Dmg => new(Damage, DamageType, IsCritThisFrame);
+        protected Dmg Dmg => new(Damage, DamageType, IsCritThisFrame, CritDamageThisFrame);
 
         public ValueModifier DamageModifier { get; set; }
 
@@ -1040,6 +1041,17 @@ namespace MoreMountains
                 critChance += weaponCritChance.Value;
 
             IsCritThisFrame = MMMaths.Chance(critChance);
+            
+            var critDamage = 0F;
+            var weaponCritDamage = GetStat(Stat.CritDamage);
+            if (weaponCritDamage != null)
+                critDamage += weaponCritDamage.Value;
+            
+            var characterCritDamage = Owner.GetStat(Character.Stat.CritDamage);
+            if (characterCritDamage != null)
+                critDamage *= (1 + characterCritDamage.Value);
+
+            CritDamageThisFrame = critDamage;
         }
 
         /// <summary>

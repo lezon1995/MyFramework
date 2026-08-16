@@ -26,6 +26,7 @@ public class GBR
     // 需要添加auto generate LayoutScript start和auto generate LayoutScript end才会自动生成代码
     // auto generate LayoutScript start
 	public static DebugPanel mDebugPanel;
+	public static EscPanel mEscPanel;
 	public static MainMenuScreen mMainMenuScreen;
 	public static OperationPanel mOperationPanel;
 	public static OverlayMenu mOverlayMenu;

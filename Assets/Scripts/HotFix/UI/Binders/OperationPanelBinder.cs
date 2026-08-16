@@ -28,6 +28,7 @@ namespace MoreMountains
         ShopBinder _shop;
         RewardChooseBinder _rewardChoose;
         PlayerInfoBinder _playerInfo;
+        WaveMonsterBinder _waveMonster;
         APlayer _player;
 
         // BallOperationStateManager 事件处理
@@ -45,7 +46,9 @@ namespace MoreMountains
             BallSlotGroupBinder slotBinder,
             ShopBinder shop,
             RewardChooseBinder rewardChoose,
-            PlayerInfoBinder playerInfo)
+            PlayerInfoBinder playerInfo,
+            WaveMonsterBinder waveMonster
+        )
         {
             _panel = panel ?? throw new ArgumentNullException(nameof(panel));
             _ballInv = ballInv ?? throw new ArgumentNullException(nameof(ballInv));
@@ -54,10 +57,9 @@ namespace MoreMountains
             _shop = shop ?? throw new ArgumentNullException(nameof(shop));
             _rewardChoose = rewardChoose ?? throw new ArgumentNullException(nameof(rewardChoose));
             _playerInfo = playerInfo ?? throw new ArgumentNullException(nameof(playerInfo));
+            _waveMonster = waveMonster ?? throw new ArgumentNullException(nameof(waveMonster));
 
             // 子 binder 互相认识
-            _ballInv.SetOwner(this);
-            _relicInv.SetOwner(this);
             _slotBinder.SetOwner(this);
             _shop.SetOwner(this);
             _rewardChoose.SetOwner(this);
@@ -93,6 +95,7 @@ namespace MoreMountains
             _relicInv.Attach(_player.Inventory.RelicBag);
             _shop.Attach(_player, _player.Shop.Controller);
             _rewardChoose.Attach(_player, _player.RewardSystem.Controller);
+            _waveMonster.Attach(waveManager.NextWave);
 
             // 监听子 binder 的事件
             _ballInv.EquipRequested += OnEquipBallRequested;
@@ -153,6 +156,7 @@ namespace MoreMountains
             _relicInv.Detach();
             _shop.Detach();
             _rewardChoose.Detach();
+            _waveMonster.Detach();
 
             _player = null;
         }
@@ -165,6 +169,7 @@ namespace MoreMountains
 
         public void EnterReward(int waveNumber)
         {
+            _panel.RefreshTitle(waveNumber + 1);
             _player?.RewardSystem?.EnterReward(waveNumber);
 
             _rewardChoose.SetViewActive(true);
@@ -173,9 +178,9 @@ namespace MoreMountains
             _shop.SetViewActive(false);
         }
 
-        public void EnterShop()
+        public void EnterShop(int waveNumber)
         {
-            _player?.Shop?.EnterShop();
+            _player?.Shop?.EnterShop(waveNumber);
 
             _rewardChoose.SetViewActive(false);
             _ballInv.SetViewActive(true);
@@ -267,38 +272,6 @@ namespace MoreMountains
             {
                 // Unequip 到背包
                 _player.BallManagement.UnequipBall(sourceSlotIndex);
-            }
-        }
-
-        /// <summary>
-        /// BallInventoryItem 上左键点击时的操作。
-        /// source 是背包里的球,hoveredTarget 是点击的目标。
-        ///   • hoveredTarget 是 BallSlotItem → Equip
-        ///   • hoveredTarget 是 BallInventoryItem → 无效
-        /// </summary>
-        public void OnInventoryOperationConfirmed(int sourceSlotIndex)
-        {
-            if (_player == null)
-                return;
-
-            var hovered = BallOperationStateManager.Instance.CurrentHovered;
-
-            if (hovered is BallSlotItem targetSlotItem)
-            {
-                // Equip 到槽位
-                _slotBinder.GetSlotIndexForItem(targetSlotItem, out var targetSlotIndex);
-                var bag = _player.Inventory.BallBag;
-                if (bag != null && sourceSlotIndex >= 0 && sourceSlotIndex < bag.SlotList.Count)
-                {
-                    var ball = bag.SlotList[sourceSlotIndex].Item;
-                    if (ball != null)
-                    {
-                        if (targetSlotIndex >= 0)
-                            _player.BallManagement.EquipBall(ball, targetSlotIndex);
-                        else
-                            _player.BallManagement.EquipBall(ball);
-                    }
-                }
             }
         }
 

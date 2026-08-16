@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1b7b319e83f926f47ba4d3b6008e31a6, type: 3}
   m_Name: BallDef_LaserBullet
   m_EditorClassIdentifier: HotFix::MoreMountains.BallDef
-  Type: 10200
+  Type: 10101
   DisplayName: "\u5149\u5F39\u7403"
   BasePrice: 4
   MaxLevel: 3

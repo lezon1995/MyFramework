@@ -34,6 +34,7 @@ namespace MoreMountains
 
         public override void onPlayerEntry(APlayer p)
         {
+            base.onPlayerEntry(p);
             playBGM(null);
             if (monsters == null)
             {

@@ -22,18 +22,16 @@ MonoBehaviour:
     availableMonsters:
     - monsterDef: {fileID: 11400000, guid: e582b4b9abe06fd4aa0fffe888d4c339, type: 2}
       spawnWeight: 2
-      baseSpawnInterval: 3
+      baseSpawnInterval: 1
       forceSpawnOnce: 0
+      atLeastSpawnCount: 0
     - monsterDef: {fileID: 11400000, guid: 7ea11f2b87ec0ae449443bee14a7d95f, type: 2}
       spawnWeight: 1
-      baseSpawnInterval: 3
+      baseSpawnInterval: 1
       forceSpawnOnce: 0
-    - monsterDef: {fileID: 11400000, guid: 9ee0c43c212962544952cd65c05c3b09, type: 2}
-      spawnWeight: 1
-      baseSpawnInterval: 3
-      forceSpawnOnce: 0
-    maxActiveMonsters: 5
-    minActiveMonsters: 2
+      atLeastSpawnCount: 0
+    maxActiveMonsters: 6
+    minActiveMonsters: 4
     defeatAllMaxTotalSpawn: 0
     healthScaling: 1
     damageScaling: 1
@@ -46,10 +44,10 @@ MonoBehaviour:
     bossSpawnTime: 30
     enableSmartSpawning: 1
     denseRadius: 1
-    sparseThreshold: 4
+    sparseThreshold: 1
     enableContinuousSpawning: 1
     targetCoverageRatio: 0.1
-    minSpawnInterval: 1
+    minSpawnInterval: 2
     maxSpawnInterval: 2
     killSpeedSensitivity: 2
     edgeBiasProbability: 0.5
@@ -61,19 +59,21 @@ MonoBehaviour:
     spawnMonstersOnShape: 1
   - waveNumber: 2
     waveName: Wave 2
-    duration: 20
+    duration: 25
     clearStrategy: 0
     availableMonsters:
     - monsterDef: {fileID: 11400000, guid: ba9e8818701ed0b4385d57194bfd73fa, type: 2}
       spawnWeight: 1
-      baseSpawnInterval: 3
+      baseSpawnInterval: 1
       forceSpawnOnce: 0
+      atLeastSpawnCount: 0
     - monsterDef: {fileID: 11400000, guid: 974abffb2ae04c2419b252258a483134, type: 2}
       spawnWeight: 1
-      baseSpawnInterval: 3
+      baseSpawnInterval: 1
       forceSpawnOnce: 0
+      atLeastSpawnCount: 0
     maxActiveMonsters: 6
-    minActiveMonsters: 3
+    minActiveMonsters: 4
     defeatAllMaxTotalSpawn: 0
     healthScaling: 1
     damageScaling: 1
@@ -85,7 +85,7 @@ MonoBehaviour:
     bossMonsterId: {fileID: 0}
     bossSpawnTime: 30
     enableSmartSpawning: 1
-    denseRadius: 5
+    denseRadius: 1
     sparseThreshold: 1
     enableContinuousSpawning: 1
     targetCoverageRatio: 0.3
@@ -106,12 +106,14 @@ MonoBehaviour:
     availableMonsters:
     - monsterDef: {fileID: 11400000, guid: 794eb65726287f0408a6df0c1331cede, type: 2}
       spawnWeight: 1
-      baseSpawnInterval: 3
+      baseSpawnInterval: 1
       forceSpawnOnce: 0
+      atLeastSpawnCount: 0
     - monsterDef: {fileID: 11400000, guid: 974abffb2ae04c2419b252258a483134, type: 2}
       spawnWeight: 1
-      baseSpawnInterval: 3
+      baseSpawnInterval: 1
       forceSpawnOnce: 0
+      atLeastSpawnCount: 0
     maxActiveMonsters: 8
     minActiveMonsters: 4
     defeatAllMaxTotalSpawn: 0
@@ -125,12 +127,12 @@ MonoBehaviour:
     bossMonsterId: {fileID: 0}
     bossSpawnTime: 30
     enableSmartSpawning: 1
-    denseRadius: 5
+    denseRadius: 1
     sparseThreshold: 1
     enableContinuousSpawning: 1
     targetCoverageRatio: 0.3
-    minSpawnInterval: 0.5
-    maxSpawnInterval: 1
+    minSpawnInterval: 1
+    maxSpawnInterval: 2
     killSpeedSensitivity: 2
     edgeBiasProbability: 0.5
     edgeBiasPercent: 0.7
@@ -141,17 +143,19 @@ MonoBehaviour:
     spawnMonstersOnShape: 1
   - waveNumber: 4
     waveName: Wave 4
-    duration: 30
+    duration: 35
     clearStrategy: 0
     availableMonsters:
     - monsterDef: {fileID: 11400000, guid: 256cee45b3dbfc946a5bd60cddc0a0af, type: 2}
       spawnWeight: 1
-      baseSpawnInterval: 3
+      baseSpawnInterval: 1
       forceSpawnOnce: 0
+      atLeastSpawnCount: 0
     - monsterDef: {fileID: 11400000, guid: fe448ce913048fc429e037a045bfeb0b, type: 2}
       spawnWeight: 1
-      baseSpawnInterval: 3
+      baseSpawnInterval: 1
       forceSpawnOnce: 0
+      atLeastSpawnCount: 0
     maxActiveMonsters: 10
     minActiveMonsters: 5
     defeatAllMaxTotalSpawn: 0
@@ -165,11 +169,1103 @@ MonoBehaviour:
     bossMonsterId: {fileID: 0}
     bossSpawnTime: 30
     enableSmartSpawning: 1
-    denseRadius: 5
+    denseRadius: 1
     sparseThreshold: 1
     enableContinuousSpawning: 1
     targetCoverageRatio: 0.3
-    minSpawnInterval: 0.5
+    minSpawnInterval: 1
+    maxSpawnInterval: 2
+    killSpeedSensitivity: 2
+    edgeBiasProbability: 0.5
+    edgeBiasPercent: 0.7
+    edgeBiasPercentAmplitude: 0.15
+    enableShapeSpawning: 0
+    shapeSpawnWeight: 30
+    shapeSpawnMaxRetries: 20
+    spawnMonstersOnShape: 1
+  - waveNumber: 5
+    waveName: Wave 5
+    duration: 40
+    clearStrategy: 0
+    availableMonsters:
+    - monsterDef: {fileID: 11400000, guid: 256cee45b3dbfc946a5bd60cddc0a0af, type: 2}
+      spawnWeight: 1
+      baseSpawnInterval: 1
+      forceSpawnOnce: 0
+      atLeastSpawnCount: 0
+    - monsterDef: {fileID: 11400000, guid: fe448ce913048fc429e037a045bfeb0b, type: 2}
+      spawnWeight: 1
+      baseSpawnInterval: 1
+      forceSpawnOnce: 0
+      atLeastSpawnCount: 0
+    maxActiveMonsters: 10
+    minActiveMonsters: 5
+    defeatAllMaxTotalSpawn: 0
+    healthScaling: 1
+    damageScaling: 1
+    speedScaling: 1
+    defenseScaling: 1
+    normalMonsterWeight: 70
+    eliteMonsterWeight: 25
+    bossMonsterWeight: 5
+    bossMonsterId: {fileID: 11400000, guid: f1a9bc46a3d377f4f8604670a1d1005e, type: 2}
+    bossSpawnTime: 30
+    enableSmartSpawning: 1
+    denseRadius: 1
+    sparseThreshold: 1
+    enableContinuousSpawning: 1
+    targetCoverageRatio: 0.3
+    minSpawnInterval: 1
+    maxSpawnInterval: 2
+    killSpeedSensitivity: 2
+    edgeBiasProbability: 0.5
+    edgeBiasPercent: 0.7
+    edgeBiasPercentAmplitude: 0.15
+    enableShapeSpawning: 0
+    shapeSpawnWeight: 30
+    shapeSpawnMaxRetries: 20
+    spawnMonstersOnShape: 1
+  - waveNumber: 6
+    waveName: Wave 6
+    duration: 45
+    clearStrategy: 0
+    availableMonsters:
+    - monsterDef: {fileID: 11400000, guid: 256cee45b3dbfc946a5bd60cddc0a0af, type: 2}
+      spawnWeight: 1
+      baseSpawnInterval: 1
+      forceSpawnOnce: 0
+      atLeastSpawnCount: 0
+    - monsterDef: {fileID: 11400000, guid: fe448ce913048fc429e037a045bfeb0b, type: 2}
+      spawnWeight: 1
+      baseSpawnInterval: 1
+      forceSpawnOnce: 0
+      atLeastSpawnCount: 0
+    maxActiveMonsters: 10
+    minActiveMonsters: 5
+    defeatAllMaxTotalSpawn: 0
+    healthScaling: 1
+    damageScaling: 1
+    speedScaling: 1
+    defenseScaling: 1
+    normalMonsterWeight: 70
+    eliteMonsterWeight: 25
+    bossMonsterWeight: 5
+    bossMonsterId: {fileID: 0}
+    bossSpawnTime: 30
+    enableSmartSpawning: 1
+    denseRadius: 1
+    sparseThreshold: 1
+    enableContinuousSpawning: 1
+    targetCoverageRatio: 0.3
+    minSpawnInterval: 1
+    maxSpawnInterval: 2
+    killSpeedSensitivity: 2
+    edgeBiasProbability: 0.5
+    edgeBiasPercent: 0.7
+    edgeBiasPercentAmplitude: 0.15
+    enableShapeSpawning: 0
+    shapeSpawnWeight: 30
+    shapeSpawnMaxRetries: 20
+    spawnMonstersOnShape: 1
+  - waveNumber: 7
+    waveName: Wave 7
+    duration: 50
+    clearStrategy: 0
+    availableMonsters:
+    - monsterDef: {fileID: 11400000, guid: 256cee45b3dbfc946a5bd60cddc0a0af, type: 2}
+      spawnWeight: 1
+      baseSpawnInterval: 1
+      forceSpawnOnce: 0
+      atLeastSpawnCount: 0
+    - monsterDef: {fileID: 11400000, guid: fe448ce913048fc429e037a045bfeb0b, type: 2}
+      spawnWeight: 1
+      baseSpawnInterval: 1
+      forceSpawnOnce: 0
+      atLeastSpawnCount: 0
+    maxActiveMonsters: 10
+    minActiveMonsters: 5
+    defeatAllMaxTotalSpawn: 0
+    healthScaling: 1
+    damageScaling: 1
+    speedScaling: 1
+    defenseScaling: 1
+    normalMonsterWeight: 70
+    eliteMonsterWeight: 25
+    bossMonsterWeight: 5
+    bossMonsterId: {fileID: 0}
+    bossSpawnTime: 30
+    enableSmartSpawning: 1
+    denseRadius: 1
+    sparseThreshold: 1
+    enableContinuousSpawning: 1
+    targetCoverageRatio: 0.3
+    minSpawnInterval: 1
+    maxSpawnInterval: 2
+    killSpeedSensitivity: 2
+    edgeBiasProbability: 0.5
+    edgeBiasPercent: 0.7
+    edgeBiasPercentAmplitude: 0.15
+    enableShapeSpawning: 0
+    shapeSpawnWeight: 30
+    shapeSpawnMaxRetries: 20
+    spawnMonstersOnShape: 1
+  - waveNumber: 8
+    waveName: Wave 8
+    duration: 55
+    clearStrategy: 0
+    availableMonsters:
+    - monsterDef: {fileID: 11400000, guid: 256cee45b3dbfc946a5bd60cddc0a0af, type: 2}
+      spawnWeight: 1
+      baseSpawnInterval: 1
+      forceSpawnOnce: 0
+      atLeastSpawnCount: 0
+    - monsterDef: {fileID: 11400000, guid: fe448ce913048fc429e037a045bfeb0b, type: 2}
+      spawnWeight: 1
+      baseSpawnInterval: 1
+      forceSpawnOnce: 0
+      atLeastSpawnCount: 0
+    maxActiveMonsters: 10
+    minActiveMonsters: 5
+    defeatAllMaxTotalSpawn: 0
+    healthScaling: 1
+    damageScaling: 1
+    speedScaling: 1
+    defenseScaling: 1
+    normalMonsterWeight: 70
+    eliteMonsterWeight: 25
+    bossMonsterWeight: 5
+    bossMonsterId: {fileID: 0}
+    bossSpawnTime: 30
+    enableSmartSpawning: 1
+    denseRadius: 1
+    sparseThreshold: 1
+    enableContinuousSpawning: 1
+    targetCoverageRatio: 0.3
+    minSpawnInterval: 1
+    maxSpawnInterval: 2
+    killSpeedSensitivity: 2
+    edgeBiasProbability: 0.5
+    edgeBiasPercent: 0.7
+    edgeBiasPercentAmplitude: 0.15
+    enableShapeSpawning: 0
+    shapeSpawnWeight: 30
+    shapeSpawnMaxRetries: 20
+    spawnMonstersOnShape: 1
+  - waveNumber: 9
+    waveName: Wave 9
+    duration: 60
+    clearStrategy: 0
+    availableMonsters:
+    - monsterDef: {fileID: 11400000, guid: 256cee45b3dbfc946a5bd60cddc0a0af, type: 2}
+      spawnWeight: 1
+      baseSpawnInterval: 1
+      forceSpawnOnce: 0
+      atLeastSpawnCount: 0
+    - monsterDef: {fileID: 11400000, guid: fe448ce913048fc429e037a045bfeb0b, type: 2}
+      spawnWeight: 1
+      baseSpawnInterval: 1
+      forceSpawnOnce: 0
+      atLeastSpawnCount: 0
+    maxActiveMonsters: 10
+    minActiveMonsters: 5
+    defeatAllMaxTotalSpawn: 0
+    healthScaling: 1
+    damageScaling: 1
+    speedScaling: 1
+    defenseScaling: 1
+    normalMonsterWeight: 70
+    eliteMonsterWeight: 25
+    bossMonsterWeight: 5
+    bossMonsterId: {fileID: 0}
+    bossSpawnTime: 30
+    enableSmartSpawning: 1
+    denseRadius: 1
+    sparseThreshold: 1
+    enableContinuousSpawning: 1
+    targetCoverageRatio: 0.3
+    minSpawnInterval: 1
+    maxSpawnInterval: 2
+    killSpeedSensitivity: 2
+    edgeBiasProbability: 0.5
+    edgeBiasPercent: 0.7
+    edgeBiasPercentAmplitude: 0.15
+    enableShapeSpawning: 0
+    shapeSpawnWeight: 30
+    shapeSpawnMaxRetries: 20
+    spawnMonstersOnShape: 1
+  - waveNumber: 10
+    waveName: Wave 10
+    duration: 60
+    clearStrategy: 0
+    availableMonsters:
+    - monsterDef: {fileID: 11400000, guid: 256cee45b3dbfc946a5bd60cddc0a0af, type: 2}
+      spawnWeight: 1
+      baseSpawnInterval: 1
+      forceSpawnOnce: 0
+      atLeastSpawnCount: 0
+    - monsterDef: {fileID: 11400000, guid: fe448ce913048fc429e037a045bfeb0b, type: 2}
+      spawnWeight: 1
+      baseSpawnInterval: 1
+      forceSpawnOnce: 0
+      atLeastSpawnCount: 0
+    maxActiveMonsters: 10
+    minActiveMonsters: 5
+    defeatAllMaxTotalSpawn: 0
+    healthScaling: 1
+    damageScaling: 1
+    speedScaling: 1
+    defenseScaling: 1
+    normalMonsterWeight: 70
+    eliteMonsterWeight: 25
+    bossMonsterWeight: 5
+    bossMonsterId: {fileID: 11400000, guid: 9a559947283b8444a8c89c77bb997599, type: 2}
+    bossSpawnTime: 30
+    enableSmartSpawning: 1
+    denseRadius: 1
+    sparseThreshold: 1
+    enableContinuousSpawning: 1
+    targetCoverageRatio: 0.3
+    minSpawnInterval: 1
+    maxSpawnInterval: 2
+    killSpeedSensitivity: 2
+    edgeBiasProbability: 0.5
+    edgeBiasPercent: 0.7
+    edgeBiasPercentAmplitude: 0.15
+    enableShapeSpawning: 0
+    shapeSpawnWeight: 30
+    shapeSpawnMaxRetries: 20
+    spawnMonstersOnShape: 1
+  - waveNumber: 11
+    waveName: Wave 11
+    duration: 60
+    clearStrategy: 0
+    availableMonsters:
+    - monsterDef: {fileID: 11400000, guid: 256cee45b3dbfc946a5bd60cddc0a0af, type: 2}
+      spawnWeight: 1
+      baseSpawnInterval: 1
+      forceSpawnOnce: 0
+      atLeastSpawnCount: 0
+    - monsterDef: {fileID: 11400000, guid: fe448ce913048fc429e037a045bfeb0b, type: 2}
+      spawnWeight: 1
+      baseSpawnInterval: 1
+      forceSpawnOnce: 0
+      atLeastSpawnCount: 0
+    maxActiveMonsters: 10
+    minActiveMonsters: 5
+    defeatAllMaxTotalSpawn: 0
+    healthScaling: 1
+    damageScaling: 1
+    speedScaling: 1
+    defenseScaling: 1
+    normalMonsterWeight: 70
+    eliteMonsterWeight: 25
+    bossMonsterWeight: 5
+    bossMonsterId: {fileID: 0}
+    bossSpawnTime: 30
+    enableSmartSpawning: 1
+    denseRadius: 1
+    sparseThreshold: 1
+    enableContinuousSpawning: 1
+    targetCoverageRatio: 0.3
+    minSpawnInterval: 1
+    maxSpawnInterval: 2
+    killSpeedSensitivity: 2
+    edgeBiasProbability: 0.5
+    edgeBiasPercent: 0.7
+    edgeBiasPercentAmplitude: 0.15
+    enableShapeSpawning: 0
+    shapeSpawnWeight: 30
+    shapeSpawnMaxRetries: 20
+    spawnMonstersOnShape: 1
+  - waveNumber: 12
+    waveName: Wave 12
+    duration: 60
+    clearStrategy: 0
+    availableMonsters:
+    - monsterDef: {fileID: 11400000, guid: 256cee45b3dbfc946a5bd60cddc0a0af, type: 2}
+      spawnWeight: 1
+      baseSpawnInterval: 1
+      forceSpawnOnce: 0
+      atLeastSpawnCount: 0
+    - monsterDef: {fileID: 11400000, guid: fe448ce913048fc429e037a045bfeb0b, type: 2}
+      spawnWeight: 1
+      baseSpawnInterval: 1
+      forceSpawnOnce: 0
+      atLeastSpawnCount: 0
+    maxActiveMonsters: 10
+    minActiveMonsters: 5
+    defeatAllMaxTotalSpawn: 0
+    healthScaling: 1
+    damageScaling: 1
+    speedScaling: 1
+    defenseScaling: 1
+    normalMonsterWeight: 70
+    eliteMonsterWeight: 25
+    bossMonsterWeight: 5
+    bossMonsterId: {fileID: 0}
+    bossSpawnTime: 30
+    enableSmartSpawning: 1
+    denseRadius: 1
+    sparseThreshold: 1
+    enableContinuousSpawning: 1
+    targetCoverageRatio: 0.3
+    minSpawnInterval: 1
+    maxSpawnInterval: 2
+    killSpeedSensitivity: 2
+    edgeBiasProbability: 0.5
+    edgeBiasPercent: 0.7
+    edgeBiasPercentAmplitude: 0.15
+    enableShapeSpawning: 0
+    shapeSpawnWeight: 30
+    shapeSpawnMaxRetries: 20
+    spawnMonstersOnShape: 1
+  - waveNumber: 13
+    waveName: Wave 13
+    duration: 60
+    clearStrategy: 0
+    availableMonsters:
+    - monsterDef: {fileID: 11400000, guid: 256cee45b3dbfc946a5bd60cddc0a0af, type: 2}
+      spawnWeight: 1
+      baseSpawnInterval: 1
+      forceSpawnOnce: 0
+      atLeastSpawnCount: 0
+    - monsterDef: {fileID: 11400000, guid: fe448ce913048fc429e037a045bfeb0b, type: 2}
+      spawnWeight: 1
+      baseSpawnInterval: 1
+      forceSpawnOnce: 0
+      atLeastSpawnCount: 0
+    maxActiveMonsters: 10
+    minActiveMonsters: 5
+    defeatAllMaxTotalSpawn: 0
+    healthScaling: 1
+    damageScaling: 1
+    speedScaling: 1
+    defenseScaling: 1
+    normalMonsterWeight: 70
+    eliteMonsterWeight: 25
+    bossMonsterWeight: 5
+    bossMonsterId: {fileID: 0}
+    bossSpawnTime: 30
+    enableSmartSpawning: 1
+    denseRadius: 1
+    sparseThreshold: 1
+    enableContinuousSpawning: 1
+    targetCoverageRatio: 0.3
+    minSpawnInterval: 1
+    maxSpawnInterval: 2
+    killSpeedSensitivity: 2
+    edgeBiasProbability: 0.5
+    edgeBiasPercent: 0.7
+    edgeBiasPercentAmplitude: 0.15
+    enableShapeSpawning: 0
+    shapeSpawnWeight: 30
+    shapeSpawnMaxRetries: 20
+    spawnMonstersOnShape: 1
+  - waveNumber: 14
+    waveName: Wave 14
+    duration: 60
+    clearStrategy: 0
+    availableMonsters:
+    - monsterDef: {fileID: 11400000, guid: 256cee45b3dbfc946a5bd60cddc0a0af, type: 2}
+      spawnWeight: 1
+      baseSpawnInterval: 1
+      forceSpawnOnce: 0
+      atLeastSpawnCount: 0
+    - monsterDef: {fileID: 11400000, guid: fe448ce913048fc429e037a045bfeb0b, type: 2}
+      spawnWeight: 1
+      baseSpawnInterval: 1
+      forceSpawnOnce: 0
+      atLeastSpawnCount: 0
+    maxActiveMonsters: 10
+    minActiveMonsters: 5
+    defeatAllMaxTotalSpawn: 0
+    healthScaling: 1
+    damageScaling: 1
+    speedScaling: 1
+    defenseScaling: 1
+    normalMonsterWeight: 70
+    eliteMonsterWeight: 25
+    bossMonsterWeight: 5
+    bossMonsterId: {fileID: 0}
+    bossSpawnTime: 30
+    enableSmartSpawning: 1
+    denseRadius: 1
+    sparseThreshold: 1
+    enableContinuousSpawning: 1
+    targetCoverageRatio: 0.3
+    minSpawnInterval: 1
+    maxSpawnInterval: 2
+    killSpeedSensitivity: 2
+    edgeBiasProbability: 0.5
+    edgeBiasPercent: 0.7
+    edgeBiasPercentAmplitude: 0.15
+    enableShapeSpawning: 0
+    shapeSpawnWeight: 30
+    shapeSpawnMaxRetries: 20
+    spawnMonstersOnShape: 1
+  - waveNumber: 15
+    waveName: Wave 15
+    duration: 60
+    clearStrategy: 0
+    availableMonsters:
+    - monsterDef: {fileID: 11400000, guid: 256cee45b3dbfc946a5bd60cddc0a0af, type: 2}
+      spawnWeight: 1
+      baseSpawnInterval: 1
+      forceSpawnOnce: 0
+      atLeastSpawnCount: 0
+    - monsterDef: {fileID: 11400000, guid: fe448ce913048fc429e037a045bfeb0b, type: 2}
+      spawnWeight: 1
+      baseSpawnInterval: 1
+      forceSpawnOnce: 0
+      atLeastSpawnCount: 0
+    maxActiveMonsters: 10
+    minActiveMonsters: 5
+    defeatAllMaxTotalSpawn: 0
+    healthScaling: 1
+    damageScaling: 1
+    speedScaling: 1
+    defenseScaling: 1
+    normalMonsterWeight: 70
+    eliteMonsterWeight: 25
+    bossMonsterWeight: 5
+    bossMonsterId: {fileID: 11400000, guid: e6d39392ea71b074686581777daf0d66, type: 2}
+    bossSpawnTime: 30
+    enableSmartSpawning: 1
+    denseRadius: 1
+    sparseThreshold: 1
+    enableContinuousSpawning: 1
+    targetCoverageRatio: 0.3
+    minSpawnInterval: 1
+    maxSpawnInterval: 2
+    killSpeedSensitivity: 2
+    edgeBiasProbability: 0.5
+    edgeBiasPercent: 0.7
+    edgeBiasPercentAmplitude: 0.15
+    enableShapeSpawning: 0
+    shapeSpawnWeight: 30
+    shapeSpawnMaxRetries: 20
+    spawnMonstersOnShape: 1
+  - waveNumber: 16
+    waveName: Wave 16
+    duration: 60
+    clearStrategy: 0
+    availableMonsters:
+    - monsterDef: {fileID: 11400000, guid: 256cee45b3dbfc946a5bd60cddc0a0af, type: 2}
+      spawnWeight: 1
+      baseSpawnInterval: 1
+      forceSpawnOnce: 0
+      atLeastSpawnCount: 0
+    - monsterDef: {fileID: 11400000, guid: fe448ce913048fc429e037a045bfeb0b, type: 2}
+      spawnWeight: 1
+      baseSpawnInterval: 1
+      forceSpawnOnce: 0
+      atLeastSpawnCount: 0
+    maxActiveMonsters: 10
+    minActiveMonsters: 5
+    defeatAllMaxTotalSpawn: 0
+    healthScaling: 1
+    damageScaling: 1
+    speedScaling: 1
+    defenseScaling: 1
+    normalMonsterWeight: 70
+    eliteMonsterWeight: 25
+    bossMonsterWeight: 5
+    bossMonsterId: {fileID: 0}
+    bossSpawnTime: 30
+    enableSmartSpawning: 1
+    denseRadius: 1
+    sparseThreshold: 1
+    enableContinuousSpawning: 1
+    targetCoverageRatio: 0.3
+    minSpawnInterval: 1
+    maxSpawnInterval: 2
+    killSpeedSensitivity: 2
+    edgeBiasProbability: 0.5
+    edgeBiasPercent: 0.7
+    edgeBiasPercentAmplitude: 0.15
+    enableShapeSpawning: 0
+    shapeSpawnWeight: 30
+    shapeSpawnMaxRetries: 20
+    spawnMonstersOnShape: 1
+  - waveNumber: 17
+    waveName: Wave 17
+    duration: 60
+    clearStrategy: 0
+    availableMonsters:
+    - monsterDef: {fileID: 11400000, guid: 256cee45b3dbfc946a5bd60cddc0a0af, type: 2}
+      spawnWeight: 1
+      baseSpawnInterval: 1
+      forceSpawnOnce: 0
+      atLeastSpawnCount: 0
+    - monsterDef: {fileID: 11400000, guid: fe448ce913048fc429e037a045bfeb0b, type: 2}
+      spawnWeight: 1
+      baseSpawnInterval: 1
+      forceSpawnOnce: 0
+      atLeastSpawnCount: 0
+    maxActiveMonsters: 10
+    minActiveMonsters: 5
+    defeatAllMaxTotalSpawn: 0
+    healthScaling: 1
+    damageScaling: 1
+    speedScaling: 1
+    defenseScaling: 1
+    normalMonsterWeight: 70
+    eliteMonsterWeight: 25
+    bossMonsterWeight: 5
+    bossMonsterId: {fileID: 0}
+    bossSpawnTime: 30
+    enableSmartSpawning: 1
+    denseRadius: 1
+    sparseThreshold: 1
+    enableContinuousSpawning: 1
+    targetCoverageRatio: 0.3
+    minSpawnInterval: 1
+    maxSpawnInterval: 2
+    killSpeedSensitivity: 2
+    edgeBiasProbability: 0.5
+    edgeBiasPercent: 0.7
+    edgeBiasPercentAmplitude: 0.15
+    enableShapeSpawning: 0
+    shapeSpawnWeight: 30
+    shapeSpawnMaxRetries: 20
+    spawnMonstersOnShape: 1
+  - waveNumber: 18
+    waveName: Wave 18
+    duration: 60
+    clearStrategy: 0
+    availableMonsters:
+    - monsterDef: {fileID: 11400000, guid: 256cee45b3dbfc946a5bd60cddc0a0af, type: 2}
+      spawnWeight: 1
+      baseSpawnInterval: 1
+      forceSpawnOnce: 0
+      atLeastSpawnCount: 0
+    - monsterDef: {fileID: 11400000, guid: fe448ce913048fc429e037a045bfeb0b, type: 2}
+      spawnWeight: 1
+      baseSpawnInterval: 1
+      forceSpawnOnce: 0
+      atLeastSpawnCount: 0
+    maxActiveMonsters: 10
+    minActiveMonsters: 5
+    defeatAllMaxTotalSpawn: 0
+    healthScaling: 1
+    damageScaling: 1
+    speedScaling: 1
+    defenseScaling: 1
+    normalMonsterWeight: 70
+    eliteMonsterWeight: 25
+    bossMonsterWeight: 5
+    bossMonsterId: {fileID: 0}
+    bossSpawnTime: 30
+    enableSmartSpawning: 1
+    denseRadius: 1
+    sparseThreshold: 1
+    enableContinuousSpawning: 1
+    targetCoverageRatio: 0.3
+    minSpawnInterval: 1
+    maxSpawnInterval: 2
+    killSpeedSensitivity: 2
+    edgeBiasProbability: 0.5
+    edgeBiasPercent: 0.7
+    edgeBiasPercentAmplitude: 0.15
+    enableShapeSpawning: 0
+    shapeSpawnWeight: 30
+    shapeSpawnMaxRetries: 20
+    spawnMonstersOnShape: 1
+  - waveNumber: 19
+    waveName: Wave 19
+    duration: 60
+    clearStrategy: 0
+    availableMonsters:
+    - monsterDef: {fileID: 11400000, guid: 256cee45b3dbfc946a5bd60cddc0a0af, type: 2}
+      spawnWeight: 1
+      baseSpawnInterval: 1
+      forceSpawnOnce: 0
+      atLeastSpawnCount: 0
+    - monsterDef: {fileID: 11400000, guid: fe448ce913048fc429e037a045bfeb0b, type: 2}
+      spawnWeight: 1
+      baseSpawnInterval: 1
+      forceSpawnOnce: 0
+      atLeastSpawnCount: 0
+    maxActiveMonsters: 10
+    minActiveMonsters: 5
+    defeatAllMaxTotalSpawn: 0
+    healthScaling: 1
+    damageScaling: 1
+    speedScaling: 1
+    defenseScaling: 1
+    normalMonsterWeight: 70
+    eliteMonsterWeight: 25
+    bossMonsterWeight: 5
+    bossMonsterId: {fileID: 0}
+    bossSpawnTime: 30
+    enableSmartSpawning: 1
+    denseRadius: 1
+    sparseThreshold: 1
+    enableContinuousSpawning: 1
+    targetCoverageRatio: 0.3
+    minSpawnInterval: 1
+    maxSpawnInterval: 2
+    killSpeedSensitivity: 2
+    edgeBiasProbability: 0.5
+    edgeBiasPercent: 0.7
+    edgeBiasPercentAmplitude: 0.15
+    enableShapeSpawning: 0
+    shapeSpawnWeight: 30
+    shapeSpawnMaxRetries: 20
+    spawnMonstersOnShape: 1
+  - waveNumber: 20
+    waveName: Wave 20
+    duration: 60
+    clearStrategy: 0
+    availableMonsters:
+    - monsterDef: {fileID: 11400000, guid: 256cee45b3dbfc946a5bd60cddc0a0af, type: 2}
+      spawnWeight: 1
+      baseSpawnInterval: 1
+      forceSpawnOnce: 0
+      atLeastSpawnCount: 0
+    - monsterDef: {fileID: 11400000, guid: fe448ce913048fc429e037a045bfeb0b, type: 2}
+      spawnWeight: 1
+      baseSpawnInterval: 1
+      forceSpawnOnce: 0
+      atLeastSpawnCount: 0
+    maxActiveMonsters: 10
+    minActiveMonsters: 5
+    defeatAllMaxTotalSpawn: 0
+    healthScaling: 1
+    damageScaling: 1
+    speedScaling: 1
+    defenseScaling: 1
+    normalMonsterWeight: 70
+    eliteMonsterWeight: 25
+    bossMonsterWeight: 5
+    bossMonsterId: {fileID: 11400000, guid: 255f9deb4e7889a45bb359d918eb6aa3, type: 2}
+    bossSpawnTime: 30
+    enableSmartSpawning: 1
+    denseRadius: 1
+    sparseThreshold: 1
+    enableContinuousSpawning: 1
+    targetCoverageRatio: 0.3
+    minSpawnInterval: 1
+    maxSpawnInterval: 2
+    killSpeedSensitivity: 2
+    edgeBiasProbability: 0.5
+    edgeBiasPercent: 0.7
+    edgeBiasPercentAmplitude: 0.15
+    enableShapeSpawning: 0
+    shapeSpawnWeight: 30
+    shapeSpawnMaxRetries: 20
+    spawnMonstersOnShape: 1
+  - waveNumber: 21
+    waveName: Wave 21
+    duration: 60
+    clearStrategy: 0
+    availableMonsters:
+    - monsterDef: {fileID: 11400000, guid: 256cee45b3dbfc946a5bd60cddc0a0af, type: 2}
+      spawnWeight: 1
+      baseSpawnInterval: 1
+      forceSpawnOnce: 0
+      atLeastSpawnCount: 0
+    - monsterDef: {fileID: 11400000, guid: fe448ce913048fc429e037a045bfeb0b, type: 2}
+      spawnWeight: 1
+      baseSpawnInterval: 1
+      forceSpawnOnce: 0
+      atLeastSpawnCount: 0
+    maxActiveMonsters: 10
+    minActiveMonsters: 5
+    defeatAllMaxTotalSpawn: 0
+    healthScaling: 1
+    damageScaling: 1
+    speedScaling: 1
+    defenseScaling: 1
+    normalMonsterWeight: 70
+    eliteMonsterWeight: 25
+    bossMonsterWeight: 5
+    bossMonsterId: {fileID: 0}
+    bossSpawnTime: 30
+    enableSmartSpawning: 1
+    denseRadius: 1
+    sparseThreshold: 1
+    enableContinuousSpawning: 1
+    targetCoverageRatio: 0.3
+    minSpawnInterval: 1
+    maxSpawnInterval: 2
+    killSpeedSensitivity: 2
+    edgeBiasProbability: 0.5
+    edgeBiasPercent: 0.7
+    edgeBiasPercentAmplitude: 0.15
+    enableShapeSpawning: 0
+    shapeSpawnWeight: 30
+    shapeSpawnMaxRetries: 20
+    spawnMonstersOnShape: 1
+  - waveNumber: 22
+    waveName: Wave 22
+    duration: 60
+    clearStrategy: 0
+    availableMonsters:
+    - monsterDef: {fileID: 11400000, guid: 256cee45b3dbfc946a5bd60cddc0a0af, type: 2}
+      spawnWeight: 1
+      baseSpawnInterval: 1
+      forceSpawnOnce: 0
+      atLeastSpawnCount: 0
+    - monsterDef: {fileID: 11400000, guid: fe448ce913048fc429e037a045bfeb0b, type: 2}
+      spawnWeight: 1
+      baseSpawnInterval: 1
+      forceSpawnOnce: 0
+      atLeastSpawnCount: 0
+    maxActiveMonsters: 10
+    minActiveMonsters: 5
+    defeatAllMaxTotalSpawn: 0
+    healthScaling: 1
+    damageScaling: 1
+    speedScaling: 1
+    defenseScaling: 1
+    normalMonsterWeight: 70
+    eliteMonsterWeight: 25
+    bossMonsterWeight: 5
+    bossMonsterId: {fileID: 0}
+    bossSpawnTime: 30
+    enableSmartSpawning: 1
+    denseRadius: 1
+    sparseThreshold: 1
+    enableContinuousSpawning: 1
+    targetCoverageRatio: 0.3
+    minSpawnInterval: 1
+    maxSpawnInterval: 2
+    killSpeedSensitivity: 2
+    edgeBiasProbability: 0.5
+    edgeBiasPercent: 0.7
+    edgeBiasPercentAmplitude: 0.15
+    enableShapeSpawning: 0
+    shapeSpawnWeight: 30
+    shapeSpawnMaxRetries: 20
+    spawnMonstersOnShape: 1
+  - waveNumber: 23
+    waveName: Wave 23
+    duration: 60
+    clearStrategy: 0
+    availableMonsters:
+    - monsterDef: {fileID: 11400000, guid: 256cee45b3dbfc946a5bd60cddc0a0af, type: 2}
+      spawnWeight: 1
+      baseSpawnInterval: 1
+      forceSpawnOnce: 0
+      atLeastSpawnCount: 0
+    - monsterDef: {fileID: 11400000, guid: fe448ce913048fc429e037a045bfeb0b, type: 2}
+      spawnWeight: 1
+      baseSpawnInterval: 1
+      forceSpawnOnce: 0
+      atLeastSpawnCount: 0
+    maxActiveMonsters: 10
+    minActiveMonsters: 5
+    defeatAllMaxTotalSpawn: 0
+    healthScaling: 1
+    damageScaling: 1
+    speedScaling: 1
+    defenseScaling: 1
+    normalMonsterWeight: 70
+    eliteMonsterWeight: 25
+    bossMonsterWeight: 5
+    bossMonsterId: {fileID: 0}
+    bossSpawnTime: 30
+    enableSmartSpawning: 1
+    denseRadius: 1
+    sparseThreshold: 1
+    enableContinuousSpawning: 1
+    targetCoverageRatio: 0.3
+    minSpawnInterval: 1
+    maxSpawnInterval: 2
+    killSpeedSensitivity: 2
+    edgeBiasProbability: 0.5
+    edgeBiasPercent: 0.7
+    edgeBiasPercentAmplitude: 0.15
+    enableShapeSpawning: 0
+    shapeSpawnWeight: 30
+    shapeSpawnMaxRetries: 20
+    spawnMonstersOnShape: 1
+  - waveNumber: 24
+    waveName: Wave 24
+    duration: 60
+    clearStrategy: 0
+    availableMonsters:
+    - monsterDef: {fileID: 11400000, guid: 256cee45b3dbfc946a5bd60cddc0a0af, type: 2}
+      spawnWeight: 1
+      baseSpawnInterval: 1
+      forceSpawnOnce: 0
+      atLeastSpawnCount: 0
+    - monsterDef: {fileID: 11400000, guid: fe448ce913048fc429e037a045bfeb0b, type: 2}
+      spawnWeight: 1
+      baseSpawnInterval: 1
+      forceSpawnOnce: 0
+      atLeastSpawnCount: 0
+    maxActiveMonsters: 10
+    minActiveMonsters: 5
+    defeatAllMaxTotalSpawn: 0
+    healthScaling: 1
+    damageScaling: 1
+    speedScaling: 1
+    defenseScaling: 1
+    normalMonsterWeight: 70
+    eliteMonsterWeight: 25
+    bossMonsterWeight: 5
+    bossMonsterId: {fileID: 0}
+    bossSpawnTime: 30
+    enableSmartSpawning: 1
+    denseRadius: 1
+    sparseThreshold: 1
+    enableContinuousSpawning: 1
+    targetCoverageRatio: 0.3
+    minSpawnInterval: 1
+    maxSpawnInterval: 2
+    killSpeedSensitivity: 2
+    edgeBiasProbability: 0.5
+    edgeBiasPercent: 0.7
+    edgeBiasPercentAmplitude: 0.15
+    enableShapeSpawning: 0
+    shapeSpawnWeight: 30
+    shapeSpawnMaxRetries: 20
+    spawnMonstersOnShape: 1
+  - waveNumber: 25
+    waveName: Wave 25
+    duration: 90
+    clearStrategy: 0
+    availableMonsters:
+    - monsterDef: {fileID: 11400000, guid: 256cee45b3dbfc946a5bd60cddc0a0af, type: 2}
+      spawnWeight: 1
+      baseSpawnInterval: 1
+      forceSpawnOnce: 0
+      atLeastSpawnCount: 0
+    - monsterDef: {fileID: 11400000, guid: fe448ce913048fc429e037a045bfeb0b, type: 2}
+      spawnWeight: 1
+      baseSpawnInterval: 1
+      forceSpawnOnce: 0
+      atLeastSpawnCount: 0
+    maxActiveMonsters: 10
+    minActiveMonsters: 5
+    defeatAllMaxTotalSpawn: 0
+    healthScaling: 1
+    damageScaling: 1
+    speedScaling: 1
+    defenseScaling: 1
+    normalMonsterWeight: 70
+    eliteMonsterWeight: 25
+    bossMonsterWeight: 5
+    bossMonsterId: {fileID: 11400000, guid: b34823efc677ac348bd206f545bd866b, type: 2}
+    bossSpawnTime: 30
+    enableSmartSpawning: 1
+    denseRadius: 1
+    sparseThreshold: 1
+    enableContinuousSpawning: 1
+    targetCoverageRatio: 0.3
+    minSpawnInterval: 1
+    maxSpawnInterval: 2
+    killSpeedSensitivity: 2
+    edgeBiasProbability: 0.5
+    edgeBiasPercent: 0.7
+    edgeBiasPercentAmplitude: 0.15
+    enableShapeSpawning: 0
+    shapeSpawnWeight: 30
+    shapeSpawnMaxRetries: 20
+    spawnMonstersOnShape: 1
+  - waveNumber: 26
+    waveName: Wave 26
+    duration: 90
+    clearStrategy: 0
+    availableMonsters:
+    - monsterDef: {fileID: 11400000, guid: 256cee45b3dbfc946a5bd60cddc0a0af, type: 2}
+      spawnWeight: 1
+      baseSpawnInterval: 1
+      forceSpawnOnce: 0
+      atLeastSpawnCount: 0
+    - monsterDef: {fileID: 11400000, guid: fe448ce913048fc429e037a045bfeb0b, type: 2}
+      spawnWeight: 1
+      baseSpawnInterval: 1
+      forceSpawnOnce: 0
+      atLeastSpawnCount: 0
+    maxActiveMonsters: 10
+    minActiveMonsters: 5
+    defeatAllMaxTotalSpawn: 0
+    healthScaling: 1
+    damageScaling: 1
+    speedScaling: 1
+    defenseScaling: 1
+    normalMonsterWeight: 70
+    eliteMonsterWeight: 25
+    bossMonsterWeight: 5
+    bossMonsterId: {fileID: 0}
+    bossSpawnTime: 30
+    enableSmartSpawning: 1
+    denseRadius: 1
+    sparseThreshold: 1
+    enableContinuousSpawning: 1
+    targetCoverageRatio: 0.3
+    minSpawnInterval: 1
+    maxSpawnInterval: 2
+    killSpeedSensitivity: 2
+    edgeBiasProbability: 0.5
+    edgeBiasPercent: 0.7
+    edgeBiasPercentAmplitude: 0.15
+    enableShapeSpawning: 0
+    shapeSpawnWeight: 30
+    shapeSpawnMaxRetries: 20
+    spawnMonstersOnShape: 1
+  - waveNumber: 27
+    waveName: Wave 27
+    duration: 90
+    clearStrategy: 0
+    availableMonsters:
+    - monsterDef: {fileID: 11400000, guid: 256cee45b3dbfc946a5bd60cddc0a0af, type: 2}
+      spawnWeight: 1
+      baseSpawnInterval: 1
+      forceSpawnOnce: 0
+      atLeastSpawnCount: 0
+    - monsterDef: {fileID: 11400000, guid: fe448ce913048fc429e037a045bfeb0b, type: 2}
+      spawnWeight: 1
+      baseSpawnInterval: 1
+      forceSpawnOnce: 0
+      atLeastSpawnCount: 0
+    maxActiveMonsters: 10
+    minActiveMonsters: 5
+    defeatAllMaxTotalSpawn: 0
+    healthScaling: 1
+    damageScaling: 1
+    speedScaling: 1
+    defenseScaling: 1
+    normalMonsterWeight: 70
+    eliteMonsterWeight: 25
+    bossMonsterWeight: 5
+    bossMonsterId: {fileID: 0}
+    bossSpawnTime: 30
+    enableSmartSpawning: 1
+    denseRadius: 1
+    sparseThreshold: 1
+    enableContinuousSpawning: 1
+    targetCoverageRatio: 0.3
+    minSpawnInterval: 1
+    maxSpawnInterval: 2
+    killSpeedSensitivity: 2
+    edgeBiasProbability: 0.5
+    edgeBiasPercent: 0.7
+    edgeBiasPercentAmplitude: 0.15
+    enableShapeSpawning: 0
+    shapeSpawnWeight: 30
+    shapeSpawnMaxRetries: 20
+    spawnMonstersOnShape: 1
+  - waveNumber: 28
+    waveName: Wave 28
+    duration: 90
+    clearStrategy: 0
+    availableMonsters:
+    - monsterDef: {fileID: 11400000, guid: 256cee45b3dbfc946a5bd60cddc0a0af, type: 2}
+      spawnWeight: 1
+      baseSpawnInterval: 1
+      forceSpawnOnce: 0
+      atLeastSpawnCount: 0
+    - monsterDef: {fileID: 11400000, guid: fe448ce913048fc429e037a045bfeb0b, type: 2}
+      spawnWeight: 1
+      baseSpawnInterval: 1
+      forceSpawnOnce: 0
+      atLeastSpawnCount: 0
+    maxActiveMonsters: 10
+    minActiveMonsters: 5
+    defeatAllMaxTotalSpawn: 0
+    healthScaling: 1
+    damageScaling: 1
+    speedScaling: 1
+    defenseScaling: 1
+    normalMonsterWeight: 70
+    eliteMonsterWeight: 25
+    bossMonsterWeight: 5
+    bossMonsterId: {fileID: 0}
+    bossSpawnTime: 30
+    enableSmartSpawning: 1
+    denseRadius: 1
+    sparseThreshold: 1
+    enableContinuousSpawning: 1
+    targetCoverageRatio: 0.3
+    minSpawnInterval: 1
+    maxSpawnInterval: 2
+    killSpeedSensitivity: 2
+    edgeBiasProbability: 0.5
+    edgeBiasPercent: 0.7
+    edgeBiasPercentAmplitude: 0.15
+    enableShapeSpawning: 0
+    shapeSpawnWeight: 30
+    shapeSpawnMaxRetries: 20
+    spawnMonstersOnShape: 1
+  - waveNumber: 29
+    waveName: Wave 29
+    duration: 90
+    clearStrategy: 0
+    availableMonsters:
+    - monsterDef: {fileID: 11400000, guid: 256cee45b3dbfc946a5bd60cddc0a0af, type: 2}
+      spawnWeight: 1
+      baseSpawnInterval: 1
+      forceSpawnOnce: 0
+      atLeastSpawnCount: 0
+    - monsterDef: {fileID: 11400000, guid: fe448ce913048fc429e037a045bfeb0b, type: 2}
+      spawnWeight: 1
+      baseSpawnInterval: 1
+      forceSpawnOnce: 0
+      atLeastSpawnCount: 0
+    maxActiveMonsters: 10
+    minActiveMonsters: 5
+    defeatAllMaxTotalSpawn: 0
+    healthScaling: 1
+    damageScaling: 1
+    speedScaling: 1
+    defenseScaling: 1
+    normalMonsterWeight: 70
+    eliteMonsterWeight: 25
+    bossMonsterWeight: 5
+    bossMonsterId: {fileID: 0}
+    bossSpawnTime: 30
+    enableSmartSpawning: 1
+    denseRadius: 1
+    sparseThreshold: 1
+    enableContinuousSpawning: 1
+    targetCoverageRatio: 0.3
+    minSpawnInterval: 1
+    maxSpawnInterval: 2
+    killSpeedSensitivity: 2
+    edgeBiasProbability: 0.5
+    edgeBiasPercent: 0.7
+    edgeBiasPercentAmplitude: 0.15
+    enableShapeSpawning: 0
+    shapeSpawnWeight: 30
+    shapeSpawnMaxRetries: 20
+    spawnMonstersOnShape: 1
+  - waveNumber: 30
+    waveName: Wave 30
+    duration: 90
+    clearStrategy: 0
+    availableMonsters:
+    - monsterDef: {fileID: 11400000, guid: 256cee45b3dbfc946a5bd60cddc0a0af, type: 2}
+      spawnWeight: 1
+      baseSpawnInterval: 1
+      forceSpawnOnce: 0
+      atLeastSpawnCount: 0
+    - monsterDef: {fileID: 11400000, guid: fe448ce913048fc429e037a045bfeb0b, type: 2}
+      spawnWeight: 1
+      baseSpawnInterval: 1
+      forceSpawnOnce: 0
+      atLeastSpawnCount: 0
+    maxActiveMonsters: 10
+    minActiveMonsters: 5
+    defeatAllMaxTotalSpawn: 0
+    healthScaling: 1
+    damageScaling: 1
+    speedScaling: 1
+    defenseScaling: 1
+    normalMonsterWeight: 70
+    eliteMonsterWeight: 25
+    bossMonsterWeight: 5
+    bossMonsterId: {fileID: 11400000, guid: 244dc0e18b60a52498dc222fb9ebf598, type: 2}
+    bossSpawnTime: 30
+    enableSmartSpawning: 1
+    denseRadius: 1
+    sparseThreshold: 1
+    enableContinuousSpawning: 1
+    targetCoverageRatio: 0.3
+    minSpawnInterval: 1
     maxSpawnInterval: 2
     killSpeedSensitivity: 2
     edgeBiasProbability: 0.5

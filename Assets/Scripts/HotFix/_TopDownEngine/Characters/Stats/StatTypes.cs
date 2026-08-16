@@ -106,6 +106,7 @@ namespace MoreMountains
                 Ball.Stat.HitEffectChance => Stats.HitEffectChance,
                 Ball.Stat.Knockback => Stats.Knockback,
                 Ball.Stat.LifeSteal => Stats.LifeSteal,
+                Ball.Stat.Range => Stats.Range,
                 _ => throw new ArgumentOutOfRangeException(nameof(stat), stat, null)
             };
         }

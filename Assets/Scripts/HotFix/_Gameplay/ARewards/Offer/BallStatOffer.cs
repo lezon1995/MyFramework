@@ -1,14 +1,12 @@
-﻿using UnityEngine.Localization.Settings;
-
-namespace MoreMountains
+﻿namespace MoreMountains
 {
     /// <summary>
     /// 球的属性奖励卡实现。
     /// 持有 BallStatDef
     /// </summary>
-    public sealed class BallStatOffer : ClassObject, IPurchasable, IArgs<BallStatModDef, ItemRarity, float, float>
+    public sealed class BallStatOffer : ClassObject, IPurchasable, IArgs<BallStatDef, ItemRarity, float, float, DisplayConfig>
     {
-        public BallStatModDef Def;
+        public BallStatDef Def;
         public ItemKind Kind => ItemKind.BallStatMod;
         public int ItemId => 0;
 
@@ -16,7 +14,7 @@ namespace MoreMountains
         {
             get
             {
-                var str = LocalizationSettings.StringDatabase.GetTable("Stats").GetEntry(Def.statKey).Value;
+                var str = LocalizedStats.getName(Def.statKey);
                 var name = str;
                 string suffix = Rarity switch
                 {
@@ -45,6 +43,7 @@ namespace MoreMountains
         public string displayName;
         public float BonusFlat;
         public float BonusPct;
+        public DisplayConfig DisplayConfig;
         public ItemRarity Rarity;
 
         public override void resetProperty()
@@ -53,6 +52,7 @@ namespace MoreMountains
             _sold = false;
             Sold = false;
             displayName = null;
+            DisplayConfig = null;
             BonusFlat = 0F;
             BonusPct = 0F;
             Rarity = default;
@@ -64,12 +64,13 @@ namespace MoreMountains
             Sold = true;
         }
 
-        public void onCreate(BallStatModDef def, ItemRarity rarity, float bonusFlat, float bonusPct)
+        public void onCreate(BallStatDef def, ItemRarity rarity, float bonusFlat, float bonusPct, DisplayConfig displayConfig)
         {
             Def = def;
             Rarity = rarity;
             BonusFlat = bonusFlat;
             BonusPct = bonusPct;
+            DisplayConfig = displayConfig;
         }
     }
 }

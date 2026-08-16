@@ -40,6 +40,11 @@ public partial class ShopSellZoneView : IItemOperationTarget
         _eventBlocked = blocking;
     }
 
+    public void SetSellPrice(int price)
+    {
+        textSellPrice.setText(price);
+    }
+
     void RefreshHighlightVisuals()
     {
         highlight?.setActive(_highlightVisible);

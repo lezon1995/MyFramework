@@ -93,6 +93,7 @@ namespace MoreMountains
             public Color cursed;
             public Color unafforded;
             public Color statEntry;
+            public Color statValueRaw = Color.gray2;
         }
 
         public RarityColor getRarityColor(ItemRarity rarity)

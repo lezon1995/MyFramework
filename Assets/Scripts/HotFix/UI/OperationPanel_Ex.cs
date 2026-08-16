@@ -6,6 +6,7 @@ public partial class OperationPanel
     public RewardChooseView RewardChoose           => rewardChooseView;
     public ShopView Shop           => shopView;
     public PlayerInfoView PlayerInfo => playerInfoView;
+    public WaveMonsterView WaveMonster => waveMonsterView;
     public RelicInventoryView RelicInventory => relicInventoryView;
     public BallInventoryView BallInventory => ballInventoryView;
 
@@ -13,8 +14,11 @@ public partial class OperationPanel
     public myUGUIButton  BtnNext  => btnNext;
     public myUGUITextTMP BtnLabel => textBtn;
 
-    public void SetTitle(string s) => textTitle.setText(s ?? string.Empty);
-    public void SetBtnLabel(string s) => textBtn.setText(s ?? string.Empty);
+    public void RefreshTitle(int waveNumber)
+    {
+        _stringTitle.setInt("waveNumber", waveNumber);
+        _stringNextWaveBtn.setInt("waveNumber", waveNumber);
+    }
 
     OperationPanelBinder binder;
 
@@ -27,7 +31,8 @@ public partial class OperationPanel
             playerInfoView.SlotGroup.initBinder(),
             shopView.initBinder(),
             rewardChooseView.initBinder(),
-            playerInfoView.initBinder()
+            playerInfoView.initBinder(),
+            waveMonsterView.initBinder()
         );
 
         OperationPanelService.Instance.Register(binder);

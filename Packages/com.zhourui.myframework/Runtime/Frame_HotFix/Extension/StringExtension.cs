@@ -1847,6 +1847,7 @@ public static class StringExtension
     // 百分比一般用于属性增幅之类的
     public static string toPercent(this string value, int precision = 1) { return (value.SToF() * 100).FToS(precision) + "%"; }
     public static string toPercent(this float value, int precision = 1) { return (value * 100).FToS(precision) + "%"; }
+    public static string toSprite(this string value) { return $"<sprite name=\"{value}\">"; }
     // 几率类的一般是万分比的格式填写的,10000表示100%
     public static string toProbability(this string value) { return (value.SToF() * 0.01f).FToS() + "%"; }
     public static string toProbability(this float value) { return (value * 0.01f).FToS() + "%"; }

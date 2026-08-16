@@ -33,11 +33,11 @@ namespace MoreMountains
 
         #region Properties
 
-        private TooltipSettings _settings;
-        private TooltipContent _content;
-        private CanvasGroup _canvasGroup;
-        private float _currentAlpha = 1f;
-        private RectTransform _rectTransform;
+        TooltipSettings _settings;
+        TooltipContent _content;
+        CanvasGroup _canvasGroup;
+        float _currentAlpha = 1f;
+        RectTransform _rectTransform;
 
         public RectTransform GetRectTransform()
         {

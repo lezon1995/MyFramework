@@ -245,6 +245,7 @@ public partial class BallSlotItem : IDraggableItem
 {
     BallSlot ballSlot;
     public myUGUIButton Btn => btn;
+    public BallSlot Slot => ballSlot;
     public GameObject ItemGO => mRoot.getGameObject();
     public void SetSelected(bool on) => selected?.setActive(on);
     public void SetBallIcon(Sprite s) => icon?.setSpriteOnly(s);

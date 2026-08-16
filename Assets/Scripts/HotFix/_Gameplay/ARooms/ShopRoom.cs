@@ -27,6 +27,7 @@
 
         public override void onPlayerEntry(APlayer p)
         {
+            base.onPlayerEntry(p);
             if (ADungeon.id != ("TheEnding"))
                 playBGM("SHOP");
             // ADungeon.overlayMenu.proceedButton.setLabel(TEXT[0]);

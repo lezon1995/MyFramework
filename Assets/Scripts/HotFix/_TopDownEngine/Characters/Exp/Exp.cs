@@ -12,14 +12,12 @@ namespace MoreMountains
         const string XP_TOTAL = "_XpTotal";
         const string XP_REQUIRED = "_XpRequired";
 
-
         public ExpData Data;
         public bool saveOnQuit;
         public bool saveOnDestroy;
         public bool loadOnStart;
 
         public int LevelMax => Data.Trait.MaxLevel;
-        public int MaxLevel => Data.Trait.MaxLevel;
         public float progress => Xp / (float)XpRequired;
         public int currentExp => Xp;
         public int currentLevelRequiredExp => XpRequired;
@@ -33,19 +31,6 @@ namespace MoreMountains
         public Action<int, int> onLevelChanged;
         public Action<int, int> onExpChanged;
         public Action<int, int> onExpRequiredChanged;
-
-        public void SetData(ExpData d)
-        {
-            Data = d;
-
-            for (int i = 0; i < d.Trait.MaxLevel; i++)
-            {
-                var curLevel = i;
-                var nextLevel = i + 1;
-                // Debug.LogError($"从{curLevel}级升到{nextLevel}级需要 {calculateXpRequiredToNextLevel(curLevel)}经验");
-            }
-        }
-
 
         public void SetOnLevelUp(Action<int> action)
         {
@@ -188,7 +173,7 @@ namespace MoreMountains
             UpdateAll(newLevel, newXpRequired, newXp, newXpTotal);
         }
 
-        int CalculateXpRequiredToNextLevel(int level)
+        protected virtual int CalculateXpRequiredToNextLevel(int level)
         {
             (int maxLevel, int startXpRequired, int maxLevelXpRequired, AnimationCurve xpCurve) = Data.Trait;
 
@@ -198,7 +183,7 @@ namespace MoreMountains
             return xpRequired;
         }
 
-        int CalculateXpTotalToLevel(int level)
+        protected virtual int CalculateXpTotalToLevel(int level)
         {
             (int maxLevel, int startXpRequired, int maxLevelXpRequired, AnimationCurve xpCurve) = Data.Trait;
 

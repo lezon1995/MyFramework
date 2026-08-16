@@ -60,6 +60,7 @@ namespace MoreMountains
             waveGameMode = Object.Instantiate(res.get());
             waveLevelConfig = resource.loadGameResource<WaveLevelConfig>(path2);
             waveGameMode.StartGame(waveLevelConfig);
+            waveManager = waveGameMode.waveManager;
         }
 
         protected void loadCoinManager()
@@ -181,7 +182,6 @@ namespace MoreMountains
         public override void update(float dt)
         {
             base.update(dt);
-
         }
 
         public override void getAllBricks(ref List<Brick> list)

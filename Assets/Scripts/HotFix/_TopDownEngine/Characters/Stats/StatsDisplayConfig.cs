@@ -19,7 +19,7 @@ namespace MoreMountains
                 }
             }
 
-            c = DisplayConfig.Default;
+            c = DisplayConfig.Flat;
             return false;
         }
     }

@@ -400,6 +400,8 @@ namespace MoreMountains
         /// </summary>
         public virtual void ResetSpeed()
         {
+            if (_controller)
+                _controller.Reset();
         }
 
         /// <summary>

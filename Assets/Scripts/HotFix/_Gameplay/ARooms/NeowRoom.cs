@@ -12,6 +12,7 @@
 
         public override void onPlayerEntry(APlayer p)
         {
+            base.onPlayerEntry(p);
             // ADungeon.overlayMenu.proceedButton.hide();
             evt.onEnterRoom();
 

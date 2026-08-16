@@ -29,12 +29,12 @@ namespace MoreMountains
     public enum RoomPhaseType
     {
         NONE,
-        PREPARE,//战前准备阶段，通常是等个几秒介绍一下接下来可能出现的怪物
-        BATTLE,//战斗阶段
-        BATTLE_PASS_CLEANUP,//战后舞台清理阶段
-        LEVEL_UP_REWARD,//升级奖励阶段
-        SHOPPING,//购物阶段
-        GAME_SETTLEMENT,//对局结算阶段
+        PREPARE, //战前准备阶段，通常是等个几秒介绍一下接下来可能出现的怪物
+        BATTLE, //战斗阶段
+        BATTLE_PASS_CLEANUP, //战后舞台清理阶段
+        LEVEL_UP_REWARD, //升级奖励阶段
+        SHOPPING, //购物阶段
+        GAME_SETTLEMENT, //对局结算阶段
     }
 
     public record struct OnBattleStart;
@@ -97,7 +97,7 @@ namespace MoreMountains
         {
             log($"onPlayerExit Room {GetType().Name}");
         }
-        
+
         public virtual void onRoomUninitialize()
         {
         }
@@ -231,8 +231,20 @@ namespace MoreMountains
 
         public virtual void update(float dt)
         {
-            // if (!ADungeon.isScreenUp && InputHelper.pressedEscape && ADungeon.overlayMenu.cancelButton.current_x == CancelButton.HIDE_X)
-            // ADungeon.settingsScreen.open();
+            if (!ADungeon.isScreenUp && InputHelper.pressedEscape)
+            {
+                // ADungeon.settingsScreen.open();
+                if (EscPanelService.Instance.Opened)
+                {
+                    GameManager.Instance.UnPause();
+                    EscPanelService.Instance.Close();
+                }
+                else
+                {
+                    EscPanelService.Instance.Open(this, Player);
+                    GameManager.Instance.Pause();
+                }
+            }
 
             if (Settings.isDebug)
             {
@@ -289,7 +301,7 @@ namespace MoreMountains
 
                         if (isEndingTurn)
                             endEnemyTurn();
-                        
+
                         if (CurPhase != ToPhase)
                         {
                             changePhase(ToPhase);
@@ -463,30 +475,39 @@ namespace MoreMountains
         public void enter_SelectCharacter()
         {
         }
+
         public void enter_SelectWeapon()
         {
         }
+
         public void enter_SelectDifficulty()
         {
         }
+
         public void enter_Prepare()
         {
         }
+
         public void enter_Battle()
         {
         }
+
         public void enter_BattlePassCleanup()
         {
         }
+
         public void enter_LevelUpReward()
         {
         }
+
         public void enter_Shopping()
         {
         }
+
         public void enter_GameSettlement()
         {
         }
+
         public void endGame()
         {
         }
@@ -768,14 +789,14 @@ namespace MoreMountains
             evt?.Dispose();
 
             // if (monsters != null)
-                // foreach (var m in monsters.monsters)
-                    // m.dispose();
+            // foreach (var m in monsters.monsters)
+            // m.dispose();
         }
 
         public virtual void getAllBricks(ref List<Brick> list)
         {
         }
-        
+
         public static implicit operator bool(ARoom self) => self != null;
     }
 }

@@ -48,8 +48,9 @@ namespace MoreMountains
     [Serializable]
     public class BallStatConfig
     {
-        public BallStatModDef def;
+        public BallStatDef def;
         public List<RarityConfig> configs;
+        public DisplayConfig display;
         public RarityConfig getConfig(ItemRarity rarity) => configs[(int)rarity];
 
         [Serializable]
@@ -69,8 +70,9 @@ namespace MoreMountains
     [Serializable]
     public class PlayerStatConfig
     {
-        public PlayerStatModDef def;
+        public PlayerStatDef def;
         public List<RarityConfig> configs;
+        public DisplayConfig display;
         public RarityConfig getConfig(ItemRarity rarity) => configs[(int)rarity];
         [Serializable]
         public class RarityConfig

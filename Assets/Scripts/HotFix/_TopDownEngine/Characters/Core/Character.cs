@@ -41,11 +41,11 @@ namespace MoreMountains
             Range, //Attack Range
             DodgeChance, //Dodge Chance
             BallisticSpeed, //Ballistic Speed
-            HitEffectChance,
-            Knockback,
-            Duration,
-            Luck,
-            Greed,
+            HitEffectChance, //撞击特效概率
+            Knockback, //击退
+            Duration, //持续时间
+            Luck, //幸运
+            Greed, //贪婪
         }
 
         /// The possible Movement States the character can be in. These usually correspond to their own class, 
@@ -110,42 +110,56 @@ namespace MoreMountains
     {
         public ComponentFlags Flags { get; set; }
 
-        [TitleGroup("Base")] public Types CharacterType = Types.AI;
+        [TitleGroup("Base")]
+        public Types CharacterType = Types.AI;
 
-        [TitleGroup("Base")] public string PlayerID;
+        [TitleGroup("Base")]
+        public string PlayerID;
 
-        [TitleGroup("Animator")] [Tooltip("the character animator, that this class and all abilities should update parameters on")]
+        [TitleGroup("Animator")]
+        [Tooltip("the character animator, that this class and all abilities should update parameters on")]
         public Animator CharacterAnimator;
 
-        [TitleGroup("Animator")] [Tooltip("Set this to false if you want to implement your own animation system")]
+        [TitleGroup("Animator")]
+        [Tooltip("Set this to false if you want to implement your own animation system")]
         public bool UseDefaultMecanim = true;
 
-        [TitleGroup("Animator")] [Tooltip("If this is true, sanity checks will be performed to make sure animator parameters exist before updating them. Turning this to false will increase performance but will throw errors if you're trying to update non existing parameters. Make sure your animator has the required parameters.")]
+        [TitleGroup("Animator")]
+        [Tooltip("If this is true, sanity checks will be performed to make sure animator parameters exist before updating them. Turning this to false will increase performance but will throw errors if you're trying to update non existing parameters. Make sure your animator has the required parameters.")]
         public bool RunAnimatorSanityChecks;
 
-        [TitleGroup("Animator")] [Tooltip("if this is true, animator logs for the associated animator will be turned off to avoid potential spam")]
+        [TitleGroup("Animator")]
+        [Tooltip("if this is true, animator logs for the associated animator will be turned off to avoid potential spam")]
         public bool DisableAnimatorLogs = true;
 
-        [TitleGroup("Bindings")] [Tooltip("the 'model' (can be any game object) used to manipulate the character. Ideally it's separated (and nested) from the collider/TopDown controller/abilities, to avoid messing with collisions.")]
+        [TitleGroup("Bindings")]
+        [Tooltip("the 'model' (can be any game object) used to manipulate the character. Ideally it's separated (and nested) from the collider/TopDown controller/abilities, to avoid messing with collisions.")]
         public GameObject Model;
 
-        [TitleGroup("Bindings")] [Tooltip("the Health script associated to this Character, will be grabbed automatically if left empty")]
+        [TitleGroup("Bindings")]
+        [Tooltip("the Health script associated to this Character, will be grabbed automatically if left empty")]
         public Health Health;
 
-        [TitleGroup("Bindings")] [Tooltip("the Stats script associated to this Character, will be grabbed automatically if left empty")]
+        [TitleGroup("Bindings")]
+        [Tooltip("the Stats script associated to this Character, will be grabbed automatically if left empty")]
         public Stats Stats => stats;
+
         public Stats stats;
 
-        [TitleGroup("Bindings")] [Tooltip("the Buffable script associated to this Character, will be grabbed automatically if left empty")]
+        [TitleGroup("Bindings")]
+        [Tooltip("the Buffable script associated to this Character, will be grabbed automatically if left empty")]
         public Buffable Buffable;
 
-        [TitleGroup("Bindings")] [Tooltip("the Exp script associated to this Character, will be grabbed automatically if left empty")]
+        [TitleGroup("Bindings")]
+        [Tooltip("the Exp script associated to this Character, will be grabbed automatically if left empty")]
         public Exp Exp;
 
-        [TitleGroup("Bindings")] [Tooltip("A list of gameObjects (usually nested under the Character) under which to search for additional abilities")]
+        [TitleGroup("Bindings")]
+        [Tooltip("A list of gameObjects (usually nested under the Character) under which to search for additional abilities")]
         public List<GameObject> AdditionalAbilityNodes;
 
-        [TitleGroup("Bindings")] [Tooltip("The brain currently associated with this character, if it's an Advanced AI. By default the engine will pick the one on this object, but you can attach another one if you'd like")]
+        [TitleGroup("Bindings")]
+        [Tooltip("The brain currently associated with this character, if it's an Advanced AI. By default the engine will pick the one on this object, but you can attach another one if you'd like")]
         public AIBrain CharacterBrain;
 
         public MMStateMachine<Motions> motionState;
@@ -585,7 +599,7 @@ namespace MoreMountains
         {
             base.OnFixedUpdate(dt);
             CheckInCombatStatus(dt);
-            
+
             // we process our abilities
             // TickAbilitiesBefore();
             FixedUpdateAbilities(dt);
@@ -924,7 +938,7 @@ namespace MoreMountains
 
             Event.addListener<OnCombat>(this);
             Event.addListener<OnWindup>(this);
-            
+
             base.OnEnable();
         }
 

@@ -163,7 +163,7 @@ MonoBehaviour:
       Data: CritDamage
     - Name: $v
       Entry: 4
-      Data: 1.5
+      Data: 0
     - Name: 
       Entry: 8
       Data: 
@@ -175,7 +175,7 @@ MonoBehaviour:
       Data: DmgRate
     - Name: $v
       Entry: 4
-      Data: 1
+      Data: 0
     - Name: 
       Entry: 8
       Data: 
@@ -295,7 +295,7 @@ MonoBehaviour:
       Data: BallisticSpeed
     - Name: $v
       Entry: 4
-      Data: 1
+      Data: 0
     - Name: 
       Entry: 8
       Data: 
@@ -410,28 +410,25 @@ MonoBehaviour:
       Entry: 8
       Data: 
   displayConfig: {fileID: 11400000, guid: 3d90421dea8640a4eba9765ab8b82739, type: 2}
-  DisplayConfigs:
-  - statName: BallisticSpeed
-    displayType: 1
-    displayDecimalDigits: 0
-  - statName: CritChance
-    displayType: 1
-    displayDecimalDigits: 0
-  - statName: CritDamage
-    displayType: 1
-    displayDecimalDigits: 0
-  - statName: DmgRate
-    displayType: 1
-    displayDecimalDigits: 0
-  - statName: DodgeChance
-    displayType: 1
-    displayDecimalDigits: 0
-  - statName: HealthRegen
-    displayType: 0
-    displayDecimalDigits: 1
-  - statName: HitEffectChance
-    displayType: 1
-    displayDecimalDigits: 0
-  - statName: LifeSteal
-    displayType: 1
-    displayDecimalDigits: 0
+  StatDefs:
+  - {fileID: 11400000, guid: 44b49883735a5bb49a4b2f85b2fe9e45, type: 2}
+  - {fileID: 11400000, guid: e498d75c0a5676c4e93046c6540a6e81, type: 2}
+  - {fileID: 11400000, guid: 29733c908430f4445aa11514074cb3dc, type: 2}
+  - {fileID: 11400000, guid: b2eca90400d3b6140a759caa9544d689, type: 2}
+  - {fileID: 11400000, guid: 1d979439c2dd8f549b9a687039d3f4bf, type: 2}
+  - {fileID: 11400000, guid: e7b5a42889fc5f94996f0576d093b80e, type: 2}
+  - {fileID: 11400000, guid: f3fa8988cbb523240b3d34d51e4916f1, type: 2}
+  - {fileID: 11400000, guid: 478d29109c020f14791c5964f1396154, type: 2}
+  - {fileID: 11400000, guid: 8c1f107117b595844bab700e2f9bac27, type: 2}
+  - {fileID: 11400000, guid: 7805a6c96b4e6854ca9e0398284b8106, type: 2}
+  - {fileID: 11400000, guid: fea826d152370ce4f93fb153d9e888ec, type: 2}
+  - {fileID: 11400000, guid: c55d8158e46cb264a969e9563149c247, type: 2}
+  - {fileID: 11400000, guid: 2aa3928e476330d4cad46f915320fdb7, type: 2}
+  - {fileID: 11400000, guid: 02dc17e76beb4d1489a3ec09b93c181d, type: 2}
+  - {fileID: 11400000, guid: c5cba73f697b5d7489216845298cb072, type: 2}
+  - {fileID: 11400000, guid: 369396e500ba38d4996f4c98aab0a60d, type: 2}
+  - {fileID: 11400000, guid: 0c4eb02eee8149e40b3ef28a924fcda5, type: 2}
+  - {fileID: 11400000, guid: ec97e768c44c52b45bf218b12038f8ab, type: 2}
+  - {fileID: 11400000, guid: 16ba32fcbb84caf499c5a47eafa6ff8e, type: 2}
+  - {fileID: 11400000, guid: cfe3988ce90b1804b83f9219e7a19b0f, type: 2}
+  - {fileID: 11400000, guid: 0d949d6e1e0a4ba4d8790f2b68225f58, type: 2}

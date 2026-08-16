@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e32e65ed9cc410c4caa9fd228b4382e3, type: 3}
   m_Name: ShopSystemConfig
   m_EditorClassIdentifier: HotFix::MoreMountains.ShopSystemConfig
-  BallOfferCount: 5
-  RelicOfferCount: 5
-  MixedOfferCount: 5
+  BallOfferCount: 4
+  RelicOfferCount: 4
+  MixedOfferCount: 4
   BallBoardRerollCost: 2
   RelicBoardRerollCost: 1
   MixedBoardRerollCost: 1

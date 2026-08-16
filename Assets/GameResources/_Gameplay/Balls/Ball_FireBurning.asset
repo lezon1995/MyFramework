@@ -199,7 +199,7 @@ MonoBehaviour:
       Data: BallisticSpeed
     - Name: $v
       Entry: 4
-      Data: 8
+      Data: 12
     - Name: 
       Entry: 8
       Data: 

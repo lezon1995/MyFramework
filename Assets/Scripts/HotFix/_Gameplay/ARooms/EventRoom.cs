@@ -6,6 +6,7 @@
 
         public override void onPlayerEntry(APlayer p)
         {
+            base.onPlayerEntry(p);
             // ADungeon.overlayMenu.proceedButton.hide();
             // var eventRngDuplicate = new Rand(Settings.seed, ADungeon.eventRng.counter);
             // evt = ADungeon.generateEvent(eventRngDuplicate);

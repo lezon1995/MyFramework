@@ -697,6 +697,7 @@ namespace MoreMountains
         {
             LT.SHOW(out overlayMenu);
             LT.LOAD_HIDE(out operationPanel);
+            LT.LOAD_HIDE(out escPanel);
         }
 
         public static void reset()

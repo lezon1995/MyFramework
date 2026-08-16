@@ -23,6 +23,7 @@ namespace MoreMountains
             HitEffectChance,
             Knockback,
             LifeSteal,
+            Range,
         }
 
         public APlayer Player { get; set; }
@@ -134,7 +135,7 @@ namespace MoreMountains
 
                 var globalMS = Player.GetStat(Character.Stat.BallisticSpeed);
                 if (globalMS)
-                    speed *= globalMS.Value;
+                    speed *= (1 + globalMS.Value);
 
                 raw = speed;
             };

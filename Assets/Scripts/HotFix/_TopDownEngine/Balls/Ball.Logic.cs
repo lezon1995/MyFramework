@@ -568,13 +568,13 @@ namespace MoreMountains
             {
                 effectDamage += ballEffectDamage.Value;
             }
-            
+
             if (Player.GetStat(Character.Stat.AP, out var characterAP))
             {
                 GetStat(Stat.EffectDamageRate, out var ballEffectDamageRate);
                 effectDamage += (characterAP.Value * ballEffectDamageRate.Value);
             }
-            
+
             return (int)effectDamage;
         }
 
@@ -607,12 +607,23 @@ namespace MoreMountains
             var d = getHitDamage();
             var dmg = Dmg.AD(d);
             dmg.setAttackEffect();
-            GetStat(Stat.DmgRate, out var dmgRate);
-            dmg.SetDmgRate(dmgRate.Value);
+            player.GetStat(Character.Stat.DmgRate, out var playerDmgRate);
+            GetStat(Stat.DmgRate, out var ballDmgRate);
+            var dmgRate = (1 + playerDmgRate.Value) * ballDmgRate.Value;
+            dmg.SetDmgRate(dmgRate);
             dmg.setHitNormal(normal);
-            GetStat(Stat.CritChance, out var critChance);
-            if (randomHit(critChance.Value))
+
+            player.GetStat(Character.Stat.CritChance, out var playerCritChance);
+            GetStat(Stat.CritChance, out var ballCritChance);
+            var critChange = playerCritChance.Value + ballCritChance.Value;
+            if (randomHit(critChange))
                 dmg.Crit();
+
+            player.GetStat(Character.Stat.CritDamage, out var playerCritDamage);
+            GetStat(Stat.CritDamage, out var ballCritDamage);
+            var critDamage = (1 + playerCritDamage.Value) * ballCritDamage.Value;
+            dmg.SetCritDamage(critDamage);
+
             return dmg;
         }
 
@@ -639,9 +650,10 @@ namespace MoreMountains
 
         public void refreshDuration()
         {
-            player.GetStat(Character.Stat.Duration, out var stat1);
-            GetStat(Stat.Duration, out var stat2);
-            lifeDuration = stat1.Value + stat2.Value;
+            player.GetStat(Character.Stat.Duration, out var playerDuration);
+            GetStat(Stat.Duration, out var ballDuration);
+            var duration = ballDuration.Value * (1 + playerDuration.Value);
+            lifeDuration = duration;
         }
 
         /*public void returnBall(Vector3 nextPosition)

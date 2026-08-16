@@ -42,6 +42,7 @@
 
         public override void onPlayerEntry(APlayer p)
         {
+            base.onPlayerEntry(p);
             // music.silenceBGM();
             // if (ADungeon.actNum < 4 || !APlayer.customMods.Contains("Blight Chests"))
                 // ADungeon.overlayMenu.proceedButton.setLabel(TEXT[0]);

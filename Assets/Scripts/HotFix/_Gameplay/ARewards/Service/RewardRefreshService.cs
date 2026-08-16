@@ -37,7 +37,7 @@ namespace MoreMountains
                 var offer = CLASS<BallStatOffer>();
                 var rarity = _rollRarityService.RollReward(waveNumber, luck.Value);
                 var config = c.getConfig(rarity);
-                offer.with(c.def, config.rarity, config.bonusFlat, config.bonusPct);
+                offer.with(c.def, config.rarity, config.bonusFlat, config.bonusPct, c.display);
                 ballResult.Add(offer);
             }
 
@@ -48,7 +48,7 @@ namespace MoreMountains
                 var offer = CLASS<PlayerStatOffer>();
                 var rarity = _rollRarityService.RollReward(waveNumber, luck.Value);
                 var config = c.getConfig(rarity);
-                offer.with(c.def, config.rarity, config.bonusFlat, config.bonusPct);
+                offer.with(c.def, config.rarity, config.bonusFlat, config.bonusPct, c.display);
                 playerResult.Add(offer);
             }
         }
@@ -66,7 +66,7 @@ namespace MoreMountains
                 var offer = CLASS<BallStatOffer>();
                 var rarity = _rollRarityService.RollReward(waveNumber, luck.Value);
                 var config = c.getConfig(rarity);
-                offer.with(c.def, config.rarity, config.bonusFlat, config.bonusPct);
+                offer.with(c.def, config.rarity, config.bonusFlat, config.bonusPct, c.display);
                 result.Add(offer);
             }
         }
@@ -83,7 +83,7 @@ namespace MoreMountains
                 var offer = CLASS<PlayerStatOffer>();
                 var rarity = _rollRarityService.RollReward(waveNumber, luck.Value);
                 var config = c.getConfig(rarity);
-                offer.with(c.def, config.rarity, config.bonusFlat, config.bonusPct);
+                offer.with(c.def, config.rarity, config.bonusFlat, config.bonusPct, c.display);
                 result.Add(offer);
             }
         }
