@@ -28,7 +28,7 @@ namespace MoreMountains
 
         public void playFxDead()
         {
-            fxDead.Play();
+            fxDead?.Play();
         }
 
         public void clearTrail()

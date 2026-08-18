@@ -183,6 +183,8 @@ namespace MoreMountains
         [Tooltip("whether or not this Health object can be damaged")]
         public bool ImmuneToDamage;
 
+        public float DamageCheckInterval;
+
         [Tooltip("the feedback to play when getting damage")]
         public MMFeedbacks DamageMMFeedbacks;
 
@@ -531,15 +533,15 @@ namespace MoreMountains
                 return false;
             }
 
-            if (Invincible)
-            {
-                type = ResistDamageType.Invincible;
-                return false;
-            }
-
             if (ImmuneToDamage)
             {
                 type = ResistDamageType.ImmuneToDamage;
+                return false;
+            }
+
+            if (Invincible)
+            {
+                type = ResistDamageType.Invincible;
                 return false;
             }
 
@@ -549,6 +551,8 @@ namespace MoreMountains
                 type = ResistDamageType.Dead;
                 return false;
             }
+
+            InvincibleDuration(DamageCheckInterval);
 
             if (DodgeChance > 0 && randomHit(DodgeChance))
             {
@@ -716,6 +720,17 @@ namespace MoreMountains
                     _coroutineState = CoroutineState.DamageEnabled;
                     _invincibleTime = invincibleTime;
                 }
+            }
+        }
+
+        public void InvincibleDuration(float duration)
+        {
+            if (duration > 0)
+            {
+                DamageDisabled();
+                _coroutineTimeElapsed = 0F;
+                _coroutineState = CoroutineState.DamageEnabled;
+                _invincibleTime = duration;
             }
         }
 

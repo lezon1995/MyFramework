@@ -105,6 +105,8 @@ namespace MoreMountains
         , IEvent<DoDmg>
         , IEvent<OnCombat>
         , IEvent<OnWindup>
+        , IEvent<DoDashDodge>
+        , IEvent<DoChanceDodge>
         , IEvent<DoKill>
         , IStatsGetter<Character.Stat>
     {
@@ -883,6 +885,14 @@ namespace MoreMountains
                 Buffable.NotifyOnCombat(e.IsOn);
         }
 
+        public virtual void onEvent(DoDashDodge e)
+        {
+        }
+
+        public virtual void onEvent(DoChanceDodge e)
+        {
+        }
+
         public virtual void onEvent(OnWindup e)
         {
             if (e.Weapon.IsBasicAttack)
@@ -938,6 +948,8 @@ namespace MoreMountains
 
             Event.addListener<OnCombat>(this);
             Event.addListener<OnWindup>(this);
+            Event.addListener<DoDashDodge>(this);
+            Event.addListener<DoChanceDodge>(this);
 
             base.OnEnable();
         }
@@ -959,6 +971,8 @@ namespace MoreMountains
 
             Event.removeListener<OnCombat>(this);
             Event.removeListener<OnWindup>(this);
+            Event.removeListener<DoDashDodge>(this);
+            Event.removeListener<DoChanceDodge>(this);
             base.OnDisable();
         }
 

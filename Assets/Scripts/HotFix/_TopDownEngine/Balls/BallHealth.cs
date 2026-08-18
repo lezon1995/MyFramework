@@ -81,10 +81,31 @@ namespace MoreMountains
             return true;
         }
 
+        public override bool ComputeDamageOutput(ref Dmg dmg, IDmgCalculator calculator = null)
+        {
+            if (Invincible)
+                return false;
+
+            if (ImmuneToDamage)
+                return false;
+
+            calculator ??= DmgCalculator.Default;
+
+            float damage = dmg.Value;
+            float totalDamage = damage;
+            float actualDamage = calculator.computeDamageDefence(dmg.ActualType, totalDamage, AR, MR);
+
+            dmg.SetDamageRaw((int)totalDamage);
+            dmg.SetDamageDealt((int)actualDamage);
+            return actualDamage > 0;
+        }
+
         public override void Damage(ref Dmg dmg, GameObject instigator, Character source = null, float invincibleTime = 0F, Vector3 direction = default, IDmgCalculator calculator = null)
         {
             if (!CanTakeDamageThisFrame(out _))
                 return;
+
+            ComputeDamageOutput(ref dmg, calculator);
 
             if (dmg.DamageDealt > 0)
             {
@@ -123,15 +144,15 @@ namespace MoreMountains
 
             Event.trigger(new OnDeath());
 
-            if (DisableModelOnDeath && Model)
-                Model.SetActive(false);
+            // if (DisableModelOnDeath && Model)
+            //     Model.SetActive(false);
 
-            if (DelayBeforeDestruction > 0f)
-            {
-                _coroutineTimeElapsed = 0F;
-                _coroutineState = CoroutineState.DestroyObject;
-            }
-            else
+            // if (DelayBeforeDestruction > 0f)
+            // {
+            //     _coroutineTimeElapsed = 0F;
+            //     _coroutineState = CoroutineState.DestroyObject;
+            // }
+            // else
                 DestroyObject();
 
             return true;

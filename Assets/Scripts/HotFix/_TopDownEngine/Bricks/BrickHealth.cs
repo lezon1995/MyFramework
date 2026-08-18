@@ -80,8 +80,15 @@ namespace MoreMountains
 
         public override void Damage(ref Dmg dmg, GameObject instigator, Character source = null, float invincibleTime = 0F, Vector3 direction = default, IDmgCalculator calculator = null)
         {
-            if (!CanTakeDamageThisFrame(out _))
+            if (!CanTakeDamageThisFrame(out var resistDamageType))
+            {
+                if (resistDamageType == ResistDamageType.Dodged)
+                {
+                    brick.brickRenderer.playFxDodge();
+                }
+
                 return;
+            }
 
             if (dmg.hasSkillEffect() || dmg.hasAttackEffect())
                 brick.brickRenderer.playFxHit(dmg.HitNormal);

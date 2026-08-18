@@ -16,6 +16,7 @@ namespace MoreMountains
         Transform root;
         SortingGroup sortingGroup;
         SpriteRenderer spriteUnit, spriteShadow;
+        ParticleSystem fxDodge;
 
         SpriteRenderer spriteShield;
         TextMeshPro shieldAmount;
@@ -42,6 +43,7 @@ namespace MoreMountains
             obj.find(out sortingGroup);
             obj.find(out root, "Root");
             obj.find(out spriteShadow, "SpriteShadow");
+            obj.find(out fxDodge, "Fx_Dodge");
 
             if (obj.find(out spriteUnit, "SpriteUnit"))
             {
@@ -116,6 +118,11 @@ namespace MoreMountains
         public void playFxSkillHit(Vector2 direction)
         {
             playFxHit(direction);
+        }
+
+        public void playFxDodge()
+        {
+            fxDodge.Play();
         }
 
         public void playFxHit(Vector2 normal)

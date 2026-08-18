@@ -540,6 +540,9 @@ namespace MoreMountains
                         break;
                     case ResistDamageType.Disabled:
                         break;
+                    case ResistDamageType.Dodged:
+                        health.Character.Event.trigger(new DoChanceDodge());
+                        break;
                 }
             }
 

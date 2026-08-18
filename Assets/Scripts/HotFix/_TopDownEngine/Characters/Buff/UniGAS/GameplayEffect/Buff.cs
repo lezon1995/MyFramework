@@ -20,10 +20,12 @@ namespace MoreMountains
         public Buffable Owner { get; set; }
 
         public bool IsPrototype { get; internal set; }
+        public bool HasReset { get; internal set; }
         public Transform DefaultParent { get; internal set; }
         public Transform CurrentParent { get; private set; }
 
         public Action OnRemoved { get; set; }
+        public Action<Buffable> OnRemovedTarget { get; set; }
 
         Mod[] mods => main.Mods;
         bool isInstantDamage => main.IsInstantDamage;
@@ -47,6 +49,7 @@ namespace MoreMountains
             InitializePeriod();
             InitializeStack();
             OnInitialized();
+            HasReset = false;
         }
 
         public void SetParent(Transform parent)
@@ -144,6 +147,9 @@ namespace MoreMountains
         {
             var value = mod.Value(this);
             var stat = mod.StatFrom(Target);
+            if (stat == null)
+                return;
+
             switch (mod.Algo)
             {
                 case Mod.Algos.Flat:
@@ -159,6 +165,9 @@ namespace MoreMountains
         {
             var value = mod.Value(this);
             var stat = mod.StatFrom(Target);
+            if (stat == null)
+                return;
+            
             if (!stat.GetMod(key, out var statMod))
             {
                 switch (mod.Algo)
@@ -189,6 +198,9 @@ namespace MoreMountains
         {
             var value = mod.Value(this);
             var stat = mod.StatFrom(Target);
+            if (stat == null)
+                return;
+            
             if (stat.GetMod(key, out var statMod))
             {
                 if (newStack > 0)
@@ -232,6 +244,9 @@ namespace MoreMountains
             {
                 var key = mod.ToString();
                 var stat = mod.StatFrom(Target);
+                if (stat == null)
+                    continue;
+
                 stat.RemoveMod(key);
             }
         }
@@ -262,6 +277,7 @@ namespace MoreMountains
 
         public void reset()
         {
+            HasReset = true;
             Source = null;
             Target = null;
             Owner = null;

@@ -44,5 +44,15 @@ namespace MoreMountains
                 }
             }
         }
+
+        public override void onEvent(DoDashDodge e)
+        {
+            playerRenderer.playFxDodge();
+        }
+
+        public override void onEvent(DoChanceDodge e)
+        {
+            playerRenderer.playFxDodge();
+        }
     }
 }

@@ -26,7 +26,8 @@ namespace MoreMountains
         Animator animator;
         SortingGroup sortingGroup;
         SpriteRenderer spriteBlock, spriteUnit, spriteShadow;
-
+        ParticleSystem fxDodge;
+        
         SpriteRenderer spriteShield;
         TextMeshPro shieldAmount;
 
@@ -54,6 +55,7 @@ namespace MoreMountains
             obj.find(out sortingGroup);
             obj.find(out root, "Root");
             obj.find(out spriteShadow, "SpriteShadow");
+            obj.find(out fxDodge, "Fx_Dodge");
 
             if (obj.find(out spriteBlock, "SpriteBlock"))
             {
@@ -406,6 +408,11 @@ namespace MoreMountains
         {
             matBlock.SetFloat(FrozenFade, f);
             matUnit.SetFloat(FrozenFade, f);
+        }
+
+        public void playFxDodge()
+        {
+            fxDodge.Play();
         }
     }
 }

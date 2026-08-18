@@ -402,7 +402,7 @@ MonoBehaviour:
   ManuallyColliding: 1
   TargetLayerMask:
     serializedVersion: 2
-    m_Bits: 128
+    m_Bits: 16512
   TriggerFilter: 64
   Dmg:
     Effect: 1
@@ -412,7 +412,7 @@ MonoBehaviour:
     Algo: 0
     MetaType: 0
     IsCrit: 0
-    CritRate: 0
+    CritDamage: 0
     DmgRate:
       initial: 1
       extra: 0

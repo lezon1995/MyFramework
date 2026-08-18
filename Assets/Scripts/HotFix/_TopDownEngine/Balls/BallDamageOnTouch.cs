@@ -119,6 +119,9 @@ namespace MoreMountains
                         break;
                     case ResistDamageType.Disabled:
                         break;
+                    case ResistDamageType.Dodged:
+                        brick.Event.trigger(new DoChanceDodge());
+                        break;
                 }
             }
 
@@ -233,14 +236,6 @@ namespace MoreMountains
             // if what we're colliding with is damageable
             _colliderHealth = null;
             OnCollideWithObstacle(target, dmg);
-
-            if (_colliderHealth.CurrentHealth > 0)
-            {
-                if (BuffOnTouch && BuffOnTouch.DriveByDamageOnTouch)
-                {
-                    BuffOnTouch.Colliding(o);
-                }
-            }
 
             OnAnyCollision(o);
             HitAnythingEvent?.Invoke(o);

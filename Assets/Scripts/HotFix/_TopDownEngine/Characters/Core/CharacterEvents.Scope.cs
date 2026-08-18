@@ -47,6 +47,13 @@ namespace MoreMountains
     public struct DoDashDodge
     {
     }
+    
+    public struct DoChanceDodge
+    {
+        public DoChanceDodge()
+        {
+        }
+    }
 
     public struct OnCombat
     {

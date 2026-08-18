@@ -402,7 +402,7 @@ MonoBehaviour:
   ManuallyColliding: 1
   TargetLayerMask:
     serializedVersion: 2
-    m_Bits: 128
+    m_Bits: 16512
   TriggerFilter: 64
   Dmg:
     Effect: 1
@@ -412,7 +412,7 @@ MonoBehaviour:
     Algo: 0
     MetaType: 0
     IsCrit: 0
-    CritRate: 0
+    CritDamage: 0
     DmgRate:
       initial: 1
       extra: 0
@@ -525,7 +525,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9bcba2d95a9841fda3f97dac37b38f7b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: HotFix::MoreMountains.BallStats
-  Debug: 0
+  AutoInitialize: 1
   StatsConfig: {fileID: 11400000, guid: 6cd40ccff7313aa468faa352d82cece6, type: 2}
 --- !u!1 &7153978691015391763
 GameObject:

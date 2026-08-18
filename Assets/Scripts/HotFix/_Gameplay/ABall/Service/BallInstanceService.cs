@@ -104,6 +104,7 @@ namespace MoreMountains
                 BallType.PoisonBurning => "Ball_PoisonBurning",
                 BallType.IceFreeze => "Ball_IceFreeze",
                 BallType.IceFrost => "Ball_IceFrost",
+                BallType.WaterSpot => "Ball_WaterSpot",
                 _ => "Ball_Normal"
             };
             var path = $"{GAMEPLAY_PATH}/Balls/{ballName}.prefab";
@@ -201,7 +202,7 @@ namespace MoreMountains
 
         public void onEvent(OnBallDeath e)
         {
-            activeBalls.Remove(e.ball);
+             activeBalls.Remove(e.ball);
         }
 
         public void onEvent(OnBallDeathTotally e)

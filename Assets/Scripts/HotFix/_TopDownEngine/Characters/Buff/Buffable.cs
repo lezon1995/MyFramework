@@ -486,6 +486,7 @@ namespace MoreMountains
             Event.trigger(new Buff.AfterRemoved(buff));
 
             buff.OnRemoved?.Invoke();
+            buff.OnRemovedTarget?.Invoke(buff.Target);
             buff.reset();
         }
 

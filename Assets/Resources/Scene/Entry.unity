@@ -2549,6 +2549,7 @@ GameObject:
   - component: {fileID: 418523879}
   - component: {fileID: 418523882}
   - component: {fileID: 418523881}
+  - component: {fileID: 418523883}
   m_Layer: 14
   m_Name: Destructible
   m_TagString: Untagged
@@ -3116,6 +3117,18 @@ TilemapCollider2D:
   m_MaximumTileChangeCount: 1000
   m_ExtrusionFactor: 0
   m_UseDelaunayMesh: 0
+--- !u!114 &418523883
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 418523877}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d481b4bcf09d4ddca574b33cfb8ca5da, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: HotFix::MoreMountains.Obstacle
 --- !u!1 &514966130
 GameObject:
   m_ObjectHideFlags: 0

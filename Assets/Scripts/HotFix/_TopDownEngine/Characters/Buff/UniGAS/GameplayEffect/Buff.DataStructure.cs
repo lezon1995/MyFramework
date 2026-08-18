@@ -58,6 +58,7 @@ namespace MoreMountains
             WithTag,
             WithType,
             Death,
+            Manul,
         }
 
         public enum Types
@@ -132,7 +133,13 @@ namespace MoreMountains
 
             public float Value(Buff buff) => Mag.Value(buff);
 
-            public UniStats.Stat StatFrom(Buffable buffable) => buffable.GetStat(Stat);
+            public UniStats.Stat StatFrom(Buffable buffable)
+            {
+                if (buffable == null)
+                    return null;
+
+                return buffable.GetStat(Stat);
+            }
 
             public override string ToString()
             {

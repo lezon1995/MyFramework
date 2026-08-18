@@ -283,7 +283,7 @@ MonoBehaviour:
       Data: DodgeChance
     - Name: $v
       Entry: 4
-      Data: 0
+      Data: 0.1
     - Name: 
       Entry: 8
       Data: 

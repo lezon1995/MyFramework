@@ -6,7 +6,7 @@
         BallTurret,
     }
     
-    public enum BallType
+    public enum  BallType
     {
         NONE = 0,
         Normal = 10000,
@@ -50,6 +50,9 @@
         //火
         FireBurning = 10700, //每次撞击会施加1层【灼烧】，最多3层，每层造成每秒造成5点伤害
         FireExplode = 10701, //每次撞击会造成一次圆形火焰爆炸伤害
+        
+        //水
+        WaterSpot = 10800,//撞击一次后，在地面生成一摊水，持续3秒，敌人在上面减速30%
 
         //飞弹
         Missile, //每次撞击会从玩家身后发射一道轨迹子弹在0.75秒后命中敌人

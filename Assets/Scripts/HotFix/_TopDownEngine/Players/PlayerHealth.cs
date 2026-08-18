@@ -31,8 +31,15 @@ namespace MoreMountains
         
         public override void Damage(ref Dmg dmg, GameObject instigator, Character source = null, float invincibleTime = 0F, Vector3 direction = default, IDmgCalculator calculator = null)
         {
-            if (!CanTakeDamageThisFrame(out _))
+            if (!CanTakeDamageThisFrame(out var resistDamageType))
+            {
+                if (resistDamageType == ResistDamageType.Dodged)
+                {
+                    player.playerRenderer.playFxDodge();
+                }
+
                 return;
+            }
 
             //应用Source的DmgRate
             if (source)
