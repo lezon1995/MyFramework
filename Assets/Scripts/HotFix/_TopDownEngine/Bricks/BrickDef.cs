@@ -13,5 +13,8 @@ namespace MoreMountains
 
         public float BonusHealthPerWave = 5;
         public float BonusDamagePerWave = 0.5F;
+        public float BonusMoveSpeedPerWave = 10F;
+        public float BonusArmorPerWave = 3F;
+        public float BonusKnockbackResistPerWave = 0.03F;
     }
 }

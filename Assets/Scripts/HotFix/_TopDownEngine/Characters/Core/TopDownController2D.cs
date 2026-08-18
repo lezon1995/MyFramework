@@ -72,8 +72,9 @@ namespace MoreMountains
 
         /// <summary>
         /// 当前总速度 = 意图速度 + 击退速度
+        /// 当 MovementDisabled 为 true 时，只返回击退速度（被动移动仍可生效）
         /// </summary>
-        public Vector2 TotalVelocity => IntentVelocity + KnockbackVelocity;
+        public Vector2 TotalVelocity => MovementDisabled ? KnockbackVelocity : IntentVelocity + KnockbackVelocity;
 
         public override Vector3 MovingPlatformSpeed
         {
@@ -179,6 +180,7 @@ namespace MoreMountains
         protected override void LateUpdate()
         {
             base.LateUpdate();
+                        
             var dt = Time.deltaTime;
             DecayKnockback(dt);
             ApplyVelocity(dt);
@@ -235,6 +237,18 @@ namespace MoreMountains
             if (reducedForce > 0)
             {
                 KnockbackVelocity += direction.normalized * reducedForce;
+            }
+        }
+
+        public override void AddImpact(Vector3 force)
+        {
+            if (force.sqrMagnitude <= 0) 
+                return;
+
+            var reducedForce = force * (1f - KnockbackResistance);
+            if (reducedForce.sqrMagnitude > 0)
+            {
+                KnockbackVelocity += reducedForce;
             }
         }
 
@@ -344,6 +358,7 @@ namespace MoreMountains
             base.Reset();
             IntentVelocity = Vector2.zero;
             KnockbackVelocity = Vector2.zero;
+            MovementDisabled = false;
         }
         
         protected virtual void OnDrawGizmosSelected()

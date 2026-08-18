@@ -382,6 +382,27 @@ namespace MoreMountains
             return Direction * moveSpeed;
         }
 
+        public Vector3 getKnockbackForce(Health colliderHealth, Dmg damage)
+        {
+            Vector3 force;
+            if (damage.IsLethal)
+                force = _damageOnTouch.LethalDamageKnockbackForce;
+            else
+                force = _damageOnTouch.DamageKnockbackForce;
+
+            float knockbackValue = 0F;
+            var b1 = GetStat(Ball.Stat.Knockback, out var knockbackStat1);
+            var b2 = getPlayer().GetStat(Character.Stat.Knockback, out var knockbackStat2);
+            if (b1)
+                knockbackValue += knockbackStat1.Value;
+            if (b2)
+                knockbackValue += knockbackStat2.Value;
+
+            var knockbackForce = force * (colliderHealth.KnockbackForceMultiplier + knockbackValue);
+            knockbackForce = getDirection() * knockbackForce.magnitude;
+            return knockbackForce;
+        }
+
         public void setDirection(Vector2 dir, int exceptMask = 0)
         {
             lastDirection = Direction;

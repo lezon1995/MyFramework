@@ -24,14 +24,14 @@ MonoBehaviour:
       spawnWeight: 2
       baseSpawnInterval: 1
       forceSpawnOnce: 0
-      atLeastSpawnCount: 0
+      atLeastSpawnCount: 4
     - monsterDef: {fileID: 11400000, guid: 7ea11f2b87ec0ae449443bee14a7d95f, type: 2}
       spawnWeight: 1
       baseSpawnInterval: 1
       forceSpawnOnce: 0
-      atLeastSpawnCount: 0
-    maxActiveMonsters: 6
-    minActiveMonsters: 4
+      atLeastSpawnCount: 4
+    maxActiveMonsters: 50
+    minActiveMonsters: 6
     defeatAllMaxTotalSpawn: 0
     healthScaling: 1
     damageScaling: 1
@@ -46,9 +46,9 @@ MonoBehaviour:
     denseRadius: 1
     sparseThreshold: 1
     enableContinuousSpawning: 1
-    targetCoverageRatio: 0.1
-    minSpawnInterval: 2
-    maxSpawnInterval: 2
+    targetCoverageRatio: 0.25
+    minSpawnInterval: 0.5
+    maxSpawnInterval: 0.5
     killSpeedSensitivity: 2
     edgeBiasProbability: 0.5
     edgeBiasPercent: 0.6
@@ -56,7 +56,6 @@ MonoBehaviour:
     enableShapeSpawning: 0
     shapeSpawnWeight: 30
     shapeSpawnMaxRetries: 20
-    spawnMonstersOnShape: 1
   - waveNumber: 2
     waveName: Wave 2
     duration: 25
@@ -66,14 +65,14 @@ MonoBehaviour:
       spawnWeight: 1
       baseSpawnInterval: 1
       forceSpawnOnce: 0
-      atLeastSpawnCount: 0
+      atLeastSpawnCount: 5
     - monsterDef: {fileID: 11400000, guid: 974abffb2ae04c2419b252258a483134, type: 2}
       spawnWeight: 1
       baseSpawnInterval: 1
       forceSpawnOnce: 0
-      atLeastSpawnCount: 0
-    maxActiveMonsters: 6
-    minActiveMonsters: 4
+      atLeastSpawnCount: 5
+    maxActiveMonsters: 50
+    minActiveMonsters: 10
     defeatAllMaxTotalSpawn: 0
     healthScaling: 1
     damageScaling: 1
@@ -89,16 +88,15 @@ MonoBehaviour:
     sparseThreshold: 1
     enableContinuousSpawning: 1
     targetCoverageRatio: 0.3
-    minSpawnInterval: 1
-    maxSpawnInterval: 2
+    minSpawnInterval: 0.5
+    maxSpawnInterval: 0.5
     killSpeedSensitivity: 2
     edgeBiasProbability: 0.5
     edgeBiasPercent: 0.7
     edgeBiasPercentAmplitude: 0.15
-    enableShapeSpawning: 0
+    enableShapeSpawning: 1
     shapeSpawnWeight: 30
     shapeSpawnMaxRetries: 20
-    spawnMonstersOnShape: 1
   - waveNumber: 3
     waveName: Wave 3
     duration: 30
@@ -108,14 +106,14 @@ MonoBehaviour:
       spawnWeight: 1
       baseSpawnInterval: 1
       forceSpawnOnce: 0
-      atLeastSpawnCount: 0
+      atLeastSpawnCount: 6
     - monsterDef: {fileID: 11400000, guid: 974abffb2ae04c2419b252258a483134, type: 2}
       spawnWeight: 1
       baseSpawnInterval: 1
       forceSpawnOnce: 0
-      atLeastSpawnCount: 0
-    maxActiveMonsters: 8
-    minActiveMonsters: 4
+      atLeastSpawnCount: 6
+    maxActiveMonsters: 50
+    minActiveMonsters: 12
     defeatAllMaxTotalSpawn: 0
     healthScaling: 1
     damageScaling: 1
@@ -131,8 +129,8 @@ MonoBehaviour:
     sparseThreshold: 1
     enableContinuousSpawning: 1
     targetCoverageRatio: 0.3
-    minSpawnInterval: 1
-    maxSpawnInterval: 2
+    minSpawnInterval: 0.5
+    maxSpawnInterval: 0.5
     killSpeedSensitivity: 2
     edgeBiasProbability: 0.5
     edgeBiasPercent: 0.7
@@ -140,7 +138,6 @@ MonoBehaviour:
     enableShapeSpawning: 0
     shapeSpawnWeight: 30
     shapeSpawnMaxRetries: 20
-    spawnMonstersOnShape: 1
   - waveNumber: 4
     waveName: Wave 4
     duration: 35
@@ -156,8 +153,8 @@ MonoBehaviour:
       baseSpawnInterval: 1
       forceSpawnOnce: 0
       atLeastSpawnCount: 0
-    maxActiveMonsters: 10
-    minActiveMonsters: 5
+    maxActiveMonsters: 50
+    minActiveMonsters: 15
     defeatAllMaxTotalSpawn: 0
     healthScaling: 1
     damageScaling: 1
@@ -182,7 +179,6 @@ MonoBehaviour:
     enableShapeSpawning: 0
     shapeSpawnWeight: 30
     shapeSpawnMaxRetries: 20
-    spawnMonstersOnShape: 1
   - waveNumber: 5
     waveName: Wave 5
     duration: 40
@@ -198,8 +194,8 @@ MonoBehaviour:
       baseSpawnInterval: 1
       forceSpawnOnce: 0
       atLeastSpawnCount: 0
-    maxActiveMonsters: 10
-    minActiveMonsters: 5
+    maxActiveMonsters: 50
+    minActiveMonsters: 20
     defeatAllMaxTotalSpawn: 0
     healthScaling: 1
     damageScaling: 1
@@ -224,7 +220,6 @@ MonoBehaviour:
     enableShapeSpawning: 0
     shapeSpawnWeight: 30
     shapeSpawnMaxRetries: 20
-    spawnMonstersOnShape: 1
   - waveNumber: 6
     waveName: Wave 6
     duration: 45
@@ -240,8 +235,8 @@ MonoBehaviour:
       baseSpawnInterval: 1
       forceSpawnOnce: 0
       atLeastSpawnCount: 0
-    maxActiveMonsters: 10
-    minActiveMonsters: 5
+    maxActiveMonsters: 75
+    minActiveMonsters: 20
     defeatAllMaxTotalSpawn: 0
     healthScaling: 1
     damageScaling: 1
@@ -266,7 +261,6 @@ MonoBehaviour:
     enableShapeSpawning: 0
     shapeSpawnWeight: 30
     shapeSpawnMaxRetries: 20
-    spawnMonstersOnShape: 1
   - waveNumber: 7
     waveName: Wave 7
     duration: 50
@@ -282,8 +276,8 @@ MonoBehaviour:
       baseSpawnInterval: 1
       forceSpawnOnce: 0
       atLeastSpawnCount: 0
-    maxActiveMonsters: 10
-    minActiveMonsters: 5
+    maxActiveMonsters: 75
+    minActiveMonsters: 20
     defeatAllMaxTotalSpawn: 0
     healthScaling: 1
     damageScaling: 1
@@ -308,7 +302,6 @@ MonoBehaviour:
     enableShapeSpawning: 0
     shapeSpawnWeight: 30
     shapeSpawnMaxRetries: 20
-    spawnMonstersOnShape: 1
   - waveNumber: 8
     waveName: Wave 8
     duration: 55
@@ -324,8 +317,8 @@ MonoBehaviour:
       baseSpawnInterval: 1
       forceSpawnOnce: 0
       atLeastSpawnCount: 0
-    maxActiveMonsters: 10
-    minActiveMonsters: 5
+    maxActiveMonsters: 75
+    minActiveMonsters: 25
     defeatAllMaxTotalSpawn: 0
     healthScaling: 1
     damageScaling: 1
@@ -350,7 +343,6 @@ MonoBehaviour:
     enableShapeSpawning: 0
     shapeSpawnWeight: 30
     shapeSpawnMaxRetries: 20
-    spawnMonstersOnShape: 1
   - waveNumber: 9
     waveName: Wave 9
     duration: 60
@@ -366,8 +358,8 @@ MonoBehaviour:
       baseSpawnInterval: 1
       forceSpawnOnce: 0
       atLeastSpawnCount: 0
-    maxActiveMonsters: 10
-    minActiveMonsters: 5
+    maxActiveMonsters: 75
+    minActiveMonsters: 25
     defeatAllMaxTotalSpawn: 0
     healthScaling: 1
     damageScaling: 1
@@ -392,7 +384,6 @@ MonoBehaviour:
     enableShapeSpawning: 0
     shapeSpawnWeight: 30
     shapeSpawnMaxRetries: 20
-    spawnMonstersOnShape: 1
   - waveNumber: 10
     waveName: Wave 10
     duration: 60
@@ -408,8 +399,8 @@ MonoBehaviour:
       baseSpawnInterval: 1
       forceSpawnOnce: 0
       atLeastSpawnCount: 0
-    maxActiveMonsters: 10
-    minActiveMonsters: 5
+    maxActiveMonsters: 75
+    minActiveMonsters: 30
     defeatAllMaxTotalSpawn: 0
     healthScaling: 1
     damageScaling: 1
@@ -434,7 +425,6 @@ MonoBehaviour:
     enableShapeSpawning: 0
     shapeSpawnWeight: 30
     shapeSpawnMaxRetries: 20
-    spawnMonstersOnShape: 1
   - waveNumber: 11
     waveName: Wave 11
     duration: 60
@@ -476,7 +466,6 @@ MonoBehaviour:
     enableShapeSpawning: 0
     shapeSpawnWeight: 30
     shapeSpawnMaxRetries: 20
-    spawnMonstersOnShape: 1
   - waveNumber: 12
     waveName: Wave 12
     duration: 60
@@ -518,7 +507,6 @@ MonoBehaviour:
     enableShapeSpawning: 0
     shapeSpawnWeight: 30
     shapeSpawnMaxRetries: 20
-    spawnMonstersOnShape: 1
   - waveNumber: 13
     waveName: Wave 13
     duration: 60
@@ -560,7 +548,6 @@ MonoBehaviour:
     enableShapeSpawning: 0
     shapeSpawnWeight: 30
     shapeSpawnMaxRetries: 20
-    spawnMonstersOnShape: 1
   - waveNumber: 14
     waveName: Wave 14
     duration: 60
@@ -602,7 +589,6 @@ MonoBehaviour:
     enableShapeSpawning: 0
     shapeSpawnWeight: 30
     shapeSpawnMaxRetries: 20
-    spawnMonstersOnShape: 1
   - waveNumber: 15
     waveName: Wave 15
     duration: 60
@@ -644,7 +630,6 @@ MonoBehaviour:
     enableShapeSpawning: 0
     shapeSpawnWeight: 30
     shapeSpawnMaxRetries: 20
-    spawnMonstersOnShape: 1
   - waveNumber: 16
     waveName: Wave 16
     duration: 60
@@ -686,7 +671,6 @@ MonoBehaviour:
     enableShapeSpawning: 0
     shapeSpawnWeight: 30
     shapeSpawnMaxRetries: 20
-    spawnMonstersOnShape: 1
   - waveNumber: 17
     waveName: Wave 17
     duration: 60
@@ -728,7 +712,6 @@ MonoBehaviour:
     enableShapeSpawning: 0
     shapeSpawnWeight: 30
     shapeSpawnMaxRetries: 20
-    spawnMonstersOnShape: 1
   - waveNumber: 18
     waveName: Wave 18
     duration: 60
@@ -770,7 +753,6 @@ MonoBehaviour:
     enableShapeSpawning: 0
     shapeSpawnWeight: 30
     shapeSpawnMaxRetries: 20
-    spawnMonstersOnShape: 1
   - waveNumber: 19
     waveName: Wave 19
     duration: 60
@@ -812,7 +794,6 @@ MonoBehaviour:
     enableShapeSpawning: 0
     shapeSpawnWeight: 30
     shapeSpawnMaxRetries: 20
-    spawnMonstersOnShape: 1
   - waveNumber: 20
     waveName: Wave 20
     duration: 60
@@ -854,7 +835,6 @@ MonoBehaviour:
     enableShapeSpawning: 0
     shapeSpawnWeight: 30
     shapeSpawnMaxRetries: 20
-    spawnMonstersOnShape: 1
   - waveNumber: 21
     waveName: Wave 21
     duration: 60
@@ -896,7 +876,6 @@ MonoBehaviour:
     enableShapeSpawning: 0
     shapeSpawnWeight: 30
     shapeSpawnMaxRetries: 20
-    spawnMonstersOnShape: 1
   - waveNumber: 22
     waveName: Wave 22
     duration: 60
@@ -938,7 +917,6 @@ MonoBehaviour:
     enableShapeSpawning: 0
     shapeSpawnWeight: 30
     shapeSpawnMaxRetries: 20
-    spawnMonstersOnShape: 1
   - waveNumber: 23
     waveName: Wave 23
     duration: 60
@@ -980,7 +958,6 @@ MonoBehaviour:
     enableShapeSpawning: 0
     shapeSpawnWeight: 30
     shapeSpawnMaxRetries: 20
-    spawnMonstersOnShape: 1
   - waveNumber: 24
     waveName: Wave 24
     duration: 60
@@ -1022,7 +999,6 @@ MonoBehaviour:
     enableShapeSpawning: 0
     shapeSpawnWeight: 30
     shapeSpawnMaxRetries: 20
-    spawnMonstersOnShape: 1
   - waveNumber: 25
     waveName: Wave 25
     duration: 90
@@ -1064,7 +1040,6 @@ MonoBehaviour:
     enableShapeSpawning: 0
     shapeSpawnWeight: 30
     shapeSpawnMaxRetries: 20
-    spawnMonstersOnShape: 1
   - waveNumber: 26
     waveName: Wave 26
     duration: 90
@@ -1106,7 +1081,6 @@ MonoBehaviour:
     enableShapeSpawning: 0
     shapeSpawnWeight: 30
     shapeSpawnMaxRetries: 20
-    spawnMonstersOnShape: 1
   - waveNumber: 27
     waveName: Wave 27
     duration: 90
@@ -1148,7 +1122,6 @@ MonoBehaviour:
     enableShapeSpawning: 0
     shapeSpawnWeight: 30
     shapeSpawnMaxRetries: 20
-    spawnMonstersOnShape: 1
   - waveNumber: 28
     waveName: Wave 28
     duration: 90
@@ -1190,7 +1163,6 @@ MonoBehaviour:
     enableShapeSpawning: 0
     shapeSpawnWeight: 30
     shapeSpawnMaxRetries: 20
-    spawnMonstersOnShape: 1
   - waveNumber: 29
     waveName: Wave 29
     duration: 90
@@ -1232,7 +1204,6 @@ MonoBehaviour:
     enableShapeSpawning: 0
     shapeSpawnWeight: 30
     shapeSpawnMaxRetries: 20
-    spawnMonstersOnShape: 1
   - waveNumber: 30
     waveName: Wave 30
     duration: 90
@@ -1274,7 +1245,6 @@ MonoBehaviour:
     enableShapeSpawning: 0
     shapeSpawnWeight: 30
     shapeSpawnMaxRetries: 20
-    spawnMonstersOnShape: 1
   globalMaxActiveMonsters: 400
   globalMinActiveMonsters: 10
   globalBaseSpawnInterval: 1

@@ -99,8 +99,11 @@ namespace MoreMountains
                 BallType.LightningStrike => "Ball_LightningStrike",
                 BallType.ElectricityStrike => "Ball_ElectricityStrike",
                 BallType.RockQuake => "Ball_RockQuake",
+                BallType.RockSplash => "Ball_RockSplash",
                 BallType.FireBurning => "Ball_FireBurning",
                 BallType.PoisonBurning => "Ball_PoisonBurning",
+                BallType.IceFreeze => "Ball_IceFreeze",
+                BallType.IceFrost => "Ball_IceFrost",
                 _ => "Ball_Normal"
             };
             var path = $"{GAMEPLAY_PATH}/Balls/{ballName}.prefab";

@@ -50,8 +50,9 @@ namespace MoreMountains
 
         [MMInspectorGroup("Targets")]
         public bool ManuallyColliding;
-        
-        [MMInspectorGroup("Targets")] [Tooltip("the layers that will be damaged by this object")]
+
+        [MMInspectorGroup("Targets")]
+        [Tooltip("the layers that will be damaged by this object")]
         public LayerMask TargetLayerMask;
 
         [ShowInInspector, ReadOnly]
@@ -69,7 +70,8 @@ namespace MoreMountains
         [Tooltip("how to determine the damage direction passed to the Health damage method, usually you'll use velocity for moving damage areas (projectiles) and owner position for melee weapons")]
         public DamageDirections DamageDirectionMode;
 
-        [Header("Knockback")] [Tooltip("the type of knockback to apply when causing damage")]
+        [Header("Knockback")]
+        [Tooltip("the type of knockback to apply when causing damage")]
         public KnockbackStyles DamageCausedKnockbackType;
 
         [Tooltip("The direction to apply the knockback ")]
@@ -77,13 +79,15 @@ namespace MoreMountains
 
         [Tooltip("The force to apply to the object that gets damaged - this force will be rotated based on your knockback direction mode. So for example in 3D if you want to be pushed back the opposite direction, focus on the z component, with a force of 0,0,20 for example")]
         public Vector3 DamageKnockbackForce = new(2, 0, 0);
-        
+
         public Vector3 LethalDamageKnockbackForce = new(1, 0, 0);
 
-        [Header("Invincibility")] [Tooltip("The duration of the invincibility frames after the hit (in seconds)")]
+        [Header("Invincibility")]
+        [Tooltip("The duration of the invincibility frames after the hit (in seconds)")]
         public float InvincibilityDuration;
 
-        [MMInspectorGroup("Damage Taken")] [Tooltip("The Health component on which to apply damage taken. If left empty, will attempt to grab one on this object.")]
+        [MMInspectorGroup("Damage Taken")]
+        [Tooltip("The Health component on which to apply damage taken. If left empty, will attempt to grab one on this object.")]
         public Health DamageTakenHealth;
 
         [Tooltip("The amount of damage taken every time, whether what we collide with is damageable or not")]
@@ -104,9 +108,12 @@ namespace MoreMountains
         [Tooltip("The duration of the invincibility frames after the hit (in seconds)")]
         public float DamageTakenInvincibilityDuration;
 
-        [MMInspectorGroup("Buff On Touch")] public BuffOnTouch BuffOnTouch;
+        [MMInspectorGroup("Buff On Touch")]
+        public BuffOnTouch BuffOnTouch;
 
-        [MMInspectorGroup("Feedbacks")] public MMFeedbacks HitDamageableFeedback;
+        [MMInspectorGroup("Feedbacks")]
+        public MMFeedbacks HitDamageableFeedback;
+
         public MMFeedbacks HitNonDamageableFeedback;
         public MMFeedbacks HitAnythingFeedback;
 
@@ -115,11 +122,11 @@ namespace MoreMountains
         public UnityEvent<GameObject> HitAnythingEvent;
 
         // storage		
-        protected Vector3 _lastPosition, _lastDamagePosition, _velocity, _knockbackForce, _damageDirection;
+        protected Vector3 _lastPosition, _lastDamagePosition, _velocity, _damageDirection;
         protected float _startTime;
         protected Health _colliderHealth;
-        protected TopDownController _topDownController;
-        protected TopDownController _colliderTopDownController;
+        protected TopDownController _selfController;
+        protected TopDownController _colliderController;
         protected List<GameObject> _ignoreList = new();
         protected Vector3 _knockbackForceApplied;
         protected CircleCollider2D _circleCollider2D;
@@ -130,7 +137,6 @@ namespace MoreMountains
         protected bool _initializedFeedbacks;
         protected Vector3 _positionLastFrame;
         protected Vector3 _knockbackScriptDirection;
-        protected Vector3 _relativePosition;
         protected Vector3 _damageScriptDirection;
 
         #region Initialization
@@ -178,7 +184,7 @@ namespace MoreMountains
             if (BuffOnTouch == null)
                 TryGetComponent(out BuffOnTouch);
 
-            TryGetComponent(out _topDownController);
+            TryGetComponent(out _selfController);
             TryGetComponent(out _boxCollider2D);
             TryGetComponent(out _circleCollider2D);
             _lastDamagePosition = transform.position;
@@ -410,7 +416,7 @@ namespace MoreMountains
         {
             if (ManuallyColliding)
                 return;
-            
+
             if (0 == (TriggerFilter & TriggerMask.OnTriggerStay2D))
                 return;
 
@@ -421,7 +427,7 @@ namespace MoreMountains
         {
             if (ManuallyColliding)
                 return;
-            
+
             if (0 == (TriggerFilter & TriggerMask.OnTriggerEnter2D))
                 return;
 
@@ -445,7 +451,7 @@ namespace MoreMountains
                 return;
 
             // cache reset 
-            _colliderTopDownController = null;
+            _colliderController = null;
 
             // if what we're colliding with is damageable
             if (target.TryGetComponent(out _colliderHealth))
@@ -503,9 +509,9 @@ namespace MoreMountains
             if (health.CanTakeDamageThisFrame(out var resistDamageType))
             {
                 // if what we're colliding with is a TopDownController, we apply a knockback force
-                if (!health.TryGetComponent(out _colliderTopDownController))
+                if (!health.TryGetComponent(out _colliderController))
                 {
-                    health.TryGetComponentInParent(out _colliderTopDownController);
+                    health.TryGetComponentInParent(out _colliderController);
                 }
 
                 HitDamageableFeedback.Play(transform.position);
@@ -515,7 +521,7 @@ namespace MoreMountains
                 var dmg = DmgGetter();
                 DetermineDamageDirection();
                 _colliderHealth.Damage(ref dmg, gameObject, Source, InvincibilityDuration, _damageDirection);
-                ApplyKnockback(dmg);
+                ApplyKnockback(_colliderHealth, _colliderController, dmg);
             }
             else
             {
@@ -538,9 +544,10 @@ namespace MoreMountains
             }
 
             // we apply self damage
-            if (DamageTakenEveryTime + DamageTakenDamageable > 0 && !_colliderHealth.PreventTakeSelfDamage)
+            var selfDamage = DamageTakenEveryTime + DamageTakenDamageable;
+            if (selfDamage > 0 && !_colliderHealth.PreventTakeSelfDamage)
             {
-                SelfDamage(DamageTakenEveryTime + DamageTakenDamageable);
+                SelfDamage(selfDamage);
             }
         }
 
@@ -549,67 +556,44 @@ namespace MoreMountains
         /// <summary>
         /// Applies knockback if needed
         /// </summary>
-        protected virtual void ApplyKnockback(Dmg damage)
+        protected virtual void ApplyKnockback(Health colliderHealth, TopDownController controller, Dmg damage)
         {
-            if (ShouldApplyKnockback(damage))
-            {
-                Vector3 force;
-                if (damage.IsLethal)
-                    force = LethalDamageKnockbackForce;
-                else
-                    force = DamageKnockbackForce;
+            if (DamageCausedKnockbackType != KnockbackStyles.AddForce) 
+                return;
 
-                _knockbackForce = force * _colliderHealth.KnockbackForceMultiplier;
-                _knockbackForce = _colliderHealth.ComputeKnockbackForce(_knockbackForce);
+            Vector3 force;
+            if (damage.IsLethal)
+                force = LethalDamageKnockbackForce;
+            else
+                force = DamageKnockbackForce;
 
-                ApplyKnockback2D();
+            var knockbackForce = force * colliderHealth.KnockbackForceMultiplier;
+            ApplyKnockback2D(ref knockbackForce);
 
-                if (DamageCausedKnockbackType == KnockbackStyles.AddForce)
-                {
-                    _colliderTopDownController.AddImpact(_knockbackForce.normalized, _knockbackForce.magnitude);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Determines whether knockback should be applied
-        /// </summary>
-        /// <returns></returns>
-        protected virtual bool ShouldApplyKnockback(Dmg damage)
-        {
-            if (_colliderHealth.ImmuneToKnockbackIfZeroDamage && !_colliderHealth.ComputeDamageOutput(ref damage))
-                return false;
-
-            if (!_colliderTopDownController)
-                return false;
-
-            if (_colliderHealth.Invincible)
-                return false;
-
-            return _colliderHealth.CanGetKnockback();
+            colliderHealth.ApplyKnockback(knockbackForce, damage);
         }
 
         /// <summary>
         /// Applies knockback if we're in a 2D context
         /// </summary>
-        protected virtual void ApplyKnockback2D()
+        protected virtual void ApplyKnockback2D(ref Vector3 force)
         {
             switch (DamageCausedKnockbackDirection)
             {
                 case KnockbackDirections.BasedOnSpeed:
-                    var totalVelocity = _colliderTopDownController.IntentVelocity + _velocity;
-                    _knockbackForce = Vector3.RotateTowards(_knockbackForce, totalVelocity.normalized, 10f, 0f);
+                    var totalVelocity = _colliderController.IntentVelocity + _velocity;
+                    force = Vector3.RotateTowards(force, totalVelocity.normalized, 10f, 0f);
                     break;
                 case KnockbackDirections.BasedOnOwnerPosition:
-                    _relativePosition = _colliderTopDownController.transform.position - Owner.transform.position;
-                    _knockbackForce = Vector3.RotateTowards(_knockbackForce, _relativePosition.normalized, 10f, 0f);
+                    var relativePosition = _colliderController.transform.position - Owner.transform.position;
+                    force = Vector3.RotateTowards(force, relativePosition.normalized, 10f, 0f);
                     break;
                 case KnockbackDirections.BasedOnDirection:
                     var direction = transform.position - _positionLastFrame;
-                    _knockbackForce = direction * _knockbackForce.magnitude;
+                    force = direction * force.magnitude;
                     break;
                 case KnockbackDirections.BasedOnScriptDirection:
-                    _knockbackForce = _knockbackScriptDirection * _knockbackForce.magnitude;
+                    force = _knockbackScriptDirection * force.magnitude;
                     break;
             }
         }
@@ -652,14 +636,14 @@ namespace MoreMountains
             }
 
             // if what we're colliding with is a TopDownController, we apply a knockback force
-            if (_topDownController && _colliderTopDownController)
+            if (_selfController && _colliderController)
             {
-                Vector3 totalVelocity = _colliderTopDownController.IntentVelocity + _velocity;
+                Vector3 totalVelocity = _colliderController.IntentVelocity + _velocity;
                 Vector3 knockbackForce = Vector3.RotateTowards(DamageTakenKnockbackForce, totalVelocity.normalized, 10f, 0f);
 
                 if (DamageTakenKnockbackType == KnockbackStyles.AddForce)
                 {
-                    _topDownController.AddForce(knockbackForce);
+                    _selfController.AddForce(knockbackForce);
                 }
             }
         }

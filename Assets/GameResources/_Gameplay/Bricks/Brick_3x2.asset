@@ -127,7 +127,7 @@ MonoBehaviour:
       Data: MS
     - Name: $v
       Entry: 4
-      Data: 30
+      Data: 90
     - Name: 
       Entry: 8
       Data: 
@@ -213,3 +213,5 @@ MonoBehaviour:
     - Name: 
       Entry: 8
       Data: 
+  displayConfig: {fileID: 0}
+  StatDefs: []

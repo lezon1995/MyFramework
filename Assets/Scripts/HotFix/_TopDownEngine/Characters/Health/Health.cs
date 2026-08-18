@@ -256,6 +256,7 @@ namespace MoreMountains
         public Dmg.Types LastDamageType { get; set; }
         public Vector3 LastDamageDirection { get; set; }
         public Character Character;
+        public TopDownController Controller => Character?.Controller;
         public bool hasCharacter { get; set; }
         public bool Initialized => _initialized;
         public IEventRouter Event => this;
@@ -559,6 +560,33 @@ namespace MoreMountains
             return true;
         }
 
+
+        /// <summary>
+        /// Determines whether knockback should be applied
+        /// </summary>
+        /// <returns></returns>
+        public virtual bool ShouldApplyKnockback(Dmg damage)
+        {
+            if (ImmuneToKnockbackIfZeroDamage && ComputeDamageOutput(ref damage))
+                return false;
+
+            if (Invincible)
+                return false;
+
+            return CanGetKnockback();
+        }
+
+        public virtual void ApplyKnockback(Vector3 knockbackForce, Dmg damage)
+        {
+            if (ShouldApplyKnockback(damage))
+            {
+                ComputeKnockbackForce(ref knockbackForce);
+
+                Controller.AddImpact(knockbackForce.normalized, knockbackForce.magnitude);
+            }
+        }
+
+
         public bool IsDead()
         {
             return CurrentHealth <= 0;
@@ -744,9 +772,8 @@ namespace MoreMountains
         /// </summary>
         /// <param name="knockbackForce"></param>
         /// <returns></returns>
-        public virtual Vector3 ComputeKnockbackForce(Vector3 knockbackForce)
+        public virtual void ComputeKnockbackForce(ref Vector3 knockbackForce)
         {
-            return knockbackForce;
         }
 
         /// <summary>

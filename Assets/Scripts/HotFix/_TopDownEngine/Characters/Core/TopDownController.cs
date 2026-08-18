@@ -9,14 +9,42 @@ namespace MoreMountains
     public abstract class TopDownController : TopDownMonoBehaviour
     {
         public Character Character;
+
         // 意图速度（由 AI / 玩家输入控制，每帧持续施加）
-        public Vector3 IntentVelocity { get; set; }
+        Vector3 _intentVelocity;
+
+        public Vector3 IntentVelocity
+        {
+            get
+            {
+                if (MovementDisabled)
+                    return Vector3.zero;
+
+                return _intentVelocity;
+            }
+            set => _intentVelocity = value;
+        }
+
         // 击退速度（击退产生，独立于意图，会随时间衰减）
-        public Vector3 KnockbackVelocity{ get; set; }
+        Vector3 _knockbackVelocity;
+
+        public Vector3 KnockbackVelocity
+        {
+            get
+            {
+                if (MovementDisabled)
+                    return Vector3.zero;
+
+                return _knockbackVelocity;
+            }
+            set => _knockbackVelocity = value;
+        }
+
         public bool Grounded { get; set; }
         public bool JustGotGrounded { get; set; }
         public Vector3 CurrentMovement { get; set; }
         public Vector3 CurrentDirection { get; set; }
+        public bool MovementDisabled { get; set; }
 
         /// the surface modifier object below our character (if any)
         // public virtual SurfaceModifier SurfaceModifierBelow { get; set; }
@@ -95,6 +123,7 @@ namespace MoreMountains
         /// Use this to apply an impact to a controller, moving it in the specified direction at the specified force
         /// </summary>
         public abstract void AddImpact(Vector3 direction, float force);
+        public abstract void AddImpact(Vector3 force);
 
         /// <summary>
         /// Sets gravity active or inactive
@@ -169,6 +198,7 @@ namespace MoreMountains
             JustGotGrounded = false;
             CurrentMovement = Vector3.zero;
             CurrentDirection = Vector3.zero;
+            MovementDisabled = false;
         }
     }
 }

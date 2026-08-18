@@ -112,6 +112,11 @@ namespace MoreMountains
             return _stats.GetStat(statName);
         }
 
+        public bool GetStat(string statName, out UniStats.Stat stat)
+        {
+            return _stats.GetStat(statName, out stat);
+        }
+
         public virtual bool CanTakeBuffThisFrame()
         {
             if (!enabled)

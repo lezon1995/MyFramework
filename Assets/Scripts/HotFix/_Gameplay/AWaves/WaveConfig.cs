@@ -91,6 +91,9 @@ namespace MoreMountains
         [Tooltip("怪物属性随波次的增长倍率（防御）")]
         public float defenseScaling = 1f;
 
+        [Tooltip("怪物属性随波次的增长倍率（击退抗性）")]
+        public float knockbackResistScaling = 1f;
+
         [Header("Enemy Type Weights")]
         [Tooltip("小怪生成权重")]
         public float normalMonsterWeight = 70f;
@@ -159,9 +162,6 @@ namespace MoreMountains
         [Range(1, 50)]
         public int shapeSpawnMaxRetries = 20;
 
-        [Tooltip("形状生成后，是否在形状上随机放置怪物（取代单独刷怪）")]
-        public bool spawnMonstersOnShape = true;
-
         public int KillCount { get; set; }
         public int SpawnCount { get; set; }
 
@@ -187,6 +187,7 @@ namespace MoreMountains
         public float damageMultiplier = 1f;
         public float speedMultiplier = 1f;
         public float defenseMultiplier = 1f;
+        public float knockbackResistMultiplier = 1f;
 
         public void ApplyWaveScaling(int currentWave, WaveConfig baseConfig, WaveLevelConfig levelConfig)
         {
@@ -196,6 +197,7 @@ namespace MoreMountains
             damageMultiplier = Mathf.Pow(baseConfig.damageScaling * levelConfig.globalDamageScalingPerWave, waveMultiplier - 1);
             speedMultiplier = Mathf.Pow(baseConfig.speedScaling * levelConfig.globalSpeedScalingPerWave, waveMultiplier - 1);
             defenseMultiplier = Mathf.Pow(baseConfig.defenseScaling * levelConfig.globalDefenseScalingPerWave, waveMultiplier - 1);
+            knockbackResistMultiplier = Mathf.Pow(baseConfig.knockbackResistScaling * levelConfig.globalKnockbackResistScalingPerWave, waveMultiplier - 1);
         }
 
         public void Reset()
@@ -204,6 +206,7 @@ namespace MoreMountains
             damageMultiplier = 1f;
             speedMultiplier = 1f;
             defenseMultiplier = 1f;
+            knockbackResistMultiplier = 1f;
         }
     }
 }

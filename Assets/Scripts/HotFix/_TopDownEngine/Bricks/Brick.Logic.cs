@@ -15,7 +15,6 @@ namespace MoreMountains
         public Vector2Int size;
 
         #endregion
-
         public BrickRenderer brickRenderer;
         public VolumeCollider volumeCollider;
         Action<Brick> onBornCompleted;

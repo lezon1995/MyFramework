@@ -43,11 +43,11 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 1052679622656
-    m_Localized: Resistance
+    m_Localized: Magic Resist
     m_Metadata:
       m_Items: []
   - m_Id: 1126306435072
-    m_Localized: Resistance Penetration
+    m_Localized: Magic Penetration
     m_Metadata:
       m_Items: []
   - m_Id: 1413742088192
@@ -75,7 +75,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 2098948755456
-    m_Localized: Dodge Chance
+    m_Localized: Dodge
     m_Metadata:
       m_Items: []
   - m_Id: 2167370436608
@@ -95,7 +95,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 2436489564160
-    m_Localized: Ball Duration
+    m_Localized: Duration
     m_Metadata:
       m_Items: []
   - m_Id: 2524746108928

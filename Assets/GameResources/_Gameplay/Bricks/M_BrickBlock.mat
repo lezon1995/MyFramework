@@ -12,6 +12,7 @@ Material:
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
+  - _ENABLEFROZEN_ON
   - _ENABLESTRONGTINT_ON
   - _SHADERFADING_NONE
   - _SHADERSPACE_UV
@@ -254,7 +255,7 @@ Material:
     - _EnableDirectionalGlowFade: 0
     - _EnableEnchanted: 0
     - _EnableFlame: 0
-    - _EnableFrozen: 0
+    - _EnableFrozen: 1.1
     - _EnableFullAlphaDissolve: 0
     - _EnableFullDistortion: 0
     - _EnableFullGlowDissolve: 0
@@ -323,7 +324,7 @@ Material:
     - _FlameRadius: 0.2
     - _FlameSmooth: 2
     - _FrozenContrast: 2
-    - _FrozenFade: 1
+    - _FrozenFade: 0
     - _FrozenHighlightContrast: 2
     - _FrozenHighlightDensity: 1
     - _FrozenSnowContrast: 1

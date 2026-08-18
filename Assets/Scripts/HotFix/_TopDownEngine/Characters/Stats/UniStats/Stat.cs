@@ -119,13 +119,13 @@ namespace UniStats
 
         public T Compute()
         {
-            var bonus = BonusFlat.Value;
+            var bonusFlat = BonusFlat.Value;
             var bonusPct = BonusPct.Value;
             var bonusRatio = BonusRatio.Value;
 
             var initial = Initial;
             _initial = initial;
-            var realBonus = op.Add(bonus, op.Mul(initial, bonusPct));
+            var realBonus = op.Add(bonusFlat, op.Mul(initial, bonusPct));
             realBonus = op.Mul(realBonus, bonusRatio);
             var v = op.Add(initial, realBonus);
             _cache = v;

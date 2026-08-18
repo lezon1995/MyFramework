@@ -10,6 +10,7 @@ namespace MoreMountains
     public class BrickRenderer : MonoBehaviour
     {
         static int StrongTintFade = Shader.PropertyToID("_StrongTintFade");
+        static int FrozenFade = Shader.PropertyToID("_FrozenFade");
         static int BrickBorn = Animator.StringToHash("BrickBorn");
         static int BrickIdle = Animator.StringToHash("BrickIdle");
         static int BrickHit_1 = Animator.StringToHash("BrickHit_1");
@@ -393,6 +394,18 @@ namespace MoreMountains
         {
             animator.Play(BrickIdle, 0, 0F);
             animator.Update(0);
+        }
+
+        public void setFreezeEffect(bool b)
+        {
+            var fade = b ? 1F : 0F;
+            matBlock.SetFloat(FrozenFade, fade);
+            matUnit.SetFloat(FrozenFade, fade);
+        }
+        public void setFrostEffect(float f)
+        {
+            matBlock.SetFloat(FrozenFade, f);
+            matUnit.SetFloat(FrozenFade, f);
         }
     }
 }

@@ -220,9 +220,11 @@ namespace MoreMountains
         /// </summary>
         /// <param name="shapeOrigin">形状锚点在世界坐标系中的位置（即形状放置的原点）</param>
         /// <param name="bricks">形状中每个砖块的局部坐标 (col/row 为起点的局部坐标, width/height 为尺寸)</param>
+        /// <param name="curWave"></param>
+        /// <param name="result"></param>
         /// <param name="pivot">形状锚点位置（影响局部坐标如何映射到世界坐标）</param>
         /// <returns>生成的砖块列表</returns>
-        public bool acquireShape(Vector2Int shapeOrigin, List<GridUnitBrick> bricks, ref List<BrickTemplate> result)
+        public bool acquireShape(Vector2Int shapeOrigin, List<GridUnitBrick> bricks, WaveConfig wave, ref List<BrickTemplate> result)
         {
             if (bricks == null || bricks.Count == 0)
                 return false;
@@ -236,8 +238,24 @@ namespace MoreMountains
                 // 该砖块左下角在世界中的坐标
                 var brickPivotCoord = shapeOrigin + b.PivotCell;
                 var brickPivotPos = brickLayout.getPos(brickPivotCoord);
-                var randomDef = GetRandomDef(b.Size);
-                result.Add(new(brickPivotPos, randomDef));
+                BrickDef def = null;
+                bool found = false;
+                for (var i = 0; i < wave.availableMonsters.Count; i++)
+                {
+                    if (wave.availableMonsters[i].monsterDef.Size == b.Size)
+                    {
+                        def = wave.availableMonsters[i].monsterDef;
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found)
+                {
+                    def = GetRandomDef(b.Size);
+                }
+
+                result.Add(new(brickPivotPos, def));
             }
 
             return true;

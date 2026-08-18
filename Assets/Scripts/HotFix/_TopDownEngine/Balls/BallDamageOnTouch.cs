@@ -14,37 +14,15 @@ namespace MoreMountains
             TryGetComponent(out ball);
         }
 
-        protected override void ApplyKnockback(Dmg damage)
+        protected override void ApplyKnockback(Health colliderHealth, TopDownController controller, Dmg damage)
         {
-            if (ShouldApplyKnockback(damage))
-            {
-                Vector3 force;
-                if (damage.IsLethal)
-                    force = LethalDamageKnockbackForce;
-                else
-                    force = DamageKnockbackForce;
+            if (DamageCausedKnockbackType != KnockbackStyles.AddForce) 
+                return;
 
-                float knockbackValue = 0F;
-                var b1 = ball.GetStat(Ball.Stat.Knockback, out var knockbackStat1);
-                var b2 = ball.getPlayer().GetStat(Character.Stat.Knockback, out var knockbackStat2);
-                if (b1)
-                    knockbackValue += knockbackStat1.Value;
-                if (b2)
-                    knockbackValue += knockbackStat2.Value;
-
-                _knockbackForce = force * (_colliderHealth.KnockbackForceMultiplier + knockbackValue);
-                _knockbackForce = _colliderHealth.ComputeKnockbackForce(_knockbackForce);
-
-                if (_knockbackForce != Vector3.zero)
-                {
-                    ApplyKnockback2D();
-
-                    if (DamageCausedKnockbackType == KnockbackStyles.AddForce)
-                    {
-                        _colliderTopDownController.AddImpact(_knockbackForce.normalized, _knockbackForce.magnitude);
-                    }
-                }
-            }
+            var knockbackForce = ball.getKnockbackForce(colliderHealth, damage);
+            ApplyKnockback2D(ref knockbackForce);
+            
+            colliderHealth.ApplyKnockback(knockbackForce, damage);
         }
 
         public override void OnTriggerEnter2D(Collider2D c)
@@ -91,7 +69,7 @@ namespace MoreMountains
                 return;
 
             // cache reset 
-            _colliderTopDownController = null;
+            _colliderController = null;
 
             // if what we're colliding with is damageable
             _colliderHealth = target.Health;
@@ -115,14 +93,14 @@ namespace MoreMountains
             if (brick.Health.CanTakeDamageThisFrame(out var resistDamageType))
             {
                 // if what we're colliding with is a TopDownController, we apply a knockback force
-                _colliderTopDownController = brick.Controller;
+                _colliderController = brick.Controller;
 
                 HitDamageableFeedback.Play(transform.position);
                 HitDamageableEvent?.Invoke(_colliderHealth);
 
                 DetermineDamageDirection();
                 _colliderHealth.Damage(ref dmg, gameObject, Source, InvincibilityDuration, _damageDirection);
-                ApplyKnockback(dmg);
+                ApplyKnockback(_colliderHealth, _colliderController, dmg);
             }
             else
             {
@@ -170,7 +148,7 @@ namespace MoreMountains
                 return;
 
             // cache reset 
-            _colliderTopDownController = null;
+            _colliderController = null;
 
             // if what we're colliding with is damageable
             _colliderHealth = null;
@@ -250,7 +228,7 @@ namespace MoreMountains
                 return;
 
             // cache reset 
-            _colliderTopDownController = null;
+            _colliderController = null;
 
             // if what we're colliding with is damageable
             _colliderHealth = null;

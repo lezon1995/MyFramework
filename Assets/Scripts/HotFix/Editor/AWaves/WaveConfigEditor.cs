@@ -228,6 +228,7 @@ namespace MoreMountains
             wave.damageScaling = EditorGUILayout.Slider("Damage", wave.damageScaling, 1f, 2f);
             wave.speedScaling = EditorGUILayout.Slider("Speed", wave.speedScaling, 1f, 1.5f);
             wave.defenseScaling = EditorGUILayout.Slider("Defense", wave.defenseScaling, 1f, 2f);
+            wave.knockbackResistScaling = EditorGUILayout.Slider("Knockback Resist", wave.knockbackResistScaling, 1f, 2f);
 
             EditorGUILayout.Space(5);
 

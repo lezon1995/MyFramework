@@ -71,7 +71,6 @@ namespace MoreMountains
         protected Health _health;
         protected Vector3 _damageDirection;
         protected Vector3 _knockbackRelativePosition = Vector3.zero;
-        protected Vector3 _knockbackForce = Vector3.zero;
         protected TopDownController _knockbackTopDownController;
 
         protected RaycastHit _hit { get; set; }
@@ -256,21 +255,21 @@ namespace MoreMountains
             {
                 if (_hitObject.TryGetComponent(out _knockbackTopDownController))
                 {
-                    _knockbackForce = DamageCausedKnockbackForce * _health.KnockbackForceMultiplier;
-                    _knockbackForce = _health.ComputeKnockbackForce(_knockbackForce);
+                    var knockbackForce = DamageCausedKnockbackForce * _health.KnockbackForceMultiplier;
+                    _health.ComputeKnockbackForce(ref knockbackForce);
                     switch (Mode)
                     {
                         case Modes.ThreeD:
                             _knockbackRelativePosition = _hitPoint - Owner.transform.position;
-                            _knockbackForce = Quaternion.LookRotation(_knockbackRelativePosition) * _knockbackForce;
+                            knockbackForce = Quaternion.LookRotation(_knockbackRelativePosition) * knockbackForce;
                             break;
                         case Modes.TwoD:
                             _knockbackRelativePosition = _hitPoint - Owner.transform.position;
-                            _knockbackForce = Vector3.RotateTowards(_knockbackForce, _knockbackRelativePosition.normalized, 10f, 0f);
+                            knockbackForce = Vector3.RotateTowards(knockbackForce, _knockbackRelativePosition.normalized, 10f, 0f);
                             break;
                     }
 
-                    _knockbackTopDownController.AddImpact(_knockbackForce.normalized, _knockbackForce.magnitude);
+                    _knockbackTopDownController.AddImpact(knockbackForce.normalized, knockbackForce.magnitude);
                 }
             }
         }

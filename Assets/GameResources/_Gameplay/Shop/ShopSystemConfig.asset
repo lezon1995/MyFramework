@@ -27,6 +27,9 @@ MonoBehaviour:
   - {fileID: 11400000, guid: dca726981b8ff03439f7f5b738e288bc, type: 2}
   - {fileID: 11400000, guid: a644cabf7825d5e4db76a6de151a89ca, type: 2}
   - {fileID: 11400000, guid: fe8c016fa4e799949a30ae1831251943, type: 2}
+  - {fileID: 11400000, guid: f9e7467ed42ef7f4683342608e587202, type: 2}
+  - {fileID: 11400000, guid: e85a873f353bcfd42949f0a1455308b5, type: 2}
+  - {fileID: 11400000, guid: 931a85280fc463543884ee6dccf9ef81, type: 2}
   RelicOfferPool:
   - {fileID: 11400000, guid: 0ad612f0642e6a14b80ea673a8af00e3, type: 2}
   - {fileID: 11400000, guid: 8a740069343e93f42a54719a04ae8e70, type: 2}

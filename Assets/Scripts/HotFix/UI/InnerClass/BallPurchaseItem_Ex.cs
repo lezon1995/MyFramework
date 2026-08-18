@@ -46,9 +46,9 @@ public partial class BallPurchaseItem
         build_HitDamage(sb, configs);
         build_AttackSpeed(sb, configs);
         build_Knockback(sb, configs);
-        build_BallisticSpeed(sb, configs);
+        // build_BallisticSpeed(sb, configs);
         build_Crit(sb, configs);
-        build_HitEffectChance(sb, configs);
+        // build_HitEffectChance(sb, configs);
         build_Duration(sb, configs);
 
         itemDesc.setText(sb.ToString());

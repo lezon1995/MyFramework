@@ -147,10 +147,10 @@ namespace MoreMountains
             switch (mod.Algo)
             {
                 case Mod.Algos.Flat:
-                    stat.AddFlat(value, key);
+                    stat.BonusFlat.AddFlat(value, key);
                     break;
                 case Mod.Algos.Pct:
-                    stat.AddPct(value, key);
+                    stat.BonusPct.AddFlat(value, key);
                     break;
             }
         }
@@ -164,10 +164,10 @@ namespace MoreMountains
                 switch (mod.Algo)
                 {
                     case Mod.Algos.Flat:
-                        stat.AddFlat(value * newStack, key);
+                        stat.BonusFlat.AddFlat(value * newStack, key);
                         break;
                     case Mod.Algos.Pct:
-                        stat.AddPct(value * newStack, key);
+                        stat.BonusPct.AddFlat(value * newStack, key);
                         break;
                 }
             }
@@ -179,7 +179,7 @@ namespace MoreMountains
                         statMod.Value = value * newStack;
                         break;
                     case Mod.Algos.Pct:
-                        statMod.Value = 1 + value * newStack;
+                        statMod.Value = value * newStack;
                         break;
                 }
             }
@@ -199,7 +199,7 @@ namespace MoreMountains
                             statMod.Value = value * newStack;
                             break;
                         case Mod.Algos.Pct:
-                            statMod.Value = 1 + value * newStack;
+                            statMod.Value =  value * newStack;
                             break;
                     }
                 }

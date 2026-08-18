@@ -837,6 +837,14 @@ namespace MoreMountains
             p.Movement.SetAbilityPermitted(active);
         }
 
+        public void SetAllMonstersMovementAbilityPermitted(bool active)
+        {
+            foreach (var brick in ActiveMonsters)
+                brick.Controller.MovementDisabled = !active;
+            foreach (var brick in ActiveBosses)
+                brick.Controller.MovementDisabled = !active;
+        }
+
         /// <summary>
         /// 重置波次管理器
         /// </summary>
@@ -878,6 +886,7 @@ namespace MoreMountains
 
             SetPlayerHandleWeaponAbilityPermitted(player, true);
             SetPlayerMovementAbilityPermitted(player, true);
+            SetAllMonstersMovementAbilityPermitted(true);
         }
 
         void UpdateActive(float dt)
@@ -1253,12 +1262,12 @@ namespace MoreMountains
             if (CurWave is { enableShapeSpawning: true } && shapeDict is { Count: > 0 })
             {
                 // 按权重决定是否生成形状
-                //float shapeRoll = (float)_spawnRandom.NextDouble() * (CurWave.shapeSpawnWeight + 100f);
-                //if (shapeRoll < CurWave.shapeSpawnWeight)
-                //{
-                SpawnRandomShape();
-                return;
-                //}
+                float shapeRoll = (float)_spawnRandom.NextDouble() * (CurWave.shapeSpawnWeight + 100f);
+                if (shapeRoll < CurWave.shapeSpawnWeight)
+                {
+                    SpawnRandomShape();
+                    return;
+                }
             }
 
             var type = GetWeightedEnemyType();
@@ -1298,7 +1307,7 @@ namespace MoreMountains
 
             // 生成砖块
             using var a = new ListScope<BrickTemplate>(out var spawnedBricks);
-            var success = brickManager.acquireShape(emptyCell, selectedShape.bricks, ref spawnedBricks);
+            var success = brickManager.acquireShape(emptyCell, selectedShape.bricks, CurWave, ref spawnedBricks);
             if (!success || spawnedBricks.Count == 0)
             {
                 Debug.LogWarning($"[WaveManager] acquireShape returned empty for shape '{selectedShape.name}'.");
@@ -1308,15 +1317,12 @@ namespace MoreMountains
             // Debug.Log($"[WaveManager] Spawned shape '{selectedShape.name}' with {spawnedBricks.Count} bricks at {emptyCell}");
 
             // 如果配置了形状上生成怪物，则在每个砖块上生成一个怪物
-            if (CurWave?.spawnMonstersOnShape == true)
+            foreach (var template in spawnedBricks)
             {
-                foreach (var template in spawnedBricks)
+                var type = GetWeightedEnemyType();
+                if (SelectMonsterByType(type, out var monsterDef, out var pickedConfig))
                 {
-                    var type = GetWeightedEnemyType();
-                    if (SelectMonsterByType(type, out var monsterDef, out var pickedConfig))
-                    {
-                        SpawnMonster(template.def, template.position, originConfig: pickedConfig);
-                    }
+                    SpawnMonster(template.def, template.position, originConfig: pickedConfig);
                 }
             }
         }
@@ -1518,6 +1524,42 @@ namespace MoreMountains
                 if (bonusPct > 0)
                     damage.BonusPct.AddFlat(bonusPct);
             }
+
+            if (monster.GetStat(Brick.Stat.MS, out var ms))
+            {
+                var bonusMoveSpeedPerWave = monster.getDef().BonusMoveSpeedPerWave;
+                var bonusMoveSpeed = bonusMoveSpeedPerWave * (WaveNumber - 1);
+                if (bonusMoveSpeed > 0)
+                    ms.BonusFlat.AddFlat(bonusMoveSpeed);
+
+                var bonusPct = _scalingData.speedMultiplier - 1;
+                if (bonusPct > 0)
+                    ms.BonusPct.AddFlat(bonusPct);
+            }
+
+            if (monster.GetStat(Brick.Stat.AR, out var armor))
+            {
+                var bonusArmorPerWave = monster.getDef().BonusArmorPerWave;
+                var bonusArmor = bonusArmorPerWave * (WaveNumber - 1);
+                if (bonusArmor > 0)
+                    armor.BonusFlat.AddFlat(bonusArmor);
+
+                var bonusPct = _scalingData.defenseMultiplier - 1;
+                if (bonusPct > 0)
+                    armor.BonusPct.AddFlat(bonusPct);
+            }
+
+            if (monster.GetStat(Brick.Stat.KnockbackResistance, out var knockbackResist))
+            {
+                var bonusKnockbackResistPerWave = monster.getDef().BonusKnockbackResistPerWave;
+                var bonusKnockbackResist = bonusKnockbackResistPerWave * (WaveNumber - 1);
+                if (bonusKnockbackResist > 0)
+                    knockbackResist.BonusFlat.AddFlat(bonusKnockbackResist);
+
+                var bonusPct = _scalingData.knockbackResistMultiplier - 1;
+                if (bonusPct > 0)
+                    knockbackResist.BonusPct.AddFlat(bonusPct);
+            }
         }
 
         void CleanupDeadMonsters()
@@ -1566,6 +1608,7 @@ namespace MoreMountains
 
             SetPlayerHandleWeaponAbilityPermitted(player, false);
             SetPlayerMovementAbilityPermitted(player, false);
+            SetAllMonstersMovementAbilityPermitted(false);
         }
 
         void CompleteLevel()

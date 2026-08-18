@@ -19,6 +19,7 @@ namespace MoreMountains
         [Tooltip("怪物伤害基础增长倍率（每波次）")] public float globalDamageScalingPerWave = 1.12f;
         [Tooltip("怪物速度基础增长倍率（每波次）")] public float globalSpeedScalingPerWave = 1.05f;
         [Tooltip("怪物防御基础增长倍率（每波次）")] public float globalDefenseScalingPerWave = 1.10f;
+        [Tooltip("怪物击退抗性基础增长倍率（每波次）")] public float globalKnockbackResistScalingPerWave = 1.05f;
         [Tooltip("怪物生成区域边界（左）")] public float spawnAreaLeft = -10f;
         [Tooltip("怪物生成区域边界（右）")] public float spawnAreaRight = 10f;
         [Tooltip("怪物生成区域边界（上）")] public float spawnAreaTop = 10f;

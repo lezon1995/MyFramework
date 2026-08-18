@@ -96,14 +96,12 @@ namespace MoreMountains
             }
         }
 
-        public override Vector3 ComputeKnockbackForce(Vector3 knockbackForce)
+        public override void ComputeKnockbackForce(ref Vector3 knockbackForce)
         {
             if (brick.GetStat(Brick.Stat.KnockbackResistance, out var stat))
             {
                 knockbackForce *= Mathf.Clamp01(1 - stat.Value);
             }
-
-            return knockbackForce;
         }
 
         void DamageByBall(ref Dmg dmg, Ball ball, Character source, float invincibleTime, Vector3 direction, IDmgCalculator calculator)
@@ -255,7 +253,7 @@ namespace MoreMountains
                 }
             }
 
-            if (dmg is { TriggerEffect: true, IsLethal: false })
+            if (dmg is { TriggerEffect: true, IsLethal: false or true })
             {
                 //触发本次伤害所造成的攻击特效/技能特效
                 if (dmg.hasAttackEffect())

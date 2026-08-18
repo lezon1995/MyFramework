@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1b7b319e83f926f47ba4d3b6008e31a6, type: 3}
+  m_Name: BallDef_RockSplash
+  m_EditorClassIdentifier: HotFix::MoreMountains.BallDef
+  Type: 10501
+  DisplayName: "\u5CA9\u6CE2\u7403"
+  BasePrice: 6
+  MaxLevel: 3
+  UpgradeCombineCount: 2
+  UpgradeGoldCost: 0
+  MergeResultDefId: 0
+  MergeGoldCost: 100
+  Icon: {fileID: 21300000, guid: 02932cc54da28bf40850a5cc2ccffe37, type: 3}
+  LevelColor: {r: 1, g: 1, b: 1, a: 1}
+  Rarity: 0
+  StatsTemplate: {fileID: 11400000, guid: 9fa6bcd3c3e486b44b31fc7f8800a2f0, type: 2}
