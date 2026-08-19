@@ -50,8 +50,16 @@ public partial class BallPurchaseItem
         build_Crit(sb, configs);
         // build_HitEffectChance(sb, configs);
         build_Duration(sb, configs);
+        build_DisplayDescription(sb, def);
 
         itemDesc.setText(sb.ToString());
+    }
+
+    static void build_DisplayDescription(MyStringBuilder sb, BallDef def)
+    {
+        sb.addLine();
+        var localizedString = def.DisplayDescription.GetLocalizedString();
+        sb.add(localizedString);
     }
 
     static void build_Duration(MyStringBuilder sb, Dictionary<string, float> configs)

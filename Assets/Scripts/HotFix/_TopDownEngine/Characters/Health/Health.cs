@@ -570,7 +570,7 @@ namespace MoreMountains
             }
 
             type = DodgeDamageType.None;
-            return true;
+            return false;
         }
 
         /// <summary>

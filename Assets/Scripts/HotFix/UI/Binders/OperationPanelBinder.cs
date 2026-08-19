@@ -360,7 +360,6 @@ namespace MoreMountains
                     return;
                 }
                 
-                var item = RelicService.CreateItem(relicOffer.Def);
                 if (!_player.Inventory.AddRelic(relicOffer.Def))
                 {
                     _player.Wallet.Earn(price, EarnType.OTHER, "rollback_buy_relic");

@@ -139,7 +139,7 @@ namespace MoreMountains
                 item.SetName(offer.DisplayName ?? "—");
                 item.SetPrice(offer.Price);
                 if (offer.Def)
-                    item.SetDesc(offer.Def.GetType().Name);
+                    item.SetDesc(offer.Def);
                 if (offer.Def.Icon)
                     item.SetIcon(offer.Def.Icon);
                 item.SetRarity(offer.Def.Rarity);

@@ -47,7 +47,6 @@ namespace MoreMountains
         public static Prefs betaCardPref;
         public static Prefs bossSeenPref;
         public static Prefs relicSeenPref;
-        public static Prefs pawnSeenPref;
         public static Prefs achievementPref;
         public static Prefs unlockProgress;
         public static Dictionary<string, string> unlockReqs = new();
@@ -77,7 +76,6 @@ namespace MoreMountains
             betaCardPref = SaveHelper.getPrefs("BetaCardPreference");
             bossSeenPref = SaveHelper.getPrefs("SeenBosses");
             relicSeenPref = SaveHelper.getPrefs("SeenRelics");
-            pawnSeenPref = SaveHelper.getPrefs("SeenPawns");
             refresh();
         }
 
@@ -647,10 +645,13 @@ namespace MoreMountains
 
         public static void markRelicAsSeen(string key)
         {
-            var relic = RelicLibrary.getRelic(key);
-            if (relic is { isSeen: false })
+            var def = relicManager.getDef(key);
+            if (def == null)
+                return;
+
+            if (def is { isSeen: false })
             {
-                relic.isSeen = true;
+                def.isSeen = true;
                 relicSeenPref.putInteger(key, 1);
                 relicSeenPref.flush();
             }
@@ -663,27 +664,6 @@ namespace MoreMountains
         public static bool isRelicSeen(string key)
         {
             return relicSeenPref.getInteger(key, 0) == 1;
-        }
-
-
-        public static void markPawnAsSeen(string key)
-        {
-            // var pawn = PawnLibrary.getPawn(key);
-            // if (pawn is { isSeen: false })
-            // {
-            //     pawn.isSeen = true;
-            //     pawnSeenPref.putInteger(key, 1);
-            //     pawnSeenPref.flush();
-            // }
-            // else if (Settings.isDebug)
-            // {
-            //     log("Already seen: " + key);
-            // }
-        }
-
-        public static bool isPawnSeen(string key)
-        {
-            return pawnSeenPref.getInteger(key, 0) == 1;
         }
 
         public static void markBossAsSeen(string originalName)

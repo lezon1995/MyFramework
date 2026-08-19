@@ -39,22 +39,24 @@ namespace MoreMountains
         public static void initialize()
         {
             long startTime = TimeUtility.getNowTimeStampMS();
-            add(new AmmoSupply());
-            add(new Blender());
-            add(new BrokenTripod());
-            add(new BurlapBag());
-            add(new FishingNets());
-            add(new FreeBall());
-            add(new ImpactHammer());
-            add(new LakeMirror());
-            add(new MilkShake());
-            add(new Origami());
-            add(new Rattle());
-            add(new RhombicDarts());
-            add(new RoughCelling());
-            add(new RoughWall());
-            add(new SideBorderPortal());
-            add(new TacticalShield());
+            // add(new AmmoSupply());
+            // add(new Blender());
+            // add(new BrokenTripod());
+            // add(new BurlapBag());
+            // add(new FishingNets());
+            // add(new FreeBall());
+            // add(new ImpactHammer());
+            // add(new LakeMirror());
+            // add(new MilkShake());
+            // add(new Origami());
+            // add(new Rattle());
+            // add(new RhombicDarts());
+            // add(new RoughCelling());
+            // add(new RoughWall());
+            // add(new SideBorderPortal());
+            // add(new TacticalShield());
+            
+
             // add(new Abacus());
             // add(new Akabeko());
             // add(new Anchor());
@@ -204,11 +206,11 @@ namespace MoreMountains
             // addGreen(new ToughBandages());
             // addGreen(new TwistedFunnel());
             // addGreen(new WristBlade());
-            
-            addRed(new RoundBattery());
-            addRed(new UnstableBattery());
-            addRed(new ExtremelyUnstableBattery());
-            addRed(new BaseMagazine());
+
+            // addRed(new RoundBattery());
+            // addRed(new UnstableBattery());
+            // addRed(new ExtremelyUnstableBattery());
+            // addRed(new BaseMagazine());
 
             // addRed(new BlackBlood());
             // addRed(new Brimstone());
@@ -348,7 +350,7 @@ namespace MoreMountains
         {
             if (UnlockTracker.isRelicSeen(relic.relicId))
                 seenRelics++;
-            relic.isSeen = UnlockTracker.isRelicSeen(relic.relicId);
+            // relic.isSeen = UnlockTracker.isRelicSeen(relic.relicId);
             sharedRelics.Add(relic.relicId, relic);
             addToTierList(relic);
             totalRelicCount++;
@@ -358,7 +360,7 @@ namespace MoreMountains
         {
             if (UnlockTracker.isRelicSeen(relic.relicId))
                 seenRelics++;
-            relic.isSeen = UnlockTracker.isRelicSeen(relic.relicId);
+            // relic.isSeen = UnlockTracker.isRelicSeen(relic.relicId);
             redRelics.Add(relic.relicId, relic);
             addToTierList(relic);
             redList.Add(relic);
@@ -369,7 +371,7 @@ namespace MoreMountains
         {
             if (UnlockTracker.isRelicSeen(relic.relicId))
                 seenRelics++;
-            relic.isSeen = UnlockTracker.isRelicSeen(relic.relicId);
+            // relic.isSeen = UnlockTracker.isRelicSeen(relic.relicId);
             greenRelics.Add(relic.relicId, relic);
             addToTierList(relic);
             greenList.Add(relic);
@@ -380,7 +382,7 @@ namespace MoreMountains
         {
             if (UnlockTracker.isRelicSeen(relic.relicId))
                 seenRelics++;
-            relic.isSeen = UnlockTracker.isRelicSeen(relic.relicId);
+            // relic.isSeen = UnlockTracker.isRelicSeen(relic.relicId);
             blueRelics.Add(relic.relicId, relic);
             addToTierList(relic);
             blueList.Add(relic);
@@ -391,7 +393,7 @@ namespace MoreMountains
         {
             if (UnlockTracker.isRelicSeen(relic.relicId))
                 seenRelics++;
-            relic.isSeen = UnlockTracker.isRelicSeen(relic.relicId);
+            // relic.isSeen = UnlockTracker.isRelicSeen(relic.relicId);
             purpleRelics.Add(relic.relicId, relic);
             addToTierList(relic);
             whiteList.Add(relic);
@@ -450,7 +452,13 @@ namespace MoreMountains
             if (purpleRelics.TryGetValue(key, out relic))
                 return relic;
 
-            // return new Circlet();
+            var type = Type.GetType($"MoreMountains.{key}");
+            if (type != null)
+            {
+                var instance = Activator.CreateInstance(type);
+                return (ARelic)instance;
+            }
+
             return null;
         }
 

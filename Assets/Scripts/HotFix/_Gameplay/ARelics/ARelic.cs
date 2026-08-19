@@ -14,10 +14,8 @@ namespace MoreMountains
         public int cost;
         public int counter = -1;
         public RelicTier tier;
-        public bool isSeen;
         LandingSound landingSFX;
         float rotation;
-        public bool discarded;
         string assetURL;
 
         public APlayer owner { get; set; }

@@ -29,6 +29,17 @@ namespace MoreMountains
             }
         }
 
+        public void refreshRelicSeenStatus()
+        {
+            RelicLibrary.seenRelics = 0;
+            foreach (var def in Defs)
+            {
+                if (UnlockTracker.isRelicSeen(def.RelicName))
+                    RelicLibrary.seenRelics++;
+                def.isSeen = UnlockTracker.isRelicSeen(def.RelicName); 
+            }
+        }
+
         public bool getDef(RelicType type, out RelicDef def)
         {
             return defDict.TryGetValue(type, out def);

@@ -1,4 +1,4 @@
-%YAML 1.1
+﻿%YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!114 &11400000
 MonoBehaviour:
@@ -17,7 +17,1047 @@ MonoBehaviour:
   m_SharedData: {fileID: 11400000, guid: 9108911108411504299c1e8526a20655, type: 2}
   m_Metadata:
     m_Items: []
-  m_TableData: []
+  m_TableData:
+  - m_Id: 17956860383233
+    m_Localized: "免疫所有负面效果"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383234
+    m_Localized: "攻速逐渐加快"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383235
+    m_Localized: "每波次开始时获得额外的弹药"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383236
+    m_Localized: "生命偷取+15%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383237
+    m_Localized: "技能解锁更快"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383238
+    m_Localized: "免疫一次致命伤害（每波次一次）"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383239
+    m_Localized: "击杀时有20%概率清空屏幕"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383240
+    m_Localized: "球沿弧线飞行"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383241
+    m_Localized: "护甲+3"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383242
+    m_Localized: "暴击伤害+40%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383243
+    m_Localized: "美丽极光效果"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383244
+    m_Localized: "额外获得4个球"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383245
+    m_Localized: "每波次补充球数量"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383246
+    m_Localized: "球数量上限+1"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383247
+    m_Localized: "球附带灼烧效果"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383248
+    m_Localized: "每秒额外发射1个球"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383249
+    m_Localized: "球有概率分裂"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383250
+    m_Localized: "额外获得2个球"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383251
+    m_Localized: "额外获得5个球"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383252
+    m_Localized: "额外获得3个球"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383253
+    m_Localized: "球循环发射"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383254
+    m_Localized: "携带金币上限翻倍"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383255
+    m_Localized: "战斗开始时获得护盾"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383256
+    m_Localized: "弹药容量+10%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383257
+    m_Localized: "战斗中获得攻速"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383258
+    m_Localized: "血量越低属性越高"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383259
+    m_Localized: "血量越低伤害越高（低于50%时+20%伤害）"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383260
+    m_Localized: "吸引附近砖块"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383261
+    m_Localized: "可以用金币刷新商店"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383262
+    m_Localized: "球的穿透效果增强"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383263
+    m_Localized: "减速所有敌人"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383264
+    m_Localized: "暴击时伤害增益可叠加"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383265
+    m_Localized: "消耗生命换取力量"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383266
+    m_Localized: "无敌帧+30%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383267
+    m_Localized: "特定区域弹速增加"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383268
+    m_Localized: "所有反弹伤害翻倍"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383269
+    m_Localized: "球反弹时弹速+8%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383270
+    m_Localized: "经验+10%，幸运+5"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383271
+    m_Localized: "护甲-5但伤害+10%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383272
+    m_Localized: "发射角度更加稳定"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383273
+    m_Localized: "商店物品价格-5%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383274
+    m_Localized: "时间倒流（重置当前波次）"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383275
+    m_Localized: "伤害在敌人间传递"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383276
+    m_Localized: "击杀砖块时+2%球伤害"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383277
+    m_Localized: "随机属性波动"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383278
+    m_Localized: "所有元素伤害+15%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383279
+    m_Localized: "球反弹方向随机化"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383280
+    m_Localized: "波次开始时重置所有球的属性加成"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383281
+    m_Localized: "隐身时伤害翻倍"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383282
+    m_Localized: "连击数达到10时伤害+20%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383283
+    m_Localized: "每场战斗随机获得一个属性增益"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383284
+    m_Localized: "闪避+2%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383285
+    m_Localized: "闪避后立即攻击"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383286
+    m_Localized: "暴击造成流血"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383287
+    m_Localized: "暴击率+10%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383288
+    m_Localized: "暴击率超过50%时额外+15%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383289
+    m_Localized: "获得其他所有遗物的效果（减半）"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383290
+    m_Localized: "受伤时周围敌人受伤"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383291
+    m_Localized: "显示未来事件"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383292
+    m_Localized: "金币+50%但经验-20%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383293
+    m_Localized: "生命偷取+20%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383294
+    m_Localized: "伤害+30%但无法生命偷取"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383295
+    m_Localized: "击杀敌人时产生小爆炸"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383296
+    m_Localized: "所有正面属性+5%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383297
+    m_Localized: "音乐节拍增强"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383298
+    m_Localized: "商店价格-15%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383299
+    m_Localized: "每30秒自动获得一层护盾"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383300
+    m_Localized: "生命上限+25，生命回复+2"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383301
+    m_Localized: "护甲+10"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383302
+    m_Localized: "击退所有敌人"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383303
+    m_Localized: "每次反弹伤害+3%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383304
+    m_Localized: "球反弹次数+1"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383305
+    m_Localized: "命中伤害随时间增加"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383306
+    m_Localized: "每3级获得额外技能"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383307
+    m_Localized: "每次命中增加伤害"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383308
+    m_Localized: "球存在时间翻倍"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383309
+    m_Localized: "所有属性+30%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383310
+    m_Localized: "血量低于20%的敌人受到额外50%伤害"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383311
+    m_Localized: "球命中时造成范围伤害"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383312
+    m_Localized: "球持续时间+30%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383313
+    m_Localized: "高风险高回报"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383314
+    m_Localized: "全知（全屏显示敌人）"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383315
+    m_Localized: "球逐渐衰减但伤害增加"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383316
+    m_Localized: "灼烧伤害+30%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383317
+    m_Localized: "爆炸时产生烟花"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383318
+    m_Localized: "每波次第一个击杀获得双倍奖励"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383319
+    m_Localized: "战斗开始时伤害+30%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383320
+    m_Localized: "球有概率捕获敌人"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383321
+    m_Localized: "球反弹角度更精准"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383322
+    m_Localized: "每波次获得一个额外的球"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383323
+    m_Localized: "伤害+50%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383324
+    m_Localized: "护甲+5，生命上限-10"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383325
+    m_Localized: "暴击率+8%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383326
+    m_Localized: "击杀敌人额外获得金币"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383327
+    m_Localized: "可以改变重力方向"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383328
+    m_Localized: "球在边界停留时间延长"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383329
+    m_Localized: "攻速+20%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383330
+    m_Localized: "击杀敌人时恢复生命"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383331
+    m_Localized: "生命上限+20"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383332
+    m_Localized: "每秒恢复最大生命的1%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383333
+    m_Localized: "球伤害+12%，弹速-5%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383334
+    m_Localized: "移速-20%但生命上限+50"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383335
+    m_Localized: "无限生命回复"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383336
+    m_Localized: "球自动追踪最近目标"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383337
+    m_Localized: "对特定类型敌人伤害+25%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383338
+    m_Localized: "球命中时减速目标"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383339
+    m_Localized: "冻结时间+1秒"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383340
+    m_Localized: "免疫致命伤害（每波次一次）"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383341
+    m_Localized: "球的命中伤害+5%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383342
+    m_Localized: "伤害+50%，击杀不给予生命偷取"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383343
+    m_Localized: "全屏灼烧"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383344
+    m_Localized: "属性持续增长"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383345
+    m_Localized: "集齐六颗宝石的力量"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383346
+    m_Localized: "每10秒获得金币"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383347
+    m_Localized: "生命上限+10"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383348
+    m_Localized: "每级额外获得属性"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383349
+    m_Localized: "球的反弹更加精准"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383350
+    m_Localized: "球变为穿透型"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383351
+    m_Localized: "生命低于30%时伤害翻倍"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383352
+    m_Localized: "暴击必定击杀普通敌人"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383353
+    m_Localized: "经验+20%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383354
+    m_Localized: "造成伤害的5%转化为生命"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383355
+    m_Localized: "暴击伤害+50%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383356
+    m_Localized: "球命中时释放闪电链"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383357
+    m_Localized: "10%概率造成连锁闪电"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383358
+    m_Localized: "闪电链伤害+50%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383359
+    m_Localized: "攻速+10%，闪避+5%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383360
+    m_Localized: "暴击时有概率触发闪电"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383361
+    m_Localized: "球弹速+3%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383362
+    m_Localized: "球持续时间+50%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383363
+    m_Localized: "球飞行距离+50%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383364
+    m_Localized: "幸运+10"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383365
+    m_Localized: "金币+30"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383366
+    m_Localized: "幸运+5"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383367
+    m_Localized: "闪避时触发暴击"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383368
+    m_Localized: "暴击时随机获得增益"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383369
+    m_Localized: "照亮隐藏区域"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383370
+    m_Localized: "反射敌方攻击"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383371
+    m_Localized: "球吸引附近敌人"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383372
+    m_Localized: "快速击杀5个敌人后获得短暂无敌"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383373
+    m_Localized: "升级时获得双倍属性"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383374
+    m_Localized: "商店物品价格-10%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383375
+    m_Localized: "随机位置降下陨石"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383376
+    m_Localized: "金币+100%但击杀不恢复生命"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383377
+    m_Localized: "球的移动速度+3%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383378
+    m_Localized: "产生闪光特效"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383379
+    m_Localized: "发射的球有15%概率产生一个复制球"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383380
+    m_Localized: "闪电造成巨大伤害"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383381
+    m_Localized: "移动增加弹速"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383382
+    m_Localized: "持续射击伤害递增"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383383
+    m_Localized: "球速度随距离增加"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383384
+    m_Localized: "金币+20%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383385
+    m_Localized: "额外获得1个球"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383386
+    m_Localized: "法术强度+15"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383387
+    m_Localized: "清屏技能（每波次一次）"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383388
+    m_Localized: "伤害+30%，但球会逐渐变慢"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383389
+    m_Localized: "敌人露出破绽时伤害翻倍"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383390
+    m_Localized: "周围敌人攻击减半"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383391
+    m_Localized: "球的外观更加精美"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383392
+    m_Localized: "球时间越长伤害越高"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383393
+    m_Localized: "持续战斗获得增益"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383394
+    m_Localized: "经验转化为生命"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383395
+    m_Localized: "所有属性+50%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383396
+    m_Localized: "死亡时复活一次（恢复30%血量）"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383397
+    m_Localized: "命中特效概率+10%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383398
+    m_Localized: "连续反弹超过3次时触发暴击"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383399
+    m_Localized: "球命中时附加中毒"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383400
+    m_Localized: "中毒伤害+40%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383401
+    m_Localized: "球可以传送"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383402
+    m_Localized: "属性逐渐下降"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383403
+    m_Localized: "反弹方向优化"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383404
+    m_Localized: "穿透伤害+50%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383405
+    m_Localized: "暴击率+15%，暴击伤害-10%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383406
+    m_Localized: "球发出彩虹光"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383407
+    m_Localized: "发射间隔-15%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383408
+    m_Localized: "攻速+5%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383409
+    m_Localized: "球提前返回"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383410
+    m_Localized: "每击杀一个敌人伤害+2%（可叠加10层）"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383411
+    m_Localized: "单发高伤害，低射速"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383412
+    m_Localized: "球带有彩虹"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383413
+    m_Localized: "球的音效更加响亮"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383414
+    m_Localized: "受伤时反弹伤害"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383415
+    m_Localized: "随机改变球的轨迹"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383416
+    m_Localized: "每击杀10个敌人恢复5%最大生命"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383417
+    m_Localized: "反弹伤害+10%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383418
+    m_Localized: "每秒恢复1%最大生命"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383419
+    m_Localized: "球的形状更加锋利"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383420
+    m_Localized: "球额外反弹2次"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383421
+    m_Localized: "周围持续造成伤害"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383422
+    m_Localized: "完美闪避后造成双倍伤害"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383423
+    m_Localized: "战斗越久伤害越高"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383424
+    m_Localized: "球在上边界反弹时更稳定"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383425
+    m_Localized: "球在墙壁上停留时间延长"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383426
+    m_Localized: "球的能量恢复速度+5%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383427
+    m_Localized: "球弹速+5%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383428
+    m_Localized: "球反弹时额外获得一次穿透"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383429
+    m_Localized: "护甲-3但移速+15%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383430
+    m_Localized: "发射多枚小球"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383431
+    m_Localized: "升级所需经验-15%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383432
+    m_Localized: "生命低于50%时攻速翻倍"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383433
+    m_Localized: "闪避+10%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383434
+    m_Localized: "暴击伤害+20%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383435
+    m_Localized: "命中伤害+8%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383436
+    m_Localized: "每15秒生成护盾"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383437
+    m_Localized: "完美格挡触发反击"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383438
+    m_Localized: "近距离高伤害"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383439
+    m_Localized: "球可以从侧边传送"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383440
+    m_Localized: "所有属性+15%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383441
+    m_Localized: "击杀精英敌人后伤害+15%（持续至波次结束）"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383442
+    m_Localized: "攻速-30%但伤害+40%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383443
+    m_Localized: "命中伤害+25%，命中率-20%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383444
+    m_Localized: "华丽的粒子效果"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383445
+    m_Localized: "移速+8%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383446
+    m_Localized: "移速+3%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383447
+    m_Localized: "球分裂成多个小球"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383448
+    m_Localized: "球分散成扇形"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383449
+    m_Localized: "移速+25%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383450
+    m_Localized: "球轨道更稳定"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383451
+    m_Localized: "留下星光轨迹"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383452
+    m_Localized: "球伤害+5%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383453
+    m_Localized: "护甲+8"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383454
+    m_Localized: "经验+15%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383455
+    m_Localized: "移速+15%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383456
+    m_Localized: "高风险高回报"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383457
+    m_Localized: "每波次开始时获得临时护盾"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383458
+    m_Localized: "每波次结束时获得金币"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383459
+    m_Localized: "球可以瞬移"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383460
+    m_Localized: "近距离反弹伤害"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383461
+    m_Localized: "受到伤害时反弹10%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383462
+    m_Localized: "球命中时造成眩晕"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383463
+    m_Localized: "暴击伤害+30%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383464
+    m_Localized: "暂停所有敌人1秒"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383465
+    m_Localized: "球不受时间限制"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383466
+    m_Localized: "每击杀5个砖块，攻速临时+5%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383467
+    m_Localized: "护甲+1"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383468
+    m_Localized: "球飞行更精准"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383469
+    m_Localized: "球从底部反弹时伤害翻倍"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383470
+    m_Localized: "反弹次数+3"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383471
+    m_Localized: "稀有物品出现概率+10%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383472
+    m_Localized: "波浪式伤害"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383473
+    m_Localized: "弹速+30%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383474
+    m_Localized: "球的能量有概率翻倍"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383475
+    m_Localized: "生命偷取+8%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383476
+    m_Localized: "暴击时恢复生命"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383477
+    m_Localized: "生命偷取+3%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383478
+    m_Localized: "造成纯粹伤害"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383479
+    m_Localized: "击杀砖块时有5%概率召唤一个友方球"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383480
+    m_Localized: "球可以攀爬边界"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383481
+    m_Localized: "反弹伤害递增"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383482
+    m_Localized: "球沿墙移动时速度不减"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383483
+    m_Localized: "每波次击杀增加属性"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383484
+    m_Localized: "生命回复+100%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383485
+    m_Localized: "生命上限-20但伤害+15%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383486
+    m_Localized: "球发射范围+30%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383487
+    m_Localized: "移速+10%，闪避+8%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383488
+    m_Localized: "移速+20%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383489
+    m_Localized: "移动不受惩罚"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383490
+    m_Localized: "飞行（无敌）+30%移速"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383491
+    m_Localized: "经验+25%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383492
+    m_Localized: "球可以从任意位置出现"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

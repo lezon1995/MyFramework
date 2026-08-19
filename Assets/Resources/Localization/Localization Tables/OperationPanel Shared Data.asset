@@ -63,6 +63,10 @@ MonoBehaviour:
     m_Key: SellPrice
     m_Metadata:
       m_Items: []
+  - m_Id: 1864429093801984
+    m_Key: Sold
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

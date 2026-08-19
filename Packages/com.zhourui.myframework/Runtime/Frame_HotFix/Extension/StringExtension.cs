@@ -1884,6 +1884,12 @@ public static class StringExtension
 		}
 		return str;
 	}
+	
+	public static string toRGBA(this Color color)
+	{
+		var rgbaString = colorToRGBAString(color);
+		return rgbaString;
+	}
 
 	public static string color(this string str, Color color)
 	{

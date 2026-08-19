@@ -1,4 +1,4 @@
-%YAML 1.1
+﻿%YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!114 &11400000
 MonoBehaviour:
@@ -17,7 +17,1047 @@ MonoBehaviour:
   m_SharedData: {fileID: 11400000, guid: 9108911108411504299c1e8526a20655, type: 2}
   m_Metadata:
     m_Items: []
-  m_TableData: []
+  m_TableData:
+  - m_Id: 17956860383233
+    m_Localized: "Immune to all negative effects"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383234
+    m_Localized: "Attack speed gradually increases"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383235
+    m_Localized: "Gain extra ammo at the start of each wave"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383236
+    m_Localized: "Life steal +15%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383237
+    m_Localized: "Faster skill unlock"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383238
+    m_Localized: "Immune to one lethal hit (once per wave)"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383239
+    m_Localized: "20% chance to clear screen on kill"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383240
+    m_Localized: "Balls fly in arc trajectory"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383241
+    m_Localized: "Armor increased by 3"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383242
+    m_Localized: "Critical damage +40%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383243
+    m_Localized: "Beautiful aurora effects"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383244
+    m_Localized: "Get 4 extra balls"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383245
+    m_Localized: "Restock ball count each wave"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383246
+    m_Localized: "Max ball count +1"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383247
+    m_Localized: "Balls cause burning effect"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383248
+    m_Localized: "Launch 1 extra ball per second"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383249
+    m_Localized: "Balls have chance to split"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383250
+    m_Localized: "Get 2 extra balls"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383251
+    m_Localized: "Get 5 extra balls"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383252
+    m_Localized: "Get 3 extra balls"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383253
+    m_Localized: "Balls launch in rotation"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383254
+    m_Localized: "Max carried gold doubled"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383255
+    m_Localized: "Gain shield at battle start"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383256
+    m_Localized: "Ammo capacity increased by 10%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383257
+    m_Localized: "Gain attack speed during battle"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383258
+    m_Localized: "Lower HP = higher stats"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383259
+    m_Localized: "Lower HP = higher damage (below 50%: +20% damage)"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383260
+    m_Localized: "Attract nearby bricks"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383261
+    m_Localized: "Refresh shop with gold"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383262
+    m_Localized: "Ball piercing effect enhanced"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383263
+    m_Localized: "Slow all enemies"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383264
+    m_Localized: "Damage buffs stack on critical hits"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383265
+    m_Localized: "Consume HP for power"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383266
+    m_Localized: "Invincibility frames +30%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383267
+    m_Localized: "Increased speed in certain areas"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383268
+    m_Localized: "All bounce damage doubled"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383269
+    m_Localized: "+8% ball speed on bounce"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383270
+    m_Localized: "Experience +10%, Luck +5"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383271
+    m_Localized: "Armor -5 but Damage +10%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383272
+    m_Localized: "More stable launch angle"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383273
+    m_Localized: "Shop prices reduced by 5%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383274
+    m_Localized: "Time reversal (reset current wave)"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383275
+    m_Localized: "Damage transfers between enemies"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383276
+    m_Localized: "+2% ball damage when killing bricks"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383277
+    m_Localized: "Random stat fluctuation"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383278
+    m_Localized: "All elemental damage +15%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383279
+    m_Localized: "Randomize bounce direction"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383280
+    m_Localized: "Reset all ball buffs at wave start"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383281
+    m_Localized: "Double damage while invisible"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383282
+    m_Localized: "+20% damage at 10 combo"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383283
+    m_Localized: "Gain random stat boost each battle"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383284
+    m_Localized: "Dodge increased by 2%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383285
+    m_Localized: "Attack immediately after dodge"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383286
+    m_Localized: "Critical hits cause bleeding"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383287
+    m_Localized: "Critical rate +10%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383288
+    m_Localized: "+15% when critical rate exceeds 50%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383289
+    m_Localized: "Gain all other relics' effects (halved)"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383290
+    m_Localized: "Enemies around take damage when hit"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383291
+    m_Localized: "Displays future events"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383292
+    m_Localized: "Gold +50% but Experience -20%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383293
+    m_Localized: "Life steal +20%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383294
+    m_Localized: "Damage +30% but no life steal"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383295
+    m_Localized: "Small explosion on enemy kill"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383296
+    m_Localized: "All positive stats +5%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383297
+    m_Localized: "Music beat enhanced"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383298
+    m_Localized: "Shop prices -15%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383299
+    m_Localized: "Gain one shield every 30 seconds"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383300
+    m_Localized: "Max HP +25, HP regen +2"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383301
+    m_Localized: "Armor +10"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383302
+    m_Localized: "Knock back all enemies"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383303
+    m_Localized: "+3% damage on each bounce"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383304
+    m_Localized: "Ball bounce count +1"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383305
+    m_Localized: "Hit damage increases over time"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383306
+    m_Localized: "Extra skill every 3 levels"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383307
+    m_Localized: "Damage increases per hit"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383308
+    m_Localized: "Ball existence time doubled"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383309
+    m_Localized: "All stats +30%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383310
+    m_Localized: "+50% damage to enemies below 20% HP"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383311
+    m_Localized: "Cause area damage on hit"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383312
+    m_Localized: "Ball duration +30%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383313
+    m_Localized: "High risk, high reward"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383314
+    m_Localized: "Omniscience (show all enemies)"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383315
+    m_Localized: "Balls fade but damage increases"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383316
+    m_Localized: "Burn damage +30%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383317
+    m_Localized: "Fireworks on explosion"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383318
+    m_Localized: "Double rewards for first kill each wave"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383319
+    m_Localized: "Damage +30% at battle start"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383320
+    m_Localized: "Balls have a chance to capture enemies"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383321
+    m_Localized: "More precise bounce angles"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383322
+    m_Localized: "Get one extra ball each wave"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383323
+    m_Localized: "Damage +50%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383324
+    m_Localized: "Armor +5, Max HP -10"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383325
+    m_Localized: "Critical rate increased by 8%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383326
+    m_Localized: "Extra gold on enemy kill"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383327
+    m_Localized: "Can change gravity direction"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383328
+    m_Localized: "Balls stay longer at boundaries"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383329
+    m_Localized: "Attack speed +20%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383330
+    m_Localized: "Restore HP on enemy kill"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383331
+    m_Localized: "Max HP +20"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383332
+    m_Localized: "Restore 1% max HP per second"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383333
+    m_Localized: "Ball damage +12%, speed -5%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383334
+    m_Localized: "Movement -20% but Max HP +50"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383335
+    m_Localized: "Infinite HP regeneration"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383336
+    m_Localized: "Balls auto-target nearest enemy"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383337
+    m_Localized: "+25% damage to specific enemy types"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383338
+    m_Localized: "Slow targets on hit"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383339
+    m_Localized: "Freeze duration +1 second"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383340
+    m_Localized: "Immune to lethal damage (once per wave)"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383341
+    m_Localized: "Ball hit damage increased by 5%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383342
+    m_Localized: "Damage +50%, no life steal on kills"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383343
+    m_Localized: "Screen-wide burning"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383344
+    m_Localized: "Stats continuously grow"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383345
+    m_Localized: "Power of all six gems combined"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383346
+    m_Localized: "Gain gold every 10 seconds"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383347
+    m_Localized: "Max HP increased by 10"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383348
+    m_Localized: "Extra stats per level"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383349
+    m_Localized: "Ball rebounds are more precise"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383350
+    m_Localized: "Balls become piercing type"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383351
+    m_Localized: "Double damage when HP below 30%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383352
+    m_Localized: "Critical hits kill normal enemies instantly"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383353
+    m_Localized: "Experience +20%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383354
+    m_Localized: "Convert 5% damage dealt to HP"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383355
+    m_Localized: "Critical damage +50%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383356
+    m_Localized: "Release lightning chain on hit"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383357
+    m_Localized: "10% chance to cause chain lightning"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383358
+    m_Localized: "Lightning chain damage +50%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383359
+    m_Localized: "Attack speed +10%, dodge +5%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383360
+    m_Localized: "Chance to trigger lightning on critical"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383361
+    m_Localized: "Ball speed increased by 3%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383362
+    m_Localized: "Ball duration +50%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383363
+    m_Localized: "Ball flight distance +50%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383364
+    m_Localized: "Luck increased by 10"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383365
+    m_Localized: "Gold +30"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383366
+    m_Localized: "Luck increased by 5"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383367
+    m_Localized: "Trigger critical on dodge"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383368
+    m_Localized: "Random buff on critical hit"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383369
+    m_Localized: "Illuminates hidden areas"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383370
+    m_Localized: "Reflect enemy attacks"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383371
+    m_Localized: "Balls attract nearby enemies"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383372
+    m_Localized: "Brief invincibility after killing 5 enemies quickly"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383373
+    m_Localized: "Double stats on level up"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383374
+    m_Localized: "Shop item prices -10%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383375
+    m_Localized: "Meteors fall at random positions"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383376
+    m_Localized: "Gold +100% but no HP restore on kill"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383377
+    m_Localized: "Ball movement speed increased by 3%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383378
+    m_Localized: "Creates flash effects"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383379
+    m_Localized: "15% chance to spawn a copy ball"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383380
+    m_Localized: "Lightning deals massive damage"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383381
+    m_Localized: "Movement increases ball speed"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383382
+    m_Localized: "Damage increases with continuous shooting"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383383
+    m_Localized: "Ball speed increases with distance"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383384
+    m_Localized: "Gold +20%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383385
+    m_Localized: "Get 1 extra ball"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383386
+    m_Localized: "Spell power increased by 15"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383387
+    m_Localized: "Screen clear skill (once per wave)"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383388
+    m_Localized: "Damage +30%, but balls gradually slow down"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383389
+    m_Localized: "Double damage when enemy is vulnerable"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383390
+    m_Localized: "Nearby enemy attacks halved"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383391
+    m_Localized: "Balls have a more beautiful appearance"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383392
+    m_Localized: "Longer ball time = higher damage"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383393
+    m_Localized: "Gain buffs during prolonged combat"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383394
+    m_Localized: "Convert experience to HP"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383395
+    m_Localized: "All stats +50%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383396
+    m_Localized: "Revive once on death (restores 30% HP)"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383397
+    m_Localized: "Hit effect probability +10%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383398
+    m_Localized: "Critical hit after 3+ consecutive bounces"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383399
+    m_Localized: "Apply poison on hit"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383400
+    m_Localized: "Poison damage +40%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383401
+    m_Localized: "Balls can teleport"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383402
+    m_Localized: "Stats gradually decrease"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383403
+    m_Localized: "Optimized bounce direction"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383404
+    m_Localized: "Piercing damage +50%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383405
+    m_Localized: "Critical rate +15%, critical damage -10%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383406
+    m_Localized: "Balls emit rainbow light"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383407
+    m_Localized: "Launch interval -15%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383408
+    m_Localized: "Attack speed increased by 5%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383409
+    m_Localized: "Balls return earlier"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383410
+    m_Localized: "+2% damage per enemy killed (stack 10)"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383411
+    m_Localized: "High damage, low fire rate"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383412
+    m_Localized: "Balls have rainbow trail"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383413
+    m_Localized: "Ball sound effects are louder"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383414
+    m_Localized: "Reflect damage when hit"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383415
+    m_Localized: "Randomly change ball trajectory"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383416
+    m_Localized: "Restore 5% max HP for every 10 kills"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383417
+    m_Localized: "Bounce damage +10%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383418
+    m_Localized: "Restore 1% max HP per second"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383419
+    m_Localized: "Ball shape is sharper"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383420
+    m_Localized: "Balls bounce 2 extra times"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383421
+    m_Localized: "Continuous damage to surroundings"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383422
+    m_Localized: "Double damage after perfect dodge"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383423
+    m_Localized: "Longer battle = higher damage"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383424
+    m_Localized: "More stable rebounds from top boundary"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383425
+    m_Localized: "Balls stay longer on walls"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383426
+    m_Localized: "Ball energy recovery increased by 5%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383427
+    m_Localized: "Ball speed increased by 5%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383428
+    m_Localized: "Extra piercing on bounce"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383429
+    m_Localized: "Armor -3 but Movement +15%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383430
+    m_Localized: "Fire multiple small balls"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383431
+    m_Localized: "EXP required for level up -15%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383432
+    m_Localized: "Double attack speed when HP below 50%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383433
+    m_Localized: "Dodge increased by 10%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383434
+    m_Localized: "Critical damage +20%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383435
+    m_Localized: "Hit damage increased by 8%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383436
+    m_Localized: "Generate shield every 15 seconds"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383437
+    m_Localized: "Perfect block triggers counter"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383438
+    m_Localized: "High damage at close range"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383439
+    m_Localized: "Balls can teleport from sides"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383440
+    m_Localized: "All stats increased by 15%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383441
+    m_Localized: "+15% damage after killing elite (until wave end)"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383442
+    m_Localized: "Attack speed -30% but Damage +40%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383443
+    m_Localized: "Hit damage +25%, accuracy -20%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383444
+    m_Localized: "Magnificent particle effects"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383445
+    m_Localized: "Movement speed increased by 8%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383446
+    m_Localized: "Movement speed increased by 3%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383447
+    m_Localized: "Balls split into smaller balls"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383448
+    m_Localized: "Balls spread in a fan shape"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383449
+    m_Localized: "Movement speed +25%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383450
+    m_Localized: "More stable ball orbit"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383451
+    m_Localized: "Leaves star trails"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383452
+    m_Localized: "Ball damage increased by 5%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383453
+    m_Localized: "Armor +8"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383454
+    m_Localized: "Experience +15%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383455
+    m_Localized: "Movement speed +15%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383456
+    m_Localized: "High risk, high reward"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383457
+    m_Localized: "Gain temporary shield at wave start"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383458
+    m_Localized: "Gain gold at wave end"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383459
+    m_Localized: "Balls can teleport instantly"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383460
+    m_Localized: "Reflect damage at close range"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383461
+    m_Localized: "Reflect 10% damage taken"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383462
+    m_Localized: "Stun targets on hit"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383463
+    m_Localized: "Critical damage increased by 30%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383464
+    m_Localized: "Pause all enemies for 1 second"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383465
+    m_Localized: "Balls are not affected by time"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383466
+    m_Localized: "+5% attack speed for every 5 bricks killed"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383467
+    m_Localized: "Armor increased by 1"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383468
+    m_Localized: "More accurate ball trajectory"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383469
+    m_Localized: "Double damage when bouncing from bottom"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383470
+    m_Localized: "Bounce count +3"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383471
+    m_Localized: "Rare item spawn rate +10%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383472
+    m_Localized: "Wave-based damage"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383473
+    m_Localized: "Ball speed +30%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383474
+    m_Localized: "Ball energy has a chance to double"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383475
+    m_Localized: "Life steal +8%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383476
+    m_Localized: "Restore HP on critical hit"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383477
+    m_Localized: "Life steal increased by 3%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383478
+    m_Localized: "Deal pure damage"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383479
+    m_Localized: "5% chance to summon ally ball when killing bricks"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383480
+    m_Localized: "Balls can climb boundaries"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383481
+    m_Localized: "Bounce damage increases"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383482
+    m_Localized: "Balls maintain speed on walls"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383483
+    m_Localized: "Stats increase per wave kill"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383484
+    m_Localized: "HP regen +100%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383485
+    m_Localized: "Max HP -20 but Damage +15%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383486
+    m_Localized: "Ball launch range +30%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383487
+    m_Localized: "Movement speed +10%, dodge +8%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383488
+    m_Localized: "Movement speed +20%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383489
+    m_Localized: "No movement penalty"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383490
+    m_Localized: "Flight (invincible) +30% movement"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383491
+    m_Localized: "Experience +25%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383492
+    m_Localized: "Balls can appear from any position"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

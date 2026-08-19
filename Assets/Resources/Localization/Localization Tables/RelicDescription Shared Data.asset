@@ -14,7 +14,1047 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.SharedTableData
   m_TableCollectionName: RelicDescription
   m_TableCollectionNameGuidString: 9108911108411504299c1e8526a20655
-  m_Entries: []
+  m_Entries:
+  - m_Id: 17956860383233
+    m_Key: AegisOfOlympus
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383234
+    m_Key: Afterburner
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383235
+    m_Key: AmmoSupply
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383236
+    m_Key: AmuletOfLife
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383237
+    m_Key: AncientTome
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383238
+    m_Key: AngelicProtection
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383239
+    m_Key: Annihilator
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383240
+    m_Key: ArcShot
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383241
+    m_Key: ArmorPlate
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383242
+    m_Key: AssassinDagger
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383243
+    m_Key: AuroraSphere
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383244
+    m_Key: BallBarrage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383245
+    m_Key: BallFactory
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383246
+    m_Key: BallFountain
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383247
+    m_Key: BallOfFlames
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383248
+    m_Key: BallRain
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383249
+    m_Key: BallReplication
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383250
+    m_Key: BallSquad
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383251
+    m_Key: BallStorm
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383252
+    m_Key: BallSwarm
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383253
+    m_Key: BallSwarmController
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383254
+    m_Key: BankAccount
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383255
+    m_Key: BarrierWard
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383256
+    m_Key: BaseMagazine
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383257
+    m_Key: BattleRage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383258
+    m_Key: BeastMode
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383259
+    m_Key: BerserkerSoul
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383260
+    m_Key: BlackHole
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383261
+    m_Key: BlackMarket
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383262
+    m_Key: Blender
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383263
+    m_Key: Blizzard
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383264
+    m_Key: Bloodlust
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383265
+    m_Key: BloodPact
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383266
+    m_Key: BootsOfHermes
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383267
+    m_Key: BouncePad
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383268
+    m_Key: BouncyCastle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383269
+    m_Key: BouncyWall
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383270
+    m_Key: BrainFood
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383271
+    m_Key: BrokenShield
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383272
+    m_Key: BrokenTripod
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383273
+    m_Key: BurlapBag
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383274
+    m_Key: CelestialCore
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383275
+    m_Key: ChainLightning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383276
+    m_Key: ChainReaction
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383277
+    m_Key: ChaosCurse
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383278
+    m_Key: ChaosElemental
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383279
+    m_Key: ChaosMirror
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383280
+    m_Key: ChronoGear
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383281
+    m_Key: CloakOfShadows
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383282
+    m_Key: ComboMaster
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383283
+    m_Key: CosmicCube
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383284
+    m_Key: CottonPadded
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383285
+    m_Key: CounterStrike
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383286
+    m_Key: CrimsonEdge
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383287
+    m_Key: CriticalEye
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383288
+    m_Key: CriticalMass
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383289
+    m_Key: CrownOfTheUniverse
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383290
+    m_Key: CrownOfThorns
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383291
+    m_Key: CrystalBall
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383292
+    m_Key: CursedCoin
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383293
+    m_Key: DarkElemental
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383294
+    m_Key: DeathWish
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383295
+    m_Key: Destroyer
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383296
+    m_Key: DiamondCore
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383297
+    m_Key: DiscoBall
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383298
+    m_Key: DiscountCoupon
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383299
+    m_Key: DivineBlessing
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383300
+    m_Key: DragonHeart
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383301
+    m_Key: EarthElemental
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383302
+    m_Key: Earthquake
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383303
+    m_Key: ElasticRacket
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383304
+    m_Key: ElasticString
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383305
+    m_Key: EnduringBlow
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383306
+    m_Key: Enlightenment
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383307
+    m_Key: EscalatingForce
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383308
+    m_Key: EternalBall
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383309
+    m_Key: Excalibur
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383310
+    m_Key: Executioner
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383311
+    m_Key: ExplosiveBall
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383312
+    m_Key: ExtendedFlight
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383313
+    m_Key: ExtremelyUnstableBattery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383314
+    m_Key: EyeOfProvidence
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383315
+    m_Key: FadingEcho
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383316
+    m_Key: FireElemental
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383317
+    m_Key: FireworkBall
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383318
+    m_Key: FirstBlood
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383319
+    m_Key: FirstStrike
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383320
+    m_Key: FishingNets
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383321
+    m_Key: FlipperMaster
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383322
+    m_Key: FreeBall
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383323
+    m_Key: GauntletOfStrength
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383324
+    m_Key: GlassArmor
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383325
+    m_Key: GoldenSphere
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383326
+    m_Key: GoldenTouch
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383327
+    m_Key: GravityBoots
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383328
+    m_Key: GravityWell
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383329
+    m_Key: Haste
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383330
+    m_Key: HealingLight
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383331
+    m_Key: HeartOfGold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383332
+    m_Key: HeartOfTheMountain
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383333
+    m_Key: HeavyBall
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383334
+    m_Key: HeavyBurden
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383335
+    m_Key: HolyGrail
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383336
+    m_Key: HomingBall
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383337
+    m_Key: Hunter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383338
+    m_Key: IceBall
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383339
+    m_Key: IceElemental
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383340
+    m_Key: ImmortalSoul
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383341
+    m_Key: ImpactHammer
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383342
+    m_Key: InfernalContract
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383343
+    m_Key: Inferno
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383344
+    m_Key: InfiniteGrowth
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383345
+    m_Key: InfinityGauntlet
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383346
+    m_Key: Investment
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383347
+    m_Key: IronCore
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383348
+    m_Key: KnowledgeGem
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383349
+    m_Key: LakeMirror
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383350
+    m_Key: LaserBall
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383351
+    m_Key: LastStand
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383352
+    m_Key: LethalPrecision
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383353
+    m_Key: LibraryCard
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383354
+    m_Key: LifeDrain
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383355
+    m_Key: LightElemental
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383356
+    m_Key: LightningBall
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383357
+    m_Key: LightningCore
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383358
+    m_Key: LightningElemental
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383359
+    m_Key: LightningReflexes
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383360
+    m_Key: LightningStrike
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383361
+    m_Key: LightWeight
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383362
+    m_Key: LongLasting
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383363
+    m_Key: LongRange
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383364
+    m_Key: LuckyCharm
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383365
+    m_Key: LuckyCoin
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383366
+    m_Key: LuckyDice
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383367
+    m_Key: LuckyDodge
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383368
+    m_Key: LuckyStar
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383369
+    m_Key: MagicLantern
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383370
+    m_Key: MagicMirror
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383371
+    m_Key: MagnetBall
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383372
+    m_Key: Massacre
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383373
+    m_Key: MentorSpirit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383374
+    m_Key: MerchantSoul
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383375
+    m_Key: MeteorStrike
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383376
+    m_Key: MidasTouch
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383377
+    m_Key: MilkShake
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383378
+    m_Key: MirrorBall
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383379
+    m_Key: MirrorImage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383380
+    m_Key: Mjolnir
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383381
+    m_Key: Momentum
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383382
+    m_Key: MomentumGain
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383383
+    m_Key: MomentumShift
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383384
+    m_Key: MoneyBag
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383385
+    m_Key: MultiBall
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383386
+    m_Key: MysticOrb
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383387
+    m_Key: NovaBlast
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383388
+    m_Key: OmegaParticle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383389
+    m_Key: Opportunist
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383390
+    m_Key: OrbOfProtection
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383391
+    m_Key: Origami
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383392
+    m_Key: Overcharged
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383393
+    m_Key: Overdrive
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383394
+    m_Key: PhilosopherStone
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383395
+    m_Key: PhilosopherStoneUltimate
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383396
+    m_Key: PhoenixFeather
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383397
+    m_Key: PiercingGaze
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383398
+    m_Key: PinballWizard
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383399
+    m_Key: PoisonBall
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383400
+    m_Key: PoisonElemental
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383401
+    m_Key: PortalWand
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383402
+    m_Key: PowerDrain
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383403
+    m_Key: PrecisionAngle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383404
+    m_Key: PrecisionBeam
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383405
+    m_Key: PrecisionStrike
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383406
+    m_Key: PrismSphere
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383407
+    m_Key: QuickDraw
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383408
+    m_Key: QuickReflexes
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383409
+    m_Key: QuickReturn
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383410
+    m_Key: RageStack
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383411
+    m_Key: Railgun
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383412
+    m_Key: RainbowTrail
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383413
+    m_Key: Rattle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383414
+    m_Key: ReactiveArmor
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383415
+    m_Key: RealityFragment
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383416
+    m_Key: Reaper
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383417
+    m_Key: ReflectionMaster
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383418
+    m_Key: RegenerationRing
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383419
+    m_Key: RhombicDarts
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383420
+    m_Key: RicochetBall
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383421
+    m_Key: RingOfFire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383422
+    m_Key: Riposte
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383423
+    m_Key: RisingPower
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383424
+    m_Key: RoughCelling
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383425
+    m_Key: RoughWall
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383426
+    m_Key: RoundBattery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383427
+    m_Key: RubberBall
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383428
+    m_Key: RubberBand
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383429
+    m_Key: RustedArmor
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383430
+    m_Key: Scattershot
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383431
+    m_Key: ScholarHat
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383432
+    m_Key: SecondWind
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383433
+    m_Key: ShadowCloak
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383434
+    m_Key: SharpClaws
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383435
+    m_Key: SharpSphere
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383436
+    m_Key: ShieldGenerator
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383437
+    m_Key: ShieldOfJustice
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383438
+    m_Key: ShotgunBlast
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383439
+    m_Key: SideBorderPortal
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383440
+    m_Key: SingularityCore
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383441
+    m_Key: Slayer
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383442
+    m_Key: SlowCannon
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383443
+    m_Key: SniperScope
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383444
+    m_Key: SparkleEffect
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383445
+    m_Key: SpeedBoots
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383446
+    m_Key: SpeedPotion
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383447
+    m_Key: SplittingBall
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383448
+    m_Key: SpreadShot
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383449
+    m_Key: Sprint
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383450
+    m_Key: StableOrbit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383451
+    m_Key: StarDust
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383452
+    m_Key: SteelBall
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383453
+    m_Key: StoneSkin
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383454
+    m_Key: StudyGlasses
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383455
+    m_Key: SwiftBoots
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383456
+    m_Key: SwordOfDamocles
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383457
+    m_Key: TacticalShield
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383458
+    m_Key: TaxCollector
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383459
+    m_Key: TeleportBeacon
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383460
+    m_Key: ThornedSkin
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383461
+    m_Key: ThornsArmor
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383462
+    m_Key: ThunderBall
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383463
+    m_Key: ThunderHammer
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383464
+    m_Key: TimeFreeze
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383465
+    m_Key: TimelessShot
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383466
+    m_Key: TimeWarp
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383467
+    m_Key: TinyShield
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383468
+    m_Key: TrajectoryGuide
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383469
+    m_Key: Trampoline
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383470
+    m_Key: TrampolinePark
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383471
+    m_Key: TreasureHunter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383472
+    m_Key: Tsunami
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383473
+    m_Key: TurboMode
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383474
+    m_Key: UnstableBattery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383475
+    m_Key: VampireFang
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383476
+    m_Key: VampiricFangs
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383477
+    m_Key: VampiricTouch
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383478
+    m_Key: VoidBlast
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383479
+    m_Key: VoidEssence
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383480
+    m_Key: WallCrawler
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383481
+    m_Key: WallJumpMaster
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383482
+    m_Key: WallRunner
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383483
+    m_Key: WarriorSpirit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383484
+    m_Key: WaterElemental
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383485
+    m_Key: WeakenedHeart
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383486
+    m_Key: WideAngle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383487
+    m_Key: WindCloak
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383488
+    m_Key: WindElemental
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383489
+    m_Key: WindWalker
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383490
+    m_Key: WingsOfIcarus
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383491
+    m_Key: WisdomScroll
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383492
+    m_Key: Wormhole
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

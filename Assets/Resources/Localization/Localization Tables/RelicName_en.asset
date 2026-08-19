@@ -1,4 +1,4 @@
-%YAML 1.1
+﻿%YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!114 &11400000
 MonoBehaviour:
@@ -17,7 +17,1047 @@ MonoBehaviour:
   m_SharedData: {fileID: 11400000, guid: a436aa6fdedfa73449e32b18692a6598, type: 2}
   m_Metadata:
     m_Items: []
-  m_TableData: []
+  m_TableData:
+  - m_Id: 17956860383233
+    m_Localized: "Aegis of Olympus"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383234
+    m_Localized: "Afterburner"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383235
+    m_Localized: "Ammo Supply"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383236
+    m_Localized: "Amulet of Life"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383237
+    m_Localized: "Ancient Tome"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383238
+    m_Localized: "Angelic Protection"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383239
+    m_Localized: "Annihilator"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383240
+    m_Localized: "Arc Shot"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383241
+    m_Localized: "Armor Plate"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383242
+    m_Localized: "Assassin Dagger"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383243
+    m_Localized: "Aurora Sphere"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383244
+    m_Localized: "Ball Barrage"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383245
+    m_Localized: "Ball Factory"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383246
+    m_Localized: "Ball Fountain"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383247
+    m_Localized: "Ball of Flames"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383248
+    m_Localized: "Ball Rain"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383249
+    m_Localized: "Ball Replication"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383250
+    m_Localized: "Ball Squad"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383251
+    m_Localized: "Ball Storm"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383252
+    m_Localized: "Ball Swarm"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383253
+    m_Localized: "Ball Swarm Controller"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383254
+    m_Localized: "Bank Account"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383255
+    m_Localized: "Barrier Ward"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383256
+    m_Localized: "Base Magazine"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383257
+    m_Localized: "Battle Rage"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383258
+    m_Localized: "Beast Mode"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383259
+    m_Localized: "Berserker Soul"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383260
+    m_Localized: "Black Hole"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383261
+    m_Localized: "Black Market"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383262
+    m_Localized: "Blender"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383263
+    m_Localized: "Blizzard"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383264
+    m_Localized: "Bloodlust"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383265
+    m_Localized: "Blood Pact"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383266
+    m_Localized: "Boots of Hermes"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383267
+    m_Localized: "Bounce Pad"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383268
+    m_Localized: "Bouncy Castle"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383269
+    m_Localized: "Bouncy Wall"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383270
+    m_Localized: "Brain Food"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383271
+    m_Localized: "Broken Shield"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383272
+    m_Localized: "Broken Tripod"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383273
+    m_Localized: "Burlap Bag"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383274
+    m_Localized: "Celestial Core"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383275
+    m_Localized: "Chain Lightning"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383276
+    m_Localized: "Chain Reaction"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383277
+    m_Localized: "Chaos Curse"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383278
+    m_Localized: "Chaos Elemental"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383279
+    m_Localized: "Chaos Mirror"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383280
+    m_Localized: "Chrono Gear"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383281
+    m_Localized: "Cloak of Shadows"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383282
+    m_Localized: "Combo Master"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383283
+    m_Localized: "Cosmic Cube"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383284
+    m_Localized: "Cotton Padded"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383285
+    m_Localized: "Counter Strike"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383286
+    m_Localized: "Crimson Edge"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383287
+    m_Localized: "Critical Eye"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383288
+    m_Localized: "Critical Mass"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383289
+    m_Localized: "Crown of the Universe"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383290
+    m_Localized: "Crown of Thorns"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383291
+    m_Localized: "Crystal Ball"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383292
+    m_Localized: "Cursed Coin"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383293
+    m_Localized: "Dark Elemental"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383294
+    m_Localized: "Death Wish"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383295
+    m_Localized: "Destroyer"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383296
+    m_Localized: "Diamond Core"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383297
+    m_Localized: "Disco Ball"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383298
+    m_Localized: "Discount Coupon"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383299
+    m_Localized: "Divine Blessing"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383300
+    m_Localized: "Dragon Heart"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383301
+    m_Localized: "Earth Elemental"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383302
+    m_Localized: "Earthquake"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383303
+    m_Localized: "Elastic Racket"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383304
+    m_Localized: "Elastic String"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383305
+    m_Localized: "Enduring Blow"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383306
+    m_Localized: "Enlightenment"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383307
+    m_Localized: "Escalating Force"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383308
+    m_Localized: "Eternal Ball"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383309
+    m_Localized: "Excalibur"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383310
+    m_Localized: "Executioner"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383311
+    m_Localized: "Explosive Ball"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383312
+    m_Localized: "Extended Flight"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383313
+    m_Localized: "Extremely Unstable Battery"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383314
+    m_Localized: "Eye of Providence"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383315
+    m_Localized: "Fading Echo"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383316
+    m_Localized: "Fire Elemental"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383317
+    m_Localized: "Firework Ball"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383318
+    m_Localized: "First Blood"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383319
+    m_Localized: "First Strike"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383320
+    m_Localized: "Fishing Nets"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383321
+    m_Localized: "Flipper Master"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383322
+    m_Localized: "Free Ball"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383323
+    m_Localized: "Gauntlet of Strength"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383324
+    m_Localized: "Glass Armor"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383325
+    m_Localized: "Golden Sphere"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383326
+    m_Localized: "Golden Touch"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383327
+    m_Localized: "Gravity Boots"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383328
+    m_Localized: "Gravity Well"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383329
+    m_Localized: "Haste"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383330
+    m_Localized: "Healing Light"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383331
+    m_Localized: "Heart of Gold"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383332
+    m_Localized: "Heart of the Mountain"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383333
+    m_Localized: "Heavy Ball"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383334
+    m_Localized: "Heavy Burden"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383335
+    m_Localized: "Holy Grail"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383336
+    m_Localized: "Homing Ball"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383337
+    m_Localized: "Hunter"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383338
+    m_Localized: "Ice Ball"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383339
+    m_Localized: "Ice Elemental"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383340
+    m_Localized: "Immortal Soul"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383341
+    m_Localized: "Impact Hammer"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383342
+    m_Localized: "Infernal Contract"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383343
+    m_Localized: "Inferno"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383344
+    m_Localized: "Infinite Growth"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383345
+    m_Localized: "Infinity Gauntlet"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383346
+    m_Localized: "Investment"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383347
+    m_Localized: "Iron Core"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383348
+    m_Localized: "Knowledge Gem"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383349
+    m_Localized: "Lake Mirror"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383350
+    m_Localized: "Laser Ball"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383351
+    m_Localized: "Last Stand"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383352
+    m_Localized: "Lethal Precision"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383353
+    m_Localized: "Library Card"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383354
+    m_Localized: "Life Drain"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383355
+    m_Localized: "Light Elemental"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383356
+    m_Localized: "Lightning Ball"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383357
+    m_Localized: "Lightning Core"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383358
+    m_Localized: "Lightning Elemental"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383359
+    m_Localized: "Lightning Reflexes"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383360
+    m_Localized: "Lightning Strike"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383361
+    m_Localized: "Light Weight"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383362
+    m_Localized: "Long Lasting"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383363
+    m_Localized: "Long Range"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383364
+    m_Localized: "Lucky Charm"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383365
+    m_Localized: "Lucky Coin"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383366
+    m_Localized: "Lucky Dice"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383367
+    m_Localized: "Lucky Dodge"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383368
+    m_Localized: "Lucky Star"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383369
+    m_Localized: "Magic Lantern"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383370
+    m_Localized: "Magic Mirror"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383371
+    m_Localized: "Magnet Ball"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383372
+    m_Localized: "Massacre"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383373
+    m_Localized: "Mentor Spirit"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383374
+    m_Localized: "Merchant Soul"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383375
+    m_Localized: "Meteor Strike"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383376
+    m_Localized: "Midas Touch"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383377
+    m_Localized: "Milk Shake"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383378
+    m_Localized: "Mirror Ball"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383379
+    m_Localized: "Mirror Image"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383380
+    m_Localized: "Mjolnir"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383381
+    m_Localized: "Momentum"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383382
+    m_Localized: "Momentum Gain"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383383
+    m_Localized: "Momentum Shift"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383384
+    m_Localized: "Money Bag"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383385
+    m_Localized: "Multi Ball"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383386
+    m_Localized: "Mystic Orb"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383387
+    m_Localized: "Nova Blast"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383388
+    m_Localized: "Omega Particle"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383389
+    m_Localized: "Opportunist"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383390
+    m_Localized: "Orb of Protection"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383391
+    m_Localized: "Origami"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383392
+    m_Localized: "Overcharged"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383393
+    m_Localized: "Overdrive"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383394
+    m_Localized: "Philosopher Stone"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383395
+    m_Localized: "Philosopher Stone Ultimate"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383396
+    m_Localized: "Phoenix Feather"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383397
+    m_Localized: "Piercing Gaze"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383398
+    m_Localized: "Pinball Wizard"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383399
+    m_Localized: "Poison Ball"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383400
+    m_Localized: "Poison Elemental"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383401
+    m_Localized: "Portal Wand"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383402
+    m_Localized: "Power Drain"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383403
+    m_Localized: "Precision Angle"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383404
+    m_Localized: "Precision Beam"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383405
+    m_Localized: "Precision Strike"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383406
+    m_Localized: "Prism Sphere"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383407
+    m_Localized: "Quick Draw"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383408
+    m_Localized: "Quick Reflexes"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383409
+    m_Localized: "Quick Return"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383410
+    m_Localized: "Rage Stack"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383411
+    m_Localized: "Railgun"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383412
+    m_Localized: "Rainbow Trail"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383413
+    m_Localized: "Rattle"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383414
+    m_Localized: "Reactive Armor"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383415
+    m_Localized: "Reality Fragment"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383416
+    m_Localized: "Reaper"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383417
+    m_Localized: "Reflection Master"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383418
+    m_Localized: "Regeneration Ring"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383419
+    m_Localized: "Rhombic Darts"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383420
+    m_Localized: "Ricochet Ball"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383421
+    m_Localized: "Ring of Fire"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383422
+    m_Localized: "Riposte"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383423
+    m_Localized: "Rising Power"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383424
+    m_Localized: "Rough Ceiling"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383425
+    m_Localized: "Rough Wall"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383426
+    m_Localized: "Round Battery"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383427
+    m_Localized: "Rubber Ball"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383428
+    m_Localized: "Rubber Band"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383429
+    m_Localized: "Rusted Armor"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383430
+    m_Localized: "Scattershot"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383431
+    m_Localized: "Scholar Hat"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383432
+    m_Localized: "Second Wind"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383433
+    m_Localized: "Shadow Cloak"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383434
+    m_Localized: "Sharp Claws"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383435
+    m_Localized: "Sharp Sphere"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383436
+    m_Localized: "Shield Generator"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383437
+    m_Localized: "Shield of Justice"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383438
+    m_Localized: "Shotgun Blast"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383439
+    m_Localized: "Side Border Portal"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383440
+    m_Localized: "Singularity Core"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383441
+    m_Localized: "Slayer"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383442
+    m_Localized: "Slow Cannon"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383443
+    m_Localized: "Sniper Scope"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383444
+    m_Localized: "Sparkle Effect"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383445
+    m_Localized: "Speed Boots"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383446
+    m_Localized: "Speed Potion"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383447
+    m_Localized: "Splitting Ball"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383448
+    m_Localized: "Spread Shot"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383449
+    m_Localized: "Sprint"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383450
+    m_Localized: "Stable Orbit"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383451
+    m_Localized: "Star Dust"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383452
+    m_Localized: "Steel Ball"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383453
+    m_Localized: "Stone Skin"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383454
+    m_Localized: "Study Glasses"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383455
+    m_Localized: "Swift Boots"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383456
+    m_Localized: "Sword of Damocles"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383457
+    m_Localized: "Tactical Shield"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383458
+    m_Localized: "Tax Collector"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383459
+    m_Localized: "Teleport Beacon"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383460
+    m_Localized: "Thorned Skin"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383461
+    m_Localized: "Thorns Armor"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383462
+    m_Localized: "Thunder Ball"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383463
+    m_Localized: "Thunder Hammer"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383464
+    m_Localized: "Time Freeze"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383465
+    m_Localized: "Timeless Shot"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383466
+    m_Localized: "Time Warp"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383467
+    m_Localized: "Tiny Shield"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383468
+    m_Localized: "Trajectory Guide"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383469
+    m_Localized: "Trampoline"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383470
+    m_Localized: "Trampoline Park"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383471
+    m_Localized: "Treasure Hunter"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383472
+    m_Localized: "Tsunami"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383473
+    m_Localized: "Turbo Mode"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383474
+    m_Localized: "Unstable Battery"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383475
+    m_Localized: "Vampire Fang"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383476
+    m_Localized: "Vampiric Fangs"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383477
+    m_Localized: "Vampiric Touch"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383478
+    m_Localized: "Void Blast"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383479
+    m_Localized: "Void Essence"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383480
+    m_Localized: "Wall Crawler"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383481
+    m_Localized: "Wall Jump Master"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383482
+    m_Localized: "Wall Runner"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383483
+    m_Localized: "Warrior Spirit"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383484
+    m_Localized: "Water Elemental"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383485
+    m_Localized: "Weakened Heart"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383486
+    m_Localized: "Wide Angle"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383487
+    m_Localized: "Wind Cloak"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383488
+    m_Localized: "Wind Elemental"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383489
+    m_Localized: "Wind Walker"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383490
+    m_Localized: "Wings of Icarus"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383491
+    m_Localized: "Wisdom Scroll"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17956860383492
+    m_Localized: "Wormhole"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
