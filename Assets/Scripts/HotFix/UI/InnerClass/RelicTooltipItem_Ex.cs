@@ -2,15 +2,16 @@ using UnityEngine;
 
 namespace MoreMountains;
 
-public partial class BallPurchaseItem
+public partial class RelicTooltipItem
 {
     public myUGUIButton Btn => btn;
 
-    public void Refresh(BallDef def)
+    public void Refresh(RelicDef def)
     {
         SetName(def.DisplayName.GetLocalizedString());
         SetPrice(def.BasePrice);
-        SetDesc(def);
+        if (def)
+            SetDesc(def);
         if (def.Icon)
             SetIcon(def.Icon);
         SetRarity(def.Rarity);
@@ -30,26 +31,15 @@ public partial class BallPurchaseItem
         itemName.setColor(c.title);
     }
 
-    public void SetNewTag(bool on) => newTag.setActive(on);
     public void SetIcon(Sprite s) => itemIcon?.setSpriteOnly(s);
     public void SetName(string s) => itemName.setText(s ?? string.Empty);
     public void SetPrice(int price) => itemPrice.setText(price.IToS());
 
-    public void SetSold(bool sold)
-    {
-        hovered.setActive(!sold);
-        itemSold.setActive(sold);
-        if (btn.tryGetUnityComponent<ButtonScaleAnim>(out var btnScaleAnim))
-        {
-            btnScaleAnim.ResetToNormal();
-            btnScaleAnim.enabled = !sold;
-        }
-    }
-
-    public void SetDesc(BallDef def)
+    public void SetDesc(RelicDef def)
     {
         using var _ = new MyStringBuilderScope(out var sb);
-        BallDef.BuildDescription(sb, def, player);
+        RelicDef.BuildDescription(sb, def);
         itemDesc.setText(sb.ToString());
     }
+
 }

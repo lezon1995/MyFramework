@@ -15,13 +15,15 @@ public partial class SelectPlayerPanel : LayoutScript
 // auto generate classname end
 {
     // auto generate member start
-    protected myUGUITextTMP textTitle;
-    protected SelectedCharacterDetailView selectedCharacterDetailView;
-    protected SelectCharacterListView selectCharacterListView;
-    protected SelectBallListView selectBallListView;
-    protected SelectRelicListView selectRelicListView;
-    protected myUGUIButton btnNext;
-    protected myUGUIButton btnPrevious;
+	protected myUGUITextTMP textTitle;
+	protected SelectedCharacterDetailView selectedCharacterDetailView;
+	protected BallTooltipItem ballTooltipItem;
+	protected RelicTooltipItem relicTooltipItem;
+	protected SelectCharacterListView selectCharacterListView;
+	protected SelectBallListView selectBallListView;
+	protected SelectRelicListView selectRelicListView;
+	protected myUGUIButton btnNext;
+	protected myUGUIButton btnPrevious;
     // auto generate member end
 
     public Action<CharSelectInfo> onSubmitCharacterSelectInfo;
@@ -32,10 +34,12 @@ public partial class SelectPlayerPanel : LayoutScript
     public SelectPlayerPanel()
     {
         // auto generate constructor start
-        selectedCharacterDetailView = new(this);
-        selectCharacterListView = new(this);
-        selectBallListView = new(this);
-        selectRelicListView = new(this);
+		selectedCharacterDetailView = new(this);
+		ballTooltipItem = new(this);
+		relicTooltipItem = new(this);
+		selectCharacterListView = new(this);
+		selectBallListView = new(this);
+		selectRelicListView = new(this);
         // auto generate constructor end
         mNeedUpdate = false;
         stepState.OnStateChange = OnStepStateChange;
@@ -44,13 +48,15 @@ public partial class SelectPlayerPanel : LayoutScript
     public override void assignWindow()
     {
         // auto generate assignWindow start
-        newObject(out textTitle, "Content/V/TextTitle");
-        selectedCharacterDetailView.assignWindow(mRoot, "Content/V/CentralArea/SelectedCharacterDetailView");
-        selectCharacterListView.assignWindow(mRoot, "Content/V/SelectionArea/SelectCharacterListView");
-        selectBallListView.assignWindow(mRoot, "Content/V/SelectionArea/SelectBallListView");
-        selectRelicListView.assignWindow(mRoot, "Content/V/SelectionArea/SelectRelicListView");
-        newObject(out btnNext, "Content/BtnNext");
-        newObject(out btnPrevious, "Content/BtnPrevious");
+		newObject(out textTitle, "Content/V/TextTitle");
+		selectedCharacterDetailView.assignWindow(mRoot, "Content/V/CentralArea/SelectedCharacterDetailView");
+		ballTooltipItem.assignWindow(mRoot, "Content/V/CentralArea/BallTooltipItem");
+		relicTooltipItem.assignWindow(mRoot, "Content/V/CentralArea/RelicTooltipItem");
+		selectCharacterListView.assignWindow(mRoot, "Content/V/SelectionArea/SelectCharacterListView");
+		selectBallListView.assignWindow(mRoot, "Content/V/SelectionArea/SelectBallListView");
+		selectRelicListView.assignWindow(mRoot, "Content/V/SelectionArea/SelectRelicListView");
+		newObject(out btnNext, "Content/BtnNext");
+		newObject(out btnPrevious, "Content/BtnPrevious");
         // auto generate assignWindow end
     }
 
@@ -65,9 +71,11 @@ public partial class SelectPlayerPanel : LayoutScript
         selectCharacterListView.initPlayerItems();
 
         selectBallListView.setCharacterDetailView(selectedCharacterDetailView);
+        selectBallListView.setBallTooltipItem(ballTooltipItem);
         selectBallListView.initBallItems();
 
         selectRelicListView.setCharacterDetailView(selectedCharacterDetailView);
+        selectRelicListView.setRelicTooltipItem(relicTooltipItem);
         selectRelicListView.initRelicItems();
         
         initButtons();
@@ -148,18 +156,24 @@ public partial class SelectPlayerPanel : LayoutScript
                 selectCharacterListView.setActive(true);
                 selectBallListView.setActive(false);
                 selectRelicListView.setActive(false);
+                ballTooltipItem.setActive(false);
+                relicTooltipItem.setActive(false);
                 break;
             case 2:
                 btnPrevious.setActive(true);
                 selectCharacterListView.setActive(false);
                 selectBallListView.setActive(true);
                 selectRelicListView.setActive(false);
+                ballTooltipItem.setActive(true);
+                relicTooltipItem.setActive(false);
                 break;
             case 3:
                 btnPrevious.setActive(true);
                 selectCharacterListView.setActive(false);
                 selectBallListView.setActive(false);
                 selectRelicListView.setActive(true);
+                ballTooltipItem.setActive(true);
+                relicTooltipItem.setActive(true);
                 break;
         }
     }

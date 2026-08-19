@@ -39,9 +39,10 @@ public partial class SelectBallListView : WindowObjectUGUI
     }
 
     SelectedCharacterDetailView detailView;
+    BallTooltipItem ballTooltipItem;
     Dictionary<BallDef, SelectBallItem> ballItems = new();
     public List<BallDef> selectedBalls = new();
-    
+
     public void initBallItems()
     {
         foreach (var def in ballManager.getDefs())
@@ -54,16 +55,14 @@ public partial class SelectBallListView : WindowObjectUGUI
         }
     }
 
-    public void setCharacterDetailView(SelectedCharacterDetailView v)
-    {
-        detailView = v;
-    }
+    public void setCharacterDetailView(SelectedCharacterDetailView v) => detailView = v;
+    public void setBallTooltipItem(BallTooltipItem v) => ballTooltipItem = v;
 
     bool IsBallUnlocked(BallDef def)
     {
         return def.Type == BallType.Normal;
     }
-    
+
     void OnBallItemClicked(SelectBallItem item)
     {
         if (!item.IsUnlocked)
@@ -75,6 +74,7 @@ public partial class SelectBallListView : WindowObjectUGUI
         _charSelectInfo.balls.AddRange(selectedBalls);
 
         RefreshBallItems();
+        ballTooltipItem.Refresh(item.Def);
         detailView.RefreshCharacterSelectBalls(selectedBalls);
         // selectPlayerPanel.updateNextStepButton();
     }
@@ -84,11 +84,17 @@ public partial class SelectBallListView : WindowObjectUGUI
         if (!item.IsUnlocked)
             return;
 
+        ballTooltipItem.Refresh(item.Def);
         // detailView.RefreshCharacterDetail(item.Def);
     }
 
     void OnBallItemHoveredEnd(SelectBallItem item)
     {
+        if (selectedBalls.Count > 0)
+        {
+            ballTooltipItem.Refresh(selectedBalls[0]);
+        }
+
         // detailView.RefreshCharacterDetail(selectedPlayer);
     }
 

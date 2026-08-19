@@ -37,6 +37,7 @@ public partial class SelectRelicListView : WindowObjectUGUI
 	
 	
 	SelectedCharacterDetailView detailView;
+	RelicTooltipItem relicTooltipItem;
 	Dictionary<RelicDef, SelectRelicItem> relicItems = new();
 	public List<RelicDef> selectedRelics = new();
 
@@ -52,10 +53,8 @@ public partial class SelectRelicListView : WindowObjectUGUI
 		}
 	}
 
-	public void setCharacterDetailView(SelectedCharacterDetailView v)
-	{
-		detailView = v;
-	}
+	public void setCharacterDetailView(SelectedCharacterDetailView v) => detailView = v;
+	public void setRelicTooltipItem(RelicTooltipItem v) => relicTooltipItem = v;
 
 	bool IsRelicUnlocked(RelicDef def)
 	{
@@ -73,6 +72,7 @@ public partial class SelectRelicListView : WindowObjectUGUI
 		_charSelectInfo.relics.AddRange(selectedRelics);
 
 		RefreshRelicItems();
+		relicTooltipItem.Refresh(item.Def);
 		detailView.RefreshCharacterSelectRelics(selectedRelics);
 		// selectPlayerPanel.updateNextStepButton();
 	}
@@ -82,11 +82,16 @@ public partial class SelectRelicListView : WindowObjectUGUI
 		if (!item.IsUnlocked)
 			return;
 
+		relicTooltipItem.Refresh(item.Def);
 		// detailView.RefreshCharacterDetail(item.Def);
 	}
 
 	void OnRelicItemHoveredEnd(SelectRelicItem item)
 	{
+		if (selectedRelics.Count > 0)
+		{
+			relicTooltipItem.Refresh(selectedRelics[0]);
+		}
 		// detailView.RefreshCharacterDetail(selectedPlayer);
 	}
 

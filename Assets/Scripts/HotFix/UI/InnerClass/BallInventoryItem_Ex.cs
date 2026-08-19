@@ -1,6 +1,4 @@
-using System;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 namespace MoreMountains;
 
@@ -27,6 +25,12 @@ public partial class BallInventoryItem : IBallOperationTarget
     }
 
     public void SetIconVisible(bool on) => icon?.setActive(on);
+
+    public void SetBallDef(BallDef def)
+    {
+        tooltipTrigger.setBallDef(def);
+        tooltipTrigger.setBallTooltipItem(slotBinder.View.BallTooltipItem);
+    }
 
     public void SetBallIcon(Sprite s)
     {
@@ -282,37 +286,5 @@ public partial class BallInventoryItem : IBallOperationTarget
                 slotBinder?.Rebuild();
             }
         }
-    }
-}
-
-// IDraggableItem 保留(拖拽已废弃)
-public partial class BallInventoryItem : IDraggableItem
-{
-    public void SetOnClick(UnityEngine.Events.UnityAction callback)
-    {
-    }
-
-    public void SetOnDragReleased(Action<BallInventoryItem, UIDragReleaseEventData> callback)
-    {
-    }
-
-    public void onPotentialDragInitialized(PointerEventData data)
-    {
-    }
-
-    public void onDragStarted(PointerEventData data)
-    {
-    }
-
-    public void onDragging(PointerEventData data)
-    {
-    }
-
-    public void onDragEnded(PointerEventData data)
-    {
-    }
-
-    public void onDragReleasedOverUI(UIDragReleaseEventData data)
-    {
     }
 }

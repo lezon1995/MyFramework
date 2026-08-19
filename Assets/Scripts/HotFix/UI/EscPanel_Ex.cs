@@ -7,15 +7,16 @@ public partial class EscPanel
 
     public RelicInventoryView RelicInventory => relicInventoryView;
     public BallInventoryView BallInventory => ballInventoryView;
-
+    public BallTooltipItem BallTooltipItem => ballTooltipItem;
+    public RelicTooltipItem RelicTooltipItem => relicTooltipItem;
     EscPanelBinder binder;
 
     void initBinder()
     {
         binder = new(
             this,
-            ballInventoryView.initBinder(),
-            relicInventoryView.initBinder(),
+            ballInventoryView.initBinder(this),
+            relicInventoryView.initBinder(this),
             playerInfoView.initBinder(),
             waveMonsterView.initBinder()
         );

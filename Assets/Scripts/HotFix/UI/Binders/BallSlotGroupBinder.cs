@@ -63,6 +63,11 @@ namespace MoreMountains
             // 直接把 model 的 Slots 列表交给 View,binder 不在中间建一个 List<BallSlot>。
             _view.BuildSlotsWithIndex(_model.Slots, (index, item, slot) =>
             {
+                // 不创建 lambda;item 的 UnityEvent 在 init() 中已一次性订阅,
+                // 这里只更新数据字段,转发走 item 自身的 onBtnClick。
+                item.SetSlotData(index, this);
+                item.SetBallSlot(slot);
+                
                 var ball = slot.Item; // 装备槽用 Item,非空表示有球
                 bool isOccupied = ball != null;
                 item.SetIconVisible(isOccupied);
@@ -73,11 +78,6 @@ namespace MoreMountains
 
                 item.SetStarCount(isOccupied ? ClampStars(ball.Level) : 0);
                 item.SetSelected(_selectedSlotIndex == slot.Index);
-                item.SetBallSlot(slot);
-
-                // 不创建 lambda;item 的 UnityEvent 在 init() 中已一次性订阅,
-                // 这里只更新数据字段,转发走 item 自身的 onBtnClick。
-                item.SetSlotData(index, this);
             });
         }
 

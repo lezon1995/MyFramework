@@ -28,6 +28,7 @@ namespace MoreMountains
         ARoom _room;
 
         public OperationPanelBinder Binder => _binder;
+        public OperationPanel Panel => _binder.Panel;
         public APlayer CurrentPlayer => _boundPlayer;
 
         public void Register(OperationPanelBinder binder)

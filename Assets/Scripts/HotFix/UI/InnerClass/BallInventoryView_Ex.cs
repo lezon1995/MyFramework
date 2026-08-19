@@ -5,6 +5,7 @@ namespace MoreMountains;
 
 public partial class BallInventoryView
 {
+    public BallTooltipItem BallTooltipItem { get; set; }
     public void SetTitle(string s) => textTitle.setText(s ?? string.Empty);
     public myUGUIObject ItemParent => itemParent;
 
@@ -40,8 +41,14 @@ public partial class BallInventoryView
 
     BallInventoryBinder binder;
 
-    public BallInventoryBinder initBinder()
+    public BallInventoryBinder initBinder(OperationPanel panel)
     {
+        BallTooltipItem = panel.BallTooltipItem;
+        return binder ??= new(this);
+    }
+    public BallInventoryBinder initBinder(EscPanel panel)
+    {
+        BallTooltipItem = panel.BallTooltipItem;
         return binder ??= new(this);
     }
 }

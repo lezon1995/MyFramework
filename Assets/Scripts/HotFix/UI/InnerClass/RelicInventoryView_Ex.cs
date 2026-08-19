@@ -4,6 +4,7 @@ namespace MoreMountains;
 
 public partial class RelicInventoryView
 {
+    public RelicTooltipItem RelicTooltipItem { get; set; }
     public void SetTitle(string s) => textTitle.setText(s ?? string.Empty);
     public myUGUIObject ItemParent => itemParent;
 
@@ -38,8 +39,15 @@ public partial class RelicInventoryView
 
     RelicInventoryBinder binder;
 
-    public RelicInventoryBinder initBinder()
+    public RelicInventoryBinder initBinder(OperationPanel panel)
     {
+        RelicTooltipItem = panel.RelicTooltipItem;
+        return binder ??= new(this);
+    }
+
+    public RelicInventoryBinder initBinder(EscPanel panel)
+    {
+        RelicTooltipItem = panel.RelicTooltipItem;
         return binder ??= new(this);
     }
 }

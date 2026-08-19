@@ -101,7 +101,7 @@ namespace MoreMountains
             _player = null;
             _ctrl = null;
         }
-        
+
         public void SetOwner(OperationPanelBinder owner)
         {
             _owner = owner;
@@ -119,13 +119,7 @@ namespace MoreMountains
             _view.BuildBallOffers(_ctrl.BallOffers, (item, offer) =>
             {
                 _orderedOffers.Add(offer);
-                item.SetName(offer.DisplayName ?? "—");
-                item.SetPrice(offer.Price);
-                if (offer.Def)
-                    item.SetDesc(offer.Def);
-                if (offer.Def.Icon)
-                    item.SetIcon(offer.Def.Icon);
-                item.SetRarity(offer.Def.Rarity);
+                item.Refresh(offer.Def);
                 item.SetHovered(false);
                 item.SetNewTag(offer.Enabled);
                 item.SetSold(offer.Sold);
@@ -136,13 +130,7 @@ namespace MoreMountains
             _view.BuildRelicOffers(_ctrl.RelicOffers, (item, offer) =>
             {
                 _orderedOffers.Add(offer);
-                item.SetName(offer.DisplayName ?? "—");
-                item.SetPrice(offer.Price);
-                if (offer.Def)
-                    item.SetDesc(offer.Def);
-                if (offer.Def.Icon)
-                    item.SetIcon(offer.Def.Icon);
-                item.SetRarity(offer.Def.Rarity);
+                item.Refresh(offer.Def);
                 item.SetHovered(false);
                 item.SetNewTag(offer.Enabled);
                 item.SetSold(offer.Sold);
@@ -153,7 +141,7 @@ namespace MoreMountains
 
         void OnOfferClicked(IPurchasable offer)
         {
-            if (offer == null) 
+            if (offer == null)
                 return;
 
             OfferBuyClicked?.Invoke(offer);

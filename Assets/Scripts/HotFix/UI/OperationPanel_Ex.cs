@@ -9,6 +9,8 @@ public partial class OperationPanel
     public WaveMonsterView WaveMonster => waveMonsterView;
     public RelicInventoryView RelicInventory => relicInventoryView;
     public BallInventoryView BallInventory => ballInventoryView;
+    public BallTooltipItem BallTooltipItem => ballTooltipItem;
+    public RelicTooltipItem RelicTooltipItem => relicTooltipItem;
 
     public myUGUITextTMP Title     => textTitle;
     public myUGUIButton  BtnNext  => btnNext;
@@ -26,8 +28,8 @@ public partial class OperationPanel
     {
         binder = new(
             this,
-            ballInventoryView.initBinder(),
-            relicInventoryView.initBinder(),
+            ballInventoryView.initBinder(this),
+            relicInventoryView.initBinder(this),
             playerInfoView.SlotGroup.initBinder(),
             shopView.initBinder(),
             rewardChooseView.initBinder(),

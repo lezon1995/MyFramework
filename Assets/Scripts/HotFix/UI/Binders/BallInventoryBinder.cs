@@ -74,6 +74,12 @@ namespace MoreMountains
             // binder 不在中间建一个 List<BallItem>,避免 Rebuild 时的中间分配。
             _view.BuildBallsWithIndex(_bag.SlotList, (index, item, slot) =>
             {
+                // 把数据塞到 item 上(item 内部保存一份,作为兜底转发路径)
+                // UnityEvent 订阅在 item.init() 中已经一次性完成,这里只更新数据字段,
+                // 不创建任何 lambda。
+                item.SetSlotData(index, this);
+                item.SetBallInventorySlot(slot);
+                
                 var ball = slot.Item; // 可能为 null
                 bool isEmpty = slot.IsEmpty;
                 bool isOccupied = slot.IsOccupied;
@@ -82,11 +88,13 @@ namespace MoreMountains
                 item.SetSelected(isSel);
                 if (isOccupied)
                 {
+                    item.SetBallDef(ball.Def);
                     item.SetBallIcon(ball.Def.Icon);
                     item.SetRarity(ball.Def.rarity);
                 }
                 else
                 {
+                    item.SetBallDef(null);
                     item.SetBallIcon(null);
                     item.SetRarity(ItemRarity.Tier1);
                 }
@@ -94,12 +102,6 @@ namespace MoreMountains
                 item.SetIconVisible(!isEmpty);
                 item.SetStarCount(!isEmpty ? ClampStars(ball.Level) : 0);
                 item.SetEnabledState(!isEmpty);
-
-                // 把数据塞到 item 上(item 内部保存一份,作为兜底转发路径)
-                // UnityEvent 订阅在 item.init() 中已经一次性完成,这里只更新数据字段,
-                // 不创建任何 lambda。
-                item.SetSlotData(index, this);
-                item.SetBallInventorySlot(slot);
             });
         }
 

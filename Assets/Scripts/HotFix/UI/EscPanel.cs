@@ -15,6 +15,8 @@ public partial class EscPanel : LayoutScript
 	protected RelicInventoryView relicInventoryView;
 	protected MenuOptionView menuOptionView;
 	protected WaveMonsterView waveMonsterView;
+	protected BallTooltipItem ballTooltipItem;
+	protected RelicTooltipItem relicTooltipItem;
 	// auto generate member end
 	public EscPanel()
 	{
@@ -24,6 +26,8 @@ public partial class EscPanel : LayoutScript
 		relicInventoryView = new(this);
 		menuOptionView = new(this);
 		waveMonsterView = new(this);
+		ballTooltipItem = new(this);
+		relicTooltipItem = new(this);
 		// auto generate constructor end
 	}
 	public override void assignWindow()
@@ -34,6 +38,8 @@ public partial class EscPanel : LayoutScript
 		relicInventoryView.assignWindow(mRoot, "InventoryView/RelicInventoryView");
 		menuOptionView.assignWindow(mRoot, "MenuOptionView");
 		waveMonsterView.assignWindow(mRoot, "WaveMonsterView");
+		ballTooltipItem.assignWindow(mRoot, "BallTooltipItem");
+		relicTooltipItem.assignWindow(mRoot, "RelicTooltipItem");
 		// auto generate assignWindow end
 	}
 	public override void init()

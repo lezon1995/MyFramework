@@ -24,7 +24,8 @@ namespace MoreMountains
         }
 
         public RelicItem SelectedRelic => _selected;
-
+        /// <summary>背包视图。</summary>
+        public RelicInventoryView View => _view;
         public event Action<RelicItem /*selected*/> RelicSelected;
         public event Action<RelicItem> SellRequested;
 
@@ -69,6 +70,12 @@ namespace MoreMountains
             // binder 不在中间建一个 List<RelicItem>,避免 Rebuild 时的中间分配。
             _view.BuildRelicsWithIndex(_bag.SlotList, (index, item, slot) =>
             {
+                // 把 slot 写回 item,便于 item 在操作状态中判断 isOccupied
+                // 不创建 lambda;item 的 UnityEvent 在 init() 中已一次性订阅,
+                // 这里只更新数据字段,转发走 item 自身的 onBtnClick / onPointerPressed。
+                item.SetSlotData(index, this);
+                item.SetRelicInventorySlot(slot);
+                
                 var relic = slot.Item; // 可能为 null
                 bool isEmpty = slot.IsEmpty;
                 bool isOccupied = slot.IsOccupied;
@@ -77,24 +84,19 @@ namespace MoreMountains
                 item.SetSelected(isSel);
                 if (isOccupied)
                 {
+                    item.SetRelicDef(relic.Def);
                     item.SetRelicIcon(relic.Def.Icon);
                     item.SetRarity(relic.Def.rarity);
                 }
                 else
                 {
+                    item.SetRelicDef(null);
                     item.SetRelicIcon(null);
                     item.SetRarity(ItemRarity.Tier1);
                 }
 
                 item.SetIconVisible(!isEmpty);
                 item.SetEnabled(!isEmpty);
-
-                // 把 slot 写回 item,便于 item 在操作状态中判断 isOccupied
-                item.SetRelicInventorySlot(slot);
-
-                // 不创建 lambda;item 的 UnityEvent 在 init() 中已一次性订阅,
-                // 这里只更新数据字段,转发走 item 自身的 onBtnClick / onPointerPressed。
-                item.SetSlotData(index, this);
             });
         }
 

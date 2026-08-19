@@ -42,9 +42,7 @@ namespace MoreMountains
         public RectTransform GetRectTransform()
         {
             if (_rectTransform == null)
-            {
-                _rectTransform = GetComponent<RectTransform>();
-            }
+                TryGetComponent(out _rectTransform);
 
             return _rectTransform;
         }

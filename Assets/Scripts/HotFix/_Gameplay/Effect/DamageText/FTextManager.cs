@@ -66,9 +66,12 @@ public class FTextManager : FrameSystem
     void initCanvas()
     {
         textParent = createGameObject("FTextCanvas", mObject);
+        textParent.layer = LayerMask.NameToLayer("UI");
         var canvas = textParent.AddComponent<Canvas>();
-        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.renderMode = RenderMode.ScreenSpaceCamera;
         canvas.sortingOrder = 0;
+        canvas.planeDistance = 5;
+        canvas.worldCamera = getUICamera();
 
         var canvasScaler = textParent.AddComponent<CanvasScaler>();
         canvasScaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;

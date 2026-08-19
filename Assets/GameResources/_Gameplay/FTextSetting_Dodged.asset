@@ -18,10 +18,10 @@ MonoBehaviour:
   Icons: []
   MetaIcons: []
   ContentScale: 0.8
-  StartSequenceDuration: 0.05
+  StartSequenceDuration: 0.1
   StaticDuration: 0
-  FloatingDuration: 0.2
-  FinishSequenceDuration: 0.1
+  FloatingDuration: 0.25
+  FinishSequenceDuration: 0.15
   StartScaleCurve:
     serializedVersion: 2
     m_Curve:

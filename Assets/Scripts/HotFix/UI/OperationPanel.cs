@@ -20,6 +20,8 @@ public partial class OperationPanel : LayoutScript
 	protected myUGUITextTMP textTitle;
 	protected myUGUIButton btnNext;
 	protected myUGUITextTMP textBtn;
+	protected BallTooltipItem ballTooltipItem;
+	protected RelicTooltipItem relicTooltipItem;
 	// auto generate member end
 
 	LocalizeStringEvent _stringTitle;
@@ -34,6 +36,8 @@ public partial class OperationPanel : LayoutScript
 		waveMonsterView = new(this);
 		relicInventoryView = new(this);
 		ballInventoryView = new(this);
+		ballTooltipItem = new(this);
+		relicTooltipItem = new(this);
 		// auto generate constructor end
 		mNeedUpdate = false;
 	}
@@ -49,6 +53,8 @@ public partial class OperationPanel : LayoutScript
 		newObject(out textTitle, "Title/TextTitle");
 		newObject(out btnNext, "BtnNext");
 		newObject(out textBtn, "BtnNext/TextBtn");
+		ballTooltipItem.assignWindow(mRoot, "BallTooltipItem");
+		relicTooltipItem.assignWindow(mRoot, "RelicTooltipItem");
 		// auto generate assignWindow end
 
 		textTitle.tryGetUnityComponent(out _stringTitle);

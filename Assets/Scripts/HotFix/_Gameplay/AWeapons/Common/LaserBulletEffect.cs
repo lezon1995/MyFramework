@@ -16,7 +16,7 @@ public class LaserBulletEffect : ALogicEffect, IArgs<Ball, Brick, Vector2>
 
     public void onCreate(Ball b1, Brick b2, Vector2 dir)
     {
-        duration = 0.5F;
+        duration = 3F;
         ball = b1;
         var o = prefabPool.createObject(path);
         if (o.TryGetComponent(out bullet))
@@ -35,7 +35,11 @@ public class LaserBulletEffect : ALogicEffect, IArgs<Ball, Brick, Vector2>
     public override bool fixedUpdate(float dt)
     {
         var done = base.fixedUpdate(dt);
-        done = bullet.Health.IsDead();
+        if (!done)
+        {
+            done = bullet.Health.IsDead();
+        }
+
         return done;
     }
 
@@ -46,7 +50,7 @@ public class LaserBulletEffect : ALogicEffect, IArgs<Ball, Brick, Vector2>
         if (bullet)
         {
             bullet.TryClearTrails();
-            prefabPool.destroyObject(bullet.gameObject, false);
+            prefabPool.destroyObject(bullet, false);
         }
 
         bullet = null;

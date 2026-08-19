@@ -41,6 +41,7 @@ public partial class RelicInventoryItem : WindowRecyclableUGUI
     // 避免每次 Rebuild 创建闭包 lambda。
     public int slotIndex { get; private set; } = -1;
     RelicInventoryBinder relicBinder;
+    public RelicTooltipTrigger tooltipTrigger;
 
     public override void init()
     {
@@ -55,6 +56,8 @@ public partial class RelicInventoryItem : WindowRecyclableUGUI
             bridge = go.AddComponent<RelicOperationTargetBridge>();
         }
         bridge.Target = this;
+
+        go.TryGetComponent(out tooltipTrigger);
 
         // 初始化 highlight 状态
         highlight?.setActive(false);

@@ -21,6 +21,8 @@ namespace MoreMountains
     /// </summary>
     public sealed class OperationPanelBinder
     {
+        public OperationPanel Panel => _panel;
+        
         OperationPanel _panel;
         BallInventoryBinder _ballInv;
         RelicInventoryBinder _relicInv;

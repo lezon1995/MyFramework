@@ -29,5 +29,59 @@ namespace MoreMountains
         public ItemRarity rarity => Rarity;
 
         public bool isSeen { get; set; }
+
+        public static void BuildDescription(MyStringBuilder sb, RelicDef def)
+        {
+            build_StatMods(sb, def.PlayerStatMods);
+            build_DisplayDescription(sb, def);
+        }
+
+        static void build_DisplayDescription(MyStringBuilder sb, RelicDef def)
+        {
+            sb.addLine();
+            var localizedString = def.DisplayDescription.GetLocalizedString();
+            sb.add(localizedString);
+        }
+
+        static void build_StatMods(MyStringBuilder sb, PlayerStatMod[] mods)
+        {
+            if (mods is not { Length: > 0 })
+                return;
+
+            var universalColor = gameDesign.universalColor;
+
+            foreach (var mod in mods)
+            {
+                var statName = LocalizedStats.getName(mod.StatName);
+                sb.add(mod.StatName.toSprite());
+                sb.add(" ");
+
+                var bonusFlat = mod.BonusFlat;
+                var bonusPct = mod.BonusPct;
+                if (bonusFlat > 0)
+                {
+                    var color = universalColor.enhanced.toRGBA();
+                    sb.colorString(color, "+", $"{bonusFlat.FToS(0)}");
+                }
+                else if (bonusFlat < 0)
+                {
+                    var color = universalColor.reduced.toRGBA();
+                    sb.colorString(color, "-", $"{bonusFlat.FToS(0)}");
+                }
+                else if (bonusPct > 0)
+                {
+                    var color = universalColor.enhanced.toRGBA();
+                    sb.colorString(color, "+", $"{bonusPct.toPercent(0)}");
+                }
+                else if (bonusPct < 0)
+                {
+                    var color = universalColor.reduced.toRGBA();
+                    sb.colorString(color, "-", $"{bonusPct.toPercent(0)}");
+                }
+
+                sb.add(statName);
+                sb.addLine();
+            }
+        }
     }
 }

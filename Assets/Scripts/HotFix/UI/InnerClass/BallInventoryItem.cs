@@ -44,6 +44,7 @@ public partial class BallInventoryItem : WindowRecyclableUGUI
 
     public int slotIndex = -1;
     public BallInventoryBinder slotBinder;
+    public BallTooltipTrigger tooltipTrigger;
 
     public override void init()
     {
@@ -58,6 +59,8 @@ public partial class BallInventoryItem : WindowRecyclableUGUI
             bridge = go.AddComponent<BallOperationTargetBridge>();
         }
         bridge.Target = this;
+
+        go.TryGetComponent(out tooltipTrigger);
 
         // 初始化 highlight 状态
         highlight?.setActive(false);

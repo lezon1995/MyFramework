@@ -59,13 +59,13 @@ namespace MoreMountains
 
         #region Private Fields
 
-        bool _isMouseOver;
-        bool _isSelected;
-        bool _isTooltipShown;
-        float _hoverTimer;
-        bool _isHoverTimerRunning;
-        RectTransform _rectTransform;
-        TooltipRequest _currentRequest;
+        protected bool _isMouseOver;
+        protected bool _isSelected;
+        protected bool _isTooltipShown;
+        protected float _hoverTimer;
+        protected bool _isHoverTimerRunning;
+        protected RectTransform _rectTransform;
+        protected TooltipRequest _currentRequest;
 
         #endregion
 
@@ -79,9 +79,7 @@ namespace MoreMountains
             get
             {
                 if (_rectTransform == null)
-                {
-                    _rectTransform = GetComponent<RectTransform>();
-                }
+                    TryGetComponent(out _rectTransform);
 
                 return _rectTransform;
             }
@@ -98,7 +96,7 @@ namespace MoreMountains
 
         protected virtual void Awake()
         {
-            _rectTransform = GetComponent<RectTransform>();
+            TryGetComponent(out _rectTransform);
         }
 
         protected virtual void Start()
@@ -311,7 +309,7 @@ namespace MoreMountains
             }
         }
 
-        void ShowTooltipInternal()
+        protected virtual void ShowTooltipInternal()
         {
             if (!CanShowTooltip()) 
                 return;
@@ -357,7 +355,7 @@ namespace MoreMountains
             _isHoverTimerRunning = false;
         }
 
-        void HideTooltipInternal()
+        protected virtual void HideTooltipInternal()
         {
             if (!_isTooltipShown) 
                 return;
@@ -371,9 +369,12 @@ namespace MoreMountains
             _currentRequest = null;
         }
 
-        bool CanShowTooltip()
+        protected virtual bool CanShowTooltip()
         {
             if (TooltipManager.Instance && !TooltipManager.Instance.settings.enableTooltip)
+                return false;
+            
+            if (_isTooltipShown)
                 return false;
 
             return true;

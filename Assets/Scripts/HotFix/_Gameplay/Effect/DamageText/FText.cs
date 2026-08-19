@@ -37,6 +37,7 @@ public class FText : Transformable
     TextTMP _text;
     Transform _content;
     CanvasGroup _canvas;
+    RectTransform _rectTransform;
     Vector2 _rectPos;
     Vector3 _screenPos;
 
@@ -53,6 +54,7 @@ public class FText : Transformable
         UN_CLASS(ref _text);
         _content = null;
         _canvas = null;
+        _rectTransform = null;
         _rectPos = default;
         _screenPos = default;
         
@@ -76,6 +78,7 @@ public class FText : Transformable
         obj.find(out _icon, "Content/Icon");
         obj.find(out _metaIcon, "Content/MetaIcon");
         obj.TryGetComponent(out _canvas);
+        obj.TryGetComponent(out _rectTransform);
         CLASS(out _text).with(_tmp, _tmpOutline);
     }
 
@@ -145,7 +148,7 @@ public class FText : Transformable
             return;
 
         //set the start position
-        var p = worldToScreen(data.getPosition(), false);
+        var p = worldToScreen(data.getPosition());
         setWorldPosition(p);
         data.initialPos = getWorldPosition();
         _screenPos = getWorldPosition();
@@ -267,7 +270,7 @@ public class FText : Transformable
                         setPosition(data, _totalPct);
                     else
                     {
-                        _screenPos = worldToScreen(data.getPosition(), false);
+                        _screenPos = worldToScreen(data.getPosition());
                         setWorldPosition(_screenPos);
                     }
 
@@ -295,7 +298,7 @@ public class FText : Transformable
                     if (_pct < 1)
                     {
                         _pct += elapsedTime / staticDuration;
-                        _screenPos = worldToScreen(data.getPosition(), false);
+                        _screenPos = worldToScreen(data.getPosition());
                         setWorldPosition(_screenPos);
                         return;
                     }
@@ -410,7 +413,7 @@ public class FText : Transformable
     {
         if (!data.hasFlag(Data.Flags.FollowScreen))
         {
-            _screenPos = worldToScreen(data.getPosition(), false);
+            _screenPos = worldToScreen(data.getPosition());
         }
 
         var setting = data.setting;
@@ -420,6 +423,11 @@ public class FText : Transformable
 
         var pos = _screenPos + (Vector3)_rectPos;
         setWorldPosition(pos);
+    }
+    
+    public new void setWorldPosition(Vector3 pos)
+    {
+        _rectTransform.anchoredPosition = pos;
     }
 
     public override void setAlpha(float alpha)

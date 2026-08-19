@@ -1,6 +1,4 @@
-using System;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 namespace MoreMountains;
 
@@ -21,6 +19,13 @@ public partial class RelicInventoryItem : IRelicOperationTarget
     public GameObject ItemGO => mRoot.getGameObject();
     public void SetSelected(bool on) => focus?.setActive(on);
     public void SetEnabled(bool on) => disable?.setActive(!on);
+
+    public void SetRelicDef(RelicDef def)
+    {
+        tooltipTrigger.setRelicDef(def);
+        tooltipTrigger.setRelicTooltipItem(relicBinder.View.RelicTooltipItem);
+    }
+
     public void SetRelicIcon(Sprite s)
     {
         if (s)
@@ -43,7 +48,7 @@ public partial class RelicInventoryItem : IRelicOperationTarget
         itemBorder.setColor(c.border);
         iconBg.setColor(c.iconBg);
     }
-    
+
     // IRelicOperationTarget 实现
 
     public void BeginFollowMouse(RectTransform iconSource)
@@ -82,7 +87,7 @@ public partial class RelicInventoryItem : IRelicOperationTarget
         }
 
         if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            _iconRect.parent as RectTransform, screenMousePos, canvas?.worldCamera, out var localPos))
+                _iconRect.parent as RectTransform, screenMousePos, canvas?.worldCamera, out var localPos))
         {
             _iconRect.anchoredPosition = localPos;
         }
@@ -134,7 +139,7 @@ public partial class RelicInventoryItem : IRelicOperationTarget
         var source = RelicOperationStateManager.Instance.CurrentSource;
         if (source == null)
             return;
-        
+
         if (hoveredTarget is ShopSellZoneView shopSellZoneView)
         {
             var relicItem = relicInventorySlot.Item;
