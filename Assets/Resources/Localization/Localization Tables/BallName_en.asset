@@ -1,0 +1,71 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: BallName_en
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
+  m_LocaleId:
+    m_Code: en
+  m_SharedData: {fileID: 11400000, guid: 85c81ed0611cc5a4bb7012bca43ef6af, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 10716272152576
+    m_Localized: Electric
+    m_Metadata:
+      m_Items: []
+  - m_Id: 12226037043200
+    m_Localized: Fire Burn
+    m_Metadata:
+      m_Items: []
+  - m_Id: 12375467511808
+    m_Localized: Ice Freeze
+    m_Metadata:
+      m_Items: []
+  - m_Id: 12778309439488
+    m_Localized: Ice Frost
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17996522737664
+    m_Localized: Laser Beam
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18706224140288
+    m_Localized: Laser Bullet
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19752199671808
+    m_Localized: Lightning Strike
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20466837770240
+    m_Localized: Normal
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20810783281152
+    m_Localized: Poison Burn
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21253177495552
+    m_Localized: Rock Quake
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21479594414080
+    m_Localized: Rock Splash
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22217540259840
+    m_Localized: Water Spot
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []

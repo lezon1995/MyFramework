@@ -80,13 +80,20 @@ namespace MoreMountains
 
         public override void Damage(ref Dmg dmg, GameObject instigator, Character source = null, float invincibleTime = 0F, Vector3 direction = default, IDmgCalculator calculator = null)
         {
-            if (!CanTakeDamageThisFrame(out var resistDamageType))
+            if (!CanTakeDamageThisFrame(out _))
+                return;
+            
+            if (CanDodgeDamageThisFrame(out var dodgeType))
             {
-                if (resistDamageType == ResistDamageType.Dodged)
+                switch (dodgeType)
                 {
-                    brick.brickRenderer.playFxDodge();
+                    case DodgeDamageType.Chance:
+                        brick.Event.trigger(new DoChanceDodge());
+                        break;
+                    case DodgeDamageType.Dash:
+                        brick.Event.trigger(new DoDashDodge());
+                        break;
                 }
-
                 return;
             }
 
@@ -462,7 +469,7 @@ namespace MoreMountains
                 return;
 
             foreach (var p in brick.powers)
-                healing = p.onHeal((int)healing);
+                p.onHeal(ref healing);
 
             int newHealth;
             int actualHealing;

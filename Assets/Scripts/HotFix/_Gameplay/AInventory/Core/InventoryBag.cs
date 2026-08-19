@@ -27,6 +27,7 @@ namespace MoreMountains
         where TItem : class, IInventoryItem
         where TSlot : IInventorySlot<TItem>
     {
+        protected APlayer _player;
         protected List<TSlot> Slots;
         protected int CapacityValue;
 
@@ -75,8 +76,9 @@ namespace MoreMountains
         public Action<TSlot> OnSlotChanged;
         public event Action OnBagChanged;
 
-        protected InventoryBag(int capacity, int maxCapacity, string bagName)
+        protected InventoryBag(APlayer p, int capacity, int maxCapacity, string bagName)
         {
+            _player = p;
             BagName = bagName;
             CapacityValue = Math.Max(0, capacity);
             MaxCapacity = Math.Max(CapacityValue, maxCapacity);
@@ -256,18 +258,18 @@ namespace MoreMountains
             return false;
         }
 
-        void RaiseSlotChanged(IInventorySlot<TItem> slot)
+        protected void RaiseSlotChanged(IInventorySlot<TItem> slot)
         {
             OnSlotChanged?.Invoke((TSlot)slot);
         }
 
-        void RaiseAdded(TItem item)
+        protected virtual void RaiseAdded(TItem item)
         {
             OnItemAdded?.Invoke(item);
             OnBagChanged?.Invoke();
         }
 
-        void RaiseRemoved(TItem item)
+        protected virtual void RaiseRemoved(TItem item)
         {
             OnItemRemoved?.Invoke(item);
             OnBagChanged?.Invoke();
@@ -299,7 +301,9 @@ namespace MoreMountains
         public bool FindIndex(TItem item, out int index)
         {
             index = -1;
-            if (item == null) return false;
+            if (item == null) 
+                return false;
+
             for (int i = 0; i < Slots.Count; i++)
             {
                 if (ReferenceEquals(Slots[i].Item, item))

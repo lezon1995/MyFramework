@@ -1,4 +1,5 @@
 ﻿using System;
+using MoreMountains.Tools;
 using PrimeTween;
 using TMPro;
 using UnityEngine;
@@ -413,6 +414,7 @@ namespace MoreMountains
         public void playFxDodge()
         {
             fxDodge.Play();
+            new DodgeChanceTextEvent(false, brick.transform).trigger();
         }
     }
 }

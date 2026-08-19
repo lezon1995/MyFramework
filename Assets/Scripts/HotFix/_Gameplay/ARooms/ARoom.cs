@@ -51,8 +51,6 @@ namespace MoreMountains
         public APlayer Player => _player;
 
         // public List<AbstractPotion> potions = new();
-        public List<ARelic> relics = new();
-
         // public List<RewardItem> rewards = new();
         // public SoulGroup souls = new();
         public RoomPhase phase = RoomPhase.COMBAT;
@@ -207,26 +205,6 @@ namespace MoreMountains
 
         public void updateObjects(float dt)
         {
-            // souls.update(dt);
-
-            // for (Iterator<AbstractPotion> iterator = potions.iterator(); iterator.hasNext();)
-            // {
-            //     AbstractPotion tmpPotion = iterator.next();
-            //     tmpPotion.update();
-            //     if (tmpPotion.isObtained)
-            //         iterator.remove();
-            // }
-            //
-
-            for (var i = relics.Count - 1; i >= 0; i--)
-            {
-                var relic = relics[i];
-                relic.update(dt);
-                if (relic.isDone)
-                {
-                    relics.RemoveAt(i);
-                }
-            }
         }
 
         public virtual void update(float dt)
@@ -620,26 +598,6 @@ namespace MoreMountains
         public virtual void dropReward()
         {
         }
-
-        public void spawnRelicAndObtain(float x, float y, ARelic relic)
-        {
-            if (relic.relicId == "Circlet" && player.tryGetRelic("Circlet", out var circlet))
-            {
-                circlet.counter++;
-                circlet.flash();
-            }
-            else
-            {
-                relic.spawn(x, y);
-                relics.Add(relic);
-                relic.obtain();
-                relic.isObtained = true;
-                relic.isAnimating = false;
-                relic.isDone = false;
-                relic.flash();
-            }
-        }
-
 
         public void applyEndOfTurnRelics()
         {

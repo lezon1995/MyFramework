@@ -37,4 +37,16 @@ namespace MoreMountains
             Target = target;
         }
     }
+
+    public struct DodgeChanceTextEvent
+    {
+        public bool IsPlayer;
+        public Transform Target;
+
+        public DodgeChanceTextEvent(bool isPlayer, Transform target)
+        {
+            IsPlayer = isPlayer;
+            Target = target;
+        }
+    }
 }

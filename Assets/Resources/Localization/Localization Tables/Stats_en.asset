@@ -134,6 +134,10 @@ MonoBehaviour:
     m_Localized: Range
     m_Metadata:
       m_Items: []
+  - m_Id: 1804044210819072
+    m_Localized: Dodged
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

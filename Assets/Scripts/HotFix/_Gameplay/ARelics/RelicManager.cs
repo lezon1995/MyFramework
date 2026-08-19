@@ -10,6 +10,7 @@ namespace MoreMountains
         List<RelicDef> Defs = new();
 
         Dictionary<RelicType, RelicDef> defDict = new();
+        Dictionary<string, RelicDef> defDict2 = new();
 
         protected override void OnAwake()
         {
@@ -20,15 +21,28 @@ namespace MoreMountains
             {
                 defDict[def.Type] = def;
             }
+
+            defDict2.Clear();
+            foreach (var def in Defs)
+            {
+                defDict2[def.RelicName] = def;
+            }
         }
 
         public bool getDef(RelicType type, out RelicDef def)
         {
             return defDict.TryGetValue(type, out def);
         }
+
         public RelicDef getDef(RelicType type)
         {
             defDict.TryGetValue(type, out var def);
+            return def;
+        }
+        
+        public RelicDef getDef(string relicName)
+        {
+            defDict2.TryGetValue(relicName, out var def);
             return def;
         }
         

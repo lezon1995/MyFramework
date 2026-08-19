@@ -22,6 +22,18 @@ MonoBehaviour:
     - Locale-zh-Hans
     - Preload
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 1cb71a7a96b59d047b1796079a6e0497
+    m_Address: RelicName_zh-Hans
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-zh-Hans
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 44cc210b35a2da444a0fe2816552772c
+    m_Address: BallDescription_zh-Hans
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-zh-Hans
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 617fbc8ecb54e394e8cf8ef84a5211e9
     m_Address: OperationPanel_zh-Hans
     m_ReadOnly: 1
@@ -30,6 +42,18 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 98372e0aef54e1c4fac10215e450c1b2
     m_Address: Stats_zh-Hans
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-zh-Hans
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e7b08219d5eb1144bbcef7da29e40713
+    m_Address: RelicDescription_zh-Hans
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-zh-Hans
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e8262aab0e716a84c822874e6c52a412
+    m_Address: BallName_zh-Hans
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-zh-Hans

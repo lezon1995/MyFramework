@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using MoreMountains.Tools;
 
 namespace MoreMountains
 {
@@ -139,14 +138,14 @@ namespace MoreMountains
 
             if (info.owner == player)
                 foreach (var r in player.relics)
-                    damageAmount = r.onAttackToChangeDamage(info, damageAmount);
+                    r.onAttackToChangeDamage(info, ref damageAmount);
 
             if (info.owner != null)
                 foreach (var p in info.owner.powers)
-                    damageAmount = p.onAttackToChangeDamage(info, damageAmount);
+                    p.onAttackToChangeDamage(info, ref damageAmount);
 
             foreach (var p in powers)
-                damageAmount = p.onAttackedToChangeDamage(info, damageAmount);
+                p.onAttackedToChangeDamage(info, ref damageAmount);
 
             if (info.owner == player)
                 foreach (var r in player.relics)
@@ -160,7 +159,7 @@ namespace MoreMountains
                     p.onAttack(info, damageAmount, this);
 
             foreach (var p in powers)
-                damageAmount = p.onAttacked(info, damageAmount);
+                p.onAttacked(info, ref damageAmount);
 
             lastDamageTaken = Math.Min(damageAmount, currentHealth);
             bool probablyInstantKill = (currentHealth == 0);

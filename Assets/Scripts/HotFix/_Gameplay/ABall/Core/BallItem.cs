@@ -23,7 +23,7 @@ namespace MoreMountains
         public int Level; // 1..MaxLevel
         public Guid Uid; // 升级 / 融合后重新生成
 
-        public string DisplayName => Def ? $"{Def.DisplayName} Lv.{Level}" : $"Ball#{Type} Lv.{Level}";
+        public string DisplayName => Def ? $"{Def.DisplayName.GetLocalizedString()} Lv.{Level}" : $"Ball#{Type} Lv.{Level}";
 
         public int SellPrice
         {

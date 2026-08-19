@@ -564,10 +564,10 @@ namespace MoreMountains
         public static List<ARelic> sortByName(List<ARelic> group, bool ascending)
         {
             List<ARelic> tmp = new();
-            foreach (ARelic r in group)
+            foreach (var r in group)
             {
                 int addIndex = 0;
-                foreach (ARelic r2 in tmp)
+                foreach (var r2 in tmp)
                 {
                     if (!ascending ? (string.Compare(r.name, r2.name, StringComparison.Ordinal) < 0) : (string.Compare(r.name, r2.name, StringComparison.Ordinal) > 0))
                         break;
@@ -583,10 +583,10 @@ namespace MoreMountains
         public static List<ARelic> sortByStatus(List<ARelic> group, bool ascending)
         {
             List<ARelic> tmp = new();
-            foreach (ARelic r in group)
+            foreach (var r in group)
             {
                 int addIndex = 0;
-                foreach (ARelic r2 in tmp)
+                foreach (var r2 in tmp)
                 {
                     if (!ascending)
                     {

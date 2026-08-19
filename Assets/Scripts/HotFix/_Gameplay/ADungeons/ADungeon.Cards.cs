@@ -192,7 +192,7 @@ namespace MoreMountains
         {
             List<ACard> retVal = new();
             int numCards = 3;
-            foreach (ARelic r in p.relics)
+            foreach (var r in p.relics)
                 numCards = r.changeNumberOfCardsInReward(numCards);
 
             if (ModHelper.isModEnabled("Binary"))
@@ -237,7 +237,7 @@ namespace MoreMountains
         {
             List<ACard> retVal = new();
             int numCards = 3;
-            foreach (ARelic r in p.relics)
+            foreach (var r in p.relics)
                 numCards = r.changeNumberOfCardsInReward(numCards);
 
             if (ModHelper.isModEnabled("Binary"))
@@ -296,7 +296,7 @@ namespace MoreMountains
                 retVal2.Add(c.makeCopy());
             foreach (ACard c in retVal2)
             {
-                foreach (ARelic r in p.relics)
+                foreach (var r in p.relics)
                     r.onPreviewObtainCard(c);
             }
 

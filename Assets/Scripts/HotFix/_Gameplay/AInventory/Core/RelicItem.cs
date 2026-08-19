@@ -1,5 +1,3 @@
-using System;
-
 namespace MoreMountains
 {
     /// <summary>
@@ -18,7 +16,7 @@ namespace MoreMountains
         public ItemKind Kind => ItemKind.Relic;
         public RelicDef Def;
 
-        public string DisplayName => Def ? $"{Def.DisplayName}" : $"Relic#{Type}";
+        public string DisplayName => Def ? $"{Def.DisplayName.GetLocalizedString()}" : $"Relic#{Type}";
         public int SellPrice => Def.BasePrice;
 
         /// <summary>关联的 ARelic 实例（或其子类）；由 RelicService 解析回传。</summary>
@@ -40,9 +38,7 @@ namespace MoreMountains
             return item;
         }
         
-        public static void Release(ref RelicItem item)
-        {
-            UN_CLASS(ref item);
-        }
+        public static void Release(ref RelicItem item) => UN_CLASS(ref item);
+        public static void Release(RelicItem item) => UN_CLASS(item);
     }
 }

@@ -13,9 +13,6 @@ public class MonsterBlock : ABlock
     {
         int tmp = blockAmount;
 
-        foreach (var r in monster.relics)
-            tmp = r.onPlayerGainedBlock(tmp);
-
         if (tmp > 0.0F)
             foreach (var m in monster.powers)
                 m.onGainedBlock(tmp);

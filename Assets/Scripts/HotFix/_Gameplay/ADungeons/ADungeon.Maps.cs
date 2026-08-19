@@ -728,7 +728,7 @@ namespace MoreMountains
             effectManager.clear();
 
             // cardBlizzRandomizer = cardBlizzStartOffset;
-            player?.relics.Clear();
+            player?.Inventory.RelicBag.Clear();
             // rs = RenderScene.NORMAL;
             // blightPool.clear();
             cardInstanceIdGenerator = 0;

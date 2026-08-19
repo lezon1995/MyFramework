@@ -9,27 +9,13 @@ namespace MoreMountains
     {
         public string name;
         public string relicId;
-        public bool energyBased;
-        public bool isUsedUp;
-        public bool grayscale;
         public string description;
-        public string flavorText = "missing";
+        public string flavorText;
         public int cost;
         public int counter = -1;
         public RelicTier tier;
-
         public bool isSeen;
-        public float scale = Settings.scale;
-        protected bool pulse;
-
-        static float FLASH_ANIM_TIME = 2.0F;
-        static float DEFAULT_ANIM_SCALE = 4.0F;
-        public bool isDone;
-        public bool isAnimating;
-        public bool isObtained;
         LandingSound landingSFX;
-        static float OBTAIN_SPEED = 6.0F;
-        static float OBTAIN_THRESHOLD = 0.5F;
         float rotation;
         public bool discarded;
         string assetURL;
@@ -51,39 +37,11 @@ namespace MoreMountains
             relicStrings = languagePack.getRelicStrings(relicId);
             DESCRIPTIONS = relicStrings.DESCRIPTIONS;
             imgUrl = imgName;
-            // ImageMaster.loadRelicImg(setId, imgName);
-            // img = ImageMaster.getRelicImg(setId);
-            // outlineImg = ImageMaster.getRelicOutlineImg(setId);
             name = relicStrings.NAME;
-            description = getUpdatedDescription();
             flavorText = relicStrings.FLAVOR;
             this.tier = tier;
             landingSFX = sfx;
             assetURL = "images/relics/" + imgName;
-            // tips.Add(new PowerTip(name, description));
-            // initializeTips();
-        }
-
-        public void usedUp()
-        {
-            grayscale = true;
-            isUsedUp = true;
-            // description = MSG[2];
-            // tips.Clear();
-            // tips.Add(new PowerTip(name, description));
-            // initializeTips();
-        }
-
-        public void spawn(float x, float y)
-        {
-            // if (room is not ShopRoom)
-            // ADungeon.effectsQueue.Add(new SmokePuffEffect(x, y));
-            isAnimating = true;
-            isObtained = false;
-            if (tier == RelicTier.BOSS)
-            {
-                glowTimer = 0.0F;
-            }
         }
 
         public int getPrice()
@@ -102,93 +60,6 @@ namespace MoreMountains
             };
         }
 
-        public void reorganizeObtain(APlayer p, int slot, bool callOnEquip, int relicAmount)
-        {
-            isDone = true;
-            isObtained = true;
-            p.relics.Add(this);
-            if (callOnEquip)
-            {
-                onEquip(p);
-                relicTip();
-            }
-
-            UnlockTracker.markRelicAsSeen(relicId);
-        }
-
-        public void instantObtain(APlayer player, int slot, bool callOnEquip)
-        {
-            if (relicId == "Circlet" && player.tryGetRelic("Circlet", out var relic))
-            {
-                relic.counter++;
-                relic.flash();
-                isDone = true;
-                isObtained = true;
-                discarded = true;
-            }
-            else
-            {
-                isDone = true;
-                isObtained = true;
-                if (slot >= player.relics.Count)
-                    player.addRelic(this);
-                else
-                    player.setRelic(slot, this);
-
-                if (callOnEquip)
-                {
-                    onEquip(player);
-                    relicTip();
-                }
-
-                UnlockTracker.markRelicAsSeen(relicId);
-                getUpdatedDescription();
-                ADungeon.overlayMenu?.relics?.refresh(player.relics);
-            }
-        }
-
-        public void instantObtain()
-        {
-            if (relicId == "Circlet" && player.tryGetRelic("Circlet", out var relic))
-            {
-                relic.counter++;
-                relic.flash();
-            }
-            else
-            {
-                playLandingSFX();
-                isDone = true;
-                isObtained = true;
-                flash();
-                player.addRelic(this);
-                // hb.move(currentX, currentY);
-                onEquip(player);
-                relicTip();
-                UnlockTracker.markRelicAsSeen(relicId);
-            }
-
-            // if (ADungeon.topPanel != null)
-            // ADungeon.topPanel.adjustRelicHbs();
-        }
-
-        public void obtain()
-        {
-            if (relicId == "Circlet" && player.hasRelic("Circlet"))
-            {
-                ARelic circ = player.getRelic("Circlet");
-                circ.counter++;
-                circ.flash();
-            }
-            else
-            {
-                player.addRelic(this);
-                relicTip();
-                UnlockTracker.markRelicAsSeen(relicId);
-            }
-        }
-
-        public int getColumn() => player.relics.IndexOf(this);
-
         public void relicTip()
         {
             if (TipTracker.relicCounter < 20)
@@ -205,13 +76,6 @@ namespace MoreMountains
         public void setCounter(int counter)
         {
             this.counter = counter;
-        }
-
-        public void bossObtainLogic()
-        {
-            if (relicId != ("HolyWater") && relicId != ("Black Blood") && relicId != ("Ring of the Serpent") && relicId != ("FrozenCore"))
-                obtain();
-            isObtained = true;
         }
 
         public void onPlayCard(ACard c)
@@ -278,11 +142,11 @@ namespace MoreMountains
         {
         }
 
-        public void onBloodied()
+        public virtual void onEnterBloodied()
         {
         }
 
-        public void onNotBloodied()
+        public virtual void onExitBloodied()
         {
         }
 
@@ -302,11 +166,13 @@ namespace MoreMountains
         {
         }
 
-        public int onPlayerGainBlock(int blockAmount) => blockAmount;
+        public void onPlayerGainBlock(ref int blockAmount)
+        {
+        }
 
-        public int onPlayerGainedBlock(float blockAmount) => MathUtils.floor(blockAmount);
-
-        public int onPlayerHeal(int healAmount) => healAmount;
+        public void onPlayerHeal(ref int healAmount)
+        {
+        }
 
         public void onMeditate()
         {
@@ -348,11 +214,17 @@ namespace MoreMountains
         {
         }
 
-        public int onAttacked(DamageInfo info, int damageAmount) => damageAmount;
+        public void onAttacked(DamageInfo info, ref int damageAmount)
+        {
+        }
 
-        public int onAttackedToChangeDamage(DamageInfo info, int damageAmount) => damageAmount;
+        public void onAttackedToChangeDamage(DamageInfo info, ref int damageAmount)
+        {
+        }
 
-        public int onAttackToChangeDamage(DamageInfo info, int damageAmount) => damageAmount;
+        public void onAttackToChangeDamage(DamageInfo info, ref int damageAmount)
+        {
+        }
 
         public void onExhaust(ACard card)
         {
@@ -464,7 +336,9 @@ namespace MoreMountains
         {
         }
 
-        public int onLoseHpLast(int damageAmount) => damageAmount;
+        public void onLoseHpLast(ref int damageAmount)
+        {
+        }
 
         public void wasHPLost(int damageAmount)
         {
@@ -481,6 +355,7 @@ namespace MoreMountains
         public virtual void onBallEndOverlappingBrickAll(APlayer p, Ball ball, Brick brick, bool prematurely)
         {
         }
+
         public virtual void onBallBeginOverlappingBrickOne(APlayer p, Ball ball, Brick brick)
         {
         }
@@ -501,7 +376,11 @@ namespace MoreMountains
         {
         }
 
-        public abstract ARelic makeCopy();
+        public virtual ARelic makeCopy()
+        {
+            var instance = Activator.CreateInstance(GetType());
+            return (ARelic)instance;
+        }
 
         public virtual void onBallHitBorderBot(APlayer p, Ball ball, BorderBot border, Vector2 normal, ref bool forceReturn)
         {
@@ -510,9 +389,11 @@ namespace MoreMountains
         public virtual void onBallHitBorderTop(APlayer p, Ball ball, BorderTop border, ref Vector2 normal)
         {
         }
+
         public virtual void onBallHitBorderLeft(APlayer p, Ball ball, BorderLeft border, ref Vector2 normal)
         {
         }
+
         public virtual void onBallHitBorderRight(APlayer p, Ball ball, BorderRight border, ref Vector2 normal)
         {
         }

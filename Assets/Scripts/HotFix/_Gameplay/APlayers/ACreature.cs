@@ -4,18 +4,18 @@ namespace MoreMountains
 {
     public abstract class ACreature : Character
     {
-        public string id;
+        public string id { get; set; }
         public abstract bool isPlayer { get; }
-        public bool isBloodied;
+        public bool isBloodied { get; set; }
 
         public virtual int gold { get; set; }
-        public int displayGold;
-        public bool isDying;
-        public bool isDead;
-        public bool halfDead;
+        public int displayGold { get; set; }
+        public bool isDying { get; set; }
+        public bool isDead { get; set; }
+        public bool halfDead { get; set; }
 
-        float healthHideTimer;
-        public int lastDamageTaken;
+        float healthHideTimer { get; set; }
+        public int lastDamageTaken { get; set; }
 
         public virtual int currentHealth
         {
@@ -34,7 +34,6 @@ namespace MoreMountains
         public ABlock block;
 
         public List<CreaturePower> powers = new();
-        public List<ARelic> relics = new();
 
         protected TopDownController2D _controller2D;
 

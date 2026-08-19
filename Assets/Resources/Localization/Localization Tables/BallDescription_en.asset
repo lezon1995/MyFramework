@@ -1,0 +1,77 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: BallDescription_en
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
+  m_LocaleId:
+    m_Code: en
+  m_SharedData: {fileID: 11400000, guid: fbcf03ec1de6562428330aecf1d6f3e8, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 10157662162944
+    m_Localized: Deals 10 damage to 1 nearby enemy
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11793809821696
+    m_Localized: Add 1 stack of burn on hit for 3 seconds (max 3 stacks). Burnt units
+      are dealt 4-8 damage per stack per second.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 12399408599040
+    m_Localized: Has a 100% chance to freeze enemies for 2 seconds
+    m_Metadata:
+      m_Items: []
+  - m_Id: 12784235991040
+    m_Localized: Add 1 stack of frost on hit for 3 seconds (max 3 stacks). Each stack
+      of frost reduces move speed by 15%
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18035961778176
+    m_Localized: Emits a laser when hitting an enemy, dealing 10 to all enemies in
+      its path
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18733126406144
+    m_Localized: shoots 1 laser bullet after hitting an enemy. laser bullet pierce
+      enemies but are destroyed upon hitting a wall.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19854989479936
+    m_Localized: Summon a Lightning on hit, Deals 20 damage to 1 nearby enemy
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20503164637184
+    m_Localized: Just an ordinary ball
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21012923568128
+    m_Localized: Applies 1 stack of poison on hit (max 5 stacks). Poison lasts for
+      6 seconds and each stack deals 1-4 damage per second
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21290586492928
+    m_Localized: Deals 5-13 damage to nearby units in a 3x3 tile square
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21619881299968
+    m_Localized: Deals 5-13 damage to units behind the hitting target
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22257465839616
+    m_Localized: releases a puddle of water that lasts for 3 seconds, slowing enemies
+      that pass through it by 30%.
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []

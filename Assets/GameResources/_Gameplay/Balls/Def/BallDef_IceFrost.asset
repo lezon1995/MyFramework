@@ -13,7 +13,6 @@ MonoBehaviour:
   m_Name: BallDef_IceFrost
   m_EditorClassIdentifier: HotFix::MoreMountains.BallDef
   Type: 10201
-  DisplayName: "\u51B0\u971C\u7403"
   BasePrice: 6
   MaxLevel: 3
   UpgradeCombineCount: 2
@@ -24,3 +23,24 @@ MonoBehaviour:
   LevelColor: {r: 1, g: 1, b: 1, a: 1}
   Rarity: 0
   StatsTemplate: {fileID: 11400000, guid: 540ca7eead3294445922a93139393e08, type: 2}
+  DisplayName:
+    m_TableReference:
+      m_TableCollectionName: GUID:85c81ed0611cc5a4bb7012bca43ef6af
+    m_TableEntryReference:
+      m_KeyId: 12778309439488
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  DisplayDescription:
+    m_TableReference:
+      m_TableCollectionName: GUID:fbcf03ec1de6562428330aecf1d6f3e8
+    m_TableEntryReference:
+      m_KeyId: 12784235991040
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  references:
+    version: 2
+    RefIds: []

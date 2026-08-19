@@ -55,11 +55,16 @@ namespace MoreMountains
         None,
         BornInvincible,
         Invincible,
-        DashInvincible,
         ImmuneToDamage,
-        Dodged,
         Dead,
         Disabled,
+    }
+
+    public enum DodgeDamageType
+    {
+        None,
+        Chance,
+        Dash,
     }
 
     public enum RefreshHealthBarType
@@ -552,18 +557,21 @@ namespace MoreMountains
                 return false;
             }
 
-            InvincibleDuration(DamageCheckInterval);
-
-            if (DodgeChance > 0 && randomHit(DodgeChance))
-            {
-                type = ResistDamageType.Dodged;
-                return false;
-            }
-
             type = ResistDamageType.None;
             return true;
         }
 
+        public virtual bool CanDodgeDamageThisFrame(out DodgeDamageType type)
+        {
+            if (DodgeChance > 0 && randomHit(DodgeChance))
+            {
+                type = DodgeDamageType.Chance;
+                return true;
+            }
+
+            type = DodgeDamageType.None;
+            return true;
+        }
 
         /// <summary>
         /// Determines whether knockback should be applied
@@ -615,6 +623,22 @@ namespace MoreMountains
         {
             if (!CanTakeDamageThisFrame(out _))
                 return;
+
+            if (CanDodgeDamageThisFrame(out var dodgeType))
+            {
+                switch (dodgeType)
+                {
+                    case DodgeDamageType.Chance:
+                        Character.Event.trigger(new DoChanceDodge());
+                        break;
+                    case DodgeDamageType.Dash:
+                        Character.Event.trigger(new DoDashDodge());
+                        break;
+                }
+
+                EnterInvincible(invincibleTime);
+                return;
+            }
 
             //应用Source的DmgRate
             {
@@ -713,13 +737,21 @@ namespace MoreMountains
                 }
 
                 // we prevent the character from colliding with Projectiles, Player and Enemies
-                if (invincibleTime > 0 && !dmg.IsLethal)
+                if (!dmg.IsLethal)
                 {
-                    DamageDisabled();
-                    _coroutineTimeElapsed = 0F;
-                    _coroutineState = CoroutineState.DamageEnabled;
-                    _invincibleTime = invincibleTime;
+                    EnterInvincible(invincibleTime);
                 }
+            }
+        }
+
+        protected void EnterInvincible(float invincibleTime)
+        {
+            if (invincibleTime > 0)
+            {
+                DamageDisabled();
+                _coroutineTimeElapsed = 0F;
+                _coroutineState = CoroutineState.DamageEnabled;
+                _invincibleTime = invincibleTime;
             }
         }
 

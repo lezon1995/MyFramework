@@ -1,5 +1,4 @@
-﻿using System;
-using PrimeTween;
+﻿using PrimeTween;
 
 namespace MoreMountains;
 
@@ -20,14 +19,9 @@ public partial class RewardChooseItem : WindowRecyclableUGUI
 	protected myUGUITextTMP itemName;
     // auto generate member end
 
-    string relicId;
-    Action onChoose;
-
     public override void recycle()
     {
         base.recycle();
-        relicId = null;
-        onChoose = null;
     }
 
     public RewardChooseItem(IWindowObjectOwner parent) : base(parent)
@@ -56,7 +50,6 @@ public partial class RewardChooseItem : WindowRecyclableUGUI
         // auto generate init start
         // auto generate init end
 
-        btn.setUGUIButtonClick(onClick);
         btn.setUGUIMouseEnter((pointer, go) => Tween.Scale(go.transform, endValue: 1.2F, duration: 0.1F, ease: Ease.OutCubic, useUnscaledTime: true));
         btn.setUGUIMouseExit((pointer, go) => Tween.Scale(go.transform, endValue: 1F, duration: 0.1F, ease: Ease.OutCubic, useUnscaledTime: true));
     }
@@ -64,21 +57,5 @@ public partial class RewardChooseItem : WindowRecyclableUGUI
     public override void onShow()
     {
         base.onShow();
-    }
-
-    public void refresh(string id, Action chooseAction)
-    {
-        relicId = id;
-        onChoose = chooseAction;
-        btn.setScale(1);
-    }
-
-    void onClick()
-    {
-        if (btn.getScript().isHide())
-            return;
-
-        RelicLibrary.getRelic(relicId).makeCopy().instantObtain(player, player.relics.Count, true);
-        onChoose?.Invoke();
     }
 }

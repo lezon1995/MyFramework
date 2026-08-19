@@ -3,7 +3,6 @@
     public class DamageInfo
     {
         public ACreature owner;
-        public string name;
         public DamageType type;
         public int Value;
         public int output;
@@ -129,39 +128,6 @@
                 tmp = 0.0F;
             output = MathUtils.floor(tmp);
         }
-
-        // public static int[] createDamageMatrix(int baseDamage)
-        // {
-        //     return createDamageMatrix(baseDamage, false);
-        // }
-        //
-        // public static int[] createDamageMatrix(int baseDamage, bool isPureDamage)
-        // {
-        //     int[] retVal = new int[(monsters).monsters.size()];
-        //     for (int i = 0; i < retVal.Length; i++)
-        //     {
-        //         DamageInfo info = new DamageInfo(player, baseDamage);
-        //         if (!isPureDamage)
-        //             info.applyPowers(player, (monsters).monsters.get(i));
-        //         retVal[i] = info.output;
-        //     }
-        //
-        //     return retVal;
-        // }
-
-        /*public static int[] createDamageMatrix(int baseDamage, bool isPureDamage, bool isOrbDamage)
-        {
-            int[] retVal = new int[(monsters).monsters.size()];
-            for (int i = 0; i < retVal.Length; i++)
-            {
-                DamageInfo info = new DamageInfo(player, baseDamage);
-                if (isOrbDamage && (monsters).monsters.get(i).hasPower("Lockon"))
-                    info.output = (int)(info.Value * 1.5F);
-                retVal[i] = info.output;
-            }
-
-            return retVal;
-        }*/
 
         public enum DamageType
         {

@@ -166,15 +166,13 @@ namespace MoreMountains
             if (ModHelper.isModEnabled("ControlledChaos"))
                 relics.Add("Frozen Eye");
 
-            int index = 0;
             foreach (string s in relics)
             {
-                var relic = RelicLibrary.getRelic(s);
-                if (relic == null)
+                var def = relicManager.getDef(s);
+                if (def == null)
                     continue;
 
-                relic.makeCopy().instantObtain(this, index, true);
-                index++;
+                gainRelic(def);
             }
 
             ADungeon.relicsToRemoveOnStart.AddRange(relics);
@@ -301,17 +299,17 @@ namespace MoreMountains
 
             if (info.owner == this)
                 foreach (var relic in relics)
-                    dmg = relic.onAttackToChangeDamage(info, dmg);
+                    relic.onAttackToChangeDamage(info, ref dmg);
 
             if (info.owner != null)
                 foreach (var power in info.owner.powers)
-                    dmg = power.onAttackToChangeDamage(info, dmg);
+                    power.onAttackToChangeDamage(info, ref dmg);
 
             foreach (var relic in relics)
-                dmg = relic.onAttackedToChangeDamage(info, dmg);
+                relic.onAttackedToChangeDamage(info, ref dmg);
 
             foreach (var power in powers)
-                dmg = power.onAttackedToChangeDamage(info, dmg);
+                power.onAttackedToChangeDamage(info, ref dmg);
 
             if (info.owner == this)
                 foreach (var relic in relics)
@@ -323,10 +321,10 @@ namespace MoreMountains
                     power.onAttack(info, dmg, this);
 
                 foreach (var power in powers)
-                    dmg = power.onAttacked(info, dmg);
+                    power.onAttacked(info, ref dmg);
 
                 foreach (var relic in relics)
-                    dmg = relic.onAttacked(info, dmg);
+                    relic.onAttacked(info, ref dmg);
             }
             else
             {
@@ -334,13 +332,13 @@ namespace MoreMountains
             }
 
             foreach (var relic in relics)
-                dmg = relic.onLoseHpLast(dmg);
+                relic.onLoseHpLast(ref dmg);
 
             lastDamageTaken = Math.Min(dmg, currentHealth);
             if (dmg > 0)
             {
                 foreach (var power in powers)
-                    dmg = power.onLoseHp(dmg);
+                    power.onLoseHp(ref dmg);
 
                 foreach (var relic in relics)
                     relic.onLoseHp(dmg);
@@ -378,7 +376,7 @@ namespace MoreMountains
                 {
                     isBloodied = true;
                     foreach (var relic in relics)
-                        relic?.onBloodied();
+                        relic.onEnterBloodied();
                 }
 
                 if (currentHealth < 1)

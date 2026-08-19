@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Localization;
 
 namespace MoreMountains
 {
@@ -11,7 +12,6 @@ namespace MoreMountains
     {
         public int BallDefId => (int)Type;
         public BallType Type;
-        public string DisplayName = "Ball";
 
         [Header("Price")]
         public int BasePrice = 10; // 商店售价 / 售出回收基于它
@@ -37,5 +37,8 @@ namespace MoreMountains
         public ItemRarity Rarity;
         public BallStatsTemplate StatsTemplate;
         public ItemRarity rarity => Rarity;
+        
+        public LocalizedString DisplayName;
+        public LocalizedString DisplayDescription;
     }
 }

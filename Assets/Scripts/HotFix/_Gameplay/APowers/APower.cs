@@ -207,20 +207,23 @@ public abstract class APower : ClassObject, IComparable<APower>
     {
     }
 
-    public virtual int onHeal(int healAmount) => healAmount;
+    public virtual void onHeal(ref int healAmount){}
 
-    public virtual int onAttacked(DamageInfo Info, int damageAmount)
+    public virtual void onAttacked(DamageInfo Info, ref int damageAmount)
     {
-        return damageAmount;
     }
 
     public virtual void onAttack(DamageInfo Info, int damageAmount, ACreature target)
     {
     }
 
-    public virtual int onAttackedToChangeDamage(DamageInfo Info, int damageAmount) => damageAmount;
+    public virtual void onAttackedToChangeDamage(DamageInfo Info, ref int damageAmount)
+    {
+    }
 
-    public virtual int onAttackToChangeDamage(DamageInfo Info, int damageAmount) => damageAmount;
+    public virtual void onAttackToChangeDamage(DamageInfo Info, ref int damageAmount)
+    {
+    }
 
     public virtual void onInflictDamage(DamageInfo Info, int damageAmount, ACreature target)
     {
@@ -258,7 +261,6 @@ public abstract class APower : ClassObject, IComparable<APower>
     public virtual void onGainedBlock(float blockAmount)
     {
     }
-
 
     public virtual void onGainCharge(int chargeAmount)
     {
@@ -310,9 +312,8 @@ public abstract class APower : ClassObject, IComparable<APower>
         return powerData;
     }
 
-    public virtual int onLoseHp(int damageAmount)
+    public virtual void onLoseHp(ref int damageAmount)
     {
-        return damageAmount;
     }
 
     public virtual void onVictory()

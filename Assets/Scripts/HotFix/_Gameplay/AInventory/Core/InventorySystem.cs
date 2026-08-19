@@ -34,8 +34,8 @@ namespace MoreMountains
         {
             base.Initialization();
 
-            _ballBag = new(BallBagCapacity, MaxBallBagCapacity);
-            _relicBag = new(RelicBagCapacity, MaxRelicBagCapacity);
+            _ballBag = new(_player, BallBagCapacity, MaxBallBagCapacity);
+            _relicBag = new(_player, RelicBagCapacity, MaxRelicBagCapacity);
 
             // 把背包变更桥接到 InventoryEvents，便于跨模块订阅。
             _ballBag.OnItemAdded += InventoryEvents.RaiseBallAdded;
@@ -85,19 +85,39 @@ namespace MoreMountains
                 return false;
             }
         }
-
-        public bool AddRelic(RelicItem relic)
+        
+        public bool AddRelic(RelicDef def)
         {
-            if (_relicBag == null || relic == null) 
+            if (_relicBag == null || def == null) 
                 return false;
 
+            RelicItem item = null;
             try
             {
-                _relicBag.Add(relic);
+                item = RelicService.CreateItem(def);
+                _relicBag.Add(item);
                 return true;
             }
             catch (InventoryFullException)
             {
+                RelicItem.Release(item);
+                return false;
+            }
+        }
+
+        public bool AddRelic(RelicItem item)
+        {
+            if (_relicBag == null || item == null) 
+                return false;
+
+            try
+            {
+                _relicBag.Add(item);
+                return true;
+            }
+            catch (InventoryFullException)
+            {
+                RelicItem.Release(item);
                 return false;
             }
         }

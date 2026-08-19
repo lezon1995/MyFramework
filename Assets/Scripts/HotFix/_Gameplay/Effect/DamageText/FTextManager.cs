@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using MoreMountains.Tools;
 using UnityEngine;
+using UnityEngine.Localization.Settings;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
@@ -11,6 +12,7 @@ public class FTextManager : FrameSystem
     , IEvent<DmgTextEvent>
     , IEvent<HealTextEvent>
     , IEvent<GainCoinTextEvent>
+    , IEvent<DodgeChanceTextEvent>
 {
     GameObject textParent;
 
@@ -20,6 +22,7 @@ public class FTextManager : FrameSystem
         { TextType.DamageCrit, new() },
         { TextType.Healing, new() },
         { TextType.GainCoin, new() },
+        { TextType.DodgeChance, new() },
     };
 
     Dictionary<TextType, List<FText>> unused = new()
@@ -28,6 +31,7 @@ public class FTextManager : FrameSystem
         { TextType.DamageCrit, new() },
         { TextType.Healing, new() },
         { TextType.GainCoin, new() },
+        { TextType.DodgeChance, new() },
     };
 
     Dictionary<TextType, Dictionary<Transform, FText>> reusedTexts = new()
@@ -36,6 +40,7 @@ public class FTextManager : FrameSystem
         { TextType.DamageCrit, new() },
         { TextType.Healing, new() },
         { TextType.GainCoin, new() },
+        { TextType.DodgeChance, new() },
     };
 
     Dictionary<TextType, FTextSetting> settings = new();
@@ -55,6 +60,7 @@ public class FTextManager : FrameSystem
         this.addListener<DmgTextEvent>();
         this.addListener<HealTextEvent>();
         this.addListener<GainCoinTextEvent>();
+        this.addListener<DodgeChanceTextEvent>();
     }
 
     void initCanvas()
@@ -77,10 +83,12 @@ public class FTextManager : FrameSystem
         var damage_Crit = resource.loadGameResource<FTextSetting>($"{GAMEPLAY_PATH}/FTextSetting_Damage_Crit.asset");
         var healing = resource.loadGameResource<FTextSetting>($"{GAMEPLAY_PATH}/FTextSetting_Healing.asset");
         var gainCoin = resource.loadGameResource<FTextSetting>($"{GAMEPLAY_PATH}/FTextSetting_GainCoin.asset");
+        var dodged = resource.loadGameResource<FTextSetting>($"{GAMEPLAY_PATH}/FTextSetting_Dodged.asset");
         settings.add(TextType.Damage, damage.get());
         settings.add(TextType.DamageCrit, damage_Crit.get());
         settings.add(TextType.Healing, healing.get());
         settings.add(TextType.GainCoin, gainCoin.get());
+        settings.add(TextType.DodgeChance, dodged.get());
     }
 
     public override void destroy()
@@ -89,6 +97,7 @@ public class FTextManager : FrameSystem
         this.removeListener<DmgTextEvent>();
         this.removeListener<HealTextEvent>();
         this.removeListener<GainCoinTextEvent>();
+        this.removeListener<DodgeChanceTextEvent>();
     }
 
     public override void update(float elapsedTime)
@@ -154,6 +163,7 @@ public class FTextManager : FrameSystem
                 TextType.DamageCrit => $"{GAMEPLAY_PATH}/FText_Damage.prefab",
                 TextType.Healing => $"{GAMEPLAY_PATH}/FText_Healing.prefab",
                 TextType.GainCoin => $"{GAMEPLAY_PATH}/FText_GainCoin.prefab",
+                TextType.DodgeChance => $"{GAMEPLAY_PATH}/FText_Dodged.prefab",
                 _ => throw new ArgumentOutOfRangeException()
             };
             text.setName($"FText_{type}");
@@ -282,6 +292,11 @@ public class FTextManager : FrameSystem
         showGainCoin(e.Target, e.Value);
     }
 
+    public void onEvent(DodgeChanceTextEvent e)
+    {
+        showDodgeChance(e.IsPlayer, e.Target);
+    }
+
     public static void showHealing(Transform target, Heal heal)
     {
         const TextType TYPE = TextType.Healing;
@@ -293,6 +308,20 @@ public class FTextManager : FrameSystem
             .setExtraContentSize(Mathf.InverseLerp(50, 1000, heal.Healing) * 0.25F) //this should be based on the amount of damage
             .setType(0)
             .setMetaType(0)
+            .show();
+    }
+
+    public static void showDodgeChance(bool isPlayer, Transform target)
+    {
+        const TextType TYPE = TextType.DodgeChance;
+        var s = LocalizedStats.getDodged();
+        new FText.Data(s, TYPE)
+            .setSetting(TYPE)
+            .setDirection(Vector3.up)
+            .setTarget(target)
+            .setExtraContentSize(0.25F)
+            .setType(isPlayer ? 0 : 1)
+            .setMetaType(isPlayer ? 0 : 1)
             .show();
     }
 }

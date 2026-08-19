@@ -4,16 +4,13 @@ namespace MoreMountains
 {
     public partial class APlayer
     {
-        public void addRelic(ARelic relic)
-        {
-            relic.owner = this;
-            relics.Add(relic);
-        }
+        // public List<ARelic> relics = new();
 
-        public void setRelic(int slot, ARelic relic)
+        public IReadOnlyList<ARelic> relics => inventory.RelicBag.Relics;
+
+        public void gainRelic(RelicDef def)
         {
-            relic.owner = this;
-            relics[slot] = relic;
+            inventory.AddRelic(def);
         }
         
         public void applyStartOfTurnRelics()
@@ -63,61 +60,6 @@ namespace MoreMountains
             return false;
         }
 
-        public void loseRandomRelics(int amount)
-        {
-            if (amount > relics.Count)
-            {
-                foreach (var relic in relics)
-                    relic.onUnequip(this);
-                relics.Clear();
-                return;
-            }
-
-            for (int i = 0; i < amount; i++)
-            {
-                int index = MathUtils.random(0, relics.Count - 1);
-                relics[index].onUnequip(this);
-                relics.RemoveAt(index);
-            }
-
-            reorganizeRelics();
-        }
-
-        public bool loseRelic(string relicId)
-        {
-            if (!hasRelic(relicId))
-                return false;
-            ARelic toRemove = null;
-            foreach (var relic in relics)
-            {
-                if (relic.relicId == relicId)
-                {
-                    relic.onUnequip(this);
-                    toRemove = relic;
-                }
-            }
-
-            if (toRemove == null)
-            {
-                log("WHY WAS RELIC: " + name + " NOT FOUND???");
-                return false;
-            }
-
-            relics.Remove(toRemove);
-            reorganizeRelics();
-            return true;
-        }
-
-        public void reorganizeRelics()
-        {
-            log("Reorganizing relics");
-            List<ARelic> tmpRelics = new();
-            tmpRelics.AddRange(relics);
-            relics.Clear();
-            for (int i = 0; i < tmpRelics.Count; i++)
-                tmpRelics[i].reorganizeObtain(this, i, false, tmpRelics.Count);
-        }
-
         public ARelic getRelic(string relicId)
         {
             foreach (var r in relics)
@@ -137,15 +79,5 @@ namespace MoreMountains
             return arr;
         }
 
-        public bool relicsDoneAnimating()
-        {
-            foreach (var r in relics)
-            {
-                if (!r.isDone)
-                    return false;
-            }
-
-            return true;
-        }
     }
 }

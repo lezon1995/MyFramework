@@ -1,4 +1,5 @@
-﻿using PrimeTween;
+﻿using MoreMountains.Tools;
+using PrimeTween;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -123,6 +124,7 @@ namespace MoreMountains
         public void playFxDodge()
         {
             fxDodge.Play();
+            new DodgeChanceTextEvent(true, player.transform).trigger();
         }
 
         public void playFxHit(Vector2 normal)

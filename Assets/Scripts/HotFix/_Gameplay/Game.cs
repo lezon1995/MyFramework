@@ -389,7 +389,7 @@ namespace MoreMountains
         public static void initializePlayer(CharSelectInfo selectInfo = null)
         {
             var chosenClass = chosenCharacter;
-            if (selectInfo!=null)
+            if (selectInfo != null)
             {
                 chosenClass = selectInfo.playerDef.Type;
             }
@@ -424,12 +424,6 @@ namespace MoreMountains
             {
                 ADungeon.ascensionLevel = 0;
                 ADungeon.isAscensionMode = false;
-            }
-
-            foreach (var relic in p.relics)
-            {
-                relic.updateDescription(p.chosenClass);
-                relic.onEquip(p);
             }
 
             // foreach (var card in p.masterDeck.group)
@@ -511,19 +505,16 @@ namespace MoreMountains
         {
             trial.setupPlayer(ref p);
             if (!trial.keepStarterRelic())
-                p.relics.Clear();
+                p.Inventory.RelicBag.Clear();
 
             foreach (string relicID in trial.extraStartingRelicIDs())
             {
-                ARelic relic = RelicLibrary.getRelic(relicID);
-                relic.instantObtain(p, p.relics.Count, false);
-                ADungeon.relicsToRemoveOnStart.Add(relic.relicId);
-            }
+                var def = relicManager.getDef(relicID);
+                if (def == null)
+                    continue;
 
-            foreach (ARelic r in p.relics)
-            {
-                r.updateDescription(p.chosenClass);
-                r.onEquip(p);
+                p.gainRelic(def);
+                ADungeon.relicsToRemoveOnStart.Add(def.RelicName);
             }
 
             // if (!trial.keepsStarterCards())
@@ -756,7 +747,7 @@ namespace MoreMountains
             //     }
             // }
 
-            p.relics.Clear();
+            p.Inventory.RelicBag.Clear();
             // index = 0;
             // foreach (string s in saveFile.relics)
             // {
@@ -995,7 +986,6 @@ namespace MoreMountains
                     ADungeon.screen = CurrentScreen.NONE;
                     ADungeon.reset();
                     // FontHelper.cardTitleFont.getData().setScale(1.0F);
-                    ARelic.relicPage = 0;
                     ModHelper.setModsFalse();
                     SeedHelper.cachedSeed = null;
                     Settings.seed = 0;

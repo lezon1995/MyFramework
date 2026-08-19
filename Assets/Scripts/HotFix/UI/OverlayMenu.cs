@@ -49,6 +49,6 @@ public partial class OverlayMenu : LayoutScript
 	public override void onGameState()
 	{
 		base.onGameState();
-		RelicsView.refresh(player.relics);
+		// RelicsView.refresh(player.relics);
 	}
 }

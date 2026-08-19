@@ -217,12 +217,10 @@ namespace MoreMountains
 
             int gold = item.SellPrice;
 
+            ShopEvents.RaiseSoldFromBag(item);
             p.Inventory.RemoveRelic(item);
             p.gainGold(gold, EarnType.SELL_RELIC);
             ShopEvents.RaiseGoldEarned(gold, "relic_sell");
-            ShopEvents.RaiseSoldFromBag(item);
-            
-            RelicItem.Release(ref item);
             return gold;
         }
     }

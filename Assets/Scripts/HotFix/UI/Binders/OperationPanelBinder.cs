@@ -359,16 +359,9 @@ namespace MoreMountains
                     _player.Wallet.Earn(price, EarnType.OTHER, "rollback_buy_relic");
                     return;
                 }
-
-                var underlying = RelicLibrary.getRelic(relicOffer.Def.Type);
-                if (underlying == null)
-                {
-                    _player.Wallet.Earn(price, EarnType.OTHER, "rollback_buy_relic");
-                    return;
-                }
-
-                var item = RelicItem.New(relicOffer.Def, underlying);
-                if (!_player.Inventory.AddRelic(item))
+                
+                var item = RelicService.CreateItem(relicOffer.Def);
+                if (!_player.Inventory.AddRelic(relicOffer.Def))
                 {
                     _player.Wallet.Earn(price, EarnType.OTHER, "rollback_buy_relic");
                     return;

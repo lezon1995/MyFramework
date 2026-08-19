@@ -7,7 +7,7 @@
     /// </summary>
     public sealed class BallBag : InventoryBag<BallItem, BallInventorySlot>
     {
-        public BallBag(int capacity, int maxCapacity) : base(capacity, maxCapacity, "BallBag")
+        public BallBag(APlayer p, int capacity, int maxCapacity) : base(p, capacity, maxCapacity, "BallBag")
         {
         }
 

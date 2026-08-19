@@ -10,7 +10,7 @@ namespace MoreMountains
         public BallDef Def;
         public ItemKind Kind => ItemKind.Ball;
         public int ItemId => Def ? Def.BallDefId : 0;
-        public string DisplayName => Def ? Def.DisplayName : "<missing ball def>";
+        public string DisplayName => Def ? Def.DisplayName.GetLocalizedString() : "<missing ball def>";
         public int Price => Def ? Def.BasePrice : 0;
 
         bool _sold;
@@ -52,7 +52,8 @@ namespace MoreMountains
         public RelicDef Def;
         public ItemKind Kind => ItemKind.Relic;
         public int ItemId => Def ? Def.RelicDefId : 0;
-        public string DisplayName => Def ? Def.DisplayName : "<missing relic def>";
+        public string DisplayName => Def ? Def.DisplayName.GetLocalizedString() : "<missing relic def>";
+        public string DisplayDesc => Def ? Def.DisplayDescription.GetLocalizedString() : "<missing relic def>";
         public int Price => Def ? Def.BasePrice : 0;
         bool _sold;
 

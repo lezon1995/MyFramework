@@ -67,7 +67,7 @@ namespace MoreMountains
 
             _orderedOffers.Clear();
 
-            _view.BuildBallStatOffers(_ctrl.BallStatOffers, (item, offer) =>
+            /*_view.BuildBallStatOffers(_ctrl.BallStatOffers, (item, offer) =>
             {
                 _orderedOffers.Add(offer);
                 item.SetName(offer.DisplayName ?? "—");
@@ -80,7 +80,7 @@ namespace MoreMountains
                 item.SetSold(offer.Sold);
                 item.Btn.setInteractable(offer.Enabled);
                 item.Btn.setUGUIButtonClick(() => OnOfferClicked(offer));
-            });
+            });*/
             
             _view.BuildPlayerStatOffers(_ctrl.PlayerStatOffers, (item, offer) =>
             {

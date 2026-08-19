@@ -1,4 +1,5 @@
-﻿using MoreMountains.Feedbacks;
+﻿using System;
+using MoreMountains.Feedbacks;
 using MoreMountains.Tools;
 using UnityEngine;
 
@@ -13,7 +14,7 @@ namespace MoreMountains
         {
             base.Initialization();
         }
-        
+
         public override void RefreshHealthBar(bool show)
         {
             player.playerRenderer.refreshHealthByBorn((int)CurrentHealth, (int)maximumHealth);
@@ -28,16 +29,25 @@ namespace MoreMountains
         {
             player.playerRenderer.refreshHealthByHealing((int)CurrentHealth, (int)maximumHealth);
         }
-        
+
         public override void Damage(ref Dmg dmg, GameObject instigator, Character source = null, float invincibleTime = 0F, Vector3 direction = default, IDmgCalculator calculator = null)
         {
-            if (!CanTakeDamageThisFrame(out var resistDamageType))
+            if (!CanTakeDamageThisFrame(out _))
+                return;
+
+            if (CanDodgeDamageThisFrame(out var dodgeType))
             {
-                if (resistDamageType == ResistDamageType.Dodged)
+                switch (dodgeType)
                 {
-                    player.playerRenderer.playFxDodge();
+                    case DodgeDamageType.Chance:
+                        player.Event.trigger(new DoChanceDodge());
+                        break;
+                    case DodgeDamageType.Dash:
+                        player.Event.trigger(new DoDashDodge());
+                        break;
                 }
 
+                EnterInvincible(invincibleTime);
                 return;
             }
 
@@ -80,10 +90,10 @@ namespace MoreMountains
                     source.Event.trigger(e);
                 }
             }
-            
+
             foreach (var p in player.powers)
                 p.onBeforeApplyDamage(brick, ref dmg);
-            
+
             Event.trigger(new OnHit());
 
             if (dmg.DamageDealt > 0)
@@ -153,12 +163,12 @@ namespace MoreMountains
             var healing = ComputeHealAlgo(heal.Algo, heal.Value);
             if (healing <= 0F)
                 return;
-            
+
             foreach (var r in player.relics)
-                healing = r.onPlayerHeal((int)healing);
-            
+                r.onPlayerHeal(ref healing);
+
             foreach (var p in player.powers)
-                healing = p.onHeal((int)healing);
+                p.onHeal(ref healing);
 
             int newHealth;
             int actualHealing;
@@ -182,12 +192,12 @@ namespace MoreMountains
             }
 
             SetHealth((int)newHealth, RefreshHealthBarType.ReceiveHealing);
-            
+
             if (CurrentHealth > maxHealth / 2F && player.isBloodied)
             {
                 player.isBloodied = false;
                 foreach (var relic in player.relics)
-                    relic.onNotBloodied();
+                    relic.onExitBloodied();
             }
 
             if (heal.IsValid())
@@ -197,7 +207,6 @@ namespace MoreMountains
 
                 Event.trigger(new OnHeal(source, heal));
             }
-
         }
     }
 }

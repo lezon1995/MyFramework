@@ -13,7 +13,6 @@ public class LayoutRegisterHotFix
 		registeLayout<MainMenuScreen>(script =>					mMainMenuScreen = script);
 		registeLayout<OperationPanel>(script =>					mOperationPanel = script);
 		registeLayout<OverlayMenu>(script =>					mOverlayMenu = script);
-		registeLayout<RewardChoosePanel>(script =>				mRewardChoosePanel = script);
 		registeLayout<SelectPlayerPanel>(script =>				mSelectPlayerPanel = script);
 		registeLayout<SplashScreen>(script =>					mSplashScreen = script);
 		registeLayout<TooltipScreen>(script =>					mTooltipScreen = script);

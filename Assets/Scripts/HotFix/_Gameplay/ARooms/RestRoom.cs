@@ -16,8 +16,8 @@
             // fireSoundId = Game.sound.playAndLoop("REST_FIRE_WET");
             lastFireSoundId = fireSoundId;
             // campfireUI = new CampfireUI();
-            // foreach (var r in player.relics)
-                // r.onEnterRestRoom();
+            foreach (var r in player.relics)
+                r.onEnterRestRoom();
         }
 
         public override CardRarity getCardRarity(int roll)

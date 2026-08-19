@@ -30,7 +30,6 @@ public class GBR
 	public static MainMenuScreen mMainMenuScreen;
 	public static OperationPanel mOperationPanel;
 	public static OverlayMenu mOverlayMenu;
-	public static RewardChoosePanel mRewardChoosePanel;
 	public static SelectPlayerPanel mSelectPlayerPanel;
 	public static SplashScreen mSplashScreen;
 	public static TooltipScreen mTooltipScreen;

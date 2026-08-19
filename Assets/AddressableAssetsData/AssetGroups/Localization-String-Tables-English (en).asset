@@ -21,6 +21,12 @@ MonoBehaviour:
     m_SerializedLabels:
     - Locale-en
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 21c27963194daa54bb641daa8e44178f
+    m_Address: RelicName_en
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-en
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 2b526cd4a2f6c6a4f97abe0882a183af
     m_Address: MainMenuScreen_en
     m_ReadOnly: 1
@@ -30,6 +36,24 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: b22d709b753c0b14398eb48e0af876da
     m_Address: Stats_en
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-en
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c15ab3258333fbb479f875cfa6df226c
+    m_Address: RelicDescription_en
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-en
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: db8ca253d742e3448b6c8d5a73046ab6
+    m_Address: BallDescription_en
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-en
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f140dca44eccb834aa52ca09f8775784
+    m_Address: BallName_en
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-en

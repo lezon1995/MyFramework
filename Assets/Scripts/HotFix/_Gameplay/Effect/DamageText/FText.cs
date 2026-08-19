@@ -20,7 +20,8 @@ public enum TextType
     Damage,
     DamageCrit,
     Healing,
-    GainCoin
+    GainCoin,
+    DodgeChance,
 }
 
 public class FText : Transformable

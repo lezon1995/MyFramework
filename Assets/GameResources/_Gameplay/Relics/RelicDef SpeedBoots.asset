@@ -1,4 +1,5 @@
 %YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
 --- !u!114 &11400001
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12,13 +13,33 @@ MonoBehaviour:
   m_Name: RelicDef SpeedBoots
   m_EditorClassIdentifier: HotFix::MoreMountains.RelicDef
   Type: 30037
-  DisplayName: SpeedBoots
   BasePrice: 40
   SellRefund: 20
   CarryLimit: 0
-  Icon: {fileID: 21300000, guid: 1b878915c2b0b734fb6c93f0d478781c, type: 3}
-  Rarity: 1
   PlayerStatMods:
   - StatName: MS
     BonusFlat: 0
     BonusPct: 8
+  Icon: {fileID: 21300000, guid: 1b878915c2b0b734fb6c93f0d478781c, type: 3}
+  Rarity: 1
+  DisplayName:
+    m_TableReference:
+      m_TableCollectionName: GUID:a436aa6fdedfa73449e32b18692a6598
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  DisplayDescription:
+    m_TableReference:
+      m_TableCollectionName: GUID:9108911108411504299c1e8526a20655
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  references:
+    version: 2
+    RefIds: []

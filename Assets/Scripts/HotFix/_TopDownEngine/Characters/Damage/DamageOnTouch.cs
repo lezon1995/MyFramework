@@ -531,17 +531,11 @@ namespace MoreMountains
                         break;
                     case ResistDamageType.Invincible:
                         break;
-                    case ResistDamageType.DashInvincible:
-                        health.Character.Event.trigger(new DoDashDodge());
-                        break;
                     case ResistDamageType.ImmuneToDamage:
                         break;
                     case ResistDamageType.Dead:
                         break;
                     case ResistDamageType.Disabled:
-                        break;
-                    case ResistDamageType.Dodged:
-                        health.Character.Event.trigger(new DoChanceDodge());
                         break;
                 }
             }

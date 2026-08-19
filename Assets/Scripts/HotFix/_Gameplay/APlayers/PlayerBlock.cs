@@ -13,7 +13,7 @@ public class PlayerBlock : ABlock
     {
         int tmp = blockAmount;
         foreach (var r in player.relics)
-            tmp = r.onPlayerGainedBlock(tmp);
+            r.onPlayerGainBlock(ref tmp);
 
         if (tmp > 0.0F)
             foreach (var p in player.powers)
