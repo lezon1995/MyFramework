@@ -274,7 +274,12 @@ namespace MoreMountains
             CacheAbilitiesAtInit();
 
             if (CharacterBrain == null)
-                TryGetComponent(out CharacterBrain);
+            {
+                if (!TryGetComponent(out CharacterBrain))
+                {
+                    this.TryGetComponentInChildren(out CharacterBrain);
+                }
+            }
 
             if (CharacterBrain)
                 CharacterBrain.SetOwner(gameObject);
@@ -318,7 +323,7 @@ namespace MoreMountains
         {
             // we grab all abilities at our level
             _characterAbilities.Clear();
-            GetComponents(_characterAbilities);
+            this.TryGetComponentsInChildren(ref _characterAbilities);
 
             // if the user has specified more nodes
             var list = AdditionalAbilityNodes;

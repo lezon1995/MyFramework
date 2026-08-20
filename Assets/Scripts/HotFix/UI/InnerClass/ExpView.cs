@@ -41,24 +41,4 @@ public partial class ExpView : WindowObjectUGUI
 		base.onShow();
 	}
 
-	public void refresh(float dt, Exp exp)
-	{
-		if (targetProgress != exp.progress)
-		{
-			if (exp.progress < targetProgress)
-				curProgress = 0;
-			else
-				curProgress = targetProgress;
-
-			targetProgress = exp.progress;
-			timeElapsed = 0;
-			curExp.setText(exp.currentExp.IToS());
-			maxExp.setText(exp.currentLevelRequiredExp.IToS());
-		}
-
-		timeElapsed = (timeElapsed + dt).clamp(0, tweenDuration);
-		var t = timeElapsed / tweenDuration;
-		var f = lerp(curProgress, targetProgress, t);
-		expBar.setFillPercent(f);
-	}
 }

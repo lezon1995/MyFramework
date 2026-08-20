@@ -261,13 +261,6 @@ MonoBehaviour:
   CharacterBrain: {fileID: 0}
   Orientation2D: {fileID: 1864776208260843582}
   Movement: {fileID: 5502210496497539059}
-  id: 
-  isBloodied: 0
-  displayGold: 0
-  isDying: 0
-  isDead: 0
-  halfDead: 0
-  lastDamageTaken: 0
   isReturnBall: 0
   ballMaxCount: 1
   ballCount: 1
@@ -562,8 +555,7 @@ GameObject:
   m_Component:
   - component: {fileID: 72668098488728798}
   - component: {fileID: 781814758105142403}
-  - component: {fileID: 5317533762425598883}
-  m_Layer: 12
+  m_Layer: 0
   m_Name: RecollectBall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -612,42 +604,6 @@ MonoBehaviour:
     m_Bits: 64
   minCollectDuration: 0.2
   maxCollectDuration: 0.45
---- !u!58 &5317533762425598883
-CircleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 415874678191187061}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Radius: 1
 --- !u!1 &553522841460780319
 GameObject:
   m_ObjectHideFlags: 0

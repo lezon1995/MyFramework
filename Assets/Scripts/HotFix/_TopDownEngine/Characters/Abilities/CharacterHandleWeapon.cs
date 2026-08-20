@@ -125,7 +125,7 @@ namespace MoreMountains
                 WeaponAttachment = transform;
 
             if (_animator && AutoIK)
-                _weaponIK = _animator.GetComponent<WeaponIK>();
+                _animator.TryGetComponent(out _weaponIK);
 
             if (InitialWeapon == null)
                 return;

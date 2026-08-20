@@ -241,7 +241,8 @@ namespace MoreMountains.Tools
 
             MMMultipleObjectPoolerObject searchedObject = GetPoolObject(Pool[_currentIndex].GameObjectToPool);
 
-            if (_currentIndex >= _objectPool.PooledGameObjects.Count)
+            var poolObjects = _objectPool.PooledGameObjects;
+            if (_currentIndex >= poolObjects.Count)
             {
                 return null;
             }
@@ -253,9 +254,9 @@ namespace MoreMountains.Tools
             }
 
             // if the object is already active, we need to find another one
-            if (_objectPool.PooledGameObjects[_currentIndex].gameObject.activeInHierarchy)
+            if (poolObjects[_currentIndex].gameObject.activeInHierarchy)
             {
-                GameObject findObject = FindInactiveObject(_objectPool.PooledGameObjects[_currentIndex].gameObject.name, _objectPool.PooledGameObjects);
+                GameObject findObject = FindInactiveObject(poolObjects[_currentIndex].gameObject.name, poolObjects);
                 if (findObject != null)
                 {
                     _currentIndex++;
@@ -279,7 +280,7 @@ namespace MoreMountains.Tools
                 // if the object is inactive, we return it
                 newIndex = _currentIndex;
                 _currentIndex++;
-                return _objectPool.PooledGameObjects[newIndex];
+                return poolObjects[newIndex];
             }
         }
 
@@ -300,7 +301,8 @@ namespace MoreMountains.Tools
 
             MMMultipleObjectPoolerObject searchedObject = GetPoolObject(Pool[_currentIndex].GameObjectToPool);
 
-            if (_currentIndex >= _objectPool.PooledGameObjects.Count)
+            var poolObjects = _objectPool.PooledGameObjects;
+            if (_currentIndex >= poolObjects.Count)
             {
                 return null;
             }
@@ -314,9 +316,9 @@ namespace MoreMountains.Tools
 
 
             // if the object is already active, we need to find another one
-            if (_objectPool.PooledGameObjects[_currentIndex].gameObject.activeInHierarchy)
+            if (poolObjects[_currentIndex].gameObject.activeInHierarchy)
             {
-                GameObject findObject = FindInactiveObject(Pool[_currentIndex].GameObjectToPool.name, _objectPool.PooledGameObjects);
+                GameObject findObject = FindInactiveObject(Pool[_currentIndex].GameObjectToPool.name, poolObjects);
                 if (findObject != null)
                 {
                     _currentCount++;
@@ -344,7 +346,7 @@ namespace MoreMountains.Tools
                 // if the object is inactive, we return it
                 _currentCount++;
                 OrderSequentialResetCounter(searchedObject);
-                return _objectPool.PooledGameObjects[_currentIndex];
+                return poolObjects[_currentIndex];
             }
         }
 
@@ -364,18 +366,19 @@ namespace MoreMountains.Tools
         protected virtual GameObject GetPooledGameObjectPoolSizeBased()
         {
             // we get a random index 
-            int randomIndex = Random.Range(0, _objectPool.PooledGameObjects.Count);
+            var poolObjects = _objectPool.PooledGameObjects;
+            int randomIndex = Random.Range(0, poolObjects.Count);
 
             int overflowCounter = 0;
 
             // we check to see if that object is enabled, if it's not we loop
-            while (!PoolObjectEnabled(_objectPool.PooledGameObjects[randomIndex]) && overflowCounter < _objectPool.PooledGameObjects.Count)
+            while (!PoolObjectEnabled(poolObjects[randomIndex]) && overflowCounter < poolObjects.Count)
             {
-                randomIndex = Random.Range(0, _objectPool.PooledGameObjects.Count);
+                randomIndex = Random.Range(0, poolObjects.Count);
                 overflowCounter++;
             }
 
-            if (!PoolObjectEnabled(_objectPool.PooledGameObjects[randomIndex]))
+            if (!PoolObjectEnabled(poolObjects[randomIndex]))
             {
                 return null;
             }
@@ -385,19 +388,19 @@ namespace MoreMountains.Tools
             if (_lastPooledObject != null)
             {
                 while (!CanPoolSameObjectTwice
-                       && (_objectPool.PooledGameObjects[randomIndex].name == _lastPooledObject.name || !PoolObjectEnabled(_objectPool.PooledGameObjects[randomIndex]))
-                       && overflowCounter < _objectPool.PooledGameObjects.Count * OverflowAmount)
+                       && (poolObjects[randomIndex].name == _lastPooledObject.name || !PoolObjectEnabled(poolObjects[randomIndex]))
+                       && overflowCounter < poolObjects.Count * OverflowAmount)
                 {
-                    randomIndex = Random.Range(0, _objectPool.PooledGameObjects.Count);
+                    randomIndex = Random.Range(0, poolObjects.Count);
                     overflowCounter++;
                 }
             }
 
             //  if the item we've picked is active
-            if (_objectPool.PooledGameObjects[randomIndex].gameObject.activeInHierarchy)
+            if (poolObjects[randomIndex].gameObject.activeInHierarchy)
             {
                 // we try to find another inactive object of the same type
-                GameObject pulledObject = FindInactiveObject(_objectPool.PooledGameObjects[randomIndex].gameObject.name, _objectPool.PooledGameObjects);
+                GameObject pulledObject = FindInactiveObject(poolObjects[randomIndex].gameObject.name, poolObjects);
                 if (pulledObject != null)
                 {
                     return pulledObject;
@@ -405,7 +408,7 @@ namespace MoreMountains.Tools
                 else
                 {
                     // if we couldn't find an inactive object of this type, we see if it can expand
-                    MMMultipleObjectPoolerObject searchedObject = GetPoolObject(_objectPool.PooledGameObjects[randomIndex].gameObject);
+                    MMMultipleObjectPoolerObject searchedObject = GetPoolObject(poolObjects[randomIndex].gameObject);
                     if (searchedObject == null)
                     {
                         return null;
@@ -426,7 +429,7 @@ namespace MoreMountains.Tools
             else
             {
                 // if the pool wasn't empty, we return the random object we've found.
-                return _objectPool.PooledGameObjects[randomIndex];
+                return poolObjects[randomIndex];
             }
         }
 
@@ -442,11 +445,12 @@ namespace MoreMountains.Tools
             int overflowCounter = 0;
 
             // if we can't pool the same object twice, we'll loop for a while to try and get another one
+            var poolObjects = _objectPool.PooledGameObjects;
             if (_lastPooledObject != null)
             {
                 while (!CanPoolSameObjectTwice
                        && (Pool[randomIndex].GameObjectToPool.name == _lastPooledObject.name || !PoolObjectEnabled(Pool[randomIndex].GameObjectToPool))
-                       && overflowCounter < _objectPool.PooledGameObjects.Count * OverflowAmount)
+                       && overflowCounter < poolObjects.Count * OverflowAmount)
                 {
                     randomIndex = Random.Range(0, Pool.Count);
                     overflowCounter++;
@@ -458,7 +462,7 @@ namespace MoreMountains.Tools
             // while we haven't found an object to return, and while we haven't gone through all the different object types, we keep going
             overflowCounter = 0;
             while (randomIndex != originalRandomIndex
-                   && overflowCounter < _objectPool.PooledGameObjects.Count)
+                   && overflowCounter < poolObjects.Count)
             {
                 // if our index is at the end, we reset it
                 if (randomIndex >= Pool.Count)
@@ -474,7 +478,7 @@ namespace MoreMountains.Tools
                 }
 
                 // we try to find an inactive object of that type in the pool
-                GameObject newGameObject = FindInactiveObject(Pool[randomIndex].GameObjectToPool.name, _objectPool.PooledGameObjects);
+                GameObject newGameObject = FindInactiveObject(Pool[randomIndex].GameObjectToPool.name, poolObjects);
                 if (newGameObject != null)
                 {
                     return newGameObject;
@@ -523,7 +527,8 @@ namespace MoreMountains.Tools
         /// <param name="type">Type.</param>
         public virtual GameObject GetPooledGameObjectOfType(string searchedName)
         {
-            GameObject newObject = FindInactiveObject(searchedName, _objectPool.PooledGameObjects);
+            var poolObjects = _objectPool.PooledGameObjects;
+            GameObject newObject = FindInactiveObject(searchedName, poolObjects);
 
             if (newObject != null)
             {
@@ -533,13 +538,13 @@ namespace MoreMountains.Tools
             {
                 // if we've not returned the object, that means the pool is empty (at least it means it doesn't contain any object of that specific type)
                 // so if the pool is allowed to expand
-                GameObject searchedObject = FindObject(searchedName, _objectPool.PooledGameObjects);
+                GameObject searchedObject = FindObject(searchedName, poolObjects);
                 if (searchedObject == null)
                 {
                     return null;
                 }
 
-                if (GetPoolObject(FindObject(searchedName, _objectPool.PooledGameObjects)).PoolCanExpand)
+                if (GetPoolObject(FindObject(searchedName, poolObjects)).PoolCanExpand)
                 {
                     return AddOneObjectToThePool(searchedObject);
                 }

@@ -87,12 +87,13 @@ namespace MoreMountains.Tools
         /// <summary>
         /// Performs this state's actions
         /// </summary>
-        public virtual void PerformActions()
+        /// <param name="dt"></param>
+        public virtual void PerformActions(float dt)
         {
             for (var i = 0; i < Actions.Count; i++)
             {
                 if (Actions[i])
-                    Actions[i].PerformAction();
+                    Actions[i].PerformAction(dt);
                 else
                     Debug.LogError("An action in " + _brain.gameObject.name + " on state " + StateName + " is null.");
             }

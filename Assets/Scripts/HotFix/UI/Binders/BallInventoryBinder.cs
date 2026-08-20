@@ -1,7 +1,17 @@
 using System;
+using System.Collections.Generic;
 
 namespace MoreMountains
 {
+    public interface IBallsContainerView
+    {
+        BallTooltipItem BallTooltipItem { get; }
+        void SetTitle(string title);
+        void BuildBallsWithIndex(List<BallInventorySlot> ballInventorySlots, Action<int, BallInventoryItem, BallInventorySlot> onBuild);
+        bool GetUsedItem(int index, out BallInventoryItem o);
+        void SetActive(bool active);
+    }
+
     /// <summary>
     /// 球背包 binder —— 把 BallBag 内容同步到 BallInventoryView。
     ///
@@ -13,12 +23,11 @@ namespace MoreMountains
     /// </summary>
     public sealed class BallInventoryBinder
     {
-        BallInventoryView _view;
+        IBallsContainerView _view;
         BallBag _bag;
-
         BallItem _selected;
 
-        public BallInventoryBinder(BallInventoryView view)
+        public BallInventoryBinder(IBallsContainerView view)
         {
             _view = view ?? throw new ArgumentNullException(nameof(view));
         }
@@ -29,7 +38,7 @@ namespace MoreMountains
         public BallBag Bag => _bag;
 
         /// <summary>背包视图。</summary>
-        public BallInventoryView View => _view;
+        public IBallsContainerView View => _view;
 
         public event Action<BallItem /*selected ball*/> BallSelected;
         public event Action<BallItem /*ball*/, int /*slotIndex*/> EquipRequested;
@@ -79,7 +88,7 @@ namespace MoreMountains
                 // 不创建任何 lambda。
                 item.SetSlotData(index, this);
                 item.SetBallInventorySlot(slot);
-                
+
                 var ball = slot.Item; // 可能为 null
                 bool isEmpty = slot.IsEmpty;
                 bool isOccupied = slot.IsOccupied;
@@ -100,7 +109,6 @@ namespace MoreMountains
                 }
 
                 item.SetIconVisible(!isEmpty);
-                item.SetStarCount(!isEmpty ? ClampStars(ball.Level) : 0);
                 item.SetEnabledState(!isEmpty);
             });
         }
@@ -210,6 +218,6 @@ namespace MoreMountains
             return level;
         }
 
-        public void SetViewActive(bool active) => _view.setActive(active);
+        public void SetViewActive(bool active) => _view.SetActive(active);
     }
 }

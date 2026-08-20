@@ -3,10 +3,20 @@ using System.Collections.Generic;
 
 namespace MoreMountains;
 
-public partial class BallInventoryView
+public partial class BallInventoryView : IBallsContainerView
 {
     public BallTooltipItem BallTooltipItem { get; set; }
     public void SetTitle(string s) => textTitle.setText(s ?? string.Empty);
+
+    public void BuildBallsWithIndex(List<BallInventorySlot> slotList, Action<int, BallInventoryItem, BallInventorySlot> onBuild)
+    {
+        BallInventoryItemPool.unuseAll();
+        BallInventoryItemPool.newItem(slotList.Count);
+        var used = BallInventoryItemPool.getUsedList();
+        for (int i = 0; i < slotList.Count; i++)
+            onBuild?.Invoke(i, used[i], slotList[i]);
+    }
+
     public myUGUIObject ItemParent => itemParent;
 
     public void BuildBalls<TSlot>(List<TSlot> slotList, Action<BallInventoryItem, TSlot> onBuild)
@@ -39,6 +49,8 @@ public partial class BallInventoryView
         return false;
     }
 
+    public void SetActive(bool active) => setActive(active);
+
     BallInventoryBinder binder;
 
     public BallInventoryBinder initBinder(OperationPanel panel)
@@ -46,6 +58,7 @@ public partial class BallInventoryView
         BallTooltipItem = panel.BallTooltipItem;
         return binder ??= new(this);
     }
+
     public BallInventoryBinder initBinder(EscPanel panel)
     {
         BallTooltipItem = panel.BallTooltipItem;

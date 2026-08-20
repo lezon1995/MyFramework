@@ -1279,7 +1279,7 @@ MonoBehaviour:
     mUseCustomName: 1
     mRegisterCollider: 0
     mHasClickEvent: 0
-  mParentType: WindowRecyclableUGUI
+  mParentType: WindowObjectUGUI
   mParentGenericType: 
   mAutoType: 1
   mCustomClassName: BallTooltipItem

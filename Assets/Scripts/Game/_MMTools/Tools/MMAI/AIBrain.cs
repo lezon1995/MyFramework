@@ -135,10 +135,12 @@ namespace MoreMountains.Tools
 
             if (Time.timeScale == 0f)
                 return;
+            
+            var dt = Time.deltaTime;
 
             if (Time.time - _lastActionsUpdate > ActionsFrequency)
             {
-                CurrentState.PerformActions();
+                CurrentState.PerformActions(dt);
                 _lastActionsUpdate = Time.time;
             }
 
@@ -151,7 +153,7 @@ namespace MoreMountains.Tools
                 _lastDecisionsUpdate = Time.time;
             }
 
-            TimeInThisState += Time.deltaTime;
+            TimeInThisState += dt;
 
             StoreLastKnownPosition();
         }

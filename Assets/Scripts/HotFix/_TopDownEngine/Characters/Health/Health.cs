@@ -267,6 +267,7 @@ namespace MoreMountains
         public bool hasCharacter { get; set; }
         public bool Initialized => _initialized;
         public IEventRouter Event => this;
+        public Action<int, int> onHealthChanged;
 
         protected Renderer _renderer;
         protected CharacterMovement _characterMovement;
@@ -379,11 +380,12 @@ namespace MoreMountains
             if (Character)
             {
                 Character.FindAbility(out _characterMovement);
-                if (Character.Model)
+                var model = Character.Model;
+                if (model)
                 {
-                    if (Character.Model.GetComponentInChildren<Renderer>())
+                    if (model.GetComponentInChildren<Renderer>())
                     {
-                        _renderer = Character.Model.GetComponentInChildren<Renderer>();
+                        _renderer = model.GetComponentInChildren<Renderer>();
                     }
                 }
             }
@@ -514,6 +516,9 @@ namespace MoreMountains
                 DoResurrect();
 
             DamageEnabled();
+            
+            if (Model)
+                Model.gameObject.SetActive(true);
         }
 
         /// <summary>
@@ -1007,6 +1012,8 @@ namespace MoreMountains
                     RefreshHealthBar(false);
                     break;
             }
+            
+            onHealthChanged?.Invoke(CurrentHealth, maximumHealth);
         }
 
         public virtual void SetHealth(int curHealth, int maxHealth, RefreshHealthBarType type = RefreshHealthBarType.Immediately)
@@ -1033,6 +1040,8 @@ namespace MoreMountains
                 default:
                     throw new ArgumentOutOfRangeException(nameof(type), type, null);
             }
+            
+            onHealthChanged?.Invoke(CurrentHealth, maximumHealth);
         }
 
         /// <summary>

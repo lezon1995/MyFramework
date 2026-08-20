@@ -29,8 +29,8 @@ namespace MoreMountains
 
             if (TryGetComponent<WeaponAutoAim>(out var autoAim))
             {
-                HorizontalRadius = autoAim.ScanRadius;
-                VerticalRadius = autoAim.ScanRadius;
+                HorizontalRadius = autoAim.scanRadius;
+                VerticalRadius = autoAim.scanRadius;
             }
         }
 
@@ -44,8 +44,8 @@ namespace MoreMountains
 
             if (TargetHandleWeaponAbility.CurrentWeapon.TryGetComponent<WeaponAutoAim>(out var autoAim))
             {
-                HorizontalRadius = autoAim.ScanRadius;
-                VerticalRadius = autoAim.ScanRadius;
+                HorizontalRadius = autoAim.scanRadius;
+                VerticalRadius = autoAim.scanRadius;
                 _line.enabled = true;
             }
             else
@@ -73,8 +73,8 @@ namespace MoreMountains
         {
             if (TryGetComponent<WeaponAutoAim>(out var autoAim))
             {
-                HorizontalRadius = autoAim.ScanRadius;
-                VerticalRadius = autoAim.ScanRadius;
+                HorizontalRadius = autoAim.scanRadius;
+                VerticalRadius = autoAim.scanRadius;
             }
 
             _line.enabled = active;

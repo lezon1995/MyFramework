@@ -1,4 +1,4 @@
-﻿namespace MoreMountains;
+﻿/*namespace MoreMountains;
 
 public class IntentFlashAction : AGameAction, IArgs<AMonster, EnemyMoveInfo>
 {
@@ -29,4 +29,4 @@ public class IntentFlashAction : AGameAction, IArgs<AMonster, EnemyMoveInfo>
         var f = curve.evaluate(duration.pct);
         ADungeon.overlayMenu.intents.updateIntentItemScale(moveInfo, f);
     }
-}
+}*/

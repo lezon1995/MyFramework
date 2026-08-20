@@ -54,6 +54,19 @@ public class MainSceneGaming : SceneProcedure
             // balls.add(ball);
         }
 
+        if (isKeyCurrentDown(KeyCode.N))
+        {
+            var mousePosition = getMousePosition();
+            var worldPos = screenToWorld(mousePosition, false);
+
+            var grid2DView = Object.FindFirstObjectByType<GridManager>();
+            // var rect = brickManager.brickLayout.getRectAtPos(worldPos);
+            // var brick = brickManager.showBrick(worldPos, new(1.14F, 0.82F), 20);
+            var cellPos = grid2DView.WorldToCellPos(worldPos);
+            var brick = brickManager.acquireBrick(brickManager.GetRandomDef(new(1, 2)), cellPos);
+            // balls.add(ball);
+        }
+
         if (isKeyCurrentDown(KeyCode.R))
         {
             foreach (var ball in player.BallManagement.Instance.getActiveBalls())

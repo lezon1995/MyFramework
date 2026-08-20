@@ -16,7 +16,6 @@ public partial class BallInventoryItem : WindowRecyclableUGUI
 	protected myUGUIObject disable;
 	protected myUGUIObject focus;
 	protected myUGUIImageSimple icon;
-	protected myUGUIObject[] stars = new myUGUIObject[3];
     // auto generate member end
     public BallInventoryItem(IWindowObjectOwner parent) : base(parent)
     {
@@ -35,10 +34,6 @@ public partial class BallInventoryItem : WindowRecyclableUGUI
 		newObject(out disable, "Btn/Disable");
 		newObject(out focus, "Btn/Focus");
 		newObject(out icon, "Btn/Icon");
-		for (int i = 0; i < stars.Length; ++i)
-		{
-			newObject(out stars[i], "Btn/Icon/Grade_Star_01/Star" + i.IToS());
-		}
         // auto generate assignWindowInternal end
     }
 

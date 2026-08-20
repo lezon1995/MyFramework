@@ -41,6 +41,16 @@
             }
         }
 
+        public override void fixedUpdate(float dt)
+        {
+            base.fixedUpdate(dt);
+            
+            if (!OverlayMenuService.Instance.Opened)
+            {
+                OverlayMenuService.Instance.Open(this, _player);
+            }
+        }
+
         // public void render(SpriteBatch sb)
         // {
         //     super.render(sb);

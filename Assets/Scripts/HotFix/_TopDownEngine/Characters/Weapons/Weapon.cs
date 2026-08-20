@@ -324,7 +324,7 @@ namespace MoreMountains
         public int BaseDamage = 5;
         public Dmg.Types BaseDamageType;
 
-        protected int Damage
+        protected virtual int Damage
         {
             get
             {
@@ -334,7 +334,7 @@ namespace MoreMountains
         }
 
         protected Dmg.Types DamageType => BaseDamageType;
-        protected Dmg Dmg => new(Damage, DamageType, IsCritThisFrame, CritDamageThisFrame);
+        protected virtual Dmg Dmg => new(Damage, DamageType, IsCritThisFrame, CritDamageThisFrame);
 
         public ValueModifier DamageModifier { get; set; }
 
@@ -614,6 +614,7 @@ namespace MoreMountains
 
             if (PreventAllMovementWhileInUse && _characterMovement && _controller)
             {
+                _controller.IntentVelocity = Vector3.zero;
                 _characterMovement.SetMovement(Vector2.zero);
                 _characterMovement.MovementForbidden = true;
             }
@@ -1041,12 +1042,12 @@ namespace MoreMountains
                 critChance += weaponCritChance.Value;
 
             IsCritThisFrame = MMMaths.Chance(critChance);
-            
+
             var critDamage = 0F;
             var weaponCritDamage = GetStat(Stat.CritDamage);
             if (weaponCritDamage != null)
                 critDamage += weaponCritDamage.Value;
-            
+
             var characterCritDamage = Owner.GetStat(Character.Stat.CritDamage);
             if (characterCritDamage != null)
                 critDamage *= (1 + characterCritDamage.Value);

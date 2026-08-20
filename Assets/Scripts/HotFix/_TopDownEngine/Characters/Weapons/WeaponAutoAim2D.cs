@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Drawing;
 using UnityEngine;
 
@@ -23,6 +24,20 @@ namespace MoreMountains
         protected List<Transform> _potentialTargets;
         protected Collider2D[] _results;
         protected RaycastHit2D _hit;
+        Comparison<Transform> comparison;
+
+        public WeaponAutoAim2D()
+        {
+            comparison = Comparison;
+        }
+
+        // we sort our targets by distance
+        int Comparison(Transform a, Transform b)
+        {
+            var sqrMagnitudeA = (transform.position - a.transform.position).sqrMagnitude;
+            var sqrMagnitudeB = (transform.position - b.transform.position).sqrMagnitude;
+            return sqrMagnitudeA.CompareTo(sqrMagnitudeB);
+        }
 
         /// <summary>
         /// On init, we grab our orientation to be able to detect facing direction
@@ -51,7 +66,7 @@ namespace MoreMountains
             filter.useTriggers = true;
             filter.useLayerMask = true;
             filter.SetLayerMask(TargetsMask);
-            int numberOfResults = Physics2D.OverlapCircle(_raycastOrigin, ScanRadius, filter, _results);
+            int numberOfResults = Physics2D.OverlapCircle(_raycastOrigin, scanRadius, filter, _results);
             // if there are no targets around, we exit
             if (numberOfResults == 0)
             {
@@ -70,20 +85,15 @@ namespace MoreMountains
                 }
             }
 
-            // we sort our targets by distance
-            int Comparison(Transform a, Transform b)
-            {
-                var sqrMagnitudeA = (transform.position - a.transform.position).sqrMagnitude;
-                var sqrMagnitudeB = (transform.position - b.transform.position).sqrMagnitude;
-                return sqrMagnitudeA.CompareTo(sqrMagnitudeB);
-            }
-
-            _potentialTargets.Sort(Comparison);
+            _potentialTargets.Sort(comparison);
 
             // we return the first unobscured target
-            foreach (Transform t in _potentialTargets)
+            foreach (var t in _potentialTargets)
             {
-                _boxcastDirection = (Vector2)(t.GetComponent<Collider2D>().bounds.center - _raycastOrigin);
+                if (t.TryGetComponent<Collider2D>(out var collider2D))
+                {
+                    _boxcastDirection = (Vector2)(collider2D.bounds.center - _raycastOrigin);
+                }
 
                 _hit = Physics2D.BoxCast(_raycastOrigin, LineOfFireBoxcastSize, 0f, _boxcastDirection.normalized, _boxcastDirection.magnitude, ObstacleMask);
 
@@ -122,6 +132,7 @@ namespace MoreMountains
                 _raycastOrigin = transform.position + DetectionOriginOffset;
             }
         }
+
         public override void DrawGizmos()
         {
             if (DrawDebugRadius)
@@ -130,11 +141,11 @@ namespace MoreMountains
                 {
                     if (GizmoContext.InSelection(this))
                     {
-                        Draw.xy.Circle(Vector3.zero, ScanRadius, Color.yellow);
+                        Draw.xy.Circle(Vector3.zero, scanRadius, Color.yellow);
                     }
                     else
                     {
-                        Draw.xy.Circle(Vector3.zero, ScanRadius, Color.yellow * new Color(1, 1, 1, 0.5f));
+                        Draw.xy.Circle(Vector3.zero, scanRadius, Color.yellow * new Color(1, 1, 1, 0.5f));
                     }
                 }
             }

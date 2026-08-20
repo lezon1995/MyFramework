@@ -31,7 +31,7 @@ namespace MoreMountains.Tools
 
         protected virtual void Awake() => _brain = GetComponentInParent<AIBrain>();
         public virtual void Initialization() => _initialized = true;
-        public abstract void PerformAction();
+        public abstract void PerformAction(float dt);
         public virtual void OnEnterState() => ActionInProgress = true;
         public virtual void OnExitState() => ActionInProgress = false;
     }

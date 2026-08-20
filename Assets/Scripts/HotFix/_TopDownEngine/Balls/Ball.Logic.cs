@@ -79,6 +79,7 @@ namespace MoreMountains
         int delayCounter;
 
         Timer lifeDuration;
+        public bool isExpired { get; set; }
 
         public IHittable lastHittable;
         public bool isOverlappingBrick;
@@ -290,6 +291,7 @@ namespace MoreMountains
             if (lifeDuration.update(dt))
             {
                 new OnBallExpired(this).trigger(this);
+                isExpired = true;
             }
         }
 
@@ -675,6 +677,7 @@ namespace MoreMountains
             GetStat(Stat.Duration, out var ballDuration);
             var duration = ballDuration.Value * (1 + playerDuration.Value);
             lifeDuration = duration;
+            isExpired = false;
         }
 
         /*public void returnBall(Vector3 nextPosition)

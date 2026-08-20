@@ -9,7 +9,8 @@ namespace MoreMountains
         protected Vector2 colliderOffset, colliderSize;
         protected DamageOnTouch damageOnTouch;
         public new BrickStats Stats => stats as BrickStats;
-
+        public CharacterHandleWeapon handleWeapon;
+        
         protected override void OnAwake()
         {
             base.OnAwake();
@@ -28,6 +29,8 @@ namespace MoreMountains
             boxCollider = _controller2D.boxCollider;
             colliderOffset = boxCollider.offset;
             colliderSize = boxCollider.size;
+
+            this.TryGetComponentInChildren(out handleWeapon);
         }
 
         protected override void OnEnable()

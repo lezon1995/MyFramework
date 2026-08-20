@@ -30,7 +30,7 @@ namespace MoreMountains
             base.Initialization();
         }
 
-        public override void PerformAction()
+        public override void PerformAction(float dt)
         {
             if (brick.IsDead())
             {

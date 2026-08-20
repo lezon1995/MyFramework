@@ -49,92 +49,100 @@ namespace MoreMountains.Tools
 
         public static bool TryGetComponentInParent<T>(this Component @this, out T component, bool includeInactive = true) where T : Component
         {
-	        component = @this.gameObject.GetComponentInParent<T>(includeInactive);
+            component = @this.gameObject.GetComponentInParent<T>(includeInactive);
             return component != null;
         }
 
         public static bool TryGetComponentInChildren<T>(this Component @this, out T component, bool includeInactive = true) where T : Component
         {
-	        component = @this.gameObject.GetComponentInChildren<T>(includeInactive);
+            component = @this.gameObject.GetComponentInChildren<T>(includeInactive);
             return component != null;
         }
 
         public static void TryGetComponentsInChildren<T>(this Component @this, ref List<T> components, bool includeInactive = true, bool clearFirst = false) where T : Component
         {
-	        if (clearFirst)
-		        components.Clear();
-	        
-	        var children = @this.GetComponentsInChildren<T>(includeInactive);
-	        components.AddRange(children);
+            if (clearFirst)
+                components.Clear();
+
+            var children = @this.GetComponentsInChildren<T>(includeInactive);
+            components.AddRange(children);
         }
 
         public static void TryGetComponentsInChildren<T>(this Component @this, out T[] components, bool includeInactive = true) where T : Component
         {
-	        components = @this.GetComponentsInChildren<T>(includeInactive);
+            components = @this.GetComponentsInChildren<T>(includeInactive);
         }
 
         public static void TryGetComponentsInChildren<T>(this GameObject @this, ref List<T> components, bool includeInactive = true, bool clearFirst = false) where T : Component
         {
-	        if (clearFirst)
-		        components.Clear();
+            if (clearFirst)
+                components.Clear();
 
-	        var children = @this.GetComponentsInChildren<T>(includeInactive);
-	        components.AddRange(children);
+            var children = @this.GetComponentsInChildren<T>(includeInactive);
+            foreach (var child in children)
+            {
+                if (components.Contains(child))
+                    continue;
+                components.Add(child);
+            }
         }
 
-		/// <summary>
-		/// Grabs a component on the object, or on its children objects, or on a parent, or adds it to the object if none were found
-		/// </summary>
-		/// <param name="this"></param>
-		/// <typeparam name="T"></typeparam>
-		/// <returns></returns>
-		public static T MMGetComponentAroundOrAdd<T>(this GameObject @this) where T : Component
-		{
-			T component = @this.GetComponentInChildren<T>(true);
-			if (component == null)
-			{
-				component = @this.GetComponentInParent<T>();    
-			}
-			if (component == null)
-			{
-				component = @this.AddComponent<T>();    
-			}
-			return component;
-		}
-		
-		/// <summary>
-		/// Gets the specified component on the object, or adds it and returns it if there isn't already one
-		/// </summary>
-		/// <param name="gameObject"></param>
-		/// <typeparam name="T"></typeparam>
-		/// <returns></returns>
-		public static T MMGetOrAddComponent<T>(this GameObject @this) where T : Component
-		{
-			T component = @this.GetComponent<T>();
-			if (component == null)
-			{
-				component = @this.AddComponent<T>();
-			}
-			return component;
-		}
-		
-		/// <summary>
-		/// Gets the specified component on the object, or adds it and returns it if there isn't already one
-		/// </summary>
-		/// <param name="gameObject"></param>
-		/// <typeparam name="T"></typeparam>
-		/// <returns></returns>
-		public static (T newComponent, bool createdNew) MMFindOrCreateObjectOfType<T>(this GameObject @this, string newObjectName, Transform parent, bool forceNewCreation = false) where T : Component
-		{
-			T searchedObject = UnityEngine.Object.FindFirstObjectByType<T>();
-			if (searchedObject == null || forceNewCreation)
-			{
-				GameObject newGo = new GameObject(newObjectName);
-				newGo.transform.SetParent(parent);
-				return (newGo.AddComponent<T>(), true);
-			}
+        /// <summary>
+        /// Grabs a component on the object, or on its children objects, or on a parent, or adds it to the object if none were found
+        /// </summary>
+        /// <param name="this"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T MMGetComponentAroundOrAdd<T>(this GameObject @this) where T : Component
+        {
+            T component = @this.GetComponentInChildren<T>(true);
+            if (component == null)
+            {
+                component = @this.GetComponentInParent<T>();
+            }
 
-			return (searchedObject, false);
-		}
-	}
+            if (component == null)
+            {
+                component = @this.AddComponent<T>();
+            }
+
+            return component;
+        }
+
+        /// <summary>
+        /// Gets the specified component on the object, or adds it and returns it if there isn't already one
+        /// </summary>
+        /// <param name="gameObject"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T MMGetOrAddComponent<T>(this GameObject @this) where T : Component
+        {
+            T component = @this.GetComponent<T>();
+            if (component == null)
+            {
+                component = @this.AddComponent<T>();
+            }
+
+            return component;
+        }
+
+        /// <summary>
+        /// Gets the specified component on the object, or adds it and returns it if there isn't already one
+        /// </summary>
+        /// <param name="gameObject"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static (T newComponent, bool createdNew) MMFindOrCreateObjectOfType<T>(this GameObject @this, string newObjectName, Transform parent, bool forceNewCreation = false) where T : Component
+        {
+            T searchedObject = UnityEngine.Object.FindFirstObjectByType<T>();
+            if (searchedObject == null || forceNewCreation)
+            {
+                GameObject newGo = new GameObject(newObjectName);
+                newGo.transform.SetParent(parent);
+                return (newGo.AddComponent<T>(), true);
+            }
+
+            return (searchedObject, false);
+        }
+    }
 }

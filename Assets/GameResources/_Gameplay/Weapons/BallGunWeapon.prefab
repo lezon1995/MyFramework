@@ -43,7 +43,7 @@ GameObject:
   - component: {fileID: 4943838447161096}
   - component: {fileID: -106265365135329600}
   - component: {fileID: 114345180357598506}
-  - component: {fileID: 2754014081167400520}
+  - component: {fileID: 8200017456238200442}
   - component: {fileID: -4866306178852568165}
   - component: {fileID: 114251315345146356}
   - component: {fileID: -7774944352120734678}
@@ -195,7 +195,7 @@ MonoBehaviour:
   CameraTargetOffset: 0.3
   CameraTargetMaxDistance: 2
   CameraTargetSpeed: 5
---- !u!114 &2754014081167400520
+--- !u!114 &8200017456238200442
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -204,9 +204,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 1490220044263310}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 787adbe3232ded84a9544869399298f7, type: 3}
+  m_Script: {fileID: 11500000, guid: f01fe698dfc144d8a0adfd8e32624f27, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: HotFix::MoreMountains.WeaponAutoAim2D
+  m_EditorClassIdentifier: HotFix::MoreMountains.BallGunWeaponAutoAim2D
   TargetsMask:
     serializedVersion: 2
     m_Bits: 128

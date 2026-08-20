@@ -21,6 +21,7 @@ namespace MoreMountains
 
         [Header("Scan for Targets")] [Tooltip("the radius (in units) around the character within which to search for targets")]
         public float ScanRadius = 15f;
+        public virtual float scanRadius => ScanRadius;
 
         [Tooltip("the size of the boxcast that will be performed to verify line of fire")]
         public Vector2 LineOfFireBoxcastSize = new(0.1f, 0.1f);
@@ -96,12 +97,12 @@ namespace MoreMountains
         }
 
         /// <summary>
-        /// On init we grab our WeaponAim
+        /// On init, we grab our WeaponAim
         /// </summary>
         protected virtual void Initialization()
         {
-            _weaponAim = GetComponent<WeaponAim>();
-            _weapon = GetComponent<Weapon>();
+            TryGetComponent(out _weaponAim);
+            TryGetComponent(out _weapon);
             _isOwnerNull = _weapon.Owner == null;
             if (_weaponAim == null)
             {
@@ -126,7 +127,7 @@ namespace MoreMountains
         }
 
         /// <summary>
-        /// On Update, we setup our ray origin, scan periodically and set aim if needed
+        /// On Update, we set up our ray origin, scan periodically and set aim if needed
         /// </summary>
         protected virtual void Update()
         {
@@ -326,11 +327,11 @@ namespace MoreMountains
                 {
                     if (GizmoContext.InSelection(this))
                     {
-                        Draw.xy.Circle(Vector3.zero, ScanRadius, Color.yellow);
+                        Draw.xy.Circle(Vector3.zero, scanRadius, Color.yellow);
                     }
                     else
                     {
-                        Draw.xy.Circle(Vector3.zero, ScanRadius, Color.yellow * new Color(1, 1, 1, 0.5f));
+                        Draw.xy.Circle(Vector3.zero, scanRadius, Color.yellow * new Color(1, 1, 1, 0.5f));
                     }
                 }
             }

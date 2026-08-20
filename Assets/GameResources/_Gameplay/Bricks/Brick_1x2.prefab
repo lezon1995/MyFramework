@@ -430,11 +430,8 @@ GameObject:
   - component: {fileID: 7958842616927788039}
   - component: {fileID: -955348461646362180}
   - component: {fileID: 6219702712390601374}
-  - component: {fileID: 2662943428258057862}
   - component: {fileID: 7515933723256035057}
   - component: {fileID: 6661999403417321002}
-  - component: {fileID: 2446418696707397498}
-  - component: {fileID: -2359667471090977615}
   m_Layer: 7
   m_Name: Brick_1x2
   m_TagString: Block
@@ -458,6 +455,8 @@ Transform:
   - {fileID: 2680391634669396040}
   - {fileID: 2921623624187788054}
   - {fileID: 6157069043393152285}
+  - {fileID: 5117558561624646427}
+  - {fileID: 5222427655472634967}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!50 &-70445197222268683
@@ -764,22 +763,16 @@ MonoBehaviour:
   Buffable: {fileID: 9109685432449184292}
   Exp: {fileID: 0}
   AdditionalAbilityNodes: []
-  CharacterBrain: {fileID: 0}
+  CharacterBrain: {fileID: 1826302842361204560}
   Orientation2D: {fileID: 0}
   Movement: {fileID: 0}
-  id: 
-  isBloodied: 0
-  displayGold: 0
-  isDying: 0
-  isDead: 0
-  halfDead: 0
-  lastDamageTaken: 0
   type: 0
   instanceID: 0
   guid: 0
   size: {x: 0, y: 0}
   brickRenderer: {fileID: 0}
   volumeCollider: {fileID: 0}
+  handleWeapon: {fileID: 0}
 --- !u!114 &7958842616927788039
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -802,6 +795,7 @@ MonoBehaviour:
   BaseMR: 0
   BaseDodgeChance: 0
   ImmuneToDamage: 0
+  DamageCheckInterval: 0
   DamageMMFeedbacks: {fileID: 0}
   FeedbackIsProportionalToDamage: 0
   PreventTakeSelfDamage: 0
@@ -851,41 +845,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: HotFix::MoreMountains.BrickStats
   AutoInitialize: 1
   StatsConfig: {fileID: 11400000, guid: c15db39dc8532554fbe4a42e2cd9a75b, type: 2}
---- !u!114 &2662943428258057862
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3237124602915234066}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e18b4d59e05d441aa1484013cb172420, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: HotFix::MoreMountains.EnemyBrain
-  Owner: {fileID: 0}
-  States:
-  - StateName: Chasing
-    Actions:
-      array:
-      - {fileID: 2446418696707397498}
-    Transitions:
-      array:
-      - Decision: {fileID: -2359667471090977615}
-        TrueState: 
-        FalseState: 
-  TimeInThisState: 0
-  Target: {fileID: 0}
-  _lastKnownTargetPosition: {x: 0, y: 0, z: 0}
-  BrainActive: 1
-  ResetBrainOnStart: 0
-  ResetBrainOnEnable: 0
-  ActionsFrequency: 0
-  DecisionFrequency: 0
-  RandomizeFrequencies: 0
-  RandomActionFrequency: {x: 0.5, y: 1}
-  RandomDecisionFrequency: {x: 0.5, y: 1}
-  character: {fileID: 0}
 --- !u!114 &7515933723256035057
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -926,50 +885,6 @@ MonoBehaviour:
   BlockingConditionStates: 
   BlockingWeaponStates: 
   config: {fileID: 11400000, guid: 5a0ee753956350f4f845be8b6a4fcccd, type: 2}
---- !u!114 &2446418696707397498
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3237124602915234066}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 47557c9dd44293a41bc6710b083332de, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: HotFix::MoreMountains.TopDownEngine.EnemyMoveTowardsTargetAction
-  InitializationMode: 0
-  Label: 
-  UseMinimumXDistance: 1
-  MinimumXDistance: 0.1
-  MonsterAttractionForce: 1
-  MonsterWanderForce: 0.5
---- !u!114 &-2359667471090977615
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3237124602915234066}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2a946a428cb16e1409d657b9041c69be, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: HotFix::MoreMountains.TopDownEngine.EnemyDetectTargetRadiusDecision
-  Label: 
-  Radius: 50
-  DetectionOriginOffset: {x: 0, y: 0, z: 0}
-  TargetLayer:
-    serializedVersion: 2
-    m_Bits: 4096
-  ObstacleDetection: 0
-  ObstacleMask:
-    serializedVersion: 2
-    m_Bits: 16384
-  ObstaclesDetectionMode: 0
-  CanTargetSelf: 0
-  TargetCheckFrequency: 1
-  OverlapMaximum: 10
 --- !u!1 &3490370333130838258
 GameObject:
   m_ObjectHideFlags: 0
@@ -1895,6 +1810,166 @@ Transform:
   - {fileID: 7376557250965316797}
   m_Father: {fileID: 2680391634669396040}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &6192007530552430272
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 5098559960325705308}
+    m_Modifications:
+    - target: {fileID: 2132353554852106903, guid: 7e83faed0f51c7046932b5d1b7a31bf3,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2132353554852106903, guid: 7e83faed0f51c7046932b5d1b7a31bf3,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2132353554852106903, guid: 7e83faed0f51c7046932b5d1b7a31bf3,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2132353554852106903, guid: 7e83faed0f51c7046932b5d1b7a31bf3,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2132353554852106903, guid: 7e83faed0f51c7046932b5d1b7a31bf3,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2132353554852106903, guid: 7e83faed0f51c7046932b5d1b7a31bf3,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2132353554852106903, guid: 7e83faed0f51c7046932b5d1b7a31bf3,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2132353554852106903, guid: 7e83faed0f51c7046932b5d1b7a31bf3,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2132353554852106903, guid: 7e83faed0f51c7046932b5d1b7a31bf3,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2132353554852106903, guid: 7e83faed0f51c7046932b5d1b7a31bf3,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6966934714350094134, guid: 7e83faed0f51c7046932b5d1b7a31bf3,
+        type: 3}
+      propertyPath: m_Name
+      value: AIWeapon_1_Bullet_Slow
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 7e83faed0f51c7046932b5d1b7a31bf3, type: 3}
+--- !u!4 &5222427655472634967 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2132353554852106903, guid: 7e83faed0f51c7046932b5d1b7a31bf3,
+    type: 3}
+  m_PrefabInstance: {fileID: 6192007530552430272}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &6250369501515352048
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 5098559960325705308}
+    m_Modifications:
+    - target: {fileID: 1277049322733004011, guid: ebe53281eadb90b458145f2da2e49112,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1277049322733004011, guid: ebe53281eadb90b458145f2da2e49112,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1277049322733004011, guid: ebe53281eadb90b458145f2da2e49112,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1277049322733004011, guid: ebe53281eadb90b458145f2da2e49112,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1277049322733004011, guid: ebe53281eadb90b458145f2da2e49112,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1277049322733004011, guid: ebe53281eadb90b458145f2da2e49112,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1277049322733004011, guid: ebe53281eadb90b458145f2da2e49112,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1277049322733004011, guid: ebe53281eadb90b458145f2da2e49112,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1277049322733004011, guid: ebe53281eadb90b458145f2da2e49112,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1277049322733004011, guid: ebe53281eadb90b458145f2da2e49112,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2257245688778120783, guid: ebe53281eadb90b458145f2da2e49112,
+        type: 3}
+      propertyPath: m_Name
+      value: AIBehaviour_Patrol_Shoot
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: ebe53281eadb90b458145f2da2e49112, type: 3}
+--- !u!114 &1826302842361204560 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5757167335483623584, guid: ebe53281eadb90b458145f2da2e49112,
+    type: 3}
+  m_PrefabInstance: {fileID: 6250369501515352048}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e18b4d59e05d441aa1484013cb172420, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: HotFix::MoreMountains.EnemyBrain
+--- !u!4 &5117558561624646427 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1277049322733004011, guid: ebe53281eadb90b458145f2da2e49112,
+    type: 3}
+  m_PrefabInstance: {fileID: 6250369501515352048}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &6415343288752711351
 PrefabInstance:
   m_ObjectHideFlags: 0

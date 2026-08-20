@@ -40,11 +40,12 @@ namespace MoreMountains.Tools
 
             CreateWaitingPool();
 
+            var poolObjects = _objectPool.PooledGameObjects;
             int objectsToSpawn = PoolSize;
 
             if (_objectPool)
             {
-                objectsToSpawn -= _objectPool.PooledGameObjects.Count;
+                objectsToSpawn -= poolObjects.Count;
             }
 
             // we add to the pool the specified number of objects
@@ -89,25 +90,25 @@ namespace MoreMountains.Tools
         /// <returns>The one object to the pool.</returns>
         protected virtual GameObject AddOneObjectToThePool()
         {
-            if (GameObjectToPool == null)
+            var prefab = GameObjectToPool;
+            if (prefab == null)
             {
                 Debug.LogWarning("The " + gameObject.name + " ObjectPooler doesn't have any GameObjectToPool defined.", gameObject);
                 return null;
             }
 
-            bool initialStatus = GameObjectToPool.activeSelf;
-            GameObjectToPool.SetActive(false);
-            GameObject newGameObject = Instantiate(GameObjectToPool);
-            GameObjectToPool.SetActive(initialStatus);
+            GameObject newGameObject = Instantiate(prefab);
+            newGameObject.SetActive(false);
             SceneManager.MoveGameObjectToScene(newGameObject, gameObject.scene);
             if (NestWaitingPool)
             {
                 newGameObject.transform.SetParent(_objectPool.transform);
             }
 
-            newGameObject.name = GameObjectToPool.name + "-" + _objectPool.PooledGameObjects.Count;
+            var poolObjects = _objectPool.PooledGameObjects;
+            newGameObject.name = prefab.name + "-" + poolObjects.Count;
 
-            _objectPool.PooledGameObjects.Add(newGameObject);
+            poolObjects.Add(newGameObject);
 
             return newGameObject;
         }

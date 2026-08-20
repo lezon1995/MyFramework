@@ -4,7 +4,7 @@ namespace MoreMountains;
 // auto generate classname start
 // generate from:Assets/GameResources/UI/UIPrefab/RelicTooltipItem.prefab
 // 
-public partial class RelicTooltipItem : WindowRecyclableUGUI
+public partial class RelicTooltipItem : WindowObjectUGUI
 // auto generate classname end
 {
 	// auto generate member start

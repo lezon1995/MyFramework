@@ -12,6 +12,8 @@ public class LevelUpRewardPhase : ARoomPhase
         // 问题1修复：进入奖励选择阶段，由外部调用ExitRewardSelection来开始下一波
         wave.waveManager.EnterRewardSelection();
         
+        OverlayMenuService.Instance.Close();
+        
         // 通过全局 Service 打开 OperationPanel；面板内部已经绑定或会重绑当前玩家。
         OperationPanelService.Instance.Open(_room, _room.Player);
         var waveNumber = _room.waveGameMode.waveManager.WaveNumber;

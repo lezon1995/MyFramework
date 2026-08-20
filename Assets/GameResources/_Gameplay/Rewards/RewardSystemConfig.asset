@@ -628,3 +628,22 @@ MonoBehaviour:
       displayType: 0
       displayDecimalDigits: 0
       statIcon: {fileID: 0}
+  - def: {fileID: 11400000, guid: 88df711d625ee634c86daf2ff03317af, type: 2}
+    configs:
+    - rarity: 0
+      bonusFlat: 1
+      bonusPct: 0
+    - rarity: 1
+      bonusFlat: 2
+      bonusPct: 0
+    - rarity: 2
+      bonusFlat: 3
+      bonusPct: 0
+    - rarity: 3
+      bonusFlat: 4
+      bonusPct: 0
+    display:
+      statName: 
+      displayType: 0
+      displayDecimalDigits: 0
+      statIcon: {fileID: 21300000, guid: 077d9b9a7eaa41342bc8ee99288b327d, type: 3}

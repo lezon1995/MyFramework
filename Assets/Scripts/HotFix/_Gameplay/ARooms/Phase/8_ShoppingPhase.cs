@@ -17,6 +17,8 @@ public class ShoppingPhase : ARoomPhase
     {
         wave.ConfirmRewardSelection();
         OperationPanelService.Instance.Close();
+        
+        OverlayMenuService.Instance.Open(_room, _room.Player);
         base.onEnd();
     }
 

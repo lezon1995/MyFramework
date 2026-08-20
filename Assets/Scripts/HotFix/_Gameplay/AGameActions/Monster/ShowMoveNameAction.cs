@@ -1,4 +1,4 @@
-﻿namespace MoreMountains;
+﻿/*namespace MoreMountains;
 
 public class ShowMoveNameAction : AGameAction, IArgs<AMonster, EnemyMoveInfo>
 {
@@ -29,4 +29,4 @@ public class ShowMoveNameAction : AGameAction, IArgs<AMonster, EnemyMoveInfo>
         tickDuration(dt);
         ADungeon.overlayMenu.intents.updateIntentItemsPos(moveInfo, duration.pct);
     }
-}
+}*/

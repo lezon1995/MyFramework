@@ -135,17 +135,21 @@ namespace MoreMountains
 
         protected virtual bool FindUnobscuredTarget()
         {
-            if (!ObstacleDetection && _potentialTargets[0])
+            var targets = _potentialTargets;
+            if (!ObstacleDetection && targets[0])
             {
-                _brain.SetTarget(_potentialTargets[0].gameObject.transform);
+                _brain.SetTarget(targets[0]);
                 _lastReturnValue = true;
                 return true;
             }
 
             // we return the first unobscured target
-            foreach (Transform t in _potentialTargets)
+            foreach (var t in targets)
             {
-                _boxcastDirection = (t.MMGetComponentNoAlloc<Collider2D>().bounds.center - _collider.bounds.center);
+                if (t.TryGetComponent(out Collider2D collider2D))
+                {
+                    _boxcastDirection = (collider2D.bounds.center - _collider.bounds.center);
+                }
 
                 if (ObstaclesDetectionMode == ObstaclesDetectionModes.Boxcast)
                 {
@@ -215,27 +219,30 @@ namespace MoreMountains
             int min = Mathf.Min(OverlapMaximum, numberOfResults);
             for (int i = 0; i < min; i++)
             {
-                if (ColliderIsAPotentialTarget(_results[i]))
+                if (IsPotentialTarget(_results[i]))
                 {
-                    _potentialTargets.Add(_results[i].gameObject.transform);
+                    _potentialTargets.Add(_results[i].transform);
                 }
             }
 
             return true;
         }
 
-        protected virtual bool ColliderIsAPotentialTarget(Collider2D collider2D)
+        protected virtual bool IsPotentialTarget(Collider2D c)
         {
-            if (collider2D == null)
+            if (c == null)
                 return false;
 
             if (CanTargetSelf)
                 return true;
 
-            if (collider2D.gameObject == _brain.Owner || collider2D.transform.IsChildOf(transform))
+            if (c.gameObject == _brain.Owner || c.transform.IsChildOf(transform))
                 return false;
+            
+            if (c.TryGetComponent(out APlayer _))
+                return true;
 
-            return true;
+            return false;
         }
 
         public override void DrawGizmos()

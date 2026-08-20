@@ -27,7 +27,7 @@ namespace MoreMountains
 
         public virtual int maxHealth
         {
-            get => Health.MaximumHealth;
+            get => Health.maximumHealth;
             set => Health.SetHealth(currentHealth, value, RefreshHealthBarType.Immediately);
         }
 

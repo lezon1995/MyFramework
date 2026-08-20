@@ -54,14 +54,6 @@ public partial class BallInventoryItem : IBallOperationTarget
         iconBg.setColor(c.iconBg);
     }
 
-    public void SetStarCount(int count)
-    {
-        if (stars == null)
-            return;
-        for (int i = 0; i < stars.Length; ++i)
-            stars[i]?.setActive(i < count);
-    }
-
     // IBallOperationTarget 实现
 
     public void BeginFollowMouse(RectTransform iconSource)

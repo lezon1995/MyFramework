@@ -44,10 +44,10 @@ namespace MoreMountains
             _view.SetLevel(player.Exp.Level);
             _view.SetExp(player.Exp.currentExp, player.Exp.currentLevelRequiredExp);
 
-            player.Exp.onLevelUp = onLevelUp;
-            player.Exp.onLevelChanged = onLevelChanged;
-            player.Exp.onExpChanged = onExpChanged;
-            player.Exp.onExpRequiredChanged = onExpRequiredChanged;
+            player.Exp.onLevelUp += onLevelUp;
+            player.Exp.onLevelChanged += onLevelChanged;
+            player.Exp.onExpChanged += onExpChanged;
+            player.Exp.onExpRequiredChanged += onExpRequiredChanged;
 
             // 属性列表占位
             using var _ = new ListScope<UniStats.Stat>(out var statList);
@@ -134,9 +134,10 @@ namespace MoreMountains
         {
             if (_player)
             {
-                _player.Exp.onLevelChanged = null;
-                _player.Exp.onExpChanged = null;
-                _player.Exp.onExpRequiredChanged = null;
+                _player.Exp.onLevelUp -= onLevelUp;
+                _player.Exp.onLevelChanged -= onLevelChanged;
+                _player.Exp.onExpChanged -= onExpChanged;
+                _player.Exp.onExpRequiredChanged -= onExpRequiredChanged;
             }
 
             foreach (var (statName, disposable) in statsDisposables)

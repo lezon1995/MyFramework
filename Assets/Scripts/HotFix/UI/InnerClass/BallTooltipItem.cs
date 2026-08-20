@@ -4,7 +4,7 @@ namespace MoreMountains;
 // auto generate classname start
 // generate from:Assets/GameResources/UI/UIPrefab/BallTooltipItem.prefab
 // 
-public partial class BallTooltipItem : WindowRecyclableUGUI
+public partial class BallTooltipItem : WindowObjectUGUI
 // auto generate classname end
 {
 	// auto generate member start
