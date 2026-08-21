@@ -14,6 +14,7 @@ namespace MoreMountains
     [CreateAssetMenu(fileName = "GameDesign", menuName = "MoreMountains/GameDesign", order = 0)]
     public class GameDesign : ScriptableObject
     {
+        public float PlayerGreedIncreasementPerWave = 1.05F;
         public float globalExpCoefficient = 1F; //全局经验倍率
         public float globalDurationCoefficient = 1F; //全局时长倍率
         public float globalDurationMinutes = 30F; //单局目标时长（分钟）

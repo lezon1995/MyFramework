@@ -50,8 +50,6 @@ namespace MoreMountains
                         lastOne = true;
                         isDone = true;
                     }
-                    
-                    player.applyOnShootBallRelics(ball);
                 }
             }
 

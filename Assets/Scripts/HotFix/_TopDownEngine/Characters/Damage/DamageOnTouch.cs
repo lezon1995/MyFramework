@@ -794,7 +794,6 @@ namespace MoreMountains
             return this;
         }
 
-
         public Dmg setHitNormal(Vector2 normal)
         {
             HitNormal = normal;

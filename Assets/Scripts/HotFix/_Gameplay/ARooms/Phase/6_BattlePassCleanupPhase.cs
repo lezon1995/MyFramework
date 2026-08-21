@@ -1,4 +1,6 @@
-﻿namespace MoreMountains;
+﻿using UniStats;
+
+namespace MoreMountains;
 
 public class BattlePassCleanupPhase : ARoomPhase
 {
@@ -13,6 +15,24 @@ public class BattlePassCleanupPhase : ARoomPhase
         base.onBegin(last);
         log("进入 关卡通关阶段 测试阶段 1秒后自动跳过");
         timer = 1F;
+
+        var p = _room.Player;
+        if (p.GetStat(Character.Stat.Greed, out var stat))
+        {
+            var value = stat.Value.round();
+            if (value > 0)
+            {
+                p.gainExp(value);
+                p.gainGold(value);
+            }
+
+            var newValue = (stat.Value * gameDesign.PlayerGreedIncreasementPerWave).round();
+            if (newValue > value)
+            {
+                var delta = newValue - value;
+                stat.BonusFlat.AddFlat(delta);
+            }
+        }
     }
 
     public override void onEnd()

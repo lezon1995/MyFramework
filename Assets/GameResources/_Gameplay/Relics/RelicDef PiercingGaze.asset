@@ -17,8 +17,14 @@ MonoBehaviour:
   SellRefund: 20
   CarryLimit: 0
   PlayerStatMods:
-  - StatName: HitEffectChance
-    BonusFlat: 10
+  - stat: 21
+    BonusFlat: 8
+    BonusPct: 0
+  - stat: 24
+    BonusFlat: 0.1
+    BonusPct: 0
+  - stat: 5
+    BonusFlat: -5
     BonusPct: 0
   Icon: {fileID: 21300000, guid: 1b878915c2b0b734fb6c93f0d478781c, type: 3}
   Rarity: 1

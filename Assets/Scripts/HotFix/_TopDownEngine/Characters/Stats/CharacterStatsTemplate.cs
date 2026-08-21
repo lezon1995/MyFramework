@@ -11,7 +11,7 @@ namespace MoreMountains
         protected override IEnumerable<string> GetNames()
         {
             var values = (Character.Stat[])Enum.GetValues(typeof(Character.Stat));
-            return values.Select(stat => stat.Key());
+            return values.Where(stat => stat != Character.Stat.None).Select(stat => stat.Key());
         }
     }
 }

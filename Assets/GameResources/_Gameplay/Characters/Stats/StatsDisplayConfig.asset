@@ -53,3 +53,7 @@ MonoBehaviour:
     displayType: 1
     displayDecimalDigits: 0
     statIcon: {fileID: 0}
+  - statName: MS
+    displayType: 0
+    displayDecimalDigits: 0
+    statIcon: {fileID: 0}

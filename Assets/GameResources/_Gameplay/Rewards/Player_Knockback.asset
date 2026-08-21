@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5358445f67384e489be22e853bfff374, type: 3}
   m_Name: Player_Knockback
   m_EditorClassIdentifier: HotFix::MoreMountains.PlayerStatModDef
-  Name: 
   statKey: Knockback
   Icon: {fileID: 21300000, guid: 2f48a1c3694db0443956dc993c860b91, type: 3}
   DisplayConfig:
     statName: 
     displayType: 0
     displayDecimalDigits: 2
-  stat: 24
+    statIcon: {fileID: 0}
+  stat: 25

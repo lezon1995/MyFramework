@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.Localization;
 
@@ -52,36 +53,42 @@ namespace MoreMountains
 
             foreach (var mod in mods)
             {
-                var statName = LocalizedStats.getName(mod.StatName);
-                sb.add(mod.StatName.toSprite());
+                var statKey = mod.stat.Key();
+                sb.add(statKey.toSprite());
                 sb.add(" ");
 
+                ModsDisplayConfig.Instance.TryGetDisplayConfig(statKey, out var displayConfig);
+                
                 var bonusFlat = mod.BonusFlat;
                 var bonusPct = mod.BonusPct;
                 if (bonusFlat > 0)
                 {
                     var color = universalColor.enhanced.toRGBA();
-                    sb.colorString(color, "+", $"{bonusFlat.FToS(0)}");
+                    
+                    sb.colorString(color, "+", displayConfig.displayValue(bonusFlat));
                 }
                 else if (bonusFlat < 0)
                 {
                     var color = universalColor.reduced.toRGBA();
-                    sb.colorString(color, "-", $"{bonusFlat.FToS(0)}");
+                    sb.colorString(color, displayConfig.displayValue(bonusFlat));
                 }
                 else if (bonusPct > 0)
                 {
                     var color = universalColor.enhanced.toRGBA();
-                    sb.colorString(color, "+", $"{bonusPct.toPercent(0)}");
+                    sb.colorString(color, "+", displayConfig.displayValue(bonusPct));
                 }
                 else if (bonusPct < 0)
                 {
                     var color = universalColor.reduced.toRGBA();
-                    sb.colorString(color, "-", $"{bonusPct.toPercent(0)}");
+                    sb.colorString(color, displayConfig.displayValue(bonusPct));
                 }
 
+                var statName = LocalizedStats.getName(statKey);
                 sb.add(statName);
                 sb.addLine();
             }
+
+            sb.addLine();
         }
     }
 }

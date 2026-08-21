@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5358445f67384e489be22e853bfff374, type: 3}
   m_Name: Player_LifeSteal
   m_EditorClassIdentifier: HotFix::MoreMountains.PlayerStatModDef
-  Name: 
   statKey: LifeSteal
   Icon: {fileID: 21300000, guid: b9de4931bae98ea4ab39b2d15d89dc9b, type: 3}
   DisplayConfig:
     statName: 
     displayType: 1
     displayDecimalDigits: 0
-  stat: 19
+    statIcon: {fileID: 0}
+  stat: 20

@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5358445f67384e489be22e853bfff374, type: 3}
   m_Name: Player_AR
   m_EditorClassIdentifier: HotFix::MoreMountains.PlayerStatModDef
-  Name: 
   statKey: AR
   Icon: {fileID: 21300000, guid: 76150c728e76f1e4096062c47d23e389, type: 3}
   DisplayConfig:
     statName: 
     displayType: 0
     displayDecimalDigits: 0
-  stat: 5
+    statIcon: {fileID: 0}
+  stat: 6

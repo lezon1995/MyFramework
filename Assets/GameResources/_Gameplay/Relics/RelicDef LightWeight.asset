@@ -17,9 +17,12 @@ MonoBehaviour:
   SellRefund: 9
   CarryLimit: 0
   PlayerStatMods:
-  - StatName: BallisticSpeed
-    BonusFlat: 0
-    BonusPct: 3
+  - stat: 17
+    BonusFlat: 0.1
+    BonusPct: 0
+  - stat: 28
+    BonusFlat: 3
+    BonusPct: 0
   Icon: {fileID: 21300000, guid: 1b878915c2b0b734fb6c93f0d478781c, type: 3}
   Rarity: 0
   DisplayName:

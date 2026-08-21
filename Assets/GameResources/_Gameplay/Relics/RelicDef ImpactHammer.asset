@@ -1,4 +1,4 @@
-%YAML 1.1
+﻿%YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!114 &11400000
 MonoBehaviour:
@@ -16,7 +16,16 @@ MonoBehaviour:
   BasePrice: 50
   SellRefund: 25
   CarryLimit: 0
-  PlayerStatMods: []
+  PlayerStatMods:
+  - stat: 29
+    BonusFlat: 7
+    BonusPct: 0
+  - stat: 21
+    BonusFlat: 9
+    BonusPct: 0
+  - stat: 17
+    BonusFlat: 0.1
+    BonusPct: 0
   Icon: {fileID: 21300000, guid: d7ad4ecc13c4e244788e38b398b5bac3, type: 3}
   Rarity: 1
   DisplayName:

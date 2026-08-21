@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using UniStats;
 using UnityEngine;
+using UnityEngine.Pool;
 
 namespace MoreMountains
 {
@@ -18,7 +20,11 @@ namespace MoreMountains
         float rotation;
         string assetURL;
 
-        public APlayer owner { get; set; }
+        public APlayer _player { get; set; }
+        public RelicDef def { get; set; }
+
+        public void setDef(RelicDef d) => def = d;
+        Dictionary<Character.Stat, string> modKeys;
 
         public enum LandingSound
         {
@@ -102,10 +108,57 @@ namespace MoreMountains
 
         public virtual void onEquip(APlayer p)
         {
+            _player = p;
+            foreach (var mod in def.PlayerStatMods.safe())
+            {
+                if (p.GetStat(mod.stat, out var stat))
+                {
+                    string modKey = null;
+                    if (!mod.BonusFlat.isZero())
+                    {
+                        modKey = stat.BonusFlat.AddFlat(mod.BonusFlat, name: Guid.NewGuid().ToString());
+                    }
+                    else if (!mod.BonusPct.isZero())
+                    {
+                        modKey = stat.BonusPct.AddFlat(mod.BonusPct, name: Guid.NewGuid().ToString());
+                    }
+
+                    modKeys ??= DictionaryPool<Character.Stat, string>.Get();
+                    modKeys[mod.stat] = modKey;
+                }
+            }
         }
 
         public virtual void onUnequip(APlayer p)
         {
+            foreach (var mod in def.PlayerStatMods.safe())
+            {
+                if (p.GetStat(mod.stat, out var stat))
+                {
+                    if (modKeys == null)
+                        break;
+
+                    if (modKeys.TryGetValue(mod.stat, out var modKey))
+                    {
+                        if (!mod.BonusFlat.isZero())
+                        {
+                            stat.BonusFlat.RemoveMod(modKey);
+                        }
+                        else if (!mod.BonusPct.isZero())
+                        {
+                            stat.BonusPct.RemoveMod(modKey);
+                        }
+                    }
+                }
+            }
+
+            if (modKeys != null)
+            {
+                DictionaryPool<Character.Stat, string>.Release(modKeys);
+            }
+
+            if (_player == p)
+                _player = null;
         }
 
         public void atPreBattle()

@@ -327,6 +327,11 @@ namespace MoreMountains
             if (IsDead())
                 return;
 
+            UpdateHealthRegen(dt);
+        }
+
+        protected virtual void UpdateHealthRegen(float dt)
+        {
             if (healthRegen > 0)
             {
                 _timeElapsed += dt;
@@ -659,10 +664,6 @@ namespace MoreMountains
                             var bonusAP = stats.GetStat(Stats.AP).BonusValue;
                             dmg.SetActualType(bonusAD >= bonusAP ? Dmg.Types.AD : Dmg.Types.AP);
                         }
-
-                        //应用Source的DmgRate
-                        var rate = stats.GetStat(Stats.DmgRate).Value;
-                        dmg.SetDmgRate(rate);
                     }
                 }
             }

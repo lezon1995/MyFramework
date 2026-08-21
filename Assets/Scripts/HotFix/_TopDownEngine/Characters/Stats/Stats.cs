@@ -39,6 +39,7 @@ namespace MoreMountains
         public const string Luck = "Luck";
         public const string Greed = "Greed";
         public const string AF_Mod = "AdaptiveForceMod";
+        public const string Curse = "Curse";
 
         public bool AutoInitialize = true;
 

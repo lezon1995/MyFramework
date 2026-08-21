@@ -17,12 +17,15 @@ MonoBehaviour:
   SellRefund: 20
   CarryLimit: 0
   PlayerStatMods:
-  - StatName: DmgRate
-    BonusFlat: 0
-    BonusPct: 12
-  - StatName: BallisticSpeed
-    BonusFlat: 0
-    BonusPct: -5
+  - stat: 28
+    BonusFlat: 4
+    BonusPct: 0
+  - stat: 18
+    BonusFlat: 0.02
+    BonusPct: 0
+  - stat: 22
+    BonusFlat: 0.06
+    BonusPct: 0
   Icon: {fileID: 21300000, guid: 1b878915c2b0b734fb6c93f0d478781c, type: 3}
   Rarity: 1
   DisplayName:

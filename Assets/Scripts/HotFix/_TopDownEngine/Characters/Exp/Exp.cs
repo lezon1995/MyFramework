@@ -203,7 +203,7 @@ namespace MoreMountains
         [Button]
         public void ResetLevel()
         {
-            var startXpRequired = Data.Trait.StartXpRequired;
+            var startXpRequired = CalculateXpRequiredToNextLevel(1);
             UpdateAll(1, startXpRequired, 0, 0);
         }
     }

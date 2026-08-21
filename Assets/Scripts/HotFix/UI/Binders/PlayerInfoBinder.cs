@@ -148,7 +148,7 @@ namespace MoreMountains
             _player = null;
         }
 
-        public void RefreshExp(int cur, int max) => _view.SetExp(cur, max);
+        public void RefreshExp(int cur, int max) =>   _view.SetExp(cur, max);
         public void RefreshLevel(int lv) => _view.SetLevel(lv);
     }
 

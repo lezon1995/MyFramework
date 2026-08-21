@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5358445f67384e489be22e853bfff374, type: 3}
   m_Name: Player_HealthMax
   m_EditorClassIdentifier: HotFix::MoreMountains.PlayerStatModDef
-  Name: 
   statKey: HealthMax
   Icon: {fileID: 21300000, guid: 4e80ad7f30c16d74987c923683894dfa, type: 3}
   DisplayConfig:
     statName: 
     displayType: 0
     displayDecimalDigits: 0
-  stat: 0
+    statIcon: {fileID: 0}
+  stat: 1

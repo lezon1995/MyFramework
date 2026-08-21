@@ -18,34 +18,36 @@ namespace MoreMountains
 
         public enum Stat
         {
-            HealthMax, //Health Point
-            HealthRegen, //Health Point Regen(per 1s)
-            ManaMax, //Mana Point
-            ManaRegen, //Mana Point Regen(per 1s)
-            AD, //Attack Damage
-            AR, //Attack Damage Defence
-            AD_PT, //Attack Damage Penetration Fixed
-            AD_PT_Rate, //Attack Damage Penetration Rate
-            AP, //Ability Power
-            MR, //Ability Power Defence
-            AP_PT, //Ability Power Penetration Fixed
-            AP_PT_Rate, //Ability Power Penetration Rate
-            AS, //Attack Speed
-            CD, //Cooldown
-            MS, //Move Speed
-            CritChance, //Crit Chance
-            CritDamage, //Crit Damage
-            DmgRate, //DmgRate
-            AdaptiveForce, //Adaptive Force
-            LifeSteal, //Life Steal
-            Range, //Attack Range
-            DodgeChance, //Dodge Chance
-            BallisticSpeed, //Ballistic Speed
-            HitEffectChance, //撞击特效概率
-            Knockback, //击退
-            Duration, //持续时间
-            Luck, //幸运
-            Greed, //贪婪
+            None = 0,
+            HealthMax = 1, //Health Point
+            HealthRegen = 2, //Health Point Regen(per 1s)
+            ManaMax = 3, //Mana Point
+            ManaRegen = 4, //Mana Point Regen(per 1s)
+            AD = 5, //Attack Damage
+            AR = 6, //Attack Damage Defence
+            AD_PT = 7, //Attack Damage Penetration Fixed
+            AD_PT_Rate = 8, //Attack Damage Penetration Rate
+            AP = 9, //Ability Power
+            MR = 10, //Ability Power Defence
+            AP_PT = 11, //Ability Power Penetration Fixed
+            AP_PT_Rate = 12, //Ability Power Penetration Rate
+            AS = 13, //Attack Speed
+            CD = 14, //Cooldown
+            MS = 15, //Move Speed
+            CritChance = 16, //Crit Chance
+            CritDamage = 17, //Crit Damage
+            DmgRate = 18, //DmgRate
+            AdaptiveForce = 19, //Adaptive Force
+            LifeSteal = 20, //Life Steal
+            Range = 21, //Attack Range
+            DodgeChance = 22, //Dodge Chance
+            BallisticSpeed = 23, //Ballistic Speed
+            HitEffectChance = 24, //撞击特效概率
+            Knockback = 25, //击退
+            Duration = 26, //持续时间
+            Luck = 27, //幸运
+            Greed = 28, //贪婪
+            Curse = 29, //诅咒
         }
 
         /// The possible Movement States the character can be in. These usually correspond to their own class, 

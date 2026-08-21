@@ -75,6 +75,8 @@ namespace MoreMountains
 
             activeBalls.Add(ball);
             inactiveBalls.Remove(ball);
+            
+            _owner.Player.applyOnShootBallRelics(ball);
         }
 
         Ball createBall() => createBall(BallType.Normal);

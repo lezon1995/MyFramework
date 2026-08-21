@@ -17,8 +17,11 @@ MonoBehaviour:
   SellRefund: 15
   CarryLimit: 0
   PlayerStatMods:
-  - StatName: HealthMax
-    BonusFlat: 10
+  - stat: 26
+    BonusFlat: 0.06
+    BonusPct: 0
+  - stat: 16
+    BonusFlat: -0.05
     BonusPct: 0
   Icon: {fileID: 21300000, guid: 1b878915c2b0b734fb6c93f0d478781c, type: 3}
   Rarity: 0

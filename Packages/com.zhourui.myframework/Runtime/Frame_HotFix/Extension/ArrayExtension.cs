@@ -11,7 +11,7 @@ public class EmptyArray<T>
 	public static T[] mList;
 	public static T[] getEmptyList()
 	{
-		mList ??= new T[0];
+		mList ??= Array.Empty<T>();
 		return mList;
 	}
 }

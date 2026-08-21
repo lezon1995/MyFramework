@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5358445f67384e489be22e853bfff374, type: 3}
   m_Name: Player_HitEffectChance
   m_EditorClassIdentifier: HotFix::MoreMountains.PlayerStatModDef
-  Name: 
   statKey: HitEffectChance
   Icon: {fileID: 21300000, guid: 19e8d2210a27638408e29cf53e60fbcd, type: 3}
   DisplayConfig:
     statName: 
     displayType: 1
     displayDecimalDigits: 0
-  stat: 23
+    statIcon: {fileID: 0}
+  stat: 24

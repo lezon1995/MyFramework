@@ -65,12 +65,21 @@ public class DmgCalculator : IDmgCalculator
 
     public int computeDamageDefence(Dmg.Types type, float damage, float physicResist, float magicResist)
     {
-        return type switch
+        switch (type)
         {
-            Dmg.Types.AD => (int)(damage / (physicResist / 100 + 1)),
-            Dmg.Types.AP => (int)(damage / (magicResist / 100 + 1)),
-            Dmg.Types.True => (int)damage,
-            _ => (int)damage
-        };
+            case Dmg.Types.AD:
+                if (physicResist >= 0)
+                    return (int)(damage / (physicResist / 100F + 1F));
+
+                return (int)(damage * (2F - 100F / (100F - physicResist)));
+            case Dmg.Types.AP:
+                if (magicResist >= 0)
+                    return (int)(damage / (magicResist / 100 + 1));
+
+                return (int)(damage * (2F - 100F / (100F - magicResist)));
+            case Dmg.Types.True:
+            default:
+                return (int)damage;
+        }
     }
 }

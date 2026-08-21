@@ -37,6 +37,7 @@ namespace MoreMountains
         {
             return stat switch
             {
+                Character.Stat.None => null,
                 Character.Stat.HealthMax => Stats.HealthMax,
                 Character.Stat.HealthRegen => Stats.HealthRegen,
                 Character.Stat.ManaMax => Stats.ManaMax,
@@ -65,6 +66,7 @@ namespace MoreMountains
                 Character.Stat.Duration => Stats.Duration,
                 Character.Stat.Luck => Stats.Luck,
                 Character.Stat.Greed => Stats.Greed,
+                Character.Stat.Curse => Stats.Curse,
                 _ => throw new ArgumentOutOfRangeException(nameof(stat), stat, null)
             };
         }

@@ -9,12 +9,25 @@ public static class LocalizedStats
 
     public static string getName(string statKey)
     {
-        var str = stringTable.GetEntry(statKey).Value;
-        return str;
+        var entry = stringTable.GetEntry(statKey);
+        if (entry != null)
+        {
+            var str = entry.Value;
+            return str;
+        }
+
+        return null;
     }
+
     public static string getDodged()
     {
-        var str = stringTable.GetEntry("Dodged").Value;
-        return str;
+        var entry = stringTable.GetEntry("Dodged");
+        if (entry != null)
+        {
+            var str = entry.Value;
+            return str;
+        }
+
+        return null;
     }
 }

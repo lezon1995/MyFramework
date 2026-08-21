@@ -35,6 +35,7 @@ namespace MoreMountains
             var item = CLASS<RelicItem>();
             item.Def = def;
             item.UnderlyingRelic = underlying;
+            underlying.setDef(def);
             return item;
         }
         

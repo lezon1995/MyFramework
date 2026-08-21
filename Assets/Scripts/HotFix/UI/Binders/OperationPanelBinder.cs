@@ -378,7 +378,6 @@ namespace MoreMountains
         void OnShopRerollRequested()
         {
             _player?.Shop?.Controller.OnPlayerClickReroll();
-            _shop.Rebuild();
         }
 
         void OnShopBuyExpRequested()
@@ -395,12 +394,11 @@ namespace MoreMountains
             _player?.Shop?.Controller.OnPlayerClickNext();
         }
 
-        public APlayer Player => _player;
+        public APlayer Player => _player; 
 
         void OnRewardRerollRequested()
         {
             _player?.RewardSystem?.Controller.OnPlayerClickReroll();
-            _rewardChoose.Rebuild();
         }
 
         void OnRewardBuyRequested(IPurchasable offer)

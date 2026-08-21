@@ -138,6 +138,10 @@ MonoBehaviour:
     m_Localized: Dodged
     m_Metadata:
       m_Items: []
+  - m_Id: 2582765146492928
+    m_Localized: Curse
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
