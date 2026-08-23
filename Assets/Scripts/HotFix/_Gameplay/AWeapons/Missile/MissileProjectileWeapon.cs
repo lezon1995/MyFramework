@@ -30,11 +30,15 @@ namespace MoreMountains
             var go = base.SpawnProjectile(spawnPosition, projectileIndex, totalProjectiles, triggerObjectActivation);
             go.TryGetComponent<MissileProjectile>(out var  missile);
 
-            var spawnBase = Owner.transform.position + -missile.Direction * Definition.SpawnOffsetBehind.y;
+            // 1. 计算生成点：在角色身后 + 一点随机散布
+            var facingSign = (Owner.Orientation2D && Owner.Orientation2D.IsFacingRight) ? 1f : -1f;
+            var spawnBase = (Vector2)Owner.transform.position
+                            + new Vector2(-facingSign * Definition.SpawnOffsetBehind.x,
+                                Definition.SpawnOffsetBehind.y);
 
             // 在水平/垂直方向上散布（圆内随机点），但保持主要落在「身后」一侧
             var scatter = Random.insideUnitCircle * Definition.SpawnScatterRadius;
-            var spawnPos = spawnBase + (Vector3)scatter;
+            var spawnPos = spawnBase + scatter;
 
             // 3. 计算弧线高度：基准 + 抖动 + 交错幅度
             var arcBase = Definition.ArcHeight + Random.Range(-Definition.ArcHeightJitter, Definition.ArcHeightJitter);
