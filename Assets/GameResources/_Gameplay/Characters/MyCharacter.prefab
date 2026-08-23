@@ -112,6 +112,7 @@ Transform:
   - {fileID: 6600964541007174834}
   - {fileID: 439633906859532771}
   - {fileID: 2728706063997783281}
+  - {fileID: 7675774946479196276}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!50 &50838826569141916
@@ -268,8 +269,9 @@ MonoBehaviour:
   shootPosition: {x: 0, y: 0, z: 0}
   isFirstBallReturn: 0
   toClaimRewardCount: 0
-  handleWeapons: []
+  mainHandleWeapons: []
   ballWeaponAttachmentRoot: {fileID: 0}
+  metaHandleWeaponsParent: {fileID: 7675774946479196276}
   viewingRelics: 0
   damagedThisCombat: 0
   title: 
@@ -667,6 +669,37 @@ MonoBehaviour:
   _worldRotationAxis: {x: 0, y: 0, z: 1}
   _snappedPosition: {x: 0.69282037, y: 0.39999998, z: 0}
   _radius: {x: 0.86602545, y: 0.49999997, z: 0}
+--- !u!1 &650979948099628296
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7675774946479196276}
+  m_Layer: 0
+  m_Name: MetaHandleWeapons
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7675774946479196276
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 650979948099628296}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4319614708212260}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &762724926329375668
 GameObject:
   m_ObjectHideFlags: 0

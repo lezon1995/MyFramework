@@ -63,6 +63,34 @@ MonoBehaviour:
     m_Key: WaterSpot
     m_Metadata:
       m_Items: []
+  - m_Id: 1186727487623168
+    m_Key: Wind
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1195006326493184
+    m_Key: Fission
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1215243046375424
+    m_Key: FissionMini
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1224431977910272
+    m_Key: Missile
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1225215163518976
+    m_Key: Duplicate
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1419603688837120
+    m_Key: LaserBeam_H
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420020598460416
+    m_Key: LaserBeam_V
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

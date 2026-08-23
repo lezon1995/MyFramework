@@ -130,17 +130,25 @@ namespace MoreMountains
             for (int i = 0; i < n; i++)
             {
                 var rarity = _rollRarityService.RollItem(waveNumber, luck.Value);
-
                 // 池子够大时采不重复；不够时也允许重复。
                 using var _ = new ListScope<T>(out var working);
+                tag1:
                 foreach (var o in pool)
                 {
                     if (o.rarity == rarity)
                         working.Add(o);
                 }
 
-                int idx = _rng.Next(working.Count);
-                result.Add(working[idx]);
+                if (working.Count > 0)
+                {
+                    int idx = _rng.Next(working.Count);
+                    result.Add(working[idx]);
+                }
+                else
+                {
+                    rarity = (ItemRarity)((int)rarity - 1);
+                    goto tag1;
+                }
             }
         }
     }

@@ -66,6 +66,34 @@ MonoBehaviour:
     m_Localized: Water Spot
     m_Metadata:
       m_Items: []
+  - m_Id: 1186727487623168
+    m_Localized: Wind
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1195006326493184
+    m_Localized: Fission
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1215243046375424
+    m_Localized: Fission(Child)
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1224431977910272
+    m_Localized: Missile
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1225215163518976
+    m_Localized: Duplicate
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1419603688837120
+    m_Localized: Horizontal Laser Beam
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420020598460416
+    m_Localized: Vertical Laser Beam
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

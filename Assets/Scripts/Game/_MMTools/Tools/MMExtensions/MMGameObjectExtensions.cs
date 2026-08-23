@@ -65,7 +65,12 @@ namespace MoreMountains.Tools
                 components.Clear();
 
             var children = @this.GetComponentsInChildren<T>(includeInactive);
-            components.AddRange(children);
+            foreach (var child in children)
+            {
+                if (components.Contains(child))
+                    continue;
+                components.Add(child);
+            }
         }
 
         public static void TryGetComponentsInChildren<T>(this Component @this, out T[] components, bool includeInactive = true) where T : Component

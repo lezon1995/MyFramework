@@ -96,7 +96,9 @@ namespace MoreMountains
             string ballName = type switch
             {
                 BallType.Normal => "Ball_Normal",
-                BallType.LaserBeam => "Ball_Laser",
+                BallType.LaserBeam => "Ball_LaserBeam",
+                BallType.LaserBeam_V => "Ball_LaserBeam_V",
+                BallType.LaserBeam_H => "Ball_LaserBeam_H",
                 BallType.LaserBullet => "Ball_LaserBullet",
                 BallType.LightningStrike => "Ball_LightningStrike",
                 BallType.ElectricityStrike => "Ball_ElectricityStrike",
@@ -107,6 +109,11 @@ namespace MoreMountains
                 BallType.IceFreeze => "Ball_IceFreeze",
                 BallType.IceFrost => "Ball_IceFrost",
                 BallType.WaterSpot => "Ball_WaterSpot",
+                BallType.Wind => "Ball_Wind",
+                BallType.Fission => "Ball_Fission",
+                BallType.FissionMini => "Ball_FissionMini",
+                BallType.Duplicate => "Ball_Duplicate",
+                BallType.Missile => "Ball_Missile",
                 _ => "Ball_Normal"
             };
             var path = $"{GAMEPLAY_PATH}/Balls/{ballName}.prefab";

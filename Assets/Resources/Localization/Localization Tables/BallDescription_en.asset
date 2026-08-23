@@ -72,6 +72,37 @@ MonoBehaviour:
       that pass through it by 30%.
     m_Metadata:
       m_Items: []
+  - m_Id: 1186838376632320
+    m_Localized: Passes through enemies.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1194976597266432
+    m_Localized: 25% chance of creating a child ball each time it hits an enemy
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1215312231419904
+    m_Localized: Fission(Child)
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1224378957713408
+    m_Localized: Upon hitting an enemy, it will fire a homing bullet to attack the
+      enemy.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1225154685849600
+    m_Localized: Splits into a clone on hit 2 times.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1419729949970432
+    m_Localized: Emits a horizontal laser when hitting an enemy, dealing 10 to all
+      enemies in its path
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420037786718208
+    m_Localized: Emits a vertical laser when hitting an enemy, dealing 10 to all
+      enemies in its path
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

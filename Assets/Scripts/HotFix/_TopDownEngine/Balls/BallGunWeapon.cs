@@ -10,6 +10,7 @@ namespace MoreMountains
 
         [MMInspectorGroup("ID")]
         public BallDef BallDef;
+        public BallInventorySlot BallSlot;
 
         [MMInspectorGroup("ID")]
         public SpriteRenderer BallWeaponSpriteRenderer;
@@ -25,6 +26,11 @@ namespace MoreMountains
 
             Stats.InitializeStats(BallDef.StatsTemplate);
             InitializeStats();
+        }
+        
+        public void SetBallSlot(BallInventorySlot slot)
+        {
+            BallSlot = slot;
         }
 
         public void SetBallDef(BallDef def)
@@ -148,6 +154,7 @@ namespace MoreMountains
                 ball.SetDamage(Dmg);
             }
 
+            ball.SetBallSlot(BallSlot);
             ball.SetTarget(_aimTarget);
 
             if (RandomSpread)

@@ -20,9 +20,6 @@ namespace MoreMountains
         [Tooltip("the initial weapon owned by the character")]
         public Weapon InitialWeapon;
 
-        [Tooltip("if this is set to true, the character can pick up PickableWeapons")]
-        public bool CanPickupWeapons = true;
-
         [Header("Feedbacks")]
         [Tooltip("a feedback that gets triggered at the character level everytime the weapon is used")]
         public MMFeedbacks WeaponUseFeedback;
@@ -36,9 +33,6 @@ namespace MoreMountains
 
         [Tooltip("if this is true this animator will be automatically bound to the weapon")]
         public bool AutomaticallyBindAnimator = true;
-
-        [Tooltip("the ID of the AmmoDisplay this ability should update")]
-        public int AmmoDisplayID;
 
         [Tooltip("if this is true, IK will be automatically setup if possible")]
         public bool AutoIK = true;
@@ -427,7 +421,7 @@ namespace MoreMountains
             CurrentWeapon.SetOwner(_character, this);
             CurrentWeapon.WeaponID = weaponID;
             CurrentWeapon.FlipWeapon();
-            _weaponAim = CurrentWeapon.GetComponent<WeaponAim>();
+            CurrentWeapon.TryGetComponent(out _weaponAim);
 
             HandleWeaponAim();
 

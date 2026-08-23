@@ -13,11 +13,16 @@ namespace MoreMountains
             long startTime = TimeUtility.getNowTimeStampMS();
             Settings.SOUND_VOLUME = Settings.soundPref.getFloat("Sound Volume", 0.5F);
             map.Add(SoundDefine.BALL_HIT_BRICK_COMMON, load("ball_hit_brick_common.wav"));
+            map.Add(SoundDefine.BALL_HIT_PASS_THROUGH, load("ball_hit_pass_through.wav"));
             map.Add(SoundDefine.BALL_HIT_BORDER_COMMON, load("ball_hit_border.wav"));
             map.Add(SoundDefine.LASER_BEAM, load("laser_beam.wav"));
             map.Add(SoundDefine.LIGHTNING_STRIKE, load("lightning_strike.wav"));
             map.Add(SoundDefine.ELECTRICITY_STRIKE, load("electricity_strike.wav"));
             map.Add(SoundDefine.ROCK_QUAKE, load("rock_quake.wav"));
+
+            // 卡莎 Q 技能音效占位：实际项目里请替换为专属的施法 / 命中音效
+            map.Add(SoundDefine.KAISA_Q_CAST, load("ball_hit_pass_through.wav"));
+            map.Add(SoundDefine.KAISA_Q_IMPACT, load("ball_hit_pass_through.wav"));
 
             log("Sound Effect Volume: " + Settings.SOUND_VOLUME);
             log("Loaded " + map.Count + " Sound Effects");

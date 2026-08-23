@@ -12,7 +12,7 @@
             }
         }
         
-        protected override Dmg Dmg => new(Damage, Dmg.Types.AP, IsCritThisFrame, CritDamageThisFrame);
+        public override Dmg Dmg => new(Damage, Dmg.Types.AP, IsCritThisFrame, CritDamageThisFrame);
 
         protected override void OnOwnerStatsSet()
         {

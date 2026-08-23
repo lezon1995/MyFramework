@@ -6,7 +6,7 @@
     /// </summary>
     public static class LayerManager
     {
-        public const int Border = 14;
+        public const int Border = 15;
         public const int Obstacles = 14;
         public const int Ground = 13;
         public const int Player = 12;

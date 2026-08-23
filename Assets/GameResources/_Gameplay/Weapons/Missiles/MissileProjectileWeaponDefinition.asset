@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a46f44424f207f845a3dee783333b444, type: 3}
+  m_Name: MissileProjectileWeaponDefinition
+  m_EditorClassIdentifier: HotFix::MoreMountains.MissileProjectileWeaponDefinition
+  CastDuration: 0.4
+  MissileCount: 6
+  UpgradedMissileCount: 12
+  MissileFlightDuration: 0.35
+  SpawnOffsetBehind: {x: 0, y: 0}
+  SpawnScatterRadius: 0.6
+  ArcHeight: 2.5
+  ArcHeightJitter: 0.5
+  ArcInterleaveAmplitude: 1.2
+  MissileScale: 1
+  MissileColor: {r: 0.45, g: 0.85, b: 1, a: 1}
+  ImpactVfxKey: 0
+  ImpactVfxLifetime: 0.5
+  ImpactSoundKey: BALL_HIT_PASS_THROUGH
+  CastSoundKey: KAISA_Q_CAST
+  ImpactHitRadius: 0.6
+  MaxLifetime: 3

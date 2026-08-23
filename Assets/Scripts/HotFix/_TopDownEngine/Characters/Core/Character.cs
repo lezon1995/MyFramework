@@ -366,11 +366,14 @@ namespace MoreMountains
 
         public void AddAbility(CharacterAbility ability)
         {
-            var list = AdditionalAbilityNodes;
-            list.Add(ability.gameObject);
+            // var list = AdditionalAbilityNodes;
+            // list.Add(ability.gameObject);
+            //
+            // ability.transform.SetParent(transform);
+            // ability.transform.localPosition = Vector3.zero;
 
-            ability.transform.SetParent(transform);
-            ability.transform.localPosition = Vector3.zero;
+            if (_characterAbilities.Contains(ability))
+                return;
 
             _characterAbilities.Add(ability);
             ability.ForceInitialization();
@@ -379,11 +382,14 @@ namespace MoreMountains
 
         public void RemoveAbility(CharacterAbility ability)
         {
-            var list = AdditionalAbilityNodes;
-            list.Remove(ability.gameObject);
-
-            ability.transform.SetParent(transform);
-            ability.transform.localPosition = Vector3.zero;
+            if (!_characterAbilities.Contains(ability))
+                return;
+            
+            // var list = AdditionalAbilityNodes;
+            // list.Remove(ability.gameObject);
+            //
+            // ability.transform.SetParent(transform);
+            // ability.transform.localPosition = Vector3.zero;
 
             _characterAbilities.Remove(ability);
         }

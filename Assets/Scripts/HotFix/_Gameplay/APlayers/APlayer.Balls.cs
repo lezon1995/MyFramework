@@ -30,8 +30,10 @@ namespace MoreMountains
         public RewardSystem RewardSystem => rewardSystem;
         public PlayerWallet Wallet => wallet;
 
-        public CharacterHandleWeapon[] handleWeapons;
+        public CharacterHandleWeapon[] mainHandleWeapons;
+        public Dictionary<BallInventorySlot, MetaHandleWeapon> metaHandleWeapons = new();
         public BallWeaponAttachmentRoot ballWeaponAttachmentRoot;
+        public Transform metaHandleWeaponsParent;
 
         protected override void Initialization()
         {
@@ -64,25 +66,62 @@ namespace MoreMountains
             addListeners();
 
             this.TryGetComponentInChildren(out ballWeaponAttachmentRoot);
-            this.TryGetComponentsInChildren(out handleWeapons);
-            for (var i = 0; i < handleWeapons.Length; i++)
+            this.TryGetComponentsInChildren(out mainHandleWeapons);
+            for (var i = 0; i < mainHandleWeapons.Length; i++)
             {
-                handleWeapons[i].SetAbilityPermitted(false);
-                handleWeapons[i].SetWeaponAttachmentActive(false);
+                mainHandleWeapons[i].SetAbilityPermitted(false);
+                mainHandleWeapons[i].SetWeaponAttachmentActive(false);
             }
         }
 
         public void OnBallInventorySlotChanged(BallInventorySlot slot)
         {
-            var handleWeapon = handleWeapons[slot.Index];
+            var handleWeapon = mainHandleWeapons[slot.Index];
             handleWeapon.SetAbilityPermitted(slot.IsOccupied);
             handleWeapon.SetWeaponAttachmentActive(slot.IsOccupied);
             if (handleWeapon.CurrentWeapon is BallGunWeapon ballGunWeapon)
             {
-                ballGunWeapon.SetBallDef(slot.Item == null ? null : slot.Item.Def);
+                var ballDef = slot.Item == null ? null : slot.Item.Def;
+                ballGunWeapon.SetBallSlot(slot);
+                ballGunWeapon.SetBallDef(ballDef);
+
+                if (ballDef)
+                {
+                    if (ballDef.MetaHandleWeapon)
+                    {
+                        var metaHandleWeapon = InstantiateMetaHandleWeapon(ballDef.MetaHandleWeapon);
+                        metaHandleWeapons.add(slot, metaHandleWeapon);
+                        AddAbility(metaHandleWeapon);
+                    }
+                }
+                else
+                {
+                    if (metaHandleWeapons.TryGetValue(slot, out var metaHandleWeapon))
+                    {
+                        RemoveAbility(metaHandleWeapon);
+                        metaHandleWeapons.Remove(slot);
+                        Destroy(metaHandleWeapon.gameObject);
+                    }
+                }
             }
 
             ballWeaponAttachmentRoot.RefreshLayout();
+        }
+
+        /// <summary>
+        /// Instantiates the specified weapon
+        /// </summary>
+        /// <param name="handleWeaponTemplate"></param>
+        /// <param name="weaponID"></param>
+        /// <param name="combo"></param>
+        protected virtual MetaHandleWeapon InstantiateMetaHandleWeapon(MetaHandleWeapon handleWeaponTemplate)
+        {
+            var handleWeapon = Instantiate(handleWeaponTemplate, metaHandleWeaponsParent);
+
+            handleWeapon.name = handleWeaponTemplate.name;
+            handleWeapon.transform.localPosition = Vector3.zero;
+            handleWeapon.transform.localRotation = Quaternion.identity;
+            return handleWeapon;
         }
 
         protected override void OnDestroy()

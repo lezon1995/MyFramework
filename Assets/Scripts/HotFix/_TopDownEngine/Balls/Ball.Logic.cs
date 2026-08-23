@@ -288,7 +288,7 @@ namespace MoreMountains
             if (FaceMovement)
                 FaceMovementDirection(Direction);
 
-            if (lifeDuration.update(dt))
+            if (lifeDuration.update(dt) || isExpired)
             {
                 new OnBallExpired(this).trigger(this);
                 isExpired = true;
@@ -678,6 +678,17 @@ namespace MoreMountains
             var duration = ballDuration.Value * (1 + playerDuration.Value);
             lifeDuration = duration;
             isExpired = false;
+        }
+
+        public void setDuration(float duration)
+        {
+            lifeDuration = duration;
+            isExpired = duration <= 0 || duration.isZero();
+        }
+
+        public float getDurationRemain()
+        {
+            return lifeDuration.remain;
         }
 
         /*public void returnBall(Vector3 nextPosition)

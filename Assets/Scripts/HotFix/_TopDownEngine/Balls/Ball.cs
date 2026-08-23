@@ -27,6 +27,7 @@ namespace MoreMountains
         }
 
         public APlayer Player { get; set; }
+        public BallInventorySlot Slot { get; set; }
 
         public CircleCollider2D circleCollider
         {
@@ -115,6 +116,11 @@ namespace MoreMountains
         public void SetPlayer(APlayer c)
         {
             Player = c;
+        }
+
+        public void SetBallSlot(BallInventorySlot s)
+        {
+            Slot = s;
         }
 
         protected override void Initialization()

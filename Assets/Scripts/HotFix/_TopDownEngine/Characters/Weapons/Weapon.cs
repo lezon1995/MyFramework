@@ -334,7 +334,7 @@ namespace MoreMountains
         }
 
         protected Dmg.Types DamageType => BaseDamageType;
-        protected virtual Dmg Dmg => new(Damage, DamageType, IsCritThisFrame, CritDamageThisFrame);
+        public virtual Dmg Dmg => new(Damage, DamageType, IsCritThisFrame, CritDamageThisFrame);
 
         public ValueModifier DamageModifier { get; set; }
 
@@ -768,7 +768,7 @@ namespace MoreMountains
         /// </summary>
         public virtual bool CaseWeaponDelayBeforeUse(float dt)
         {
-            if (_delayBeforeUseTimer.update(dt, true))
+            if (_delayBeforeUseTimer.update(dt, true) || _delayBeforeUseTimer.duration.isZero())
                 DoShootRequest();
 
             return true;
@@ -797,7 +797,7 @@ namespace MoreMountains
                 return false;
             }
 
-            if (_delayBetweenUsesTimer.update(dt, true))
+            if (_delayBetweenUsesTimer.update(dt, true) || _delayBetweenUsesTimer.duration.isZero())
                 RestartOrTurnOff();
 
             return true;
@@ -862,7 +862,7 @@ namespace MoreMountains
         public virtual bool CaseWeaponReloading(float dt)
         {
             ResetMovementMultiplier();
-            if (_reloadingTimer.update(dt, true))
+            if (_reloadingTimer.update(dt, true) || _reloadingTimer.duration.isZero())
             {
                 State.ChangeState(States.ReloadStop);
             }

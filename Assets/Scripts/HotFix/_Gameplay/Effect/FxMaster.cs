@@ -13,6 +13,12 @@ public class FxMaster
         long startTime = TimeUtility.getNowTimeStampMS();
         map.Add(FxDefine.BALL_HIT_BRICK, load("Fx_BallHitBrick.prefab"));
         map.Add(FxDefine.BRICK_DESTROY, load("Fx_BrickDestroy.prefab"));
+        map.Add(FxDefine.BALL_FISSION, load("Fx_StarFlash_Blue.prefab"));
+        map.Add(FxDefine.BALL_DUPLICATE, load("Fx_StarFlash_Yellow.prefab"));
+
+        // 卡莎 Q 占位特效：实际项目里请替换为专属的飞弹爆点 / 施法闪光
+        map.Add(FxDefine.KAISA_Q_IMPACT, load("Fx_StarFlash_Yellow.prefab"));
+        map.Add(FxDefine.KAISA_Q_CAST, load("Fx_StarFlash_Blue.prefab"));
 
         log("Loaded " + map.Count + " Visual Effects");
         log("VFX load time: " + (TimeUtility.getNowTimeStampMS() - startTime) + "ms");

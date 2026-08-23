@@ -7,13 +7,11 @@ namespace MoreMountains;
 /// 多个目标顺序受到伤害
 /// 伤害递增
 /// </summary>
-public class LaserBeamEffect : ALogicEffect, IArgs<Ball, Brick, float>
+public class LaserBeamEffect : ALogicEffect, IArgs<string, Ball, Brick, float>
 {
-    protected const string path = $"{GAMEPLAY_PATH}/Effects/Fx_LaserBeam.prefab";
-
     protected Ball ball;
 
-    public void onCreate(Ball b1, Brick b2, float angle)
+    public void onCreate(string path, Ball b1, Brick b2, float angle)
     {
         duration = 0.5F;
         ball = b1;

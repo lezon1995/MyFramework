@@ -821,7 +821,7 @@ namespace MoreMountains
 
         public void SetPlayerHandleWeaponAbilityPermitted(APlayer p, bool active)
         {
-            foreach (var handleWeapon in p.handleWeapons)
+            foreach (var handleWeapon in p.mainHandleWeapons)
             {
                 if (!active)
                     handleWeapon.ForceStop();

@@ -42,6 +42,8 @@ namespace MoreMountains
         public LocalizedString DisplayName;
         public LocalizedString DisplayDescription;
 
+        public MetaHandleWeapon MetaHandleWeapon;
+
         public static void BuildDescription(MyStringBuilder sb, BallDef def, APlayer p = null)
         {
             var configs = def.StatsTemplate.Configs;
