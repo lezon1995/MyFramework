@@ -4,14 +4,15 @@
     {
         protected override void BindStats()
         {
-            if (Owner.TryGetComponent<Stats>(out var stats))
+            DmgGetter = () =>
             {
-                DmgGetter = () => Dmg.AP((int)stats.GetStat(Character.Stat.AP.Key()).Value);
-            }
-            else
-            {
-                DmgGetter = () => Dmg;
-            }
+                if (Source && Source.GetStat(Character.Stat.AP, out var stat))
+                {
+                    return Dmg.AP((int)stat.Value);
+                }
+
+                return Dmg;
+            };
         }
     }
 }

@@ -5,7 +5,7 @@ namespace MoreMountains
 {
     public class EnemyBrain : AIBrain
     {
-        public Brick character;
+        public Brick brick;
         
         protected override void Start()
         {
@@ -18,7 +18,7 @@ namespace MoreMountains
         public override void SetOwner(GameObject owner)
         {
             Owner = owner;
-            owner.TryGetComponent(out character);
+            owner.TryGetComponent(out brick);
         }
     }
 }

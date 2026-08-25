@@ -1,4 +1,4 @@
-﻿namespace MoreMountains.TopDownEngine
+﻿namespace MoreMountains
 {
     /// <summary>
     /// As the name implies, an action that does nothing. Just waits there.

@@ -67,7 +67,8 @@ namespace MoreMountains
             Frozen,
             Paused,
             Dead,
-            Stunned
+            Stunned,
+            Poisoned,
         }
 
         /// the possible initial facing direction for your character

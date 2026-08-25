@@ -52,6 +52,12 @@ MonoBehaviour:
     m_SerializedLabels:
     - Locale-en
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e3115287290b5dd47a14259f5ad3dc5a
+    m_Address: OverlayMenu_en
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-en
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: f140dca44eccb834aa52ca09f8775784
     m_Address: BallName_en
     m_ReadOnly: 1

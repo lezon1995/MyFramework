@@ -16,37 +16,151 @@ namespace MoreMountains
     {
         // ====== 注入字段（Launch 时填充） ======
         MissileProjectileWeaponDefinition _def;
-        Vector2 _p0; // 起点（角色身后）
-        Vector2 _p2 => _target.position; // 终点（目标附近，含散布）
-        float _arcHeight; // 弧线高度（含抖动 + 交错）
+        Character _caster;
+        Vector2 _p0; // 起点（角色身上）
+        Vector2 _p1; // 控制点：target→caster 反向 + 随机偏角 + 抬升
+        Vector2 _impactScatter; // 命中点散布（生成时随机一次后锁定）
+        float _arcHeightOffset; // 弧线高度偏移（jitter + interleave 叠加）
         float _flightDuration; // 飞行时间（秒）
+
+        // 终点（每帧实时读 _target.position,叠加一次性散布）
+        Vector2 _p2 => (Vector2)_target.position + _impactScatter;
 
         float _elapsed;
         bool _exploded;
 
+        protected override void OnStatsSet()
+        {
+            var damageOnTouch = _damageOnTouch;
+            damageOnTouch.DmgGetter = () =>
+            {
+                if (damageOnTouch.Source && damageOnTouch.Source.GetStat(Character.Stat.AP, out var stat))
+                {
+                    return Dmg.AP((int)stat.Value + damageOnTouch.Dmg.Value);
+                }
+
+                return damageOnTouch.Dmg;
+            };
+        }
+
         /// <summary>
-        /// 由 IcathianRainSkill 在发射时调用一次。
+        /// 由 MissileProjectileWeapon 在生成飞弹后调用一次。
         /// </summary>
-        public void Launch(MissileProjectileWeaponDefinition def, Vector2 spawn, float arcHeight, float flightDuration)
+        /// <param name="def">技能定义</param>
+        /// <param name="caster">施法者（用于决定 P1 方向：目标→caster 反向 + 随机偏角）</param>
+        /// <param name="arcHeightOffset">本枚飞弹的弧线高度偏移量（已由 Weapon 层算 jitter + interleave）</param>
+        /// <param name="p1">Weapon 层在 spawn 时已经按相同算法算好的 P1 控制点,保证 duration 和飞行轨迹用的 P1 完全一致</param>
+        /// <param name="flightDuration">飞行时间</param>
+        public void Launch(
+            MissileProjectileWeaponDefinition def,
+            Character caster,
+            float arcHeightOffset,
+            Vector2 p1,
+            float flightDuration)
         {
             _def = def;
-            _p0 = spawn;
-            _arcHeight = arcHeight;
+            _caster = caster;
+            _arcHeightOffset = arcHeightOffset;
+            _p1 = p1;
             _flightDuration = Mathf.Max(0.01f, flightDuration);
 
             _elapsed = 0f;
             _exploded = false;
 
+            // 命中点散布一次性随机
+            _impactScatter = Random.insideUnitCircle * (_def != null ? _def.ImpactScatterRadius : 0f);
+
+            // 计算 P0（生成点）= 施法者位置
+            _p0 = (Vector2)(_caster ? _caster.transform.position : transform.position);
+
             // 设置贴图
             EnsureSpriteRenderer();
-            _spriteRenderer.color = _def.MissileColor;
+            if (_spriteRenderer)
+                _spriteRenderer.color = _def.MissileColor;
             transform.localScale = Vector3.one * _def.MissileScale;
 
-            // 初始位置 = 起点
+            // 初始位置 = P0
             transform.position = _p0;
 
-            // 启动朝向：沿 P0→P2 方向
+            // 启动朝向：沿 P0→P1 方向（让飞弹的初始朝向就是「准备往后飞」的方向）
             UpdateRotation();
+        }
+
+        /// <summary>
+        /// 获取飞弹当前锁定的目标位置,供 Weapon 层在 Speed 模式下估算弧线长度。
+        /// 注意：不含 ImpactScatter（散布是在飞弹 Launch 时随机一次的），
+        /// 所以用这个估算的弧长会比实际略短,Resolution 里给了一个 1.1 系数来补偿。
+        /// </summary>
+        public Vector2 GetTargetPosition() =>
+            _target ? (Vector2)_target.position : _p0;
+
+                /// <summary>
+        /// 根据 (target→caster) 反向 + 随机偏转 + 抬升,计算 P1 控制点。
+        /// 抽成 public static 方法,让武器层在 spawn 时也能复用,保证 duration 计算用到的 P1
+        /// 和飞弹飞行用到的 P1 完全一致。
+        /// </summary>
+        public static Vector2 ComputeOutgoingControlPoint(
+            Vector2 casterPos,
+            Vector2 targetPos,
+            float outgoingDistance,
+            float outgoingYawSpreadMax,
+            float outgoingYawSpreadMin,
+            float outgoingVerticalLift)
+        {
+            // 基础方向：target → caster 的反向延长线
+            var dir = casterPos - targetPos;
+            var len = dir.magnitude;
+            if (len < 0.0001f)
+            {
+                dir = Vector2.up;
+                len = 1f;
+            }
+            else
+            {
+                dir /= len;
+            }
+
+            // 左右 ±OutgoingYawSpread 随机偏转
+            var yawMin = outgoingYawSpreadMin;
+            var yawMax = outgoingYawSpreadMax;
+            float yawDeg;
+            if (randomHit(0.5F))
+                yawDeg = Random.Range(-yawMax, -yawMin);
+            else
+                yawDeg = Random.Range(yawMin, yawMax);
+
+            dir = RotateVector2(dir, yawDeg);
+
+            // 反向延伸 OutgoingDistance 距离
+            var p1 = casterPos + dir * outgoingDistance;
+
+            // 垂直抬升
+            p1 += Vector2.up * outgoingVerticalLift;
+
+            return p1;
+        }
+
+        Vector2 ComputeOutgoingControlPointForInstance()
+        {
+            if (_def == null)
+                return _p0 + Vector2.up;
+
+            var targetPos = (Vector2)(_target ? _target.position : transform.position);
+            return ComputeOutgoingControlPoint(
+                casterPos: _p0,
+                targetPos: targetPos,
+                outgoingDistance: _def.OutgoingDistance,
+                outgoingYawSpreadMax: _def.OutgoingYawSpreadMax,
+                outgoingYawSpreadMin: _def.OutgoingYawSpreadMin,
+                outgoingVerticalLift: _def.OutgoingVerticalLift);
+        }
+
+        static Vector2 RotateVector2(Vector2 v, float degrees)
+        {
+            var rad = degrees * Mathf.Deg2Rad;
+            var cos = Mathf.Cos(rad);
+            var sin = Mathf.Sin(rad);
+            return new Vector2(v.x * cos - v.y * sin, v.x * sin + v.y * cos);
         }
 
         void EnsureSpriteRenderer()
@@ -81,9 +195,10 @@ namespace MoreMountains
             // 计算归一化飞行进度
             var t = Mathf.Clamp01(_elapsed / _flightDuration);
 
-            // 二次贝塞尔曲线：P0 → P1 (上方控制点) → P2
-            // 控制点取 P0 和 P2 的中点，再向上抬 arcHeight
-            var p1 = Vector2.Lerp(_p0, _p2, 0.5f) + Vector2.up * _arcHeight;
+            // 二次贝塞尔曲线：P0 → P1 → P2
+            // P1 在 Launch 时已经按 (target→caster) 反向 + 随机偏转 + 抬升算好。
+            // 这里再叠加 arcHeightOffset（jitter + interleave）,让相邻飞弹的弧线不完全一样。
+            var p1 = _p1 + Vector2.up * _arcHeightOffset;
             var pos = Bezier2(_p0, p1, _p2, t);
             transform.position = pos;
 
@@ -120,8 +235,9 @@ namespace MoreMountains
 
         void UpdateRotation()
         {
-            // 启动时朝向 P0→P2 方向
-            var dir = (Vector2)(_p2 - _p0);
+            // 启动朝向：沿 P0→P1 方向(也就是「准备往身后飞出去」的方向)
+            var p1 = _p1 + Vector2.up * _arcHeightOffset;
+            var dir = p1 - _p0;
             if (dir.sqrMagnitude < 0.0001f)
                 return;
 
@@ -162,6 +278,22 @@ namespace MoreMountains
             {
                 sound?.play(_def.ImpactSoundKey);
             }
+        }
+
+        protected override void OnEnable()
+        {
+            base.OnEnable();
+            TryClearTrails();
+        }
+
+        protected override void OnDisable()
+        {
+            base.OnDisable();
+            TryClearTrails();
+        }
+
+        protected override void FaceMovementDirection(Vector3 newDirection)
+        {
         }
     }
 }

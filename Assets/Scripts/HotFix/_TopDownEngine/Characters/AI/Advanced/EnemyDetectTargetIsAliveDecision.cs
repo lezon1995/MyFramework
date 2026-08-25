@@ -1,4 +1,4 @@
-﻿namespace MoreMountains.TopDownEngine
+﻿namespace MoreMountains
 {
     /// <summary>
     /// This decision will return true if the Brain's current target is alive, false otherwise

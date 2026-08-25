@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eb4e6f4626e14ce988bbce44e5e5156d, type: 3}
+  m_Name: BrickDef_Boss_2
+  m_EditorClassIdentifier: HotFix::MoreMountains.BrickDef
+  Type: 2
+  Size: {x: 6, y: 3}
+  UnitIcon: {fileID: 21300000, guid: 5962a19a79eabe04a880346c9127f505, type: 3}
+  BlockIcon: {fileID: 45510054, guid: 0c859d749d634984f8acf37ddab546bf, type: 3}
+  StatsTemplate: {fileID: 11400000, guid: 606b7abc3809f844ca0d5ce5e4cbfb2d, type: 2}
+  PrefabName: Brick_Boss_2
+  BonusHealthPerWave: 90
+  BonusDamagePerWave: 0.5
+  BonusMoveSpeedPerWave: 10
+  BonusArmorPerWave: 3
+  BonusKnockbackResistPerWave: 0.03
+  BossHealthBarSize: {x: 750, y: 50}

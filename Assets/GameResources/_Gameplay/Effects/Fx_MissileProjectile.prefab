@@ -708,7 +708,7 @@ ParticleSystem:
     startRotation:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0
+      scalar: 1.5707963
       minScalar: 0
       maxCurve:
         serializedVersion: 2
@@ -4949,7 +4949,7 @@ ParticleSystemRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6435964187111575823}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 0
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
@@ -5063,21 +5063,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: HotFix::MoreMountains.DamageOnTouch
   ManuallyColliding: 0
+  AutoBindStats: 0
   TargetLayerMask:
     serializedVersion: 2
     m_Bits: 49280
   TriggerFilter: 64
   Dmg:
-    Effect: 0
-    Value: 0
-    Type: 0
-    ActualType: 0
+    Effect: 2
+    Value: 5
+    Type: 1
+    ActualType: 1
     Algo: 0
     MetaType: 0
     IsCrit: 0
     CritDamage: 0
     DmgRate:
-      initial: 0
+      initial: 1
       extra: 0
       multiplier: 0
       extraMultiplier: 0
@@ -5085,7 +5086,7 @@ MonoBehaviour:
     DamageRaw: 0
     DamageDealt: 0
     Direction: {x: 0, y: 0, z: 0}
-    TriggerEffect: 0
+    TriggerEffect: 1
     IsLethal: 0
     HitNormal: {x: 0, y: 0}
     Mix:
@@ -5149,7 +5150,7 @@ MonoBehaviour:
   ImmuneToKnockbackIfZeroDamage: 0
   KnockbackForceMultiplier: 1
   DestroyOnDeath: 1
-  DelayBeforeDestruction: 0
+  DelayBeforeDestruction: 0.1
   DisableControllerOnDeath: 1
   DisableModelOnDeath: 1
   DisableCollisionsOnDeath: 1

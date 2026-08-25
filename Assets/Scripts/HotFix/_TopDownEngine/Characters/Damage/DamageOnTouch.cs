@@ -51,6 +51,8 @@ namespace MoreMountains
         [MMInspectorGroup("Targets")]
         public bool ManuallyColliding;
 
+        public bool AutoBindStats = true;
+
         [MMInspectorGroup("Targets")]
         [Tooltip("the layers that will be damaged by this object")]
         public LayerMask TargetLayerMask;
@@ -169,7 +171,10 @@ namespace MoreMountains
             InitializeColliders();
             InitializeFeedbacks();
 
-            BindStats();
+            if (AutoBindStats)
+            {
+                BindStats();
+            }
         }
 
         /// <summary>
@@ -192,14 +197,15 @@ namespace MoreMountains
 
         protected virtual void BindStats()
         {
-            if (Owner.TryGetComponent<Stats>(out var stats))
+            DmgGetter = () =>
             {
-                DmgGetter = () => Dmg.AD((int)stats.GetStat(Character.Stat.AD.Key()).Value);
-            }
-            else
-            {
-                DmgGetter = () => Dmg;
-            }
+                if (Source && Source.GetStat(Character.Stat.AD, out var stat))
+                {
+                    return Dmg.AD((int)stat.Value);
+                }
+
+                return Dmg;
+            };
         }
 
         /// <summary>
@@ -555,7 +561,7 @@ namespace MoreMountains
         /// </summary>
         protected virtual void ApplyKnockback(Health colliderHealth, TopDownController controller, Dmg damage)
         {
-            if (DamageCausedKnockbackType != KnockbackStyles.AddForce) 
+            if (DamageCausedKnockbackType != KnockbackStyles.AddForce)
                 return;
 
             Vector3 force;

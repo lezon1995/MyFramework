@@ -23,9 +23,9 @@ public class UGUITreeList : WindowObjectUGUI
 		base.init();
 		mRoot.registeCollider();
 	}
-	public override void update()
+	public override void update(float dt)
 	{
-		base.update();
+		base.update(dt);
 		if (mDirty)
 		{
 			resizeTreeAreaSize();

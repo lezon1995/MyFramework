@@ -42,7 +42,7 @@ MonoBehaviour:
     eliteMonsterWeight: 25
     bossMonsterWeight: 5
     bossMonsterId: {fileID: 0}
-    bossSpawnTime: 30
+    bossSpawnTime: 0
     enableSmartSpawning: 1
     denseRadius: 1
     sparseThreshold: 1
@@ -84,7 +84,7 @@ MonoBehaviour:
     eliteMonsterWeight: 25
     bossMonsterWeight: 5
     bossMonsterId: {fileID: 0}
-    bossSpawnTime: 30
+    bossSpawnTime: 10
     enableSmartSpawning: 1
     denseRadius: 1
     sparseThreshold: 1
@@ -126,7 +126,7 @@ MonoBehaviour:
     eliteMonsterWeight: 25
     bossMonsterWeight: 5
     bossMonsterId: {fileID: 0}
-    bossSpawnTime: 30
+    bossSpawnTime: 10
     enableSmartSpawning: 1
     denseRadius: 1
     sparseThreshold: 1
@@ -168,7 +168,7 @@ MonoBehaviour:
     eliteMonsterWeight: 25
     bossMonsterWeight: 5
     bossMonsterId: {fileID: 0}
-    bossSpawnTime: 30
+    bossSpawnTime: 10
     enableSmartSpawning: 1
     denseRadius: 1
     sparseThreshold: 1
@@ -186,7 +186,7 @@ MonoBehaviour:
   - waveNumber: 5
     waveName: Wave 5
     duration: 40
-    clearStrategy: 0
+    clearStrategy: 2
     availableMonsters:
     - monsterDef: {fileID: 11400000, guid: 256cee45b3dbfc946a5bd60cddc0a0af, type: 2}
       spawnWeight: 1
@@ -209,8 +209,8 @@ MonoBehaviour:
     normalMonsterWeight: 70
     eliteMonsterWeight: 25
     bossMonsterWeight: 5
-    bossMonsterId: {fileID: 11400000, guid: f1a9bc46a3d377f4f8604670a1d1005e, type: 2}
-    bossSpawnTime: 30
+    bossMonsterId: {fileID: 11400000, guid: c4fca182b0e4e1443ad3a0fa5b2d4cfa, type: 2}
+    bossSpawnTime: 2
     enableSmartSpawning: 1
     denseRadius: 1
     sparseThreshold: 1
@@ -396,7 +396,7 @@ MonoBehaviour:
   - waveNumber: 10
     waveName: Wave 10
     duration: 60
-    clearStrategy: 0
+    clearStrategy: 2
     availableMonsters:
     - monsterDef: {fileID: 11400000, guid: 256cee45b3dbfc946a5bd60cddc0a0af, type: 2}
       spawnWeight: 1
@@ -419,8 +419,8 @@ MonoBehaviour:
     normalMonsterWeight: 70
     eliteMonsterWeight: 25
     bossMonsterWeight: 5
-    bossMonsterId: {fileID: 11400000, guid: 9a559947283b8444a8c89c77bb997599, type: 2}
-    bossSpawnTime: 30
+    bossMonsterId: {fileID: 11400000, guid: 7ed4b7d0c5c73a74b83618a48dcf1fc0, type: 2}
+    bossSpawnTime: 2
     enableSmartSpawning: 1
     denseRadius: 1
     sparseThreshold: 1
@@ -629,8 +629,8 @@ MonoBehaviour:
     normalMonsterWeight: 70
     eliteMonsterWeight: 25
     bossMonsterWeight: 5
-    bossMonsterId: {fileID: 11400000, guid: e6d39392ea71b074686581777daf0d66, type: 2}
-    bossSpawnTime: 30
+    bossMonsterId: {fileID: 11400000, guid: fc6461fba7cfae74788b665765d47cf6, type: 2}
+    bossSpawnTime: 2
     enableSmartSpawning: 1
     denseRadius: 1
     sparseThreshold: 1
@@ -816,7 +816,7 @@ MonoBehaviour:
   - waveNumber: 20
     waveName: Wave 20
     duration: 60
-    clearStrategy: 0
+    clearStrategy: 2
     availableMonsters:
     - monsterDef: {fileID: 11400000, guid: 256cee45b3dbfc946a5bd60cddc0a0af, type: 2}
       spawnWeight: 1
@@ -839,8 +839,8 @@ MonoBehaviour:
     normalMonsterWeight: 70
     eliteMonsterWeight: 25
     bossMonsterWeight: 5
-    bossMonsterId: {fileID: 11400000, guid: 255f9deb4e7889a45bb359d918eb6aa3, type: 2}
-    bossSpawnTime: 30
+    bossMonsterId: {fileID: 11400000, guid: 7397e3881f0dfd74a80cc4b0ddbe4e3d, type: 2}
+    bossSpawnTime: 2
     enableSmartSpawning: 1
     denseRadius: 1
     sparseThreshold: 1
@@ -1278,15 +1278,15 @@ MonoBehaviour:
   globalMaxActiveMonsters: 400
   globalMinActiveMonsters: 10
   globalBaseSpawnInterval: 1
-  globalHealthScalingPerWave: 1.145
-  globalDamageScalingPerWave: 1.12
-  globalSpeedScalingPerWave: 1.05
+  globalHealthScalingPerWave: 1.2
+  globalDamageScalingPerWave: 1.1
+  globalSpeedScalingPerWave: 1.1
   globalDefenseScalingPerWave: 1.1
-  globalKnockbackResistScalingPerWave: 1.05
+  globalKnockbackResistScalingPerWave: 1.1
   spawnAreaLeft: -9.6
   spawnAreaRight: 9.6
   spawnAreaTop: 5.4
   spawnAreaBottom: -5.4
   globalTargetCoverageRatio: 0.3
   globalMinSpawnInterval: 0.3
-  globalMaxSpawnInterval: 2
+  globalMaxSpawnInterval: 0.5

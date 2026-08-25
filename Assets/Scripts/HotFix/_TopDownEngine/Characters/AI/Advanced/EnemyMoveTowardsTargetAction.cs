@@ -43,11 +43,16 @@ namespace MoreMountains
 
         /// <summary>
         /// Moves the character towards the target if needed
+        /// 注意：这里只设置 _movement，CharacterMovement 会处理加速/减速并输出到 CurrentMovement
+        /// TopDownController 会使用 CurrentMovement 进行实际移动
         /// </summary>
         protected virtual void Move()
         {
             if (_brain.Target == null)
+            {
+                _movement.SetMovement(Vector2.zero);
                 return;
+            }
 
             var targetPos = _brain.Target.position;
             var selfPos = transform.position;
@@ -68,10 +73,9 @@ namespace MoreMountains
                 _direction = (targetPos - selfPos).normalized;
             }
 
+            // 应用聚集力和扰动力
             _direction *= MonsterAttractionForce;
-            
-            // 2. 随机徘徊（让怪物移动看起来更自然）
-            _direction += Random.insideUnitCircle * MonsterWanderForce;
+            // _direction += Random.insideUnitCircle * MonsterWanderForce;
 
             // 将意图转换为期望速度
             Vector2 desiredVelocity = _direction.normalized * _movement._movementSpeed;

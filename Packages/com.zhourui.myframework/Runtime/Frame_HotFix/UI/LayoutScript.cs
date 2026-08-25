@@ -216,14 +216,14 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 			}
 		}
 	}
-	public void updateAllDragView()
+	public void updateAllDragView(float dt)
 	{
 		// 更新UI直接创建的滚动列表
 		foreach (IDragViewLoop item in mDragViewLoopList.safe())
 		{
 			if (item.isActive())
 			{
-				item.updateDragView();
+				item.updateDragView(dt);
 			}
 		}
 		// 更新所有一级子界面的滚动列表
@@ -231,7 +231,7 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 		{
 			if (item.isActive())
 			{
-				item.updateDragViewLoop();
+				item.updateDragViewLoop(dt);
 			}
 		}
 	}

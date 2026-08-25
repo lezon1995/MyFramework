@@ -85,6 +85,7 @@ namespace MoreMountains
             def = d;
             brickRenderer.setBlockSprite(d.BlockIcon);
             brickRenderer.setUnitSprite(d.UnitIcon);
+            brickRenderer.onBrickDefSet(d);
         }
     }
 }

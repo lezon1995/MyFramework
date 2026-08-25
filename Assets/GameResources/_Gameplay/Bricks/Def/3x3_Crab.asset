@@ -12,7 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb4e6f4626e14ce988bbce44e5e5156d, type: 3}
   m_Name: 3x3_Crab
   m_EditorClassIdentifier: HotFix::MoreMountains.BrickDef
+  Type: 1
   Size: {x: 3, y: 3}
   UnitIcon: {fileID: 21300000, guid: 5962a19a79eabe04a880346c9127f505, type: 3}
   BlockIcon: {fileID: 45510054, guid: 0c859d749d634984f8acf37ddab546bf, type: 3}
   StatsTemplate: {fileID: 11400000, guid: 6975236814c9ae44ba7611c1fbbbb770, type: 2}
+  PrefabName: 
+  BonusHealthPerWave: 60
+  BonusDamagePerWave: 0.5
+  BonusMoveSpeedPerWave: 6
+  BonusArmorPerWave: 4
+  BonusKnockbackResistPerWave: 0.03
+  BossHealthBarSize: {x: 600, y: 50}

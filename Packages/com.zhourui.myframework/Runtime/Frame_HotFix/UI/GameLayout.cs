@@ -105,7 +105,7 @@ public class GameLayout
 
 		// 更新脚本逻辑
 		using var b = new ProfilerScope("UpdateScript");
-		mScript.updateAllDragView();
+		mScript.updateAllDragView(elapsedTime);
 		if (mScript.isNeedUpdate())
 		{
 			mScript.update(elapsedTime);

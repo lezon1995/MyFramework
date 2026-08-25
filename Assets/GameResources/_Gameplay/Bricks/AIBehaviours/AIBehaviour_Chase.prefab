@@ -45,7 +45,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e18b4d59e05d441aa1484013cb172420, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: HotFix::MoreMountains.TopDownEngine.EnemyBrain
+  m_EditorClassIdentifier: HotFix::MoreMountains.EnemyBrain
   Owner: {fileID: 0}
   States:
   - StateName: Chasing
@@ -112,7 +112,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2a946a428cb16e1409d657b9041c69be, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: HotFix::MoreMountains.TopDownEngine.EnemyDetectTargetRadiusDecision
+  m_EditorClassIdentifier: HotFix::MoreMountains.EnemyDetectTargetRadiusDecision
   Label: 
   Radius: 50
   DetectionOriginOffset: {x: 0, y: 0, z: 0}
@@ -170,7 +170,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 47557c9dd44293a41bc6710b083332de, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: HotFix::MoreMountains.TopDownEngine.EnemyMoveTowardsTargetAction
+  m_EditorClassIdentifier: HotFix::MoreMountains.EnemyMoveTowardsTargetAction
   InitializationMode: 0
   Label: 
   UseMinimumXDistance: 1

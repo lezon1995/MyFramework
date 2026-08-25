@@ -62,14 +62,14 @@ public abstract class WindowObjectBase : ILocalizationCollection, IWindowObjectO
 			mChildList.For(item => item.reset());
 		}
 	}
-	public void updateDragViewLoop()
+	public void updateDragViewLoop(float dt)
 	{
 		// 更新自己的滚动列表
 		foreach (IDragViewLoop item in mDragViewLoopList.safe())
 		{
 			if (item.isActive())
 			{
-				item.updateDragView();
+				item.updateDragView(dt);
 			}
 		}
 		// 更新所有子节点的滚动列表
@@ -77,12 +77,12 @@ public abstract class WindowObjectBase : ILocalizationCollection, IWindowObjectO
 		{
 			if (item.isActive())
 			{
-				item.updateDragViewLoop();
+				item.updateDragViewLoop(dt);
 			}
 		}
 	}
 	// 这个update需要主动调用,界面管理器不会自动去调用这个update,因为对效率影响比较大
-	public virtual void update(){}
+	public virtual void update(float dt){}
 	// 被隐藏时调用,界面被隐藏时也会调用所有子窗口的onHide
 	public virtual void onHide() 
 	{

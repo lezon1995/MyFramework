@@ -320,9 +320,9 @@ public static class LayoutScriptTest
 	private static void testUpdateAllDragViewEmpty()
 	{
 		var script = new TestLayoutScript();
-		script.updateAllDragView();
+		script.updateAllDragView(0.02F);
 		// 重复调用验证无副作用
-		script.updateAllDragView();
+		script.updateAllDragView(0.02F);
 	}
 	// ================================================================
 	//  clearLocalization — 空列表安全

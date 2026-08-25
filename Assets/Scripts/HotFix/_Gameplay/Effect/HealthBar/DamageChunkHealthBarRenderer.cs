@@ -20,7 +20,7 @@ namespace MoreMountains
     /// 血条渲染辅助类：通过 SpriteRenderer + Shader 的 MaterialPropertyBlock 控制血条，
     /// 每次受击产生一个独立的 DamageChunk，支持 chunk 透明度和颜色动画。
     /// </summary>
-    public class DamageChunkHealthBarRenderer : MonoBehaviour
+    public class DamageChunkHealthBarRenderer : MonoBehaviour, IHealthBarRenderer
     {
         // ================================================================
         // Constants
@@ -269,7 +269,7 @@ namespace MoreMountains
         void Awake()
         {
             if (_spriteRenderer == null)
-                _spriteRenderer = GetComponent<SpriteRenderer>();
+                TryGetComponent(out _spriteRenderer);
 
             _block = new();
             for (int i = 0; i < MaxChunks; i++)

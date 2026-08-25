@@ -94,17 +94,18 @@ public class UGUIScroll : WindowObjectUGUI
 			scrollToIndex(defaultIndex);
 		}
 	}
-	public void update(float elapsedTime)
+	public override void update(float dt)
 	{
+		base.update(dt);
 		// 自动匀速滚动到目标点
 		if (mState == SCROLL_STATE.SCROLL_TO_TARGET)
 		{
 			float curOffset = mCurOffset;
 			// 速度逐渐降低到速度阈值的一半,这里会将速度转化为绝对值再计算,但是为了避免可能对其他逻辑产生的影响,计算后会恢复其符号
 			float speedSign = sign(mScrollSpeed);
-			mScrollSpeed = mScrollSpeed.abs() - elapsedTime * 1.0f;
+			mScrollSpeed = mScrollSpeed.abs() - dt * 1.0f;
 			mScrollSpeed = mScrollSpeed.clampMin(mFocusSpeedThreshold * 0.5f);
-			checkReachTarget(ref curOffset, elapsedTime * sign(mTargetOffsetValue - curOffset) * mScrollSpeed, mTargetOffsetValue);
+			checkReachTarget(ref curOffset, dt * sign(mTargetOffsetValue - curOffset) * mScrollSpeed, mTargetOffsetValue);
 			mScrollSpeed *= speedSign;
 			updateItem(curOffset);
 			if (mCurOffset.isEqual(mTargetOffsetValue))
@@ -114,7 +115,7 @@ public class UGUIScroll : WindowObjectUGUI
 		}
 		else if (mState == SCROLL_STATE.LERP_SCROLL_TO_TARGET)
 		{
-			mScrollToTargetTimer += elapsedTime;
+			mScrollToTargetTimer += dt;
 			float percent = mScrollToTargetCurve.evaluate(mScrollToTargetTimer.divide(mScrollToTargetMaxTime));
 			updateItem(lerp(mScrollToTargetStartValue, mTargetOffsetValue, percent));
 			if (mCurOffset.isEqual(mTargetOffsetValue))
@@ -125,7 +126,7 @@ public class UGUIScroll : WindowObjectUGUI
 		// 鼠标拖动
 		else if (mState == SCROLL_STATE.DRAGING)
 		{
-			scroll(mMainFocus - mCurOffset + elapsedTime * mScrollSpeed, false);
+			scroll(mMainFocus - mCurOffset + dt * mScrollSpeed, false);
 		}
 		// 鼠标抬起后自动减速到停止,或者减速到一定阈值,再自动滚动到某个项
 		else if (mState == SCROLL_STATE.SCROLL_TO_STOP)
@@ -148,14 +149,14 @@ public class UGUIScroll : WindowObjectUGUI
 					{
 						delta = 1.0f + (curControlValue - mMaxControlValue) * 10.0f;
 					}
-					t = elapsedTime * mAttenuateFactor * delta * delta * 200.0f;
+					t = dt * mAttenuateFactor * delta * delta * 200.0f;
 				}
 				else
 				{
-					t = elapsedTime * mAttenuateFactor;
+					t = dt * mAttenuateFactor;
 				}
 				mScrollSpeed = lerp(mScrollSpeed, 0.0f, t, 0.1f);
-				curControlValue += elapsedTime * mScrollSpeed;
+				curControlValue += dt * mScrollSpeed;
 				scroll(curControlValue, false);
 				int willFocusIndex = getNearIndex();
 				if (needClamp)

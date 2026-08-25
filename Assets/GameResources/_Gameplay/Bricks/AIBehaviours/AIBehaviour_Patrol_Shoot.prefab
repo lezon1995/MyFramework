@@ -45,7 +45,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 251ec4b1d5454c89ad5aa21f33e716eb, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: HotFix::MoreMountains.TopDownEngine.EnemyDetectDistanceToTargetDecision
+  m_EditorClassIdentifier: HotFix::MoreMountains.EnemyDetectDistanceToTargetDecision
   Label: 
   ComparisonMode: 1
   Distance: 7
@@ -60,7 +60,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 48ee8ed7e0a240df972db7726a29fdfb, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: HotFix::MoreMountains.TopDownEngine.EnemyDetectTargetIsAliveDecision
+  m_EditorClassIdentifier: HotFix::MoreMountains.EnemyDetectTargetIsAliveDecision
   Label: 
 --- !u!114 &4430758965927064163
 MonoBehaviour:
@@ -222,7 +222,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d12ac40992924a35b5bdcd69ae6c2fed, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: HotFix::MoreMountains.TopDownEngine.EnemyMoveRandomlyAction
+  m_EditorClassIdentifier: HotFix::MoreMountains.EnemyMoveRandomlyAction
   InitializationMode: 0
   Label: 
   MaximumDurationInADirection: 2
@@ -246,7 +246,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f603917ff76d4de78b856115739005b2, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: HotFix::MoreMountains.TopDownEngine.EnemyAimWeaponAtTargetAction
+  m_EditorClassIdentifier: HotFix::MoreMountains.EnemyAimWeaponAtTargetAction
   InitializationMode: 0
   Label: 
   TargetHandleWeaponAbility: {fileID: 0}
@@ -264,7 +264,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2e49b5d36f4a4234961f38b0703a1220, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: HotFix::MoreMountains.TopDownEngine.EnemyShootAction
+  m_EditorClassIdentifier: HotFix::MoreMountains.EnemyShootAction
   InitializationMode: 0
   Label: 
   TargetHandleWeaponAbility: {fileID: 0}
@@ -283,6 +283,6 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ab34c022addc417b8ae0137bf2909540, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: HotFix::MoreMountains.TopDownEngine.EnemyDoNothingAction
+  m_EditorClassIdentifier: HotFix::MoreMountains.EnemyDoNothingAction
   InitializationMode: 0
   Label: 

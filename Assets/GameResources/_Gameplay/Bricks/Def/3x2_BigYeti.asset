@@ -12,7 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb4e6f4626e14ce988bbce44e5e5156d, type: 3}
   m_Name: 3x2_BigYeti
   m_EditorClassIdentifier: HotFix::MoreMountains.BrickDef
+  Type: 1
   Size: {x: 3, y: 2}
   UnitIcon: {fileID: 21300000, guid: 9895bbe0d66ebb84e855a6c183268451, type: 3}
   BlockIcon: {fileID: 767241737, guid: bac3111782729304c9f7ec625973166b, type: 3}
   StatsTemplate: {fileID: 11400000, guid: aba22f151ab220346b0af84c06505add, type: 2}
+  PrefabName: 
+  BonusHealthPerWave: 40
+  BonusDamagePerWave: 0.5
+  BonusMoveSpeedPerWave: 8
+  BonusArmorPerWave: 3
+  BonusKnockbackResistPerWave: 0.03
+  BossHealthBarSize: {x: 600, y: 50}

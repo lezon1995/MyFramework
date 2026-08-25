@@ -15,10 +15,14 @@ MonoBehaviour:
   CastDuration: 0.4
   MissileCount: 6
   UpgradedMissileCount: 12
-  MissileFlightDuration: 0.35
-  SpawnOffsetBehind: {x: 0, y: 0}
-  SpawnScatterRadius: 0.6
-  ArcHeight: 2.5
+  FlightTiming: 1
+  MissileFlightDuration: 0.5
+  MissileFlightSpeed: 30
+  OutgoingDistance: 4
+  OutgoingYawSpreadMax: 45
+  OutgoingYawSpreadMin: 30
+  OutgoingVerticalLift: 4
+  ImpactScatterRadius: 0.35
   ArcHeightJitter: 0.5
   ArcInterleaveAmplitude: 1.2
   MissileScale: 1

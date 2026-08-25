@@ -9,5 +9,5 @@ public abstract class DragViewItem<DataType> : WindowRecyclableUGUI where DataTy
 	public abstract void setData(DataType data);
 	public void setIndex(int index) { mIndex = index; }
 	public int getIndex() { return mIndex; }
-	public override void update() { base.update(); }
+	public override void update(float dt) { base.update(dt); }
 }

@@ -230,9 +230,10 @@ public class ScrollViewPanel : WindowObjectUGUI
 		mSlider.setValue(0.5f);
 		refreshNormalList();
 	}
-	public void update(float elapsedTime)
+	public override void update(float dt)
 	{
-		mTimer += elapsedTime;
+		base.update(dt);
+		mTimer += dt;
 		if (mTimer > 20.0f)
 		{
 			mTimer = 0.0f;

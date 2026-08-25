@@ -62,6 +62,9 @@ namespace MoreMountains
         [NonSerialized] public Vector2 ExternalForce;
         [NonSerialized] public bool IsRegistered;
 
+        // CharacterMovement 组件引用（用于获取 CurrentMovement）
+        protected CharacterMovement _characterMovement;
+
 
 
         public float MaxOverlapDistance => Volume.BoundingRadius * 2f * MaxOverlapRatio;// 计算实际可重叠的最大距离
@@ -139,6 +142,9 @@ namespace MoreMountains
             Position = transform.position;
             IntentVelocity = Vector2.zero;
             ExternalForce = Vector2.zero;
+
+            // 获取 CharacterMovement 组件引用
+            TryGetComponent(out _characterMovement);
         }
 
         protected override void OnEnable()
@@ -209,13 +215,36 @@ namespace MoreMountains
         }
 
         /// <summary>
-        /// 施加速度到位置（速度 = 意图速度 + 击退速度）
-        /// 注意：边界和障碍物碰撞由 VolumeManager 统一处理
+        /// 施加速度到位置
+        /// 优先级：CurrentMovement（CharacterMovement输出）> IntentVelocity
+        /// KnockbackVelocity 始终叠加（被动效果）
+        /// 
+        /// 注意：
+        /// - CurrentMovement 是每帧的位移向量（不是速度），直接应用不需要乘 dt
+        /// - KnockbackVelocity 是速度向量，需要乘 dt
         /// </summary>
         protected virtual void ApplyVelocity(float dt)
         {
-            Vector2 totalVel = TotalVelocity;
-            Position += totalVel * dt;
+            Vector3 displacement;
+            
+            // 优先使用 CharacterMovement 的输出（经过加速/减速处理，已经是每帧位移量）
+            if (_characterMovement != null && _characterMovement.ShouldSetMovement)
+            {
+                displacement = CurrentMovement;
+                // 同步 CurrentMovement 到 IntentVelocity，供 VolumeManager 等系统使用
+                IntentVelocity = CurrentMovement;
+            }
+            else
+            {
+                // 没有 CharacterMovement 或它不设置移动时，使用 IntentVelocity（速度）
+                displacement = IntentVelocity * dt;
+            }
+            
+            // 叠加击退速度（速度向量，需要乘 dt）
+            displacement += KnockbackVelocity * dt;
+            
+            // 应用位移
+            Position += (Vector2)displacement;
             transform.position = Position;
         }
 

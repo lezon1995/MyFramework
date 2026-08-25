@@ -22,6 +22,8 @@ public partial class OverlayMenu
         base.update(dt);
 
         // ExpView?.refresh(dt, player.Exp);
+        
+        waveLevelView.update(dt);
     }
 
     public void hideCombatPanels()

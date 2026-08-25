@@ -21,6 +21,7 @@ namespace MoreMountains
         }
 
         public BallInventoryBinder BallInventory => _ballInv;
+        public OverlayMenu Panel => _panel;
 
         public void Bind(APlayer player)
         {

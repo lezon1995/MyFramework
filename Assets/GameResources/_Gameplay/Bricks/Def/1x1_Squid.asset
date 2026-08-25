@@ -12,7 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb4e6f4626e14ce988bbce44e5e5156d, type: 3}
   m_Name: 1x1_Squid
   m_EditorClassIdentifier: HotFix::MoreMountains.BrickDef
+  Type: 0
   Size: {x: 1, y: 1}
   UnitIcon: {fileID: 21300000, guid: 1b94b58de602f034c843efe9ad6bddf4, type: 3}
   BlockIcon: {fileID: -618175491, guid: 86de317a346d1c142bca8b9ebec15636, type: 3}
   StatsTemplate: {fileID: 11400000, guid: e37b62a0f590cbe4cb11d266c422d36e, type: 2}
+  PrefabName: 
+  BonusHealthPerWave: 11
+  BonusDamagePerWave: 0.5
+  BonusMoveSpeedPerWave: 6
+  BonusArmorPerWave: 2
+  BonusKnockbackResistPerWave: 0.02
+  BossHealthBarSize: {x: 600, y: 50}

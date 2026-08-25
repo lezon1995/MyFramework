@@ -12,7 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb4e6f4626e14ce988bbce44e5e5156d, type: 3}
   m_Name: 1x2_Walrus
   m_EditorClassIdentifier: HotFix::MoreMountains.BrickDef
+  Type: 0
   Size: {x: 1, y: 2}
   UnitIcon: {fileID: 21300000, guid: d56527a81c252814a8bf792918c89ec4, type: 3}
   BlockIcon: {fileID: 22944175, guid: a270762fe93d02d409ee3d7c0b8172a6, type: 3}
   StatsTemplate: {fileID: 11400000, guid: c15db39dc8532554fbe4a42e2cd9a75b, type: 2}
+  PrefabName: 
+  BonusHealthPerWave: 16
+  BonusDamagePerWave: 0.5
+  BonusMoveSpeedPerWave: 4
+  BonusArmorPerWave: 3
+  BonusKnockbackResistPerWave: 0.03
+  BossHealthBarSize: {x: 600, y: 50}

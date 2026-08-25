@@ -1,7 +1,7 @@
 ﻿using MoreMountains.Tools;
 using UnityEngine;
 
-namespace MoreMountains.TopDownEngine
+namespace MoreMountains
 {
     /// <summary>
     /// Requires a CharacterMovement ability. 
@@ -81,7 +81,7 @@ namespace MoreMountains.TopDownEngine
             _direction *= MonsterAttractionForce;
             
             // 2. 随机徘徊（让怪物移动看起来更自然）
-            _direction += Random.insideUnitCircle * MonsterWanderForce;
+            // _direction += Random.insideUnitCircle * MonsterWanderForce;
 
             // 将意图转换为期望速度
             Vector2 desiredVelocity = _direction.normalized * _movement._movementSpeed;

@@ -12,7 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb4e6f4626e14ce988bbce44e5e5156d, type: 3}
   m_Name: 2x1_StoneBug
   m_EditorClassIdentifier: HotFix::MoreMountains.BrickDef
+  Type: 0
   Size: {x: 2, y: 1}
   UnitIcon: {fileID: 21300000, guid: 94d48cf4b39d4aa46b75aa896c67c9f7, type: 3}
   BlockIcon: {fileID: 21300000, guid: 8552a93ee6dfe2746a993c46e3151d80, type: 3}
   StatsTemplate: {fileID: 11400000, guid: 21ef4f9bbea050742b1e48a3e5994cec, type: 2}
+  PrefabName: 
+  BonusHealthPerWave: 16
+  BonusDamagePerWave: 0.5
+  BonusMoveSpeedPerWave: 4
+  BonusArmorPerWave: 3
+  BonusKnockbackResistPerWave: 0.03
+  BossHealthBarSize: {x: 600, y: 50}

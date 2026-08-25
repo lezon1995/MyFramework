@@ -523,7 +523,7 @@ namespace MoreMountains
             DamageEnabled();
             
             if (Model)
-                Model.gameObject.SetActive(true);
+                Model.SetActive(true);
         }
 
         /// <summary>

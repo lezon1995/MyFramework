@@ -12,7 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb4e6f4626e14ce988bbce44e5e5156d, type: 3}
   m_Name: 3x1_Antlion
   m_EditorClassIdentifier: HotFix::MoreMountains.BrickDef
+  Type: 1
   Size: {x: 3, y: 1}
   UnitIcon: {fileID: 21300000, guid: c0c7307a83b7d204b93171ec61d49cb6, type: 3}
   BlockIcon: {fileID: 21300000, guid: 3d56b7d7a27adb5469f313ac41fc2e2f, type: 3}
   StatsTemplate: {fileID: 11400000, guid: 561b606093c7bcd478763d9632cb7499, type: 2}
+  PrefabName: 
+  BonusHealthPerWave: 24
+  BonusDamagePerWave: 0.5
+  BonusMoveSpeedPerWave: 6
+  BonusArmorPerWave: 3
+  BonusKnockbackResistPerWave: 0.03
+  BossHealthBarSize: {x: 600, y: 50}

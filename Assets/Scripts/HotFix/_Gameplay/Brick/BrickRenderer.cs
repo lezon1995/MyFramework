@@ -21,21 +21,21 @@ namespace MoreMountains
         static int BrickDie_2 = Animator.StringToHash("BrickDie_2");
         static int BrickDie_3 = Animator.StringToHash("BrickDie_3");
 
-        Brick brick;
+        protected Brick brick;
 
         Transform root;
         Animator animator;
         SortingGroup sortingGroup;
         SpriteRenderer spriteBlock, spriteUnit, spriteShadow;
         ParticleSystem fxDodge;
-        
+
         SpriteRenderer spriteShield;
         TextMeshPro shieldAmount;
 
         Material matBlock, matUnit;
         Timer flashRemainSeconds;
 
-        HealthBar healthBar;
+        protected HealthBar healthBar;
         BrickAnimationReceiver receiver;
         AnimationState curAnimation;
         Action onBornAnimationComplete;
@@ -72,9 +72,16 @@ namespace MoreMountains
             obj.find(out shieldAmount, "ShieldAmount");
             spriteShield.gameObject.SetActive(false);
             shieldAmount.gameObject.SetActive(false);
+            SetupHealthBar(obj);
+        }
+
+        protected virtual void SetupHealthBar(GameObject obj)
+        {
             if (obj.find(out Transform h, "HealthBar"))
             {
-                healthBar = new(h);
+                h.find<DamageChunkHealthBarRenderer>(out var barRenderer, "HealthBarRenderer");
+                h.find<TextMeshPro>(out var health, "Health");
+                healthBar = new(h, barRenderer, health);
             }
         }
 
@@ -115,12 +122,8 @@ namespace MoreMountains
         {
             spriteUnit.sprite = s;
         }
-        
-        public void setHealthBarActive(bool active)
-        {
-            healthBar.setActive(active);
-        }
 
+        public void setHealthBarActive(bool active) => healthBar.setActive(active);
         public void refreshHealthByDamage(int v, int max) => healthBar.refreshByDamage(v, max);
         public void refreshHealthByHealing(int v, int max) => healthBar.refreshByHealing(v, max);
         public void refreshHealthByBorn(int v, int max) => healthBar.refreshByBorn(v, max);
@@ -320,17 +323,17 @@ namespace MoreMountains
         }
 
 
-        class HealthBar
+        public class HealthBar
         {
             Transform transform;
-            DamageChunkHealthBarRenderer barRenderer;
-            TextMeshPro health;
+            IHealthBarRenderer barRenderer;
+            TMP_Text health;
 
-            public HealthBar(Transform t)
+            public HealthBar(Transform t, IHealthBarRenderer renderer, TMP_Text healthText)
             {
                 transform = t;
-                t.find(out barRenderer, "HealthBarRenderer");
-                t.find(out health, "Health");
+                barRenderer = renderer;
+                health = healthText;
             }
 
             public void setActive(bool active)
@@ -405,6 +408,7 @@ namespace MoreMountains
             matBlock.SetFloat(FrozenFade, fade);
             matUnit.SetFloat(FrozenFade, fade);
         }
+
         public void setFrostEffect(float f)
         {
             matBlock.SetFloat(FrozenFade, f);
@@ -415,6 +419,15 @@ namespace MoreMountains
         {
             fxDodge.Play();
             new DodgeChanceTextEvent(false, brick.transform).trigger();
+        }
+
+        public void onBrickDefSet(BrickDef def)
+        {
+            SetupHealthBarSize(def);
+        }
+
+        protected virtual void SetupHealthBarSize(BrickDef def)
+        {
         }
     }
 }

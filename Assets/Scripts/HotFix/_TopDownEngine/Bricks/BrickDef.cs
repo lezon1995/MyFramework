@@ -1,3 +1,4 @@
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace MoreMountains
@@ -10,11 +11,15 @@ namespace MoreMountains
         public Sprite UnitIcon;
         public Sprite BlockIcon;
         public BrickStatsTemplate StatsTemplate;
+        public string PrefabName;
 
         public float BonusHealthPerWave = 5;
         public float BonusDamagePerWave = 0.5F;
         public float BonusMoveSpeedPerWave = 10F;
         public float BonusArmorPerWave = 3F;
         public float BonusKnockbackResistPerWave = 0.03F;
+
+        [ShowIf("@this.Type == SpawnEnemyType.Boss")]
+        public Vector2 BossHealthBarSize = new(600F, 50F);
     }
 }

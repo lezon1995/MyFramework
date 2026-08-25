@@ -24,6 +24,69 @@ namespace MoreMountains
 
             DamageEnabled();
         }
+        
+        float healthPerSecondAccumulated;
+        float damagePerSecondAccumulated;
+        
+        protected override void UpdateHealthRegen(float dt)
+        {
+            var regen = healthRegen;
+            var absRegen = regen.abs();
+            if (regen > 0)
+            {
+                var healthEveryXSeconds = 11.25F / (1.25F + absRegen);
+                if (healthEveryXSeconds >= 1)
+                {
+                    _timeElapsed += dt;
+                    if (_timeElapsed >= healthEveryXSeconds)
+                    {
+                        _timeElapsed -= healthEveryXSeconds;
+                        ReceiveHealth(Heal.Fixed(1), source: Character);
+                    }
+                }
+                else
+                {
+                    var healthPerSecond = absRegen / 11.25F + 1 / 9F;
+                    healthPerSecondAccumulated += healthPerSecond * dt;
+                    _timeElapsed += dt;
+                    if (_timeElapsed >= 1F)
+                    {
+                        _timeElapsed -= 1F;
+                        var heal = (int)healthPerSecondAccumulated;
+                        healthPerSecondAccumulated -= heal;
+                        ReceiveHealth(Heal.Fixed(heal), source: Character);
+                    }
+                }
+            }
+            else if (regen < 0)
+            {
+                var damageEveryXSeconds = 11.25F / (1.25F + absRegen);
+                if (damageEveryXSeconds >= 1)
+                {
+                    _timeElapsed += dt;
+                    if (_timeElapsed >= damageEveryXSeconds)
+                    {
+                        _timeElapsed -= damageEveryXSeconds;
+                        var dmg = Dmg.True(1).setTriggerEffect(false);
+                        Damage(ref dmg, gameObject, player, 0, Vector3.up);
+                    }
+                }
+                else
+                {
+                    var damagePerSecond = absRegen / 11.25F + 1 / 9F;
+                    damagePerSecondAccumulated += damagePerSecond * dt;
+                    _timeElapsed += dt;
+                    if (_timeElapsed >= 1F)
+                    {
+                        _timeElapsed -= 1F;
+                        var damage = (int)damagePerSecondAccumulated;
+                        damagePerSecondAccumulated -= damage;
+                        var dmg = Dmg.True(damage).setTriggerEffect(false);
+                        Damage(ref dmg, gameObject, player, 0, Vector3.up);
+                    }
+                }
+            }
+        }
 
         public override void ResetHealthToMaxHealth()
         {

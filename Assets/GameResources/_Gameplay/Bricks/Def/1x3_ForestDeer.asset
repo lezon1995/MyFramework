@@ -12,7 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb4e6f4626e14ce988bbce44e5e5156d, type: 3}
   m_Name: 1x3_ForestDeer
   m_EditorClassIdentifier: HotFix::MoreMountains.BrickDef
+  Type: 1
   Size: {x: 1, y: 3}
   UnitIcon: {fileID: 21300000, guid: 570051d39c552f049a5db7fadef42e05, type: 3}
   BlockIcon: {fileID: 1036095777, guid: 0d05f5c6c7295ed4191abd39fa6fee80, type: 3}
   StatsTemplate: {fileID: 11400000, guid: ca331b9fc9af7f7439794471026a5e7d, type: 2}
+  PrefabName: 
+  BonusHealthPerWave: 24
+  BonusDamagePerWave: 0.5
+  BonusMoveSpeedPerWave: 6
+  BonusArmorPerWave: 3
+  BonusKnockbackResistPerWave: 0.03
+  BossHealthBarSize: {x: 600, y: 50}

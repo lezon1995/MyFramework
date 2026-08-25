@@ -278,7 +278,7 @@ public class UGUIDragViewLoop<T, DataType> : WindowObjectUGUI, IDragViewLoop whe
 		mLastEndItemIndex = endItemIndex;
 	}
 	// 滑动列表的tick
-	public void updateDragView()
+	public void updateDragView(float dt)
 	{
 		// 这一帧Content移动过位置,就需要刷新显示
 		if (!mContent.getPosition().isEqual(mLastRefreshedContentPos))
@@ -290,7 +290,7 @@ public class UGUIDragViewLoop<T, DataType> : WindowObjectUGUI, IDragViewLoop whe
 		{
 			foreach (T item in mDisplayItemPool.getUsedList())
 			{
-				item.update();
+				item.update(dt);
 			}
 		}
 	}

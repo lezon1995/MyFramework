@@ -79,6 +79,7 @@ public abstract class WindowObjectT<T> : WindowObjectBase where T : myUGUIObject
 	public T getRoot() { return mRoot; }
 	public Vector3 getPosition() { return mRoot.getPosition(); }
 	public Vector2 getSize() { return mRoot.getSize(); }
+	public void setSize(Vector2 size) { mRoot.setSize(size); }
 	public int getSibling()
 	{
 		checkRoot();

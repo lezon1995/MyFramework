@@ -26,7 +26,8 @@ namespace MoreMountains
             Up
         }
 
-        [Header("Movement")] [Tooltip("if true, the projectile will rotate at initialization towards its rotation")]
+        [Header("Movement")]
+        [Tooltip("if true, the projectile will rotate at initialization towards its rotation")]
         public bool FaceDirection = true;
 
         [Tooltip("if true, the projectile will rotate towards movement")]
@@ -34,7 +35,8 @@ namespace MoreMountains
 
         public bool ManuallyColliding;
 
-        [Tooltip("if FaceMovement is true, the projectile's vector specified below will be aligned to the movement vector, usually you'll want to go with Forward in 3D, Right in 2D")] [ShowIf(nameof(FaceMovement))]
+        [Tooltip("if FaceMovement is true, the projectile's vector specified below will be aligned to the movement vector, usually you'll want to go with Forward in 3D, Right in 2D")]
+        [ShowIf(nameof(FaceMovement))]
         public MovementVectors movementVector = MovementVectors.Right;
 
         [Tooltip("the speed of the object (relative to the level's speed), 米/秒")]
@@ -63,7 +65,9 @@ namespace MoreMountains
         [Tooltip("set this to true if your projectile's model (or sprite) is facing right, false otherwise")]
         public bool ProjectileIsFacingRight = true;
 
-        [Header("Spawn")] [MMInformation("Here you can define an initial delay (in seconds) during which this object won't take or cause damage. This delay starts when the object gets enabled. You can also define whether the projectiles should damage their owner (think rockets and the likes) or not")] [Tooltip("the initial delay during which the projectile can't be destroyed")]
+        [Header("Spawn")]
+        [MMInformation("Here you can define an initial delay (in seconds) during which this object won't take or cause damage. This delay starts when the object gets enabled. You can also define whether the projectiles should damage their owner (think rockets and the likes) or not")]
+        [Tooltip("the initial delay during which the projectile can't be destroyed")]
         public float InitialInvincibleDuration;
 
         [Tooltip("should the projectile damage its owner?")]
@@ -311,7 +315,6 @@ namespace MoreMountains
             _weapon = newWeapon;
             if (_weapon && _weapon.Stats)
             {
-                
             }
         }
 

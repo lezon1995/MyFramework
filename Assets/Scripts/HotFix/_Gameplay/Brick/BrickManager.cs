@@ -546,10 +546,20 @@ namespace MoreMountains
                 return null;
             }
 
+            Brick brick;
             var size = def.Size;
-            var path = $"{GAMEPLAY_PATH}/Bricks/Brick_{size.x}x{size.y}.prefab";
-            var o = prefabPool.createObject(path);
-            o.TryGetComponent<Brick>(out var brick);
+            if (def.Type == SpawnEnemyType.Boss)
+            {
+                var path = $"{GAMEPLAY_PATH}/Bricks/{def.PrefabName}.prefab";
+                var o = prefabPool.createObject(path);
+                o.TryGetComponent(out brick);
+            }
+            else
+            {
+                var path = $"{GAMEPLAY_PATH}/Bricks/Brick_{size.x}x{size.y}.prefab";
+                var o = prefabPool.createObject(path);
+                o.TryGetComponent(out brick);
+            }
 
             var countAll = brickPools[def].CountAll;
             brick.setBrickDef(def);
