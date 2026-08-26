@@ -126,6 +126,8 @@ namespace MoreMountains
             {
                 _collider2D.enabled = true;
             }
+            
+            _controller.MovementDisabled = false;
 
             Character.conditionState?.ChangeState(Character.Conditions.Normal);
         }
@@ -608,6 +610,8 @@ namespace MoreMountains
 
             if (DisableControllerOnDeath)
                 _controller.enabled = false;
+
+            _controller.MovementDisabled = true;
 
             if (DisableModelOnDeath && Model)
                 Model.SetActive(false);

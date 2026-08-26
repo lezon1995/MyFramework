@@ -383,7 +383,7 @@ namespace MoreMountains
         {
             _solidColliders.Clear();
 
-            var colliders = FindObjectsByType<VolumeCollider>(FindObjectsSortMode.None);
+            var colliders = FindObjectsByType<VolumeCollider>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
             foreach (var col in colliders)
             {
                 if (col.IsEnabled() && col.AutoRegister)

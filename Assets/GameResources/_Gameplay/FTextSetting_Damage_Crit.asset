@@ -27,8 +27,8 @@ MonoBehaviour:
     color: {r: 0.3, g: 1, b: 0.3, a: 1}
   ContentScale: 1.3
   StartSequenceDuration: 0.12
-  StaticDuration: 0.2
-  FloatingDuration: 0.3
+  StaticDuration: 0.4
+  FloatingDuration: 0.2
   FinishSequenceDuration: 0
   StartScaleCurve:
     serializedVersion: 2

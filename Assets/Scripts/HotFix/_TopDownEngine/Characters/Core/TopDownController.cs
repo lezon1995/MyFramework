@@ -59,7 +59,7 @@ namespace MoreMountains
 
         protected virtual void Awake()
         {
-            Character = GetComponent<Character>();
+            TryGetComponent(out Character);
             CurrentDirection = transform.forward;
             _lastPosition = transform.position;
         }
