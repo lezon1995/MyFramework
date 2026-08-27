@@ -14,6 +14,13 @@ namespace MoreMountains
         HolderMissing,
     }
 
+    public enum BallItemUpgradeResult
+    {
+        None,
+        Vanished,
+        Downgraded,
+    }
+
     /// <summary>
     /// 球升级服务 —— X 个同种同等级 → 1 个同种 Level+1。
     /// 由 BallManagementSystem 持有；UI / Command 调它。
@@ -27,6 +34,49 @@ namespace MoreMountains
         {
             _owner = owner;
         }
+
+        public bool CanUpgradeWith(BallItem src, BallItem dst)
+        {
+            if (dst == null || src == null)
+                return false;
+
+            if (dst == src)
+                return false;
+
+            if (dst.Type != src.Type)
+                return false;
+
+            if (dst.isMaxLevel() || src.isMaxLevel())
+                return false;
+
+            return true;
+        }
+
+        public bool TryUpgradeWith(BallInventorySlot src, BallInventorySlot dst, out BallItemUpgradeResult srcResult)
+        {
+            srcResult = BallItemUpgradeResult.None;
+            if (!CanUpgradeWith(src.Item, dst.Item))
+                return false;
+
+            var toLevel = dst.Item.Level + src.Item.Level;
+            var maxLevel = dst.Item.getMaxLevel();
+            if (toLevel <= maxLevel)
+            {
+                dst.Item.Level = toLevel;
+                src.Item.Level = 0;
+                srcResult = BallItemUpgradeResult.Vanished;
+            }
+            else
+            {
+                var targetLevel = toLevel - maxLevel;
+                dst.Item.Level = maxLevel;
+                src.Item.Level = targetLevel;
+                srcResult = BallItemUpgradeResult.Downgraded;
+            }
+
+            return true;
+        }
+
 
         /// <summary>
         /// 尝试升级。
@@ -159,13 +209,13 @@ namespace MoreMountains
             return upgraded;
         }
 
-        BallItem Fail(BallItem b, string why)
+        static BallItem Fail(BallItem b, string why)
         {
             logWarning($"BallUpgradeService: invalid ({why}) on def {b?.Type} lv {b?.Level}");
             return null;
         }
 
-        BallItem Fail(string why)
+        static BallItem Fail(string why)
         {
             logWarning($"BallUpgradeService: invalid ({why})");
             return null;

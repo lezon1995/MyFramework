@@ -13,6 +13,7 @@ namespace MoreMountains
     {
         public int BallDefId => (int)Type;
         public BallType Type;
+        public TagInfo TagInfo;
 
         [Header("Price")]
         public int BasePrice = 10; // 商店售价 / 售出回收基于它
@@ -44,28 +45,31 @@ namespace MoreMountains
 
         public MetaHandleWeapon MetaHandleWeapon;
 
-        public static void BuildDescription(MyStringBuilder sb, BallDef def, APlayer p = null)
+        public static void BuildDescription(MyStringBuilder sb, BallItem item, APlayer p = null)
         {
+            var def = item.Def;
             var configs = def.StatsTemplate.Configs;
+            var levelInitialValues = def.StatsTemplate.LevelInitialValues;
 
-            build_HitDamage(sb, configs, p);
-            build_AttackSpeed(sb, configs, p);
-            build_Knockback(sb, configs, p);
-            // build_BallisticSpeed(sb, configs, p);
-            build_Crit(sb, configs, p);
-            // build_HitEffectChance(sb, configs, p);
-            build_Duration(sb, configs, p);
-            build_DisplayDescription(sb, def, p);
+            build_HitDamage(sb, item, configs, levelInitialValues, p);
+            build_AttackSpeed(sb, item, configs, levelInitialValues, p);
+            build_Knockback(sb, item, configs, levelInitialValues, p);
+            // build_BallisticSpeed(sb, item, configs, levelInitialValues, p);
+            build_Crit(sb, item, configs, levelInitialValues, p);
+            // build_HitEffectChance(sb, item, configs, levelInitialValues, p);
+            build_Duration(sb, item, configs, levelInitialValues, p);
+            build_DisplayDescription(sb, item, p);
         }
 
-        static void build_DisplayDescription(MyStringBuilder sb, BallDef def, APlayer p = null)
+        static void build_DisplayDescription(MyStringBuilder sb, BallItem item, APlayer p = null)
         {
+            var def = item.Def;
             sb.addLine();
             var localizedString = def.DisplayDescription.GetLocalizedString();
             sb.add(localizedString);
         }
 
-        static void build_Duration(MyStringBuilder sb, Dictionary<string, float> configs, APlayer p = null)
+        static void build_Duration(MyStringBuilder sb, BallItem item, Dictionary<string, float> configs, Dictionary<string, float[]> initialLevelValues, APlayer p = null)
         {
             //持续时间
             {
@@ -75,13 +79,18 @@ namespace MoreMountains
                 sb.add(statName.color(universalColor.statEntry), " : ");
 
                 var ballDuration = configs.get(statKey);
+                if (initialLevelValues.TryGetValue(statKey, out var values))
+                {
+                    ballDuration = values.get(item.levelIndex);
+                }
+
                 UniStats.Stat playerDuration = null;
                 if (p)
                 {
                     playerDuration = p.GetStat(Character.Stat.Duration);
                 }
 
-                var duration = ballDuration * (1F + ( playerDuration?.Value ?? 0F));
+                var duration = ballDuration * (1F + (playerDuration?.Value ?? 0F));
                 if (playerDuration is { BonusValue: > 0 })
                 {
                     sb.add(duration.FToS(1).color(universalColor.enhanced), "s");
@@ -95,7 +104,7 @@ namespace MoreMountains
             }
         }
 
-        static void build_HitEffectChance(MyStringBuilder sb, Dictionary<string, float> configs, APlayer p = null)
+        static void build_HitEffectChance(MyStringBuilder sb, BallItem item, Dictionary<string, float> configs, Dictionary<string, float[]> initialLevelValues, APlayer p = null)
         {
             //撞击特效概率
             {
@@ -105,6 +114,11 @@ namespace MoreMountains
                 sb.add(statName.color(universalColor.statEntry), " : ");
 
                 var ballHitEffectChance = configs.get(statKey);
+                if (initialLevelValues.TryGetValue(statKey, out var values))
+                {
+                    ballHitEffectChance = values.get(item.levelIndex);
+                }
+
                 UniStats.Stat playerHitEffectChance = null;
                 if (p)
                 {
@@ -125,7 +139,7 @@ namespace MoreMountains
             }
         }
 
-        static void build_Crit(MyStringBuilder sb, Dictionary<string, float> configs, APlayer p = null)
+        static void build_Crit(MyStringBuilder sb, BallItem item, Dictionary<string, float> configs, Dictionary<string, float[]> initialLevelValues, APlayer p = null)
         {
             //暴击
             {
@@ -136,7 +150,15 @@ namespace MoreMountains
                 var statCritChance = Ball.Stat.CritChance.Key();
                 var statCritDamage = Ball.Stat.CritDamage.Key();
                 var ballCritChance = configs.get(statCritChance);
+                if (initialLevelValues.TryGetValue(statCritChance, out var values1))
+                {
+                    ballCritChance = values1.get(item.levelIndex);
+                }
                 var ballCritDamage = configs.get(statCritDamage);
+                if (initialLevelValues.TryGetValue(statCritDamage, out var values2))
+                {
+                    ballCritDamage = values2.get(item.levelIndex);
+                }
 
                 UniStats.Stat playerCritChance = null;
                 UniStats.Stat playerCritDamage = null;
@@ -171,7 +193,7 @@ namespace MoreMountains
             }
         }
 
-        static void build_BallisticSpeed(MyStringBuilder sb, Dictionary<string, float> configs, APlayer p = null)
+        static void build_BallisticSpeed(MyStringBuilder sb, BallItem item, Dictionary<string, float> configs, Dictionary<string, float[]> initialLevelValues, APlayer p = null)
         {
             //弹道速度
             {
@@ -181,6 +203,11 @@ namespace MoreMountains
                 sb.add(statName.color(universalColor.statEntry), " : ");
 
                 var ballBallisticSpeed = configs.get(statKey);
+                if (initialLevelValues.TryGetValue(statKey, out var values))
+                {
+                    ballBallisticSpeed = values.get(item.levelIndex);
+                }
+
                 UniStats.Stat playerBallisticSpeed = null;
                 if (p)
                 {
@@ -201,7 +228,7 @@ namespace MoreMountains
             }
         }
 
-        static void build_Knockback(MyStringBuilder sb, Dictionary<string, float> configs, APlayer p = null)
+        static void build_Knockback(MyStringBuilder sb, BallItem item, Dictionary<string, float> configs, Dictionary<string, float[]> initialLevelValues, APlayer p = null)
         {
             //击退
             {
@@ -211,6 +238,11 @@ namespace MoreMountains
                 sb.add(statName.color(universalColor.statEntry), " : ");
 
                 var ballKnockback = configs.get(statKey);
+                if (initialLevelValues.TryGetValue(statKey, out var values))
+                {
+                    ballKnockback = values.get(item.levelIndex);
+                }
+
                 UniStats.Stat playerKnockback = null;
                 if (p)
                 {
@@ -231,7 +263,7 @@ namespace MoreMountains
             }
         }
 
-        static void build_AttackSpeed(MyStringBuilder sb, Dictionary<string, float> configs, APlayer p = null)
+        static void build_AttackSpeed(MyStringBuilder sb, BallItem item, Dictionary<string, float> configs, Dictionary<string, float[]> initialLevelValues, APlayer p = null)
         {
             //攻击速度
             {
@@ -241,6 +273,11 @@ namespace MoreMountains
                 sb.add(statName.color(universalColor.statEntry), " : ");
 
                 var ballAttackSpeed = configs.get(statKey);
+                if (initialLevelValues.TryGetValue(statKey, out var values))
+                {
+                    ballAttackSpeed = values.get(item.levelIndex);
+                }
+                
                 UniStats.Stat playerAttackSpeed = null;
                 if (p)
                 {
@@ -264,7 +301,7 @@ namespace MoreMountains
             }
         }
 
-        static void build_HitDamage(MyStringBuilder sb, Dictionary<string, float> configs, APlayer p = null)
+        static void build_HitDamage(MyStringBuilder sb, BallItem item, Dictionary<string, float> configs, Dictionary<string, float[]> initialLevelValues, APlayer p = null)
         {
             //撞击伤害
             {
@@ -275,6 +312,11 @@ namespace MoreMountains
                 sb.add(statName.color(universalColor.statEntry), " : ");
 
                 var rawHitDamage = configs.get(statKey);
+                if (initialLevelValues.TryGetValue(statKey, out var values))
+                {
+                    rawHitDamage = values.get(item.levelIndex);
+                }
+                
                 var ballDmgRate = configs.get(statBallDmgRate);
                 var statHitDamageRate = Ball.Stat.HitDamageRate.Key();
                 var hitDamageRate = configs.get(statHitDamageRate);

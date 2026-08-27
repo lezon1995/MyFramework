@@ -37,6 +37,8 @@ namespace UniStats
         static IOperator<T> op = Mod.GetOperator<T>();
         public string Name { get; set; }
 
+        public Attr<T> InitialOverride { get; }
+
         public Attr<T> BonusFlat { get; }
         public Attr<T> BonusPct { get; }
         public Attr<T> BonusRatio { get; }
@@ -49,6 +51,8 @@ namespace UniStats
         public Stat(T initial, T bonusRatio)
         {
             Initial = initial;
+            InitialOverride = new();
+
             BonusFlat = new();
             BonusPct = new();
             BonusRatio = new(bonusRatio);
@@ -124,7 +128,6 @@ namespace UniStats
             var bonusRatio = BonusRatio.Value;
 
             var initial = Initial;
-            _initial = initial;
             var realBonus = op.Add(bonusFlat, op.Mul(initial, bonusPct));
             realBonus = op.Mul(realBonus, bonusRatio);
             var v = op.Add(initial, realBonus);

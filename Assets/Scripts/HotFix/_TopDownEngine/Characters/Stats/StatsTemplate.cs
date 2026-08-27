@@ -28,6 +28,7 @@ namespace MoreMountains
         Dictionary<string, float> ratios { get; }
         bool TryGetDisplayConfig(string statName, out DisplayConfig c);
         bool TryGetStatDef(string statKey, out StatDef def);
+        bool TryGetInitialValues(string statName, out float[] initialValues);
     }
 
     public abstract class StatsTemplate : SerializedScriptableObject, IStatsTemplate
@@ -44,26 +45,32 @@ namespace MoreMountains
         [DictionaryDrawerSettings(KeyLabel = "Stat", ValueLabel = "Ratio")]
         public Dictionary<string, float> Ratios = new();
 
-        List<string> names = new();
+        protected List<string> names = new();
 
         public List<StatDef> StatDefs = new();
 
-        void Awake()
+        [DictionaryDrawerSettings(KeyLabel = "Stat", ValueLabel = "Initial")]
+        public Dictionary<string, float[]> LevelInitialValues = new();
+
+        protected virtual void Awake()
         {
             FillConfigs();
+            FillLevelInitialValues();
         }
 
-        void OnEnable()
+        protected virtual void OnEnable()
         {
             FillConfigs();
+            FillLevelInitialValues();
         }
 
-        void OnValidate()
+        protected virtual void OnValidate()
         {
             FillConfigs();
+            FillLevelInitialValues();
         }
 
-        void FillConfigs()
+        protected virtual void FillConfigs()
         {
             var enumerable = GetNames();
             using var enumerator = enumerable.GetEnumerator();
@@ -85,7 +92,13 @@ namespace MoreMountains
             }
         }
 
+        protected virtual void FillLevelInitialValues()
+        {
+        }
+
         protected abstract IEnumerable<string> GetNames();
+
+        protected virtual string[] GetLevelInitialNames() => null;
 
         public bool TryGetDisplayConfig(string statName, out DisplayConfig c)
         {
@@ -111,6 +124,11 @@ namespace MoreMountains
 
             def = null;
             return false;
+        }
+
+        public bool TryGetInitialValues(string statName, out float[] initialValues)
+        {
+            return LevelInitialValues.TryGetValue(statName, out initialValues);
         }
     }
 

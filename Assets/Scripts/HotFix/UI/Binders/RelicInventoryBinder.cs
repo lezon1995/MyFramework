@@ -15,8 +15,8 @@ namespace MoreMountains
     {
         RelicInventoryView _view;
         RelicBag _bag;
-
         RelicItem _selected;
+        APlayer _player;
 
         public RelicInventoryBinder(RelicInventoryView view)
         {
@@ -26,17 +26,19 @@ namespace MoreMountains
         public RelicItem SelectedRelic => _selected;
         /// <summary>背包视图。</summary>
         public RelicInventoryView View => _view;
+        public APlayer Player => _player;
         public event Action<RelicItem /*selected*/> RelicSelected;
         public event Action<RelicItem> SellRequested;
 
         /// <summary>当前挂载的 RelicBag,供子模块(如操作状态)读取。</summary>
         public RelicBag Bag => _bag;
 
-        public void Attach(RelicBag bag)
+        public void Attach(APlayer p, RelicBag bag)
         {
             if (_bag != null)
                 Detach();
 
+            _player = p;
             _bag = bag ?? throw new ArgumentNullException(nameof(bag));
             _view.SetTitle("RELICS");
             _bag.OnItemAdded += OnBagItemAdded;
@@ -55,6 +57,7 @@ namespace MoreMountains
             _bag.OnBagChanged -= OnBagAnyChanged;
             _bag = null;
             _selected = null;
+            _player = null;
         }
 
         void OnBagItemAdded(RelicItem _) => Rebuild();

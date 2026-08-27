@@ -16,6 +16,8 @@ public partial class BallInventoryItem : IBallOperationTarget
     public bool isOccupied => ballInventorySlot.IsOccupied;
     public myUGUIButton Btn => btn;
     public BallInventorySlot Slot => ballInventorySlot;
+    public BallItem Item => ballInventorySlot.Item;
+
     public GameObject ItemGO => mRoot.getGameObject();
     public void SetSelected(bool on) => focus?.setActive(on);
 
@@ -26,10 +28,10 @@ public partial class BallInventoryItem : IBallOperationTarget
 
     public void SetIconVisible(bool on) => icon?.setActive(on);
 
-    public void SetBallDef(BallDef def)
+    public void SetBallItem(BallItem item)
     {
-        tooltipTrigger.setBallDef(def);
-        tooltipTrigger.setBallTooltipItem(slotBinder.View.BallTooltipItem);
+        tooltipTrigger.setBallItem(item);
+        tooltipTrigger.setBallTooltipItem(inventoryBinder.View.BallTooltipItem);
     }
 
     public void SetBallIcon(Sprite s)
@@ -136,6 +138,19 @@ public partial class BallInventoryItem : IBallOperationTarget
         highlightHovered?.setActive(_highlightVisible && _highlightHoveredVisible);
     }
 
+    public void RefreshUpgradeVisual(IBallOperationTarget source, bool visible)
+    {
+        if (visible)
+        {
+            var canUpgrade = inventoryBinder.Player.BallManagement.Upgrade.CanUpgradeWith(Slot.Item, source.Item);
+            upgrade.setActive(canUpgrade);
+        }
+        else
+        {
+            upgrade.setActive(false);
+        }
+    }
+
     public void ExecuteOperation(IItemOperationTarget hoveredTarget)
     {
         var source = BallOperationStateManager.Instance.CurrentSource;
@@ -167,7 +182,7 @@ public partial class BallInventoryItem : IBallOperationTarget
 
             if (hoveredTarget is BallInventoryItem targetInv)
             {
-                var targetBag = slotBinder?.Bag;
+                var targetBag = inventoryBinder?.Bag;
                 if (targetBag == null)
                     return;
 
@@ -184,7 +199,7 @@ public partial class BallInventoryItem : IBallOperationTarget
                 }
 
                 srcSlot.slotBinder?.Rebuild();
-                slotBinder?.Rebuild();
+                inventoryBinder?.Rebuild();
                 return;
             }
 
@@ -224,7 +239,7 @@ public partial class BallInventoryItem : IBallOperationTarget
             if (srcIdx < 0)
                 return;
 
-            var srcBag = slotBinder?.Bag;
+            var srcBag = inventoryBinder?.Bag;
             var srcBall = srcBag != null && srcIdx < srcBag.SlotList.Count
                 ? srcBag.SlotList[srcIdx].Item
                 : null;
@@ -256,7 +271,7 @@ public partial class BallInventoryItem : IBallOperationTarget
                     srcBag.SlotList[srcIdx].Set(null);
                 }
 
-                slotBinder?.Rebuild();
+                inventoryBinder?.Rebuild();
                 targetSlot.slotBinder?.Rebuild();
                 return;
             }
@@ -268,14 +283,34 @@ public partial class BallInventoryItem : IBallOperationTarget
                     return;
 
                 if (dstInv.isOccupied)
-                    srcBag.Swap(srcIdx, dstIdx);
+                {
+                    if (inventoryBinder.Player.BallManagement.Upgrade.TryUpgradeWith(srcInv.Slot, dstInv.Slot, out var srcResult))
+                    {
+                        switch (srcResult)
+                        {
+                            case BallItemUpgradeResult.Vanished:
+                                BallItem.Release(srcInv.Slot.Item);
+                                srcInv.Slot.Set(null);
+                                break;
+                            case BallItemUpgradeResult.Downgraded:
+                                inventoryBinder.Bag.OnSlotItemDowngraded?.Invoke(srcInv.Slot);
+                                break;
+                        }
+
+                        inventoryBinder.Bag.OnSlotItemUpgraded?.Invoke(dstInv.Slot);
+                    }
+                    else
+                    {
+                        srcBag.Swap(srcIdx, dstIdx);
+                    }
+                }
                 else
                 {
                     srcBag.SlotList[srcIdx].Set(null);
-                    slotBinder?.Bag?.AddAt(dstIdx, srcBall);
+                    inventoryBinder?.Bag?.AddAt(dstIdx, srcBall);
                 }
 
-                slotBinder?.Rebuild();
+                inventoryBinder?.Rebuild();
             }
         }
     }

@@ -256,6 +256,8 @@ namespace MoreMountains
 
     public interface IBallOperationTarget : IItemOperationTarget
     {
+        BallItem Item { get; }
+        void RefreshUpgradeVisual(IBallOperationTarget source, bool visible);
         void ExecuteOperation(IItemOperationTarget hoveredTarget);
     }
 
@@ -268,6 +270,23 @@ namespace MoreMountains
     /// </summary>
     public class BallOperationTargetBridge : ItemOperationTargetBridge
     {
+        protected override void OnHighlightChanged(IItemOperationTarget source, bool visible)
+        {
+            Target?.SetHighlightVisible(visible);
+            if (visible && source == Target)
+            {
+                Target?.SetHovered(true);
+            }
+
+            if (Target is IBallOperationTarget ballTarget && source is IBallOperationTarget ballSource)
+            {
+                if (ballTarget != ballSource)
+                {
+                    ballTarget.RefreshUpgradeVisual(ballSource, visible);
+                }
+            }
+        }
+
         void OnEnable()
         {
             BallOperationStateManager.BroadcastHighlightEvent += OnHighlightChanged;
@@ -283,7 +302,7 @@ namespace MoreMountains
     {
         public IItemOperationTarget Target;
 
-        protected void OnHighlightChanged(IItemOperationTarget source, bool visible)
+        protected virtual void OnHighlightChanged(IItemOperationTarget source, bool visible)
         {
             Target?.SetHighlightVisible(visible);
             if (visible && source == Target)

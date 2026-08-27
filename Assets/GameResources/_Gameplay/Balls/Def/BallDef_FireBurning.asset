@@ -13,6 +13,10 @@ MonoBehaviour:
   m_Name: BallDef_FireBurning
   m_EditorClassIdentifier: HotFix::MoreMountains.BallDef
   Type: 10700
+  TagInfo:
+    MechanicTags: 
+    StatusTags: 
+    AmplifierTags: 
   BasePrice: 4
   MaxLevel: 3
   UpgradeCombineCount: 2
@@ -41,6 +45,7 @@ MonoBehaviour:
     m_FallbackState: 0
     m_WaitForCompletion: 0
     m_LocalVariables: []
+  MetaHandleWeapon: {fileID: 0}
   references:
     version: 2
     RefIds: []

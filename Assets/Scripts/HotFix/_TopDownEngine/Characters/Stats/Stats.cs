@@ -57,6 +57,8 @@ namespace MoreMountains
         public UniStats.Stat StatAP;
         public UniStats.Stat StatAF;
         MMObservable<bool> IsBonusAdOverAp;
+        public Func<int> LevelGetter { get; set; }
+        public Dictionary<string, UniStats.Stat> AllStats => _stats;
 
         void Awake()
         {
@@ -144,20 +146,25 @@ namespace MoreMountains
 
                     stat = new(initial, ratio);
                     _stats[statName] = stat;
-                    stat.Name = statName;
-                    stat.Event.Add(Action);
 
+                    if (_statsTemplate.TryGetInitialValues(statName, out var initialValues))
+                    {
+                        stat.InitialGetter = () => stat.InitialOverride.Value;
+                        stat.InitialOverride.AddFunc(f =>
+                        {
+                            var level = LevelGetter?.Invoke() ?? 1;
+                            var levelIndex = level - 1;
+                            return initialValues[levelIndex];
+                        });
+                    }
+
+                    stat.Name = statName;
                     _statsTemplate.TryGetDisplayConfig(statName, out var displayConfig);
                     stat.DisplayValueGetter = () => displayConfig.displayValue(stat.Value);
 
                     if (_statsTemplate.TryGetStatDef(statName, out var statDef))
                     {
                         stat.DisplayIcon = statDef.Icon;
-                    }
-
-                    void Action(float pre, float cur)
-                    {
-                        // UnityEngine.Debug.Log($"{statName} {pre:F2} -> {cur:F2}");
                     }
 
                     switch (statName)

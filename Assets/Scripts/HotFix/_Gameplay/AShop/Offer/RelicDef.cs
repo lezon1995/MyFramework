@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using UnityEngine.Localization;
 
@@ -13,6 +12,7 @@ namespace MoreMountains
     public sealed class RelicDef : ScriptableObject, IRarityObject
     {
         public RelicType Type;
+        public TagInfo TagInfo;
         public int RelicDefId => (int)Type;
         public string RelicName => Type.ToString();
         public int BasePrice = 50; // 商店售价

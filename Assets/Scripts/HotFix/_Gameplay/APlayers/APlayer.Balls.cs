@@ -74,6 +74,26 @@ namespace MoreMountains
             }
         }
 
+        public void OnBallInventorySlotItemUpgraded(BallInventorySlot slot)
+        {
+            var handleWeapon = mainHandleWeapons[slot.Index];
+            if (handleWeapon.CurrentWeapon is BallGunWeapon ballGunWeapon)
+            {
+                var ballLevel = slot.Item == null ? 0 : slot.Item.Level;
+                ballGunWeapon.SetBallLevel(ballLevel);
+            }
+        }
+
+        public void OnBallInventorySlotItemDowngraded(BallInventorySlot slot)
+        {
+            var handleWeapon = mainHandleWeapons[slot.Index];
+            if (handleWeapon.CurrentWeapon is BallGunWeapon ballGunWeapon)
+            {
+                var ballLevel = slot.Item == null ? 0 : slot.Item.Level;
+                ballGunWeapon.SetBallLevel(ballLevel);
+            }
+        }
+
         public void OnBallInventorySlotChanged(BallInventorySlot slot)
         {
             var handleWeapon = mainHandleWeapons[slot.Index];
@@ -82,15 +102,17 @@ namespace MoreMountains
             if (handleWeapon.CurrentWeapon is BallGunWeapon ballGunWeapon)
             {
                 var ballDef = slot.Item == null ? null : slot.Item.Def;
+                var ballLevel = slot.Item == null ? 0 : slot.Item.Level;
                 ballGunWeapon.SetBallSlot(slot);
                 ballGunWeapon.SetBallDef(ballDef);
+                ballGunWeapon.SetBallLevel(ballLevel);
 
                 if (ballDef)
                 {
                     if (ballDef.MetaHandleWeapon)
                     {
                         var metaHandleWeapon = InstantiateMetaHandleWeapon(ballDef.MetaHandleWeapon);
-                        metaHandleWeapons.add(slot, metaHandleWeapon);
+                        metaHandleWeapons[slot] = metaHandleWeapon;
                         AddAbility(metaHandleWeapon);
                     }
                 }

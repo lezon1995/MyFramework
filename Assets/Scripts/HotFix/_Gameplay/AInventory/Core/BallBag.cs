@@ -1,4 +1,6 @@
-﻿namespace MoreMountains
+﻿using System;
+
+namespace MoreMountains
 {
     /// <summary>
     /// 球背包 —— 容量受 InventorySystemConfig.BallBagCapacity 控制。
@@ -7,6 +9,9 @@
     /// </summary>
     public sealed class BallBag : InventoryBag<BallItem, BallInventorySlot>
     {
+        public Action<BallInventorySlot> OnSlotItemUpgraded;
+        public Action<BallInventorySlot> OnSlotItemDowngraded;
+        
         public BallBag(APlayer p, int capacity, int maxCapacity) : base(p, capacity, maxCapacity, "BallBag")
         {
         }

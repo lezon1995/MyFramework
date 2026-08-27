@@ -14,6 +14,7 @@ public partial class BallInventoryItem : WindowRecyclableUGUI
 	protected myUGUIImageSimple itemBorder;
 	protected myUGUIImageSimple iconBg;
 	protected myUGUIObject disable;
+	protected myUGUIObject upgrade;
 	protected myUGUIObject focus;
 	protected myUGUIImageSimple icon;
     // auto generate member end
@@ -32,13 +33,14 @@ public partial class BallInventoryItem : WindowRecyclableUGUI
 		newObject(out itemBorder, "Btn/Normal/Border");
 		newObject(out iconBg, "Btn/Normal/Bg");
 		newObject(out disable, "Btn/Disable");
+		newObject(out upgrade, "Btn/TextUpgrade");
 		newObject(out focus, "Btn/Focus");
 		newObject(out icon, "Btn/Icon");
         // auto generate assignWindowInternal end
     }
 
     public int slotIndex = -1;
-    public BallInventoryBinder slotBinder;
+    public BallInventoryBinder inventoryBinder;
     public BallTooltipTrigger tooltipTrigger;
 
     public override void init()
@@ -78,7 +80,7 @@ public partial class BallInventoryItem : WindowRecyclableUGUI
     public void SetSlotData(int index, BallInventoryBinder binder)
     {
         slotIndex = index;
-        slotBinder = binder;
+        inventoryBinder = binder;
     }
 
     void OnPointerPressed(UnityEngine.EventSystems.PointerEventData data)
@@ -99,7 +101,7 @@ public partial class BallInventoryItem : WindowRecyclableUGUI
     {
         if (_eventBlocked)
             return;
-        slotBinder?.OnBallBtnClicked(slotIndex);
+        inventoryBinder?.OnBallBtnClicked(slotIndex);
     }
 
     internal bool _eventBlocked;

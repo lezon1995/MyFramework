@@ -58,7 +58,7 @@ public partial class SelectedCharacterDetailView : WindowObjectUGUI
 		characterDesc.setText(def.DisplayDesc);
 	}
 
-	public void RefreshCharacterSelectBalls(List<BallDef> ballDefs)
+	public void RefreshCharacterSelectBalls(List<BallItem> ballDefs)
 	{
 		SelectBallItemPool.newItemList(ballDefs, (item, def) =>
 		{

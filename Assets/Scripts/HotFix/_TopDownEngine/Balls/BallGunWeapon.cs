@@ -10,6 +10,8 @@ namespace MoreMountains
 
         [MMInspectorGroup("ID")]
         public BallDef BallDef;
+
+        public int BallLevel;
         public BallInventorySlot BallSlot;
 
         [MMInspectorGroup("ID")]
@@ -27,7 +29,7 @@ namespace MoreMountains
             Stats.InitializeStats(BallDef.StatsTemplate);
             InitializeStats();
         }
-        
+
         public void SetBallSlot(BallInventorySlot slot)
         {
             BallSlot = slot;
@@ -49,6 +51,29 @@ namespace MoreMountains
                 {
                     BallWeaponSpriteRenderer.gameObject.SetActive(false);
                 }
+            }
+        }
+
+        static readonly int PixelOutlineColor = Shader.PropertyToID("_PixelOutlineColor");
+        static readonly int PixelOutlineFade = Shader.PropertyToID("_PixelOutlineFade");
+
+        public void SetBallLevel(int level)
+        {
+            var material = BallWeaponSpriteRenderer.material;
+            if (level > 1)
+            {
+                BallLevel = level;
+
+                var rarity = Mathf.Clamp(level - 1, 0, 3);
+                var color = gameDesign.getRarityColor((ItemRarity)rarity);
+                material.SetColor(PixelOutlineColor, color.title);
+                material.SetFloat(PixelOutlineFade, 1F);
+            }
+            else
+            {
+                BallLevel = 1;
+                material.SetColor(PixelOutlineColor, Color.clear);
+                material.SetFloat(PixelOutlineFade, 0F);
             }
         }
 
@@ -77,7 +102,7 @@ namespace MoreMountains
                 float totalAS = 0F;
                 if (ballAS)
                     totalAS += ballAS.Value;
-                
+
                 if (characterAS)
                     totalAS *= (1 + characterAS.Value);
 
@@ -96,7 +121,7 @@ namespace MoreMountains
                 float totalAS = 0F;
                 if (ballAS)
                     totalAS += ballAS.Value;
-                
+
                 if (characterAS)
                     totalAS *= (1 + characterAS.Value);
 
@@ -131,7 +156,7 @@ namespace MoreMountains
 
         public override GameObject SpawnProjectile(Vector3 spawnPosition, int projectileIndex, int totalProjectiles, bool triggerObjectActivation = true)
         {
-            var ball = _player.BallManagement.Instance.acquireBall(BallDef.Type, spawnPosition);
+            var ball = _player.BallManagement.Instance.acquireBall(BallDef.Type, spawnPosition, BallLevel);
             var success = ball != null;
             // mandatory checks
             if (!success)

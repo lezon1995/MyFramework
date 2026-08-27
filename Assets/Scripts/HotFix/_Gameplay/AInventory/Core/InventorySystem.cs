@@ -42,6 +42,8 @@ namespace MoreMountains
             _ballBag.OnItemRemoved += InventoryEvents.RaiseBallRemoved;
             _ballBag.OnBagChanged += InventoryEvents.RaiseBallBagChanged;
             _ballBag.OnSlotChanged = _player.OnBallInventorySlotChanged;
+            _ballBag.OnSlotItemUpgraded = _player.OnBallInventorySlotItemUpgraded;
+            _ballBag.OnSlotItemDowngraded = _player.OnBallInventorySlotItemDowngraded;
 
             _relicBag.OnItemAdded += InventoryEvents.RaiseRelicAdded;
             _relicBag.OnItemRemoved += InventoryEvents.RaiseRelicRemoved;

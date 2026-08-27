@@ -100,6 +100,10 @@ public partial class BallSlotItem : IBallOperationTarget
         highlightHovered?.setActive(_highlightVisible && _highlightHoveredVisible);
     }
 
+    public void RefreshUpgradeVisual(IBallOperationTarget source, bool visible)
+    {
+    }
+
     public void ExecuteOperation(IItemOperationTarget hoveredTarget)
     {
         var source = BallOperationStateManager.Instance.CurrentSource;
@@ -119,7 +123,7 @@ public partial class BallSlotItem : IBallOperationTarget
             if (srcSlotIndex < 0)
                 return;
 
-            var srcBag = srcInv.slotBinder?.Bag;
+            var srcBag = srcInv.inventoryBinder?.Bag;
             var srcBall = srcBag != null && srcSlotIndex < srcBag.SlotList.Count
                 ? srcBag.SlotList[srcSlotIndex].Item : null;
             if (srcBall == null)
@@ -216,7 +220,7 @@ public partial class BallSlotItem : IBallOperationTarget
                 if (targetSlotIndex < 0)
                     return;
 
-                var targetBag = targetInv.slotBinder?.Bag;
+                var targetBag = targetInv.inventoryBinder?.Bag;
                 if (targetBag == null)
                     return;
 
@@ -234,7 +238,7 @@ public partial class BallSlotItem : IBallOperationTarget
                 }
 
                 slotBinder?.Rebuild();
-                targetInv.slotBinder?.Rebuild();
+                targetInv.inventoryBinder?.Rebuild();
             }
         }
     }
@@ -246,6 +250,7 @@ public partial class BallSlotItem : IDraggableItem
     BallSlot ballSlot;
     public myUGUIButton Btn => btn;
     public BallSlot Slot => ballSlot;
+    public BallItem Item => ballSlot.Item;
     public GameObject ItemGO => mRoot.getGameObject();
     public void SetSelected(bool on) => selected?.setActive(on);
     public void SetBallIcon(Sprite s) => icon?.setSpriteOnly(s);

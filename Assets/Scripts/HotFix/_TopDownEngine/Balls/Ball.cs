@@ -73,6 +73,8 @@ namespace MoreMountains
             _smallestBoundsWidth = Radius * 2F;
             _squaredBoundsWidth = _smallestBoundsWidth * _smallestBoundsWidth;
 
+            _stats.LevelGetter = () => level;
+
             addListeners();
         }
 

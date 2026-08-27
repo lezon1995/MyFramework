@@ -83,6 +83,7 @@ namespace MoreMountains
 
         public IHittable lastHittable;
         public bool isOverlappingBrick;
+        public int level = 1;
 
         public void setBorderToBallDamageModifier(BorderToBallDamageModifier m) => borderToBallDamageModifier = m;
         public void setID(long id) => guid = id;
@@ -547,6 +548,14 @@ namespace MoreMountains
         }
 
         public void setRendererActive(bool active) => ballRenderer.setRendererActive(active);
+        public void setLevel(int lv)
+        {
+            level = lv;
+            ballRenderer.setLevel(lv);
+
+            foreach (var (key, stat) in _stats.AllStats)
+                stat.InitialOverride?.SetDirty();
+        }
 
         public void setRadius(float value)
         {

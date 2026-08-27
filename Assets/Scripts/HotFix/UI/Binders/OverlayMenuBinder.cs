@@ -34,7 +34,7 @@ namespace MoreMountains
             _player = player ?? throw new ArgumentNullException(nameof(player));
 
             // 子 binder 挂入各自 model
-            _ballInv.Attach(_player.Inventory.BallBag);
+            _ballInv.Attach(_player, _player.Inventory.BallBag);
             _infoBinder.Attach(_player);
         }
 

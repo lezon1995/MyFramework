@@ -13,6 +13,10 @@ MonoBehaviour:
   m_Name: BallDef_Missile
   m_EditorClassIdentifier: HotFix::MoreMountains.BallDef
   Type: 11200
+  TagInfo:
+    MechanicTags: 
+    StatusTags: 
+    AmplifierTags: 
   BasePrice: 2
   MaxLevel: 3
   UpgradeCombineCount: 2

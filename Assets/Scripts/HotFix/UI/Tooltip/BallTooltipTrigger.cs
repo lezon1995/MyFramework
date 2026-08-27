@@ -9,15 +9,15 @@ namespace MoreMountains
     /// </summary>
     public class BallTooltipTrigger : TooltipTrigger
     {
-        BallDef ballDef;
+        BallItem ballItem;
         BallTooltipItem ballTooltipItem;
         
         public void setBallTooltipItem(BallTooltipItem item) => ballTooltipItem = item;
-        public void setBallDef(BallDef def) => ballDef = def;
+        public void setBallItem(BallItem def) => ballItem = def;
 
         protected override bool CanShowTooltip()
         {
-            if (ballDef == null)
+            if (ballItem == null)
                 return false;
 
             return base.CanShowTooltip();
@@ -44,7 +44,7 @@ namespace MoreMountains
             tooltipItem.setActive(true);
 
             _isTooltipShown = true;
-            tooltipItem.Refresh(ballDef);
+            tooltipItem.Refresh(ballItem);
         }
 
         protected override void HideTooltipInternal()

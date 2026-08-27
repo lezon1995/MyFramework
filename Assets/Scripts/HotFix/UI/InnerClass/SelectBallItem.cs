@@ -25,7 +25,7 @@ public partial class SelectBallItem : WindowRecyclableUGUI
 	Action<SelectBallItem> onHoveredEnd;
 	bool isSelected;
 
-	public BallDef Def { get; private set; }
+	public BallItem Item { get; private set; }
 	public bool IsUnlocked { get; private set; }
 	
 	
@@ -84,7 +84,7 @@ public partial class SelectBallItem : WindowRecyclableUGUI
     public override void recycle()
     {
         base.recycle();
-        Def = null;
+        Item = null;
         IsUnlocked = false;
         isSelected = false;
         onClicked = null;
@@ -94,9 +94,9 @@ public partial class SelectBallItem : WindowRecyclableUGUI
         setActive(true);
     }
 
-    public void refresh(BallDef def, bool unlocked, Action<SelectBallItem> clicked, Action<SelectBallItem> hovered, Action<SelectBallItem> hoveredEnd)
+    public void refresh(BallItem item, bool unlocked, Action<SelectBallItem> clicked, Action<SelectBallItem> hovered, Action<SelectBallItem> hoveredEnd)
     {
-        Def = def;
+        Item = item;
         IsUnlocked = unlocked;
         onClicked = clicked;
         onHovered = hovered;
@@ -107,9 +107,9 @@ public partial class SelectBallItem : WindowRecyclableUGUI
     }
     
     
-    public void refresh(BallDef def)
+    public void refresh(BallItem item)
     {
-	    Def = def;
+	    Item = item;
 	    IsUnlocked = true;
 	    // onClicked = clicked;
 	    // onHovered = hovered;
@@ -128,7 +128,7 @@ public partial class SelectBallItem : WindowRecyclableUGUI
             button.setInteractable(true);
             SetGrayscale(false);
 
-            icon.setSpriteOnly(Def.Icon);
+            icon.setSpriteOnly(Item.Def.Icon);
         }
         else
         {
@@ -137,7 +137,7 @@ public partial class SelectBallItem : WindowRecyclableUGUI
             button.setInteractable(false);
             SetGrayscale(true);
 
-            icon.setSpriteOnly(Def.Icon);
+            icon.setSpriteOnly(Item.Def.Icon);
         }
 
         selected.setActive(false);

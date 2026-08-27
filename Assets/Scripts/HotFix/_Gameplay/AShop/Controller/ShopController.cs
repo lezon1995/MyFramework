@@ -206,7 +206,7 @@ namespace MoreMountains
             if (gold > 0)
                 ShopEvents.RaiseSoldFromBag(item);
             
-            BallItem.Release(ref item);
+            BallItem.Release(item);
             return gold;
         }
 

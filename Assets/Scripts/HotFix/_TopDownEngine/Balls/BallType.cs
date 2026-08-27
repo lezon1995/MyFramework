@@ -33,7 +33,7 @@
         IceFrost = 10201, //对撞击的敌人施加20%的减速，持续3秒
         
         //雷
-        LightningStrike = 10300, //对场上1名敌人造成闪电打击
+        LightningStrike = 10300, //对场上1名敌人造成雷电打击
         LightningPath = 10301, //途经的路径
 
         //电
@@ -43,7 +43,6 @@
         //岩
         RockQuake = 10500, //每次撞击会造成一次方形地震伤害
         RockSplash = 10501, //对撞击的敌人后方扇形区域造成溅射伤害，伤害为本次撞击伤害的30%
-        // RockSplit = 10502, //每次撞击会向随机方向分裂出1个岩石块，命中敌人1次即销毁
 
         //毒
         PoisonBurning = 10600, //每次撞击会施加1层【中毒】，最多3层，每层造成每秒造成5点伤害
@@ -70,24 +69,28 @@
 
         //飞弹
         Missile = 11200, //每次撞击会从玩家身后发射一道轨迹子弹在0.75秒后命中敌人
+        
+        //流血
+        Bleed = 11300, //命中施加2层流血。每层流血将使敌人在受到弹珠攻击时额外承受1+0.1AP点伤害（最高8层）
+
+        //金属
+        Iron = 11400, //黑铁，100暴击率，移动速度-50%
+        Lead = 11401,//铅铁，100暴击率，每次命中敌人时暴击率降低25%（最低0%）
+
+        //光明（阳）
+        Light, //命中时偷取目标2点护甲，附加自身50%护甲的物理伤害
+
+        //黑暗（阴）
+        Dark, //命中时偷取目标2点魔抗，附加自身50%魔抗的魔法伤害
+        
+        //创造
+        Obstacle, //首次撞击会在原地创建一个障碍物，存活5秒
 
         //沙
         Sand, //每次撞击特效施加1层[沙环]，2层会引爆造成30点真实伤害
 
-        //光明（阳）
-        Light, //每次撞击会降低敌人2点护甲
-
-        //黑暗（阴）
-        Dark, //每次撞击会降低敌人2点魔抗
-
-        //金属
-        Metal, //速度慢，撞击伤害高，撞击如果摧毁砖块后则不会反弹
-
-        //创造
-        Obstacle, //首次撞击会在原地创建一个障碍物，存活5秒
-
         //磁力
-        Magnetic, //首次撞击后会直接被玩家回收
+        Magnetic, //经过经验和金币附近会自动拾取
 
         //行星球
         Planet, //飞行方式是环绕自身
@@ -100,15 +103,34 @@
 
         //影子球
         Shadow, //进入砖块内部反弹，砖块阵亡后才会弹出
-        
-        //飞弹
-        PeriodicMissile, //每飞行2米会发射一道轨迹子弹在0.75秒后命中敌人
 
         #endregion
 
 
         #region 融合球
 
+        LaserBeam_Cross = 101000, //LaserBeam_V + LaserBeam_H 十字激光
+        LaserBeam_Freeze, //LaserBeam + IceFreeze 冷冻激光，激光命中的单位全部冷冻0.5秒
+        LaserBeam_Frost, //LaserBeam + IceFrost 霜冻激光，激光命中的单位全部施加20%的减速，持续3秒
+        LaserBeam_Lightning, //LaserBeam + LightningStrike 雷电激光，激光命中的单位全部受到1次雷电打击
+        LaserBeam_Electricity, //LaserBeam + ElectricityStrike 电流激光，激光命中的单位全部受到1次电流打击
+        LaserBeam_RockQuake, //LaserBeam + RockQuake 岩震激光，激光的宽度变宽
+        LaserBeam_RockSplash, //LaserBeam + RockSplash 溅射激光，命中后发射一道V型的激光
+        LaserBeam_PoisonBurning, //LaserBeam + PoisonBurning 毒烧激光，激光命中的单位全部施加1层【中毒】
+        LaserBeam_FireBurning, //LaserBeam + FireBurning 灼烧激光，激光命中的单位全部施加1层【中毒】
+        LaserBeam_Wind, //LaserBeam + Wind 疾风激光，激光球可以穿透
+        LaserBeam_Fission, //LaserBeam + Fission 裂变激光，激光球每次撞击有概率会分裂出1个激光子球，子球拥有父球50%的伤害
+        LaserBeam_Duplicate, //LaserBeam + Duplicate 复制激光，激光球每次撞击有概率会复制1个自身
+        LaserBeam_Missile, //LaserBeam + Missile 激光射线，类海克斯射线
+        LaserBeam_Bleed, //LaserBeam + Bleed 流血射线，激光命中的单位全部施加2层流血
+        LaserBeam_Light, //LaserBeam + Light 光明射线，激光命中的单位全部偷取目标2点护甲，附加自身50%护甲的物理伤害
+        LaserBeam_Dark, //LaserBeam + Dark 黑暗射线，激光命中的单位全部偷取目标2点魔抗，附加自身50%魔抗的魔法伤害
+
+        IceFreeze_Lightning = 102000, //IceFreeze + LightningStrike 冰雷打击，对场上随机1名敌人释放冰雷打击，对目标周围1米的范围内造成伤害和冰冻
+        IceFreeze_Electricity, //IceFreeze + ElectricityStrike 冰电打击，对场上随机1名敌人释放冰电打击，对冰电经过的目标造成伤害和0.5秒的冰冻
+
+        IceFrost_Lightning = 102010, //IceFrost + LightningStrike 霜雷打击，对场上随机1名敌人释放霜雷打击，在目标处生成一个持续3秒的3x3霜冻区域，对区域内的敌人每0.5秒受到伤害并施加1层霜冻，3层时冻住
+        
         #endregion
     }
 

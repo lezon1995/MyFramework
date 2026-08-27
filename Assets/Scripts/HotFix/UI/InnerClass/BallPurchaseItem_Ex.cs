@@ -8,12 +8,14 @@ public partial class BallPurchaseItem
 
     public void Refresh(BallDef def)
     {
+        var item = BallItem.New(def);
         SetName(def.DisplayName.GetLocalizedString());
-        SetPrice(def.BasePrice);
-        SetDesc(def);
+        SetPrice(item.BuyPrice);
+        SetDesc(item);
         if (def.Icon)
             SetIcon(def.Icon);
         SetRarity(def.Rarity);
+        BallItem.Release(item);
     }
 
     public void SetHovered(bool on)
@@ -46,10 +48,10 @@ public partial class BallPurchaseItem
         }
     }
 
-    public void SetDesc(BallDef def)
+    public void SetDesc(BallItem item)
     {
         using var _ = new MyStringBuilderScope(out var sb);
-        BallDef.BuildDescription(sb, def, player);
+        BallDef.BuildDescription(sb, item, player);
         itemDesc.setText(sb.ToString());
     }
 }

@@ -26,6 +26,7 @@ namespace MoreMountains
         IBallsContainerView _view;
         BallBag _bag;
         BallItem _selected;
+        APlayer _player;
 
         public BallInventoryBinder(IBallsContainerView view)
         {
@@ -39,17 +40,19 @@ namespace MoreMountains
 
         /// <summary>背包视图。</summary>
         public IBallsContainerView View => _view;
+        public APlayer Player => _player;
 
         public event Action<BallItem /*selected ball*/> BallSelected;
         public event Action<BallItem /*ball*/, int /*slotIndex*/> EquipRequested;
         public event Action<BallItem /*ball*/> UpgradeRequested;
         public event Action<BallItem /*ball*/> SellRequested;
 
-        public void Attach(BallBag bag)
+        public void Attach(APlayer p, BallBag bag)
         {
             if (_bag != null)
                 Detach();
 
+            _player = p;
             _bag = bag ?? throw new ArgumentNullException(nameof(bag));
             _view.SetTitle("BALL BAG");
             _bag.OnItemAdded += OnBagItemAdded;
@@ -68,6 +71,7 @@ namespace MoreMountains
             _bag.OnBagChanged -= OnBagAnyChanged;
             _bag = null;
             _selected = null;
+            _player = null;
         }
 
         void OnBagItemAdded(BallItem _) => Rebuild();
@@ -97,13 +101,13 @@ namespace MoreMountains
                 item.SetSelected(isSel);
                 if (isOccupied)
                 {
-                    item.SetBallDef(ball.Def);
+                    item.SetBallItem(ball);
                     item.SetBallIcon(ball.Def.Icon);
-                    item.SetRarity(ball.Def.rarity);
+                    item.SetRarity(ball.getLevelToRarity());
                 }
                 else
                 {
-                    item.SetBallDef(null);
+                    item.SetBallItem(null);
                     item.SetBallIcon(null);
                     item.SetRarity(ItemRarity.Tier1);
                 }

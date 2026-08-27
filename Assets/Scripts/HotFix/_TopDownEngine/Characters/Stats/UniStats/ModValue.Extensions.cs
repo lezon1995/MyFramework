@@ -35,14 +35,14 @@ namespace UniStats
         }
 
 #if NET7_0_OR_GREATER
-        public static string AddFlat<T>(this IModValue<T> modValue, T delta, string name = null) where T : struct, INumber<T>
+        public static string AddFlat<T>(this IModValue<T> modValue, T delta, string name = null, int order = 0) where T : struct, INumber<T>
         {
             var mod = Mod.Add(delta, name);
             modValue.Add(mod);
             return name;
         }
 
-        public static string AddPct<T>(this IModValue<T> modValue, T delta, string name = null) where T : struct, INumber<T>
+        public static string AddPct<T>(this IModValue<T> modValue, T delta, string name = null, int order = 0) where T : struct, INumber<T>
         {
             var one = T.One;
             var sum = one + delta;
@@ -51,14 +51,14 @@ namespace UniStats
             return name;
         }
 
-        public static string SubFlat<T>(this IModValue<T> modValue, T delta, string name = null) where T : struct, INumber<T>
+        public static string SubFlat<T>(this IModValue<T> modValue, T delta, string name = null, int order = 0) where T : struct, INumber<T>
         {
             var mod = Mod.Sub(delta, name);
             modValue.Add(mod);
             return name;
         }
 
-        public static string SubPercent<T>(this IModValue<T> modValue, T delta, string name = null) where T : struct, INumber<T>
+        public static string SubPercent<T>(this IModValue<T> modValue, T delta, string name = null, int order = 0) where T : struct, INumber<T>
         {
             var one = T.One;
             var sum = one - delta;
@@ -96,41 +96,41 @@ namespace UniStats
             return accum;
         }
 #else
-        public static string AddFlat<T>(this IAttr<T> attr, T delta, string name = null) where T : struct
+        public static string AddFlat<T>(this IAttr<T> attr, T delta, string name = null, int order = 0) where T : struct
         {
             var mod = Mod.Add(delta, name);
-            attr.AddMod(mod);
+            attr.AddMod(mod, order: order);
             return name;
         }
 
-        public static string AddFlat<T>(this IAttr<T> attr, IVar<T> v, string name = null) where T : struct
+        public static string AddFlat<T>(this IAttr<T> attr, IVar<T> v, string name = null, int order = 0) where T : struct
         {
             var mod = Mod.Add(v, name);
-            attr.AddMod(mod);
+            attr.AddMod(mod, order: order);
             return name;
         }
 
-        public static string AddPct<T>(this IAttr<T> attr, T delta, string name = null) where T : struct
+        public static string AddPct<T>(this IAttr<T> attr, T delta, string name = null, int order = 0) where T : struct
         {
             var op = Mod.GetOperator<T>();
             var one = op.One;
             var sum = op.Add(one, delta);
             var mod = Mod.Mul(sum, name);
-            attr.AddMod(mod);
+            attr.AddMod(mod, order: order);
             return name;
         }
 
-        public static string AddFunc<T>(this IAttr<T> attr, Func<T, T> func, string name = null) where T : struct
+        public static string AddFunc<T>(this IAttr<T> attr, Func<T, T> func, string name = null, int order = 0) where T : struct
         {
             var mod = Mod.Func(func, name);
-            attr.AddMod(mod);
+            attr.AddMod(mod, order: order);
             return name;
         }
 
-        public static string AddFunc<T>(this IAttr<T> attr, Func<T, T> func, out Action<T, T> onChange, string name = null) where T : struct
+        public static string AddFunc<T>(this IAttr<T> attr, Func<T, T> func, out Action<T, T> onChange, string name = null, int order = 0) where T : struct
         {
             var mod = Mod.Func(func, out onChange, name);
-            attr.AddMod(mod);
+            attr.AddMod(mod, order: order);
             return name;
         }
 

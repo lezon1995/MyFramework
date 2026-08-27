@@ -16,12 +16,15 @@ public partial class RelicPurchaseItem : WindowRecyclableUGUI
 	protected myUGUIImageSimple itemIcon;
 	protected myUGUITextTMP itemDesc;
 	protected myUGUITextTMP itemName;
+	protected myUGUIObject tagsParent;
 	protected myUGUITextTMP itemPrice;
 	protected myUGUIObject itemSold;
+	protected WindowStructPool<TagItem> TagItemPool;
 	// auto generate member end
 	public RelicPurchaseItem(IWindowObjectOwner parent) : base(parent)
 	{
 		// auto generate constructor start
+		TagItemPool = new(this);
 		// auto generate constructor end
 	}
 	protected override void assignWindowInternal()
@@ -36,8 +39,10 @@ public partial class RelicPurchaseItem : WindowRecyclableUGUI
 		newObject(out itemIcon, "Btn/Icon/Image");
 		newObject(out itemDesc, "Btn/Desc/TextDesc");
 		newObject(out itemName, "Btn/Name/TextName");
+		newObject(out tagsParent, "Btn/Tags");
 		newObject(out itemPrice, "Btn/Price/TextPrice");
 		newObject(out itemSold, "Btn/Sold");
+		TagItemPool.assignTemplate(mRoot, "Btn/Tags/TagItem");
 		// auto generate assignWindowInternal end
 	}
 	public override void init()

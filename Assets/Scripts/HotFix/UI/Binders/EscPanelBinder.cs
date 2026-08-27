@@ -42,8 +42,8 @@ namespace MoreMountains
 
             // 子 binder 挂入各自 model
             _playerInfo.Attach(_player);
-            _ballInv.Attach(_player.Inventory.BallBag);
-            _relicInv.Attach(_player.Inventory.RelicBag);
+            _ballInv.Attach(_player, _player.Inventory.BallBag);
+            _relicInv.Attach(_player, _player.Inventory.RelicBag);
             _waveMonster.Attach(waveManager.CurWave);
         }
 

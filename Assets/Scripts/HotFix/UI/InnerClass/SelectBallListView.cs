@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace MoreMountains;
 
@@ -40,25 +41,25 @@ public partial class SelectBallListView : WindowObjectUGUI
 
     SelectedCharacterDetailView detailView;
     BallTooltipItem ballTooltipItem;
-    Dictionary<BallDef, SelectBallItem> ballItems = new();
-    public List<BallDef> selectedBalls = new();
+    Dictionary<BallItem, SelectBallItem> ballItems = new();
+    public List<BallItem> selectedBalls = new();
 
     public void initBallItems()
     {
-        foreach (var def in ballManager.getDefs())
+        foreach (var ballItem in ballManager.getDefs().Select(def => BallItem.New(def)))
         {
             var item = SelectBallItemPool.newItem();
-            bool isUnlocked = IsBallUnlocked(def);
+            bool isUnlocked = IsBallUnlocked(ballItem);
             isUnlocked = true;
-            item.refresh(def, isUnlocked, OnBallItemClicked, OnBallItemHovered, OnBallItemHoveredEnd);
-            ballItems[def] = item;
+            item.refresh(ballItem, isUnlocked, OnBallItemClicked, OnBallItemHovered, OnBallItemHoveredEnd);
+            ballItems[ballItem] = item;
         }
     }
 
     public void setCharacterDetailView(SelectedCharacterDetailView v) => detailView = v;
     public void setBallTooltipItem(BallTooltipItem v) => ballTooltipItem = v;
 
-    bool IsBallUnlocked(BallDef def)
+    bool IsBallUnlocked(BallItem def)
     {
         return def.Type == BallType.Normal;
     }
@@ -69,12 +70,12 @@ public partial class SelectBallListView : WindowObjectUGUI
             return;
 
         selectedBalls.Clear();
-        selectedBalls.Add(item.Def);
+        selectedBalls.Add(item.Item);
         _charSelectInfo.balls.Clear();
         _charSelectInfo.balls.AddRange(selectedBalls);
 
         RefreshBallItems();
-        ballTooltipItem.Refresh(item.Def);
+        ballTooltipItem.Refresh(item.Item);
         detailView.RefreshCharacterSelectBalls(selectedBalls);
         // selectPlayerPanel.updateNextStepButton();
     }
@@ -84,7 +85,7 @@ public partial class SelectBallListView : WindowObjectUGUI
         if (!item.IsUnlocked)
             return;
 
-        ballTooltipItem.Refresh(item.Def);
+        ballTooltipItem.Refresh(item.Item);
         // detailView.RefreshCharacterDetail(item.Def);
     }
 

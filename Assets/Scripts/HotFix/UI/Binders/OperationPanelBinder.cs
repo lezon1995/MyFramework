@@ -93,8 +93,8 @@ namespace MoreMountains
             // 子 binder 挂入各自 model
             _playerInfo.Attach(_player);
             _slotBinder.Attach(_player.BallManagement.Slots);
-            _ballInv.Attach(_player.Inventory.BallBag);
-            _relicInv.Attach(_player.Inventory.RelicBag);
+            _ballInv.Attach(_player, _player.Inventory.BallBag);
+            _relicInv.Attach(_player, _player.Inventory.RelicBag);
             _shop.Attach(_player, _player.Shop.Controller);
             _rewardChoose.Attach(_player, _player.RewardSystem.Controller);
             _waveMonster.Attach(waveManager.NextWave);

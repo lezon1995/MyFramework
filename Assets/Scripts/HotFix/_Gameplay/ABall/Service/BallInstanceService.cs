@@ -26,17 +26,17 @@ namespace MoreMountains
         Dictionary<BallType, Dictionary<long, Ball>> ballTypeList = new(); // 角色分类列表
         Dictionary<long, Ball> ballGUIDList = new(); // 角色ID索引表
 
-        public Ball acquireBall(BallType ballType)
+        public Ball acquireBall(BallType ballType, int level = 1)
         {
-            return acquireBall(ballType, Vector2.zero, Vector2.up);
+            return acquireBall(ballType, Vector2.zero, Vector2.up, level);
         }
 
-        public Ball acquireBall(BallType ballType, Vector2 pos)
+        public Ball acquireBall(BallType ballType, Vector2 pos, int level = 1)
         {
-            return acquireBall(ballType, pos, Vector2.up);
+            return acquireBall(ballType, pos, Vector2.up, level);
         }
 
-        public Ball acquireBall(BallType ballType, Vector2 pos, Vector2 direction)
+        public Ball acquireBall(BallType ballType, Vector2 pos, Vector2 direction, int level = 1)
         {
             if (!ballPools.TryGetValue(ballType, out var pool))
             {
@@ -53,11 +53,11 @@ namespace MoreMountains
             }
 
             var ball = pool.Get();
-            prepareToShoot(ball, pos, direction);
+            prepareToShoot(ball, pos, direction, level);
             return ball;
         }
 
-        void prepareToShoot(Ball ball, Vector2 pos, Vector2 direction)
+        void prepareToShoot(Ball ball, Vector2 pos, Vector2 direction, int level = 1)
         {
             ball.setActive(true);
             ball.setEnabled(true);
@@ -67,6 +67,7 @@ namespace MoreMountains
             ball.setRendererActive(true);
             ball.SetColliderEnabled(true);
             ball.refreshDuration();
+            ball.setLevel(level);
             ball.onAcquire();
 
             ball.Event.addListener<OnBallDeath>(this);

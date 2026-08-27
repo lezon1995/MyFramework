@@ -11,7 +11,7 @@ namespace MoreMountains
         public int floorNum;
         public string levelName;
         public long saveDate;
-        public List<BallDef> balls = new();
+        public List<BallItem> balls = new();
         public List<RelicDef> relics = new();
         public bool resumeGame;
         public int difficulty;

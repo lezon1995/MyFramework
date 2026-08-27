@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace MoreMountains;
@@ -7,15 +6,16 @@ public partial class BallTooltipItem
 {
     public myUGUIButton Btn => btn;
 
-    public void Refresh(BallDef def)
+    public void Refresh(BallItem item)
     {
+        var def = item.Def;
         SetName(def.DisplayName.GetLocalizedString());
-        SetPrice(def.BasePrice);
+        SetPrice(item.SellPrice);
         if (def)
-            SetDesc(def);
+            SetDesc(item);
         if (def.Icon)
             SetIcon(def.Icon);
-        SetRarity(def.Rarity);
+        SetRarity(item.getLevelToRarity());
     }
 
     public void SetHovered(bool on)
@@ -36,10 +36,10 @@ public partial class BallTooltipItem
     public void SetName(string s) => itemName.setText(s ?? string.Empty);
     public void SetPrice(int price) => itemPrice.setText(price.IToS());
 
-    public void SetDesc(BallDef def)
+    public void SetDesc(BallItem item)
     {
         using var _ = new MyStringBuilderScope(out var sb);
-        BallDef.BuildDescription(sb, def, player);
+        BallDef.BuildDescription(sb, item, player);
         itemDesc.setText(sb.ToString());
     }
 }

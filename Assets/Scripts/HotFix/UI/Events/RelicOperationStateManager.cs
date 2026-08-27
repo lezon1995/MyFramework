@@ -71,6 +71,7 @@ namespace MoreMountains
             {
                 sellPrice = item.Slot.Item.SellPrice;
             }
+
             SellZoneVisibilityChanged?.Invoke(true, sellPrice);
             BroadcastHighlightChanged(source, true);
             ActivateBlocker(true);
@@ -176,7 +177,7 @@ namespace MoreMountains
                 prev?.SetHovered(false);
                 _hovered?.SetHovered(true);
             }
-            
+
             if (hoveredTarget == null)
             {
                 _hovered?.SetHovered(false);
@@ -203,15 +204,15 @@ namespace MoreMountains
                 if (_blockerGO && go == _blockerGO)
                     continue;
 
-                if (!go.CompareTag("OperationTarget")) 
+                if (!go.CompareTag("OperationTarget"))
                     continue;
 
-                if (!go.TryGetComponent<ItemOperationTargetBridge>(out var bridge)) 
+                if (!go.TryGetComponent<ItemOperationTargetBridge>(out var bridge))
                     continue;
 
-                if (bridge.Target != null) 
+                if (bridge.Target != null)
                     return bridge.Target;
-                
+
                 // if (!ReferenceEquals(bridge.Target, _source))
                 // {
                 //     return bridge.Target;
@@ -272,6 +273,15 @@ namespace MoreMountains
     /// </summary>
     public class RelicOperationTargetBridge : ItemOperationTargetBridge
     {
+        protected override void OnHighlightChanged(IItemOperationTarget source, bool visible)
+        {
+            Target?.SetHighlightVisible(visible);
+            if (visible && source == Target)
+            {
+                Target?.SetHovered(true);
+            }
+        }
+
         void OnEnable()
         {
             RelicOperationStateManager.BroadcastHighlightEvent += OnHighlightChanged;

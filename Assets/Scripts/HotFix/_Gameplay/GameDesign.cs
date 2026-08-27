@@ -11,6 +11,41 @@ namespace MoreMountains
         Tier4 = 3, //稀有
     }
 
+    [Serializable]
+    public struct TagInfo
+    {
+        public MechanicTag[] MechanicTags;
+        public StatusTag[] StatusTags;
+    }
+
+    public enum MechanicTag
+    {
+        None = 0,
+        Duration, //持续：增加持续时间
+        Range, //范围：增加效果范围
+        Chance, //概率：增加触发概率
+        Penetrate, //穿透：增加穿透次数
+        MultiHit, //多段攻击：增加多端攻击次数
+        Period, //周期：减少周期时间
+        Summon, //召唤：增加召唤物个数
+        Stack, //叠加：增加最大可叠加层数
+        StackTrigger, //叠加触发：减少最大可叠加层数
+        TrueDmg, //真伤：增加真实伤害倍率
+    }
+
+    public enum StatusTag
+    {
+        None = 0,
+        Slowed, //减速
+        Burning, //灼烧：层数越多，触发间隔越短
+        Poisoned, //中毒：每秒受到中毒层数的伤害
+        Bleeding, //流血：每次受到伤害触发流血伤害
+        Electrified, //感电：每次受到伤害触发感电伤害
+        Stunned, //眩晕=定身+无法攻击+无法释放技能
+        Frozen, //冰冻=定身
+        Charmed, //魅惑：敌人会追击最近的敌人
+    }
+
     [CreateAssetMenu(fileName = "GameDesign", menuName = "MoreMountains/GameDesign", order = 0)]
     public class GameDesign : ScriptableObject
     {
@@ -76,6 +111,8 @@ namespace MoreMountains
         public UniversalColor universalColor;
         public RarityColor[] rarityColor;
 
+        public TagColor tagColor;
+        
         [Serializable]
         public class RarityColor
         {
@@ -109,6 +146,14 @@ namespace MoreMountains
         public UniversalColor getUniversalColor()
         {
             return universalColor;
+        }
+        
+        [Serializable]
+        public class TagColor
+        {
+            public Color mechanic = Color.blueViolet;
+            public Color status = Color.brown;
+            public Color amplifier = Color.cornflowerBlue;
         }
     }
 }

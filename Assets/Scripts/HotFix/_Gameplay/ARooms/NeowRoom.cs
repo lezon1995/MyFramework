@@ -16,9 +16,8 @@
             // ADungeon.overlayMenu.proceedButton.hide();
             evt.onEnterRoom();
 
-            foreach (var ballDef in _charSelectInfo.balls)
+            foreach (var ballItem in _charSelectInfo.balls)
             {
-                var ballItem = BallItem.New(ballDef, 1);
                 p.Inventory.BallBag.TryInsert(ballItem);
             }
         }
