@@ -197,7 +197,7 @@ namespace MoreMountains
                     p.onBeforeHandleSkillDamage(ball, brick, ref dmg);
             }
 
-            ComputeDamageOutput(ref dmg, calculator);
+            ComputeDamageOutput(ref dmg, source, calculator);
 
             //设置此次dmg实际造成的伤害，并通知伤害飘字显示
             {
@@ -384,7 +384,7 @@ namespace MoreMountains
             //         p.onBeforeHandleSkillDamage(ball, brick, ref dmg);
             // }
 
-            ComputeDamageOutput(ref dmg, calculator);
+            ComputeDamageOutput(ref dmg, source, calculator);
 
             //设置此次dmg实际造成的伤害，并通知伤害飘字显示
             {
@@ -530,6 +530,7 @@ namespace MoreMountains
                 return;
 
             var healing = ComputeHealAlgo(heal.Algo, heal.Value);
+            healing = ComputeHealRate(healing);
             if (healing <= 0F)
                 return;
 

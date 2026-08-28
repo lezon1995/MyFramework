@@ -67,6 +67,7 @@ namespace MoreMountains
                 Character.Stat.Luck => Stats.Luck,
                 Character.Stat.Greed => Stats.Greed,
                 Character.Stat.Curse => Stats.Curse,
+                Character.Stat.HealRate => Stats.HealRate,
                 _ => throw new ArgumentOutOfRangeException(nameof(stat), stat, null)
             };
         }

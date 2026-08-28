@@ -151,6 +151,19 @@ public partial class BallInventoryItem : IBallOperationTarget
         }
     }
 
+    public void RefreshMergeVisual(IBallOperationTarget source, bool visible)
+    {
+        if (visible)
+        {
+            var canMerge = inventoryBinder.Player.BallManagement.Merge.CanMerge(Slot.Item, source.Item, out var result);
+            merge.setActive(canMerge);
+        }
+        else
+        {
+            merge.setActive(false);
+        }
+    }
+
     public void ExecuteOperation(IItemOperationTarget hoveredTarget)
     {
         var source = BallOperationStateManager.Instance.CurrentSource;
@@ -239,9 +252,9 @@ public partial class BallInventoryItem : IBallOperationTarget
             if (srcIdx < 0)
                 return;
 
-            var srcBag = inventoryBinder?.Bag;
-            var srcBall = srcBag != null && srcIdx < srcBag.SlotList.Count
-                ? srcBag.SlotList[srcIdx].Item
+            var bag = inventoryBinder?.Bag;
+            var srcBall = bag != null && srcIdx < bag.SlotList.Count
+                ? bag.SlotList[srcIdx].Item
                 : null;
             if (srcBall == null)
                 return;
@@ -262,13 +275,13 @@ public partial class BallInventoryItem : IBallOperationTarget
 
                 if (targetBall != null)
                 {
-                    srcBag.SlotList[srcIdx].Set(targetBall);
+                    bag.SlotList[srcIdx].Set(targetBall);
                     targetSlots.Slots[targetSlotIndex].Set(srcBall);
                 }
                 else
                 {
                     targetSlots.Slots[targetSlotIndex].Set(srcBall);
-                    srcBag.SlotList[srcIdx].Set(null);
+                    bag.SlotList[srcIdx].Set(null);
                 }
 
                 inventoryBinder?.Rebuild();
@@ -284,13 +297,13 @@ public partial class BallInventoryItem : IBallOperationTarget
 
                 if (dstInv.isOccupied)
                 {
-                    if (inventoryBinder.Player.BallManagement.Upgrade.TryUpgradeWith(srcInv.Slot, dstInv.Slot, out var srcResult))
+                    var ballManagement = inventoryBinder.Player.BallManagement;
+                    if (ballManagement.Upgrade.TryUpgradeWith(srcInv.Slot, dstInv.Slot, out var srcResult))
                     {
                         switch (srcResult)
                         {
                             case BallItemUpgradeResult.Vanished:
-                                BallItem.Release(srcInv.Slot.Item);
-                                srcInv.Slot.Set(null);
+                                bag.TryRemoveByItem(srcInv.Slot.Item);
                                 break;
                             case BallItemUpgradeResult.Downgraded:
                                 inventoryBinder.Bag.OnSlotItemDowngraded?.Invoke(srcInv.Slot);
@@ -299,14 +312,17 @@ public partial class BallInventoryItem : IBallOperationTarget
 
                         inventoryBinder.Bag.OnSlotItemUpgraded?.Invoke(dstInv.Slot);
                     }
+                    else if (ballManagement.Merge.TryMerge(srcInv.Slot.Item, dstInv.Slot.Item, out var result, out var mergedItem))
+                    {
+                    }
                     else
                     {
-                        srcBag.Swap(srcIdx, dstIdx);
+                        bag.Swap(srcIdx, dstIdx);
                     }
                 }
                 else
                 {
-                    srcBag.SlotList[srcIdx].Set(null);
+                    bag.SlotList[srcIdx].Set(null);
                     inventoryBinder?.Bag?.AddAt(dstIdx, srcBall);
                 }
 

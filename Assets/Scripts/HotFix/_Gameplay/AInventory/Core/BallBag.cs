@@ -18,5 +18,12 @@ namespace MoreMountains
 
         protected override BallInventorySlot CreateSlot(int index) => new(index);
         protected override ItemKind GetBagKind() => ItemKind.Ball;
+        
+        protected override void RaiseRemoved(BallItem item)
+        {
+            base.RaiseRemoved(item);
+            
+            BallItem.Release(item);
+        }
     }
 }

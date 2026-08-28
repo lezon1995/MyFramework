@@ -204,9 +204,8 @@ namespace MoreMountains
         {
             int gold = p.BallManagement.Shop.SellToShop(item);
             if (gold > 0)
-                ShopEvents.RaiseSoldFromBag(item);
+                ShopEvents.RaiseSoldFromBag();
             
-            BallItem.Release(item);
             return gold;
         }
 
@@ -217,10 +216,10 @@ namespace MoreMountains
 
             int gold = item.SellPrice;
 
-            ShopEvents.RaiseSoldFromBag(item);
-            p.Inventory.RemoveRelic(item);
-            p.gainGold(gold, EarnType.SELL_RELIC);
+            shopSystem.Player.Inventory.RemoveRelic(item);
+            shopSystem.Player.gainGold(gold, EarnType.SELL_RELIC);
             ShopEvents.RaiseGoldEarned(gold, "relic_sell");
+            ShopEvents.RaiseSoldFromBag();
             return gold;
         }
     }

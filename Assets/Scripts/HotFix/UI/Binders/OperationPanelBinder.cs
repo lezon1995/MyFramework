@@ -22,7 +22,7 @@ namespace MoreMountains
     public sealed class OperationPanelBinder
     {
         public OperationPanel Panel => _panel;
-        
+
         OperationPanel _panel;
         BallInventoryBinder _ballInv;
         RelicInventoryBinder _relicInv;
@@ -343,11 +343,16 @@ namespace MoreMountains
                 if (!_player.Wallet.Pay(price, PayType.BALL_BUY))
                     return;
 
-                var created = _player.BallManagement.Shop.PurchaseAndStore(ballOffer.Def);
-                if (created != null)
+                var item = BallItem.New(ballOffer.Def);
+                if (_player.BallManagement.Shop.PurchaseAndStore(item))
+                {
                     ballOffer.MarkSold();
-
-                ShopEvents.RaiseOfferSold(ballOffer);
+                    ShopEvents.RaiseOfferSold(ballOffer);
+                }
+                else
+                {
+                    BallItem.Release(item);
+                }
             }
             else if (offer is RelicOffer relicOffer && relicOffer.Def != null)
             {
@@ -361,7 +366,7 @@ namespace MoreMountains
                     _player.Wallet.Earn(price, EarnType.OTHER, "rollback_buy_relic");
                     return;
                 }
-                
+
                 if (!_player.Inventory.AddRelic(relicOffer.Def))
                 {
                     _player.Wallet.Earn(price, EarnType.OTHER, "rollback_buy_relic");
@@ -394,7 +399,7 @@ namespace MoreMountains
             _player?.Shop?.Controller.OnPlayerClickNext();
         }
 
-        public APlayer Player => _player; 
+        public APlayer Player => _player;
 
         void OnRewardRerollRequested()
         {

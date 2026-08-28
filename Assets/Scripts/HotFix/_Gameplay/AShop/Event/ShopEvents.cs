@@ -12,7 +12,7 @@ namespace MoreMountains
         public static event Action<ShopBoardKind> OnBoardOpened;
         public static event Action<ShopBoardKind> OnBoardRerolled;
         public static event Action<IPurchasable> OnOfferSold;
-        public static event Action<IInventoryItem> OnSoldFromBag;
+        public static event Action OnSoldFromBag;
         public static event Action OnSystemReady;
         public static event Action OnSystemDestroy;
         public static event Action<int /*gold*/, string /*reason*/> OnGoldSpent;
@@ -23,7 +23,7 @@ namespace MoreMountains
         internal static void RaiseBoardOpened(ShopBoardKind k) => OnBoardOpened?.Invoke(k);
         internal static void RaiseBoardRerolled(ShopBoardKind k) => OnBoardRerolled?.Invoke(k);
         internal static void RaiseOfferSold(IPurchasable o) => OnOfferSold?.Invoke(o);
-        internal static void RaiseSoldFromBag(IInventoryItem it) => OnSoldFromBag?.Invoke(it);
+        internal static void RaiseSoldFromBag() => OnSoldFromBag?.Invoke();
 
         internal static void RaiseSystemReady() => OnSystemReady?.Invoke();
         internal static void RaiseSystemDestroy() => OnSystemDestroy?.Invoke();

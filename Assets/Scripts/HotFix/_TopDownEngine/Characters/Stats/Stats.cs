@@ -38,8 +38,9 @@ namespace MoreMountains
         public const string Duration = "Duration";
         public const string Luck = "Luck";
         public const string Greed = "Greed";
-        public const string AF_Mod = "AdaptiveForceMod";
+        // public const string AF_Mod = "AdaptiveForceMod";
         public const string Curse = "Curse";
+        public const string HealRate = "HealRate";
 
         public bool AutoInitialize = true;
 
@@ -182,33 +183,33 @@ namespace MoreMountains
                 }
             }
 
-            IsBonusAdOverAp.OnValueChangedTo = CheckIsBonusAdOverAp;
+            // IsBonusAdOverAp.OnValueChangedTo = CheckIsBonusAdOverAp;
 
-            if (StatAF)
-            {
-                if (StatAD)
-                    StatAD.AddFlat(StatAF.Select(f => f * AF_CoeffAD), AF_Mod);
-                if (StatAP)
-                    StatAP.AddFlat(StatAF.Select(f => f * AF_CoeffAP), AF_Mod);
-            }
+            // if (StatAF)
+            // {
+            //     if (StatAD)
+            //         StatAD.AddFlat(StatAF.Select(f => f * AF_CoeffAD), AF_Mod);
+            //     if (StatAP)
+            //         StatAP.AddFlat(StatAF.Select(f => f * AF_CoeffAP), AF_Mod);
+            // }
 
-            void Check(IVar<float> stat)
-            {
-                IsBonusAdOverAp.Value = GetIsBonusAdOverAp();
-            }
+            // void Check(IVar<float> stat)
+            // {
+            //     IsBonusAdOverAp.Value = GetIsBonusAdOverAp();
+            // }
 
-            bool GetIsBonusAdOverAp()
-            {
-                if (StatAD && StatAP)
-                    return StatAD.PeekBonus(AF_Mod) >= StatAP.Peek(AF_Mod);
+            // bool GetIsBonusAdOverAp()
+            // {
+            //     if (StatAD && StatAP)
+            //         return StatAD.PeekBonus(AF_Mod) >= StatAP.Peek(AF_Mod);
+            //
+            //     return false;
+            // }
 
-                return false;
-            }
-
-            if (StatAD)
-                StatAD.OnChange(Check);
-            if (StatAP)
-                StatAP.OnChange(Check);
+            // if (StatAD)
+            //     StatAD.OnChange(Check);
+            // if (StatAP)
+            //     StatAP.OnChange(Check);
 
             if (StatAF)
             {
@@ -219,26 +220,26 @@ namespace MoreMountains
                 });
             }
 
-            CheckIsBonusAdOverAp(GetIsBonusAdOverAp());
+            // CheckIsBonusAdOverAp(GetIsBonusAdOverAp());
         }
 
-        void CheckIsBonusAdOverAp(bool b)
-        {
-            if (b)
-            {
-                if (StatAD)
-                    StatAD.SetModActive(AF_Mod, true);
-                if (StatAP)
-                    StatAP.SetModActive(AF_Mod, false);
-            }
-            else
-            {
-                if (StatAD)
-                    StatAD.SetModActive(AF_Mod, false);
-                if (StatAP)
-                    StatAP.SetModActive(AF_Mod, true);
-            }
-        }
+        // void CheckIsBonusAdOverAp(bool b)
+        // {
+        //     if (b)
+        //     {
+        //         if (StatAD)
+        //             StatAD.SetModActive(AF_Mod, true);
+        //         if (StatAP)
+        //             StatAP.SetModActive(AF_Mod, false);
+        //     }
+        //     else
+        //     {
+        //         if (StatAD)
+        //             StatAD.SetModActive(AF_Mod, false);
+        //         if (StatAP)
+        //             StatAP.SetModActive(AF_Mod, true);
+        //     }
+        // }
 
         public UniStats.Stat GetStat(string key)
         {

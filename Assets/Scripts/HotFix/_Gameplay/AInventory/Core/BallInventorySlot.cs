@@ -31,6 +31,16 @@ namespace MoreMountains
             return previous;
         }
 
+        public bool TrySet(BallItem item)
+        {
+            if (IsOccupied)
+                return false;
+
+            Item = item;
+            OnSlotChanged?.Invoke(this);
+            return true;
+        }
+
         public override string ToString()
         {
             return $"BallSlot#{Index}({(IsEmpty ? "empty" : Item?.ToString())})";

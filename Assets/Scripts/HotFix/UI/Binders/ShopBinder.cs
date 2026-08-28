@@ -20,7 +20,7 @@ namespace MoreMountains
         // event handler cache —— 让 -= 能成功匹配
         Action<ShopBoardKind> _onBoardRefreshed;
         Action<IPurchasable> _onOfferSold;
-        Action<IInventoryItem> _onSoldFromBag;
+        Action _onSoldFromBag;
         Action<int, string> _onGoldEarned;
         Action<int, string> _onGoldSpent;
         Action<bool, int> _onSellZoneVisibilityChanged;
@@ -33,7 +33,7 @@ namespace MoreMountains
             _view = view ?? throw new ArgumentNullException(nameof(view));
             _onBoardRefreshed = _ => Rebuild();
             _onOfferSold = _ => Rebuild();
-            _onSoldFromBag = _ => Rebuild();
+            _onSoldFromBag = Rebuild;
             _onGoldEarned = (g, _) => RefreshCoin();
             _onGoldSpent = (g, _) => RefreshCoin();
             _onSellZoneVisibilityChanged = (visible, sellPrice) =>

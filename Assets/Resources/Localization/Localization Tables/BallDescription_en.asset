@@ -103,6 +103,10 @@ MonoBehaviour:
       enemies in its path
     m_Metadata:
       m_Items: []
+  - m_Id: 3298729588707328
+    m_Localized: Deals 24-36 magic damage to all enemies in the same row and column
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

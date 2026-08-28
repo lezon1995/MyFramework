@@ -258,6 +258,7 @@ namespace MoreMountains
     {
         BallItem Item { get; }
         void RefreshUpgradeVisual(IBallOperationTarget source, bool visible);
+        void RefreshMergeVisual(IBallOperationTarget source, bool visible);
         void ExecuteOperation(IItemOperationTarget hoveredTarget);
     }
 
@@ -283,6 +284,7 @@ namespace MoreMountains
                 if (ballTarget != ballSource)
                 {
                     ballTarget.RefreshUpgradeVisual(ballSource, visible);
+                    ballTarget.RefreshMergeVisual(ballSource, visible);
                 }
             }
         }

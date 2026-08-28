@@ -91,6 +91,10 @@ MonoBehaviour:
     m_Key: LaserBeam_V
     m_Metadata:
       m_Items: []
+  - m_Id: 3298276226387968
+    m_Key: LaserBeam_Cross
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

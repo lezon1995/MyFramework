@@ -109,7 +109,7 @@
 
         #region 融合球
 
-        LaserBeam_Cross = 101000, //LaserBeam_V + LaserBeam_H 十字激光
+        LaserBeam_Crossed = 101000, //LaserBeam_V + LaserBeam_H 十字激光
         LaserBeam_Freeze, //LaserBeam + IceFreeze 冷冻激光，激光命中的单位全部冷冻0.5秒
         LaserBeam_Frost, //LaserBeam + IceFrost 霜冻激光，激光命中的单位全部施加20%的减速，持续3秒
         LaserBeam_Lightning, //LaserBeam + LightningStrike 雷电激光，激光命中的单位全部受到1次雷电打击

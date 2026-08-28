@@ -16,22 +16,21 @@ namespace MoreMountains
         }
 
         /// <summary>商店流程（BuyBallAction）专用：在玩家已付金币、并通过满格校验后被调用。</summary>
-        public BallItem PurchaseAndStore(BallDef def)
+        public bool PurchaseAndStore(BallItem item)
         {
             // 双层校验：UI Action 已校验过，但调用方也可能是直调，所以兜底。
             if (!_owner.Player.Inventory.CanAddBall())
-                return null;
+                return false;
 
-            if (def == null) 
-                return null;
+            if (item == null) 
+                return false;
 
-            var ball = BallItem.New(def, level: 1);
-            if (!_owner.Player.Inventory.AddBall(ball))
-                return null;
+            if (!_owner.Player.Inventory.AddBall(item))
+                return false;
 
-            BallEvents.RaiseCreated(ball);
-            BallEvents.RaisePurchased(ball);
-            return ball;
+            BallEvents.RaiseCreated(item);
+            BallEvents.RaisePurchased(item);
+            return true;
         }
 
         /// <summary>售出：自动找 holder、移除、并用半价加金币。</summary>

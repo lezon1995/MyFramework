@@ -15,6 +15,7 @@ public partial class BallInventoryItem : WindowRecyclableUGUI
 	protected myUGUIImageSimple iconBg;
 	protected myUGUIObject disable;
 	protected myUGUIObject upgrade;
+	protected myUGUIObject merge;
 	protected myUGUIObject focus;
 	protected myUGUIImageSimple icon;
     // auto generate member end
@@ -34,6 +35,7 @@ public partial class BallInventoryItem : WindowRecyclableUGUI
 		newObject(out iconBg, "Btn/Normal/Bg");
 		newObject(out disable, "Btn/Disable");
 		newObject(out upgrade, "Btn/TextUpgrade");
+		newObject(out merge, "Btn/TextMerge");
 		newObject(out focus, "Btn/Focus");
 		newObject(out icon, "Btn/Icon");
         // auto generate assignWindowInternal end

@@ -32,7 +32,7 @@ namespace MoreMountains
 
         public event Action OnSlotsChanged;
         BallManagementSystem _owner;
-        
+
         public BallSlotGroup(BallManagementSystem owner, int initialCapacity)
         {
             _owner = owner;
@@ -190,6 +190,17 @@ namespace MoreMountains
         public bool TryInsert(BallItem item)
         {
             return TryPlaceFirstEmpty(item, out _);
+        }
+
+        public bool TryInsertAt(BallItem item, int index)
+        {
+            if (_slots[index].TrySet(item))
+            {
+                OnSlotsChanged?.Invoke();
+                return true;
+            }
+
+            return false;
         }
 
         public bool FindIndex(BallItem item, out int index)

@@ -104,6 +104,10 @@ public partial class BallSlotItem : IBallOperationTarget
     {
     }
 
+    public void RefreshMergeVisual(IBallOperationTarget source, bool visible)
+    {
+    }
+
     public void ExecuteOperation(IItemOperationTarget hoveredTarget)
     {
         var source = BallOperationStateManager.Instance.CurrentSource;

@@ -118,7 +118,7 @@ namespace MoreMountains
             }
 
             int targetLevel = representative.Level + 1;
-            if (targetLevel > def.MaxLevel)
+            if (targetLevel > def.maxLevel)
             {
                 reason = BallUpgradeInvalidReason.MaxLevelReached;
                 return Fail(representative, "max_level");

@@ -1,6 +1,6 @@
 namespace MoreMountains
 {
-    public enum BallMergeInvalidReason
+    public enum BallMergeResult
     {
         None,
         SameKind,
@@ -8,6 +8,7 @@ namespace MoreMountains
         GoldInsufficient,
         MergeRecipeMissing,
         HolderMissing,
+        Success,
     }
 
     /// <summary>
@@ -22,94 +23,154 @@ namespace MoreMountains
             _owner = owner;
         }
 
-        public BallItem TryMerge(BallItem a, BallItem b, out BallMergeInvalidReason reason)
+        public bool CanMerge(BallItem src, BallItem dst, out BallMergeResult result)
         {
-            reason = BallMergeInvalidReason.None;
-
-            if (a == null || b == null)
+            result = BallMergeResult.None;
+            if (src == null || dst == null)
             {
-                reason = BallMergeInvalidReason.HolderMissing;
-                logWarning("BallMergeService: null input");
-                return null;
+                result = BallMergeResult.HolderMissing;
+                return false;
             }
 
-            if (a.Type == b.Type)
+            if (src.Type == dst.Type)
             {
-                reason = BallMergeInvalidReason.SameKind;
-                return null;
+                result = BallMergeResult.SameKind;
+                return false;
             }
 
-            var defA = a.Def;
-            if (defA == null || defA.MergeResultDefId <= 0)
+            var srcDef = src.Def;
+            var dstDef = dst.Def;
+            int maxLevelA = srcDef.maxLevel;
+            int maxLevelB = dstDef.maxLevel;
+
+            if (src.Level < maxLevelA || dst.Level < maxLevelB)
             {
-                reason = BallMergeInvalidReason.MergeRecipeMissing;
-                return null;
+                result = BallMergeResult.NotMaxLevel;
+                return false;
             }
 
-            var defB = b.Def;
-            int maxLevelA = defA.MaxLevel;
-            int maxLevelB = defB != null ? defB.MaxLevel : int.MaxValue;
-
-            if (a.Level < maxLevelA || b.Level < maxLevelB)
+            var mergeGoldCost = 1;
+            if (!_owner.Player.Wallet.CanPay(mergeGoldCost))
             {
-                reason = BallMergeInvalidReason.NotMaxLevel;
-                return null;
+                result = BallMergeResult.GoldInsufficient;
+                return false;
             }
 
-            if (!_owner.Player.Wallet.CanPay(defA.MergeGoldCost))
+            if (!InventoryLocate.FindHolderOf(src, out var srcHolder))
             {
-                reason = BallMergeInvalidReason.GoldInsufficient;
-                return null;
+                result = BallMergeResult.HolderMissing;
+                return false;
             }
 
-            if (!InventoryLocate.FindHolderOf(a, out var holderA))
+            if (!InventoryLocate.FindHolderOf(dst, out var dstHolder))
             {
-                reason = BallMergeInvalidReason.HolderMissing;
-                return null;
+                result = BallMergeResult.HolderMissing;
+                return false;
             }
 
-            if (!InventoryLocate.FindHolderOf(b, out var holderB))
+            if (!ballManager.containsMergedDef(src.Type, dst.Type))
             {
-                reason = BallMergeInvalidReason.HolderMissing;
-                return null;
+                result = BallMergeResult.MergeRecipeMissing;
+                return false;
+            }
+
+            result = BallMergeResult.Success;
+            return true;
+        }
+
+        public bool TryMerge(BallItem src, BallItem dst, out BallMergeResult result, out BallItem mergedBallItem)
+        {
+            result = BallMergeResult.None;
+            mergedBallItem = null;
+
+            if (src == null || dst == null)
+            {
+                result = BallMergeResult.HolderMissing;
+                return false;
+            }
+
+            if (src.Type == dst.Type)
+            {
+                result = BallMergeResult.SameKind;
+                return false;
+            }
+
+            var srcDef = src.Def;
+            var dstDef = dst.Def;
+            int maxLevelA = srcDef.maxLevel;
+            int maxLevelB = dstDef.maxLevel;
+
+            if (src.Level < maxLevelA || dst.Level < maxLevelB)
+            {
+                result = BallMergeResult.NotMaxLevel;
+                return false;
+            }
+
+            var mergeGoldCost = 1;
+            if (!_owner.Player.Wallet.CanPay(mergeGoldCost))
+            {
+                result = BallMergeResult.GoldInsufficient;
+                return false;
+            }
+
+            if (!InventoryLocate.FindHolderOf(src, out var srcHolder))
+            {
+                result = BallMergeResult.HolderMissing;
+                return false;
+            }
+
+            if (!InventoryLocate.FindHolderOf(dst, out var dstHolder))
+            {
+                result = BallMergeResult.HolderMissing;
+                return false;
+            }
+
+            if (!ballManager.tryGetMergedDef(src.Type, dst.Type, out var mergedDef))
+            {
+                result = BallMergeResult.MergeRecipeMissing;
+                return false;
             }
 
             // 扣金币（在拆球前扣，避免回滚麻烦）
-            _owner.Player.loseGold(defA.MergeGoldCost, PayType.BALL_MERGE);
+            _owner.Player.loseGold(mergeGoldCost, PayType.BALL_MERGE);
 
             // 拆 a
-            if (!holderA.TryRemoveByItem(a))
+            if (!srcHolder.TryRemoveByItem(src))
             {
                 logError("BallMergeService: failed to remove a");
-                return null;
+                return false;
             }
 
-            BallEvents.RaiseDestroyed(a);
+            BallEvents.RaiseDestroyed(src);
 
             // 拆 b（若 a/b 同 holder，已经移除 a 不会再找到 b；用同样的 holder 再 RemoveByInstance 是 noop）
-            if (!ReferenceEquals(holderA, holderB))
+            int dstIndex;
+            if (ReferenceEquals(srcHolder, dstHolder))
             {
-                if (!holderB.TryRemoveByItem(b))
+                // 同 holder：a 已删，b 仍在；显式 RemoveByInstance
+                srcHolder.FindIndex(dst, out dstIndex);
+                srcHolder.TryRemoveByItem(dst);
+            }
+            else
+            {
+                dstHolder.FindIndex(dst, out dstIndex);
+                if (!dstHolder.TryRemoveByItem(dst))
                 {
                     logError("BallMergeService: failed to remove b");
                 }
             }
-            else
-            {
-                // 同 holder：a 已删，b 仍在；显式 RemoveByInstance
-                holderA.TryRemoveByItem(b);
-            }
 
-            BallEvents.RaiseDestroyed(b);
+            BallEvents.RaiseDestroyed(dst);
 
             // 创建融合球，Lv.1
-            var merged = BallItem.New(ballManager.getDef(BallType.Normal), level: 1);
-            if (!holderA.TryInsert(merged))
-                logError($"BallMergeService: failed to insert merged ball into {holderA.Name}");
+            result = BallMergeResult.Success;
+            mergedBallItem = BallItem.New(mergedDef, level: 1);
+            if (!srcHolder.TryInsertAt(mergedBallItem, dstIndex))
+                logError($"BallMergeService: failed to insert merged ball into {srcHolder.Name}");
 
-            BallEvents.RaiseCreated(merged);
-            BallEvents.RaiseMerged(a, b, merged);
-            return merged;
+            BallEvents.RaiseCreated(mergedBallItem);
+            BallEvents.RaiseMerged(src, dst, mergedBallItem);
+            return true;
         }
     }
 }

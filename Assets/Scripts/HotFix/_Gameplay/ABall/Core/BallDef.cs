@@ -9,7 +9,7 @@ namespace MoreMountains
     /// 系统初始化时把所有 BallDef 注册到 BallDefLibrary。
     /// </summary>
     [CreateAssetMenu(menuName = "MyFramework/Gameplay/BallDef")]
-    public sealed class BallDef : ScriptableObject, IRarityObject
+    public class BallDef : ScriptableObject, IRarityObject
     {
         public int BallDefId => (int)Type;
         public BallType Type;
@@ -19,18 +19,11 @@ namespace MoreMountains
         public int BasePrice = 10; // 商店售价 / 售出回收基于它
 
         [Header("Level")]
-        public int MaxLevel = 3;
+        public int maxLevel = 4;
 
         [Header("Upgrade Recipe")]
         public int UpgradeCombineCount = 2;
-
         public int UpgradeGoldCost;
-
-        [Header("Merge Recipe")]
-        /// <summary>融合后产物的 def id。0 / -1 表示不可融合。</summary>
-        public int MergeResultDefId;
-
-        public int MergeGoldCost = 100;
 
         [Header("Visual")]
         public Sprite Icon;

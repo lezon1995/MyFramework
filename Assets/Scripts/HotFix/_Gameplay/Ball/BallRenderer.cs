@@ -42,14 +42,13 @@ namespace MoreMountains
                 material.SetColor(PixelOutlineColor, color);
                 material.SetFloat(PixelOutlineFade, 1F);
                 
-                trailRenderer.setColor(color);
+                trailRenderer.setGradientColor(color);
             }
             else
             {
                 material.SetColor(PixelOutlineColor, Color.clear);
                 material.SetFloat(PixelOutlineFade, 0F);
-                
-                trailRenderer.setColor(Color.clear);
+                trailRenderer.setGradientColor(Color.clear);
             }
         }
 

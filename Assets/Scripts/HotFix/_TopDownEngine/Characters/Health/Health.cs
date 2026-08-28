@@ -521,7 +521,7 @@ namespace MoreMountains
                 DoResurrect();
 
             DamageEnabled();
-            
+
             if (Model)
                 Model.SetActive(true);
         }
@@ -589,7 +589,7 @@ namespace MoreMountains
         /// <returns></returns>
         public virtual bool ShouldApplyKnockback(Dmg damage)
         {
-            if (ImmuneToKnockbackIfZeroDamage && ComputeDamageOutput(ref damage))
+            if (ImmuneToKnockbackIfZeroDamage && ComputeDamageOutput(ref damage, null))
                 return false;
 
             if (Invincible)
@@ -668,7 +668,7 @@ namespace MoreMountains
                 }
             }
 
-            ComputeDamageOutput(ref dmg, calculator);
+            ComputeDamageOutput(ref dmg, source, calculator);
 
             //设置此次dmg实际造成的伤害，并通知伤害飘字显示
             {
@@ -775,7 +775,7 @@ namespace MoreMountains
         /// <summary>
         /// Returns the damage this health should take after processing potential resistances
         /// </summary>
-        public virtual bool ComputeDamageOutput(ref Dmg dmg, IDmgCalculator calculator = null)
+        public virtual bool ComputeDamageOutput(ref Dmg dmg, Character source, IDmgCalculator calculator = null)
         {
             float actualDamage;
             if (Invincible)
@@ -793,14 +793,40 @@ namespace MoreMountains
             float rawCritDamage = calculator.computeDamageCrit(dmg, rawBaseDamage);
             float rawFinalDamage = calculator.computeDamageRate(dmg, rawCritDamage);
 
+            var physicResist = AR;
+            var magicResist = MR;
+
+            if (source)
+            {
+                if (source.GetStat(Character.Stat.AD_PT_Rate, out var physicResistPenetrationRate))
+                {
+                    physicResist *= (1 - physicResistPenetrationRate.Value);
+                }
+
+                if (source.GetStat(Character.Stat.AD_PT, out var physicResistPenetration))
+                {
+                    physicResist -= physicResistPenetration.Value;
+                }
+
+                if (source.GetStat(Character.Stat.AP_PT_Rate, out var magicResistPenetrationRate))
+                {
+                    magicResist *= (1 - magicResistPenetrationRate.Value);
+                }
+
+                if (source.GetStat(Character.Stat.AP_PT, out var magicResistPenetration))
+                {
+                    magicResist -= magicResistPenetration.Value;
+                }
+            }
+
             if (dmg.Mix.On)
             {
-                dmg.Mix = calculator.computeDamageMix(dmg.Mix, rawFinalDamage, AR, MR);
+                dmg.Mix = calculator.computeDamageMix(dmg.Mix, rawFinalDamage, physicResist, magicResist);
                 actualDamage = dmg.Mix.Sum();
             }
             else
             {
-                actualDamage = calculator.computeDamageDefence(dmg.ActualType, rawFinalDamage, AR, MR);
+                actualDamage = calculator.computeDamageDefence(dmg.ActualType, rawFinalDamage, physicResist, magicResist);
             }
 
             dmg.SetDamageRaw((int)rawFinalDamage);
@@ -818,6 +844,19 @@ namespace MoreMountains
                 Heal.Algos.AllPct => maximumHealth * value,
                 _ => value
             };
+        }
+
+        protected virtual int ComputeHealRate(int value)
+        {
+            if (Character)
+            {
+                if (Character.GetStat(Character.Stat.HealRate, out var healRate))
+                {
+                    return (int)(value * (1 + healRate.Value));
+                }
+            }
+
+            return value;
         }
 
         /// <summary>
@@ -1013,7 +1052,7 @@ namespace MoreMountains
                     RefreshHealthBar(false);
                     break;
             }
-            
+
             onHealthChanged?.Invoke(CurrentHealth, maximumHealth);
         }
 
@@ -1041,7 +1080,7 @@ namespace MoreMountains
                 default:
                     throw new ArgumentOutOfRangeException(nameof(type), type, null);
             }
-            
+
             onHealthChanged?.Invoke(CurrentHealth, maximumHealth);
         }
 
@@ -1058,6 +1097,7 @@ namespace MoreMountains
                 return;
 
             var healing = ComputeHealAlgo(heal.Algo, heal.Value);
+            healing = ComputeHealRate(healing);
             if (healing <= 0F)
                 return;
 

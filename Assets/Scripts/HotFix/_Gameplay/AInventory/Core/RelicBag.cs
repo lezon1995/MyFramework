@@ -130,7 +130,7 @@ namespace MoreMountains
         {
             base.RaiseRemoved(item);
             
-            RelicItem.Release(ref item);
+            RelicItem.Release(item);
         }
 
         /// <summary>把 item.UnderlyingRelic 加入镜像集合(忽略 null 与重复)。</summary>

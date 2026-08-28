@@ -46,9 +46,10 @@ namespace MoreMountains
                 for (int i = 0; i < Slots.Count; i++)
                 {
                     var item = Slots[i].Item;
-                    if (item != null) 
+                    if (item != null)
                         list.Add(item);
                 }
+
                 return list;
             }
         }
@@ -59,7 +60,7 @@ namespace MoreMountains
             {
                 int n = 0;
                 for (int i = 0; i < Slots.Count; i++)
-                    if (Slots[i].Item != null) 
+                    if (Slots[i].Item != null)
                         n++;
                 return n;
             }
@@ -127,6 +128,7 @@ namespace MoreMountains
                 logError($"{BagName}: cannot add null");
                 return false;
             }
+
             if (slotIndex < 0 || slotIndex >= Slots.Count)
             {
                 logError($"{BagName}: AddAt index out of range {slotIndex}");
@@ -167,7 +169,7 @@ namespace MoreMountains
             }
 
             var item = Slots[slotIndex].Item;
-            if (item == null) 
+            if (item == null)
                 return false;
 
             Slots[slotIndex].Set(null);
@@ -203,6 +205,7 @@ namespace MoreMountains
                 s.OnSlotChanged += RaiseSlotChanged;
                 Slots.Add(s);
             }
+
             CapacityValue = target;
             OnBagChanged?.Invoke();
         }
@@ -225,6 +228,7 @@ namespace MoreMountains
                 last.OnSlotChanged -= RaiseSlotChanged;
                 Slots.RemoveAt(Slots.Count - 1);
             }
+
             CapacityValue -= delta;
             OnBagChanged?.Invoke();
         }
@@ -254,6 +258,7 @@ namespace MoreMountains
                     return true;
                 }
             }
+
             index = -1;
             return false;
         }
@@ -284,7 +289,7 @@ namespace MoreMountains
 
         public bool TryInsert(TItem item)
         {
-            if (item == null) 
+            if (item == null)
                 return false;
 
             try
@@ -298,10 +303,31 @@ namespace MoreMountains
             }
         }
 
+        public bool TryInsertAt(TItem item, int index)
+        {
+            if (item == null)
+                return false;
+
+            try
+            {
+                if (Slots[index].TrySet(item))
+                {
+                    RaiseAdded(item);
+                    return true;
+                }
+
+                return false;
+            }
+            catch (InventoryFullException)
+            {
+                return false;
+            }
+        }
+
         public bool FindIndex(TItem item, out int index)
         {
             index = -1;
-            if (item == null) 
+            if (item == null)
                 return false;
 
             for (int i = 0; i < Slots.Count; i++)
@@ -312,6 +338,7 @@ namespace MoreMountains
                     return true;
                 }
             }
+
             return false;
         }
 
@@ -331,6 +358,7 @@ namespace MoreMountains
     {
         bool TryRemoveByItem(T item);
         bool TryInsert(T item);
+        bool TryInsertAt(T item, int index);
         bool FindIndex(T item, out int index);
     }
 }

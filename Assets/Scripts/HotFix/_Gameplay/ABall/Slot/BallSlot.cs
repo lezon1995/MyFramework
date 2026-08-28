@@ -39,7 +39,7 @@ namespace MoreMountains
 
         public bool TrySet(BallItem ball)
         {
-            if (!IsEmpty)
+            if (IsOccupied)
                 return false;
 
             Item = ball;

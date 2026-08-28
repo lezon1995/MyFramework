@@ -15,6 +15,7 @@ namespace MoreMountains
 
         /// <summary>设置 Item；返回该 slot 原先的 Item（null 表示原来空着）。</summary>
         T Set(T item);
+        bool TrySet(T item);
 
         event Action<IInventorySlot<T>> OnSlotChanged;
     }

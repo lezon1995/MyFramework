@@ -29,6 +29,16 @@ namespace MoreMountains
             OnSlotChanged?.Invoke(this);
             return previous;
         }
+        
+        public bool TrySet(RelicItem item)
+        {
+            if (IsOccupied)
+                return false;
+
+            Item = item;
+            OnSlotChanged?.Invoke(this);
+            return true;
+        }
 
         public override string ToString()
         {

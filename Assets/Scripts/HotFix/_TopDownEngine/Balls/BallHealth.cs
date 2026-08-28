@@ -81,7 +81,7 @@ namespace MoreMountains
             return true;
         }
 
-        public override bool ComputeDamageOutput(ref Dmg dmg, IDmgCalculator calculator = null)
+        public override bool ComputeDamageOutput(ref Dmg dmg, Character source, IDmgCalculator calculator = null)
         {
             if (Invincible)
                 return false;
@@ -105,7 +105,7 @@ namespace MoreMountains
             if (!CanTakeDamageThisFrame(out _))
                 return;
 
-            ComputeDamageOutput(ref dmg, calculator);
+            ComputeDamageOutput(ref dmg, source, calculator);
 
             if (dmg.DamageDealt > 0)
             {

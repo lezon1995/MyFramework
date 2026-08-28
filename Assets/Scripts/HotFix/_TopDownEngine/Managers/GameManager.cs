@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using MoreMountains.Feedbacks;
 // using MoreMountains.InventoryEngine;
 using MoreMountains.Tools;
+using QFSW.QC;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -149,6 +150,8 @@ namespace MoreMountains
         IEvent<TopDownEngineEvent>,
         IEvent<TopDownEnginePointEvent>
     {
+        public QuantumConsole Console;
+
         [Tooltip("the target frame rate for the game")]
         public int TargetFrameRate = 300;
 
@@ -192,7 +195,9 @@ namespace MoreMountains
 
         // storage
         protected bool _inventoryOpen;
+
         protected bool _pauseMenuOpen;
+
         // protected InventoryInputManager _inventoryInputManager;
         protected int _initialMaximumLives;
         protected int _initialCurrentLives;
@@ -203,6 +208,21 @@ namespace MoreMountains
         protected override void Awake()
         {
             base.Awake();
+            if (Console)
+            {
+                Console.OnActivate += OnConsoleActivate;
+                Console.OnDeactivate += OnConsoleDeactivate;
+            }
+        }
+
+        static void OnConsoleActivate()
+        {
+            TopDownEngineEvent.Trigger(TopDownEngineEventTypes.Pause, null);
+        }
+
+        static void OnConsoleDeactivate()
+        {
+            TopDownEngineEvent.Trigger(TopDownEngineEventTypes.UnPause, null);
         }
 
         /// <summary>
@@ -217,13 +237,13 @@ namespace MoreMountains
 
         void Update()
         {
-            if (Input.GetKeyDown(KeyCode.Tab))
+            /*if (Input.GetKeyDown(KeyCode.Tab))
             {
                 if (Paused)
                     TopDownEngineEvent.Trigger(TopDownEngineEventTypes.UnPause, null);
                 else
                     TopDownEngineEvent.Trigger(TopDownEngineEventTypes.Pause, null);
-            }
+            }*/
         }
 
         /// <summary>
@@ -580,6 +600,15 @@ namespace MoreMountains
             this.removeListener<MMGameEvent>();
             this.removeListener<TopDownEngineEvent>();
             this.removeListener<TopDownEnginePointEvent>();
+        }
+
+        void OnDestroy()
+        {
+            if (Console)
+            {
+                Console.OnActivate -= OnConsoleActivate;
+                Console.OnDeactivate -= OnConsoleDeactivate;
+            }
         }
     }
 }

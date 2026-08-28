@@ -262,6 +262,30 @@ public class SmoothTrail : MonoBehaviour
             line.endColor = color;
         }
     }
+    public void setGradientColor(Color c)
+    {
+        color = c;
+        if (line)
+        {
+            var gradient = line.colorGradient;
+
+            var alphaKeys = gradient.alphaKeys;
+            alphaKeys[0].time = 0f;
+            alphaKeys[0].alpha = 58F/255F;
+            alphaKeys[1].time = 0.632f;
+            alphaKeys[1].alpha = 0f;
+            gradient.alphaKeys = alphaKeys;
+
+            var colorKeys = gradient.colorKeys;
+            colorKeys[0].time = 0f;
+            colorKeys[0].color = c;
+            colorKeys[1].time = 1f;
+            colorKeys[1].color = c;
+            gradient.colorKeys = colorKeys;
+
+            line.colorGradient = gradient;
+        }
+    }
 
     /// <summary>
     /// 设置拖尾宽度

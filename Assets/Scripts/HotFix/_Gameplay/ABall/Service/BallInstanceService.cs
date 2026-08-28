@@ -115,6 +115,8 @@ namespace MoreMountains
                 BallType.FissionMini => "Ball_FissionMini",
                 BallType.Duplicate => "Ball_Duplicate",
                 BallType.Missile => "Ball_Missile",
+
+                BallType.LaserBeam_Crossed => "MergedBall/Ball_LaserBeam_Crossed",
                 _ => "Ball_Normal"
             };
             var path = $"{GAMEPLAY_PATH}/Balls/{ballName}.prefab";
