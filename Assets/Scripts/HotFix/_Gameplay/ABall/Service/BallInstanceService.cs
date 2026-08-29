@@ -103,6 +103,7 @@ namespace MoreMountains
                 BallType.LaserBullet => "Ball_LaserBullet",
                 BallType.LightningStrike => "Ball_LightningStrike",
                 BallType.ElectricityStrike => "Ball_ElectricityStrike",
+                BallType.Electrified => "Ball_Electrified",
                 BallType.RockQuake => "Ball_RockQuake",
                 BallType.RockSplash => "Ball_RockSplash",
                 BallType.FireBurning => "Ball_FireBurning",
@@ -115,6 +116,8 @@ namespace MoreMountains
                 BallType.FissionMini => "Ball_FissionMini",
                 BallType.Duplicate => "Ball_Duplicate",
                 BallType.Missile => "Ball_Missile",
+                BallType.Shuriken => "Ball_Shuriken",
+                BallType.Bleed => "Ball_Bleed",
 
                 BallType.LaserBeam_Crossed => "MergedBall/Ball_LaserBeam_Crossed",
                 _ => "Ball_Normal"

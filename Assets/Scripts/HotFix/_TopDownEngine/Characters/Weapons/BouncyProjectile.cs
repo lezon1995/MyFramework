@@ -9,7 +9,8 @@ namespace MoreMountains
     /// </summary>
     public class BouncyProjectile : Projectile
     {
-        [Header("Bounciness Tech")] [Tooltip("the length of the raycast used to detect bounces, should be proportionate to the size and speed of your projectile")]
+        [Header("Bounciness Tech")]
+        [Tooltip("the length of the raycast used to detect bounces, should be proportionate to the size and speed of your projectile")]
         public float BounceRaycastLength = 1f;
 
         public bool IsPenetrable; //是否可穿透砖块
@@ -22,7 +23,9 @@ namespace MoreMountains
         [Tooltip("a feedback to trigger at every bounce")]
         public MMFeedbacks BounceFeedback;
 
-        [Header("Bounciness")] [Tooltip("the min and max amount of bounces (a value will be picked at random between both bounds)")] [MMVector("Min", "Max")]
+        [Header("Bounciness")]
+        [Tooltip("the min and max amount of bounces (a value will be picked at random between both bounds)")]
+        [MMVector("Min", "Max")]
         public Vector2Int AmountOfBounces = new(10, 10);
 
         protected int _amountOfBounces;
@@ -69,12 +72,12 @@ namespace MoreMountains
                     {
                         willPassingThroughThisFrame = false;
                         correctPos = Vector3.zero;
-                        CollidingManually(willPassingThroughHit);
+                        CollidingManually(willPassingThroughHit.collider.gameObject, willPassingThroughHit.normal, willPassingThroughHit.point);
                         willPassingThroughHit = default;
                         return;
                     }
                 }
-                
+
                 willPassingThroughThisFrame = CheckWillPassingThrough(dt, BounceLayers, out correctPos, out willPassingThroughHit);
                 if (willPassingThroughThisFrame)
                 {
@@ -93,7 +96,7 @@ namespace MoreMountains
                     {
                         willPassingThroughThisFrame = false;
                         correctPos = Vector3.zero;
-                        CollidingManually(willPassingThroughHit);
+                        CollidingManually(willPassingThroughHit.collider.gameObject, willPassingThroughHit.normal, willPassingThroughHit.point);
                         willPassingThroughHit = default;
                         return;
                     }
@@ -134,20 +137,23 @@ namespace MoreMountains
                 return;
 
             var hit = MMDebug.RayCast(transform.position, Direction.normalized, BounceRaycastLength, BounceLayers, MMColors.DarkOrange, true);
-            EvaluateHit2D(hit);
+            if (hit)
+            {
+                EvaluateHit2D(hit.collider.gameObject, hit.normal, hit.point);
+            }
         }
 
         /// <summary>
         /// Decides whether we should bounce
         /// </summary>
-        protected virtual void EvaluateHit2D(RaycastHit2D hit)
+        protected virtual void EvaluateHit2D(GameObject hitObject, Vector2 hitNormal, Vector2 hitPoint)
         {
-            if (!hit)
+            if (hitObject == null)
                 return;
 
             if (_bouncesLeft > 0)
             {
-                Bounce2D(hit);
+                Bounce2D(hitObject, hitNormal);
             }
             else
             {
@@ -165,17 +171,20 @@ namespace MoreMountains
             if (_health.CurrentHealth <= 0)
                 return;
 
-            EvaluateHit2D(hit);
+            if (hit)
+            {
+                EvaluateHit2D(hit.collider.gameObject, hit.normal, hit.point);
+            }
         }
 
         /// <summary>
         /// Applies a bounce in 2D
         /// </summary>
         /// <param name="hit"></param>
-        protected virtual void Bounce2D(RaycastHit2D hit)
+        protected virtual void Bounce2D(GameObject hitObject, Vector2 hitNormal)
         {
             BounceFeedback.Play();
-            var reflectDir = Vector3.Reflect(Direction, hit.normal).normalized;
+            var reflectDir = Vector3.Reflect(Direction, hitNormal).normalized;
             float angle = Vector3.Angle(Direction, reflectDir);
             SetDirection(reflectDir, Quaternion.identity);
             transform.right = _spawnerIsFacingRight ? reflectDir.normalized : -reflectDir.normalized;

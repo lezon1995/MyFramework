@@ -107,6 +107,20 @@ MonoBehaviour:
     m_Localized: Deals 24-36 magic damage to all enemies in the same row and column
     m_Metadata:
       m_Items: []
+  - m_Id: 3634145370066944
+    m_Localized: It will bounce towards nearby enemies upon hit.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3728709162389504
+    m_Localized: applies 1 stack of Electrified on hit, each stack of Electrified
+      deals 5 magic damage upon impact.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3729816987127808
+    m_Localized: Apply 1 stack of Bleed to the target. Each stack of Bleed deals
+      an additional 2 points of true damage when attacked (maximum 4 stacks).
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

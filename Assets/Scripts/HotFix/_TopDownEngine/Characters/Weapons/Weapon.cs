@@ -98,6 +98,8 @@ namespace MoreMountains
         [Tooltip("是否要求有瞄准目标才能射击")]
         public bool RequireAimTarget;
 
+        public virtual bool requireTargetToShoot => RequireAimTarget;
+
         [Tooltip("is this weapon on semi or full auto ?")]
         public TriggerModes TriggerMode = TriggerModes.Auto;
 
@@ -572,7 +574,7 @@ namespace MoreMountains
             if (_reloading)
                 return;
 
-            if (RequireAimTarget && _aimTarget == null)
+            if (requireTargetToShoot && _aimTarget == null)
                 return;
 
             if (State.Is(States.Idle))
@@ -967,7 +969,7 @@ namespace MoreMountains
             if (_reloading)
                 return;
 
-            if (RequireAimTarget && _aimTarget == null)
+            if (requireTargetToShoot && _aimTarget == null)
                 return;
 
             if (_weaponPreventShooting && !_weaponPreventShooting.ShootingAllowed())

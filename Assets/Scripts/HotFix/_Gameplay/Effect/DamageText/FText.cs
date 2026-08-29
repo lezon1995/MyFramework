@@ -76,7 +76,7 @@ public class FText : Transformable
         obj.find(out _tmpPlusOutline, "Content/TextPlusOutline");
         obj.find(out _content, "Content");
         obj.find(out _icon, "Content/Icon");
-        obj.find(out _metaIcon, "Content/MetaIcon");
+        obj.find(out _metaIcon, "Content/Meta/MetaIcon");
         obj.TryGetComponent(out _canvas);
         obj.TryGetComponent(out _rectTransform);
         CLASS(out _text).with(_tmp, _tmpOutline);
@@ -107,12 +107,12 @@ public class FText : Transformable
             {
                 _metaIcon.sprite = metaIcon.sprite;
                 _metaIcon.color = metaIcon.color;
-                _metaIcon.gameObject.SetActive(true);
+                _metaIcon.transform.parent.gameObject.SetActive(true);
             }
             else
             {
                 _metaIcon.sprite = null;
-                _metaIcon.gameObject.SetActive(false);
+                _metaIcon.transform.parent.gameObject.SetActive(false);
             }
         }
 
@@ -148,10 +148,9 @@ public class FText : Transformable
             return;
 
         //set the start position
-        var p = worldToScreen(data.getPosition());
-        setWorldPosition(p);
+        _screenPos = worldToScreen(data.getPosition());
+        setPosition(data, _totalPct);
         data.initialPos = getWorldPosition();
-        _screenPos = getWorldPosition();
 
         if (data.hasFlag(Data.Flags.InvertHorizontalDirectionRandomly))
             data.invertHorizontalDirection = Random.value > 0.5f;
@@ -271,7 +270,7 @@ public class FText : Transformable
                     else
                     {
                         _screenPos = worldToScreen(data.getPosition());
-                        setWorldPosition(_screenPos);
+                        setPosition(data, _totalPct);
                     }
 
                     return;
@@ -299,7 +298,7 @@ public class FText : Transformable
                     {
                         _pct += elapsedTime / staticDuration;
                         _screenPos = worldToScreen(data.getPosition());
-                        setWorldPosition(_screenPos);
+                        setPosition(data, _totalPct);
                         return;
                     }
 

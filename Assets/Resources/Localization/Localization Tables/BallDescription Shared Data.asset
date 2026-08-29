@@ -95,6 +95,18 @@ MonoBehaviour:
     m_Key: LaserBeam_Cross
     m_Metadata:
       m_Items: []
+  - m_Id: 3634145370066944
+    m_Key: Shuriken
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3728709162389504
+    m_Key: Electrified
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3729816987127808
+    m_Key: Bleed
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

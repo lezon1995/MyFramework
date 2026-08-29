@@ -5,6 +5,8 @@
         None,
         Fire,
         Poison,
+        Bleed,
+        Electrified,
     }
     public class Buff_FireBurning : Buff
     {

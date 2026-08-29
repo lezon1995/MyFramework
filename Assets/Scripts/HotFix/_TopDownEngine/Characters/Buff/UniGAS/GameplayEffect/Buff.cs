@@ -26,6 +26,7 @@ namespace MoreMountains
 
         public Action OnRemoved { get; set; }
         public Action<Buffable> OnRemovedTarget { get; set; }
+        public Func<Dmg> DmgGetter { get; set; }
 
         Mod[] mods => main.Mods;
         bool isInstantDamage => main.IsInstantDamage;

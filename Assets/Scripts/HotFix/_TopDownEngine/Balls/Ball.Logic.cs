@@ -69,16 +69,16 @@ namespace MoreMountains
         public Vector3 targetPos;
         Vector2 lastDirection;
         Vector2 hitNormal;
-        bool hasCorrectPosThisFixedUpdate;
+        protected bool hasCorrectPosThisFixedUpdate;
         public BallCounters counters = new();
 
-        float movementDelta;
+        protected float movementDelta;
         float lastRadius;
         bool enabled;
         bool hasBeenCollided;
         int delayCounter;
 
-        Timer lifeDuration;
+        protected Timer lifeDuration;
         public bool isExpired { get; set; }
 
         public IHittable lastHittable;
@@ -185,7 +185,7 @@ namespace MoreMountains
                     {
                         if (willPassingThroughThisFrame)
                         {
-                            CollidingManually(willPassingThroughHit);
+                            CollidingManually(willPassingThroughHit.collider.gameObject, willPassingThroughHit.normal, willPassingThroughHit.point);
                             willPassingThroughThisFrame = false;
                             correctPos = Vector3.zero;
                             willPassingThroughHit = default;
@@ -195,7 +195,7 @@ namespace MoreMountains
                     {
                         if (willPassingThroughThisFrame && curPos == correctPos)
                         {
-                            CollidingManually(willPassingThroughHit);
+                            CollidingManually(willPassingThroughHit.collider.gameObject, willPassingThroughHit.normal, willPassingThroughHit.point);
                             willPassingThroughThisFrame = false;
                             correctPos = Vector3.zero;
                             willPassingThroughHit = default;
@@ -269,7 +269,7 @@ namespace MoreMountains
                     {
                         willPassingThroughThisFrame = false;
                         correctPos = Vector3.zero;
-                        CollidingManually(willPassingThroughHit);
+                        CollidingManually(willPassingThroughHit.collider.gameObject, willPassingThroughHit.normal, willPassingThroughHit.point);
                         willPassingThroughHit = default;
                         return;
                     }
@@ -289,6 +289,11 @@ namespace MoreMountains
             if (FaceMovement)
                 FaceMovementDirection(Direction);
 
+            CheckExpiration(dt);
+        }
+
+        protected void CheckExpiration(float dt)
+        {
             if (lifeDuration.update(dt) || isExpired)
             {
                 new OnBallExpired(this).trigger(this);
@@ -680,7 +685,7 @@ namespace MoreMountains
             return dmg;
         }
 
-        public void refreshDuration()
+        public virtual void refreshDuration()
         {
             player.GetStat(Character.Stat.Duration, out var playerDuration);
             GetStat(Stat.Duration, out var ballDuration);

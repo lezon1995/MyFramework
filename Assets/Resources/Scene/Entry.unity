@@ -24728,6 +24728,11 @@ PrefabInstance:
       propertyPath: Console
       value: 
       objectReference: {fileID: 4307586}
+    - target: {fileID: 4685164075240794633, guid: e4cba4ff37a8c9f49841035f0e55e6af,
+        type: 3}
+      propertyPath: TargetFrameRate
+      value: 60
+      objectReference: {fileID: 0}
     - target: {fileID: 7421060504114360396, guid: e4cba4ff37a8c9f49841035f0e55e6af,
         type: 3}
       propertyPath: m_LocalPosition.x

@@ -37,6 +37,7 @@ namespace MoreMountains
         public LocalizedString DisplayDescription;
 
         public MetaHandleWeapon MetaHandleWeapon;
+        public bool RequireTargetToShoot;
 
         public static void BuildDescription(MyStringBuilder sb, BallItem item, APlayer p = null)
         {

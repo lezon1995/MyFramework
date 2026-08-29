@@ -306,7 +306,10 @@ namespace MoreMountains
                 }
             }
 
-            EvaluateHit2D(hit);
+            if (hit)
+            {
+                EvaluateHit2D(hit.collider.gameObject, hit.normal, hit.point);
+            }
         }
 
         SafeDictionary<Brick, MTimer> brickHitTimers = new();
@@ -324,20 +327,19 @@ namespace MoreMountains
             brickHitTimers.clear();
         }
 
-        protected override void CollidingManually(RaycastHit2D hit)
+        protected override void CollidingManually(GameObject hitObject, Vector2 hitNormal, Vector2 hitPoint)
         {
             var ball = this;
             bool needReflect = true;
-            var c = hit.collider;
-            var layer = c.gameObject.layer;
+            var layer = hitObject.layer;
             if (IsPenetrable && PenetrableLayers.MMContains(layer))
                 needReflect = false;
 
-            var normal = hit.normal;
+            var normal = hitNormal;
             switch (layer)
             {
                 case LayerManager.Brick:
-                    if (c.TryGetComponent(out Brick brick))
+                    if (hitObject.TryGetComponent(out Brick brick))
                     {
                         if (IsTheBrickBeingIgnoredToHit(brick))
                         {
@@ -364,7 +366,7 @@ namespace MoreMountains
 
                     break;
                 case LayerManager.Obstacles:
-                    if (c.TryGetComponent(out Obstacle obstacle))
+                    if (hitObject.TryGetComponent(out Obstacle obstacle))
                     {
                         lastHittable = obstacle;
                         foreach (var p in powers)
@@ -385,19 +387,19 @@ namespace MoreMountains
 
             if (needReflect)
             {
-                EvaluateHit2D(hit);
+                EvaluateHit2D(hitObject, hitNormal, hitPoint);
             }
         }
 
         /// <summary>
         /// Decides whether we should bounce
         /// </summary>
-        protected override void EvaluateHit2D(RaycastHit2D hit)
+        protected override void EvaluateHit2D(GameObject hitObject, Vector2 hitNormal, Vector2 hitPoint)
         {
-            if (!hit)
+            if (hitObject == null)
                 return;
 
-            var pos = hit.point + hit.normal * Radius;
+            var pos = hitPoint + hitNormal * Radius;
             hasCorrectPosThisFixedUpdate = true;
             curPos = pos;
             _rigidBody2D.position = pos;
@@ -405,7 +407,7 @@ namespace MoreMountains
 
             if (_bouncesLeft > 0)
             {
-                Bounce2D(hit);
+                Bounce2D(hitObject, hitNormal);
             }
             else
             {
@@ -436,15 +438,18 @@ namespace MoreMountains
                 }
             }
 
-            EvaluateHit2D(hit);
+            if (hit)
+            {
+                EvaluateHit2D(hit.collider.gameObject, hit.normal, hit.point);
+            }
         }
 
-        protected override void Bounce2D(RaycastHit2D hit)
+        protected override void Bounce2D(GameObject hitObject, Vector2 hitNormal)
         {
             BounceFeedback.Play();
-            var reflectDir = Vector2.Reflect(Direction, hit.normal).normalized;
-            bool fromBrick = hit.collider.gameObject.layer == LayerManager.Brick;
-            player.onBallReflect(this, hit.normal, fromBrick, ref reflectDir);
+            var reflectDir = Vector2.Reflect(Direction, hitNormal).normalized;
+            bool fromBrick = hitObject.layer == LayerManager.Brick;
+            player.onBallReflect(this, hitNormal, fromBrick, ref reflectDir);
             float angle = Vector2.Angle(Direction, reflectDir);
             SetDirection(reflectDir, Quaternion.identity);
             _bouncesLeft--;

@@ -760,6 +760,12 @@ namespace MoreMountains
             return this;
         }
 
+        public Dmg SetValue(int value)
+        {
+            Value = value;
+            return this;
+        }
+
         public Dmg SetEffect(Effects effect)
         {
             Effect = effect;

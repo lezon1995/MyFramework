@@ -135,7 +135,7 @@ namespace MoreMountains.Feedbacks
         [MMInspectorButton("TestButtonToSlowDownTime")]
         public bool TestButton;
 
-        protected Stack<TimeScaleProperties> _timeScaleProperties;
+        protected Stack<TimeScaleProperties> _timeScaleProperties = new();
         protected TimeScaleProperties _currentProperty;
         protected TimeScaleProperties _resetProperty;
         protected float _initialFixedDeltaTime;
@@ -175,7 +175,10 @@ namespace MoreMountains.Feedbacks
         /// </summary>
         public virtual void PreInitialization()
         {
-            _timeScaleProperties = new Stack<TimeScaleProperties>();
+            TargetTimeScale = NormalTimeScale;
+            _initialFixedDeltaTime = Time.fixedDeltaTime;
+            _initialMaximumDeltaTime = Time.maximumDeltaTime;
+            ApplyTimeScale(NormalTimeScale);
         }
 
         /// <summary>
@@ -191,10 +194,6 @@ namespace MoreMountains.Feedbacks
         /// </summary>
         public virtual void Initialization()
         {
-            TargetTimeScale = NormalTimeScale;
-            _initialFixedDeltaTime = Time.fixedDeltaTime;
-            _initialMaximumDeltaTime = Time.maximumDeltaTime;
-            ApplyTimeScale(NormalTimeScale);
         }
 
         /// <summary>
@@ -261,7 +260,7 @@ namespace MoreMountains.Feedbacks
         }
 
         /// <summary>
-        /// Modifies the time scale and time attributes to match the new time scale
+        /// Modifies the timescale and time attributes to match the new timescale
         /// </summary>
         /// <param name="newValue"></param>
         protected virtual void ApplyTimeScale(float newValue)
@@ -273,7 +272,7 @@ namespace MoreMountains.Feedbacks
             if (UpdateTimescale)
                 Time.timeScale = newValue;
 
-            if (UpdateFixedDeltaTime && (newValue != 0))
+            if (UpdateFixedDeltaTime && newValue != 0)
                 Time.fixedDeltaTime = _initialFixedDeltaTime * newValue;
 
             if (UpdateMaximumDeltaTime)

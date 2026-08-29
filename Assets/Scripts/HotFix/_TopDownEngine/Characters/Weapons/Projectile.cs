@@ -214,7 +214,7 @@ namespace MoreMountains
             }
         }
 
-        protected virtual void CollidingManually(RaycastHit2D hit)
+        protected virtual void CollidingManually(GameObject hitObject, Vector2 hitNormal, Vector2 hitPoint)
         {
         }
 

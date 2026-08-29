@@ -124,6 +124,9 @@ namespace MoreMountains
 
     public struct OnHit
     {
+        public OnHit()
+        {
+        }
     }
 
     public struct OnRevive

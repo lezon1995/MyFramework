@@ -386,7 +386,7 @@ namespace MoreMountains
         {
             if (!_characterAbilities.Contains(ability))
                 return;
-            
+
             // var list = AdditionalAbilityNodes;
             // list.Remove(ability.gameObject);
             //
@@ -892,6 +892,9 @@ namespace MoreMountains
         {
             Combat.Turn(true);
             onTakeDmg?.Invoke(e.Source, this, e.Dmg);
+
+            if (Buffable)
+                Buffable.OnTakeDmg(e);
         }
 
         public virtual void onEvent(OnCombat e)

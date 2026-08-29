@@ -98,6 +98,18 @@ MonoBehaviour:
     m_Localized: Crossed Laser
     m_Metadata:
       m_Items: []
+  - m_Id: 3634210197229568
+    m_Localized: Shuriken
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3728751910735872
+    m_Localized: Electrified
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3729856954650624
+    m_Localized: Bleed
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

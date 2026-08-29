@@ -499,5 +499,13 @@ namespace MoreMountains
                 buff.NotifyOnCombat(inCombat);
             }
         }
+
+        public void OnTakeDmg(OnDmg e)
+        {
+            foreach (var b in Buffs)
+            {
+                b.OnTakeDmg(e);
+            }
+        }
     }
 }

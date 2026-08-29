@@ -16,6 +16,17 @@ namespace MoreMountains
 
         [MMInspectorGroup("ID")]
         public SpriteRenderer BallWeaponSpriteRenderer;
+        
+        public override bool requireTargetToShoot
+        {
+            get
+            {
+                if (BallDef)
+                    return BallDef.RequireTargetToShoot;
+
+                return RequireAimTarget;
+            }
+        }
 
         public override void Initialization()
         {
