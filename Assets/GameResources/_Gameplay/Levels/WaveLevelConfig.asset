@@ -49,7 +49,7 @@ MonoBehaviour:
     enableContinuousSpawning: 1
     targetCoverageRatio: 0.25
     minSpawnInterval: 0.5
-    maxSpawnInterval: 0.5
+    maxSpawnInterval: 1
     killSpeedSensitivity: 2
     edgeBiasProbability: 0.5
     edgeBiasPercent: 0.6
@@ -73,7 +73,7 @@ MonoBehaviour:
       forceSpawnOnce: 0
       atLeastSpawnCount: 5
     maxActiveMonsters: 50
-    minActiveMonsters: 10
+    minActiveMonsters: 7
     defeatAllMaxTotalSpawn: 0
     healthScaling: 1
     damageScaling: 1
@@ -88,15 +88,15 @@ MonoBehaviour:
     enableSmartSpawning: 1
     denseRadius: 1
     sparseThreshold: 1
-    enableContinuousSpawning: 1
+    enableContinuousSpawning: 0
     targetCoverageRatio: 0.3
     minSpawnInterval: 0.5
-    maxSpawnInterval: 0.5
+    maxSpawnInterval: 1
     killSpeedSensitivity: 2
     edgeBiasProbability: 0.5
     edgeBiasPercent: 0.7
     edgeBiasPercentAmplitude: 0.15
-    enableShapeSpawning: 1
+    enableShapeSpawning: 0
     shapeSpawnWeight: 30
     shapeSpawnMaxRetries: 20
   - waveNumber: 3
@@ -115,7 +115,7 @@ MonoBehaviour:
       forceSpawnOnce: 0
       atLeastSpawnCount: 6
     maxActiveMonsters: 50
-    minActiveMonsters: 12
+    minActiveMonsters: 8
     defeatAllMaxTotalSpawn: 0
     healthScaling: 1
     damageScaling: 1
@@ -130,7 +130,7 @@ MonoBehaviour:
     enableSmartSpawning: 1
     denseRadius: 1
     sparseThreshold: 1
-    enableContinuousSpawning: 1
+    enableContinuousSpawning: 0
     targetCoverageRatio: 0.3
     minSpawnInterval: 0.5
     maxSpawnInterval: 0.5
@@ -138,7 +138,7 @@ MonoBehaviour:
     edgeBiasProbability: 0.5
     edgeBiasPercent: 0.7
     edgeBiasPercentAmplitude: 0.15
-    enableShapeSpawning: 1
+    enableShapeSpawning: 0
     shapeSpawnWeight: 30
     shapeSpawnMaxRetries: 20
   - waveNumber: 4
@@ -157,7 +157,7 @@ MonoBehaviour:
       forceSpawnOnce: 0
       atLeastSpawnCount: 0
     maxActiveMonsters: 50
-    minActiveMonsters: 15
+    minActiveMonsters: 9
     defeatAllMaxTotalSpawn: 0
     healthScaling: 1
     damageScaling: 1
@@ -172,7 +172,7 @@ MonoBehaviour:
     enableSmartSpawning: 1
     denseRadius: 1
     sparseThreshold: 1
-    enableContinuousSpawning: 1
+    enableContinuousSpawning: 0
     targetCoverageRatio: 0.3
     minSpawnInterval: 1
     maxSpawnInterval: 2
@@ -180,7 +180,7 @@ MonoBehaviour:
     edgeBiasProbability: 0.5
     edgeBiasPercent: 0.7
     edgeBiasPercentAmplitude: 0.15
-    enableShapeSpawning: 1
+    enableShapeSpawning: 0
     shapeSpawnWeight: 30
     shapeSpawnMaxRetries: 20
   - waveNumber: 5
@@ -199,7 +199,7 @@ MonoBehaviour:
       forceSpawnOnce: 0
       atLeastSpawnCount: 0
     maxActiveMonsters: 50
-    minActiveMonsters: 20
+    minActiveMonsters: 10
     defeatAllMaxTotalSpawn: 0
     healthScaling: 1
     damageScaling: 1

@@ -27,10 +27,10 @@ MonoBehaviour:
   - sprite: {fileID: 512191485, guid: 402167e13a5b1d84bb33c1f1cfc3f3c2, type: 3}
     color: {r: 1, g: 1, b: 1, a: 1}
   ContentScale: 1.1
-  StartSequenceDuration: 0.3
-  StaticDuration: 0.2
+  StartSequenceDuration: 0.25
+  StaticDuration: 0.35
   FloatingDuration: 0
-  FinishSequenceDuration: 0.2
+  FinishSequenceDuration: 0.15
   StartScaleCurve:
     serializedVersion: 2
     m_Curve:
@@ -215,10 +215,10 @@ MonoBehaviour:
       inWeight: 0
       outWeight: 0
     - serializedVersion: 3
-      time: 0.3611691
-      value: 28
+      time: 0.3945032
+      value: 35.99239
       inSlope: 10.933371
-      outSlope: 18.783665
+      outSlope: 6.6184735
       tangentMode: 65
       weightedMode: 0
       inWeight: 0.33333334
@@ -226,7 +226,7 @@ MonoBehaviour:
     - serializedVersion: 3
       time: 1.000022
       value: 40
-      inSlope: 18.783665
+      inSlope: 6.6184735
       outSlope: -0.039827015
       tangentMode: 5
       weightedMode: 0

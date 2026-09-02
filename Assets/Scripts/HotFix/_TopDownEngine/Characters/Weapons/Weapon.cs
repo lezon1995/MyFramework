@@ -57,14 +57,16 @@ namespace MoreMountains
         public UniStats.Stat GetStat(Stat key)
         {
             if (Stats == null)
-                TryGetComponent(out Stats);
+                _hasStats = TryGetComponent(out Stats);
+            else
+                _hasStats = true;
 
-            return Stats == null ? null : Stats.GetStat(key.Key());
+            return _hasStats ? Stats.GetStat(key.Key()) : null;
         }
 
         public bool GetStat(Stat key, out UniStats.Stat stat)
         {
-            if (Stats == null)
+            if (!_hasStats)
             {
                 stat = null;
                 return false;
@@ -320,6 +322,7 @@ namespace MoreMountains
         [MMInspectorGroup("Stats")]
         [Tooltip("the Stats script associated to this Weapon, will be grabbed automatically if left empty")]
         public Stats Stats;
+        protected bool _hasStats;
 
         public bool IsCritThisFrame { get; set; }
         public float CritDamageThisFrame { get; set; }
@@ -440,7 +443,9 @@ namespace MoreMountains
                 CurrentAmmoLoaded = MagazineSize;
 
             if (Stats == null)
-                TryGetComponent(out Stats);
+                _hasStats = TryGetComponent(out Stats);
+            else
+                _hasStats = true;
 
             InitializeFeedbacks();
         }

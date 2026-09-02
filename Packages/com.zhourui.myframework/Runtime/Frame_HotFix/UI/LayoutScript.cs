@@ -245,7 +245,7 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 		{
 			mRegisterChecked = true;
 			// 检查是否注册了所有的ScrollRect
-			using var a = new ListScope<ScrollRect>(out var scrollViewList);
+			/*using var a = new ListScope<ScrollRect>(out var scrollViewList);
 			mRoot.getGameObject().GetComponentsInChildren(scrollViewList);
 			foreach (ScrollRect item in scrollViewList)
 			{
@@ -253,7 +253,7 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 				{
 					logError("滑动列表未注册:" + item.gameObject.name + ", layout:" + mLayout.getName());
 				}
-			}
+			}*/
 
 			// 所有的原生UGUI输入框
 			using var b = new ListScope<InputField>(out var inputFieldList);
@@ -422,22 +422,22 @@ public abstract class LayoutScript : DelayCmdWatcher, ILocalizationCollection, I
 	}
 	public T newObject<T>(out T obj, string name) where T : myUGUIObject, new()
 	{
-		return newObject(out obj, mRoot, name, true);
+		return newObject(out obj, mRoot, name, true, true);
 	}
 	public T newObject<T>(out T obj, string name, bool showError) where T : myUGUIObject, new()
 	{
-		return newObject(out obj, mRoot, name, showError);
+		return newObject(out obj, mRoot, name, showError, true);
 	}
 	public T newObject<T>(out T obj, myUGUIObject parent, string name) where T : myUGUIObject, new()
 	{
-		return newObject(out obj, parent, name, true);
+		return newObject(out obj, parent, name, true, true);
 	}
 	public T newObject<T>(myUGUIObject parent, out T obj, string name) where T : myUGUIObject, new()
 	{
-		return newObject(out obj, parent, name, true, false);
+		return newObject(out obj, parent, name, true, true);
 	}
 	// 创建myUGUIObject,并且在布局中查找GameObject分配到myUGUIObject
-	public T newObject<T>(out T obj, myUGUIObject parent, string name, bool showError, bool setParent = false) where T : myUGUIObject, new()
+	public T newObject<T>(out T obj, myUGUIObject parent, string name, bool showError, bool setParent) where T : myUGUIObject, new()
 	{
 		obj = null;
 		// 支持路径格式"ChildA/ChildB/Text",自动为中间节点创建myUGUIObject并建立父子关系

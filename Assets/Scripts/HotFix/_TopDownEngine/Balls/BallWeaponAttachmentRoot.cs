@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using MoreMountains.Tools;
 using Sirenix.OdinInspector;
 
 namespace MoreMountains
@@ -22,6 +23,8 @@ namespace MoreMountains
 
         // 缓存所有子节点
         List<Transform> _children = new();
+        List<MMAutoRotate> _childrenRotate = new();
+        List<SpriteRenderer> _childrenSprites = new();
 
         void Start()
         {
@@ -47,13 +50,17 @@ namespace MoreMountains
         {
             // 收集所有子节点
             _children.Clear();
+            _childrenRotate.Clear();
+            _childrenSprites.Clear();
+
             for (int i = 0; i < transform.childCount; i++)
             {
                 var child = transform.GetChild(i);
                 if (child.gameObject.activeSelf)
-                {
                     _children.Add(child);
-                }
+
+                _childrenRotate.Add(child.GetComponent<MMAutoRotate>());
+                _childrenSprites.Add(child.GetComponent<SpriteRenderer>());
             }
 
             if (_children.Count == 0)
@@ -159,6 +166,16 @@ namespace MoreMountains
         {
             baseIndex = newBaseIndex;
             RefreshLayout();
+        }
+
+        public void SetChildRotate(int index, bool rotate)
+        {
+            _childrenRotate[index].Rotating = rotate;
+        }
+
+        public SpriteRenderer GetAttachmentSpriteRenderer(int index)
+        {
+            return _childrenSprites[index];
         }
 
         void OnDrawGizmos()

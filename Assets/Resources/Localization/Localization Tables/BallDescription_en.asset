@@ -121,6 +121,25 @@ MonoBehaviour:
       an additional 2 points of true damage when attacked (maximum 4 stacks).
     m_Metadata:
       m_Items: []
+  - m_Id: 4753426929438720
+    m_Localized: Pierces through enemies, dealing continuous damage while passing
+      through.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4858599144181760
+    m_Localized: It has a 100% crit chance, but its movement speed is only 4.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5075897213800448
+    m_Localized: Passing through enemies, moving at lightning speed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5083922846732288
+    m_Localized: On hit, steals 1 Armor and 1 Magic Resist from the target, and deals
+      bonus physical damage equal to 50% of your Armor and bonus magic damage equal
+      to 50% of your Magic Resist.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

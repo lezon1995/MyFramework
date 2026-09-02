@@ -38,6 +38,8 @@ namespace MoreMountains
 
         public MetaHandleWeapon MetaHandleWeapon;
         public bool RequireTargetToShoot;
+        public bool RotateWithWeaponAttachment = true;
+        public bool PlaceIconAtWeaponAttachment;
 
         public static void BuildDescription(MyStringBuilder sb, BallItem item, APlayer p = null)
         {

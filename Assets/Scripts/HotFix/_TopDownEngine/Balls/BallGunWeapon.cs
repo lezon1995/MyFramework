@@ -16,7 +16,9 @@ namespace MoreMountains
 
         [MMInspectorGroup("ID")]
         public SpriteRenderer BallWeaponSpriteRenderer;
-        
+
+        protected SpriteRenderer BallWeaponAttachmentSpriteRenderer;
+
         public override bool requireTargetToShoot
         {
             get
@@ -32,13 +34,38 @@ namespace MoreMountains
         {
             base.Initialization();
 
-            if (BallWeaponSpriteRenderer)
+            if (BallDef.PlaceIconAtWeaponAttachment)
             {
-                BallWeaponSpriteRenderer.sprite = BallDef.Icon;
+                if (BallWeaponAttachmentSpriteRenderer)
+                {
+                    BallWeaponAttachmentSpriteRenderer.sprite = BallDef.Icon;
+                }
+            }
+            else
+            {
+                if (BallWeaponSpriteRenderer)
+                {
+                    BallWeaponSpriteRenderer.sprite = BallDef.Icon;
+                }
             }
 
             Stats.InitializeStats(BallDef.StatsTemplate);
             InitializeStats();
+        }
+
+        protected override void OnUpdate(float dt)
+        {
+            base.OnUpdate(dt);
+        }
+
+        protected override void OnLateUpdate(float dt)
+        {
+            base.OnLateUpdate(dt);
+        }
+
+        public void SetBallAttachmentSpriteRenderer(SpriteRenderer spriteRenderer)
+        {
+            BallWeaponAttachmentSpriteRenderer = spriteRenderer;
         }
 
         public void SetBallSlot(BallInventorySlot slot)
@@ -49,19 +76,33 @@ namespace MoreMountains
         public void SetBallDef(BallDef def)
         {
             BallDef = def;
-            if (BallWeaponSpriteRenderer)
+
+            if (def)
             {
-                if (def)
+                Stats.InitializeStats(def.StatsTemplate);
+                InitializeStats();
+
+                if (def.PlaceIconAtWeaponAttachment)
                 {
-                    BallWeaponSpriteRenderer.sprite = def.Icon;
+                    BallWeaponAttachmentSpriteRenderer.sprite = def.Icon;
+                    BallWeaponAttachmentSpriteRenderer.enabled = true;
+
+                    BallWeaponSpriteRenderer.sprite = null;
                     BallWeaponSpriteRenderer.gameObject.SetActive(true);
-                    Stats.InitializeStats(def.StatsTemplate);
-                    InitializeStats();
                 }
                 else
                 {
-                    BallWeaponSpriteRenderer.gameObject.SetActive(false);
+                    BallWeaponAttachmentSpriteRenderer.sprite = null;
+                    BallWeaponAttachmentSpriteRenderer.enabled = false;
+
+                    BallWeaponSpriteRenderer.sprite = def.Icon;
+                    BallWeaponSpriteRenderer.gameObject.SetActive(true);
                 }
+            }
+            else
+            {
+                BallWeaponSpriteRenderer.gameObject.SetActive(false);
+                BallWeaponAttachmentSpriteRenderer.enabled = false;
             }
         }
 
@@ -70,7 +111,12 @@ namespace MoreMountains
 
         public void SetBallLevel(int level)
         {
-            var material = BallWeaponSpriteRenderer.material;
+            Material material;
+            if (BallDef && BallDef.PlaceIconAtWeaponAttachment)
+                material = BallWeaponAttachmentSpriteRenderer.material;
+            else
+                material = BallWeaponSpriteRenderer.material;
+
             if (level > 1)
             {
                 BallLevel = level;
@@ -251,14 +297,16 @@ namespace MoreMountains
         public UniStats.Stat GetStat(Ball.Stat key)
         {
             if (Stats == null)
-                TryGetComponent(out Stats);
+                _hasStats = TryGetComponent(out Stats);
+            else
+                _hasStats = true;
 
-            return Stats == null ? null : Stats.GetStat(key.Key());
+            return _hasStats ? Stats.GetStat(key.Key()) : null;
         }
 
         public bool GetStat(Ball.Stat key, out UniStats.Stat stat)
         {
-            if (Stats == null)
+            if (!_hasStats)
             {
                 stat = null;
                 return false;

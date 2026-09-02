@@ -13,6 +13,7 @@ namespace MoreMountains
         GameObject renderer;
         SmoothTrail trailRenderer;
         SpriteRenderer spriteRenderer;
+        ParticleSystem particleRenderer;
 
         ParticleSystem fxDead;
 
@@ -22,6 +23,7 @@ namespace MoreMountains
             var obj = ball.gameObject;
             obj.find(out renderer, "Renderer");
             obj.find(out spriteRenderer, "ball_sprite");
+            obj.find(out particleRenderer, "ball_particle");
             obj.find(out trailRenderer);
             obj.find(out fxDead, "FxDead");
         }
@@ -33,7 +35,20 @@ namespace MoreMountains
 
         public void setLevel(int level)
         {
-            var material = spriteRenderer.material;
+            Material material = null;
+            if (spriteRenderer.gameObject.activeSelf)
+            {
+                material = spriteRenderer.material;
+            }
+            else if (particleRenderer)
+            {
+                var renderer = particleRenderer.GetComponent<ParticleSystemRenderer>();
+                material = renderer.material;
+            }
+            
+            if (!material)
+                return;
+
             if (level > 1)
             {
                 var rarity = Mathf.Clamp(level - 1, 0, 3);
@@ -41,7 +56,7 @@ namespace MoreMountains
                 var color = rarityColor.title;
                 material.SetColor(PixelOutlineColor, color);
                 material.SetFloat(PixelOutlineFade, 1F);
-                
+
                 trailRenderer.setGradientColor(color);
             }
             else

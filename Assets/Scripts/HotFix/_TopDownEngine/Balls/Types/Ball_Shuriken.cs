@@ -132,7 +132,7 @@ namespace MoreMountains
             BounceFeedback.Play();
             var reflectDir = Vector2.Reflect(Direction, hitNormal).normalized;
             bool fromBrick = hitObject.layer == LayerManager.Brick;
-            player.onBallReflect(this, hitNormal, fromBrick, ref reflectDir);
+            _player.onBallReflect(this, hitNormal, fromBrick, ref reflectDir);
             float angle = Vector2.Angle(Direction, reflectDir);
             SetDirection(reflectDir, Quaternion.identity);
             _bouncesLeft--;

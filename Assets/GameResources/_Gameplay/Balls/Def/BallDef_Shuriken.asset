@@ -20,7 +20,7 @@ MonoBehaviour:
   maxLevel: 4
   UpgradeCombineCount: 2
   UpgradeGoldCost: 0
-  Icon: {fileID: 21300000, guid: 7308ea62322a53148810220068981c6e, type: 3}
+  Icon: {fileID: 21300000, guid: 71e7283ab8175514f97b0c7e16cc1823, type: 3}
   LevelColor: {r: 1, g: 1, b: 1, a: 1}
   Rarity: 0
   StatsTemplate: {fileID: 11400000, guid: 16f699b1375eab44e99269846165d321, type: 2}

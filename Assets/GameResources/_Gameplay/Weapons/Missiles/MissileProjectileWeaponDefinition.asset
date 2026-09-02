@@ -29,7 +29,7 @@ MonoBehaviour:
   MissileColor: {r: 0.45, g: 0.85, b: 1, a: 1}
   ImpactVfxKey: 0
   ImpactVfxLifetime: 0.5
-  ImpactSoundKey: BALL_HIT_PASS_THROUGH
+  ImpactSoundKey: KAISA_Q_IMPACT
   CastSoundKey: KAISA_Q_CAST
   ImpactHitRadius: 0.6
   MaxLifetime: 3

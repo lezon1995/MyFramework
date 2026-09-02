@@ -9,20 +9,19 @@ public partial class SelectCharacterListView : WindowObjectUGUI
 // auto generate classname end
 {
     // auto generate member start
-    protected WindowStructPool<SelectPlayerItem> SelectPlayerItemPool;
-
+	protected WindowStructPool<SelectPlayerItem> SelectPlayerItemPool;
     // auto generate member end
     public SelectCharacterListView(IWindowObjectOwner parent) : base(parent)
     {
         // auto generate constructor start
-        SelectPlayerItemPool = new(this);
+		SelectPlayerItemPool = new(this);
         // auto generate constructor end
     }
 
     protected override void assignWindowInternal()
     {
         // auto generate assignWindowInternal start
-        SelectPlayerItemPool.assignTemplate(mRoot, "G/SelectPlayerItem");
+		SelectPlayerItemPool.assignTemplate(mRoot, "Scroll/Viewport/Content/SelectPlayerItem");
         // auto generate assignWindowInternal end
     }
 

@@ -78,7 +78,7 @@ namespace MoreMountains
         public float ImpactVfxLifetime = 0.5f;
 
         [Tooltip("命中目标时播放的音效。SoundMaster 不存在这个 key 时会安静忽略。")]
-        public string ImpactSoundKey = SoundDefine.BALL_HIT_PASS_THROUGH;
+        public string ImpactSoundKey = SoundDefine.KAISA_Q_IMPACT;
 
         [Tooltip("施法开始时的音效。")]
         public string CastSoundKey = SoundDefine.KAISA_Q_CAST;

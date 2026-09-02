@@ -104,6 +104,7 @@ namespace MoreMountains
         protected bool _shouldMove = true;
         protected Health _health;
         protected Stats _stats;
+        protected bool _hasStats;
         protected Buffable _buffable;
         protected TrailRenderer _trailRenderer;
         protected bool _spawnerIsFacingRight;
@@ -130,7 +131,7 @@ namespace MoreMountains
             }
 
             TryGetComponent(out _damageOnTouch);
-            TryGetComponent(out _stats);
+            _hasStats = TryGetComponent(out _stats);
             TryGetComponent(out _buffable);
             _hasRigidBody2D = TryGetComponent(out _rigidBody2D);
             this.TryGetComponentInChildren(out _trailRenderer);

@@ -1,21 +1,21 @@
 ﻿using System;
-using MoreMountains;
 using PrimeTween;
 using UnityEngine;
 using UnityEngine.EventSystems;
+
 namespace MoreMountains;
 
 // auto generate classname start
 // generate from:Assets/GameResources/UI/UIPrefab/SelectPlayerPanel.prefab
 // 
-public class SelectPlayerItem : WindowRecyclableUGUI
+public partial class SelectPlayerItem : WindowRecyclableUGUI
 // auto generate classname end
 {
     // auto generate member start
-    protected myUGUIObject hovered;
-    protected myUGUIObject selected;
-    protected myUGUIImageSimple icon;
-    protected myUGUIButton button;
+	protected myUGUIObject hovered;
+	protected myUGUIObject selected;
+	protected myUGUIImageSimple icon;
+	protected myUGUIButton button;
     // auto generate member end
 
     private Action<SelectPlayerItem> onClicked;
@@ -35,10 +35,10 @@ public class SelectPlayerItem : WindowRecyclableUGUI
     protected override void assignWindowInternal()
     {
         // auto generate assignWindowInternal start
-        newObject(out hovered, "Hovered");
-        newObject(out selected, "Selected");
-        newObject(out icon, "Icon/Image");
-        newObject(out button, "Button");
+		newObject(out hovered, "Hovered");
+		newObject(out selected, "Selected");
+		newObject(out icon, "Icon/Image");
+		newObject(out button, "Button");
         // auto generate assignWindowInternal end
     }
 

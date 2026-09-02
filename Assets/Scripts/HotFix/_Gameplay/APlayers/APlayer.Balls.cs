@@ -96,19 +96,23 @@ namespace MoreMountains
 
         public void OnBallInventorySlotChanged(BallInventorySlot slot)
         {
+            ballWeaponAttachmentRoot.RefreshLayout();
+
             var handleWeapon = mainHandleWeapons[slot.Index];
             handleWeapon.SetAbilityPermitted(slot.IsOccupied);
             handleWeapon.SetWeaponAttachmentActive(slot.IsOccupied);
+            BallDef ballDef = null;
             if (handleWeapon.CurrentWeapon is BallGunWeapon ballGunWeapon)
             {
-                var ballDef = slot.Item == null ? null : slot.Item.Def;
+                ballDef = slot.Item == null ? null : slot.Item.Def;
                 var ballLevel = slot.Item == null ? 0 : slot.Item.Level;
+                ballGunWeapon.SetBallAttachmentSpriteRenderer(ballWeaponAttachmentRoot.GetAttachmentSpriteRenderer(slot.Index));
                 ballGunWeapon.SetBallSlot(slot);
-                ballGunWeapon.SetBallDef(ballDef);
-                ballGunWeapon.SetBallLevel(ballLevel);
-
+      
                 if (ballDef)
                 {
+                    ballGunWeapon.SetBallDef(ballDef);
+                    ballGunWeapon.SetBallLevel(ballLevel);
                     if (ballDef.MetaHandleWeapon)
                     {
                         var metaHandleWeapon = InstantiateMetaHandleWeapon(ballDef.MetaHandleWeapon);
@@ -118,6 +122,9 @@ namespace MoreMountains
                 }
                 else
                 {
+                    ballGunWeapon.SetBallLevel(ballLevel);
+                    ballGunWeapon.SetBallDef(null);
+                    
                     if (metaHandleWeapons.TryGetValue(slot, out var metaHandleWeapon))
                     {
                         RemoveAbility(metaHandleWeapon);
@@ -127,6 +134,16 @@ namespace MoreMountains
                 }
             }
 
+            
+            if (ballDef)
+            {
+                ballWeaponAttachmentRoot.SetChildRotate(slot.Index, ballDef.RotateWithWeaponAttachment);
+            }
+            else
+            {
+                ballWeaponAttachmentRoot.SetChildRotate(slot.Index, true);
+            }
+            
             ballWeaponAttachmentRoot.RefreshLayout();
         }
 

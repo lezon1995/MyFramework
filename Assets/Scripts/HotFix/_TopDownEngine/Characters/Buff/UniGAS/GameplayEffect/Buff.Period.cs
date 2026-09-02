@@ -83,7 +83,7 @@ namespace MoreMountains
 
         public int PeriodTick { get; set; }
 
-        public bool OnFixedUpdate(float dt, out Removal removal)
+        public virtual bool OnFixedUpdate(float dt, out Removal removal)
         {
             if (IsDuration)
                 DurationElapsed += dt;

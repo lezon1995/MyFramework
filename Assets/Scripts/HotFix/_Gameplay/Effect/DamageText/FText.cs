@@ -607,7 +607,7 @@ public class FText : Transformable
 
         public Data setSetting(TextType t)
         {
-            setting = textManager.getSetting(t);
+            setting = FTextManager.getSetting(t);
             return this;
         }
 

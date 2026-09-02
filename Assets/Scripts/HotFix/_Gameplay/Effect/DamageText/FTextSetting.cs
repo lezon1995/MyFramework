@@ -22,6 +22,8 @@ public class FTextSetting : ScriptableObject
     public AnimationCurve FadeInCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
     public AnimationCurve FadeOverLifeTime = AnimationCurve.EaseInOut(0, 1, 1, 1);
     public AnimationCurve FadeOutCurve = AnimationCurve.EaseInOut(0, 1, 1, 0);
+    
+    public float OffsetDistance = 0.3f;
 
     public virtual void ModifyPosition(ref Vector2 rectPos, in FText.Data data, float pct)
     {

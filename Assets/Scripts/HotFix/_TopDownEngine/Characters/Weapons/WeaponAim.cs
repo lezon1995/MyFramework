@@ -153,8 +153,8 @@ namespace MoreMountains
         protected Camera _mainCamera;
         protected Vector2 _lastNonNullMovement;
         protected Weapon _weapon;
-        protected Vector3 _currentAim = Vector3.zero;
-        protected Vector3 _currentAimAbsolute = Vector3.zero;
+        protected Vector3 _currentAim;
+        protected Vector3 _currentAimAbsolute;
         protected Quaternion _lookRotation;
         protected Vector3 _direction;
         protected float[] _possibleAngleValues;

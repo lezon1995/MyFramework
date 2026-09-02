@@ -17,6 +17,7 @@ namespace MoreMountains
         // ====== 注入字段（Launch 时填充） ======
         MissileProjectileWeaponDefinition _def;
         Character _caster;
+        Ball _ball;
         Vector2 _p0; // 起点（角色身上）
         Vector2 _p1; // 控制点：target→caster 反向 + 随机偏角 + 抬升
         Vector2 _impactScatter; // 命中点散布（生成时随机一次后锁定）
@@ -34,12 +35,19 @@ namespace MoreMountains
             var damageOnTouch = _damageOnTouch;
             damageOnTouch.DmgGetter = () =>
             {
-                if (damageOnTouch.Source && damageOnTouch.Source.GetStat(Character.Stat.AP, out var stat))
+                UniStats.Stat effectDamageRate = null;
+                float value = damageOnTouch.Dmg.Value;
+                if (_ball && _ball.GetStat(Ball.Stat.EffectDamage, out var effectDamage) && _ball.GetStat(Ball.Stat.EffectDamageRate, out effectDamageRate))
                 {
-                    return Dmg.AP((int)stat.Value + damageOnTouch.Dmg.Value);
+                    value += effectDamage.Value * effectDamageRate.Value;
                 }
 
-                return damageOnTouch.Dmg;
+                if (damageOnTouch.Source && damageOnTouch.Source.GetStat(Character.Stat.AP, out var stat) && effectDamageRate)
+                {
+                    value += stat.Value * effectDamageRate.Value;
+                }
+
+                return Dmg.AP((int)value);
             };
         }
 
@@ -54,12 +62,14 @@ namespace MoreMountains
         public void Launch(
             MissileProjectileWeaponDefinition def,
             Character caster,
+            Ball ball,
             float arcHeightOffset,
             Vector2 p1,
             float flightDuration)
         {
             _def = def;
             _caster = caster;
+            _ball = ball;
             _arcHeightOffset = arcHeightOffset;
             _p1 = p1;
             _flightDuration = Mathf.Max(0.01f, flightDuration);
@@ -94,7 +104,7 @@ namespace MoreMountains
         public Vector2 GetTargetPosition() =>
             _target ? (Vector2)_target.position : _p0;
 
-                /// <summary>
+        /// <summary>
         /// 根据 (target→caster) 反向 + 随机偏转 + 抬升,计算 P1 控制点。
         /// 抽成 public static 方法,让武器层在 spawn 时也能复用,保证 duration 计算用到的 P1
         /// 和飞弹飞行用到的 P1 完全一致。

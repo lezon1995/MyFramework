@@ -23,6 +23,13 @@ namespace MoreMountains
         [Tooltip("Living Weapon 升级档开关。打开后会发射 UpgradedMissileCount 枚飞弹。")]
         public bool Upgraded;
 
+        Ball _ball;
+
+        public void SetBallOwner(Ball ball)
+        {
+            _ball = ball;
+        }
+        
         public override GameObject SpawnProjectile(Vector3 spawnPosition, int projectileIndex, int totalProjectiles, bool triggerObjectActivation = true)
         {
             if (Definition == null || Owner == null)
@@ -52,7 +59,7 @@ namespace MoreMountains
             // P1 完全由目标/角色相对位置 + 随机偏角决定,跟飞弹本身无关。
             // 武器层先用静态方法算一次,用来估算弧线长度。
             var p0 = (Vector2)Owner.transform.position;
-            var p2 = (Vector2)(missile.GetTargetPosition());
+            var p2 = (Vector2)missile.GetTargetPosition();
             var p1 = MissileProjectile.ComputeOutgoingControlPoint(
                 casterPos: p0,
                 targetPos: p2,
@@ -68,6 +75,7 @@ namespace MoreMountains
             missile.Launch(
                 def: Definition,
                 caster: Owner,
+                ball: _ball,
                 arcHeightOffset: arcHeightOffset,
                 p1: p1,
                 flightDuration: flightDuration);

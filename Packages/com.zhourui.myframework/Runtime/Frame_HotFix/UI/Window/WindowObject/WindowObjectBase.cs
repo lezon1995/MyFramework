@@ -220,11 +220,11 @@ public abstract class WindowObjectBase : ILocalizationCollection, IWindowObjectO
 	//------------------------------------------------------------------------------------------------------------------------------
 	protected T0 newObject<T0>(out T0 obj, myUGUIObject parent, string name, bool showError) where T0 : myUGUIObject, new()
 	{
-		return mScript.newObject(out obj, parent, name, showError);
+		return mScript.newObject(out obj, parent, name, showError, true);
 	}
 	protected T0 newObject<T0>(out T0 obj, myUGUIObject parent, string name) where T0 : myUGUIObject, new()
 	{
-		return mScript.newObject(out obj, parent, name, true);
+		return mScript.newObject(out obj, parent, name, true, true);
 	}
 	protected void addChild(WindowObjectBase child)
 	{

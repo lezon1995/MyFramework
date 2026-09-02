@@ -425,10 +425,10 @@ namespace MoreMountains
                     switch (stackSource.Source)
                     {
                         case StackSource.Sources.DoAttackHit:
-                            Target.Event.addListener<DoAttackEffect>(OnIncreaseStackFrom);
+                            Target.Event.addAction<DoAttackEffect>(OnIncreaseStackFrom);
                             break;
                         case StackSource.Sources.DoMove:
-                            Target.Event.addListener<DoMove>(OnIncreaseStackFrom);
+                            Target.Event.addAction<DoMove>(OnIncreaseStackFrom);
                             break;
                     }
                 }
@@ -444,10 +444,10 @@ namespace MoreMountains
                     switch (stackSource.Source)
                     {
                         case StackSource.Sources.DoAttackHit:
-                            Target.Event.removeListener<DoAttackEffect>(OnIncreaseStackFrom);
+                            Target.Event.removeAction<DoAttackEffect>(OnIncreaseStackFrom);
                             break;
                         case StackSource.Sources.DoMove:
-                            Target.Event.removeListener<DoMove>(OnIncreaseStackFrom);
+                            Target.Event.removeAction<DoMove>(OnIncreaseStackFrom);
                             break;
                     }
                 }

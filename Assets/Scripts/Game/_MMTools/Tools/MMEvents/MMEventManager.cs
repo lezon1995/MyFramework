@@ -39,8 +39,8 @@ namespace MoreMountains.Tools
         void removeAllListeners(IEvent o) => EventRouter.get(this).removeAllListeners(o);
         void removeListener<T>(IEvent<T> listener) where T : struct => EventRouter.get(this).removeListener(listener);
 
-        void addListener<T>(Action<T> listener) where T : struct => EventRouter.get(this).addListener(listener);
-        void removeListener<T>(Action<T> listener) where T : struct => EventRouter.get(this).removeListener(listener);
+        void addAction<T>(Action<T> listener) where T : struct => EventRouter.get(this).addListener(listener);
+        void removeAction<T>(Action<T> listener) where T : struct => EventRouter.get(this).removeListener(listener);
     }
 
     public class ActionListener<T> : IEvent<T>

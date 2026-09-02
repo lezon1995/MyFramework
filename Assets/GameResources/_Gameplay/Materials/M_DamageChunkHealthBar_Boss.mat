@@ -123,7 +123,7 @@ Material:
     - _FillOrigin: 0
     - _FlipHorizontal: 0
     - _FlipVertical: 0
-    - _ForegroundProgress: 1
+    - _ForegroundProgress: 0
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0

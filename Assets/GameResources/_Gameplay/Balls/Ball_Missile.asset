@@ -151,7 +151,7 @@ MonoBehaviour:
       Data: EffectDamageRate
     - Name: $v
       Entry: 4
-      Data: 0
+      Data: 1
     - Name: 
       Entry: 8
       Data: 
@@ -235,6 +235,323 @@ MonoBehaviour:
     - Name: 
       Entry: 12
       Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: LevelInitialValues
+      Entry: 7
+      Data: 4|System.Collections.Generic.Dictionary`2[[System.String, mscorlib],[System.Single[],
+        mscorlib]], mscorlib
+    - Name: comparer
+      Entry: 7
+      Data: 5|System.Collections.Generic.GenericEqualityComparer`1[[System.String,
+        mscorlib]], mscorlib
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 12
+      Data: 9
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: HitDamage
+    - Name: $v
+      Entry: 7
+      Data: 6|System.Single[], mscorlib
+    - Name: 
+      Entry: 14
+      Data: 4
+    - Name: 
+      Entry: 4
+      Data: 5
+    - Name: 
+      Entry: 4
+      Data: 5
+    - Name: 
+      Entry: 4
+      Data: 5
+    - Name: 
+      Entry: 4
+      Data: 5
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: EffectDamage
+    - Name: $v
+      Entry: 7
+      Data: 7|System.Single[], mscorlib
+    - Name: 
+      Entry: 14
+      Data: 4
+    - Name: 
+      Entry: 4
+      Data: 10
+    - Name: 
+      Entry: 4
+      Data: 15
+    - Name: 
+      Entry: 4
+      Data: 20
+    - Name: 
+      Entry: 4
+      Data: 25
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: AS
+    - Name: $v
+      Entry: 7
+      Data: 8|System.Single[], mscorlib
+    - Name: 
+      Entry: 14
+      Data: 4
+    - Name: 
+      Entry: 4
+      Data: 0.68
+    - Name: 
+      Entry: 4
+      Data: 0.68
+    - Name: 
+      Entry: 4
+      Data: 0.68
+    - Name: 
+      Entry: 4
+      Data: 0.68
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: BallisticSpeed
+    - Name: $v
+      Entry: 7
+      Data: 9|System.Single[], mscorlib
+    - Name: 
+      Entry: 14
+      Data: 4
+    - Name: 
+      Entry: 4
+      Data: 12
+    - Name: 
+      Entry: 4
+      Data: 12
+    - Name: 
+      Entry: 4
+      Data: 12
+    - Name: 
+      Entry: 4
+      Data: 12
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: Duration
+    - Name: $v
+      Entry: 7
+      Data: 10|System.Single[], mscorlib
+    - Name: 
+      Entry: 14
+      Data: 4
+    - Name: 
+      Entry: 4
+      Data: 3
+    - Name: 
+      Entry: 4
+      Data: 3
+    - Name: 
+      Entry: 4
+      Data: 3
+    - Name: 
+      Entry: 4
+      Data: 3
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: CritChance
+    - Name: $v
+      Entry: 7
+      Data: 11|System.Single[], mscorlib
+    - Name: 
+      Entry: 14
+      Data: 4
+    - Name: 
+      Entry: 4
+      Data: 0.1
+    - Name: 
+      Entry: 4
+      Data: 0.1
+    - Name: 
+      Entry: 4
+      Data: 0.1
+    - Name: 
+      Entry: 4
+      Data: 0.1
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: CritDamage
+    - Name: $v
+      Entry: 7
+      Data: 12|System.Single[], mscorlib
+    - Name: 
+      Entry: 14
+      Data: 4
+    - Name: 
+      Entry: 4
+      Data: 1.5
+    - Name: 
+      Entry: 4
+      Data: 1.5
+    - Name: 
+      Entry: 4
+      Data: 1.5
+    - Name: 
+      Entry: 4
+      Data: 1.5
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: Knockback
+    - Name: $v
+      Entry: 7
+      Data: 13|System.Single[], mscorlib
+    - Name: 
+      Entry: 14
+      Data: 4
+    - Name: 
+      Entry: 4
+      Data: 0.2
+    - Name: 
+      Entry: 4
+      Data: 0.2
+    - Name: 
+      Entry: 4
+      Data: 0.2
+    - Name: 
+      Entry: 4
+      Data: 0.2
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: Range
+    - Name: $v
+      Entry: 7
+      Data: 14|System.Single[], mscorlib
+    - Name: 
+      Entry: 14
+      Data: 4
+    - Name: 
+      Entry: 4
+      Data: 5
+    - Name: 
+      Entry: 4
+      Data: 5
+    - Name: 
+      Entry: 4
+      Data: 5
+    - Name: 
+      Entry: 4
+      Data: 5
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
     - Name: 
       Entry: 13
       Data: 

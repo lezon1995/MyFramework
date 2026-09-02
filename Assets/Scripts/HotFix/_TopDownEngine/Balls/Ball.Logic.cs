@@ -60,15 +60,15 @@ namespace MoreMountains
 
         public BallRenderer ballRenderer;
 
-        APlayer player;
-        Brick collidingBrick;
-        Brick overlappingBrick;
+        protected APlayer _player;
+        protected Brick collidingBrick;
+        protected Brick overlappingBrick;
 
         BorderToBallDamageModifier borderToBallDamageModifier;
 
         public Vector3 targetPos;
-        Vector2 lastDirection;
-        Vector2 hitNormal;
+        protected Vector2 lastDirection;
+        protected Vector2 lastHitNormal;
         protected bool hasCorrectPosThisFixedUpdate;
         public BallCounters counters = new();
 
@@ -107,7 +107,7 @@ namespace MoreMountains
             prePos = curPos = targetPos = Vector2.zero;
             movementDelta = 0;
             Direction = Vector2.zero;
-            hitNormal = Vector2.zero;
+            lastHitNormal = Vector2.zero;
             lastRadius = 0;
             lastDirection = default;
             enabled = false;
@@ -121,8 +121,8 @@ namespace MoreMountains
             base.onRelease();
         }
 
-        public void setPlayer(APlayer p) => player = p;
-        public APlayer getPlayer() => player;
+        public void setPlayer(APlayer p) => _player = p;
+        public APlayer getPlayer() => _player;
 
         public override void OnUpdate(float dt)
         {
@@ -151,14 +151,7 @@ namespace MoreMountains
                 if (!enabled)
                     return;
 
-                if (usePhysics)
-                {
-                    OnFixedUpdate(dt);
-                }
-                else
-                {
-                    fixedUpdate(dt);
-                }
+                OnFixedUpdate(dt);
             }
         }
 
@@ -236,15 +229,19 @@ namespace MoreMountains
                             {
                                 //如果上一次的Overlapping还未结束，则提前结束上一次的Overlapping
                                 var lastOverlappingBrick = overlappingBrick;
-                                player.onBallEndOverlappingBrickOne(this, lastOverlappingBrick, true);
+                                _player.onBallEndOverlappingBrickOne(this, lastOverlappingBrick, true);
                             }
 
                             var noOverlappingBefore = overlappingBrick == null;
                             overlappingBrick = collidingBrick;
                             if (noOverlappingBefore)
-                                player.onBallBeginOverlappingBrickAll(this, overlappingBrick);
+                                _player.onBallBeginOverlappingBrickAll(this, overlappingBrick);
 
-                            player.onBallBeginOverlappingBrickOne(this, overlappingBrick);
+                            _player.onBallBeginOverlappingBrickOne(this, overlappingBrick);
+                        }
+                        else
+                        {
+                            OnFixedUpdateOverlappingBrick(overlappingBrick);
                         }
                     }
                     else
@@ -252,8 +249,8 @@ namespace MoreMountains
                         if (isOverlappingBrick)
                         {
                             isOverlappingBrick = false;
-                            player.onBallEndOverlappingBrickOne(this, overlappingBrick, false);
-                            player.onBallEndOverlappingBrickAll(this, overlappingBrick, false);
+                            _player.onBallEndOverlappingBrickOne(this, overlappingBrick, false);
+                            _player.onBallEndOverlappingBrickAll(this, overlappingBrick, false);
                             overlappingBrick = null;
                         }
 
@@ -292,6 +289,10 @@ namespace MoreMountains
             CheckExpiration(dt);
         }
 
+        protected virtual void OnFixedUpdateOverlappingBrick(Brick brick)
+        {
+        }
+
         protected void CheckExpiration(float dt)
         {
             if (lifeDuration.update(dt) || isExpired)
@@ -299,85 +300,6 @@ namespace MoreMountains
                 new OnBallExpired(this).trigger(this);
                 isExpired = true;
             }
-        }
-
-        void fixedUpdate(float dt)
-        {
-            if (hitNormal.isEqual(Vector2.zero))
-                return;
-
-            checkRadius();
-
-            prePos = curPos;
-            movementDelta = moveSpeed * dt;
-            curPos = Vector2.MoveTowards(curPos, targetPos, movementDelta);
-            MovementTo(curPos);
-
-            var mid = (prePos + curPos) / 2F;
-            Debug.DrawLine(prePos, mid, Color.red, 0.02F);
-            Debug.DrawLine(mid, curPos, Color.green, 0.02F);
-            Debug.DrawLine(curPos, targetPos, Color.white, 0.02F);
-            if (prePos == targetPos)
-            {
-                delayCounter--;
-                if (delayCounter <= 0)
-                {
-                    var validHit = onHitEnter(hitCollider, hitNormal);
-                    if (!validHit)
-                    {
-                        refreshHitInfo();
-                    }
-                }
-            }
-            else
-            {
-                if (collidingBrick)
-                {
-                    if (circleIntersectRectangle(getCircle(), collidingBrick.getRect()))
-                    {
-                        if (overlappingBrick != collidingBrick)
-                        {
-                            if (!isOverlappingBrick)
-                            {
-                                isOverlappingBrick = true;
-                            }
-                            else
-                            {
-                                //如果上一次的Overlapping还未结束，则提前结束上一次的Overlapping
-                                var lastOverlappingBrick = overlappingBrick;
-                                player.onBallEndOverlappingBrickOne(this, lastOverlappingBrick, true);
-                            }
-
-                            var noOverlappingBefore = overlappingBrick == null;
-                            overlappingBrick = collidingBrick;
-                            if (noOverlappingBefore)
-                                player.onBallBeginOverlappingBrickAll(this, overlappingBrick);
-
-                            player.onBallBeginOverlappingBrickOne(this, overlappingBrick);
-                        }
-                    }
-                    else
-                    {
-                        if (isOverlappingBrick)
-                        {
-                            isOverlappingBrick = false;
-                            player.onBallEndOverlappingBrickOne(this, overlappingBrick, false);
-                            player.onBallEndOverlappingBrickAll(this, overlappingBrick, false);
-                            overlappingBrick = null;
-                        }
-
-                        collidingBrick = null;
-                    }
-                }
-            }
-        }
-
-        public void reflectBounce(Vector2 normal, bool fromBrick = false)
-        {
-            var reflectDir = Vector2.Reflect(Direction, normal);
-            player.onBallReflect(this, normal, fromBrick, ref reflectDir);
-            setDirection(reflectDir);
-            counters.reflect.count();
         }
 
         public Vector2 getDirection()
@@ -432,6 +354,7 @@ namespace MoreMountains
 
         protected void refreshHitInfo(int exceptMask = 0)
         {
+            return;
             RaycastHit2D hit = default;
 
             var mask = ALL_BORDER_LAYER_MASK;
@@ -522,7 +445,7 @@ namespace MoreMountains
             if (hit)
             {
                 targetPos = hit.point + hit.normal * Radius;
-                hitNormal = hit.normal;
+                lastHitNormal = hit.normal;
                 hitCollider = hit.collider;
                 delayCounter = 1;
             }
@@ -530,7 +453,7 @@ namespace MoreMountains
             {
                 // Issue 7: 无命中时设置远端目标，防止球停住
                 hitCollider = null;
-                hitNormal = Vector2.zero;
+                lastHitNormal = Vector2.zero;
                 targetPos = curPos + Direction * PHYSICS_CAST_DISTANCE;
                 delayCounter = 1;
             }
@@ -553,6 +476,7 @@ namespace MoreMountains
         }
 
         public void setRendererActive(bool active) => ballRenderer.setRendererActive(active);
+
         public void setLevel(int lv)
         {
             level = lv;
@@ -581,7 +505,7 @@ namespace MoreMountains
             setRadius(Radius);
         }
 
-        public int getHitDamage()
+        public virtual int getHitDamage()
         {
             float hitDamage = 0;
             if (GetStat(Stat.HitDamage, out var ballHitDamage))
@@ -644,19 +568,19 @@ namespace MoreMountains
             var d = getHitDamage();
             var dmg = Dmg.AD(d);
             dmg.setAttackEffect();
-            player.GetStat(Character.Stat.DmgRate, out var playerDmgRate);
+            _player.GetStat(Character.Stat.DmgRate, out var playerDmgRate);
             GetStat(Stat.DmgRate, out var ballDmgRate);
             var dmgRate = (1 + playerDmgRate.Value) * ballDmgRate.Value;
             dmg.SetDmgRate(dmgRate);
             dmg.setHitNormal(normal);
 
-            player.GetStat(Character.Stat.CritChance, out var playerCritChance);
+            _player.GetStat(Character.Stat.CritChance, out var playerCritChance);
             GetStat(Stat.CritChance, out var ballCritChance);
             var critChange = playerCritChance.Value + ballCritChance.Value;
             if (randomHit(critChange))
                 dmg.Crit();
 
-            player.GetStat(Character.Stat.CritDamage, out var playerCritDamage);
+            _player.GetStat(Character.Stat.CritDamage, out var playerCritDamage);
             GetStat(Stat.CritDamage, out var ballCritDamage);
             var critDamage = (1 + playerCritDamage.Value) * ballCritDamage.Value;
             dmg.SetCritDamage(critDamage);
@@ -687,7 +611,7 @@ namespace MoreMountains
 
         public virtual void refreshDuration()
         {
-            player.GetStat(Character.Stat.Duration, out var playerDuration);
+            _player.GetStat(Character.Stat.Duration, out var playerDuration);
             GetStat(Stat.Duration, out var ballDuration);
             var duration = ballDuration.Value * (1 + playerDuration.Value);
             lifeDuration = duration;

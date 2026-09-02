@@ -23,7 +23,7 @@ public class myUGUITextImage : myUGUIObject
 		}
 
 		// 自动获取该节点下的名为Image的子节点
-		mLayout.getScript().newObject(out mImage, this, "Image", false);
+		mLayout.getScript().newObject(out mImage, this, "Image", false, true);
 		if (mImage == null)
 		{
 			logError("可图文混排的文本下必须有一个名为Image的子节点");

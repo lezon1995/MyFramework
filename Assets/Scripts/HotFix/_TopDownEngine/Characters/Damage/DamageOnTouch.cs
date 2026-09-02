@@ -672,6 +672,8 @@ namespace MoreMountains
         public bool IsLethal;
         public Vector2 HitNormal;
         public Mixed Mix;
+        public int Hash => hash;
+        int hash;
 
         public static Dmg AD(int value) => new(value, Types.AD, false);
         public static Dmg AP(int value) => new(value, Types.AP, false);
@@ -697,6 +699,7 @@ namespace MoreMountains
             TriggerEffect = true;
             HitNormal = Vector2.up;
             IsLethal = false;
+            hash = 0;
         }
 
         public Dmg(int value, Types type, Algos algo)
@@ -718,6 +721,7 @@ namespace MoreMountains
             TriggerEffect = true;
             HitNormal = Vector2.up;
             IsLethal = false;
+            hash = 0;
         }
 
         public bool IsAdaptive() => Type == Types.Adaptive;
@@ -780,6 +784,18 @@ namespace MoreMountains
         public Dmg setAttackEffect()
         {
             Effect = Effects.Attack;
+            return this;
+        }
+
+        public Dmg setMixed(float pctAD, float pctAP, float pctTrue = 0F)
+        {
+            Mix = new()
+            {
+                On = true,
+                PctAD = pctAD,
+                PctAP = pctAP,
+                PctTrue = pctTrue,
+            };
             return this;
         }
 
@@ -863,6 +879,24 @@ namespace MoreMountains
         public void SetMetaType(int type)
         {
             MetaType = type;
+        }
+
+        public void SetHash(int hash)
+        {
+            this.hash = hash;
+        }
+
+        public bool equalsWith(Dmg dmg)
+        {
+            if (hash != 0 && dmg.hash != 0)
+            {
+                if (hash == dmg.hash)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         public Dmg SetSelf()

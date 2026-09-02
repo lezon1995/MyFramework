@@ -151,12 +151,12 @@ namespace MoreMountains
 
         public UniStats.Stat GetStat(Stat key)
         {
-            return Stats == null ? null : Stats.GetStat(key.Key());
+            return _hasStats ? Stats.GetStat(key.Key()) : null;
         }
 
         public bool GetStat(Stat key, out UniStats.Stat stat)
         {
-            if (Stats == null)
+            if (!_hasStats)
             {
                 stat = null;
                 return false;
@@ -273,9 +273,12 @@ namespace MoreMountains
 
                     if (hit)
                     {
-                        willPassingThrough = true;
-                        hitPos = hit.point + hit.normal * Radius;
-                        hitInfo = hit;
+                        if (Vector2.Dot(hit.normal, Direction) < 0)
+                        {
+                            willPassingThrough = true;
+                            hitPos = hit.point + hit.normal * Radius;
+                            hitInfo = hit;
+                        }
                     }
                 }
             }
@@ -335,6 +338,7 @@ namespace MoreMountains
             if (IsPenetrable && PenetrableLayers.MMContains(layer))
                 needReflect = false;
 
+            lastHitNormal = hitNormal;
             var normal = hitNormal;
             switch (layer)
             {
@@ -375,7 +379,7 @@ namespace MoreMountains
                         counters.hit.count();
                         hasBeenCollided = true;
 
-                        player.onBallHitObstacle(ball, obstacle, ref normal);
+                        _player.onBallHitObstacle(ball, obstacle, ref normal);
                         playHitObstacleSfx();
 
                         var hitDmg = getHitDmg(obstacle, normal);
@@ -448,8 +452,9 @@ namespace MoreMountains
         {
             BounceFeedback.Play();
             var reflectDir = Vector2.Reflect(Direction, hitNormal).normalized;
+            Debug.DrawLine(curPos, curPos + (Vector3)reflectDir, Color.red, 1F);
             bool fromBrick = hitObject.layer == LayerManager.Brick;
-            player.onBallReflect(this, hitNormal, fromBrick, ref reflectDir);
+            _player.onBallReflect(this, hitNormal, fromBrick, ref reflectDir);
             float angle = Vector2.Angle(Direction, reflectDir);
             SetDirection(reflectDir, Quaternion.identity);
             _bouncesLeft--;

@@ -21,7 +21,7 @@ public partial class SelectRelicListView : WindowObjectUGUI
 	protected override void assignWindowInternal()
 	{
 		// auto generate assignWindowInternal start
-		SelectRelicItemPool.assignTemplate(mRoot, "G/SelectRelicItem");
+		SelectRelicItemPool.assignTemplate(mRoot, "Scroll/Viewport/Content/SelectRelicItem");
 		// auto generate assignWindowInternal end
 	}
 	public override void init()

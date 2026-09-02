@@ -21,12 +21,12 @@
 
         public UniStats.Stat GetStat(Stat key)
         {
-            return Stats == null ? null : Stats.GetStat(key.Key());
+            return _hasStats ? Stats.GetStat(key.Key()) : null;
         }
 
         public bool GetStat(Stat key, out UniStats.Stat stat)
         {
-            if (Stats == null)
+            if (!_hasStats)
             {
                 stat = null;
                 return false;

@@ -10,7 +10,12 @@
 
             if (Player.metaHandleWeapons.TryGetValue(Slot, out var metaHandleWeapon))
             {
-                metaHandleWeapon.CurrentWeapon.SetAimTarget(e.brick.transform);
+                if (metaHandleWeapon.CurrentWeapon is MissileProjectileWeapon weapon)
+                {
+                    weapon.SetBallOwner(this);
+                    weapon.SetAimTarget(e.brick.transform);
+                }
+
                 metaHandleWeapon.ShootStart();
             }
         }

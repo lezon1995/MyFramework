@@ -2,12 +2,12 @@
 {
     public partial class Ball
     {
-        protected virtual void playHitBrickSfx()
+        protected virtual void playHitBrickSfx(Brick brick)
         {
             sound.play(SoundDefine.BALL_HIT_BRICK_COMMON);
         }
     
-        protected virtual void playHitBrickVfx()
+        protected virtual void playHitBrickVfx(Brick brick)
         {
             fx.play(FxDefine.BALL_HIT_BRICK, curPos);
         }

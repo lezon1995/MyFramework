@@ -81,8 +81,8 @@ SpriteRenderer:
   m_SortingLayer: 3
   m_SortingOrder: 1
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: 7b29770fe46b8c540b6e9e6f633d1635, type: 3}
-  m_Color: {r: 0.3075471, g: 1, b: 0.57366633, a: 1}
+  m_Sprite: {fileID: 21300000, guid: f1df604a21987c5468c9ef9d8f2d5e4e, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -384,6 +384,7 @@ MonoBehaviour:
   ballRenderer: {fileID: 7955953674840904570}
   targetPos: {x: 0, y: 0, z: 0}
   isOverlappingBrick: 0
+  level: 1
   _circleCollider: {fileID: 5298713422270032604}
   RepositionRigidbodyIfHitTrigger: 1
   RepositionRigidbodyIfHitNonTrigger: 1

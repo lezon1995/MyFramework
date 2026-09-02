@@ -11,11 +11,45 @@ namespace MoreMountains;
 public partial class SelectRelicItem : WindowRecyclableUGUI
 // auto generate classname end
 {
+    public class Data : ClassObject, IArgs<RelicDef, bool, Action<SelectRelicItem>, Action<SelectRelicItem>, Action<SelectRelicItem>>
+    {
+        public int index;
+        public bool selected;
+
+        public RelicDef item;
+        public bool unlocked;
+        public Action<SelectRelicItem> clicked;
+        public Action<SelectRelicItem> hovered;
+        public Action<SelectRelicItem> hoveredEnd;
+
+        public override void resetProperty()
+        {
+            base.resetProperty();
+            index = -1;
+            selected = false;
+            item = null;
+            unlocked = false;
+            clicked = null;
+            hovered = null;
+            hoveredEnd = null;
+        }
+
+        public void onCreate(RelicDef p1, bool p2, Action<SelectRelicItem> p3, Action<SelectRelicItem> p4, Action<SelectRelicItem> p5)
+        {
+            item = p1;
+            unlocked = p2;
+            clicked = p3;
+            hovered = p4;
+            hoveredEnd = p5;
+        }
+    }
+
+    
     // auto generate member start
-    protected myUGUIObject hovered;
-    protected myUGUIObject selected;
-    protected myUGUIImageSimple icon;
-    protected myUGUIButton button;
+	protected myUGUIObject hovered;
+	protected myUGUIObject selected;
+	protected myUGUIImageSimple icon;
+	protected myUGUIButton button;
     // auto generate member end
 
 
@@ -36,10 +70,10 @@ public partial class SelectRelicItem : WindowRecyclableUGUI
     protected override void assignWindowInternal()
     {
         // auto generate assignWindowInternal start
-        newObject(out hovered, "Hovered");
-        newObject(out selected, "Selected");
-        newObject(out icon, "Icon/Image");
-        newObject(out button, "Button");
+		newObject(out hovered, "Hovered");
+		newObject(out selected, "Selected");
+		newObject(out icon, "Icon/Image");
+		newObject(out button, "Button");
         // auto generate assignWindowInternal end
     }
 

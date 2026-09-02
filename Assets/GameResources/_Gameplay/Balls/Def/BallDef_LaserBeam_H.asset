@@ -16,14 +16,11 @@ MonoBehaviour:
   TagInfo:
     MechanicTags: 
     StatusTags: 
-    AmplifierTags: 
   BasePrice: 4
-  MaxLevel: 3
+  maxLevel: 4
   UpgradeCombineCount: 2
   UpgradeGoldCost: 0
-  MergeResultDefId: 0
-  MergeGoldCost: 100
-  Icon: {fileID: 21300000, guid: 121fdf1ea40068c47acc5aafbcc9a60e, type: 3}
+  Icon: {fileID: 21300000, guid: f1df604a21987c5468c9ef9d8f2d5e4e, type: 3}
   LevelColor: {r: 1, g: 1, b: 1, a: 1}
   Rarity: 0
   StatsTemplate: {fileID: 11400000, guid: 7c7585e257f668145b8285843389d36d, type: 2}
@@ -46,6 +43,7 @@ MonoBehaviour:
     m_WaitForCompletion: 0
     m_LocalVariables: []
   MetaHandleWeapon: {fileID: 0}
+  RequireTargetToShoot: 0
   references:
     version: 2
     RefIds: []

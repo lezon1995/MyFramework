@@ -12,31 +12,32 @@ namespace MoreMountains;
 public partial class SelectBallItem : WindowRecyclableUGUI
 // auto generate classname end
 {
-	// auto generate member start
+    // auto generate member start
 	protected myUGUIObject hovered;
 	protected myUGUIObject selected;
 	protected myUGUIImageSimple icon;
 	protected myUGUIObject[] stars = new myUGUIObject[3];
 	protected myUGUIButton button;
-	// auto generate member end
-	
-	Action<SelectBallItem> onClicked;
-	Action<SelectBallItem> onHovered;
-	Action<SelectBallItem> onHoveredEnd;
-	bool isSelected;
+    // auto generate member end
 
-	public BallItem Item { get; private set; }
-	public bool IsUnlocked { get; private set; }
-	
-	
-	public SelectBallItem(IWindowObjectOwner parent) : base(parent)
-	{
-		// auto generate constructor start
-		// auto generate constructor end
-	}
-	protected override void assignWindowInternal()
-	{
-		// auto generate assignWindowInternal start
+    Action<SelectBallItem> onClicked;
+    Action<SelectBallItem> onHovered;
+    Action<SelectBallItem> onHoveredEnd;
+    bool isSelected;
+
+    public BallItem Item { get; private set; }
+    public bool IsUnlocked { get; private set; }
+
+
+    public SelectBallItem(IWindowObjectOwner parent) : base(parent)
+    {
+        // auto generate constructor start
+        // auto generate constructor end
+    }
+
+    protected override void assignWindowInternal()
+    {
+        // auto generate assignWindowInternal start
 		newObject(out hovered, "Hovered");
 		newObject(out selected, "Selected");
 		newObject(out icon, "Icon/Image");
@@ -45,24 +46,27 @@ public partial class SelectBallItem : WindowRecyclableUGUI
 			newObject(out stars[i], "Icon/Grade_Star_01/Star" + i.IToS());
 		}
 		newObject(out button, "Button");
-		// auto generate assignWindowInternal end
-	}
-	public override void init()
-	{
-		base.init();
-		// auto generate init start
-		// auto generate init end
-		
-		button.setUGUIButtonClick(onItemClick);
-		button.setUGUIMouseEnter(onItemHoverStart);
-		button.setUGUIMouseExit(onItemHoverEnd);
-	}
-	public override void onShow()
-	{
-		base.onShow();
-	}
-	//--------------------------------------------------------------------------------------------------------------------------------------------
- void onItemHoverStart(PointerEventData p, GameObject o)
+        // auto generate assignWindowInternal end
+    }
+
+    public override void init()
+    {
+        base.init();
+        // auto generate init start
+        // auto generate init end
+
+        button.setUGUIButtonClick(onItemClick);
+        button.setUGUIMouseEnter(onItemHoverStart);
+        button.setUGUIMouseExit(onItemHoverEnd);
+    }
+
+    public override void onShow()
+    {
+        base.onShow();
+    }
+
+    //--------------------------------------------------------------------------------------------------------------------------------------------
+    void onItemHoverStart(PointerEventData p, GameObject o)
     {
         if (!IsUnlocked)
             return;
@@ -105,18 +109,18 @@ public partial class SelectBallItem : WindowRecyclableUGUI
 
         UpdateVisuals();
     }
-    
-    
+
+
     public void refresh(BallItem item)
     {
-	    Item = item;
-	    IsUnlocked = true;
-	    // onClicked = clicked;
-	    // onHovered = hovered;
-	    // onHoveredEnd = hoveredEnd;
-	    // isSelected = false;
+        Item = item;
+        IsUnlocked = true;
+        // onClicked = clicked;
+        // onHovered = hovered;
+        // onHoveredEnd = hoveredEnd;
+        // isSelected = false;
 
-	    UpdateVisuals();
+        UpdateVisuals();
     }
 
     void UpdateVisuals()
@@ -141,11 +145,11 @@ public partial class SelectBallItem : WindowRecyclableUGUI
         }
 
         selected.setActive(false);
-        
+
         int level = 1;
         for (var i = 0; i < stars.Length; i++)
         {
-	        stars[i].setActive(i < level);
+            stars[i].setActive(i < level);
         }
     }
 

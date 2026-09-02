@@ -10,20 +10,19 @@ public partial class SelectBallListView : WindowObjectUGUI
 // auto generate classname end
 {
     // auto generate member start
-    protected WindowStructPool<SelectBallItem> SelectBallItemPool;
-
+	protected WindowStructPool<SelectBallItem> SelectBallItemPool;
     // auto generate member end
     public SelectBallListView(IWindowObjectOwner parent) : base(parent)
     {
         // auto generate constructor start
-        SelectBallItemPool = new(this);
+		SelectBallItemPool = new(this);
         // auto generate constructor end
     }
 
     protected override void assignWindowInternal()
     {
         // auto generate assignWindowInternal start
-        SelectBallItemPool.assignTemplate(mRoot, "G/SelectBallItem");
+		SelectBallItemPool.assignTemplate(mRoot, "Scroll/Viewport/Content/SelectBallItem");
         // auto generate assignWindowInternal end
     }
 

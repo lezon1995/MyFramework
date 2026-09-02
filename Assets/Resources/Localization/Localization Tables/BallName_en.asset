@@ -110,6 +110,22 @@ MonoBehaviour:
     m_Localized: Bleed
     m_Metadata:
       m_Items: []
+  - m_Id: 4753455693975552
+    m_Localized: ChainSaw
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4858641099804672
+    m_Localized: Icon
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5075810332987392
+    m_Localized: Ghost
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5083914424569856
+    m_Localized: Yin Yang
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

@@ -13,4 +13,6 @@ public static class SoundDefine
     // 卡莎 Q 技能「艾卡西亚暴雨」相关
     public const string KAISA_Q_CAST = "KAISA_Q_CAST";
     public const string KAISA_Q_IMPACT = "KAISA_Q_IMPACT";
+    public const string CLAW_HIT = "CLAW_HIT";
+    public const string IRON_HIT = "IRON_HIT";
 }

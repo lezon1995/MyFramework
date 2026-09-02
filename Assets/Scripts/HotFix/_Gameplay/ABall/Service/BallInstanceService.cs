@@ -118,6 +118,10 @@ namespace MoreMountains
                 BallType.Missile => "Ball_Missile",
                 BallType.Shuriken => "Ball_Shuriken",
                 BallType.Bleed => "Ball_Bleed",
+                BallType.ChainSaw => "Ball_ChainSaw",
+                BallType.Iron => "Ball_Iron",
+                BallType.Ghost => "Ball_Ghost",
+                BallType.YinYang => "Ball_YinYang",
 
                 BallType.LaserBeam_Crossed => "MergedBall/Ball_LaserBeam_Crossed",
                 _ => "Ball_Normal"
