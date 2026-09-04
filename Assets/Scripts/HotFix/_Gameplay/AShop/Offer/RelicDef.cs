@@ -54,7 +54,7 @@ namespace MoreMountains
             foreach (var mod in mods)
             {
                 var statKey = mod.stat.Key();
-                sb.add(statKey.toSprite());
+                sb.add(statKey.toSpriteName());
                 sb.add(" ");
 
                 ModsDisplayConfig.Instance.TryGetDisplayConfig(statKey, out var displayConfig);

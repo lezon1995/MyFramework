@@ -18,11 +18,11 @@ MonoBehaviour:
   - {r: 1, g: 1, b: 1, a: 1}
   Icons: []
   MetaIcons:
-  - sprite: {fileID: 21300000, guid: be45a90f853145c4c837a73ac3e60720, type: 3}
+  - sprite: {fileID: 21300000, guid: db06093e7e8cf1644bcd7c71926f6d2c, type: 3}
     color: {r: 1, g: 1, b: 1, a: 1}
-  - sprite: {fileID: 21300000, guid: 9baef6a05fb482941849b159b03c71fc, type: 3}
-    color: {r: 0.3, g: 1, b: 0.3, a: 1}
-  - sprite: {fileID: 21300000, guid: 741e27eef0dbac045a68996806823e1a, type: 3}
+  - sprite: {fileID: 21300000, guid: 393438998c023b24a97501863bd1daf1, type: 3}
+    color: {r: 1, g: 1, b: 1, a: 1}
+  - sprite: {fileID: 21300000, guid: f8eee2900ae4103429612278787c9e4f, type: 3}
     color: {r: 1, g: 1, b: 1, a: 1}
   - sprite: {fileID: 512191485, guid: 402167e13a5b1d84bb33c1f1cfc3f3c2, type: 3}
     color: {r: 1, g: 1, b: 1, a: 1}
@@ -178,6 +178,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  OffsetDistance: 0.3
   XFloatCurve:
     serializedVersion: 2
     m_Curve:

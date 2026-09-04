@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using MoreMountains.Tools;
 using UnityEngine;
-using UnityEngine.Localization.Settings;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
@@ -18,8 +17,12 @@ public class FTextManager : FrameSystem
 
     Dictionary<TextType, SafeList<FText>> usings = new()
     {
-        { TextType.Damage, new() },
-        { TextType.DamageCrit, new() },
+        { TextType.Damage_Physic, new() },
+        { TextType.Damage_Magic, new() },
+        { TextType.Damage_True, new() },
+        { TextType.DamageCrit_Physic, new() },
+        { TextType.DamageCrit_Magic, new() },
+        { TextType.DamageCrit_True, new() },
         { TextType.Healing, new() },
         { TextType.GainCoin, new() },
         { TextType.DodgeChance, new() },
@@ -27,8 +30,12 @@ public class FTextManager : FrameSystem
 
     Dictionary<TextType, List<FText>> unused = new()
     {
-        { TextType.Damage, new() },
-        { TextType.DamageCrit, new() },
+        { TextType.Damage_Physic, new() },
+        { TextType.Damage_Magic, new() },
+        { TextType.Damage_True, new() },
+        { TextType.DamageCrit_Physic, new() },
+        { TextType.DamageCrit_Magic, new() },
+        { TextType.DamageCrit_True, new() },
         { TextType.Healing, new() },
         { TextType.GainCoin, new() },
         { TextType.DodgeChance, new() },
@@ -36,8 +43,12 @@ public class FTextManager : FrameSystem
 
     Dictionary<TextType, Dictionary<Transform, FText>> reusedTexts = new()
     {
-        { TextType.Damage, new() },
-        { TextType.DamageCrit, new() },
+        { TextType.Damage_Physic, new() },
+        { TextType.Damage_Magic, new() },
+        { TextType.Damage_True, new() },
+        { TextType.DamageCrit_Physic, new() },
+        { TextType.DamageCrit_Magic, new() },
+        { TextType.DamageCrit_True, new() },
         { TextType.Healing, new() },
         { TextType.GainCoin, new() },
         { TextType.DodgeChance, new() },
@@ -87,8 +98,12 @@ public class FTextManager : FrameSystem
         var healing = resource.loadGameResource<FTextSetting>($"{GAMEPLAY_PATH}/FTextSetting_Healing.asset");
         var gainCoin = resource.loadGameResource<FTextSetting>($"{GAMEPLAY_PATH}/FTextSetting_GainCoin.asset");
         var dodged = resource.loadGameResource<FTextSetting>($"{GAMEPLAY_PATH}/FTextSetting_Dodged.asset");
-        settings.add(TextType.Damage, damage.get());
-        settings.add(TextType.DamageCrit, damage_Crit.get());
+        settings.add(TextType.Damage_Physic, damage.get());
+        settings.add(TextType.Damage_Magic, damage.get());
+        settings.add(TextType.Damage_True, damage.get());
+        settings.add(TextType.DamageCrit_Physic, damage_Crit.get());
+        settings.add(TextType.DamageCrit_Magic, damage_Crit.get());
+        settings.add(TextType.DamageCrit_True, damage_Crit.get());
         settings.add(TextType.Healing, healing.get());
         settings.add(TextType.GainCoin, gainCoin.get());
         settings.add(TextType.DodgeChance, dodged.get());
@@ -106,19 +121,6 @@ public class FTextManager : FrameSystem
     public override void update(float elapsedTime)
     {
         base.update(elapsedTime);
-
-        foreach (var (type, _usings) in usings)
-        {
-            using var a = new SafeListReader<FText>(_usings);
-            foreach (var text in a.mReadList)
-            {
-                if (text && text.isActiveInHierarchy())
-                {
-                    var dt = !text.isIgnoreTimeScale() ? elapsedTime : Time.unscaledDeltaTime;
-                    text.update(dt);
-                }
-            }
-        }
     }
 
     public static FTextSetting getSetting(TextType type)
@@ -136,11 +138,12 @@ public class FTextManager : FrameSystem
 
     FText getText(FText.Data data)
     {
-        var type = data.textType;
+        var textType = data.textType;
+        var type = data.type;
         FText text;
         if (data.reuseTimes is > 0 or -2 && data.target)
         {
-            if (reusedTexts[type].TryGetValue(data.target, out text))
+            if (reusedTexts[textType].TryGetValue(data.target, out text))
             {
                 switch (text.useTimes)
                 {
@@ -153,34 +156,38 @@ public class FTextManager : FrameSystem
             }
         }
 
-        if (unused[type].any())
+        if (unused[textType].any())
         {
-            text = unused[type].popBack();
+            text = unused[textType].popBack();
+            text.onAcquire();
         }
         else
         {
-            text = CLASS<FText>();
-            string path = type switch
+            string path = textType switch
             {
-                TextType.Damage => $"{GAMEPLAY_PATH}/FText_Damage.prefab",
-                TextType.DamageCrit => $"{GAMEPLAY_PATH}/FText_Damage.prefab",
+                TextType.Damage_Physic => $"{GAMEPLAY_PATH}/FText_Damage_Physic.prefab",
+                TextType.Damage_Magic => $"{GAMEPLAY_PATH}/FText_Damage_Magic.prefab",
+                TextType.Damage_True => $"{GAMEPLAY_PATH}/FText_Damage_True.prefab",
+                TextType.DamageCrit_Physic => $"{GAMEPLAY_PATH}/FText_Damage_Physic.prefab",
+                TextType.DamageCrit_Magic => $"{GAMEPLAY_PATH}/FText_Damage_Magic.prefab",
+                TextType.DamageCrit_True => $"{GAMEPLAY_PATH}/FText_Damage_True.prefab",
                 TextType.Healing => $"{GAMEPLAY_PATH}/FText_Healing.prefab",
                 TextType.GainCoin => $"{GAMEPLAY_PATH}/FText_GainCoin.prefab",
                 TextType.DodgeChance => $"{GAMEPLAY_PATH}/FText_Dodged.prefab",
                 _ => throw new ArgumentOutOfRangeException()
             };
-            text.setName($"FText_{type}");
+     
             var o = prefabPool.createObject(path, true, textParent);
-            text.setObject(o);
+            o.TryGetComponent(out text);
         }
 
-        usings[type].add(text);
+        usings[textType].add(text);
         return text;
     }
 
     public void release(TextType type, FText text)
     {
-        text.Clear();
+        text.onRelease();
         usings[type].remove(text);
         unused[type].add(text);
     }
@@ -200,7 +207,28 @@ public class FTextManager : FrameSystem
         if (dmg.Self)
             return;
 
-        var type = dmg.IsCrit ? TextType.DamageCrit : TextType.Damage;
+        var type = TextType.None;
+        if (dmg.IsCrit)
+        {
+            type = dmg.ActualType switch
+            {
+                Dmg.Types.AD => TextType.DamageCrit_Physic,
+                Dmg.Types.AP => TextType.DamageCrit_Magic,
+                Dmg.Types.True => TextType.DamageCrit_True,
+                _ => type
+            };
+        }
+        else
+        {
+            type = dmg.ActualType switch
+            {
+                Dmg.Types.AD => TextType.Damage_Physic,
+                Dmg.Types.AP => TextType.Damage_Magic,
+                Dmg.Types.True => TextType.Damage_True,
+                _ => type
+            };
+        }
+
         var mix = dmg.Mix;
         var setting = getSetting(type);
 

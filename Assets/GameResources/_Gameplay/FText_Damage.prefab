@@ -148,6 +148,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1349822499584374759}
   - component: {fileID: 1306130394031295918}
+  - component: {fileID: 8245874313880373726}
   m_Layer: 5
   m_Name: FText_Damage
   m_TagString: Untagged
@@ -187,6 +188,21 @@ CanvasGroup:
   m_Interactable: 0
   m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
+--- !u!114 &8245874313880373726
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1349822499584374758}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e367a1d4ec3455a8429786b4682eedf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: HotFix::MoreMountains.FText
+  mNeedUpdate: 1
+  mNeedFixedUpdate: 1
+  useTimes: -1
 --- !u!1 &1607626015989375939
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,0 +1,124 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 653439ecf238481cac3902d2eb3b31ab, type: 3}
+  m_Name: TMPNumberFontSettings
+  m_EditorClassIdentifier: com.litefeel.BitmapFontImporter.Editor::TMPNumberFontSettings
+  globalScale: 3
+  glyphsData:
+  - character: 0
+    glyphIndex: 0
+    x: 0
+    y: 0
+    width: 0
+    height: 0
+    bearingX: 0
+    bearingY: 54
+    advance: 22
+  - character: 0
+    glyphIndex: 1
+    x: 0
+    y: 0
+    width: 0
+    height: 0
+    bearingX: -2
+    bearingY: 53.7
+    advance: 16
+  - character: 0
+    glyphIndex: 2
+    x: 0
+    y: 0
+    width: 0
+    height: 0
+    bearingX: -1
+    bearingY: 54.5
+    advance: 23
+  - character: 0
+    glyphIndex: 3
+    x: 0
+    y: 0
+    width: 0
+    height: 0
+    bearingX: 0
+    bearingY: 54.5
+    advance: 23
+  - character: 0
+    glyphIndex: 4
+    x: 0
+    y: 0
+    width: 0
+    height: 0
+    bearingX: -1
+    bearingY: 54
+    advance: 23
+  - character: 0
+    glyphIndex: 5
+    x: 0
+    y: 0
+    width: 0
+    height: 0
+    bearingX: 0
+    bearingY: 54
+    advance: 23
+  - character: 0
+    glyphIndex: 6
+    x: 0
+    y: 0
+    width: 0
+    height: 0
+    bearingX: 0
+    bearingY: 54.5
+    advance: 23
+  - character: 0
+    glyphIndex: 7
+    x: 0
+    y: 0
+    width: 0
+    height: 0
+    bearingX: 0
+    bearingY: 54.5
+    advance: 22
+  - character: 0
+    glyphIndex: 8
+    x: 0
+    y: 0
+    width: 0
+    height: 0
+    bearingX: 0
+    bearingY: 54.5
+    advance: 23
+  - character: 0
+    glyphIndex: 9
+    x: 0
+    y: 0
+    width: 0
+    height: 0
+    bearingX: 0
+    bearingY: 54.5
+    advance: 22
+  - character: 0
+    glyphIndex: 10
+    x: 0
+    y: 0
+    width: 0
+    height: 0
+    bearingX: 0
+    bearingY: 53
+    advance: 26
+  - character: 0
+    glyphIndex: 11
+    x: 0
+    y: 0
+    width: 0
+    height: 0
+    bearingX: 0
+    bearingY: 55.5
+    advance: 26

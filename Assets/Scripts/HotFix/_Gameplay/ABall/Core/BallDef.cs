@@ -338,7 +338,7 @@ namespace MoreMountains
                 }
 
                 sb.add(" = ");
-                sb.add(rawHitDamage.FToS().color(universalColor.statValueRaw), " + ", hitDamageRate.toPercent(), Character.Stat.AD.Key().toSprite());
+                sb.add(rawHitDamage.FToS().color(universalColor.statValueRaw), " + ", hitDamageRate.toPercent(), Character.Stat.AD.Key().toSpriteName());
                 sb.addLine();
             }
         }
