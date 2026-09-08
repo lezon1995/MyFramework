@@ -59,7 +59,7 @@ namespace MoreMountains
         }
 
         public bool IsRecollecting { get; set; }
-        public new BallDamageOnTouch DamageOnTouch => (BallDamageOnTouch)_damageOnTouch;
+        new BallDamageOnTouch DamageOnTouch => (BallDamageOnTouch)_damageOnTouch;
         public new BallStats Stats => _stats as BallStats;
 
         protected override void OnAwake()
@@ -315,7 +315,7 @@ namespace MoreMountains
             }
         }
 
-        SafeDictionary<Brick, MTimer> brickHitTimers = new();
+        public SafeDictionary<Brick, MTimer> brickHitTimers = new();
 
         public bool IsTheBrickBeingIgnoredToHit(Brick brick)
         {
@@ -345,7 +345,7 @@ namespace MoreMountains
                 case LayerManager.Brick:
                     if (hitObject.TryGetComponent(out Brick brick))
                     {
-                        if (OnCollidingWithBrick(brick, normal, ball)) 
+                        if (!CollidingWithBrick(brick, normal)) 
                             return;
                     }
 
@@ -353,18 +353,8 @@ namespace MoreMountains
                 case LayerManager.Obstacles:
                     if (hitObject.TryGetComponent(out Obstacle obstacle))
                     {
-                        lastHittable = obstacle;
-                        foreach (var p in powers)
-                            p.onHitObstacle(obstacle);
-
-                        counters.hit.count();
-                        hasBeenCollided = true;
-
-                        _player.onBallHitObstacle(ball, obstacle, ref normal);
-                        playHitObstacleSfx();
-
-                        var hitDmg = getHitDmg(obstacle, normal);
-                        DamageOnTouch.Colliding(obstacle, hitDmg);
+                        if (!CollidingWithObstacle(obstacle, normal))
+                            return;
                     }
 
                     break;
@@ -376,30 +366,14 @@ namespace MoreMountains
             }
         }
 
-        protected virtual bool OnCollidingWithBrick(Brick brick, Vector2 normal, Ball ball)
+        public virtual bool CollidingWithBrick(Brick brick, Vector2 normal)
         {
-            if (IsTheBrickBeingIgnoredToHit(brick))
-            {
-                return true;
-            }
+            return DamageOnTouch.Colliding(brick, normal);
+        }
 
-            lastHittable = brick;
-            var hitDmg = getHitDmg(brick, normal);
-            brick.onHitEnter(ball, normal);
-            ball.onHitEnter(brick, normal, out var triggerRegularHit);
-            collidingBrick = brick;
-
-            if (triggerRegularHit)
-            {
-                counters.hit.count();
-                counters.hitBrick.count();
-            }
-
-            DamageOnTouch.Colliding(brick, hitDmg);
-
-            ResetIgnoredToHitBricks();
-            brickHitTimers.add(brick, 0.2F);
-            return false;
+        public virtual bool CollidingWithObstacle(Obstacle obstacle, Vector2 normal)
+        {
+            return DamageOnTouch.Colliding(obstacle, normal);
         }
 
         /// <summary>

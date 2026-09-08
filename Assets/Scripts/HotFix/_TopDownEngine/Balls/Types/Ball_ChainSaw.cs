@@ -8,7 +8,7 @@ namespace MoreMountains
 
         Countdown countdown;
         
-        protected override bool onHitEnter(Brick brick, Vector2 normal, out bool triggerRegularHit)
+        public override bool onHitEnter(Brick brick, Vector2 normal, out bool triggerRegularHit)
         {
             countdown = 5;
             return base.onHitEnter(brick, normal, out triggerRegularHit);
@@ -19,8 +19,7 @@ namespace MoreMountains
             if (countdown.update())
             {
                 countdown = 5;
-                var hitDmg = getHitDmg(brick, lastHitNormal);
-                DamageOnTouch.Colliding(brick, hitDmg);
+                CollidingWithBrick(brick, lastHitNormal);
                 fx.play(FxDefine.CLAW_FLASH, brick.getWorldPosition());
                 sound.play(SoundDefine.CLAW_HIT);
             }

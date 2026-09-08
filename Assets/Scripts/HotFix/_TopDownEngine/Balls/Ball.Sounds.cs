@@ -12,12 +12,12 @@
             fx.play(FxDefine.BALL_HIT_BRICK, curPos);
         }
 
-        protected virtual void playHitBorderSfx()
+        public virtual void playHitBorderSfx()
         {
             // sound.play(SoundDefine.BALL_HIT_BRICK_COMMON);
         }
 
-        protected virtual void playHitObstacleSfx()
+        public virtual void playHitObstacleSfx()
         {
             // sound.play(SoundDefine.BALL_HIT_BRICK_COMMON);
         }

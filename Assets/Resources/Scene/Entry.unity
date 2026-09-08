@@ -2903,6 +2903,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d481b4bcf09d4ddca574b33cfb8ca5da, type: 3}
   m_Name: 
   m_EditorClassIdentifier: HotFix::MoreMountains.Obstacle
+  mNeedUpdate: 1
+  mNeedFixedUpdate: 1
 --- !u!1 &514966130
 GameObject:
   m_ObjectHideFlags: 0

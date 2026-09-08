@@ -26,7 +26,7 @@ namespace MoreMountains
             base.OnFixedUpdate(dt);
         }
 
-        protected override bool OnCollidingWithBrick(Brick brick, Vector2 normal, Ball ball)
+        public override bool CollidingWithBrick(Brick brick, Vector2 normal)
         {
             if (brickManager.brickDamageTimers.tryGetValue(brick, out var damageTimer))
             {
@@ -38,7 +38,7 @@ namespace MoreMountains
                 brick.Event.addListener<OnBrickDeathTotally>(this);
             }
 
-            return base.OnCollidingWithBrick(brick, normal, ball);
+            return base.CollidingWithBrick(brick, normal);
         }
 
         public void onEvent(OnBrickDeathTotally e)

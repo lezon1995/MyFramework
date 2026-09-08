@@ -291,6 +291,7 @@ namespace MoreMountains
             //     poolableObject.TriggerOnSpawnComplete();
             // }
 
+            ball.onPreparedToShoot();
             return ball.getGameObject();
         }
 

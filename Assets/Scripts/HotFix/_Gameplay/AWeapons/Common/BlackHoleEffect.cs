@@ -31,7 +31,7 @@ public class BlackHoleEffect : ALogicEffect, IArgs<Ball, Brick>
         fxBlackHole.setWorldPosition(spotPos);
         
         pullRadius = 1.5F;
-        basePullForce = 0.05F;
+        basePullForce = 0.1F;
         maxPullMultiplier = 1F;
         stopDistance = 0.15F;
     }

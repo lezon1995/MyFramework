@@ -51,6 +51,8 @@ namespace MoreMountains
 
         public override void OnFixedUpdate(float dt)
         {
+            CheckBrickHitTimerExpiration(dt);
+            
             if (_shouldMove)
             {
                 Movement(dt);
@@ -61,7 +63,7 @@ namespace MoreMountains
                 }
             }
             
-            CheckExpiration(dt);
+            CheckBallExpiration(dt);
         }
 
         protected override bool CheckWillPassingThrough(float dt, LayerMask targetLayer, out Vector3 hitPos, out RaycastHit2D hitInfo)

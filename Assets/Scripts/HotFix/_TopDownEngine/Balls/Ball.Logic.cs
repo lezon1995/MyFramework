@@ -61,7 +61,7 @@ namespace MoreMountains
         public BallRenderer ballRenderer;
 
         protected APlayer _player;
-        protected Brick collidingBrick;
+        public Brick collidingBrick;
         protected Brick overlappingBrick;
 
         BorderToBallDamageModifier borderToBallDamageModifier;
@@ -75,7 +75,7 @@ namespace MoreMountains
         protected float movementDelta;
         float lastRadius;
         bool enabled;
-        bool hasBeenCollided;
+        public bool hasBeenCollided;
         int delayCounter;
 
         protected Timer lifeDuration;
@@ -160,15 +160,7 @@ namespace MoreMountains
 
         public override void OnFixedUpdate(float dt)
         {
-            using var _ = new SafeDictionaryReader<Brick, MTimer>(brickHitTimers, out var reader);
-            foreach (var (brick, timer) in reader)
-            {
-                if (timer.update(dt))
-                {
-                    brickHitTimers.remove(brick);
-                    timer.release();
-                }
-            }
+            CheckBrickHitTimerExpiration(dt);
 
             if (!_shouldMove)
                 return;
@@ -289,19 +281,32 @@ namespace MoreMountains
             if (FaceMovement)
                 FaceMovementDirection(Direction);
 
-            CheckExpiration(dt);
+            CheckBallExpiration(dt);
         }
 
         protected virtual void OnFixedUpdateOverlappingBrick(Brick brick)
         {
         }
 
-        protected void CheckExpiration(float dt)
+        protected void CheckBallExpiration(float dt)
         {
             if (lifeDuration.update(dt) || isExpired)
             {
                 new OnBallExpired(this).trigger(this);
                 isExpired = true;
+            }
+        }
+
+        protected void CheckBrickHitTimerExpiration(float dt)
+        {
+            using var _ = new SafeDictionaryReader<Brick, MTimer>(brickHitTimers, out var reader);
+            foreach (var (brick, timer) in reader)
+            {
+                if (timer.update(dt))
+                {
+                    brickHitTimers.remove(brick);
+                    timer.release();
+                }
             }
         }
 
@@ -630,6 +635,10 @@ namespace MoreMountains
         public float getDurationRemain()
         {
             return lifeDuration.remain;
+        }
+        
+        public virtual void onPreparedToShoot()
+        {
         }
 
         /*public void returnBall(Vector3 nextPosition)

@@ -14,7 +14,7 @@ namespace MoreMountains
         protected void addListeners() => Event.addAllListeners(this);
         protected void removeListeners() => Event.removeAllListeners(this);
 
-        protected virtual bool onHitEnter(Brick brick, Vector2 normal, out bool triggerRegularHit)
+        public virtual bool onHitEnter(Brick brick, Vector2 normal, out bool triggerRegularHit)
         {
             playHitBrickSfx(brick);
             playHitBrickVfx(brick);

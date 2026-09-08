@@ -146,6 +146,8 @@ public static class MathExtension
 	public static float acos(this float value) { return Mathf.Acos(value.clamp(-1.0f, 1.0f)); }
 	public static float sqrt(this float value) { return Mathf.Sqrt(value); }
 	public static float sqrt(this int value) { return Mathf.Sqrt(value); }
+	public static float sign(this int value) { return  value >= 0.0 ? 1f : -1f; }
+	public static float sign(this float value) { return  value >= 0.0 ? 1f : -1f; }
 	// 将一个浮点数调整保留一定的小数位,保留的最后一位四舍五入.precision表示小数点后保留几位小数
 	public static float checkFloat(this float value, int precision = 4)
 	{

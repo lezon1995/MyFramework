@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace MoreMountains
 {
-    public class Obstacle : MonoBehaviour, IResetProperty
+    public class Obstacle : MainActorBehaviour, IResetProperty
         , IHittable
         , IEventRouter
     {
