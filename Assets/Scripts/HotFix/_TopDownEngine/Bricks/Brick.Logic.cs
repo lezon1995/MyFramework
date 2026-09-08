@@ -15,12 +15,15 @@ namespace MoreMountains
         public Vector2Int size;
 
         #endregion
+
         public BrickRenderer brickRenderer;
         public VolumeCollider volumeCollider;
-        Action<Brick> onBornCompleted;
-        APlayer player;
-        BrickDef def;
-    
+        protected virtual bool registerToVolumeManager => true;
+
+        protected Action<Brick> onBornCompleted;
+        protected APlayer player;
+        protected BrickDef def;
+
         public void setID(long id) => guid = id;
         public Type getType() => GetType();
         public BrickDef getDef() => def;
@@ -36,7 +39,11 @@ namespace MoreMountains
             brickRenderer.setHealthBarActive(false);
             brickRenderer.playBornAnimation();
             Health.onAcquire();
-            _controller2D.RegisterToVolumeManager();
+
+            if (registerToVolumeManager)
+            {
+                _controller2D.RegisterToVolumeManager();
+            }
         }
 
         public void setOnBornCompleted(Action<Brick> a)
@@ -79,8 +86,8 @@ namespace MoreMountains
         {
             player = p;
         }
-        
-        public void setBrickDef(BrickDef d)
+
+        public virtual void setBrickDef(BrickDef d)
         {
             def = d;
             brickRenderer.setBlockSprite(d.BlockIcon);

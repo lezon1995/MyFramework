@@ -58,6 +58,7 @@ namespace MoreMountains
             // statList.Add(player.GetStat(Character.Stat.AD_PT_Rate));
             statList.Add(player.GetStat(Character.Stat.AP));
             statList.Add(player.GetStat(Character.Stat.AS));
+            statList.Add(player.GetStat(Character.Stat.CD));
             // statList.Add(player.GetStat(Character.Stat.AP_PT));
             // statList.Add(player.GetStat(Character.Stat.AP_PT_Rate));
             statList.Add(player.GetStat(Character.Stat.CritChance));

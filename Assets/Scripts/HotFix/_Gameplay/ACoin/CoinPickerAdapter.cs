@@ -83,7 +83,7 @@ namespace MoreMountains
                 _autoPickupTimer = 0f;
 
                 float range = PickupRangeOverride > 0 ? PickupRangeOverride : coinManager.PickupRange;
-                coinManager.TryPickupCoinsInRange(_player.transform, range);
+                coinManager.TryPickupCoinsInRange(_player.transform, _player.getWorldPosition(), range);
             }
         }
 
@@ -116,7 +116,7 @@ namespace MoreMountains
                 return;
 
             float range = PickupRangeOverride > 0 ? PickupRangeOverride : coinManager.PickupRange;
-            coinManager.TryPickupCoinsInRange(_player.transform, range);
+            coinManager.TryPickupCoinsInRange(_player.transform, _player.getWorldPosition(), range);
         }
 
         /// <summary>

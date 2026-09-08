@@ -37,8 +37,8 @@ namespace MoreMountains
 
         protected HealthBar healthBar;
         BrickAnimationReceiver receiver;
-        AnimationState curAnimation;
-        Action onBornAnimationComplete;
+        protected AnimationState curAnimation;
+        protected Action onBornAnimationComplete;
 
         public void Awake()
         {
@@ -139,7 +139,7 @@ namespace MoreMountains
             sortingGroup.sortingOrder = v;
         }
 
-        public void playBornAnimation()
+        public virtual void playBornAnimation()
         {
             animator.Play(BrickBorn, 0, 0F);
             curAnimation = AnimationState.BORN;
@@ -322,7 +322,6 @@ namespace MoreMountains
             fx.play(FxDefine.BRICK_DESTROY, brick.getWorldPosition());
         }
 
-
         public class HealthBar
         {
             Transform transform;
@@ -387,7 +386,7 @@ namespace MoreMountains
             BotRight,
         }
 
-        enum AnimationState
+        protected enum AnimationState
         {
             NONE,
             BORN,

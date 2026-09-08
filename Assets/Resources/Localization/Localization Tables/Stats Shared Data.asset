@@ -139,6 +139,10 @@ MonoBehaviour:
     m_Key: Curse
     m_Metadata:
       m_Items: []
+  - m_Id: 8766959723761664
+    m_Key: CD
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

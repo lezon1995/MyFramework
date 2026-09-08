@@ -87,6 +87,7 @@ namespace MoreMountains
         public void ClearAllLocks() => _lockedCells.Clear();
 
         Action<Brick> onBrickBornCompleted;
+        public SafeDictionary<Brick, (Ball, MTimer)> brickDamageTimers = new();
 
         public BrickManager()
         {
@@ -99,6 +100,29 @@ namespace MoreMountains
 
             defDict = Defs.GroupBy(def => def.Size).ToDictionary(g => g.Key, g => g.ToList());
             load();
+        }
+
+        public override void OnFixedUpdate(float dt)
+        {
+            base.OnFixedUpdate(dt);
+
+            if (brickDamageTimers.count() > 0)
+            {
+                using var _ = new SafeDictionaryReader<Brick, (Ball, MTimer)>(brickDamageTimers, out var reader);
+                foreach (var (brick, (ball, timer)) in reader)
+                {
+                    if (timer.update(dt))
+                    {
+                        brickDamageTimers.remove(brick);
+                        if (ball is IEvent<OnBrickDeath> e)
+                        {
+                            brick.Event.removeListener(e);
+                        }
+
+                        timer.release();
+                    }
+                }
+            }
         }
 
         public BrickDef GetRandomDef(Vector2Int size)
@@ -546,21 +570,16 @@ namespace MoreMountains
                 return null;
             }
 
-            Brick brick;
             var size = def.Size;
-            if (def.Type == SpawnEnemyType.Boss)
+            string path = def.Type switch
             {
-                var path = $"{GAMEPLAY_PATH}/Bricks/{def.PrefabName}.prefab";
-                var o = prefabPool.createObject(path);
-                o.TryGetComponent(out brick);
-            }
-            else
-            {
-                var path = $"{GAMEPLAY_PATH}/Bricks/Brick_{size.x}x{size.y}.prefab";
-                var o = prefabPool.createObject(path);
-                o.TryGetComponent(out brick);
-            }
+                SpawnEnemyType.Boss => $"{GAMEPLAY_PATH}/Bricks/{def.PrefabName}.prefab",
+                SpawnEnemyType.Obstacle => $"{GAMEPLAY_PATH}/Bricks/{def.PrefabName}.prefab",
+                _ => $"{GAMEPLAY_PATH}/Bricks/Brick_{size.x}x{size.y}.prefab"
+            };
 
+            var o = prefabPool.createObject(path);
+            o.TryGetComponent(out Brick brick);
             var countAll = brickPools[def].CountAll;
             brick.setBrickDef(def);
             brick.setName($"Brick_{size.x}x{size.y}_{countAll}");

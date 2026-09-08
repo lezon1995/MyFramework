@@ -345,27 +345,8 @@ namespace MoreMountains
                 case LayerManager.Brick:
                     if (hitObject.TryGetComponent(out Brick brick))
                     {
-                        if (IsTheBrickBeingIgnoredToHit(brick))
-                        {
+                        if (OnCollidingWithBrick(brick, normal, ball)) 
                             return;
-                        }
-
-                        lastHittable = brick;
-                        var hitDmg = getHitDmg(brick, normal);
-                        brick.onHitEnter(ball, normal);
-                        ball.onHitEnter(brick, normal, out var triggerRegularHit);
-                        collidingBrick = brick;
-
-                        if (triggerRegularHit)
-                        {
-                            counters.hit.count();
-                            counters.hitBrick.count();
-                        }
-
-                        DamageOnTouch.Colliding(brick, hitDmg);
-
-                        ResetIgnoredToHitBricks();
-                        brickHitTimers.add(brick, 0.2F);
                     }
 
                     break;
@@ -393,6 +374,32 @@ namespace MoreMountains
             {
                 EvaluateHit2D(hitObject, hitNormal, hitPoint);
             }
+        }
+
+        protected virtual bool OnCollidingWithBrick(Brick brick, Vector2 normal, Ball ball)
+        {
+            if (IsTheBrickBeingIgnoredToHit(brick))
+            {
+                return true;
+            }
+
+            lastHittable = brick;
+            var hitDmg = getHitDmg(brick, normal);
+            brick.onHitEnter(ball, normal);
+            ball.onHitEnter(brick, normal, out var triggerRegularHit);
+            collidingBrick = brick;
+
+            if (triggerRegularHit)
+            {
+                counters.hit.count();
+                counters.hitBrick.count();
+            }
+
+            DamageOnTouch.Colliding(brick, hitDmg);
+
+            ResetIgnoredToHitBricks();
+            brickHitTimers.add(brick, 0.2F);
+            return false;
         }
 
         /// <summary>
@@ -458,6 +465,8 @@ namespace MoreMountains
             float angle = Vector2.Angle(Direction, reflectDir);
             SetDirection(reflectDir, Quaternion.identity);
             _bouncesLeft--;
+
+            onBounceFinished();
         }
     }
 }

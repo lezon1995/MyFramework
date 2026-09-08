@@ -1,4 +1,4 @@
-﻿%YAML 1.1
+%YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!114 &11400000
 MonoBehaviour:
@@ -29,7 +29,7 @@ MonoBehaviour:
   - stat: 29
     BonusFlat: 13
     BonusPct: 0
-  Icon: {fileID: 21300000, guid: b4c3a5abfb90cdb4d98489c3086771c6, type: 3}
+  Icon: {fileID: 21300000, guid: f7e2a0f77de92494a961bb159daafcac, type: 3}
   Rarity: 3
   DisplayName:
     m_TableReference:

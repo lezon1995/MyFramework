@@ -103,6 +103,13 @@ namespace MoreMountains
             // DebugDrawRect();
         }
 
+        public override void OnFixedUpdate(float dt)
+        {
+            base.OnFixedUpdate(dt);
+            
+            
+        }
+
         void DebugDrawRect()
         {
             Drawing.Draw.ingame.xy.WireRectangle(getRect(), Color.red);

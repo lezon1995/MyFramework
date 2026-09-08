@@ -142,6 +142,10 @@ MonoBehaviour:
     m_Localized: Curse
     m_Metadata:
       m_Items: []
+  - m_Id: 8766959723761664
+    m_Localized: Cooldown
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

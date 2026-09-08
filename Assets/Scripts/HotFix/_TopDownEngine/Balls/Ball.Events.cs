@@ -99,5 +99,9 @@ namespace MoreMountains
                 }
             }
         }
+
+        protected virtual void onBounceFinished()
+        {
+        }
     }
 }

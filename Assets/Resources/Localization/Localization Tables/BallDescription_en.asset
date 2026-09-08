@@ -140,6 +140,37 @@ MonoBehaviour:
       to 50% of your Magic Resist.
     m_Metadata:
       m_Items: []
+  - m_Id: 6613496894083072
+    m_Localized: Creates a black hole on hit, enemies within its range are continuously
+      pulled toward the center.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6656671012638720
+    m_Localized: Every fourth hit triggers an explosion.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6918322957864960
+    m_Localized: Each hit has a 25% chance of dropping 1 coin
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6947617394675712
+    m_Localized: Pick up nearby dropped items.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6972806874550272
+    m_Localized: After hit, teleports to a random spot on the field and speeds up
+      by 5%
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7058751653171200
+    m_Localized: Create an obstacle brick when participating in the destruction of
+      an enemy.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7299405692030976
+    m_Localized: Orbit around the character
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

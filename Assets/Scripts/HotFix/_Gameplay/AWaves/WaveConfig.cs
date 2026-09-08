@@ -21,7 +21,8 @@ namespace MoreMountains
     {
         Normal, // 小怪
         Elite, // 精英怪
-        Boss // Boss怪
+        Boss, // Boss怪
+        Obstacle, // 障碍
     }
 
     /// <summary>

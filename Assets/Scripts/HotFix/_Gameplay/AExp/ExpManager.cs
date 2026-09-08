@@ -313,21 +313,21 @@ namespace MoreMountains
         /// <returns>启动拾取的经验值物品总价值（仅作通知用，实际到账在动画完成后）</returns>
         public int TryPickupExpsInRange(Transform target)
         {
-            return TryPickupExpsInRange(target, PickupRange);
+            return TryPickupExpsInRange(target, target.position, PickupRange);
         }
 
         /// <summary>
         /// 尝试拾取范围内的经验值物品（指定范围）
         /// 经验值物品的拾取动画会随着玩家移动实时跟踪玩家位置
         /// </summary>
-        public int TryPickupExpsInRange(Transform targetTransform, float range)
+        public int TryPickupExpsInRange(Transform targetTransform, Vector3 centerPos, float range)
         {
             if (!AutoPickupEnabled || targetTransform == null)
                 return 0;
 
             int totalValue = 0;
             using var _ = new ListScope<ExpOrb>(out var expsToPickup);
-            GetExpsInPickupRange(targetTransform.position, ref expsToPickup, range);
+            GetExpsInPickupRange(centerPos, ref expsToPickup, range);
 
             // 每帧都更新 _pickupTargetCache（确保最新的玩家 Transform）
             _pickupTargetCache = targetTransform;

@@ -51,7 +51,7 @@ public class RockSplashEffect : ALogicEffect, IArgs<Ball, Brick>
 
                     var dmg = ball.getSkillDmg(b);
                     b.Health.Damage(ref dmg, ball.gameObject, ball.Player);
-                    var knockbackForce = ball.getKnockbackForce(b.Health, dmg);
+                    var knockbackForce = ball.getKnockbackForce(b.Health, dmg.IsLethal);
                     b.Health.ApplyKnockback(knockbackForce * knockbackForceRatio, dmg);
                 }
             }

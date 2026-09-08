@@ -12,4 +12,7 @@ public enum FxDefine
     KAISA_Q_CAST,   // 施法瞬间播放的引导特效
 
     CLAW_FLASH,   // 爪击
+    STAR_FLASH,   // 传送闪烁
+    STAR_FLASH_Blue,   // 传送闪烁（蓝）
+    SMOKE_FLASH,   // 烟雾闪烁
 }

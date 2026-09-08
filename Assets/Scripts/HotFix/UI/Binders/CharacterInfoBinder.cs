@@ -58,9 +58,10 @@ namespace MoreMountains
             statList.Add(player.GetStat(Character.Stat.AR));
             statList.Add(player.GetStat(Character.Stat.MR));
             statList.Add(player.GetStat(Character.Stat.AS));
+            statList.Add(player.GetStat(Character.Stat.CD));
             statList.Add(player.GetStat(Character.Stat.LifeSteal));
             statList.Add(player.GetStat(Character.Stat.CritChance));
-            statList.Add(player.GetStat(Character.Stat.MS));
+            // statList.Add(player.GetStat(Character.Stat.MS));
             // statList.Add(player.GetStat(Character.Stat.Range));
             // statList.Add(player.GetStat(Character.Stat.DodgeChance));
             // statList.Add(player.GetStat(Character.Stat.BallisticSpeed));

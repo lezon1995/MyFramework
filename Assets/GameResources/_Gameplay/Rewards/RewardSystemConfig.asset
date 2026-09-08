@@ -647,3 +647,22 @@ MonoBehaviour:
       displayType: 0
       displayDecimalDigits: 0
       statIcon: {fileID: 21300000, guid: 077d9b9a7eaa41342bc8ee99288b327d, type: 3}
+  - def: {fileID: 11400000, guid: 03ff60a3c693baa459a2f11b7c70b604, type: 2}
+    configs:
+    - rarity: 0
+      bonusFlat: 4
+      bonusPct: 0
+    - rarity: 0
+      bonusFlat: 8
+      bonusPct: 0
+    - rarity: 0
+      bonusFlat: 12
+      bonusPct: 0
+    - rarity: 0
+      bonusFlat: 16
+      bonusPct: 0
+    display:
+      statName: 
+      displayType: 0
+      displayDecimalDigits: 0
+      statIcon: {fileID: 21300000, guid: 3cec33b4ddb3f7148a8921ce8d36badb, type: 3}

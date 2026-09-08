@@ -115,6 +115,9 @@ namespace MoreMountains
             removeAllPowers();
 
             horizontalBorderTeleportable = false;
+            
+            if (Stats)
+                Stats.ClearStats();
 
             reset();
             this.removeListener<OnBrickColliderChanged>();
@@ -312,10 +315,10 @@ namespace MoreMountains
             return Direction * moveSpeed;
         }
 
-        public Vector3 getKnockbackForce(Health colliderHealth, Dmg damage)
+        public Vector3 getKnockbackForce(Health colliderHealth, bool isLethal)
         {
             Vector3 force;
-            if (damage.IsLethal)
+            if (isLethal)
                 force = _damageOnTouch.LethalDamageKnockbackForce;
             else
                 force = _damageOnTouch.DamageKnockbackForce;
@@ -469,7 +472,7 @@ namespace MoreMountains
         public void setTeleportPosition(Vector2 pos, int exceptMask = 0)
         {
             prePos = curPos = pos;
-            _rigidBody2D.MovePosition(pos);
+            _rigidBody2D.position = pos;
             setPosition(pos);
             setDirection(Direction, exceptMask);
             ballRenderer.clearTrail();

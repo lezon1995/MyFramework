@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Fire
-  m_Shader: {fileID: 4800000, guid: ae42f9236360a314c94b1f280583b096, type: 3}
+  m_Shader: {fileID: 4800000, guid: b31b2b0f68827e54c8a659ab2e3dbd1a, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -136,3 +136,4 @@ Material:
     - _Vector0: {r: -0.07, g: 0, b: 0, a: 0}
     - _m: {r: 0.3018868, g: 0.3018868, b: 0.3018868, a: 0}
   m_BuildTextureStacks: []
+  m_AllowLocking: 1

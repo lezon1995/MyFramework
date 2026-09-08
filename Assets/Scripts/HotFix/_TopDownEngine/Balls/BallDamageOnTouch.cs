@@ -19,7 +19,7 @@ namespace MoreMountains
             if (DamageCausedKnockbackType != KnockbackStyles.AddForce) 
                 return;
 
-            var knockbackForce = ball.getKnockbackForce(colliderHealth, damage);
+            var knockbackForce = ball.getKnockbackForce(colliderHealth, damage.IsLethal);
             ApplyKnockback2D(ref knockbackForce);
             
             colliderHealth.ApplyKnockback(knockbackForce, damage);

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1b7b319e83f926f47ba4d3b6008e31a6, type: 3}
   m_Name: BallDef_YinYang
   m_EditorClassIdentifier: HotFix::MoreMountains.BallDef
-  Type: 11701
+  Type: 11800
   TagInfo:
     MechanicTags: 
     StatusTags: 

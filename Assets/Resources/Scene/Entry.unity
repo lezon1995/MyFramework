@@ -1870,8 +1870,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b73f05b31212f0d419ada6564e9c4ddf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: HotFix::MoreMountains.VolumeCollider
-  Enabled: 1
-  AutoRegister: 1
+  Enabled: 0
+  AutoRegister: 0
   CollisionPriority: 1
   GizmosColor: {r: 0.3, g: 0.8, b: 0.3, a: 0.5}
   DrawTilemapCellsGizmo: 1

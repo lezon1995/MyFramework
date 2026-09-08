@@ -70,6 +70,19 @@ namespace MoreMountains
             UpdateColliderCache();
         }
 
+        void OnEnable()
+        {
+            if (AutoRegister)
+            {
+                RegisterToVolumeManager();
+            }
+        }
+
+        void OnDisable()
+        {
+            UnregisterToVolumeManager();
+        }
+
         void OnDestroy()
         {
         }

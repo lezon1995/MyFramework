@@ -122,6 +122,13 @@ namespace MoreMountains
                 BallType.Iron => "Ball_Iron",
                 BallType.Ghost => "Ball_Ghost",
                 BallType.YinYang => "Ball_YinYang",
+                BallType.BlackHole => "Ball_BlackHole",
+                BallType.Bomb => "Ball_Bomb",
+                BallType.Coin => "Ball_Coin",
+                BallType.Magnet => "Ball_Magnet",
+                BallType.Teleport => "Ball_Teleport",
+                BallType.Creation => "Ball_Creation",
+                BallType.Planet => "Ball_Planet",
 
                 BallType.LaserBeam_Crossed => "MergedBall/Ball_LaserBeam_Crossed",
                 _ => "Ball_Normal"

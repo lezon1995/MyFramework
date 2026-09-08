@@ -115,7 +115,6 @@ namespace MoreMountains
         public override void OnFixedUpdate(float dt)
         {
             base.OnFixedUpdate(dt);
-            
         }
 
         public override bool isDeadOrEscaped() => isDying || halfDead;

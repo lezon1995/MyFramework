@@ -126,6 +126,34 @@ MonoBehaviour:
     m_Localized: Yin Yang
     m_Metadata:
       m_Items: []
+  - m_Id: 6613507635695616
+    m_Localized: Black Hole
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6656745100824576
+    m_Localized: Bomb
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6918393698996224
+    m_Localized: Coin
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6947681080987648
+    m_Localized: Magnet
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6972891230392320
+    m_Localized: Teleport
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7058833429516288
+    m_Localized: Creation
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7299493856301056
+    m_Localized: Planet
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

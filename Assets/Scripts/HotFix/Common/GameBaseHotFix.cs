@@ -25,15 +25,16 @@ public class GBR
 
     // 需要添加auto generate LayoutScript start和auto generate LayoutScript end才会自动生成代码
     // auto generate LayoutScript start
-	public static DebugPanel mDebugPanel;
-	public static EscPanel mEscPanel;
-	public static MainMenuScreen mMainMenuScreen;
-	public static OperationPanel mOperationPanel;
-	public static OverlayMenu mOverlayMenu;
-	public static SelectPlayerPanel mSelectPlayerPanel;
-	public static SplashScreen mSplashScreen;
-	public static TooltipScreen mTooltipScreen;
-	public static UIGame mUIGame;
+    public static DebugPanel mDebugPanel;
+    public static EscPanel mEscPanel;
+    public static MainMenuScreen mMainMenuScreen;
+    public static OperationPanel mOperationPanel;
+    public static OverlayMenu mOverlayMenu;
+    public static SelectPlayerPanel mSelectPlayerPanel;
+    public static SplashScreen mSplashScreen;
+    public static TooltipScreen mTooltipScreen;
+
+    public static UIGame mUIGame;
     // auto generate LayoutScript end
     // auto generate LayoutScript end
 
@@ -67,4 +68,6 @@ public class GBR
     public static VolumeManager volumeManager;
     public static MoreMountains.CharacterManager characterManager;
     public static GridManager gridManager;
+    public static CoinManager coinManager;
+    public static ExpManager expManager;
 }

@@ -1632,7 +1632,7 @@ namespace MoreMountains
         void OnGUI()
         {
             var m = this;
-            GUILayout.BeginArea(new Rect(10, 10, 320, 450));
+            GUILayout.BeginArea(new Rect(10, Screen.height / 2F - 450 / 2F, 320, 450));
             GUILayout.BeginVertical("box");
 
             GUILayout.Label($"=== Wave Debug Info ===");

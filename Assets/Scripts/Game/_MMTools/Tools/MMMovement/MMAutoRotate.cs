@@ -32,11 +32,11 @@ namespace MoreMountains.Tools
 
         [Header("Orbit")]
         /// if this is true, the object will also move around a pivot (only the position is affected, not the rotation)
-        public bool Orbiting = false;
+        public bool Orbiting;
 
         [MMCondition("Orbiting", true)]
         /// if this is true, the orbit plane will rotate along with the parent
-        public bool AdditiveOrbitRotation = false;
+        public bool AdditiveOrbitRotation;
 
         /// the pivot to rotate around (if left blank, will be the object itself
         [MMCondition("Orbiting", true)]

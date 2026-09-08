@@ -312,20 +312,20 @@ namespace MoreMountains
         /// <returns>启动拾取的金币总价值（仅作通知用，实际到账在动画完成后）</returns>
         public int TryPickupCoinsInRange(Transform target)
         {
-            return TryPickupCoinsInRange(target, PickupRange);
+            return TryPickupCoinsInRange(target, target.position, PickupRange);
         }
 
         /// <summary>
         /// 尝试拾取范围内的金币（指定范围）
         /// </summary>
-        public int TryPickupCoinsInRange(Transform targetTransform, float range)
+        public int TryPickupCoinsInRange(Transform targetTransform, Vector3 centerPos, float range)
         {
             if (!AutoPickupEnabled)
                 return 0;
 
             int totalValue = 0;
             using var _ = new ListScope<Coin>(out var coinsToPickup);
-            GetCoinsInPickupRange(targetTransform.position, ref coinsToPickup, range);
+            GetCoinsInPickupRange(centerPos, ref coinsToPickup, range);
 
             foreach (var coin in coinsToPickup)
             {

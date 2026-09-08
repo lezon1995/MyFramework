@@ -11,7 +11,8 @@ namespace MoreMountains
         // TrailRenderer trailRenderer;
         Ball ball;
         GameObject renderer;
-        SmoothTrail trailRenderer;
+        SmoothTrail smoothTrail;
+        TrailRenderer trailRenderer;
         SpriteRenderer spriteRenderer;
         ParticleSystem particleRenderer;
 
@@ -24,8 +25,9 @@ namespace MoreMountains
             obj.find(out renderer, "Renderer");
             obj.find(out spriteRenderer, "ball_sprite");
             obj.find(out particleRenderer, "ball_particle");
-            obj.find(out trailRenderer);
+            obj.find(out smoothTrail);
             obj.find(out fxDead, "FxDead");
+            obj.find(out trailRenderer, "Trail");
         }
 
         public void setRendererActive(bool active)
@@ -45,7 +47,7 @@ namespace MoreMountains
                 var renderer = particleRenderer.GetComponent<ParticleSystemRenderer>();
                 material = renderer.material;
             }
-            
+
             if (!material)
                 return;
 
@@ -57,13 +59,13 @@ namespace MoreMountains
                 material.SetColor(PixelOutlineColor, color);
                 material.SetFloat(PixelOutlineFade, 1F);
 
-                trailRenderer.setGradientColor(color);
+                smoothTrail.setGradientColor(color);
             }
             else
             {
                 material.SetColor(PixelOutlineColor, Color.clear);
                 material.SetFloat(PixelOutlineFade, 0F);
-                trailRenderer.setGradientColor(Color.clear);
+                smoothTrail.setGradientColor(Color.clear);
             }
         }
 
@@ -74,7 +76,8 @@ namespace MoreMountains
 
         public void clearTrail()
         {
-            trailRenderer.clearTrail();
+            smoothTrail?.clearTrail();
+            trailRenderer?.Clear();
         }
     }
 }

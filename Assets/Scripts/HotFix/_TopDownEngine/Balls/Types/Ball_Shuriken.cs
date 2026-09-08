@@ -34,6 +34,11 @@ namespace MoreMountains
                 _damageOnTouch.TriggerFilter = MoreMountains.DamageOnTouch.TriggerMask.IgnoreAll;
             }
         }
+        
+        protected override void playHitBrickSfx(Brick brick)
+        {
+            sound.play(SoundDefine.SHURIKEN_HIT);
+        }
 
         public override void refreshDuration()
         {

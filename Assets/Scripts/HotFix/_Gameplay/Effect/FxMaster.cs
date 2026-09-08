@@ -21,6 +21,9 @@ public class FxMaster
         map.Add(FxDefine.KAISA_Q_CAST, load("Fx_StarFlash_Blue.prefab"));
 
         map.Add(FxDefine.CLAW_FLASH, load("Fx_ClawFlash.prefab"));
+        map.Add(FxDefine.STAR_FLASH, load("Fx_StarFlash.prefab"));
+        map.Add(FxDefine.STAR_FLASH_Blue, load("Fx_StarFlash_Blue.prefab"));
+        map.Add(FxDefine.SMOKE_FLASH, load("Fx_SmokeFlash.prefab"));
 
         log("Loaded " + map.Count + " Visual Effects");
         log("VFX load time: " + (TimeUtility.getNowTimeStampMS() - startTime) + "ms");

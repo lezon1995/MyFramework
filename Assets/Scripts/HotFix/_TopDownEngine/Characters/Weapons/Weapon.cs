@@ -1077,7 +1077,9 @@ namespace MoreMountains
                 return;
 
             var right = transform.right;
-            _controller.AddImpact(Flipped ? right : -right, RecoilForce);
+            var dir = Flipped ? right : -right;
+            var recoilForce = dir * RecoilForce;
+            Owner.Health.ApplyKnockback(recoilForce);
         }
 
         /// <summary>

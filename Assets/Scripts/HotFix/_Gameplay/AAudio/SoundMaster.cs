@@ -19,12 +19,14 @@ namespace MoreMountains
             map.Add(SoundDefine.LIGHTNING_STRIKE, load("lightning_strike.wav"));
             map.Add(SoundDefine.ELECTRICITY_STRIKE, load("electricity_strike.wav"));
             map.Add(SoundDefine.ROCK_QUAKE, load("rock_quake.wav"));
+            map.Add(SoundDefine.BOMB_EXPLODE, load("bomb_explosion.wav"));
 
             // 卡莎 Q 技能音效占位：实际项目里请替换为专属的施法 / 命中音效
             map.Add(SoundDefine.KAISA_Q_CAST, load("ball_hit_pass_through.wav"));
             map.Add(SoundDefine.KAISA_Q_IMPACT, load("missile_hit.wav"));
             map.Add(SoundDefine.CLAW_HIT, load("claw_hit.wav"));
             map.Add(SoundDefine.IRON_HIT, load("ball_iron_hit.wav"));
+            map.Add(SoundDefine.SHURIKEN_HIT, load("ball_shuriken_hit.wav"));
 
             log("Sound Effect Volume: " + Settings.SOUND_VOLUME);
             log("Loaded " + map.Count + " Sound Effects");

@@ -123,6 +123,34 @@ MonoBehaviour:
     m_Key: YinYang
     m_Metadata:
       m_Items: []
+  - m_Id: 6613496894083072
+    m_Key: BlackHole
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6656671012638720
+    m_Key: Bomb
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6918322957864960
+    m_Key: Coin
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6947617394675712
+    m_Key: Magnet
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6972806874550272
+    m_Key: Teleport
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7058751653171200
+    m_Key: Creation
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7299405692030976
+    m_Key: Planet
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

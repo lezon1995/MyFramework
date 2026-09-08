@@ -23,7 +23,7 @@ MonoBehaviour:
   - stat: 13
     BonusFlat: 0.15
     BonusPct: 0
-  Icon: {fileID: 21300000, guid: 1b878915c2b0b734fb6c93f0d478781c, type: 3}
+  Icon: {fileID: 21300000, guid: 2aa47ca45ad24474c972ed75f8c6dc8e, type: 3}
   Rarity: 0
   DisplayName:
     m_TableReference:

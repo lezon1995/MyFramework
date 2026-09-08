@@ -312,7 +312,7 @@ namespace MoreMountains
             BindStats();
         }
 
-        protected void Update()
+        protected virtual void Update()
         {
         }
 
@@ -597,6 +597,17 @@ namespace MoreMountains
 
             return CanGetKnockback();
         }
+        
+        public virtual bool ShouldApplyKnockback()
+        {
+            if (ImmuneToKnockbackIfZeroDamage)
+                return false;
+
+            if (Invincible)
+                return false;
+
+            return CanGetKnockback();
+        }
 
         public virtual void ApplyKnockback(Vector3 knockbackForce, Dmg damage)
         {
@@ -608,6 +619,15 @@ namespace MoreMountains
             }
         }
 
+        public virtual void ApplyKnockback(Vector3 knockbackForce)
+        {
+            if (ShouldApplyKnockback())
+            {
+                ComputeKnockbackForce(ref knockbackForce);
+
+                Controller.AddImpact(knockbackForce.normalized, knockbackForce.magnitude);
+            }
+        }
 
         public bool IsDead()
         {

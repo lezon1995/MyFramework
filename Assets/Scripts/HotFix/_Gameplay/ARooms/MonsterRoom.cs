@@ -16,9 +16,6 @@ namespace MoreMountains
         public WaveGameMode waveGameMode;
         public WaveLevelConfig waveLevelConfig;
 
-        public CoinManager coinManager;
-        public ExpManager expManager;
-
         public MonsterRoom()
         {
             _phases[RoomPhaseType.PREPARE] = new PreparePhase(this);
