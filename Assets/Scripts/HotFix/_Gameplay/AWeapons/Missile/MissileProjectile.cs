@@ -182,7 +182,7 @@ namespace MoreMountains
                 _spriteRenderer = gameObject.AddComponent<SpriteRenderer>();
         }
 
-        public override void Movement(float dt)
+        protected override void Movement(float dt)
         {
             if (_target == null)
             {

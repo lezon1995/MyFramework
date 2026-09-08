@@ -18,7 +18,7 @@ namespace MoreMountains
             MovementLength = 0;
         }
 
-        public override void Movement(float dt)
+        protected override void Movement(float dt)
         {
             var deltaLength = moveSpeed * dt;
             var reachEnd = false;

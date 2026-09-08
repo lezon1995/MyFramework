@@ -106,7 +106,7 @@ namespace MoreMountains
             }
         }
 
-        public override void Movement(float dt)
+        protected override void Movement(float dt)
         {
             if (_target == null)
             {

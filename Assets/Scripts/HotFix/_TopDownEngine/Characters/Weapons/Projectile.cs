@@ -222,7 +222,7 @@ namespace MoreMountains
         /// <summary>
         /// Handles the projectile's movement, every frame
         /// </summary>
-        public virtual void Movement(float dt)
+        protected virtual void Movement(float dt)
         {
             _movement = Direction * (moveSpeed * dt);
 
@@ -236,7 +236,7 @@ namespace MoreMountains
             Speed += Acceleration * dt;
         }
 
-        public virtual void MovementTo(Vector3 pos)
+        protected virtual void MovementTo(Vector3 pos)
         {
             if (_hasRigidBody2D)
             {

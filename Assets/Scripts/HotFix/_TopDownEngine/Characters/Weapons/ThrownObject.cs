@@ -31,7 +31,7 @@ namespace MoreMountains
         /// Handles the projectile's movement, every frame
         /// </summary>
         /// <param name="f"></param>
-        public override void Movement(float f)
+        protected override void Movement(float f)
         {
             if (!_forceApplied && Direction != Vector3.zero)
             {

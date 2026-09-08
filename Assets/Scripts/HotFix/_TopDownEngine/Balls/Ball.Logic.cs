@@ -61,7 +61,7 @@ namespace MoreMountains
         public BallRenderer ballRenderer;
 
         protected APlayer _player;
-        public Brick collidingBrick;
+        public Brick collidingBrick { get; set; }
         protected Brick overlappingBrick;
 
         BorderToBallDamageModifier borderToBallDamageModifier;
@@ -82,7 +82,7 @@ namespace MoreMountains
         public bool isExpired { get; set; }
 
         public IHittable lastHittable;
-        public bool isOverlappingBrick;
+        public bool isOverlappingBrick { get; set; }
         public int level = 1;
 
         public void setBorderToBallDamageModifier(BorderToBallDamageModifier m) => borderToBallDamageModifier = m;
@@ -236,7 +236,7 @@ namespace MoreMountains
                         }
                         else
                         {
-                            OnFixedUpdateOverlappingBrick(overlappingBrick);
+                            OnFixedUpdateOverlappingBrick(overlappingBrick, dt);
                         }
                     }
                     else
@@ -284,7 +284,7 @@ namespace MoreMountains
             CheckBallExpiration(dt);
         }
 
-        protected virtual void OnFixedUpdateOverlappingBrick(Brick brick)
+        protected virtual void OnFixedUpdateOverlappingBrick(Brick brick, float dt)
         {
         }
 

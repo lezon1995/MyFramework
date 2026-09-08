@@ -14,7 +14,7 @@ namespace MoreMountains
             return base.onHitEnter(brick, normal, out triggerRegularHit);
         }
         
-        protected override void OnFixedUpdateOverlappingBrick(Brick brick)
+        protected override void OnFixedUpdateOverlappingBrick(Brick brick, float dt)
         {
             if (countdown.update())
             {

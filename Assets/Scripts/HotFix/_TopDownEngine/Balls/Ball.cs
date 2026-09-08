@@ -59,7 +59,7 @@ namespace MoreMountains
         }
 
         public bool IsRecollecting { get; set; }
-        new BallDamageOnTouch DamageOnTouch => (BallDamageOnTouch)_damageOnTouch;
+        protected new BallDamageOnTouch DamageOnTouch => (BallDamageOnTouch)_damageOnTouch;
         public new BallStats Stats => _stats as BallStats;
 
         protected override void OnAwake()
@@ -165,7 +165,7 @@ namespace MoreMountains
             return Stats.GetStat(key.Key(), out stat);
         }
 
-        public override void Movement(float dt)
+        protected override void Movement(float dt)
         {
             hasCorrectPosThisFixedUpdate = false;
             prePos = curPos;
@@ -181,7 +181,7 @@ namespace MoreMountains
             Speed += Acceleration * dt;
         }
 
-        public override void MovementTo(Vector3 pos)
+        protected override void MovementTo(Vector3 pos)
         {
             hasCorrectPosThisFixedUpdate = false;
             prePos = curPos;

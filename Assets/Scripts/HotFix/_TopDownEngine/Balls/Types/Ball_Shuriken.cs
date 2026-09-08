@@ -73,7 +73,7 @@ namespace MoreMountains
             return false;
         }
 
-        public override void Movement(float dt)
+        protected override void Movement(float dt)
         {
             if (_target == null)
                 return;

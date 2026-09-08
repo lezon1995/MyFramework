@@ -171,6 +171,10 @@ MonoBehaviour:
     m_Localized: Orbit around the character
     m_Metadata:
       m_Items: []
+  - m_Id: 7431225444159488
+    m_Localized: Infiltrate the enemy and continue to bounce around inside.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

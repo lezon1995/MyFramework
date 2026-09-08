@@ -154,6 +154,10 @@ MonoBehaviour:
     m_Localized: Planet
     m_Metadata:
       m_Items: []
+  - m_Id: 7431306612330496
+    m_Localized: Shadow
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

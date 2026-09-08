@@ -151,6 +151,10 @@ MonoBehaviour:
     m_Key: Planet
     m_Metadata:
       m_Items: []
+  - m_Id: 7431306612330496
+    m_Key: Shadow
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

@@ -13,7 +13,7 @@ namespace MoreMountains
         public ForceMode InitialForceMode = ForceMode.Impulse;
         public ForceMode2D InitialForceMode2D = ForceMode2D.Impulse;
 
-        public override void Movement(float f)
+        protected override void Movement(float f)
         {
         }
 
