@@ -270,33 +270,13 @@ Shader "Game/DamageChunkHealthBar"
                 // ---- 合成（前景 > chunks > 透明） ----
                 fixed4 finalColor = lerp(fg, chunks, step(fg.a, chunks.a));
 
-                // ---- 护盾层（自动接在前景+chunks之后） ----
+                // ---- 护盾层（自动接在前景之后） ----
                 if (_UseShield > 0 && _ShieldLength > 0.001)
                 {
-                    // 护盾从 chunks 的最大位置开始延伸
-                    // chunks 的范围 = fg + chunks 覆盖范围
-                    half chunksEnd = max(_ForegroundProgress, 0);
-                    // 考虑 chunks 的影响：找到最远的有效 chunks 终点
-                    for (int ci = 0; ci < 8; ci++)
-                    {
-                        if (ci >= _ChunkCount) break;
-                        half3 chunkData;
-                        switch (ci)
-                        {
-                            case 0: chunkData = _Chunk0; break;
-                            case 1: chunkData = _Chunk1; break;
-                            case 2: chunkData = _Chunk2; break;
-                            case 3: chunkData = _Chunk3; break;
-                            case 4: chunkData = _Chunk4; break;
-                            case 5: chunkData = _Chunk5; break;
-                            case 6: chunkData = _Chunk6; break;
-                            default: chunkData = _Chunk7; break;
-                        }
-                        if (chunkData.z > 0.001 && chunkData.y > chunksEnd)
-                            chunksEnd = chunkData.y;
-                    }
-
-                    half shieldStart = chunksEnd;
+                    // 护盾起点始终是"当前生命值的末尾"（即 _ForegroundProgress）
+                    // 不考虑 chunks 的位置，因为 chunks 是动画残留，
+                    // 玩家视觉上应该看到护盾永远在生命值之后
+                    half shieldStart = _ForegroundProgress;
                     half shieldEnd = shieldStart + _ShieldLength;
 
                     // 护盾主体遮罩
