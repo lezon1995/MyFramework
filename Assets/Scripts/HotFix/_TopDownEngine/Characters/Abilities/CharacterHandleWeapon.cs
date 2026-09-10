@@ -68,7 +68,7 @@ namespace MoreMountains
         [MMCondition(nameof(BufferInput), true)]
         [Tooltip("the maximum duration for the buffer, in seconds")]
         public float MaximumBufferDuration = 0.25f;
-        
+
         [ShowInInspector]
         [Tooltip("the weapon currently equipped by the Character")]
         public Weapon CurrentWeapon { get; set; }
@@ -121,15 +121,17 @@ namespace MoreMountains
             if (_animator && AutoIK)
                 _animator.TryGetComponent(out _weaponIK);
 
-            if (InitialWeapon == null)
+            var initialWeapon = InitialWeapon;
+            if (initialWeapon == null)
                 return;
 
-            if (CurrentWeapon && CurrentWeapon.name == InitialWeapon.name)
+            var weapon = CurrentWeapon;
+            if (weapon && weapon.name == initialWeapon.name)
                 return;
 
-            ChangeWeapon(InitialWeapon, InitialWeapon.WeaponName);
+            ChangeWeapon(initialWeapon, initialWeapon.WeaponName);
         }
-        
+
         public override void SetAbilityPermitted(bool abilityPermitted)
         {
             base.SetAbilityPermitted(abilityPermitted);
@@ -138,9 +140,7 @@ namespace MoreMountains
         public void SetWeaponAttachmentActive(bool active)
         {
             if (WeaponAttachment)
-            {
                 WeaponAttachment.gameObject.SetActive(active);
-            }
         }
 
         /// <summary>
@@ -170,10 +170,11 @@ namespace MoreMountains
         /// </summary>
         protected virtual void HandleFeedbacks()
         {
-            if (CurrentWeapon == null)
+            var weapon = CurrentWeapon;
+            if (weapon == null)
                 return;
 
-            if (CurrentWeapon.State.Is(Weapon.States.Use))
+            if (weapon.State.Is(Weapon.States.Use))
             {
                 WeaponUseFeedback.Play();
             }
@@ -190,12 +191,11 @@ namespace MoreMountains
             if (_conditionState.Not(Character.Conditions.Normal))
                 return;
 
-            if (CurrentWeapon == null)
+            var weapon = CurrentWeapon;
+            if (weapon == null)
                 return;
 
-            bool authorized = true;
-            if (CurrentWeapon)
-                authorized = CurrentWeapon.InputAuthorized;
+            var authorized = weapon.InputAuthorized;
 
             if (ForceAlwaysShoot)
                 ShootStart();
@@ -209,12 +209,12 @@ namespace MoreMountains
 
             bool buttonPressed = input.ShootButton.IsPressed() || input.ShootAxis.IsPressed();
 
-            if (authorized && ContinuousPress && CurrentWeapon.TriggerMode == Weapon.TriggerModes.Auto && buttonPressed)
+            if (authorized && ContinuousPress && weapon.TriggerMode == Weapon.TriggerModes.Auto && buttonPressed)
             {
                 ShootStart();
             }
 
-            if (authorized && ContinuousPress && CurrentWeapon.IsAutoComboWeapon && buttonPressed)
+            if (authorized && ContinuousPress && weapon.IsAutoComboWeapon && buttonPressed)
             {
                 ShootStart();
             }
@@ -227,14 +227,14 @@ namespace MoreMountains
             if (authorized && (input.ShootButton.IsUp() || input.ShootAxis.IsUp()))
             {
                 ShootStop();
-                CurrentWeapon.WeaponInputReleased();
+                weapon.WeaponInputReleased();
             }
 
-            if (CurrentWeapon.State.Is(Weapon.States.DelayBetweenUses)
+            if (weapon.State.Is(Weapon.States.DelayBetweenUses)
                 && input.ShootAxis.IsOff() && input.ShootButton.IsOff()
                 && !(UseSecondaryAxisThresholdToShoot && input.SecondaryMovement.magnitude > input.Threshold.magnitude))
             {
-                CurrentWeapon.WeaponInputStop();
+                weapon.WeaponInputStop();
             }
 
             if (authorized && UseSecondaryAxisThresholdToShoot && input.SecondaryMovement.magnitude > input.Threshold.magnitude)
@@ -248,11 +248,12 @@ namespace MoreMountains
         /// </summary>
         protected virtual void HandleBuffer()
         {
-            if (CurrentWeapon == null)
+            var weapon = CurrentWeapon;
+            if (weapon == null)
                 return;
 
             // if we are currently buffering an input and if the weapon is now idle
-            if (_buffering && CurrentWeapon.State.Is(Weapon.States.Idle))
+            if (_buffering && weapon.State.Is(Weapon.States.Idle))
             {
                 // and if our buffer is still valid, we trigger an attack
                 if (Time.time < _bufferEndsAt)
@@ -275,21 +276,22 @@ namespace MoreMountains
             if (AbilityUnauthorized)
                 return;
 
-            if (CurrentWeapon == null)
+            var weapon = CurrentWeapon;
+            if (weapon == null)
                 return;
 
             if (_conditionState.Not(Character.Conditions.Normal))
                 return;
 
             //  if we've decided to buffer input, and if the weapon is in use right now
-            if (BufferInput && CurrentWeapon.State.Not(Weapon.States.Idle))
+            if (BufferInput && weapon.State.Not(Weapon.States.Idle))
             {
                 // if we're not already buffering, or if each new input extends the buffer, we turn our buffering state to true
                 ExtendBuffer();
             }
-            
+
             PlayAbilityStartFeedbacks();
-            CurrentWeapon.WeaponInputStart();
+            weapon.WeaponInputStart();
         }
 
         /// <summary>
@@ -310,17 +312,18 @@ namespace MoreMountains
         public virtual void ShootStop()
         {
             // if the Shoot action is enabled in the permissions, we continue, if not we do nothing
-            if (AbilityUnauthorized || CurrentWeapon == null)
+            var weapon = CurrentWeapon;
+            if (AbilityUnauthorized || weapon == null)
                 return;
 
-            switch (CurrentWeapon.State.CurrentState)
+            switch (weapon.State.CurrentState)
             {
                 case Weapon.States.Idle:
                 case Weapon.States.Reloading:
                 case Weapon.States.ReloadStart:
                 case Weapon.States.ReloadStop:
-                case Weapon.States.DelayBeforeUse when !CurrentWeapon.DelayBeforeUseReleaseInterruption:
-                case Weapon.States.DelayBetweenUses when !CurrentWeapon.TimeBetweenUsesReleaseInterruption:
+                case Weapon.States.DelayBeforeUse when !weapon.DelayBeforeUseReleaseInterruption:
+                case Weapon.States.DelayBetweenUses when !weapon.TimeBetweenUsesReleaseInterruption:
                 case Weapon.States.Use:
                     return;
                 case Weapon.States.Start:
@@ -341,9 +344,7 @@ namespace MoreMountains
             StopStartFeedbacks();
             PlayAbilityStopFeedbacks();
             if (CurrentWeapon)
-            {
                 CurrentWeapon.TurnWeaponOff();
-            }
         }
 
         /// <summary>
@@ -352,9 +353,7 @@ namespace MoreMountains
         public virtual void Reload()
         {
             if (CurrentWeapon)
-            {
                 CurrentWeapon.InitiateReloadWeapon();
-            }
         }
 
         /// <summary>
@@ -364,9 +363,10 @@ namespace MoreMountains
         public virtual void ChangeWeapon(Weapon newWeapon, string weaponID, bool combo = false)
         {
             // if the character already has a weapon, we make it stop shooting
-            if (CurrentWeapon)
+            var weapon = CurrentWeapon;
+            if (weapon)
             {
-                CurrentWeapon.TurnWeaponOff();
+                weapon.TurnWeaponOff();
                 if (!combo)
                 {
                     ShootStop();
@@ -378,14 +378,14 @@ namespace MoreMountains
                     {
                         foreach (var parameter in _character.Animator.parameters)
                         {
-                            if (parameter.name == CurrentWeapon.EquippedAnimationParameter)
+                            if (parameter.name == weapon.EquippedAnimationParameter)
                             {
-                                MMAnimatorExtensions.UpdateAnimatorBool(_animator, CurrentWeapon.EquippedAnimationParameter, false);
+                                MMAnimatorExtensions.UpdateAnimatorBool(_animator, weapon.EquippedAnimationParameter, false);
                             }
                         }
                     }
 
-                    Destroy(CurrentWeapon.gameObject);
+                    Destroy(weapon.gameObject);
                 }
             }
 
@@ -410,32 +410,37 @@ namespace MoreMountains
         /// <param name="combo"></param>
         protected virtual void InstantiateWeapon(Weapon newWeapon, string weaponID, bool combo = false)
         {
+            Weapon currentWeapon = null;
             if (!combo)
             {
-                CurrentWeapon = Instantiate(newWeapon, WeaponAttachment.transform.position + newWeapon.WeaponAttachmentOffset, WeaponAttachment.transform.rotation);
+                currentWeapon = Instantiate(newWeapon, WeaponAttachment.transform.position + newWeapon.WeaponAttachmentOffset, WeaponAttachment.transform.rotation);
+                CurrentWeapon = currentWeapon;
             }
 
-            CurrentWeapon.name = newWeapon.name;
-            CurrentWeapon.transform.parent = WeaponAttachment.transform;
-            CurrentWeapon.transform.localPosition = newWeapon.WeaponAttachmentOffset;
-            CurrentWeapon.SetOwner(_character, this);
-            CurrentWeapon.WeaponID = weaponID;
-            CurrentWeapon.FlipWeapon();
-            CurrentWeapon.TryGetComponent(out _weaponAim);
+            if (currentWeapon)
+            {
+                currentWeapon.name = newWeapon.name;
+                currentWeapon.transform.parent = WeaponAttachment.transform;
+                currentWeapon.transform.localPosition = newWeapon.WeaponAttachmentOffset;
+                currentWeapon.SetOwner(_character, this);
+                currentWeapon.WeaponID = weaponID;
+                currentWeapon.FlipWeapon();
+                currentWeapon.TryGetComponent(out _weaponAim);
 
-            HandleWeaponAim();
+                HandleWeaponAim();
 
-            // we handle (optional) inverse kinematics (IK) 
-            HandleWeaponIK();
+                // we handle (optional) inverse kinematics (IK) 
+                HandleWeaponIK();
 
-            // we handle the weapon model
-            HandleWeaponModel(newWeapon, weaponID, combo, CurrentWeapon);
+                // we handle the weapon model
+                HandleWeaponModel(newWeapon, weaponID, currentWeapon);
 
-            // we turn off the gun's emitters.
-            CurrentWeapon.Initialization();
-            CurrentWeapon.InitializeComboWeapons();
-            CurrentWeapon.InitializeAnimatorParameters();
-            InitializeAnimatorParameters();
+                // we turn off the gun's emitters.
+                currentWeapon.Initialization();
+                currentWeapon.InitializeComboWeapons();
+                currentWeapon.InitializeAnimatorParameters();
+                InitializeAnimatorParameters();
+            }
         }
 
         /// <summary>
@@ -459,18 +464,17 @@ namespace MoreMountains
         /// </summary>
         protected virtual void HandleWeaponIK()
         {
+            var weapon = CurrentWeapon;
             if (_weaponIK)
-            {
-                _weaponIK.SetHandles(CurrentWeapon.LeftHandHandle, CurrentWeapon.RightHandHandle);
-            }
+                _weaponIK.SetHandles(weapon.LeftHandHandle, weapon.RightHandHandle);
 
-            if (CurrentWeapon.TryGetComponent<ProjectileWeapon>(out var weapon))
+            if (weapon.TryGetComponent<ProjectileWeapon>(out var projectileWeapon))
             {
-                weapon.SetProjectileSpawnTransform(ProjectileSpawn);
+                projectileWeapon.SetProjectileSpawnTransform(ProjectileSpawn);
             }
         }
 
-        protected virtual void HandleWeaponModel(Weapon newWeapon, string weaponID, bool combo = false, Weapon weapon = null)
+        protected virtual void HandleWeaponModel(Weapon newWeapon, string weaponID, Weapon weapon = null)
         {
             if (_weaponModels == null)
                 return;
@@ -547,14 +551,15 @@ namespace MoreMountains
         /// </summary>
         public override void UpdateAnimator()
         {
-            MMAnimatorExtensions.UpdateAnimatorBool(_animator, _weaponEquippedAnimationParameter, (CurrentWeapon != null), _character.AnimatorParameters, _character.RunAnimatorSanityChecks);
-            if (CurrentWeapon == null)
+            var weapon = CurrentWeapon;
+            MMAnimatorExtensions.UpdateAnimatorBool(_animator, _weaponEquippedAnimationParameter, weapon != null, _character.AnimatorParameters, _character.RunAnimatorSanityChecks);
+            if (weapon == null)
             {
                 MMAnimatorExtensions.UpdateAnimatorInteger(_animator, _weaponEquippedIDAnimationParameter, -1, _character.AnimatorParameters, _character.RunAnimatorSanityChecks);
             }
             else
             {
-                MMAnimatorExtensions.UpdateAnimatorInteger(_animator, _weaponEquippedIDAnimationParameter, CurrentWeapon.WeaponAnimationID, _character.AnimatorParameters, _character.RunAnimatorSanityChecks);
+                MMAnimatorExtensions.UpdateAnimatorInteger(_animator, _weaponEquippedIDAnimationParameter, weapon.WeaponAnimationID, _character.AnimatorParameters, _character.RunAnimatorSanityChecks);
             }
         }
 

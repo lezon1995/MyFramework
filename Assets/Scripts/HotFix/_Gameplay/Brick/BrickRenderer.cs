@@ -21,7 +21,7 @@ namespace MoreMountains
         static int BrickDie_2 = Animator.StringToHash("BrickDie_2");
         static int BrickDie_3 = Animator.StringToHash("BrickDie_3");
 
-        protected Brick brick;
+        protected Brick _brick;
 
         Transform root;
         Animator animator;
@@ -35,18 +35,18 @@ namespace MoreMountains
         Material matBlock, matUnit;
         Timer flashRemainSeconds;
 
-        protected HealthBar healthBar;
+        public HealthBar healthBar;
         BrickAnimationReceiver receiver;
         protected AnimationState curAnimation;
         protected Action onBornAnimationComplete;
 
         public void Awake()
         {
-            if (brick)
+            if (_brick)
                 return;
 
-            TryGetComponent(out brick);
-            var obj = brick.gameObject;
+            TryGetComponent(out _brick);
+            var obj = _brick.gameObject;
             obj.find(out animator);
             if (obj.find(out receiver))
             {
@@ -79,7 +79,11 @@ namespace MoreMountains
         {
             if (obj.find(out Transform h, "HealthBar"))
             {
-                h.find<DamageChunkHealthBarRenderer>(out var barRenderer, "HealthBarRenderer");
+                if (h.find<DamageChunkHealthBarRenderer>(out var barRenderer, "HealthBarRenderer"))
+                {
+                    barRenderer.SetHealth(_brick.Health);
+                }
+
                 h.find<TextMeshPro>(out var health, "Health");
                 healthBar = new(h, barRenderer, health);
             }
@@ -124,7 +128,8 @@ namespace MoreMountains
         }
 
         public void setHealthBarActive(bool active) => healthBar.setActive(active);
-        public void refreshHealthByDamage(int v, int max) => healthBar.refreshByDamage(v, max);
+        public void refreshHealthByDamage(int v, int max) => healthBar.refreshHealthByDamage(v, max);
+        public void refreshShieldByDamage(float curProgress) => healthBar.refreshShieldByDamage(curProgress);
         public void refreshHealthByHealing(int v, int max) => healthBar.refreshByHealing(v, max);
         public void refreshHealthByBorn(int v, int max) => healthBar.refreshByBorn(v, max);
 
@@ -154,7 +159,7 @@ namespace MoreMountains
 
         public void playFxHit(Vector2 normal)
         {
-            if (brick.IsDead())
+            if (_brick.IsDead())
                 return;
 
             if (isAnimationDiedOrDying())
@@ -319,13 +324,13 @@ namespace MoreMountains
 
         protected virtual void playBrickDestroyFx()
         {
-            fx.play(FxDefine.BRICK_DESTROY, brick.getWorldPosition());
+            fx.play(FxDefine.BRICK_DESTROY, _brick.getWorldPosition());
         }
 
         public class HealthBar
         {
             Transform transform;
-            IHealthBarRenderer barRenderer;
+            public IHealthBarRenderer barRenderer;
             TMP_Text health;
 
             public HealthBar(Transform t, IHealthBarRenderer renderer, TMP_Text healthText)
@@ -340,12 +345,17 @@ namespace MoreMountains
                 transform.localScale = active ? Vector3.one : Vector3.zero;
             }
 
-            public void refreshByDamage(int cur, int max)
+            public void refreshHealthByDamage(int cur, int max)
             {
                 health.SetText(cur.IToS());
 
-                var f = Mathf.Clamp01(((float)cur) / max);
-                barRenderer.ApplyDamage(f);
+                var f = Mathf.Clamp01((float)cur / max);
+                barRenderer.ApplyDamageToHealthBar(f);
+            }
+            
+            public void refreshShieldByDamage(float curProgress)
+            {
+                barRenderer.ApplyDamageToShieldBar(curProgress);
             }
 
             public void refreshByHealing(int cur, int max)
@@ -417,7 +427,7 @@ namespace MoreMountains
         public void playFxDodge()
         {
             fxDodge.Play();
-            new DodgeChanceTextEvent(false, brick.transform).trigger();
+            new DodgeChanceTextEvent(false, _brick.transform).trigger();
         }
 
         public void onBrickDefSet(BrickDef def)

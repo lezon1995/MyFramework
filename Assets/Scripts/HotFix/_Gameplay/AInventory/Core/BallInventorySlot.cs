@@ -6,7 +6,7 @@ namespace MoreMountains
     /// 球背包中的一个格子。固定数量的格子由 BallBag 一上来就生成 N 个，
     /// 玩家获得 / 失去球时只是把 Item 在 slot 之间挪进挪出。
     /// </summary>
-    public sealed class BallInventorySlot : IInventorySlot<BallItem>
+    public sealed partial class BallInventorySlot : IInventorySlot<BallItem>
     {
         public int Index { get; }
         public BallItem Item { get; private set; }

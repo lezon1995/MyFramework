@@ -101,14 +101,23 @@ namespace MoreMountains
             var handleWeapon = mainHandleWeapons[slot.Index];
             handleWeapon.SetAbilityPermitted(slot.IsOccupied);
             handleWeapon.SetWeaponAttachmentActive(slot.IsOccupied);
-            BallDef ballDef = null;
+            var ballItem = slot.Item;
+            var ballDef = ballItem == null ? null : ballItem.Def;
+            var ballLevel = ballItem == null ? 0 : ballItem.Level;
+            if (ballDef)
+            {
+                handleWeapon.ChangeWeapon(ballDef.InitialWeapon, ballDef.InitialWeapon.WeaponName);
+            }
+            else
+            {
+                handleWeapon.ChangeWeapon(null, null);
+            }
+
             if (handleWeapon.CurrentWeapon is BallGunWeapon ballGunWeapon)
             {
-                ballDef = slot.Item == null ? null : slot.Item.Def;
-                var ballLevel = slot.Item == null ? 0 : slot.Item.Level;
                 ballGunWeapon.SetBallAttachmentSpriteRenderer(ballWeaponAttachmentRoot.GetAttachmentSpriteRenderer(slot.Index));
                 ballGunWeapon.SetBallSlot(slot);
-      
+
                 if (ballDef)
                 {
                     ballGunWeapon.SetBallDef(ballDef);
@@ -124,7 +133,38 @@ namespace MoreMountains
                 {
                     ballGunWeapon.SetBallLevel(ballLevel);
                     ballGunWeapon.SetBallDef(null);
-                    
+
+                    if (metaHandleWeapons.TryGetValue(slot, out var metaHandleWeapon))
+                    {
+                        RemoveAbility(metaHandleWeapon);
+                        metaHandleWeapons.Remove(slot);
+                        Destroy(metaHandleWeapon.gameObject);
+                    }
+                }
+            }
+            else if (handleWeapon.CurrentWeapon is BallSlotWeapon ballSlotWeapon)
+            {
+                ballSlotWeapon.SetBallAttachmentSpriteRenderer(ballWeaponAttachmentRoot.GetAttachmentSpriteRenderer(slot.Index));
+                ballSlotWeapon.SetBallSlot(slot);
+
+                if (ballDef)
+                {
+                    ballSlotWeapon.SetBallItem(ballItem);
+                    ballSlotWeapon.SetBallDef(ballDef);
+                    ballSlotWeapon.SetBallLevel(ballLevel);
+                    if (ballDef.MetaHandleWeapon)
+                    {
+                        var metaHandleWeapon = InstantiateMetaHandleWeapon(ballDef.MetaHandleWeapon);
+                        metaHandleWeapons[slot] = metaHandleWeapon;
+                        AddAbility(metaHandleWeapon);
+                    }
+                }
+                else
+                {
+                    ballSlotWeapon.SetBallItem(null);
+                    ballSlotWeapon.SetBallLevel(ballLevel);
+                    ballSlotWeapon.SetBallDef(null);
+
                     if (metaHandleWeapons.TryGetValue(slot, out var metaHandleWeapon))
                     {
                         RemoveAbility(metaHandleWeapon);
@@ -134,7 +174,7 @@ namespace MoreMountains
                 }
             }
 
-            
+
             if (ballDef)
             {
                 ballWeaponAttachmentRoot.SetChildRotate(slot.Index, ballDef.RotateWithWeaponAttachment);
@@ -143,7 +183,7 @@ namespace MoreMountains
             {
                 ballWeaponAttachmentRoot.SetChildRotate(slot.Index, true);
             }
-            
+
             ballWeaponAttachmentRoot.RefreshLayout();
         }
 

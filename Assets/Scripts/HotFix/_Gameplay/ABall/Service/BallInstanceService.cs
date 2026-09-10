@@ -130,6 +130,8 @@ namespace MoreMountains
                 BallType.Creation => "Ball_Creation",
                 BallType.Planet => "Ball_Planet",
                 BallType.Shadow => "Ball_Shadow",
+                BallType.Vampire => "Ball_Vampire",
+                BallType.Shield => "Ball_Shield",
 
                 BallType.LaserBeam_Crossed => "MergedBall/Ball_LaserBeam_Crossed",
                 _ => "Ball_Normal"

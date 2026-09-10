@@ -1,13 +1,18 @@
 ﻿using System.Collections.Generic;
-using MoreMountains.Tools;
 using UnityEngine;
 
 namespace MoreMountains
 {
     public class PlayerRecollectBallAbility : PlayerAbility
     {
-        public LayerMask BallLayerMask = LayerManager.Ball_Mask;
-        Dictionary<Collider2D, Ball> canRecollectedBalls = new();
+        // 进入过范围又离开、之后再次进入的球，等价于原 OnTriggerExit 留下的「待回收」集合
+        SafeHashSet<Ball> canRecollectedBalls = new();
+
+        // 上一帧位于范围内的球，用于判断本帧的「进入/离开」边沿事件
+        HashSet<Ball> lastInRangeBalls = new();
+
+        // 回收引力半径。距离角色位置 ≤ 此半径视为「在范围内」，等价于原先 Trigger 触发器的判定。
+        public float collectRadius = 1F;
 
         List<Ball> capturedBalls = new();
         List<CaptureData> capturedList = new();
@@ -22,6 +27,7 @@ namespace MoreMountains
 
         public override void OnUpdate(float dt)
         {
+            // 推进捕获坠落阶段
             for (var i = capturedList.Count - 1; i >= 0; i--)
             {
                 var data = capturedList[i];
@@ -34,57 +40,71 @@ namespace MoreMountains
             }
         }
 
-        void OnTriggerEnter2D(Collider2D other)
+        public override void OnFixedUpdate(float dt)
         {
-            if (!BallLayerMask.MMContains(other.gameObject.layer))
-                return;
-
-            if (!other.TryGetComponent(out Ball ball))
-                return;
-
-            if (!ball.Player.equalWith(_player))
-                return;
-            
-            if (ball.SourceWeapon is BallGunWeapon)
-                return;
-
-            if (capturedBalls.contains(ball))
-            {
-                // Debug.LogError("已经捕获的球不再捕获");
-                return;
-            }
-
-            if (canRecollectedBalls.ContainsKey(other) && ball.inUse)
-            {
-                canRecollectedBalls.Remove(other);
-                RecollectBall(ball);
-            }
+            // 用距离判断替代原先 OnTriggerEnter2D / OnTriggerExit2D
+            DetectBallsByDistance();
         }
 
-        void OnTriggerExit2D(Collider2D other)
+        void DetectBallsByDistance()
         {
-            if (!BallLayerMask.MMContains(other.gameObject.layer))
+            var player = _player;
+            var activeBalls = player.BallManagement.Instance.getActiveBalls();
+            if (activeBalls == null)
                 return;
 
-            if (!other.TryGetComponent(out Ball ball))
-                return;
+            Vector3 planetPos = _character.getWorldPosition();
+            float radiusSqr = collectRadius * collectRadius;
 
-            if (!ball.Player.equalWith(_player))
-                return;
-            
-            if (ball.SourceWeapon is BallGunWeapon)
-                return;
-
-            if (ball.inUse)
+            using var _ = new HashSetScope<Ball>(out var inRangeThisFrame);
+            foreach (var ball in activeBalls)
             {
-                if (capturedBalls.contains(ball))
-                {
-                    // Debug.LogError("已经捕获的球离开范围，忽略");
-                    return;
-                }
+                if (!ball.Player.equalWith(player))
+                    continue;
 
-                canRecollectedBalls[other] = ball;
+                if (ball.SourceWeapon is BallGunWeapon)
+                    continue;
+
+                if (capturedBalls.contains(ball))
+                    continue;
+
+                if (!ball.inUse)
+                    continue;
+
+                float distSqr = (ball.getWorldPosition() - planetPos).sqrMagnitude;
+                if (distSqr <= radiusSqr)
+                    inRangeThisFrame.Add(ball);
             }
+
+            // 刚进入范围：上一帧不在、本帧在，且曾离开过 → 触发回收
+            foreach (var ball in inRangeThisFrame)
+            {
+                if (!lastInRangeBalls.Contains(ball) && canRecollectedBalls.remove(ball))
+                {
+                    RecollectBall(ball);
+                }
+            }
+
+            // 刚离开范围：上一帧在、本帧不在 → 加入候选集合
+            foreach (var ball in lastInRangeBalls)
+            {
+                if (!inRangeThisFrame.Contains(ball))
+                    canRecollectedBalls.add(ball);
+            }
+
+            // 清理已经失效的候选项（已捕获、不再 inUse、或已不在 active 集合）
+            using var __ = new SafeHashSetReader<Ball>(canRecollectedBalls, out var reader);
+            foreach (var b in reader)
+            {
+                if (capturedBalls.contains(b) || !b.inUse || !activeBalls.Contains(b))
+                {
+                    canRecollectedBalls.remove(b);
+                }
+            }
+
+            lastInRangeBalls.Clear();
+            foreach (var ball in inRangeThisFrame)
+                lastInRangeBalls.Add(ball);
         }
 
         public class CaptureData : ClassObject
@@ -217,20 +237,11 @@ namespace MoreMountains
         protected virtual void OnCrash(Ball ball)
         {
             ball.setWorldPosition(_player.getWorldPosition());
+            ball.onRecollected();
 
-            if (_player.BallManagement.Slots.TryGetAlreadyShootSlotByBallInstance(ball, out var slot))
+            if (_player.Inventory.BallBag.TryGetAlreadyShootSlotByBallInstance(ball, out var slot))
             {
-                slot.TryReload(ball);
-            }
-
-            foreach (var h in _handleWeaponList)
-            {
-                h.CurrentWeapon.CurrentAmmoLoaded++;
-            }
-
-            if (_testWeapon)
-            {
-                _testWeapon.CurrentAmmoLoaded++;
+                slot.TryReload(_player, ball);
             }
         }
     }

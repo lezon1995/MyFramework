@@ -12,6 +12,13 @@ Shader "Game/DamageChunkHealthBar"
         _FlipHorizontal ("Flip Horizontal", Int) = 0
         _FlipVertical ("Flip Vertical", Int) = 0
 
+        // --- 护盾层（位于前景血量之后，自动延伸） ---
+        [Header(Shield Layer)]
+        [Toggle] _UseShield ("Enable Shield", Int) = 0
+        _ShieldColor ("Shield Color", Color) = (0, 0.6, 1, 1)
+        _ShieldLength ("Shield Length [0,1]", Range(0, 1)) = 0
+        _ShieldGlow ("Shield Glow Intensity", Range(0, 1)) = 0.3
+
         // --- 缓冲血量（当前缓冲进度，chunk 的整体终点） ---
         [Header(Buffer HP)]
         _BufferColor ("Buffer Color", Color) = (0.8, 0.8, 0.8, 1)
@@ -101,9 +108,17 @@ Shader "Game/DamageChunkHealthBar"
             sampler2D _MainTex;
             float4    _MainTex_ST;
 
+            // Foreground
             fixed4    _ForegroundColor;
             half      _ForegroundProgress;
 
+            // Shield
+            half      _UseShield;
+            fixed4    _ShieldColor;
+            half      _ShieldLength;
+            half      _ShieldGlow;
+
+            // Buffer
             fixed4    _BufferColor;
             half      _BufferProgress;
             half      _BufferOuterFade;
@@ -119,6 +134,7 @@ Shader "Game/DamageChunkHealthBar"
             half      _BorderWidth;
             half      _BorderSqueeze;
 
+            // DamageChunks
             int       _ChunkCount;
             float3    _Chunk0, _Chunk1, _Chunk2, _Chunk3;
             float3    _Chunk4, _Chunk5, _Chunk6, _Chunk7;
@@ -221,9 +237,9 @@ Shader "Game/DamageChunkHealthBar"
                         default: chunkData = _Chunk7; break;
                     }
 
-                    half chunkStart = chunkData.x;   // 受击时的前景值
-                    half chunkEnd   = chunkData.y;   // 受击时的缓冲值
-                    half chunkAlpha = chunkData.z;   // 当前透明度（由 C# 动画控制）
+                    half chunkStart = chunkData.x;
+                    half chunkEnd   = chunkData.y;
+                    half chunkAlpha = chunkData.z;
 
                     if (chunkAlpha < 0.001) continue;
 
@@ -246,15 +262,64 @@ Shader "Game/DamageChunkHealthBar"
                         default: cColor = _DamageChunkColor7; break;
                     }
 
-                    // 混合：前景区域 foreground 优先，chunk 区域显示 chunk
                     half a = cMask * chunkAlpha * edgeFade;
                     chunks.rgb = lerp(chunks.rgb, cColor.rgb, a * cColor.a);
                     chunks.a   = max(chunks.a, a);
                 }
 
                 // ---- 合成（前景 > chunks > 透明） ----
-                // fg.a > chunks.a → 前景区域用前景色；chunks.a > fg.a → chunk 区域用 chunk 色
                 fixed4 finalColor = lerp(fg, chunks, step(fg.a, chunks.a));
+
+                // ---- 护盾层（自动接在前景+chunks之后） ----
+                if (_UseShield > 0 && _ShieldLength > 0.001)
+                {
+                    // 护盾从 chunks 的最大位置开始延伸
+                    // chunks 的范围 = fg + chunks 覆盖范围
+                    half chunksEnd = max(_ForegroundProgress, 0);
+                    // 考虑 chunks 的影响：找到最远的有效 chunks 终点
+                    for (int ci = 0; ci < 8; ci++)
+                    {
+                        if (ci >= _ChunkCount) break;
+                        half3 chunkData;
+                        switch (ci)
+                        {
+                            case 0: chunkData = _Chunk0; break;
+                            case 1: chunkData = _Chunk1; break;
+                            case 2: chunkData = _Chunk2; break;
+                            case 3: chunkData = _Chunk3; break;
+                            case 4: chunkData = _Chunk4; break;
+                            case 5: chunkData = _Chunk5; break;
+                            case 6: chunkData = _Chunk6; break;
+                            default: chunkData = _Chunk7; break;
+                        }
+                        if (chunkData.z > 0.001 && chunkData.y > chunksEnd)
+                            chunksEnd = chunkData.y;
+                    }
+
+                    half shieldStart = chunksEnd;
+                    half shieldEnd = shieldStart + _ShieldLength;
+
+                    // 护盾主体遮罩
+                    half shieldMask = GetChunkMask(v, shieldStart, shieldEnd);
+
+                #ifdef _USECHAMFER_ON
+                    shieldMask *= GetChamferMask(uv, _ChamferSize);
+                #endif
+
+                    // 护盾发光效果（在边缘处）
+                    half glowFactor = smoothstep(shieldStart, shieldStart + 0.02, v)
+                                    * (1.0 - smoothstep(shieldEnd - 0.02, shieldEnd, v));
+                    fixed4 shieldGlow = _ShieldColor * _ShieldGlow * glowFactor * edgeFade;
+
+                    // 护盾基础色
+                    fixed4 shieldBase = shieldMask * _ShieldColor * tex.a;
+
+                    // 合成护盾
+                    fixed4 shieldLayer = lerp(shieldBase, shieldGlow, step(shieldBase.a, shieldGlow.a));
+
+                    // 最终合成：前景+chunks > 护盾
+                    finalColor = lerp(finalColor, shieldLayer, step(finalColor.a, shieldLayer.a));
+                }
 
             #ifdef _USEBORDER_ON
                 half2 bUV = abs(uv - 0.5) * 2.0;

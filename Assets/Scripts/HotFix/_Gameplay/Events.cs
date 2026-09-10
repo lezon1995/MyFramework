@@ -7,13 +7,14 @@ public struct DoHitEffect
 {
     public Ball ball;
     public Brick brick;
-    public Vector2 hitDir;
+    public Dmg dmg;
+    public Vector2 hitDir => dmg.Direction;
 
-    public DoHitEffect(Ball b1, Brick b2, Vector2 dir)
+    public DoHitEffect(Ball b1, Brick b2, in Dmg d)
     {
         ball = b1;
         brick = b2;
-        hitDir = dir;
+        dmg = d;
     }
 }
 
@@ -32,6 +33,7 @@ public struct DoSkillEffect
 public struct OnBallDeath
 {
     public Ball ball;
+
     public OnBallDeath(Ball b)
     {
         ball = b;
@@ -89,6 +91,7 @@ public struct DoDmgBrick
         dmg = d;
     }
 }
+
 public struct DoDmgPlayer
 {
     public APlayer player;
@@ -185,7 +188,7 @@ public struct Turn
         value = 0;
         new OnTurnChanged(value).trigger();
     }
-    
+
     public static implicit operator int(Turn turn)
     {
         return turn.value;

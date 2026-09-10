@@ -115,7 +115,7 @@ namespace MoreMountains
             removeAllPowers();
 
             horizontalBorderTeleportable = false;
-            
+
             if (Stats)
                 Stats.ClearStats();
 
@@ -212,7 +212,7 @@ namespace MoreMountains
 
                 if (collidingBrick)
                 {
-                    if (circleIntersectRectangle(getCircle(), collidingBrick.getRect()))
+                    if (collidingBrick.IsAlive() && circleIntersectRectangle(getCircle(), collidingBrick.getRect()))
                     {
                         if (overlappingBrick != collidingBrick)
                         {
@@ -288,7 +288,7 @@ namespace MoreMountains
         {
         }
 
-        protected void CheckBallExpiration(float dt)
+        protected virtual void CheckBallExpiration(float dt)
         {
             if (lifeDuration.update(dt) || isExpired)
             {
@@ -636,7 +636,7 @@ namespace MoreMountains
         {
             return lifeDuration.remain;
         }
-        
+
         public virtual void onPreparedToShoot()
         {
         }

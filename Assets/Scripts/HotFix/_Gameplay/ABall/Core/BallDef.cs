@@ -36,6 +36,7 @@ namespace MoreMountains
         public LocalizedString DisplayName;
         public LocalizedString DisplayDescription;
 
+        public Weapon InitialWeapon;
         public MetaHandleWeapon MetaHandleWeapon;
         public bool RequireTargetToShoot;
         public bool RotateWithWeaponAttachment = true;

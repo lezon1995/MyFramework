@@ -158,6 +158,10 @@ MonoBehaviour:
     m_Localized: Shadow
     m_Metadata:
       m_Items: []
+  - m_Id: 7992346840420352
+    m_Localized: Vampire
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

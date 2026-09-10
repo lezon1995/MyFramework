@@ -66,13 +66,13 @@ namespace MoreMountains
 
         public override void SetHealth(int curHealth, RefreshHealthBarType type = RefreshHealthBarType.Immediately)
         {
-            CurrentHealth = curHealth;
+            CurrentHealth = Mathf.Clamp(curHealth, 0, maximumHealth);
         }
 
         public override void SetHealth(int curHealth, int maxHealth, RefreshHealthBarType type = RefreshHealthBarType.Immediately)
         {
-            CurrentHealth = curHealth;
             MaximumHealth = maxHealth;
+            CurrentHealth = Mathf.Clamp(curHealth, 0, maximumHealth);
         }
 
         public override bool CanTakeDamageThisFrame(out ResistDamageType type)
@@ -116,10 +116,8 @@ namespace MoreMountains
                 LastDamageType = dmg.ActualType;
                 LastDamageDirection = direction;
 
-                if (CurrentHealth <= 0)
+                if (IsDead())
                 {
-                    CurrentHealth = 0;
-
                     var isLethal = Kill();
                     dmg.IsLethal = isLethal;
                 }

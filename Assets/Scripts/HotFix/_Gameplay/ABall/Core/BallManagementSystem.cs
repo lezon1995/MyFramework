@@ -16,28 +16,33 @@ namespace MoreMountains
     public class BallManagementSystem : PlayerAbility
     {
         [Header("Slot")]
-        [Tooltip("发射槽位数（默认 3，可运行时扩容）")]
-        [SerializeField] int slotCount = 3;
+        [Tooltip("发射槽位数（默认 6，可运行时扩容）")]
+        [SerializeField]
+        int slotCount = 6;
 
         [Tooltip("扩容上限（防越界）")]
-        [SerializeField] int maxSlotCount = 8;
+        [SerializeField]
+        int maxSlotCount = 8;
 
         [Header("Upgrade")]
         [Tooltip("升级 X 合 1（默认 2）")]
-        [SerializeField] int upgradeCombineCount = 2;
+        [SerializeField]
+        int upgradeCombineCount = 2;
 
         [Tooltip("升级是否扣金币（默认 0）")]
-        [SerializeField] int upgradeGoldCost;
+        [SerializeField]
+        int upgradeGoldCost;
 
         [Header("Refine")]
         [Tooltip("出售时回收比例，百分数（默认 50%）")]
-        [SerializeField, Range(0, 100)] int sellRefundRate = 50;
+        [SerializeField, Range(0, 100)]
+        int sellRefundRate = 50;
 
-        public int SlotCount          => _slots?.Capacity          ?? 0;
-        public int MaxSlotCount       => maxSlotCount;
+        public int SlotCount => _slots?.Capacity ?? 0;
+        public int MaxSlotCount => maxSlotCount;
         public int UpgradeCombineCount => upgradeCombineCount;
-        public int UpgradeGoldCost    => upgradeGoldCost;
-        public int SellRefundRate     => sellRefundRate;
+        public int UpgradeGoldCost => upgradeGoldCost;
+        public int SellRefundRate => sellRefundRate;
 
         BallSlotGroup _slots;
         BallInstanceService _instance;
@@ -57,11 +62,11 @@ namespace MoreMountains
         {
             base.Initialization();
             int cnt = Mathf.Max(1, slotCount);
-            _slots   = new(this, cnt);
+            _slots = new(this, cnt);
             _instance = new(this);
             _upgrade = new(this);
-            _merge   = new(this);
-            _shop    = new(this);
+            _merge = new(this);
+            _shop = new(this);
 
             // 注册到定位器，让"球在哪"有一个统一查询入口
             InventoryLocate.Clear();
@@ -77,8 +82,7 @@ namespace MoreMountains
 
         protected override void OnDestroy()
         {
-            if (_slots != null)
-                InventoryLocate.Unregister(_slots);
+            InventoryLocate.Unregister(_slots);
             if (_systemReadyRaised)
             {
                 _systemReadyRaised = false;
@@ -89,7 +93,7 @@ namespace MoreMountains
         void EnsureBallBagRegistered()
         {
             // BallBag 由 InventorySystem 在 Initialization() 中创建。
-            // PlayerAbility 之间的初始化顺序在同帧内不严格，订阅一次 Readyx 事件即可。
+            // PlayerAbility 之间的初始化顺序在同帧内不严格，订阅一次 Register 事件即可。
             if (_player?.Inventory?.BallBag != null)
             {
                 InventoryLocate.Register(_player.Inventory.BallBag);
@@ -110,17 +114,17 @@ namespace MoreMountains
 
         public bool EquipBallAtInitialization(BallItem item)
         {
-            if (item == null || _slots == null)
+            if (item == null)
                 return false;
 
             var success = _slots.TryPlaceFirstEmpty(item, out _);
             return success;
         }
-        
+
         /// <summary>把球装到第一个空槽。返回是否成功（背包里同名球会被一并尝试移走）。</summary>
         public bool EquipBall(BallItem item)
         {
-            if (item == null || _slots == null)
+            if (item == null)
                 return false;
 
             // 从背包里拿出（如果还在）
@@ -132,7 +136,7 @@ namespace MoreMountains
         /// <summary>把球装备到指定槽位。返回是否成功。</summary>
         public bool EquipBall(BallItem item, int slotIndex)
         {
-            if (item == null || _slots == null)
+            if (item == null)
                 return false;
 
             _player.Inventory.BallBag.Remove(item);
@@ -143,9 +147,6 @@ namespace MoreMountains
         /// <summary>从槽位卸下球到球背包。返回是否成功（背包满则拒绝）。</summary>
         public bool UnequipBall(int slotIndex)
         {
-            if (_slots == null)
-                return false;
-
             if (_player == null || _player.Inventory == null || !_player.Inventory.CanAddBall())
                 return false;
 
@@ -160,9 +161,6 @@ namespace MoreMountains
 
         public bool SwapSlots(int a, int b)
         {
-            if (_slots == null) 
-                return false;
-
             _slots.Swap(a, b);
             return true;
         }
@@ -170,7 +168,7 @@ namespace MoreMountains
         /// <summary>扩容发射槽。返回是否成功。</summary>
         public bool ExpandSlots(int delta)
         {
-            if (_slots == null || delta <= 0)
+            if (delta <= 0)
                 return false;
 
             int target = _slots.Capacity + delta;

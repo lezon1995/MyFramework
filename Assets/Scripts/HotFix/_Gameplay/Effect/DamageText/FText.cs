@@ -15,6 +15,7 @@ namespace MoreMountains
         DamageCrit_Physic,
         DamageCrit_Magic,
         DamageCrit_True,
+        Damage_AbsorbedByShield,
         Healing,
         GainCoin,
         DodgeChance,
@@ -117,9 +118,12 @@ namespace MoreMountains
             }
             else
             {
-                _text.color = setting.FontColors[data.type];
-                if (_tmpPlus)
-                    _tmpPlus.color = setting.FontColors[data.type];
+                if (setting.FontColors.tryGet(data.type, out var color))
+                {
+                    _text.color = color;
+                    if (_tmpPlus)
+                        _tmpPlus.color = color;
+                }
             }
 
             if (data.outlineColor != default)

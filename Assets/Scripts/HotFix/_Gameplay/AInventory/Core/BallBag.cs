@@ -25,5 +25,35 @@ namespace MoreMountains
             
             BallItem.Release(item);
         }
+
+        public bool TryGetSlot(BallItem item, out BallInventorySlot result)
+        {
+            foreach (var slot in Slots)
+            {
+                if (slot.Item == item)
+                {
+                    result = slot;
+                    return true;
+                }
+            }
+
+            result = null;
+            return false;
+        }
+        
+        public bool TryGetAlreadyShootSlotByBallInstance(Ball ballInstance, out BallInventorySlot result)
+        {
+            foreach (var slot in Slots)
+            {
+                if (!slot.ReadyToShoot && slot.BallInstance == ballInstance)
+                {
+                    result = slot;
+                    return true;
+                }
+            }
+
+            result = null;
+            return false;
+        }
     }
 }

@@ -79,12 +79,12 @@ namespace MoreMountains
         public override void Initialization()
         {
             base.Initialization();
-            _weaponAim = GetComponent<WeaponAim>();
+            TryGetComponent(out _weaponAim);
 
             if (!_poolInitialized)
             {
                 if (ObjectPooler == null)
-                    ObjectPooler = GetComponent<MMObjectPooler>();
+                    TryGetComponent(out ObjectPooler);
 
                 if (ObjectPooler == null)
                 {

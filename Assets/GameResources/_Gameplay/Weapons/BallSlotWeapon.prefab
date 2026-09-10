@@ -43,9 +43,12 @@ GameObject:
   - component: {fileID: 4943838447161096}
   - component: {fileID: -4478620210553915232}
   - component: {fileID: 114345180357598506}
+  - component: {fileID: -51446182785806306}
+  - component: {fileID: 453325771812949757}
   - component: {fileID: 114251315345146356}
+  - component: {fileID: 7089298133965000086}
   m_Layer: 0
-  m_Name: Weapon_Ball_Normal
+  m_Name: BallSlotWeapon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -80,7 +83,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 59dfd36ec27645a69bfcbfe8b146eb00, type: 3}
   m_Name: 
   m_EditorClassIdentifier: HotFix::MoreMountains.BallWeapon
-  WeaponName: Weapon_NormalBall
+  WeaponName: BallSlotWeapon
   Type: 0
   InputAuthorized: 1
   RequireAimTarget: 0
@@ -143,9 +146,10 @@ MonoBehaviour:
   WeaponReloadImpossibleMMFeedback: {fileID: 0}
   InitializeOnStart: 0
   Interruptable: 0
-  Stats: {fileID: 0}
+  Stats: {fileID: 7089298133965000086}
   BaseDamage: 5
   BaseDamageType: 0
+  WeaponAmmo: {fileID: 0}
   ProjectileSpawnOffset: {x: 0, y: 0, z: 0}
   DefaultProjectileDirection: {x: 0, y: 0, z: 1}
   ProjectilesPerShot: 1
@@ -157,6 +161,13 @@ MonoBehaviour:
   ObjectPooler: {fileID: 0}
   SpawnFeedbacks: []
   TestShootButton: 0
+  BallDef: {fileID: 11400000, guid: dca726981b8ff03439f7f5b738e288bc, type: 2}
+  BallLevel: 0
+  BallItem:
+    inUse: 0
+    Def: {fileID: 0}
+    Level: 0
+  BallWeaponSpriteRenderer: {fileID: 212409535536248356}
 --- !u!114 &114345180357598506
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -189,6 +200,57 @@ MonoBehaviour:
   CameraTargetOffset: 0.3
   CameraTargetMaxDistance: 2
   CameraTargetSpeed: 5
+--- !u!114 &-51446182785806306
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1490220044263310}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f01fe698dfc144d8a0adfd8e32624f27, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: HotFix::MoreMountains.BallGunWeaponAutoAim2D
+  TargetsMask:
+    serializedVersion: 2
+    m_Bits: 128
+  ObstacleMask:
+    serializedVersion: 2
+    m_Bits: 16384
+  ScanRadius: 15
+  LineOfFireBoxcastSize: {x: 0.1, y: 0.1}
+  DurationBetweenScans: 1
+  DetectionOriginOffset: {x: 0, y: 0, z: 0}
+  OnlyAcquireTargetsIfOwnerIsIdle: 0
+  RotationMode: 0
+  ApplyAutoAimAsLastDirection: 1
+  MoveCameraTarget: 1
+  CameraTargetDistance: 0.5
+  CameraTargetMaxDistance: 10
+  CameraTargetSpeed: 5
+  MoveCameraToCharacterIfNoTarget: 0
+  AimMarkerPrefab: {fileID: 0}
+  DestroyAimMarkerOnWeaponDestroy: 1
+  FirstTargetFoundFeedback: {fileID: 0}
+  NewTargetFoundFeedback: {fileID: 0}
+  NoMoreTargetsFeedback: {fileID: 0}
+  DrawDebugRadius: 1
+  OverlapMaximum: 10
+--- !u!114 &453325771812949757
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1490220044263310}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8b1174ff4d3dcb4da6a6d4e0ae5bb77, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: HotFix::MoreMountains.WeaponAutoShoot
+  DelayBeforeShootAfterAcquiringTarget: 0.1
+  OnlyAutoShootIfOwnerIsIdle: 0
 --- !u!114 &114251315345146356
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -205,6 +267,20 @@ MonoBehaviour:
   BelowThresholdSortingOrder: 1
   AboveThresholdSortingOrder: -1
   Sprite: {fileID: 212409535536248356}
+--- !u!114 &7089298133965000086
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1490220044263310}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f19857cd957b4aac9c5066a83393dc00, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: HotFix::MoreMountains.WeaponStats
+  AutoInitialize: 0
+  StatsConfig: {fileID: 0}
 --- !u!1 &1806446063217534
 GameObject:
   m_ObjectHideFlags: 0

@@ -218,6 +218,19 @@ namespace MoreMountains
             return false;
         }
 
+        public bool HasSlotReadyToShoot(BallItem item)
+        {
+            foreach (var slot in _slots)
+            {
+                if (slot.IsOccupied && slot.Item == item && slot.ReadyToShoot)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         public bool HasAnySlotReadyToShoot()
         {
             foreach (var slot in _slots)
@@ -228,6 +241,21 @@ namespace MoreMountains
                 }
             }
 
+            return false;
+        }
+
+        public bool TryGetSlot(BallItem item, out BallSlot result)
+        {
+            foreach (var slot in _slots)
+            {
+                if (slot.IsOccupied && slot.Item == item)
+                {
+                    result = slot;
+                    return true;
+                }
+            }
+
+            result = null;
             return false;
         }
 

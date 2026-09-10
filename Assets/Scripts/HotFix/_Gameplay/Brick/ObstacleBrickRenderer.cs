@@ -8,7 +8,7 @@ namespace MoreMountains
         public override void playBornAnimation()
         {
             curAnimation = AnimationState.NONE;
-            fx.play(FxDefine.SMOKE_FLASH, brick.getWorldPosition());
+            fx.play(FxDefine.SMOKE_FLASH, _brick.getWorldPosition());
             onBornAnimationComplete?.Invoke();
         }
     }

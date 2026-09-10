@@ -1,5 +1,4 @@
-﻿using System;
-using MoreMountains.Feedbacks;
+﻿using MoreMountains.Feedbacks;
 using MoreMountains.Tools;
 using UnityEngine;
 
@@ -8,30 +7,59 @@ namespace MoreMountains
     [RequireComponent(typeof(APlayer))]
     public class PlayerHealth : Health
     {
-        APlayer player => Character as APlayer;
+        APlayer _player => Character as APlayer;
 
         public override void Initialization()
         {
             base.Initialization();
         }
 
+        protected override void InitializeShield()
+        {
+            if (Shield != null)
+            {
+                // 护盾变化时刷新血条
+                Shield.OnShieldChanged += (prev, cur) =>
+                {
+                    if (cur < prev)
+                    {
+                        var curProgress = (CurrentHealth + Shield.CurrentShield) / (float)maximumHealth;
+                        RefreshShieldBarByDamage(curProgress);
+                    }
+                    else
+                    {
+                        _player.playerRenderer.healthBar.barRenderer.RefreshHealthBarAndShieldBar();
+                    }
+                };
+
+                // 护盾被打破时触发特殊事件
+                Shield.OnShieldDepleted += () => { Event.trigger(new OnShieldDepleted()); };
+            }
+        }
+
         public override void RefreshHealthBar(bool show)
         {
-            player.playerRenderer.refreshHealthByBorn((int)CurrentHealth, (int)maximumHealth);
+            _player.playerRenderer.refreshHealthByBorn((int)CurrentHealth, (int)maximumHealth);
         }
 
         public override void RefreshHealthBarByDamage()
         {
-            player.playerRenderer.refreshHealthByDamage((int)CurrentHealth, (int)maximumHealth);
+            _player.playerRenderer.refreshHealthByDamage((int)CurrentHealth, (int)maximumHealth);
+        }
+
+        public void RefreshShieldBarByDamage(float curProgress)
+        {
+            _player.playerRenderer.refreshShieldByDamage(curProgress);
         }
 
         public override void RefreshHealthBarByHeal()
         {
-            player.playerRenderer.refreshHealthByHealing((int)CurrentHealth, (int)maximumHealth);
+            _player.playerRenderer.refreshHealthByHealing((int)CurrentHealth, (int)maximumHealth);
         }
 
         float healthPerSecondAccumulated;
         float damagePerSecondAccumulated;
+        float shieldRegenAccumulated;
 
         protected override void UpdateHealthRegen(float dt)
         {
@@ -73,7 +101,7 @@ namespace MoreMountains
                     {
                         _timeElapsed -= damageEveryXSeconds;
                         var dmg = Dmg.True(1).setTriggerEffect(false);
-                        Damage(ref dmg, gameObject, player, 0, Vector3.up);
+                        Damage(ref dmg, gameObject, _player, 0, Vector3.up);
                     }
                 }
                 else
@@ -87,7 +115,42 @@ namespace MoreMountains
                         var damage = (int)damagePerSecondAccumulated;
                         damagePerSecondAccumulated -= damage;
                         var dmg = Dmg.True(damage).setTriggerEffect(false);
-                        Damage(ref dmg, gameObject, player, 0, Vector3.up);
+                        Damage(ref dmg, gameObject, _player, 0, Vector3.up);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// 更新护盾回复（覆盖基类实现，使用累积方式）
+        /// </summary>
+        protected override void UpdateShieldRegen(float dt)
+        {
+            if (Shield is { BaseShieldRegen: > 0 })
+            {
+                var regen = Shield.BaseShieldRegen;
+                var absRegen = regen.abs();
+                var healthEveryXSeconds = 11.25F / (1.25F + absRegen);
+                if (healthEveryXSeconds >= 1)
+                {
+                    _timeElapsed += dt;
+                    if (_timeElapsed >= healthEveryXSeconds)
+                    {
+                        _timeElapsed -= healthEveryXSeconds;
+                        Shield.AddShield(1, RefreshHealthBarType.ReceiveHealing);
+                    }
+                }
+                else
+                {
+                    var shieldPerSecond = absRegen / 11.25F + 1 / 9F;
+                    shieldRegenAccumulated += shieldPerSecond * dt;
+                    _timeElapsed += dt;
+                    if (_timeElapsed >= 1F)
+                    {
+                        _timeElapsed -= 1F;
+                        var shield = (int)shieldRegenAccumulated;
+                        shieldRegenAccumulated -= shield;
+                        Shield.AddShield(shield, RefreshHealthBarType.ReceiveHealing);
                     }
                 }
             }
@@ -103,10 +166,10 @@ namespace MoreMountains
                 switch (dodgeType)
                 {
                     case DodgeDamageType.Chance:
-                        player.Event.trigger(new DoChanceDodge());
+                        _player.Event.trigger(new DoChanceDodge());
                         break;
                     case DodgeDamageType.Dash:
-                        player.Event.trigger(new DoDashDodge());
+                        _player.Event.trigger(new DoDashDodge());
                         break;
                 }
 
@@ -122,8 +185,9 @@ namespace MoreMountains
             {
                 dmg.SetDirection(direction);
 
-                if (dmg.DamageDealt > 0)
-                    new DmgTextEvent(dmg, transform).trigger();
+                //由于下面有护盾值最终减免，所以伤害跳字不在这里触发
+                // if (dmg.DamageDealt > 0)
+                // new DmgTextEvent(dmg, transform).trigger();
             }
 
             //触发本次伤害所造成的攻击特效/技能特效
@@ -142,56 +206,103 @@ namespace MoreMountains
                 }
             }
 
-            foreach (var p in player.powers)
+            foreach (var p in _player.powers)
                 p.onBeforeApplyDamage(brick, ref dmg);
 
             Event.trigger(new OnHit());
 
             if (dmg.DamageDealt > 0)
             {
-                // we decrease the character's health by the damage
-                float preHealth = CurrentHealth;
-                SetHealth(CurrentHealth - dmg.DamageDealt, RefreshHealthBarType.ReceiveDamage);
-                LastDamage = dmg.DamageDealt;
-                LastDamageType = dmg.ActualType;
-                LastDamageDirection = direction;
+                // =====================================================
+                // MOBA 护盾系统：伤害优先作用于护盾
+                // =====================================================
+                int rawDamage = dmg.DamageDealt;
+                int actualHealthDamage;
 
-                //造成伤害后处理Source吸血，触发DoDmg
-                if (source && !dmg.Self)
+                if (Shield is { HasShield: true })
                 {
-                    source.Health.Event.trigger(new DoDmg(Character, dmg));
+                    // 有护盾时，伤害先被护盾吸收
+                    actualHealthDamage = Shield.AbsorbDamage(rawDamage, out var shieldedDamage);
+
+                    if (shieldedDamage > 0)
+                    {
+                        var shieldedDmg = dmg with
+                        {
+                            ActualType = Dmg.Types.AbsorbedByShield,
+                            DamageDealt = shieldedDamage,
+                        };
+
+                        new DmgTextEvent(shieldedDmg, transform).trigger();
+                    }
+
+                    // 护盾完全被打破时触发特殊事件
+                    if (!Shield.HasShield)
+                    {
+                        Event.trigger(new OnShieldBreak(Character, rawDamage - actualHealthDamage));
+                    }
+                }
+                else
+                {
+                    // 无护盾时，全部伤害作用于生命值
+                    actualHealthDamage = rawDamage;
                 }
 
-                //造成伤害后，触发OnDmg
-                if (Character && !dmg.Self)
-                    Event.trigger(new OnDmg(source, dmg));
+                // =====================================================
+                // 应用实际生命值伤害
+                // =====================================================
+                if (actualHealthDamage > 0)
+                {
+                    dmg.SetDamageDealt(actualHealthDamage);
+                    new DmgTextEvent(dmg, transform).trigger();
 
-                // we play our feedback
+                    float preHealth = CurrentHealth;
+                    SetHealth(CurrentHealth - actualHealthDamage, RefreshHealthBarType.ReceiveDamage);
+                    LastDamage = actualHealthDamage;
+                    LastDamageType = dmg.ActualType;
+                    LastDamageDirection = direction;
+
+                    //造成伤害后处理Source吸血，触发DoDmg
+                    if (source && !dmg.Self)
+                    {
+                        source.Health.Event.trigger(new DoDmg(Character, dmg));
+                    }
+
+                    //造成伤害后，触发OnDmg
+                    if (Character && !dmg.Self)
+                        Event.trigger(new OnDmg(source, dmg));
+
+                    //检测是否死亡
+                    if (IsDead())
+                    {
+                        var isLethal = Kill();
+                        if (source && isLethal && !dmg.Self)
+                            source.Health.Event.trigger(new DoKill(Character, instigator));
+
+                        dmg.IsLethal = isLethal;
+                    }
+                }
+                else if (rawDamage > 0)
+                {
+                    // 伤害完全被护盾吸收时
+                    LastDamage = rawDamage;
+                    LastDamageType = dmg.ActualType;
+                    LastDamageDirection = direction;
+                }
+
+                // we play our feedback (基于原始伤害值)
                 if (FeedbackIsProportionalToDamage)
-                    DamageMMFeedbacks.Play(transform.position, dmg.DamageDealt);
+                    DamageMMFeedbacks.Play(transform.position, rawDamage);
                 else
                     DamageMMFeedbacks.Play(transform.position);
 
                 {
-                    var e = new DoDmgPlayer(player, dmg);
+                    var e = new DoDmgPlayer(_player, dmg);
                     source.Event.trigger(e);
 
                     //造成伤害后，触发OnDmg
                     Event.trigger(new OnDmg(source, dmg));
 
-                    player.playerRenderer.playFxDamage(dmg.Direction);
-                }
-
-                //检测是否死亡
-                if (CurrentHealth <= 0)
-                {
-                    CurrentHealth = 0;
-
-                    var isLethal = Kill();
-                    if (source && isLethal && !dmg.Self)
-                        source.Health.Event.trigger(new DoKill(Character, instigator));
-
-                    dmg.IsLethal = isLethal;
+                    _player.playerRenderer.playFxDamage(dmg.Direction);
                 }
 
                 // we prevent the character from colliding with Projectiles, Player and Enemies
@@ -216,10 +327,10 @@ namespace MoreMountains
             if (healing <= 0F)
                 return;
 
-            foreach (var r in player.relics)
+            foreach (var r in _player.relics)
                 r.onPlayerHeal(ref healing);
 
-            foreach (var p in player.powers)
+            foreach (var p in _player.powers)
                 p.onHeal(ref healing);
 
             int newHealth;
@@ -245,10 +356,10 @@ namespace MoreMountains
 
             SetHealth((int)newHealth, RefreshHealthBarType.ReceiveHealing);
 
-            if (CurrentHealth > maxHealth / 2F && player.isBloodied)
+            if (CurrentHealth > maxHealth / 2F && _player.isBloodied)
             {
-                player.isBloodied = false;
-                foreach (var relic in player.relics)
+                _player.isBloodied = false;
+                foreach (var relic in _player.relics)
                     relic.onExitBloodied();
             }
 

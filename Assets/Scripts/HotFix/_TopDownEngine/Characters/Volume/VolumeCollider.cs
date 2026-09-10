@@ -89,12 +89,12 @@ namespace MoreMountains
 
         public void RegisterToVolumeManager()
         {
-            volumeManager.RegisterSolidCollider(this);
+            volumeManager?.RegisterSolidCollider(this);
         }
 
         public void UnregisterToVolumeManager()
         {
-            volumeManager.UnregisterSolidCollider(this);
+            volumeManager?.UnregisterSolidCollider(this);
         }
 
         /// <summary>

@@ -911,6 +911,7 @@ namespace MoreMountains
             AP,
             True,
             Adaptive,
+            AbsorbedByShield,
         }
 
         public enum Algos

@@ -26,7 +26,12 @@ namespace MoreMountains
             Range,
         }
 
-        public APlayer Player { get; set; }
+        public APlayer Player
+        {
+            get => _player;
+            set => _player = value;
+        }
+
         public BallInventorySlot Slot { get; set; }
 
         public CircleCollider2D circleCollider

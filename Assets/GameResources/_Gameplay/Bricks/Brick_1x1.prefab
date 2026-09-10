@@ -819,6 +819,14 @@ MonoBehaviour:
   TargetAnimator: {fileID: 0}
   DisableAnimatorLogs: 1
   Character: {fileID: 0}
+  Shield:
+    CurrentShield: 0
+    MaximumShield: 0
+    BaseShield: 0
+    InitialShieldDrivenByMaximumShield: 1
+    BaseShieldRegen: 0
+    DamageReductionRatio: 0
+    ShieldPenetrationRatio: 0
 --- !u!114 &1178844211309142110
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1119,7 +1127,7 @@ MonoBehaviour:
   _flipHorizontal: 0
   _flipVertical: 0
   _bufferOuterFade: 0.005
-  _defaultChunkColor: {r: 0.78, g: 0.78, b: 0.78, a: 1}
+  defaultChunkColor: {r: 1, g: 0.8196079, b: 0, a: 1}
   _chunkFadeDuration: 1.2
   _useBorder: 0
   _borderColor: {r: 0, g: 0, b: 0, a: 1}

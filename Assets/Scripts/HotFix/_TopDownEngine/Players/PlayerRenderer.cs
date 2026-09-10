@@ -12,7 +12,7 @@ namespace MoreMountains
         static int StrongTintFade = Shader.PropertyToID("_StrongTintFade");
         static int VibrateFade = Shader.PropertyToID("_VibrateFade");
 
-        APlayer player;
+        APlayer _player;
 
         Transform root;
         SortingGroup sortingGroup;
@@ -25,17 +25,17 @@ namespace MoreMountains
         Material matUnit;
         Timer flashRemainSeconds;
 
-        HealthBar healthBar;
+        public HealthBar healthBar;
         BrickAnimationReceiver receiver;
         AnimationState curAnimation;
 
         public void Awake()
         {
-            if (player)
+            if (_player)
                 return;
 
-            TryGetComponent(out player);
-            var obj = player.gameObject;
+            TryGetComponent(out _player);
+            var obj = _player.gameObject;
             if (obj.find(out receiver))
             {
                 receiver.setOnAnimationEnd(onAnimationEnd);
@@ -57,7 +57,7 @@ namespace MoreMountains
             shieldAmount.gameObject.SetActive(false);
             if (obj.find(out Transform h, "HealthBar"))
             {
-                healthBar = new(h);
+                healthBar = new(_player. Health, h);
             }
         }
 
@@ -89,7 +89,8 @@ namespace MoreMountains
             healthBar.setActive(active);
         }
 
-        public void refreshHealthByDamage(int v, int max) => healthBar.refreshByDamage(v, max);
+        public void refreshHealthByDamage(int v, int max) => healthBar.refreshHealthByDamage(v, max);
+        public void refreshShieldByDamage(float curProgress) => healthBar.refreshShieldByDamage(curProgress);
         public void refreshHealthByHealing(int v, int max) => healthBar.refreshByHealing(v, max);
         public void refreshHealthByBorn(int v, int max) => healthBar.refreshByBorn(v, max);
 
@@ -124,7 +125,7 @@ namespace MoreMountains
         public void playFxDodge()
         {
             fxDodge.Play();
-            new DodgeChanceTextEvent(true, player.transform).trigger();
+            new DodgeChanceTextEvent(true, _player.transform).trigger();
         }
 
         public void playFxHit(Vector2 normal)
@@ -207,20 +208,22 @@ namespace MoreMountains
 
         protected virtual void playBrickDestroyFx()
         {
-            fx.play(FxDefine.BRICK_DESTROY, player.getWorldPosition());
+            fx.play(FxDefine.BRICK_DESTROY, _player.getWorldPosition());
         }
 
 
-        class HealthBar
+        public class HealthBar
         {
             Transform transform;
-            DamageChunkHealthBarRenderer barRenderer;
+            public DamageChunkHealthBarRenderer barRenderer;
             TextMeshPro health;
 
-            public HealthBar(Transform t)
+            public HealthBar(Health h, Transform t)
             {
                 transform = t;
-                t.find(out barRenderer, "HealthBarRenderer");
+                if (t.find(out barRenderer, "HealthBarRenderer"))
+                    barRenderer.SetHealth(h);
+
                 t.find(out health, "Health");
             }
 
@@ -229,12 +232,17 @@ namespace MoreMountains
                 transform.localScale = active ? Vector3.one : Vector3.zero;
             }
 
-            public void refreshByDamage(int cur, int max)
+            public void refreshHealthByDamage(int cur, int max)
             {
                 health.SetText(cur.IToS());
 
-                var f = Mathf.Clamp01(((float)cur) / max);
-                barRenderer.ApplyDamage(f);
+                var f = Mathf.Clamp01((float)cur / max);
+                barRenderer.ApplyDamageToHealthBar(f);
+            }
+
+            public void refreshShieldByDamage(float curProgress)
+            {
+                barRenderer.ApplyDamageToShieldBar(curProgress);
             }
 
             public void refreshByHealing(int cur, int max)

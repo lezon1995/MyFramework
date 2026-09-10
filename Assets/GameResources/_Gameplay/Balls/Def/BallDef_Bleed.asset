@@ -42,8 +42,12 @@ MonoBehaviour:
     m_FallbackState: 0
     m_WaitForCompletion: 0
     m_LocalVariables: []
+  InitialWeapon: {fileID: -106265365135329600, guid: d27ec3261c64c75459024b2fa64e1190,
+    type: 3}
   MetaHandleWeapon: {fileID: 0}
   RequireTargetToShoot: 0
+  RotateWithWeaponAttachment: 1
+  PlaceIconAtWeaponAttachment: 0
   references:
     version: 2
     RefIds: []

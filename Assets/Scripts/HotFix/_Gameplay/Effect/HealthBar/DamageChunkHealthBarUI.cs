@@ -14,6 +14,7 @@ namespace MoreMountains
         // Constants
         // ================================================================
         const int MaxChunks = 8;
+        public Health health;
 
         // ================================================================
         // Inspector
@@ -52,6 +53,25 @@ namespace MoreMountains
         [Tooltip("Chunk 透明度从 1.0 衰减到 0 的总时长（秒）")]
         [SerializeField]
         float _chunkFadeDuration = 1.2f;
+        
+        [Header("Shield")]
+        [SerializeField]
+        bool _useShield = true;
+
+        [SerializeField]
+        Color _shieldColor = new(0f, 0.6f, 1f, 1f);
+
+        [SerializeField]
+        int _shieldValue = 0;
+
+        [Range(0f, 1f)]
+        [SerializeField]
+        float _shieldProgress = 0f;
+
+        [Range(0f, 1f)]
+        [SerializeField]
+        float _shieldGlow = 0.3f;
+        
 
         [Header("Border")]
         [SerializeField]
@@ -85,6 +105,11 @@ namespace MoreMountains
         /// <summary>Shader 中的 _Chunk 数组固定 8 槽位，记录每个槽位当前存放哪个 chunk 的索引</summary>
         int[] _slotOwner = new int[MaxChunks]; // -1 = 空槽
 
+        // 当前整数值（由 SetHealth 提供）
+        int _currentHp => health.CurrentHealth;
+        int _maxHp => health.maximumHealth;
+        int _shield => health.Shield.CurrentShield;
+        
         // Shader Property IDs
         static readonly int kForegroundColor = Shader.PropertyToID("_ForegroundColor");
         static readonly int kForegroundProgress = Shader.PropertyToID("_ForegroundProgress");
@@ -99,6 +124,10 @@ namespace MoreMountains
         static readonly int kBorderWidth = Shader.PropertyToID("_BorderWidth");
         static readonly int kBorderSqueeze = Shader.PropertyToID("_BorderSqueeze");
         static readonly int kChunkCount = Shader.PropertyToID("_ChunkCount");
+        static readonly int kUseShield = Shader.PropertyToID("_UseShield");
+        static readonly int kShieldColor = Shader.PropertyToID("_ShieldColor");
+        static readonly int kShieldProgress = Shader.PropertyToID("_ShieldProgress");
+        static readonly int kShieldGlow = Shader.PropertyToID("_ShieldGlow");
 
         static readonly int[] kChunkVec =
         {
@@ -130,6 +159,39 @@ namespace MoreMountains
             get => _foregroundProgress;
             set => _foregroundProgress = Mathf.Clamp01(value);
         }
+        
+        public void SetHealth(Health h)
+        {
+            health = h;
+        }
+        
+        /// <summary>
+        /// 一键设置血量和护盾（推荐使用）
+        /// </summary>
+        /// <param name="currentHp">当前生命值（整数）</param>
+        /// <param name="maxHp">最大生命值（整数）</param>
+        /// <param name="shield">护盾值（整数，可为0）</param>
+        public void RefreshHealthBarAndShieldBar()
+        {
+            // 计算前景进度（护盾会推高护盾条的位置，所以前景按当前血量/最大血量计算）
+            float hpProgress = (float)_currentHp / _maxHp;
+            float shieldProgress = (float)_shield / _maxHp;
+
+            // 总长度 = hpProgress + shieldProgress
+            // 总长度不能超过 1.0（如果超过，按比例压缩）
+            float total = hpProgress + shieldProgress;
+            if (total > 1f)
+            {
+                float scale = 1f / total;
+                _foregroundProgress = hpProgress * scale;
+                _shieldProgress = shieldProgress * scale;
+            }
+            else
+            {
+                _foregroundProgress = hpProgress;
+                _shieldProgress = shieldProgress;
+            }
+        }
 
         /// <summary>
         /// 直接设置前景和缓冲进度
@@ -141,24 +203,57 @@ namespace MoreMountains
             ForegroundProgress = curPct;
             ClearAllChunks();
         }
-
+        
         /// <summary>
         /// 扣血：前景立即减少，产生一个新的 DamageChunk。
         /// </summary>
         /// <param name="curHpPct">扣血后的实际血量 [0,1]</param>
-        /// <param name="chunkColor">此次受击的 chunk 颜色（可传 null 使用默认灰色）</param>
-        public void ApplyDamage(float curHpPct, Color? chunkColor = null)
+        public void ApplyDamageToHealthBar(float curHpPct)
         {
             float prevForeground = _foregroundProgress;
+
+            float chunkStart = curHpPct;
+            float chunkEnd = prevForeground;
+
             ForegroundProgress = curHpPct;
 
-            if (curHpPct < prevForeground)
+            if (chunkStart < chunkEnd)
             {
                 CreateChunk(
-                    curHpPct, // start = 受击瞬间的前景值
-                    prevForeground, // end = 受击瞬间的缓冲值（当前缓冲，不是目标缓冲）
-                    chunkColor ?? _defaultChunkColor
+                    chunkStart, // start = 受击瞬间的前景值
+                    chunkEnd, // end = 受击瞬间的缓冲值（当前缓冲，不是目标缓冲）
+                    _defaultChunkColor
                 );
+            }
+        }
+
+        /// <summary>
+        /// 扣血：前景立即减少，产生一个新的 DamageChunk。
+        /// </summary>
+        /// <param name="curProgress"></param>
+        public void ApplyDamageToShieldBar(float curProgress)
+        {
+            int prevShield = _shield;
+            int prevHp = _currentHp;
+
+            // 2. 计算受击前的总长度（用于产生 chunk）
+            float prevTotal = Mathf.Min(1f, (float)(prevHp + prevShield) / _maxHp);
+            float prevHpPct = prevTotal > 0f ? (float)prevHp / (prevHp + prevShield) * prevTotal : 0f;
+
+            // 4. 重新计算 progress（自动处理压缩）
+            RefreshHealthBarAndShieldBar();
+
+            // 5. 产生 chunk（统一用 DamageChunk）
+            // chunk 位置 = 剩余血量位置到受击前血量位置
+            Color color = _defaultChunkColor; // 默认用护盾色（更醒目）
+
+            float chunkStart = _shieldProgress; // 当前护盾起点（即当前血量终点）
+            float chunkEnd = prevHpPct; // 受击前的血量位置（可能含护盾）
+
+            // chunk 必须有宽度才创建
+            if (chunkEnd > chunkStart)
+            {
+                CreateChunk(chunkStart, chunkEnd, color);
             }
         }
 
@@ -205,7 +300,6 @@ namespace MoreMountains
                 end = end,
                 opacity = 1f,
                 color = color,
-                isActive = true,
             };
 
             _slotOwner[slot] = _chunks.Count;
@@ -339,6 +433,12 @@ namespace MoreMountains
             _material.SetColor(kBorderColor, _borderColor);
             _material.SetFloat(kBorderWidth, _borderWidth);
             _material.SetFloat(kBorderSqueeze, _borderSqueeze);
+            
+            // 护盾
+            _material.SetInt(kUseShield, _useShield ? 1 : 0);
+            _material.SetColor(kShieldColor, _shieldColor);
+            _material.SetFloat(kShieldProgress, _shieldProgress);
+            _material.SetFloat(kShieldGlow, _shieldGlow);
 
             // DamageChunks
             _material.SetInt(kChunkCount, _chunks.Count);

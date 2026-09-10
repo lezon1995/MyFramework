@@ -83,7 +83,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 445f7d4a17834d3186a45ee8ae342fc2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: HotFix::MoreMountains.BallGunWeapon
-  WeaponName: 
+  WeaponName: BallGunWeapon
   Type: 0
   InputAuthorized: 1
   RequireAimTarget: 0
@@ -162,6 +162,7 @@ MonoBehaviour:
   SpawnFeedbacks: []
   TestShootButton: 0
   BallDef: {fileID: 11400000, guid: dca726981b8ff03439f7f5b738e288bc, type: 2}
+  BallLevel: 0
   BallWeaponSpriteRenderer: {fileID: 212409535536248356}
 --- !u!114 &114345180357598506
 MonoBehaviour:

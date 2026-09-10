@@ -26,6 +26,7 @@ namespace MoreMountains
             map.Add(SoundDefine.KAISA_Q_IMPACT, load("missile_hit.wav"));
             map.Add(SoundDefine.CLAW_HIT, load("claw_hit.wav"));
             map.Add(SoundDefine.IRON_HIT, load("ball_iron_hit.wav"));
+            map.Add(SoundDefine.VAMPIRE_HIT, load("ball_vampire_hit.wav"));
             map.Add(SoundDefine.SHURIKEN_HIT, load("ball_shuriken_hit.wav"));
 
             log("Sound Effect Volume: " + Settings.SOUND_VOLUME);

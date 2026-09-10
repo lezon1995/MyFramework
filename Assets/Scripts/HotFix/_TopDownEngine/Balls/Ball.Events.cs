@@ -103,5 +103,9 @@ namespace MoreMountains
         protected virtual void onBounceFinished()
         {
         }
+
+        public virtual void onRecollected()
+        {
+        }
     }
 }

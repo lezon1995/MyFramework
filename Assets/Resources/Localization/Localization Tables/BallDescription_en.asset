@@ -175,6 +175,11 @@ MonoBehaviour:
     m_Localized: Infiltrate the enemy and continue to bounce around inside.
     m_Metadata:
       m_Items: []
+  - m_Id: 7992265005355008
+    m_Localized: Converts 15% of damage dealt into stored health (up to a maximum
+      of 5 + 0.2 AP); the player recovers the stored health upon contact.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

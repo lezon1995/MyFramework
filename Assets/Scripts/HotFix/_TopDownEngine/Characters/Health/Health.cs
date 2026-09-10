@@ -269,6 +269,10 @@ namespace MoreMountains
         public IEventRouter Event => this;
         public Action<int, int> onHealthChanged;
 
+        [MMInspectorGroup("Shield")]
+        [Tooltip("MOBA风格护盾系统：受伤时优先扣除护盾值，护盾清零后才会扣除生命值")]
+        public HealthShield Shield = new();
+
         protected Renderer _renderer;
         protected CharacterMovement _characterMovement;
         protected TopDownController _controller;
@@ -328,6 +332,23 @@ namespace MoreMountains
                 return;
 
             UpdateHealthRegen(dt);
+            UpdateShieldRegen(dt);
+        }
+
+        /// <summary>
+        /// 更新护盾回复
+        /// </summary>
+        protected virtual void UpdateShieldRegen(float dt)
+        {
+            if (Shield is { BaseShieldRegen: > 0 })
+            {
+                _timeElapsed += dt;
+                if (_timeElapsed >= 1F)
+                {
+                    _timeElapsed = 0F;
+                    Shield.AddShield((int)Shield.BaseShieldRegen, RefreshHealthBarType.ReceiveHealing);
+                }
+            }
         }
 
         protected virtual void UpdateHealthRegen(float dt)
@@ -494,6 +515,25 @@ namespace MoreMountains
                 DodgeChance_Modifier = (ref float raw) => { raw = dodgeChance.Value; };
 
                 InitializeCurrentHealth(RefreshHealthBarType.Born);
+                InitializeShield();
+            }
+        }
+
+        /// <summary>
+        /// 初始化护盾系统，绑定护盾变化事件
+        /// </summary>
+        protected virtual void InitializeShield()
+        {
+            // 护盾变化时刷新血条
+            if (Shield != null)
+            {
+                Shield.OnShieldChanged += (prev, cur) =>
+                {
+                    // 可选：通知UI刷新护盾显示
+                };
+
+                // 护盾被打破时触发特殊事件
+                Shield.OnShieldDepleted += () => { Event.trigger(new OnShieldDepleted()); };
             }
         }
 
@@ -512,7 +552,9 @@ namespace MoreMountains
         protected virtual void OnEnable()
         {
             if (ResetHealthOnEnable)
+            {
                 InitializeCurrentHealth(RefreshHealthBarType.Resurrect);
+            }
 
             if (TargetAnimator)
                 TargetAnimator.SetTrigger("Idle");
@@ -597,7 +639,7 @@ namespace MoreMountains
 
             return CanGetKnockback();
         }
-        
+
         public virtual bool ShouldApplyKnockback()
         {
             if (ImmuneToKnockbackIfZeroDamage)
@@ -694,8 +736,8 @@ namespace MoreMountains
             {
                 dmg.SetDirection(direction);
 
-                if (dmg.DamageDealt > 0)
-                    new DmgTextEvent(dmg, transform).trigger();
+                // if (dmg.DamageDealt > 0)
+                    // new DmgTextEvent(dmg, transform).trigger();
             }
 
             //触发本次伤害所造成的攻击特效/技能特效
@@ -718,49 +760,96 @@ namespace MoreMountains
 
             if (dmg.DamageDealt > 0)
             {
-                // we decrease the character's health by the damage
-                float preHealth = CurrentHealth;
-                SetHealth(CurrentHealth - dmg.DamageDealt, RefreshHealthBarType.ReceiveDamage);
-                LastDamage = dmg.DamageDealt;
-                LastDamageType = dmg.ActualType;
-                LastDamageDirection = direction;
+                // =====================================================
+                // MOBA 护盾系统：伤害优先作用于护盾
+                // =====================================================
+                int rawDamage = dmg.DamageDealt;
+                int actualHealthDamage;
 
-                //造成伤害后处理Source吸血，触发DoDmg
-                if (source && !dmg.Self)
+                if (Shield is { HasShield: true })
                 {
-                    if (dmg.Effect == Dmg.Effects.Attack)
+                    // 有护盾时，伤害先被护盾吸收
+                    actualHealthDamage = Shield.AbsorbDamage(rawDamage, out var shieldedDamage);
+                    
+                    if (shieldedDamage > 0)
                     {
-                        if (source.GetStat(Character.Stat.LifeSteal, out var lifeSteal))
+                        var shieldedDmg = dmg with
                         {
-                            var healing = lifeSteal.Value * dmg.DamageDealt;
-                            source.Health.ReceiveHealth(Heal.Fixed((int)healing), source: source);
-                        }
+                            ActualType = Dmg.Types.AbsorbedByShield,
+                            DamageDealt = shieldedDamage,
+                        };
+
+                        new DmgTextEvent(shieldedDmg, transform).trigger();
                     }
 
-                    source.Health.Event.trigger(new DoDmg(Character, dmg));
+                    // 护盾完全被打破时触发特殊事件
+                    if (!Shield.HasShield)
+                    {
+                        Event.trigger(new OnShieldBreak(Character, rawDamage - actualHealthDamage));
+                    }
+                }
+                else
+                {
+                    // 无护盾时，全部伤害作用于生命值
+                    actualHealthDamage = rawDamage;
                 }
 
-                //造成伤害后，触发OnDmg
-                if (Character && !dmg.Self)
-                    Event.trigger(new OnDmg(source, dmg));
+                // =====================================================
+                // 应用实际生命值伤害
+                // =====================================================
+                if (actualHealthDamage > 0)
+                {
+                    dmg.SetDamageDealt(actualHealthDamage);
+                    new DmgTextEvent(dmg, transform).trigger();
+                    
+                    float preHealth = CurrentHealth;
+                    SetHealth(CurrentHealth - actualHealthDamage, RefreshHealthBarType.ReceiveDamage);
+                    LastDamage = actualHealthDamage;
+                    LastDamageType = dmg.ActualType;
+                    LastDamageDirection = direction;
 
-                // we play our feedback
+                    //造成伤害后处理Source吸血（基于实际对生命值造成的伤害）
+                    if (source && !dmg.Self)
+                    {
+                        if (dmg.Effect == Dmg.Effects.Attack)
+                        {
+                            if (source.GetStat(Character.Stat.LifeSteal, out var lifeSteal))
+                            {
+                                var healing = lifeSteal.Value * actualHealthDamage;
+                                source.Health.ReceiveHealth(Heal.Fixed((int)healing), source: source);
+                            }
+                        }
+
+                        source.Health.Event.trigger(new DoDmg(Character, dmg));
+                    }
+
+                    //造成伤害后，触发OnDmg
+                    if (Character && !dmg.Self)
+                        Event.trigger(new OnDmg(source, dmg));
+
+                    //检测是否死亡
+                    if (IsDead())
+                    {
+                        var isLethal = Kill();
+                        if (source && isLethal && !dmg.Self)
+                            source.Health.Event.trigger(new DoKill(Character, instigator));
+
+                        dmg.IsLethal = isLethal;
+                    }
+                }
+                else if (rawDamage > 0)
+                {
+                    // 伤害完全被护盾吸收时，触发护盾吸收特效
+                    LastDamage = rawDamage;
+                    LastDamageType = dmg.ActualType;
+                    LastDamageDirection = direction;
+                }
+
+                // we play our feedback (基于原始伤害值)
                 if (FeedbackIsProportionalToDamage)
-                    DamageMMFeedbacks.Play(transform.position, dmg.DamageDealt);
+                    DamageMMFeedbacks.Play(transform.position, rawDamage);
                 else
                     DamageMMFeedbacks.Play(transform.position);
-
-                //检测是否死亡
-                if (CurrentHealth <= 0)
-                {
-                    CurrentHealth = 0;
-
-                    var isLethal = Kill();
-                    if (source && isLethal && !dmg.Self)
-                        source.Health.Event.trigger(new DoKill(Character, instigator));
-
-                    dmg.IsLethal = isLethal;
-                }
 
                 // we prevent the character from colliding with Projectiles, Player and Enemies
                 if (!dmg.IsLethal)
@@ -917,6 +1006,9 @@ namespace MoreMountains
 
             SetHealth(0, RefreshHealthBarType.Killed);
 
+            // 死亡时清空护盾
+            Shield?.ClearShield();
+
             DeathMMFeedbacks.Play(transform.position);
 
             if (TargetAnimator)
@@ -1050,7 +1142,7 @@ namespace MoreMountains
         /// </summary>
         public virtual void SetHealth(int curHealth, RefreshHealthBarType type = RefreshHealthBarType.Immediately)
         {
-            CurrentHealth = curHealth;
+            CurrentHealth = Mathf.Clamp(curHealth, 0, maximumHealth);
             switch (type)
             {
                 case RefreshHealthBarType.Immediately:
@@ -1078,8 +1170,8 @@ namespace MoreMountains
 
         public virtual void SetHealth(int curHealth, int maxHealth, RefreshHealthBarType type = RefreshHealthBarType.Immediately)
         {
-            CurrentHealth = curHealth;
             MaximumHealth = maxHealth;
+            CurrentHealth = Mathf.Clamp(curHealth, 0, maximumHealth);
             switch (type)
             {
                 case RefreshHealthBarType.Immediately:

@@ -1,10 +1,11 @@
-﻿using UnityEngine;
-
-namespace MoreMountains;
+﻿namespace MoreMountains;
 
 public interface IHealthBarRenderer
 {
-    void ApplyDamage(float curHpPct, Color? chunkColor = null);
+    void SetHealth(Health h);
+    void ApplyDamageToHealthBar(float curHpPct);
+    void ApplyDamageToShieldBar(float curProgress);
+    void RefreshHealthBarAndShieldBar();
     void SetProgress(float curPct);
     void ClearAllChunks();
     void ApplyToMaterial();

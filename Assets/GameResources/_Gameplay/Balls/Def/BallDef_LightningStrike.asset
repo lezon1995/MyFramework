@@ -16,13 +16,10 @@ MonoBehaviour:
   TagInfo:
     MechanicTags: 
     StatusTags: 
-    AmplifierTags: 
   BasePrice: 4
-  MaxLevel: 3
+  maxLevel: 4
   UpgradeCombineCount: 2
   UpgradeGoldCost: 0
-  MergeResultDefId: 0
-  MergeGoldCost: 100
   Icon: {fileID: 21300000, guid: 12e861a2db90c424dbc75b6b5ed7260d, type: 3}
   LevelColor: {r: 1, g: 1, b: 1, a: 1}
   Rarity: 0
@@ -45,7 +42,12 @@ MonoBehaviour:
     m_FallbackState: 0
     m_WaitForCompletion: 0
     m_LocalVariables: []
+  InitialWeapon: {fileID: -106265365135329600, guid: d27ec3261c64c75459024b2fa64e1190,
+    type: 3}
   MetaHandleWeapon: {fileID: 0}
+  RequireTargetToShoot: 0
+  RotateWithWeaponAttachment: 1
+  PlaceIconAtWeaponAttachment: 0
   references:
     version: 2
     RefIds: []

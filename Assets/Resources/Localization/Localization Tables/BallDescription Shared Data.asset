@@ -155,6 +155,10 @@ MonoBehaviour:
     m_Key: Shadow
     m_Metadata:
       m_Items: []
+  - m_Id: 7992265005355008
+    m_Key: Vampire
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

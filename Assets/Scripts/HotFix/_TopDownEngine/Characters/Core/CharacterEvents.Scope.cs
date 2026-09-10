@@ -143,6 +143,31 @@ namespace MoreMountains
         }
     }
 
+    /// <summary>
+    /// 护盾被完全打破时触发
+    /// </summary>
+    public struct OnShieldDepleted
+    {
+        public OnShieldDepleted()
+        {
+        }
+    }
+
+    /// <summary>
+    /// 护盾被完全打破时触发（携带更多信息）
+    /// </summary>
+    public struct OnShieldBreak
+    {
+        public Character Character;
+        public int AbsorbedDamage;
+
+        public OnShieldBreak(Character character, int absorbedDamage)
+        {
+            Character = character;
+            AbsorbedDamage = absorbedDamage;
+        }
+    }
+
     public struct DoDmg
     {
         public Character Character;

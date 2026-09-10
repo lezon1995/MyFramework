@@ -23,6 +23,7 @@ public class FTextManager : FrameSystem
         { TextType.DamageCrit_Physic, new() },
         { TextType.DamageCrit_Magic, new() },
         { TextType.DamageCrit_True, new() },
+        { TextType.Damage_AbsorbedByShield, new() },
         { TextType.Healing, new() },
         { TextType.GainCoin, new() },
         { TextType.DodgeChance, new() },
@@ -36,6 +37,7 @@ public class FTextManager : FrameSystem
         { TextType.DamageCrit_Physic, new() },
         { TextType.DamageCrit_Magic, new() },
         { TextType.DamageCrit_True, new() },
+        { TextType.Damage_AbsorbedByShield, new() },
         { TextType.Healing, new() },
         { TextType.GainCoin, new() },
         { TextType.DodgeChance, new() },
@@ -49,6 +51,7 @@ public class FTextManager : FrameSystem
         { TextType.DamageCrit_Physic, new() },
         { TextType.DamageCrit_Magic, new() },
         { TextType.DamageCrit_True, new() },
+        { TextType.Damage_AbsorbedByShield, new() },
         { TextType.Healing, new() },
         { TextType.GainCoin, new() },
         { TextType.DodgeChance, new() },
@@ -104,6 +107,7 @@ public class FTextManager : FrameSystem
         settings.add(TextType.DamageCrit_Physic, damage_Crit.get());
         settings.add(TextType.DamageCrit_Magic, damage_Crit.get());
         settings.add(TextType.DamageCrit_True, damage_Crit.get());
+        settings.add(TextType.Damage_AbsorbedByShield, damage.get());
         settings.add(TextType.Healing, healing.get());
         settings.add(TextType.GainCoin, gainCoin.get());
         settings.add(TextType.DodgeChance, dodged.get());
@@ -171,6 +175,7 @@ public class FTextManager : FrameSystem
                 TextType.DamageCrit_Physic => $"{GAMEPLAY_PATH}/FText_Damage_Physic.prefab",
                 TextType.DamageCrit_Magic => $"{GAMEPLAY_PATH}/FText_Damage_Magic.prefab",
                 TextType.DamageCrit_True => $"{GAMEPLAY_PATH}/FText_Damage_True.prefab",
+                TextType.Damage_AbsorbedByShield => $"{GAMEPLAY_PATH}/FText_Damage_AbsorbedByShield.prefab",
                 TextType.Healing => $"{GAMEPLAY_PATH}/FText_Healing.prefab",
                 TextType.GainCoin => $"{GAMEPLAY_PATH}/FText_GainCoin.prefab",
                 TextType.DodgeChance => $"{GAMEPLAY_PATH}/FText_Dodged.prefab",
@@ -215,6 +220,7 @@ public class FTextManager : FrameSystem
                 Dmg.Types.AD => TextType.DamageCrit_Physic,
                 Dmg.Types.AP => TextType.DamageCrit_Magic,
                 Dmg.Types.True => TextType.DamageCrit_True,
+                Dmg.Types.AbsorbedByShield => TextType.Damage_AbsorbedByShield,
                 _ => type
             };
         }
@@ -225,6 +231,7 @@ public class FTextManager : FrameSystem
                 Dmg.Types.AD => TextType.Damage_Physic,
                 Dmg.Types.AP => TextType.Damage_Magic,
                 Dmg.Types.True => TextType.Damage_True,
+                Dmg.Types.AbsorbedByShield => TextType.Damage_AbsorbedByShield,
                 _ => type
             };
         }

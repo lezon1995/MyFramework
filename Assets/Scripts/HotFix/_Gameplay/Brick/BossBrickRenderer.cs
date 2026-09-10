@@ -11,7 +11,9 @@ namespace MoreMountains
             {
                 view.setActive(true);
                 var t = view.getRoot().transform;
-                healthBar = new(t, view.DamageChunkHealthBarUI, view.Health.getTextComponent());
+                var barRenderer = view.DamageChunkHealthBarUI;
+                barRenderer.SetHealth(_brick.Health);
+                healthBar = new(t, barRenderer, view.Health.getTextComponent());
             }
             else
             {
