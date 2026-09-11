@@ -282,6 +282,7 @@ namespace MoreMountains
             // }
 
             ball.onPreparedToShoot();
+            ball.setInfiniteDuration();
             return ball.getGameObject();
         }
 

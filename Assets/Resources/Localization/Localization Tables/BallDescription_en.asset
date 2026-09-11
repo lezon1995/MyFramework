@@ -184,6 +184,18 @@ MonoBehaviour:
     m_Localized: Gain a shield upon hitting a target.
     m_Metadata:
       m_Items: []
+  - m_Id: 8445581225119744
+    m_Localized: Fires a rotating energy beam that lasts for 2 seconds every 4 seconds.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8533234431840256
+    m_Localized: 'Drastically increase the speed of the football upon colliding with
+      it while dashing.
+
+      The faster the speed of the football, the greater
+      the hit damage.'
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

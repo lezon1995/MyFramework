@@ -40,12 +40,6 @@ namespace MoreMountains
             setCurHealthStorage(0F);
         }
 
-        public override void refreshDuration()
-        {
-            lifeDuration = int.MaxValue;
-            isExpired = false;
-        }
-        
         protected override void playHitBrickSfx(Brick brick)
         {
             sound.play(SoundDefine.VAMPIRE_HIT);

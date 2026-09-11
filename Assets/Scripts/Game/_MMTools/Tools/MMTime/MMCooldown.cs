@@ -31,7 +31,7 @@ namespace MoreMountains.Tools
         /// the duration of the refill, in seconds, if uninterrupted
         public float RefillDuration;
 
-        /// whether or not the refill can be interrupted by a new Start instruction
+        /// whether the refill can be interrupted by a new Start instruction
         public bool CanInterruptRefill = true;
 
         [ShowInInspector, ReadOnly]

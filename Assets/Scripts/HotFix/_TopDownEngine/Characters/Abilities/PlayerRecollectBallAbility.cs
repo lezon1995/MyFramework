@@ -59,6 +59,9 @@ namespace MoreMountains
             using var _ = new HashSetScope<Ball>(out var inRangeThisFrame);
             foreach (var ball in activeBalls)
             {
+                if (!ball.Recollectable)
+                    continue;
+
                 if (!ball.Player.equalWith(player))
                     continue;
 

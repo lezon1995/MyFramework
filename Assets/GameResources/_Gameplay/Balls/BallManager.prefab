@@ -83,6 +83,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: a725305d861fe1f409b4a06e2ed9f7b0, type: 2}
   - {fileID: 11400000, guid: 18fb84d5313555744b6e20c222e0396f, type: 2}
   - {fileID: 11400000, guid: d28359e1f713f4c4bb4b4f4544adcbcc, type: 2}
+  - {fileID: 11400000, guid: 0e1ac3696e20f8d46b384eb0881fcf4f, type: 2}
+  - {fileID: 11400000, guid: 071b878687d62e444a53da0b353ae69a, type: 2}
   MergedDefs:
   - {fileID: 11400000, guid: 277707dc58bf77e49afe3e33025d48f7, type: 2}
   BallMergeRecipe: {fileID: 11400000, guid: 228d92d3d2a7def4ca228bb8adce1328, type: 2}

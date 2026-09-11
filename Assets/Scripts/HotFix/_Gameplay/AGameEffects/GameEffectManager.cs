@@ -20,11 +20,21 @@ public class GameEffectManager
             var e = renderEffects[i];
             if (e.update(dt))
             {
+                e.onFinished();
                 renderEffects.RemoveAt(i);
                 UN_CLASS(e);
             }
             else
                 i++;
+        }
+    }
+
+    protected void lateUpdateRenderEffects(float dt)
+    {
+        for (var i = 0; i < renderEffects.Count; i++)
+        {
+            var e = renderEffects[i];
+            e.onLateUpdate(dt);
         }
     }
 
@@ -47,6 +57,7 @@ public class GameEffectManager
             var e = logicEffects[i];
             if (e.fixedUpdate(dt))
             {
+                e.onFinished();
                 logicEffects.RemoveAt(i);
                 UN_CLASS(e);
             }
@@ -61,6 +72,15 @@ public class GameEffectManager
         {
             var e = logicEffects[i];
             e.update(dt);
+        }
+    }
+
+    protected void lateUpdateLogicEffects(float dt)
+    {
+        for (var i = 0; i < logicEffects.Count; i++)
+        {
+            var e = logicEffects[i];
+            e.onLateUpdate(dt);
         }
     }
 
@@ -85,14 +105,20 @@ public class GameEffectManager
         renderEffectsQueue.Clear();
     }
 
+    public void lateUpdateRender(float dt)
+    {
+        lateUpdateRenderEffects(dt);
+        lateUpdateLogicEffects(dt);
+    }
+
     public void fixedUpdateLogic(float dt)
     {
         fixedUpdateLogicEffects(dt);
-        
+
         logicEffects.AddRange(logicEffectsQueue);
         logicEffectsQueue.Clear();
     }
-    
+
     public T addRender<T>() where T : ARenderEffect
     {
         var effect = CLASS<ARenderEffect>(typeof(T));

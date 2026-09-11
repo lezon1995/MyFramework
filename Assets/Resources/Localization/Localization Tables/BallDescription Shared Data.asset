@@ -163,6 +163,14 @@ MonoBehaviour:
     m_Key: Shield
     m_Metadata:
       m_Items: []
+  - m_Id: 8445581225119744
+    m_Key: EnergyRay
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8533234431840256
+    m_Key: Football
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

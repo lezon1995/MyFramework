@@ -357,6 +357,11 @@ namespace MoreMountains
             cardInstanceIdGenerator = 0;
         }
 
+        public void lateUpdate(float dt)
+        {
+            effectManager.lateUpdateRender(dt);
+        }
+
         public void fixedUpdate(float dt)
         {
             switch (screen)

@@ -240,6 +240,11 @@ namespace MoreMountains
             }
         }
 
+        public void lateUpdate(float dt)
+        {
+            dungeon?.lateUpdate(dt);
+        }
+
         public void fixedUpdate(float dt)
         {
             switch (mode)

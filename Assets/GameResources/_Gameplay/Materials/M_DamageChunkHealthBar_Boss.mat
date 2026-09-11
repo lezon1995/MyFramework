@@ -124,7 +124,7 @@ Material:
     - _FillOrigin: 0
     - _FlipHorizontal: 0
     - _FlipVertical: 0
-    - _ForegroundProgress: 0.9
+    - _ForegroundProgress: 0
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
@@ -134,7 +134,7 @@ Material:
     - _QueueOffset: 0
     - _ReceiveShadows: 1
     - _ShieldGlow: 0.3
-    - _ShieldLength: 0.05
+    - _ShieldLength: 0
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
@@ -162,16 +162,16 @@ Material:
     - _Chunk6: {r: 0, g: 0, b: 0, a: 0}
     - _Chunk7: {r: 0, g: 0, b: 0, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _DamageChunkColor0: {r: 1, g: 0.81960785, b: 0, a: 1}
-    - _DamageChunkColor1: {r: 1, g: 0.81960785, b: 0, a: 1}
-    - _DamageChunkColor2: {r: 1, g: 0.81960785, b: 0, a: 1}
-    - _DamageChunkColor3: {r: 1, g: 0.81960785, b: 0, a: 1}
-    - _DamageChunkColor4: {r: 1, g: 0.81960785, b: 0, a: 1}
-    - _DamageChunkColor5: {r: 1, g: 0.81960785, b: 0, a: 1}
-    - _DamageChunkColor6: {r: 1, g: 0.81960785, b: 0, a: 1}
-    - _DamageChunkColor7: {r: 1, g: 0.81960785, b: 0, a: 1}
+    - _DamageChunkColor0: {r: 0, g: 0, b: 0, a: 0}
+    - _DamageChunkColor1: {r: 0, g: 0, b: 0, a: 0}
+    - _DamageChunkColor2: {r: 0, g: 0, b: 0, a: 0}
+    - _DamageChunkColor3: {r: 0, g: 0, b: 0, a: 0}
+    - _DamageChunkColor4: {r: 0, g: 0, b: 0, a: 0}
+    - _DamageChunkColor5: {r: 0, g: 0, b: 0, a: 0}
+    - _DamageChunkColor6: {r: 0, g: 0, b: 0, a: 0}
+    - _DamageChunkColor7: {r: 0, g: 0, b: 0, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _ForegroundColor: {r: 0.9019608, g: 0.14901961, b: 0.14901961, a: 1}
+    - _ForegroundColor: {r: 0.9, g: 0.15, b: 0.15, a: 1}
     - _ShieldColor: {r: 0.7803922, g: 0.7803922, b: 0.7803922, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
   m_BuildTextureStacks: []

@@ -23,6 +23,14 @@ namespace MoreMountains
 
         public abstract bool update(float dt);
 
+        public virtual void onLateUpdate(float dt)
+        {
+        }
+        
+        public virtual void onFinished()
+        {
+        }
+        
         public virtual void Dispose()
         {
         }

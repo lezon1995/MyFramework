@@ -78,6 +78,13 @@ public class MainSceneGaming : SceneProcedure
         gameInstance.update(elapsedTime);
     }
 
+    protected override void onLateUpdate(float elapsedTime)
+    {
+        base.onLateUpdate(elapsedTime);
+        
+        gameInstance.lateUpdate(elapsedTime);
+    }
+
     protected override void onFixedUpdate(float elapsedTime)
     {
         base.onFixedUpdate(elapsedTime);

@@ -79,6 +79,7 @@ namespace MoreMountains
 
         protected Timer lifeDuration;
         public bool isExpired { get; set; }
+        public bool Recollectable = true;
 
         public IHittable lastHittable;
         public bool isOverlappingBrick { get; set; }
@@ -625,6 +626,12 @@ namespace MoreMountains
             GetStat(Stat.Duration, out var ballDuration);
             var duration = ballDuration.Value * (1 + playerDuration.Value);
             lifeDuration = duration;
+            isExpired = false;
+        }
+        
+        public void setInfiniteDuration()
+        {
+            lifeDuration = int.MaxValue;
             isExpired = false;
         }
 
