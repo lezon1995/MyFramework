@@ -298,7 +298,7 @@ public partial class BallInventoryItem : IBallOperationTarget
                 if (dstInv.isOccupied)
                 {
                     var ballManagement = inventoryBinder.Player.BallManagement;
-                    if (ballManagement.Upgrade.TryUpgradeWith(srcInv.Slot, dstInv.Slot, out var srcResult))
+                    if (ballManagement.Upgrade.TryUpgradeWith(srcInv.Slot.Item, dstInv.Slot.Item, out var srcResult))
                     {
                         switch (srcResult)
                         {

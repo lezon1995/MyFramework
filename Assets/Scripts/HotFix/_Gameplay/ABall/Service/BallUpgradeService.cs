@@ -52,25 +52,25 @@ namespace MoreMountains
             return true;
         }
 
-        public bool TryUpgradeWith(BallInventorySlot src, BallInventorySlot dst, out BallItemUpgradeResult srcResult)
+        public bool TryUpgradeWith(BallItem src, BallItem dst, out BallItemUpgradeResult srcResult)
         {
             srcResult = BallItemUpgradeResult.None;
-            if (!CanUpgradeWith(src.Item, dst.Item))
+            if (!CanUpgradeWith(src, dst))
                 return false;
 
-            var toLevel = dst.Item.Level + src.Item.Level;
-            var maxLevel = dst.Item.getMaxLevel();
+            var toLevel = dst.Level + src.Level;
+            var maxLevel = dst.getMaxLevel();
             if (toLevel <= maxLevel)
             {
-                dst.Item.Level = toLevel;
-                src.Item.Level = 0;
+                dst.Level = toLevel;
+                src.Level = 0;
                 srcResult = BallItemUpgradeResult.Vanished;
             }
             else
             {
                 var targetLevel = toLevel - maxLevel;
-                dst.Item.Level = maxLevel;
-                src.Item.Level = targetLevel;
+                dst.Level = maxLevel;
+                src.Level = targetLevel;
                 srcResult = BallItemUpgradeResult.Downgraded;
             }
 

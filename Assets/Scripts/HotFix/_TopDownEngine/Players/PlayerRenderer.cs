@@ -57,7 +57,10 @@ namespace MoreMountains
             shieldAmount.gameObject.SetActive(false);
             if (obj.find(out Transform h, "HealthBar"))
             {
-                healthBar = new(_player. Health, h);
+                h.find(out DamageChunkHealthBarRenderer barRenderer, "HealthBarRenderer");
+                var view = OverlayMenuService.Instance?.Binder?.Panel?.CharacterInfoView?.CharacterHealthView;
+                var barUI = view.DamageChunkHealthBarUI;
+                healthBar = new(_player.Health, h, barRenderer, barUI);
             }
         }
 
@@ -216,13 +219,17 @@ namespace MoreMountains
         {
             Transform transform;
             public DamageChunkHealthBarRenderer barRenderer;
+            public DamageChunkHealthBarUI barUI;
             TextMeshPro health;
 
-            public HealthBar(Health h, Transform t)
+            public HealthBar(Health h, Transform t, DamageChunkHealthBarRenderer renderer, DamageChunkHealthBarUI ui)
             {
                 transform = t;
-                if (t.find(out barRenderer, "HealthBarRenderer"))
-                    barRenderer.SetHealth(h);
+                barRenderer = renderer;
+                barRenderer.SetHealth(h);
+
+                barUI = ui;
+                barUI.SetHealth(h);
 
                 t.find(out health, "Health");
             }
@@ -238,11 +245,13 @@ namespace MoreMountains
 
                 var f = Mathf.Clamp01((float)cur / max);
                 barRenderer.ApplyDamageToHealthBar(f);
+                barUI.ApplyDamageToHealthBar(f);
             }
 
             public void refreshShieldByDamage(float curProgress)
             {
                 barRenderer.ApplyDamageToShieldBar(curProgress);
+                barUI.ApplyDamageToShieldBar(curProgress);
             }
 
             public void refreshByHealing(int cur, int max)
@@ -253,6 +262,10 @@ namespace MoreMountains
                 barRenderer.SetProgress(f);
                 barRenderer.ClearAllChunks();
                 barRenderer.ApplyToMaterial();
+
+                barUI.SetProgress(f);
+                barUI.ClearAllChunks();
+                barUI.ApplyToMaterial();
             }
 
             public void refreshByBorn(int cur, int max)
@@ -263,6 +276,10 @@ namespace MoreMountains
                 barRenderer.SetProgress(f);
                 barRenderer.ClearAllChunks();
                 barRenderer.ApplyToMaterial();
+
+                barUI.SetProgress(f);
+                barUI.ClearAllChunks();
+                barUI.ApplyToMaterial();
             }
 
             public void update(float dt)

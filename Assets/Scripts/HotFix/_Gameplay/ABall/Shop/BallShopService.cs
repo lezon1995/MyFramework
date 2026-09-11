@@ -20,9 +20,20 @@ namespace MoreMountains
         {
             // 双层校验：UI Action 已校验过，但调用方也可能是直调，所以兜底。
             if (!_owner.Player.Inventory.CanAddBall())
-                return false;
+            {
+                //如果球背包已经满了，则检查本次购买的球能否与背包里的球升级
+                if (_owner.Player.Inventory.BallBag.TryJoinUpgradeWithTheRestBallItems(item))
+                {
+                    BallEvents.RaiseCreated(item);
+                    BallEvents.RaisePurchased(item);
+                    BallItem.Release(item);
+                    return true;
+                }
 
-            if (item == null) 
+                return false;
+            }
+
+            if (item == null)
                 return false;
 
             if (!_owner.Player.Inventory.AddBall(item))
@@ -36,10 +47,10 @@ namespace MoreMountains
         /// <summary>售出：自动找 holder、移除、并用半价加金币。</summary>
         public int SellToShop(BallItem ball)
         {
-            if (ball == null) 
+            if (ball == null)
                 return 0;
-            
-            if (!InventoryLocate.FindHolderOf(ball, out var holder)) 
+
+            if (!InventoryLocate.FindHolderOf(ball, out var holder))
                 return 0;
 
             holder.TryRemoveByItem(ball);

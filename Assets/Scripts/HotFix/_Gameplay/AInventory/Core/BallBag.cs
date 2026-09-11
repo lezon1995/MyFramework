@@ -11,18 +11,18 @@ namespace MoreMountains
     {
         public Action<BallInventorySlot> OnSlotItemUpgraded;
         public Action<BallInventorySlot> OnSlotItemDowngraded;
-        
+
         public BallBag(APlayer p, int capacity, int maxCapacity) : base(p, capacity, maxCapacity, "BallBag")
         {
         }
 
         protected override BallInventorySlot CreateSlot(int index) => new(index);
         protected override ItemKind GetBagKind() => ItemKind.Ball;
-        
+
         protected override void RaiseRemoved(BallItem item)
         {
             base.RaiseRemoved(item);
-            
+
             BallItem.Release(item);
         }
 
@@ -40,7 +40,7 @@ namespace MoreMountains
             result = null;
             return false;
         }
-        
+
         public bool TryGetAlreadyShootSlotByBallInstance(Ball ballInstance, out BallInventorySlot result)
         {
             foreach (var slot in Slots)
@@ -53,6 +53,32 @@ namespace MoreMountains
             }
 
             result = null;
+            return false;
+        }
+
+        public bool TryJoinUpgradeWithTheRestBallItems(BallItem item)
+        {
+            bool upgradeHappened = false;
+            foreach (var slot in Slots)
+            {
+                if (_player.BallManagement.Upgrade.TryUpgradeWith(item, slot.Item, out var result))
+                {
+                    upgradeHappened = true;
+                    OnSlotItemUpgraded?.Invoke(slot);
+
+                    if (result == BallItemUpgradeResult.Downgraded)
+                        continue;
+
+                    break;
+                }
+            }
+
+            if (upgradeHappened)
+            {
+                OnBagChanged?.Invoke();
+                return true;
+            }
+
             return false;
         }
     }

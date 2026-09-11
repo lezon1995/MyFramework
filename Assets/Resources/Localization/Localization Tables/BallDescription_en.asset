@@ -180,6 +180,10 @@ MonoBehaviour:
       of 5 + 0.2 AP); the player recovers the stored health upon contact.
     m_Metadata:
       m_Items: []
+  - m_Id: 8411002468585472
+    m_Localized: Gain a shield upon hitting a target.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

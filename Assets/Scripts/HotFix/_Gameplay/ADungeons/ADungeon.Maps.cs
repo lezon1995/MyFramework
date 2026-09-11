@@ -695,9 +695,6 @@ namespace MoreMountains
 
         protected virtual void entryFirstRoom()
         {
-            LT.LOAD_HIDE(out overlayMenu);
-            LT.LOAD_HIDE(out operationPanel);
-            LT.LOAD_HIDE(out escPanel);
         }
 
         public static void reset()

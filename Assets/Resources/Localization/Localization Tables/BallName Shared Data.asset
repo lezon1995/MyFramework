@@ -159,6 +159,10 @@ MonoBehaviour:
     m_Key: Vampire
     m_Metadata:
       m_Items: []
+  - m_Id: 8411089433284608
+    m_Key: Shield
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

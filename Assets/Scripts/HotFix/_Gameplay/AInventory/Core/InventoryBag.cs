@@ -75,7 +75,7 @@ namespace MoreMountains
         public event Action<TItem> OnItemAdded;
         public event Action<TItem> OnItemRemoved;
         public Action<TSlot> OnSlotChanged;
-        public event Action OnBagChanged;
+        public Action OnBagChanged;
 
         protected InventoryBag(APlayer p, int capacity, int maxCapacity, string bagName)
         {

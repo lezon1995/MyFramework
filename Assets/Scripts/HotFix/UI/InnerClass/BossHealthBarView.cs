@@ -10,6 +10,7 @@ public partial class BossHealthBarView : WindowObjectUGUI
 	// auto generate member start
 	protected myUGUIImageSimple healthBarRenderer;
 	protected myUGUITextTMP health;
+	protected myUGUITextTMP shield;
 	// auto generate member end
 	
 	protected DamageChunkHealthBarUI damageChunkHealthBarUI;
@@ -23,6 +24,7 @@ public partial class BossHealthBarView : WindowObjectUGUI
 		// auto generate assignWindowInternal start
 		newObject(out healthBarRenderer, "HealthBarRenderer");
 		newObject(out health, "Health");
+		newObject(out shield, "Shield");
 		// auto generate assignWindowInternal end
 
 		healthBarRenderer.tryGetUnityComponent(out damageChunkHealthBarUI);

@@ -116,6 +116,9 @@ namespace MoreMountains
         {
             get
             {
+                if (MaximumHealthModifier == null)
+                    return MaximumHealth;
+
                 var maxHealth = (float)MaximumHealth;
                 return (int)MaximumHealthModifier.SafeInvoke(ref maxHealth);
             }
@@ -268,6 +271,7 @@ namespace MoreMountains
         public bool Initialized => _initialized;
         public IEventRouter Event => this;
         public Action<int, int> onHealthChanged;
+        public Action<int, int> onShieldChanged;
 
         [MMInspectorGroup("Shield")]
         [Tooltip("MOBA风格护盾系统：受伤时优先扣除护盾值，护盾清零后才会扣除生命值")]
@@ -283,7 +287,8 @@ namespace MoreMountains
         protected int _initialLayer;
         protected MaterialPropertyBlock _propertyBlock;
 
-        protected float _timeElapsed;
+        protected float _timeElapsedForHealthRegen;
+        protected float _timeElapsedForShieldRegen;
 
         protected enum CoroutineState
         {
@@ -305,6 +310,7 @@ namespace MoreMountains
         {
             Initialization();
             InitializeCurrentHealth(RefreshHealthBarType.Born);
+            Shield?.SetHealth(this);
         }
 
         /// <summary>
@@ -342,11 +348,11 @@ namespace MoreMountains
         {
             if (Shield is { BaseShieldRegen: > 0 })
             {
-                _timeElapsed += dt;
-                if (_timeElapsed >= 1F)
+                _timeElapsedForHealthRegen += dt;
+                if (_timeElapsedForHealthRegen >= 1F)
                 {
-                    _timeElapsed = 0F;
-                    Shield.AddShield((int)Shield.BaseShieldRegen, RefreshHealthBarType.ReceiveHealing);
+                    _timeElapsedForHealthRegen = 0F;
+                    Shield.AddShield((int)Shield.BaseShieldRegen);
                 }
             }
         }
@@ -355,10 +361,10 @@ namespace MoreMountains
         {
             if (healthRegen > 0)
             {
-                _timeElapsed += dt;
-                if (_timeElapsed >= 1F)
+                _timeElapsedForHealthRegen += dt;
+                if (_timeElapsedForHealthRegen >= 1F)
                 {
-                    _timeElapsed = 0F;
+                    _timeElapsedForHealthRegen = 0F;
                     ReceiveHealth(Heal.Fixed((int)healthRegen), source: Character);
                 }
             }
@@ -451,7 +457,7 @@ namespace MoreMountains
             DeathMMFeedbacks.Initialize(gameObject);
 
             _initialized = true;
-            _timeElapsed = 0F;
+            _timeElapsedForHealthRegen = 0F;
 
             DamageEnabled();
         }

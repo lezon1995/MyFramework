@@ -107,5 +107,9 @@ namespace MoreMountains
         public virtual void onRecollected()
         {
         }
+
+        protected virtual void onLevelSetup(int lv)
+        {
+        }
     }
 }

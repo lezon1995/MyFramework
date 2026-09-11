@@ -13,6 +13,13 @@ namespace MoreMountains
                 var t = view.getRoot().transform;
                 var barRenderer = view.DamageChunkHealthBarUI;
                 barRenderer.SetHealth(_brick.Health);
+                _brick.Health.onShieldChanged = (pre, cur) =>
+                {
+                    if (cur > 0)
+                        view.Shield.setText(cur);
+                    else
+                        view.Shield.setText(null);
+                };
                 healthBar = new(t, barRenderer, view.Health.getTextComponent());
             }
             else

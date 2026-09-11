@@ -29,6 +29,7 @@ namespace MoreMountains
                     else
                     {
                         _player.playerRenderer.healthBar.barRenderer.RefreshHealthBarAndShieldBar();
+                        _player.playerRenderer.healthBar.barUI.RefreshHealthBarAndShieldBar();
                     }
                 };
 
@@ -59,7 +60,8 @@ namespace MoreMountains
 
         float healthPerSecondAccumulated;
         float damagePerSecondAccumulated;
-        float shieldRegenAccumulated;
+        float shieldRegenGainAccumulated;
+        float shieldRegenLostAccumulated;
 
         protected override void UpdateHealthRegen(float dt)
         {
@@ -70,10 +72,10 @@ namespace MoreMountains
                 var healthEveryXSeconds = 11.25F / (1.25F + absRegen);
                 if (healthEveryXSeconds >= 1)
                 {
-                    _timeElapsed += dt;
-                    if (_timeElapsed >= healthEveryXSeconds)
+                    _timeElapsedForHealthRegen += dt;
+                    if (_timeElapsedForHealthRegen >= healthEveryXSeconds)
                     {
-                        _timeElapsed -= healthEveryXSeconds;
+                        _timeElapsedForHealthRegen -= healthEveryXSeconds;
                         ReceiveHealth(Heal.Fixed(1), source: Character);
                     }
                 }
@@ -81,10 +83,10 @@ namespace MoreMountains
                 {
                     var healthPerSecond = absRegen / 11.25F + 1 / 9F;
                     healthPerSecondAccumulated += healthPerSecond * dt;
-                    _timeElapsed += dt;
-                    if (_timeElapsed >= 1F)
+                    _timeElapsedForHealthRegen += dt;
+                    if (_timeElapsedForHealthRegen >= 1F)
                     {
-                        _timeElapsed -= 1F;
+                        _timeElapsedForHealthRegen -= 1F;
                         var heal = (int)healthPerSecondAccumulated;
                         healthPerSecondAccumulated -= heal;
                         ReceiveHealth(Heal.Fixed(heal), source: Character);
@@ -96,10 +98,10 @@ namespace MoreMountains
                 var damageEveryXSeconds = 11.25F / (1.25F + absRegen);
                 if (damageEveryXSeconds >= 1)
                 {
-                    _timeElapsed += dt;
-                    if (_timeElapsed >= damageEveryXSeconds)
+                    _timeElapsedForHealthRegen += dt;
+                    if (_timeElapsedForHealthRegen >= damageEveryXSeconds)
                     {
-                        _timeElapsed -= damageEveryXSeconds;
+                        _timeElapsedForHealthRegen -= damageEveryXSeconds;
                         var dmg = Dmg.True(1).setTriggerEffect(false);
                         Damage(ref dmg, gameObject, _player, 0, Vector3.up);
                     }
@@ -108,10 +110,10 @@ namespace MoreMountains
                 {
                     var damagePerSecond = absRegen / 11.25F + 1 / 9F;
                     damagePerSecondAccumulated += damagePerSecond * dt;
-                    _timeElapsed += dt;
-                    if (_timeElapsed >= 1F)
+                    _timeElapsedForHealthRegen += dt;
+                    if (_timeElapsedForHealthRegen >= 1F)
                     {
-                        _timeElapsed -= 1F;
+                        _timeElapsedForHealthRegen -= 1F;
                         var damage = (int)damagePerSecondAccumulated;
                         damagePerSecondAccumulated -= damage;
                         var dmg = Dmg.True(damage).setTriggerEffect(false);
@@ -130,27 +132,55 @@ namespace MoreMountains
             {
                 var regen = Shield.BaseShieldRegen;
                 var absRegen = regen.abs();
-                var healthEveryXSeconds = 11.25F / (1.25F + absRegen);
-                if (healthEveryXSeconds >= 1)
+                var shieldGainEveryXSeconds = 11.25F / (1.25F + absRegen);
+                if (shieldGainEveryXSeconds >= 1)
                 {
-                    _timeElapsed += dt;
-                    if (_timeElapsed >= healthEveryXSeconds)
+                    _timeElapsedForShieldRegen += dt;
+                    if (_timeElapsedForShieldRegen >= shieldGainEveryXSeconds)
                     {
-                        _timeElapsed -= healthEveryXSeconds;
-                        Shield.AddShield(1, RefreshHealthBarType.ReceiveHealing);
+                        _timeElapsedForShieldRegen -= shieldGainEveryXSeconds;
+                        Shield.AddShield(1);
                     }
                 }
                 else
                 {
                     var shieldPerSecond = absRegen / 11.25F + 1 / 9F;
-                    shieldRegenAccumulated += shieldPerSecond * dt;
-                    _timeElapsed += dt;
-                    if (_timeElapsed >= 1F)
+                    shieldRegenGainAccumulated += shieldPerSecond * dt;
+                    _timeElapsedForShieldRegen += dt;
+                    if (_timeElapsedForShieldRegen >= 1F)
                     {
-                        _timeElapsed -= 1F;
-                        var shield = (int)shieldRegenAccumulated;
-                        shieldRegenAccumulated -= shield;
-                        Shield.AddShield(shield, RefreshHealthBarType.ReceiveHealing);
+                        _timeElapsedForShieldRegen -= 1F;
+                        var shield = (int)shieldRegenGainAccumulated;
+                        shieldRegenGainAccumulated -= shield;
+                        Shield.AddShield(shield);
+                    }
+                }
+            }
+            else if (Shield is { BaseShieldRegen: < 0 })
+            {
+                var regen = Shield.BaseShieldRegen;
+                var absRegen = regen.abs();
+                var shieldLostEveryXSeconds = 11.25F / (1.25F + absRegen);
+                if (shieldLostEveryXSeconds >= 1)
+                {
+                    _timeElapsedForShieldRegen += dt;
+                    if (_timeElapsedForShieldRegen >= shieldLostEveryXSeconds)
+                    {
+                        _timeElapsedForShieldRegen -= shieldLostEveryXSeconds;
+                        Shield.RemoveShield(1);
+                    }
+                }
+                else
+                {
+                    var shieldLostPerSecond = absRegen / 11.25F + 1 / 9F;
+                    shieldRegenLostAccumulated += shieldLostPerSecond * dt;
+                    _timeElapsedForShieldRegen += dt;
+                    if (_timeElapsedForShieldRegen >= 1F)
+                    {
+                        _timeElapsedForShieldRegen -= 1F;
+                        var shieldLost = (int)shieldRegenLostAccumulated;
+                        shieldRegenLostAccumulated -= shieldLost;
+                        Shield.RemoveShield(shieldLost);
                     }
                 }
             }

@@ -63,10 +63,10 @@ namespace MoreMountains
                 var healthEveryXSeconds = 11.25F / (1.25F + absRegen);
                 if (healthEveryXSeconds >= 1)
                 {
-                    _timeElapsed += dt;
-                    if (_timeElapsed >= healthEveryXSeconds)
+                    _timeElapsedForHealthRegen += dt;
+                    if (_timeElapsedForHealthRegen >= healthEveryXSeconds)
                     {
-                        _timeElapsed -= healthEveryXSeconds;
+                        _timeElapsedForHealthRegen -= healthEveryXSeconds;
                         ReceiveHealth(Heal.Fixed(1), source: Character);
                     }
                 }
@@ -74,10 +74,10 @@ namespace MoreMountains
                 {
                     var healthPerSecond = absRegen / 11.25F + 1 / 9F;
                     healthPerSecondAccumulated += healthPerSecond * dt;
-                    _timeElapsed += dt;
-                    if (_timeElapsed >= 1F)
+                    _timeElapsedForHealthRegen += dt;
+                    if (_timeElapsedForHealthRegen >= 1F)
                     {
-                        _timeElapsed -= 1F;
+                        _timeElapsedForHealthRegen -= 1F;
                         var heal = (int)healthPerSecondAccumulated;
                         healthPerSecondAccumulated -= heal;
                         ReceiveHealth(Heal.Fixed(heal), source: Character);
@@ -89,10 +89,10 @@ namespace MoreMountains
                 var damageEveryXSeconds = 11.25F / (1.25F + absRegen);
                 if (damageEveryXSeconds >= 1)
                 {
-                    _timeElapsed += dt;
-                    if (_timeElapsed >= damageEveryXSeconds)
+                    _timeElapsedForHealthRegen += dt;
+                    if (_timeElapsedForHealthRegen >= damageEveryXSeconds)
                     {
-                        _timeElapsed -= damageEveryXSeconds;
+                        _timeElapsedForHealthRegen -= damageEveryXSeconds;
                         var dmg = Dmg.True(1).setTriggerEffect(false);
                         Damage(ref dmg, gameObject, player, 0, Vector3.up);
                     }
@@ -101,10 +101,10 @@ namespace MoreMountains
                 {
                     var damagePerSecond = absRegen / 11.25F + 1 / 9F;
                     damagePerSecondAccumulated += damagePerSecond * dt;
-                    _timeElapsed += dt;
-                    if (_timeElapsed >= 1F)
+                    _timeElapsedForHealthRegen += dt;
+                    if (_timeElapsedForHealthRegen >= 1F)
                     {
-                        _timeElapsed -= 1F;
+                        _timeElapsedForHealthRegen -= 1F;
                         var damage = (int)damagePerSecondAccumulated;
                         damagePerSecondAccumulated -= damage;
                         var dmg = Dmg.True(damage).setTriggerEffect(false);
@@ -126,24 +126,24 @@ namespace MoreMountains
                 var healthEveryXSeconds = 11.25F / (1.25F + absRegen);
                 if (healthEveryXSeconds >= 1)
                 {
-                    _timeElapsed += dt;
-                    if (_timeElapsed >= healthEveryXSeconds)
+                    _timeElapsedForHealthRegen += dt;
+                    if (_timeElapsedForHealthRegen >= healthEveryXSeconds)
                     {
-                        _timeElapsed -= healthEveryXSeconds;
-                        Shield.AddShield(1, RefreshHealthBarType.ReceiveHealing);
+                        _timeElapsedForHealthRegen -= healthEveryXSeconds;
+                        Shield.AddShield(1);
                     }
                 }
                 else
                 {
                     var shieldPerSecond = absRegen / 11.25F + 1 / 9F;
                     shieldRegenAccumulated += shieldPerSecond * dt;
-                    _timeElapsed += dt;
-                    if (_timeElapsed >= 1F)
+                    _timeElapsedForHealthRegen += dt;
+                    if (_timeElapsedForHealthRegen >= 1F)
                     {
-                        _timeElapsed -= 1F;
+                        _timeElapsedForHealthRegen -= 1F;
                         var shield = (int)shieldRegenAccumulated;
                         shieldRegenAccumulated -= shield;
-                        Shield.AddShield(shield, RefreshHealthBarType.ReceiveHealing);
+                        Shield.AddShield(shield);
                     }
                 }
             }

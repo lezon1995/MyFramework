@@ -10,6 +10,13 @@ namespace MoreMountains
     [Serializable]
     public class HealthShield
     {
+        Health _health;
+
+        public void SetHealth(Health health)
+        {
+            _health = health;
+        }
+        
         #region Fields
 
         [Header("护盾基础属性")]
@@ -57,7 +64,7 @@ namespace MoreMountains
         /// </summary>
         public void ClearShield()
         {
-            SetShield(0, RefreshHealthBarType.Immediately);
+            SetShield(0);
         }
 
         #endregion
@@ -68,12 +75,12 @@ namespace MoreMountains
         /// 设置护盾值。
         /// </summary>
         /// <param name="value">新的护盾值</param>
-        /// <param name="type">刷新类型</param>
-        protected void SetShield(int value, RefreshHealthBarType type = RefreshHealthBarType.Immediately)
+        protected void SetShield(int value)
         {
             int prevShield = CurrentShield;
             CurrentShield = Mathf.Max(0, value);
 
+            _health.onShieldChanged?.Invoke(prevShield, CurrentShield);
             OnShieldChanged?.Invoke(prevShield, CurrentShield);
 
             // 检测护盾是否刚被清空
@@ -87,14 +94,13 @@ namespace MoreMountains
         /// 增加护盾值（护盾不会超过最大护盾上限）。
         /// </summary>
         /// <param name="value">增加的护盾值</param>
-        /// <param name="type">刷新类型</param>
-        public void AddShield(int value, RefreshHealthBarType type = RefreshHealthBarType.ReceiveHealing)
+        public void AddShield(int value)
         {
             if (value <= 0)
                 return;
 
             int newShield = CurrentShield + value;
-            SetShield(newShield, type);
+            SetShield(newShield);
         }
 
         /// <summary>
@@ -176,7 +182,7 @@ namespace MoreMountains
             if (accumulated >= 1f)
             {
                 int regenValue = Mathf.FloorToInt(accumulated);
-                AddShield(regenValue, RefreshHealthBarType.ReceiveHealing);
+                AddShield(regenValue);
             }
         }
 

@@ -4,6 +4,7 @@ public partial class OverlayMenu
 {
     public BallTooltipItem BallTooltipItem => ballTooltipItem;
     public BossHealthBarView BossHealthBarView => bossHealthBarView;
+    public CharacterInfoView CharacterInfoView => characterInfoView;
     OverlayMenuBinder binder;
 
     void initBinder()

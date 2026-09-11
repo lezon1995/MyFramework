@@ -72,7 +72,7 @@ namespace MoreMountains
         bool _useShield = true;
 
         [SerializeField]
-        Color _shieldColor = new(0f, 0.6f, 1f, 1f);
+        Color shieldColor = new(0.7803922f, 0.7803922f, 0.7803922f, 1f);
 
         [SerializeField]
         int _shieldValue;
@@ -359,8 +359,8 @@ namespace MoreMountains
 
         public Color ShieldColor
         {
-            get => _shieldColor;
-            set => _shieldColor = value;
+            get => shieldColor;
+            set => shieldColor = value;
         }
 
         public FillOrigin Direction
@@ -459,7 +459,7 @@ namespace MoreMountains
 
             // 护盾
             _block.SetInt(kUseShield, _useShield ? 1 : 0);
-            _block.SetColor(kShieldColor, _shieldColor);
+            _block.SetColor(kShieldColor, shieldColor);
             _block.SetFloat(kShieldLength, _shieldLength);
             _block.SetFloat(kShieldGlow, _shieldGlow);
 

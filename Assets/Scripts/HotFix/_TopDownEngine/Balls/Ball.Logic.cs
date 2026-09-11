@@ -23,19 +23,18 @@ namespace MoreMountains
 
         public void refreshInitialHealth()
         {
-            GetStat(Stat.HealthMax, out var stat);
-            var health = stat.Value.toInt();
-            _health.SetHealth(health, health, RefreshHealthBarType.Immediately);
+            var health = int.MaxValue;
+            _health.SetHealth(health, health);
         }
 
         public void setInitialHealth(int value)
         {
-            _health.SetHealth(value, value, RefreshHealthBarType.Immediately);
+            _health.SetHealth(value, value);
         }
 
         public void setHealth(int value)
         {
-            _health.SetHealth(value, RefreshHealthBarType.Immediately);
+            _health.SetHealth(value);
         }
 
         public void setPenetrable(bool value)
@@ -84,6 +83,7 @@ namespace MoreMountains
         public IHittable lastHittable;
         public bool isOverlappingBrick { get; set; }
         public int level = 1;
+        public int levelIndex => level - 1;
 
         public void setBorderToBallDamageModifier(BorderToBallDamageModifier m) => borderToBallDamageModifier = m;
         public void setID(long id) => guid = id;
@@ -492,6 +492,8 @@ namespace MoreMountains
 
             foreach (var (key, stat) in _stats.AllStats)
                 stat.InitialOverride?.SetDirty();
+
+            onLevelSetup(lv);
         }
 
         public void setRadius(float value)

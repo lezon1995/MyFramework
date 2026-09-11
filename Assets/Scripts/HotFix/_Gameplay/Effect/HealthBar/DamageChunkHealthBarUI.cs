@@ -59,14 +59,14 @@ namespace MoreMountains
         bool _useShield = true;
 
         [SerializeField]
-        Color _shieldColor = new(0f, 0.6f, 1f, 1f);
+        Color shieldColor = new(0.7803922f, 0.7803922f, 0.7803922f, 1f);
 
         [SerializeField]
-        int _shieldValue = 0;
+        int _shieldValue;
 
         [Range(0f, 1f)]
         [SerializeField]
-        float _shieldProgress = 0f;
+        float _shieldLength;
 
         [Range(0f, 1f)]
         [SerializeField]
@@ -126,7 +126,7 @@ namespace MoreMountains
         static readonly int kChunkCount = Shader.PropertyToID("_ChunkCount");
         static readonly int kUseShield = Shader.PropertyToID("_UseShield");
         static readonly int kShieldColor = Shader.PropertyToID("_ShieldColor");
-        static readonly int kShieldProgress = Shader.PropertyToID("_ShieldProgress");
+        static readonly int kShieldLength = Shader.PropertyToID("_ShieldLength");
         static readonly int kShieldGlow = Shader.PropertyToID("_ShieldGlow");
 
         static readonly int[] kChunkVec =
@@ -184,12 +184,12 @@ namespace MoreMountains
             {
                 float scale = 1f / total;
                 _foregroundProgress = hpProgress * scale;
-                _shieldProgress = shieldProgress * scale;
+                _shieldLength = shieldProgress * scale;
             }
             else
             {
                 _foregroundProgress = hpProgress;
-                _shieldProgress = shieldProgress;
+                _shieldLength = shieldProgress;
             }
         }
 
@@ -247,7 +247,7 @@ namespace MoreMountains
             // chunk 位置 = 剩余血量位置到受击前血量位置
             Color color = _defaultChunkColor; // 默认用护盾色（更醒目）
 
-            float chunkStart = _shieldProgress; // 当前护盾起点（即当前血量终点）
+            float chunkStart = _shieldLength; // 当前护盾起点（即当前血量终点）
             float chunkEnd = prevHpPct; // 受击前的血量位置（可能含护盾）
 
             // chunk 必须有宽度才创建
@@ -436,8 +436,8 @@ namespace MoreMountains
             
             // 护盾
             _material.SetInt(kUseShield, _useShield ? 1 : 0);
-            _material.SetColor(kShieldColor, _shieldColor);
-            _material.SetFloat(kShieldProgress, _shieldProgress);
+            _material.SetColor(kShieldColor, shieldColor);
+            _material.SetFloat(kShieldLength, _shieldLength);
             _material.SetFloat(kShieldGlow, _shieldGlow);
 
             // DamageChunks

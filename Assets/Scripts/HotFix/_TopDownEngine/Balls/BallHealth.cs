@@ -22,7 +22,7 @@ namespace MoreMountains
             DeathMMFeedbacks.Initialize(gameObject);
 
             _initialized = true;
-            _timeElapsed = 0F;
+            _timeElapsedForHealthRegen = 0F;
 
             DamageEnabled();
         }

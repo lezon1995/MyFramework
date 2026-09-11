@@ -97,6 +97,10 @@ namespace MoreMountains
 
             isDungeonBeaten = false;
             isScreenUp = false;
+            
+            LT.LOAD_HIDE(out overlayMenu);
+            LT.LOAD_HIDE(out operationPanel);
+            LT.LOAD_HIDE(out escPanel);
         }
 
         protected ADungeon(string _name, SaveFile saveFile)

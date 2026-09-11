@@ -18,6 +18,7 @@ namespace MoreMountains
         Action<int, int> onLevelChanged;
         Action<int, int> onExpChanged;
         Action<int, int> onHealthChanged;
+        Action<int, int> onShieldChanged;
         Action<int, int> onExpRequiredChanged;
         Dictionary<string, IDisposable> statsDisposables = new();
 
@@ -28,6 +29,7 @@ namespace MoreMountains
             onExpChanged = OnExpChanged;
             onExpRequiredChanged = OnExpRequiredChanged;
             onHealthChanged = OnHealthChanged;
+            onShieldChanged = OnShieldChanged;
         }
 
         public CharacterInfoBinder(CharacterInfoView view) : this()
@@ -44,12 +46,14 @@ namespace MoreMountains
             _view.CharacterExpView.SetLevel(player.Exp.Level);
             _view.CharacterExpView.SetExp(player.Exp.currentExp, player.Exp.currentLevelRequiredExp);
             _view.CharacterHealthView.SetHealth(player.currentHealth, player.maxHealth);
+            _view.CharacterHealthView.SetShield(0, player.Health.Shield.CurrentShield);
 
             player.Exp.onLevelUp += onLevelUp;
             player.Exp.onLevelChanged += onLevelChanged;
             player.Exp.onExpChanged += onExpChanged;
             player.Exp.onExpRequiredChanged += onExpRequiredChanged;
             player.Health.onHealthChanged += onHealthChanged;
+            player.Health.onShieldChanged += onShieldChanged;
 
             // 属性列表占位
             using var _ = new ListScope<UniStats.Stat>(out var statList);
@@ -131,6 +135,11 @@ namespace MoreMountains
             RefreshHealth(cur, max);
         }
 
+        void OnShieldChanged(int pre, int cur)
+        {
+            RefreshShield(pre, cur);
+        }
+
         public void Detach()
         {
             if (_player)
@@ -140,6 +149,7 @@ namespace MoreMountains
                 _player.Exp.onExpChanged -= onExpChanged;
                 _player.Exp.onExpRequiredChanged -= onExpRequiredChanged;
                 _player.Health.onHealthChanged -= onHealthChanged;
+                _player.Health.onShieldChanged -= onShieldChanged;
             }
 
             foreach (var (statName, disposable) in statsDisposables)
@@ -152,6 +162,7 @@ namespace MoreMountains
 
         public void RefreshExp(int cur, int max) => _view.CharacterExpView.SetExp(cur, max);
         public void RefreshHealth(int cur, int max) => _view.CharacterHealthView.SetHealth(cur, max);
+        public void RefreshShield(int pre, int cur) => _view.CharacterHealthView.SetShield(pre, cur);
         public void RefreshLevel(int lv) => _view.CharacterExpView.SetLevel(lv);
     }
 }
