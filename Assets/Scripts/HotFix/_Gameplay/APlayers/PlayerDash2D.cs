@@ -1,4 +1,5 @@
-﻿using MoreMountains.Feedbacks;
+﻿using System;
+using MoreMountains.Feedbacks;
 using MoreMountains.Tools;
 using UnityEngine;
 
@@ -36,6 +37,8 @@ namespace MoreMountains
         [Header("Dash")]
         public DashSpaces DashSpace = DashSpaces.World;
 
+        public LayerMask ObstaclesLayerMask = LayerManager.Obstacles_Mask;
+
         [Tooltip("the dash direction")]
         public Vector3 DashDirection = Vector3.forward;
 
@@ -43,7 +46,7 @@ namespace MoreMountains
         public float DashDistance = 6f;
 
         [Tooltip("the duration of the dash, in seconds")]
-        public float DashDuration = 0.2f;
+        public int DashDurationCounter = 10;
 
         [Tooltip("the animation curve to apply to the dash acceleration")]
         public AnimationCurve DashCurve = new(new(0f, 0f), new(1f, 1f));
@@ -66,12 +69,16 @@ namespace MoreMountains
 
 
         protected bool _dashing;
-        protected float _dashTimer;
+        protected bool _hasTriggerFx;
+        protected GameEffect _dashHitFx;
+        protected int _dashCounter;
         protected Vector3 _dashOrigin;
         protected Vector3 _dashDestination;
+        protected Vector3 _dashDirection;
         protected Vector3 _newPosition;
         protected Vector3 _oldPosition;
         protected Camera _mainCamera;
+        protected SpriteAfterImageEmitter _spriteEmitter;
 
         /// <summary>
         /// On init, we stop our particles, and initialize our dash bar
@@ -83,6 +90,8 @@ namespace MoreMountains
 
             _mainCamera = Camera.main;
             TargetDamageOnTouch.SetActive(false);
+
+            this.TryGetComponentInChildren(out _spriteEmitter);
         }
 
         /// <summary>
@@ -116,7 +125,8 @@ namespace MoreMountains
             Cooldown.Start();
             _motionState.ChangeState(Character.Motions.Dashing);
             _dashing = true;
-            _dashTimer = 0f;
+            _hasTriggerFx = false;
+            _dashCounter = 0;
             _dashOrigin = transform.position;
             // _controller.FreeMovement = false;
             DashFeedback.Play(transform.position);
@@ -131,34 +141,47 @@ namespace MoreMountains
             _character.Event.trigger(new DoDash());
 
             TargetDamageOnTouch.SetActive(true);
+
+            if (_spriteEmitter)
+                _spriteEmitter.Begin();
         }
 
         protected virtual void HandleDashMode()
         {
             var dashDistance = DashDistance;
             Vector3 dashDestination = Vector3.zero;
+            var selfPos = transform.position;
             switch (DashMode)
             {
                 case DashModes.Fixed:
-                    dashDestination = transform.position + DashDirection.normalized * dashDistance;
+                    dashDestination = selfPos + DashDirection.normalized * dashDistance;
                     break;
 
                 case DashModes.MainMovement:
-                    dashDestination = transform.position + _controller.CurrentDirection.normalized * dashDistance;
+                    dashDestination = selfPos + _controller2D.CurrentDirection.normalized * dashDistance;
                     break;
 
                 case DashModes.SecondaryMovement:
-                    dashDestination = transform.position + (Vector3)_inputManager.SecondaryMovement.normalized * dashDistance;
+                    dashDestination = selfPos + (Vector3)_inputManager.SecondaryMovement.normalized * dashDistance;
                     break;
 
                 case DashModes.MousePosition:
                     var position = _mainCamera.ScreenToWorldPoint(_inputManager.MousePosition);
-                    position.z = transform.position.z;
-                    dashDestination = transform.position + (position - transform.position).normalized * dashDistance;
+                    position.z = selfPos.z;
+                    dashDestination = selfPos + (position - selfPos).normalized * dashDistance;
                     break;
             }
 
+            var dir = dashDestination - selfPos;
+            var radius = _controller2D.Volume.BoundingRadius;
+            var hit = Physics2D.CircleCast(selfPos, radius, dir, dashDistance, ObstaclesLayerMask);
+            if (hit)
+            {
+                dashDestination = hit.point + hit.normal * radius;
+            }
+
             _dashDestination = dashDestination;
+            _dashDirection = (dashDestination - selfPos).normalized;
         }
 
         /// <summary>
@@ -178,9 +201,28 @@ namespace MoreMountains
 
             _motionState.ChangeState(Character.Motions.Idle);
             _dashing = false;
+            _hasTriggerFx = false;
             // _controller.FreeMovement = true;
 
             TargetDamageOnTouch.SetActive(false);
+
+            if (_spriteEmitter)
+                _spriteEmitter.End();
+        }
+
+        void LateUpdate()
+        {
+            if (_dashHitFx)
+            {
+                if (!_dashHitFx.isDead())
+                {
+                    _dashHitFx.setWorldPosition(transform.position);
+                }
+                else
+                {
+                    _dashHitFx = null;
+                }
+            }
         }
 
         /// <summary>
@@ -193,21 +235,35 @@ namespace MoreMountains
 
             if (_dashing)
             {
-                if (_dashTimer < DashDuration)
+                if (_dashCounter < DashDurationCounter)
                 {
-                    var f = DashCurve.Evaluate(_dashTimer / DashDuration);
-                    _dashTimer += dt;
+                    var f = DashCurve.Evaluate(_dashCounter / (float)DashDurationCounter);
+                    _dashCounter++;
                     switch (DashSpace)
                     {
                         case DashSpaces.World:
                             _newPosition = Vector3.Lerp(_dashOrigin, _dashDestination, f);
-                            _controller.MovePosition(_newPosition);
+                            _controller2D.MovePosition(_newPosition);
                             break;
                         case DashSpaces.Local:
-                            _oldPosition = _dashTimer == 0 ? _dashOrigin : _newPosition;
+                            _oldPosition = _dashCounter == 0 ? _dashOrigin : _newPosition;
                             _newPosition = Vector3.Lerp(_dashOrigin, _dashDestination, f);
-                            _controller.MovePosition(transform.position + _newPosition - _oldPosition);
+                            _controller2D.MovePosition(transform.position + _newPosition - _oldPosition);
                             break;
+                    }
+
+                    _spriteEmitter.FixedUpdateCounter++;
+                    if (_spriteEmitter.FixedUpdateCounter >= _spriteEmitter.spawnFixedUpdateInterval)
+                    {
+                        _spriteEmitter.FixedUpdateCounter = 0;
+                        _spriteEmitter.Spawn(_newPosition);
+                    }
+
+                    var hasHit = CheckCollidingBalls();
+                    if (hasHit && !_hasTriggerFx)
+                    {
+                        _hasTriggerFx = true;
+                        _dashHitFx = fx.play(FxDefine.STUN_FLASH, _controller2D.CurPosition,  0.5F);
                     }
                 }
                 else
@@ -215,6 +271,36 @@ namespace MoreMountains
                     DashStop();
                 }
             }
+        }
+
+        bool CheckCollidingBalls()
+        {
+            bool hasHit = false;
+            var radius = _controller2D.Volume.BoundingRadius;
+            using var _ = new ListScope<Collider2D>(out var colliders);
+            var filter = new ContactFilter2D();
+            filter.useTriggers = true;
+            filter.SetLayerMask(BALL_LAYER_MASK);
+            var position = _controller2D.CurPosition;
+            var count = Physics2D.OverlapCircle(position, radius, filter, colliders);
+            if (count > 0)
+            {
+                for (var i = 0; i < colliders.Count; i++)
+                {
+                    if (colliders[i].TryGetComponent(out Ball ball))
+                    {
+                        if (ball.isDashHitDisable)
+                            continue;
+
+                        if (ball.onPlayerDashHit(position, _dashDirection))
+                        {
+                            hasHit = true;
+                        }
+                    }
+                }
+            }
+
+            return hasHit;
         }
 
         /// <summary>

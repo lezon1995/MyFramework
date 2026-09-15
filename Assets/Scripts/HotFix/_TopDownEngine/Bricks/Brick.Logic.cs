@@ -18,7 +18,7 @@ namespace MoreMountains
 
         public BrickRenderer brickRenderer;
         public VolumeCollider volumeCollider;
-        protected virtual bool registerToVolumeManager => true;
+        public VolumeType RegisteredVolumeType;
 
         protected Action<Brick> onBornCompleted;
         protected APlayer player;
@@ -40,9 +40,14 @@ namespace MoreMountains
             brickRenderer.playBornAnimation();
             Health.onAcquire();
 
-            if (registerToVolumeManager)
+            switch (RegisteredVolumeType)
             {
-                _controller2D.RegisterToVolumeManager();
+                case VolumeType.Entity:
+                    _controller2D.RegisterToVolumeManager();
+                    break;
+                case VolumeType.Collider:
+                    volumeCollider.RegisterToVolumeManager();
+                    break;
             }
         }
 
@@ -61,7 +66,16 @@ namespace MoreMountains
 
         public override void onRelease()
         {
-            _controller2D.UnregisterToVolumeManager();
+            switch (RegisteredVolumeType)
+            {
+                case VolumeType.Entity:
+                    _controller2D.UnregisterToVolumeManager();
+                    break;
+                case VolumeType.Collider:
+                    volumeCollider.UnregisterToVolumeManager();
+                    break;
+            }
+
             Health.onRelease();
             base.onRelease();
         }

@@ -279,6 +279,10 @@ namespace MoreMountains
         {
             return coord.y * Grid.cols + coord.x;
         }
+        public static Vector2 ToPos(this Vector2Int coord)
+        {
+            return gridManager.CellToWorld(coord);
+        }
         public static Vector2Int ToCoord(this int index)
         {
             return new(index % Grid.cols, index / Grid.cols);

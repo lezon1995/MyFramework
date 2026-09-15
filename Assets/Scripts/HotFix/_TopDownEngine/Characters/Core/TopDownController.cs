@@ -53,7 +53,7 @@ namespace MoreMountains
         // public virtual bool OnMovingPlatform { get; set; }
         public virtual Vector3 MovingPlatformSpeed { get; set; }
 
-        protected Vector3 _lastPosition { get; set; }
+        protected Vector3 LastPosition { get; set; }
         protected bool _groundedLastFrame;
         protected Vector3 _impact;
 
@@ -61,7 +61,7 @@ namespace MoreMountains
         {
             TryGetComponent(out Character);
             CurrentDirection = transform.forward;
-            _lastPosition = transform.position;
+            LastPosition = transform.position;
         }
 
         protected virtual void OnEnable()
@@ -85,7 +85,7 @@ namespace MoreMountains
 
         protected void CheckDeltaMovement()
         {
-            var movement = transform.position - _lastPosition;
+            var movement = transform.position - LastPosition;
             if (movement == Vector3.zero)
                 return;
 

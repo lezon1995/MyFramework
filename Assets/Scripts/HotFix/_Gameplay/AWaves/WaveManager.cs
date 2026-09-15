@@ -108,17 +108,27 @@ namespace MoreMountains
         public bool HasBossSpawned { get; set; } // 是否Boss已生成
         public bool IsInRewardSelection => State == WaveState.RewardSelecting; // 是否处于奖励选择阶段
 
+        // 供策略类访问的公开属性
+        public Dictionary<int, List<ShapeEntry>> ShapeDict => shapeDict;
+        public List<int> ShapeCellCount => shapeCellCount;
+        public Vector2 SpawnAreaMin => _spawnAreaMin;
+        public Vector2 SpawnAreaMax => _spawnAreaMax;
+        public int WaveCurrentTotalSpawn => _waveCurrentTotalSpawn;
+        public int WaveMaxTotalSpawn => _waveMaxTotalSpawn;
+
+        /// <summary>
+        /// 当前激活的刷怪策略实例. 可能为 null (策略尚未创建或未设置).
+        /// </summary>
+        public MonsterSpawnStrategy CurrentSpawnStrategy => _currentSpawnStrategy;
+
         #endregion
 
         #region Private Fields
 
-        float _spawnTimer;
         float _waveTimer;
         float _bossSpawnTimer;
         bool _bossSpawnedThisWave;
-        List<MonsterSpawnConfig> _pendingForceSpawns = new();
         MonsterScalingData _scalingData = new();
-        int _forceSpawnIndex;
         Random _spawnRandom;
         Vector2 _spawnAreaMin;
         Vector2 _spawnAreaMax;
@@ -146,14 +156,29 @@ namespace MoreMountains
         int _waveMaxTotalSpawn;
         int _waveCurrentTotalSpawn;
 
-        // 持续刷怪相关
+        // 持续刷怪相关 (现在由 MonsterSpawnStrategy 内部管理, 这里仅保留字段用于 OnGUI 调试显示).
         float _killSpeedTimer; // 击杀速度计时器
         int _killsInLastInterval; // 上一个间隔内的击杀数
         int _killsThisInterval; // 当前间隔的击杀数
-        float _spawnIntervalOverride; // 刷怪间隔覆盖值（用于紧急补充）
+        float _spawnIntervalOverride; // 刷怪间隔覆盖值（已废弃, 由策略实现）
 
         // 每个 MonsterSpawnConfig 在当前波次中已生成的累计数量
         Dictionary<MonsterSpawnConfig, int> _spawnedCountByConfig = new();
+
+        // ---------------------------------------------------------------
+        // 刷怪策略管理器
+        //
+        // 取代原 WaveManager 内联的刷怪逻辑（持续刷怪 / 有限刷怪 / 形状生成等）。
+        // 实际行为由当前激活的 MonsterSpawnStrategy 决定（VampireLike / BallXPitLike 等）。
+        // ---------------------------------------------------------------
+
+        [Tooltip("刷怪策略类型. 不指定时, 默认使用 VampireLikeMonsterSpawnStrategy (类幸存者玩法).")]
+        public MonsterSpawnStrategyType spawnStrategyType = MonsterSpawnStrategyType.VampireLike;
+
+        // 当前激活的刷怪策略实例
+        MonsterSpawnStrategy _currentSpawnStrategy;
+        // 标记当前策略是否已根据当前波次配置初始化
+        bool _spawnStrategyInitialized;
 
         #endregion
 
@@ -320,12 +345,10 @@ namespace MoreMountains
             // 初始化波次数据
             WaveTimeRemaining = CurWave.duration;
             WaveTimeElapsed = 0f;
-            _spawnTimer = 0f;
             _bossSpawnTimer = 0f;
             _bossSpawnedThisWave = false;
             WaveKillCount = 0;
             WaveSpawnCount = 0;
-            _forceSpawnIndex = 0;
             HasBossSpawned = false;
 
             // 问题2修复：初始化击败所有怪物策略的最大生成数量
@@ -345,18 +368,14 @@ namespace MoreMountains
                     _spawnedCountByConfig[config] = 0;
             }
 
-            // 准备强制生成的怪物列表
-            _pendingForceSpawns.Clear();
-            foreach (var config in CurWave.availableMonsters)
-            {
-                if (config.forceSpawnOnce)
-                {
-                    _pendingForceSpawns.Add(config);
-                }
-            }
-
             // 应用属性增长
             _scalingData.ApplyWaveScaling(WaveNumber, CurWave, CurLevel);
+
+            // 重置并重新初始化刷怪策略, 让策略与新的波次/关卡配置绑定
+            _currentSpawnStrategy?.Reset();
+            _currentSpawnStrategy = null;
+            _spawnStrategyInitialized = false;
+            EnsureSpawnStrategy();
 
             // 进入准备阶段
             SetState(WaveState.Preparing);
@@ -846,6 +865,51 @@ namespace MoreMountains
         }
 
         /// <summary>
+        /// 切换刷怪策略. 会立刻创建一个新的策略实例并初始化,
+        /// 下一次 ProcessMonsterSpawn 调用时即生效.
+        /// </summary>
+        /// <param name="newType">要切换到的策略类型</param>
+        public void SetSpawnStrategy(MonsterSpawnStrategyType newType)
+        {
+            spawnStrategyType = newType;
+
+            // 销毁旧策略
+            _currentSpawnStrategy?.Reset();
+            _currentSpawnStrategy = null;
+            _spawnStrategyInitialized = false;
+        }
+
+        /// <summary>
+        /// 确保当前刷怪策略已根据当前波次配置初始化.
+        /// 内部调用: 当 CurWave/CurLevel 变化 (StartLevel / StartNextWave) 时,
+        /// 需要重新调用 Initialize 把策略与新配置绑定.
+        /// </summary>
+        void EnsureSpawnStrategy()
+        {
+            // 如果策略类型变了, 重建
+            if (_currentSpawnStrategy != null && _currentSpawnStrategy.GetStrategyType() != spawnStrategyType)
+            {
+                _currentSpawnStrategy.Reset();
+                _currentSpawnStrategy = null;
+                _spawnStrategyInitialized = false;
+            }
+
+            // 如果策略不存在, 创建
+            if (_currentSpawnStrategy == null)
+            {
+                _currentSpawnStrategy = MonsterSpawnStrategyFactory.CreateStrategy(spawnStrategyType);
+                _spawnStrategyInitialized = false;
+            }
+
+            // 如果策略未初始化或当前波次/关卡变了, 重新初始化
+            if (!_spawnStrategyInitialized || CurWave == null || CurLevel == null)
+            {
+                _currentSpawnStrategy.Initialize(this, CurWave, CurLevel);
+                _spawnStrategyInitialized = true;
+            }
+        }
+
+        /// <summary>
         /// 重置波次管理器
         /// </summary>
         public void Reset()
@@ -859,6 +923,11 @@ namespace MoreMountains
             FinalResult = GameResult.None;
             HasBossSpawned = false;
             _scalingData.Reset();
+
+            // 重置刷怪策略 (延迟到下次 EnsureSpawnStrategy 时再创建)
+            _currentSpawnStrategy?.Reset();
+            _currentSpawnStrategy = null;
+            _spawnStrategyInitialized = false;
         }
 
         #endregion
@@ -919,12 +988,6 @@ namespace MoreMountains
                 OnGameEnd?.Invoke(FinalResult);
                 return;
             }
-
-            // 处理强制生成
-            ProcessForceSpawns(dt);
-
-            // 处理Boss生成
-            ProcessBossSpawn();
 
             // 处理普通怪物生成
             ProcessMonsterSpawn(dt);
@@ -1026,221 +1089,30 @@ namespace MoreMountains
             return false;
         }
 
-        void ProcessForceSpawns(float dt)
-        {
-            if (_pendingForceSpawns.Count == 0)
-                return;
-
-            // 每隔一段时间尝试生成一个强制怪物
-            _spawnTimer += dt;
-
-            if (_spawnTimer >= 1f) // 每秒检查一次
-            {
-                _spawnTimer = 0f;
-
-                // 生成一个强制怪物
-                var config = _pendingForceSpawns[_forceSpawnIndex];
-                SpawnMonster(config.monsterDef);
-                _forceSpawnIndex++;
-
-                if (_forceSpawnIndex >= _pendingForceSpawns.Count)
-                {
-                    _pendingForceSpawns.Clear();
-                }
-            }
-        }
-
-        void ProcessBossSpawn()
-        {
-            if (_bossSpawnedThisWave || CurWave == null)
-                return;
-
-            // 检查是否应该生成Boss
-            if (CurWave.clearStrategy == WaveClearStrategy.DefeatBoss)
-            {
-                if (WaveTimeElapsed >= CurWave.bossSpawnTime)
-                {
-                    SpawnBoss();
-                }
-            }
-            else if (CurLevel.IsLastWave(WaveNumber))
-            {
-                // 最后一波，在特定时间生成Boss
-                if (WaveTimeElapsed >= CurWave.bossSpawnTime)
-                {
-                    SpawnBoss();
-                }
-            }
-        }
-
+        /// <summary>
+        /// 通过 MonsterSpawnStrategy 抽象调用来处理普通怪物生成.
+        /// 实际行为由 _currentSpawnStrategy 决定 (VampireLike / BallXPitLike 等).
+        /// </summary>
         void ProcessMonsterSpawn(float dt)
         {
             if (CurWave == null || CurWave.availableMonsters.Count == 0)
                 return;
 
-            // 持续刷怪模式
-            if (CurWave.enableContinuousSpawning)
-            {
-                ProcessContinuousSpawn(dt);
-            }
-            else
-            {
-                // 原有逻辑：有限刷怪模式
-                ProcessLimitedSpawn(dt);
-            }
-        }
+            // 确保策略已根据当前波次配置初始化
+            EnsureSpawnStrategy();
 
-        /// <summary>
-        /// 持续刷怪模式 - 怪物死亡后立即补充
-        /// </summary>
-        void ProcessContinuousSpawn(float dt)
-        {
-            // 获取配置参数（优先使用波次配置，否则使用全局配置）
-            float targetCoverage = CurWave.targetCoverageRatio;
-            float minInterval = CurWave.minSpawnInterval;
-            float maxInterval = CurWave.maxSpawnInterval;
-            float sensitivity = CurWave.killSpeedSensitivity;
-
-            if (CurLevel != null)
-            {
-                if (targetCoverage <= 0) targetCoverage = CurLevel.globalTargetCoverageRatio;
-                if (minInterval <= 0) minInterval = CurLevel.globalMinSpawnInterval;
-                if (maxInterval <= 0) maxInterval = CurLevel.globalMaxSpawnInterval;
-            }
-
-            // 计算基于覆盖率的理想怪物数量
-            float spawnArea = (_spawnAreaMax.x - _spawnAreaMin.x) * (_spawnAreaMax.y - _spawnAreaMin.y);
-            float monsterSize = 0.675f;
-            float totalMonsterSlots = spawnArea / (monsterSize * monsterSize);
-            int targetMonsterCount = Mathf.FloorToInt(totalMonsterSlots * targetCoverage);
-            targetMonsterCount = Mathf.Max(1, targetMonsterCount);
-
-            // 更新击杀速度追踪
-            _killSpeedTimer += dt;
-            if (_killSpeedTimer >= 1f)
-            {
-                _killsInLastInterval = _killsThisInterval;
-                _killsThisInterval = 0;
-                _killSpeedTimer = 0f;
-            }
-
-            // 动态计算刷怪间隔
-            float currentSpawnInterval = CalculateDynamicSpawnInterval(
-                ActiveMonsterCount,
-                targetMonsterCount,
-                _killsInLastInterval,
-                minInterval,
-                maxInterval,
-                sensitivity);
-
-            // 检查是否可以生成更多怪物
-            int maxMonsters = Mathf.Min(CurWave.maxActiveMonsters, CurLevel.globalMaxActiveMonsters);
-            maxMonsters = Mathf.Max(maxMonsters, targetMonsterCount); // 确保至少能达到目标数量
-
-            int minCount = Mathf.Max(CurWave.minActiveMonsters, CurLevel.globalMinActiveMonsters);
-
-            // 如果怪物数量低于目标，增加紧迫感
-            if (ActiveMonsterCount < targetMonsterCount)
-            {
-                currentSpawnInterval = Mathf.Min(currentSpawnInterval, minInterval * 2f);
-            }
-
-            // 如果怪物数量远低于目标，使用紧急间隔
-            if (ActiveMonsterCount < minCount)
-            {
-                currentSpawnInterval = minInterval;
-            }
-
-            // 检查是否需要生成
-            if (ActiveMonsterCount < maxMonsters)
-            {
-                _spawnTimer += dt;
-
-                if (_spawnTimer >= currentSpawnInterval)
-                {
-                    _spawnTimer = 0f;
-                    SpawnRandomMonster();
-                }
-            }
-        }
-
-        /// <summary>
-        /// 计算动态刷怪间隔
-        /// </summary>
-        float CalculateDynamicSpawnInterval(
-            int currentMonsters,
-            int targetMonsters,
-            int killsPerSecond,
-            float minInterval,
-            float maxInterval,
-            float sensitivity)
-        {
-            // 基础间隔：当前怪物数量与目标的差距越大，间隔越短
-            float fillRatio = (float)currentMonsters / targetMonsters;
-            float baseInterval = Mathf.Lerp(minInterval, maxInterval, fillRatio);
-
-            // 根据击杀速度调整：如果玩家杀得很快，说明怪物太少了
-            // killsPerSecond 表示每秒击杀数，我们需要根据这个调整间隔
-            if (killsPerSecond > 0)
-            {
-                // 每秒击杀超过1个，说明怪物不够用
-                float killFactor = Mathf.Min(killsPerSecond * sensitivity * 0.5f, 1f);
-                baseInterval = Mathf.Lerp(baseInterval, minInterval, killFactor);
-            }
-
-            return baseInterval;
+            // 委托给策略执行
+            _currentSpawnStrategy?.Update(dt, ActiveMonsterCount);
         }
 
         /// <summary>
         /// 通知怪物被击杀（用于击杀速度追踪）
+        /// 同时转发给当前激活的刷怪策略.
         /// </summary>
         public void NotifyMonsterKilled()
         {
             _killsThisInterval++;
-        }
-
-        /// <summary>
-        /// 有限刷怪模式（原逻辑）
-        /// </summary>
-        void ProcessLimitedSpawn(float dt)
-        {
-            // 问题2修复：击败所有怪物策略时，检查是否已生成达到上限
-            if (_waveMaxTotalSpawn > 0 && _waveCurrentTotalSpawn >= _waveMaxTotalSpawn)
-            {
-                return;
-            }
-
-            // 检查是否可以生成更多怪物
-            int maxMonsters = Mathf.Min(CurWave.maxActiveMonsters, CurLevel.globalMaxActiveMonsters);
-            if (ActiveMonsterCount >= maxMonsters)
-                return;
-
-            // 检查是否需要生成
-            if (ActiveMonsterCount < CurWave.minActiveMonsters)
-            {
-                // 生成怪物补足到最小数量
-                // 使用较小间隔批量生成，避免第一帧生成太多
-                _spawnTimer += dt;
-                float quickSpawnInterval = 0.1f; // 快速填充间隔
-
-                if (_spawnTimer >= quickSpawnInterval)
-                {
-                    SpawnRandomMonster();
-                    _spawnTimer = 0f;
-                }
-            }
-            else
-            {
-                // 达到最小数量后，按照正常间隔刷怪
-                float interval = GetDynamicSpawnInterval();
-                _spawnTimer += dt;
-
-                if (_spawnTimer >= interval)
-                {
-                    _spawnTimer = 0f;
-                    SpawnRandomMonster();
-                }
-            }
+            _currentSpawnStrategy?.NotifyMonsterKilled();
         }
 
         void SpawnBoss()
@@ -1256,84 +1128,13 @@ namespace MoreMountains
             HasBossSpawned = true;
         }
 
-        void SpawnRandomMonster()
-        {
-            // 决定是生成形状还是单个砖块
-            if (CurWave is { enableShapeSpawning: true } && shapeDict is { Count: > 0 })
-            {
-                // 按权重决定是否生成形状
-                float shapeRoll = (float)_spawnRandom.NextDouble() * (CurWave.shapeSpawnWeight + 100f);
-                if (shapeRoll < CurWave.shapeSpawnWeight)
-                {
-                    SpawnRandomShape();
-                    return;
-                }
-            }
-
-            var type = GetWeightedEnemyType();
-            if (SelectMonsterByType(type, out var monsterDef, out var pickedConfig))
-            {
-                SpawnMonster(monsterDef, originConfig: pickedConfig);
-            }
-        }
-
-        /// <summary>
-        /// 从 ShapesLibrary 中随机选取一个 ShapeEntry，在空置的网格位置上生成砖块组合。
-        /// </summary>
-        void SpawnRandomShape()
-        {
-            if (shapeDict.Count == 0)
-            {
-                Debug.LogWarning("[WaveManager] ShapeLibraries is empty, falling back to single brick spawn.");
-                return;
-            }
-
-            //随机选择这次形状的Cell个数
-            var cellCount = shapeCellCount[_spawnRandom.Next(shapeCellCount.Count)];
-
-            // 随机挑一个形状
-            var shapeEntries = shapeDict[cellCount];
-            var selectedShape = shapeEntries[_spawnRandom.Next(shapeEntries.Count)];
-
-            // 获取形状在世界中的生成位置（使用 edge-biased 逻辑寻找空位）
-            GetEdgeBiasedRandomEmptyCell(out var randomEmptyCell, out var randomEmptyCellPos);
-            var maxRetries = CurWave?.shapeSpawnMaxRetries ?? 20;
-            var found = brickManager.FindEmptyCellForShape(randomEmptyCell, selectedShape.bricks, out var emptyCell, maxRetries);
-            if (!found)
-            {
-                Debug.Log($"[WaveManager] Could not find empty spot for shape '{selectedShape.name}' after {maxRetries} retries.");
-                return;
-            }
-
-            // 生成砖块
-            using var a = new ListScope<BrickTemplate>(out var spawnedBricks);
-            var success = brickManager.acquireShape(emptyCell, selectedShape.bricks, CurWave, ref spawnedBricks);
-            if (!success || spawnedBricks.Count == 0)
-            {
-                Debug.LogWarning($"[WaveManager] acquireShape returned empty for shape '{selectedShape.name}'.");
-                return;
-            }
-
-            // Debug.Log($"[WaveManager] Spawned shape '{selectedShape.name}' with {spawnedBricks.Count} bricks at {emptyCell}");
-
-            // 如果配置了形状上生成怪物，则在每个砖块上生成一个怪物
-            foreach (var template in spawnedBricks)
-            {
-                var type = GetWeightedEnemyType();
-                if (SelectMonsterByType(type, out var monsterDef, out var pickedConfig))
-                {
-                    SpawnMonster(template.def, template.position, originConfig: pickedConfig);
-                }
-            }
-        }
-
         /// <summary>
         /// 问题4修复：获取偏向边界的随机位置
         /// 改造后: 优先用 Grid2D 系统 (GridView) 取得 cols/rows,
         /// 在"未占用的边缘 cell"中随机挑一个, 返回该 cell 中心的世界坐标.
         /// Grid2D 不可用时, 退回到玩家附近.
         /// </summary>
-        bool GetEdgeBiasedRandomEmptyCell(out Vector2Int result, out Vector2 cellPos)
+        public bool GetEdgeBiasedRandomEmptyCell(out Vector2Int result, out Vector2 cellPos)
         {
             var gm = ResolveGridManager();
             if (gm == null)
@@ -1644,6 +1445,14 @@ namespace MoreMountains
             GUILayout.Label($"Time Elapsed: {m.WaveTimeElapsed:F1}s");
             GUILayout.Label($"Kill Count: {m.WaveKillCount}");
             GUILayout.Label($"Spawn Count: {m.WaveSpawnCount}");
+
+            GUILayout.Space(10);
+            GUILayout.Label($"=== Spawn Strategy ===");
+            GUILayout.Label($"Strategy Type: {m.spawnStrategyType}");
+            if (m.CurrentSpawnStrategy != null)
+            {
+                GUILayout.Label($"Strategy Instance: {m.CurrentSpawnStrategy.GetType().Name}");
+            }
 
             GUILayout.Space(10);
             GUILayout.Label($"=== Continuous Spawning ===");

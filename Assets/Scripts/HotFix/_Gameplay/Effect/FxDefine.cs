@@ -15,4 +15,6 @@ public enum FxDefine
     STAR_FLASH,   // 传送闪烁
     STAR_FLASH_Blue,   // 传送闪烁（蓝）
     SMOKE_FLASH,   // 烟雾闪烁
+    STUN_FLASH,   // 命中闪烁
+    FOOTBALL_HIT,   // 命中闪烁
 }

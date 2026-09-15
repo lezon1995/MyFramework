@@ -592,7 +592,28 @@ namespace MoreMountains
             //log($"重叠One结束 end with {brick.getName()}");
         }
 
-        public void onBallHitBorderBot(Ball ball, BorderBot border, Vector2 normal, ref bool forceReturn)
+        public void onBallHitBorder(Ball ball, Border border, ref Vector2 normal)
+        {
+            switch (border)
+            {
+                case BorderTop top:
+                    onBallHitBorderTop(ball, top, ref normal);
+                    break;
+                case BorderBot bot:
+                    bool forceReturn = false;
+                    onBallHitBorderBot(ball, bot, ref normal, ref forceReturn);
+                    break;
+                case BorderLeft left:
+                    onBallHitBorderLeft(ball, left, ref normal);
+                    break;
+                case BorderRight right:
+                    onBallHitBorderRight(ball, right, ref normal);
+                    break;
+            }
+        }
+
+
+        public void onBallHitBorderBot(Ball ball, BorderBot border, ref Vector2 normal, ref bool forceReturn)
         {
             foreach (var relic in relics)
                 relic.onBallHitBorderBot(this, ball, border, normal, ref forceReturn);
@@ -642,7 +663,7 @@ namespace MoreMountains
 
         public bool equalWith(APlayer other)
         {
-            return this ==  other;
+            return this == other;
         }
     }
 }

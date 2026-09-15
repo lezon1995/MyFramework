@@ -138,7 +138,7 @@ namespace MoreMountains
         {
             if (ball == null || entity == null) return false;
 
-            float dist = Vector2.Distance(ball.curPos, entity.Position);
+            float dist = Vector2.Distance(ball.curPos, entity.CurPosition);
             return dist <= ball.Radius + (entity.Volume?.BoundingRadius ?? 0f) + extraRadius;
         }
 
@@ -149,7 +149,7 @@ namespace MoreMountains
         {
             if (ball == null || entity == null) return Vector2.zero;
 
-            Vector2 dir = entity.Position - (Vector2)ball.curPos;
+            Vector2 dir = entity.CurPosition - (Vector2)ball.curPos;
             return dir.normalized;
         }
     }

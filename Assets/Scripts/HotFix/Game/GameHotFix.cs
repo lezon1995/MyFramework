@@ -30,7 +30,6 @@ public class GameHotFix : GameHotFixBase<GameHotFix>
     }
 	protected override void initFrameSystem()
 	{
-		registeFrameSystem<LevelManager>(com => levelManager = com);
 		registeFrameSystem<ComboManager>(com => comboManager = com);
 		registeFrameSystem<FTextManager>(com => textManager = com);
 		registeFrameSystem<LocalizedStrings>(com => languagePack = com);

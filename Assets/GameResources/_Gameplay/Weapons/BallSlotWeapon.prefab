@@ -43,8 +43,7 @@ GameObject:
   - component: {fileID: 4943838447161096}
   - component: {fileID: -4478620210553915232}
   - component: {fileID: 114345180357598506}
-  - component: {fileID: -51446182785806306}
-  - component: {fileID: 453325771812949757}
+  - component: {fileID: -6118480945176755846}
   - component: {fileID: 114251315345146356}
   - component: {fileID: 7089298133965000086}
   m_Layer: 0
@@ -168,6 +167,7 @@ MonoBehaviour:
     Def: {fileID: 0}
     Level: 0
   BallWeaponSpriteRenderer: {fileID: 212409535536248356}
+  HideWeaponRenderer: 1
 --- !u!114 &114345180357598506
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -200,7 +200,7 @@ MonoBehaviour:
   CameraTargetOffset: 0.3
   CameraTargetMaxDistance: 2
   CameraTargetSpeed: 5
---- !u!114 &-51446182785806306
+--- !u!114 &-6118480945176755846
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -209,46 +209,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 1490220044263310}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f01fe698dfc144d8a0adfd8e32624f27, type: 3}
+  m_Script: {fileID: 11500000, guid: 1671339104b045ffa2f17a62afd9b05a, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: HotFix::MoreMountains.BallGunWeaponAutoAim2D
-  TargetsMask:
-    serializedVersion: 2
-    m_Bits: 128
-  ObstacleMask:
-    serializedVersion: 2
-    m_Bits: 16384
-  ScanRadius: 15
-  LineOfFireBoxcastSize: {x: 0.1, y: 0.1}
-  DurationBetweenScans: 1
-  DetectionOriginOffset: {x: 0, y: 0, z: 0}
-  OnlyAcquireTargetsIfOwnerIsIdle: 0
-  RotationMode: 0
-  ApplyAutoAimAsLastDirection: 1
-  MoveCameraTarget: 1
-  CameraTargetDistance: 0.5
-  CameraTargetMaxDistance: 10
-  CameraTargetSpeed: 5
-  MoveCameraToCharacterIfNoTarget: 0
-  AimMarkerPrefab: {fileID: 0}
-  DestroyAimMarkerOnWeaponDestroy: 1
-  FirstTargetFoundFeedback: {fileID: 0}
-  NewTargetFoundFeedback: {fileID: 0}
-  NoMoreTargetsFeedback: {fileID: 0}
-  DrawDebugRadius: 1
-  OverlapMaximum: 10
---- !u!114 &453325771812949757
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1490220044263310}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b8b1174ff4d3dcb4da6a6d4e0ae5bb77, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: HotFix::MoreMountains.WeaponAutoShoot
+  m_EditorClassIdentifier: HotFix::MoreMountains.BallSlotWeaponAutoShoot
   DelayBeforeShootAfterAcquiringTarget: 0.1
   OnlyAutoShootIfOwnerIsIdle: 0
 --- !u!114 &114251315345146356

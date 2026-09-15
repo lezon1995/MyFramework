@@ -350,7 +350,7 @@ namespace MoreMountains
                 case LayerManager.Brick:
                     if (hitObject.TryGetComponent(out Brick brick))
                     {
-                        if (!CollidingWithBrick(brick, normal)) 
+                        if (!CollidingWithBrick(brick, normal))
                             return;
                     }
 
@@ -359,6 +359,14 @@ namespace MoreMountains
                     if (hitObject.TryGetComponent(out Obstacle obstacle))
                     {
                         if (!CollidingWithObstacle(obstacle, normal))
+                            return;
+                    }
+
+                    break;
+                case LayerManager.Border:
+                    if (hitObject.TryGetComponent(out Border border))
+                    {
+                        if (!CollidingWithBorder(border, normal))
                             return;
                     }
 
@@ -377,6 +385,11 @@ namespace MoreMountains
         }
 
         public virtual bool CollidingWithObstacle(Obstacle obstacle, Vector2 normal)
+        {
+            return DamageOnTouch.Colliding(obstacle, normal);
+        }
+
+        public virtual bool CollidingWithBorder(Border obstacle, Vector2 normal)
         {
             return DamageOnTouch.Colliding(obstacle, normal);
         }

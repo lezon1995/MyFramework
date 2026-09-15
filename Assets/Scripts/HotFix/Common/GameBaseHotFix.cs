@@ -17,7 +17,6 @@ public class GBR
     public static GameDesign gameDesign { get; set; }
 
     // FrameSystem
-    public static LevelManager levelManager;
     public static FTextManager textManager;
     public static LocalizedStrings languagePack;
 
@@ -61,6 +60,7 @@ public class GBR
     public static ResourceManager resource => mResourceManager;
     public static PrefabPoolManager prefabPool => mPrefabPoolManager;
 
+    public static LevelManager levelManager;
     public static BallManager ballManager;
     public static BrickManager brickManager;
     public static WaveManager waveManager;

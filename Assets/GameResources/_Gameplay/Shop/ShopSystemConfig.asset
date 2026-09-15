@@ -55,6 +55,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 18fb84d5313555744b6e20c222e0396f, type: 2}
   - {fileID: 11400000, guid: d28359e1f713f4c4bb4b4f4544adcbcc, type: 2}
   - {fileID: 11400000, guid: 0e1ac3696e20f8d46b384eb0881fcf4f, type: 2}
+  - {fileID: 11400000, guid: 071b878687d62e444a53da0b353ae69a, type: 2}
   RelicOfferPool:
   - {fileID: 11400001, guid: 19ea0a9bcd3793e49bb0becb694539e0, type: 2}
   - {fileID: 11400001, guid: 7bc11fc5ab3eccc40b0cd8a79ca6d5cb, type: 2}

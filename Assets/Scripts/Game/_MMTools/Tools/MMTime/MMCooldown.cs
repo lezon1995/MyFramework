@@ -124,9 +124,6 @@ namespace MoreMountains.Tools
             if (Unlimited)
                 return;
 
-            if (dt == 0F)
-                dt = Time.deltaTime;
-
             switch (State)
             {
                 case States.Idle:

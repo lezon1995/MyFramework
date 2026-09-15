@@ -4,25 +4,30 @@
     {
         public override BallType BallType => BallType.Duplicate;
 
-        int hitCount;
+        public float duplicatedBallDuration = 3F;
+        public float duplicateChance = 0.20F;
+        float curBallDuration => duplicatedBallDuration * _player.durationPct;
+        float curDuplicateChance => duplicateChance + _player.triggerChance;
 
         public override void onAcquire()
         {
             base.onAcquire();
-            hitCount = 0;
         }
 
         public override void onEvent(DoHitEffect e)
         {
             base.onEvent(e);
 
-            var direction = -Direction;
-            hitCount++;
-            if (hitCount >= 2)
+            //复制出来的球不具备再次复制的能力
+            if (isTemp)
+                return;
+
+            if (randomHit(curDuplicateChance))
             {
-                hitCount = 0;
-                var ball = Player.BallManagement.Instance.acquireBall(BallType, curPos, direction);
+                var direction = -Direction;
+                var ball = Player.BallManagement.Instance.acquireBall(BallType, curPos, direction, level, duration: curBallDuration);
                 ball.setTeleportPosition(curPos);
+                ball.setTemp(true);
 
                 // we activate the object
                 ball.setActive(true);
@@ -39,8 +44,7 @@
 
                 ball.setShootDirection(direction);
                 ball.SetDirection(direction, transform.rotation);
-                ball.setDuration(getDurationRemain());
-                
+
                 fx.play(FxDefine.BALL_DUPLICATE, curPos);
             }
         }

@@ -65,7 +65,7 @@ namespace MoreMountains
 
         void RebuildCache()
         {
-            if (Setting != null)
+            if (Setting)
             {
                 CellSize = Setting.CellSize;
                 Rows = Setting.Rows;

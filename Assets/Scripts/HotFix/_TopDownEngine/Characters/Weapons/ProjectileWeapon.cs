@@ -176,20 +176,21 @@ namespace MoreMountains
                 }
 
                 var spread = Quaternion.Euler(_randomSpreadDirection);
+                var rotation = transform.rotation;
                 if (Owner == null)
                 {
-                    projectile.SetDirection(spread * transform.rotation * DefaultProjectileDirection, transform.rotation);
+                    projectile.SetDirection(spread * rotation * DefaultProjectileDirection, rotation);
                 }
                 else
                 {
                     Vector3 newDirection = spread * transform.right * (Flipped ? -1 : 1);
                     if (Owner.Orientation2D)
                     {
-                        projectile.SetDirection(newDirection, spread * transform.rotation, Owner.Orientation2D.IsFacingRight);
+                        projectile.SetDirection(newDirection, spread * rotation, Owner.Orientation2D.IsFacingRight);
                     }
                     else
                     {
-                        projectile.SetDirection(newDirection, spread * transform.rotation);
+                        projectile.SetDirection(newDirection, spread * rotation);
                     }
                 }
 
@@ -229,18 +230,20 @@ namespace MoreMountains
         }
 
         /// <summary>
-        /// Determines the spawn position based on the spawn offset and whether or not the weapon is flipped
+        /// Determines the spawn position based on the spawn offset and whether the weapon is flipped
         /// </summary>
         public virtual void DetermineSpawnPosition()
         {
+            var pos = transform.position;
+            var rot = transform.rotation;
             var position = Flipped switch
             {
                 true => FlipWeaponOnCharacterFlip switch
                 {
-                    true => transform.position - transform.rotation * _flippedProjectileSpawnOffset,
-                    false => transform.position - transform.rotation * ProjectileSpawnOffset
+                    true => pos - rot * _flippedProjectileSpawnOffset,
+                    false => pos - rot * ProjectileSpawnOffset
                 },
-                false => transform.position + transform.rotation * ProjectileSpawnOffset
+                false => pos + rot * ProjectileSpawnOffset
             };
 
             if (WeaponUseTransform)

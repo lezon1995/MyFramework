@@ -257,7 +257,7 @@ namespace MoreMountains
             _brickManager.UnlockCells(_cellsScratch);
 
             // 2. 更新占用表: 取消旧占用, 注册新占用
-            if (_brick != null)
+            if (_brick)
             {
                 _brickManager.UnregisterOccupancy(_brick);
                 _brickManager.RegisterOccupancy(_brick, _toAnchor.x, _toAnchor.y, _brick.size.x, _brick.size.y);
@@ -284,7 +284,7 @@ namespace MoreMountains
 
             // 7. 若到位后已贴住玩家, 进入 Attack 状态 (停止寻路与移动, 只监测脱离)
             var player = _brick.getTargetPlayer();
-            if (player != null && !player.IsDead() && IsAdjacentToPlayer(player))
+            if (player && !player.IsDead() && IsAdjacentToPlayer(player))
             {
                 State = MoveState.Attack;
                 _intervalTimer = 0f;
@@ -623,11 +623,12 @@ namespace MoreMountains
 
         bool IsPlayerInChaseRange(APlayer player)
         {
-            if (config.chaseRadius <= 0f)
+            var radius = config.chaseRadius;
+            if (radius <= 0f)
                 return true;
 
             float dist = Vector2.Distance(transform.position, player.getWorldPosition());
-            return dist <= config.chaseRadius;
+            return dist <= radius;
         }
 
         // ---------------------------------------------------------------

@@ -74,10 +74,13 @@ namespace MoreMountains
         protected float movementDelta;
         float lastRadius;
         bool enabled;
-        public bool hasBeenCollided;
+        public bool hasBeenCollided { get; set; }
         int delayCounter;
 
         protected Timer lifeDuration;
+        protected Timer dashHitTimer;
+        public bool isDashHitDisable { get; set; }
+        
         public bool isExpired { get; set; }
         public bool Recollectable = true;
 
@@ -113,6 +116,7 @@ namespace MoreMountains
             lastDirection = default;
             enabled = false;
             hasBeenCollided = false;
+            isTemp = false;
             removeAllPowers();
 
             horizontalBorderTeleportable = false;
@@ -283,6 +287,7 @@ namespace MoreMountains
                 FaceMovementDirection(Direction);
 
             CheckBallExpiration(dt);
+            CheckDashHitExpiration(dt);
         }
 
         protected virtual void OnFixedUpdateOverlappingBrick(Brick brick, float dt)
@@ -298,15 +303,27 @@ namespace MoreMountains
             }
         }
 
+        protected void CheckDashHitExpiration(float dt)
+        {
+            if (dashHitTimer.update(dt))
+            {
+                dashHitTimer = 0;
+                isDashHitDisable = false;
+            }
+        }
+
         protected void CheckBrickHitTimerExpiration(float dt)
         {
-            using var _ = new SafeDictionaryReader<Brick, MTimer>(brickHitTimers, out var reader);
-            foreach (var (brick, timer) in reader)
+            if (brickHitTimers.count() > 0)
             {
-                if (timer.update(dt))
+                using var _ = new SafeDictionaryReader<Brick, MTimer>(brickHitTimers, out var reader);
+                foreach (var (brick, timer) in reader)
                 {
-                    brickHitTimers.remove(brick);
-                    timer.release();
+                    if (timer.update(dt))
+                    {
+                        brickHitTimers.remove(brick);
+                        timer.release();
+                    }
                 }
             }
         }
@@ -628,7 +645,7 @@ namespace MoreMountains
             lifeDuration = duration;
             isExpired = false;
         }
-        
+
         public void setInfiniteDuration()
         {
             lifeDuration = int.MaxValue;

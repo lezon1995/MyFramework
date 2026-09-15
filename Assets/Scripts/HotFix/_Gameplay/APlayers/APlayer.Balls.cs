@@ -144,7 +144,7 @@ namespace MoreMountains
             }
             else if (handleWeapon.CurrentWeapon is BallSlotWeapon ballSlotWeapon)
             {
-                ballSlotWeapon.SetBallAttachmentSpriteRenderer(ballWeaponAttachmentRoot.GetAttachmentSpriteRenderer(slot.Index));
+                ballSlotWeapon.WeaponUseTransform = transform;
                 ballSlotWeapon.SetBallSlot(slot);
 
                 if (ballDef)

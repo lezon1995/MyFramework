@@ -62,6 +62,9 @@ namespace MoreMountains
                 if (!ball.Recollectable)
                     continue;
 
+                if (ball.isTemp)
+                    continue;
+
                 if (!ball.Player.equalWith(player))
                     continue;
 
@@ -82,16 +85,19 @@ namespace MoreMountains
             // 刚进入范围：上一帧不在、本帧在，且曾离开过 → 触发回收
             foreach (var ball in inRangeThisFrame)
             {
-                if (!lastInRangeBalls.Contains(ball) && canRecollectedBalls.remove(ball))
+                if (!lastInRangeBalls.Contains(ball) || ball.hasBeenCollided)
                 {
-                    RecollectBall(ball);
+                    if (canRecollectedBalls.remove(ball))
+                    {
+                        RecollectBall(ball);
+                    }
                 }
             }
 
             // 刚离开范围：上一帧在、本帧不在 → 加入候选集合
             foreach (var ball in lastInRangeBalls)
             {
-                if (!inRangeThisFrame.Contains(ball))
+                if (!inRangeThisFrame.Contains(ball) || ball.hasBeenCollided)
                     canRecollectedBalls.add(ball);
             }
 

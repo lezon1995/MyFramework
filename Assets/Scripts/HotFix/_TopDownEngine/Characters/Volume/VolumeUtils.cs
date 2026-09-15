@@ -423,24 +423,6 @@ namespace MoreMountains
         }
 
         /// <summary>
-        /// 批量注册带BrickVolumeBody的怪物
-        /// </summary>
-        public static void RegisterBrickVolumeBodies(this VolumeManager manager, List<Brick> bricks)
-        {
-            if (manager == null) 
-                return;
-
-            foreach (var brick in bricks)
-            {
-                var body = brick.GetComponent<BrickVolumeBody>();
-                if (body)
-                {
-                    manager.Register(body.Body);
-                }
-            }
-        }
-
-        /// <summary>
         /// 获取所有在圆形区域内的实体
         /// </summary>
         public static List<TopDownController2D> GetEntitiesInCircle(this VolumeManager manager, Vector2 center, float radius, ref List<TopDownController2D> result)
@@ -462,14 +444,14 @@ namespace MoreMountains
 
             float checkRadius = radius ?? source.Volume.BoundingRadius * 5f;
             using var _ = new ListScope<TopDownController2D>(out var entities);
-            manager.GetEntitiesInRadius(source.Position, checkRadius, ref entities);
+            manager.GetEntitiesInRadius(source.CurPosition, checkRadius, ref entities);
 
             foreach (var entity in entities)
             {
                 if (entity == source) 
                     continue;
 
-                Vector2 direction = (entity.Position - source.Position);
+                Vector2 direction = (entity.CurPosition - source.CurPosition);
                 float dist = direction.magnitude;
                 if (dist < 0.01f) 
                     continue;

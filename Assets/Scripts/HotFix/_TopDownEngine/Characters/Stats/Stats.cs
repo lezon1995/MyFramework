@@ -41,6 +41,7 @@ namespace MoreMountains
         // public const string AF_Mod = "AdaptiveForceMod";
         public const string Curse = "Curse";
         public const string HealRate = "HealRate";
+        public const string TriggerChance = "TriggerChance";
 
         public bool AutoInitialize = true;
 

@@ -26,7 +26,7 @@ namespace MoreMountains
         Transform root;
         Animator animator;
         SortingGroup sortingGroup;
-        SpriteRenderer spriteBlock, spriteUnit, spriteShadow;
+        protected SpriteRenderer spriteBlock, spriteUnit, spriteShadow;
         ParticleSystem fxDodge;
 
         SpriteRenderer spriteShield;
@@ -40,7 +40,7 @@ namespace MoreMountains
         protected AnimationState curAnimation;
         protected Action onBornAnimationComplete;
 
-        public void Awake()
+        public virtual void Awake()
         {
             if (_brick)
                 return;
@@ -128,10 +128,10 @@ namespace MoreMountains
         }
 
         public void setHealthBarActive(bool active) => healthBar.setActive(active);
-        public void refreshHealthByDamage(int v, int max) => healthBar.refreshHealthByDamage(v, max);
+        public virtual void refreshHealthByDamage(int v, int max) => healthBar.refreshHealthByDamage(v, max);
         public void refreshShieldByDamage(float curProgress) => healthBar.refreshShieldByDamage(curProgress);
-        public void refreshHealthByHealing(int v, int max) => healthBar.refreshByHealing(v, max);
-        public void refreshHealthByBorn(int v, int max) => healthBar.refreshByBorn(v, max);
+        public virtual void refreshHealthByHealing(int v, int max) => healthBar.refreshByHealing(v, max);
+        public virtual void refreshHealthByBorn(int v, int max) => healthBar.refreshByBorn(v, max);
 
         public void refreshBlockAmount(int v)
         {

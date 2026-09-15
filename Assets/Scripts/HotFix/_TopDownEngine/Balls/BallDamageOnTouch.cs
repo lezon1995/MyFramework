@@ -33,7 +33,7 @@ namespace MoreMountains
             if (0 == (TriggerFilter & TriggerMask.OnTriggerEnter2D))
                 return;
 
-            Vector2 normal = Vector2.up;
+            Vector2 normal;
             switch (c.gameObject.layer)
             {
                 case LayerManager.Brick:
@@ -62,6 +62,19 @@ namespace MoreMountains
                     }
 
                     break;
+                case LayerManager.Border:
+                    if (c.TryGetComponent(out Border border))
+                    {
+                        var dir = ball.getWorldPosition() - border.getWorldPosition();
+                        if (dir.x.abs() > dir.y.abs())
+                            normal = dir.x.sign() > 0 ? Vector2.right : Vector2.left;
+                        else
+                            normal = dir.y.sign() > 0 ? Vector2.up : Vector2.down;
+
+                        ball.CollidingWithBorder(border, normal);
+                    }
+
+                    break;
             }
         }
 
@@ -72,9 +85,6 @@ namespace MoreMountains
 
         public bool Colliding(Brick target, Vector3 normal)
         {
-            if (target == null)
-                return false;
-
             var o = target.gameObject;
             if (!EvaluateAvailability(o))
                 return false;
@@ -121,6 +131,7 @@ namespace MoreMountains
                     {
                         ball.counters.hit.count();
                         ball.counters.hitBrick.count();
+                        ball.hasBeenCollided = true;
                     }
 
                     ball.ResetIgnoredToHitBricks();
@@ -139,7 +150,6 @@ namespace MoreMountains
             }
             else
             {
-                triggerCollide = false;
                 switch (resistDamageType)
                 {
                     case ResistDamageType.None:
@@ -173,37 +183,23 @@ namespace MoreMountains
         }
 
 
-        public void Colliding(Border target, Dmg dmg)
+        public bool Colliding(Border target, Vector3 normal)
         {
-            if (target == null)
-                return;
-
             var o = target.gameObject;
-            if (!EvaluateAvailability(o))
-                return;
-
             // cache reset 
             _colliderController = null;
 
             // if what we're colliding with is damageable
             _colliderHealth = null;
-            OnCollideWithBorder(target, dmg);
-
-            if (_colliderHealth.CurrentHealth > 0)
-            {
-                if (BuffOnTouch && BuffOnTouch.DriveByDamageOnTouch)
-                {
-                    BuffOnTouch.Colliding(o);
-                }
-            }
-
+            var b = OnCollideWithBorder(target, normal);
             OnAnyCollision(o);
             HitAnythingEvent?.Invoke(o);
             HitAnythingFeedback.Play(transform.position);
+            return b;
         }
 
 
-        protected void OnCollideWithBorder(Border border, Dmg dmg)
+        protected bool OnCollideWithBorder(Border border, Vector2 normal)
         {
             /*if (border.Health.CanTakeDamageThisFrame(out var resistDamageType))
             {
@@ -237,11 +233,23 @@ namespace MoreMountains
                 }
             }*/
 
+            ball.lastHittable = border;
+            foreach (var p in ball.powers)
+                p.onHitBorder(border);
+
+            ball.counters.hit.count();
+            ball.hasBeenCollided = true;
+
+            ball.Player.onBallHitBorder(ball, border, ref normal);
+            ball.playHitBorderSfx();
+
             if (ball.getSelfDamage(border, out var selfDamage))
             {
                 var selfDmg = Dmg.True(selfDamage).SetSelf();
                 SelfDamage(selfDmg, ball.gameObject, border);
             }
+
+            return true;
         }
 
         protected void SelfDamage(Dmg dmg, GameObject instigator, Border border)
@@ -255,9 +263,6 @@ namespace MoreMountains
 
         public bool Colliding(Obstacle target, Vector3 normal)
         {
-            if (target == null)
-                return false;
-
             var o = target.gameObject;
             if (!EvaluateAvailability(o))
                 return false;

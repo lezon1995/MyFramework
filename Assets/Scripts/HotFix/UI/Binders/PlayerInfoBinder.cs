@@ -57,7 +57,7 @@ namespace MoreMountains
             // statList.Add(player.GetStat(Character.Stat.AD_PT));
             // statList.Add(player.GetStat(Character.Stat.AD_PT_Rate));
             statList.Add(player.GetStat(Character.Stat.AP));
-            statList.Add(player.GetStat(Character.Stat.AS));
+            // statList.Add(player.GetStat(Character.Stat.AS));
             statList.Add(player.GetStat(Character.Stat.CD));
             // statList.Add(player.GetStat(Character.Stat.AP_PT));
             // statList.Add(player.GetStat(Character.Stat.AP_PT_Rate));
@@ -66,11 +66,12 @@ namespace MoreMountains
             statList.Add(player.GetStat(Character.Stat.DmgRate));
             statList.Add(player.GetStat(Character.Stat.AR));
             statList.Add(player.GetStat(Character.Stat.MS));
-            statList.Add(player.GetStat(Character.Stat.LifeSteal));
-            statList.Add(player.GetStat(Character.Stat.Range));
+            // statList.Add(player.GetStat(Character.Stat.LifeSteal));
+            // statList.Add(player.GetStat(Character.Stat.Range));
             statList.Add(player.GetStat(Character.Stat.DodgeChance));
             statList.Add(player.GetStat(Character.Stat.BallisticSpeed));
             statList.Add(player.GetStat(Character.Stat.HitEffectChance));
+            statList.Add(player.GetStat(Character.Stat.TriggerChance));
             statList.Add(player.GetStat(Character.Stat.Knockback));
             statList.Add(player.GetStat(Character.Stat.Duration));
             statList.Add(player.GetStat(Character.Stat.Luck));

@@ -64,6 +64,7 @@ namespace MoreMountains
             }
             
             CheckBallExpiration(dt);
+            CheckDashHitExpiration(dt);
         }
 
         protected override bool CheckWillPassingThrough(float dt, LayerMask targetLayer, out Vector3 hitPos, out RaycastHit2D hitInfo)

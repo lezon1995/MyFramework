@@ -58,20 +58,29 @@ namespace MoreMountains
         public Color GizmosColor = new(0, 1, 0, 0.3f);
 
         // 运行时数据
-        [NonSerialized] public Vector2 Position;
-        [NonSerialized] public Vector2 ExternalForce;
-        [NonSerialized] public bool IsRegistered;
+        Vector2 curPosition;
+
+        public Vector2 CurPosition
+        {
+            get => curPosition;
+            set => curPosition = value;
+        }
+
+        [NonSerialized]
+        public Vector2 ExternalForce;
+
+        [NonSerialized]
+        public bool IsRegistered;
 
         // CharacterMovement 组件引用（用于获取 CurrentMovement）
         protected CharacterMovement _characterMovement;
 
 
+        public float MaxOverlapDistance => Volume.BoundingRadius * 2f * MaxOverlapRatio; // 计算实际可重叠的最大距离
+        public float EffectiveRadius => Volume.BoundingRadius * (1f - MaxOverlapRatio); // 计算有效包围半径（考虑最大重叠）
+        public float CollisionMass => Mass * PushForceWeight; // 碰撞质量（考虑推力权重）
 
-        public float MaxOverlapDistance => Volume.BoundingRadius * 2f * MaxOverlapRatio;// 计算实际可重叠的最大距离
-        public float EffectiveRadius => Volume.BoundingRadius * (1f - MaxOverlapRatio);// 计算有效包围半径（考虑最大重叠）
-        public float CollisionMass => Mass * PushForceWeight;// 碰撞质量（考虑推力权重）
-
-        public Vector2 VolumeCenter => Volume.GetWorldCenter(Position);
+        public Vector2 VolumeCenter => Volume.GetWorldCenter(CurPosition);
 
         /// <summary>
         /// 当前总速度 = 意图速度 + 击退速度
@@ -84,7 +93,7 @@ namespace MoreMountains
             get
             {
                 // if (_movingPlatform)
-                    // return _movingPlatform.CurrentSpeed;
+                // return _movingPlatform.CurrentSpeed;
 
                 return Vector3.zero;
             }
@@ -123,6 +132,7 @@ namespace MoreMountains
         public BoxCollider2D boxCollider => _boxCollider;
         public Collider2D Collider2D;
 
+        protected Rigidbody2D _rigidBody;
         protected BoxCollider2D _boxCollider;
         protected CircleCollider2D _circleCollider;
         protected Vector2 _originalColliderSize;
@@ -131,15 +141,17 @@ namespace MoreMountains
         protected override void Awake()
         {
             base.Awake();
+
+            TryGetComponent(out _rigidBody);
             if (TryGetComponent(out _boxCollider))
-                Collider2D =  _boxCollider;
+                Collider2D = _boxCollider;
             else if (TryGetComponent(out _circleCollider))
-                Collider2D =  _circleCollider;
+                Collider2D = _circleCollider;
 
             _originalColliderSize = ColliderSize;
             _originalColliderCenter = ColliderOffset;
-            
-            Position = transform.position;
+
+            CurPosition = transform.position;
             IntentVelocity = Vector2.zero;
             ExternalForce = Vector2.zero;
 
@@ -180,16 +192,16 @@ namespace MoreMountains
         protected override void Update()
         {
             base.Update();
-            Position = transform.position;
+            // Velocity = (transform.position - _lastPosition) / Time.deltaTime;
+            // Position = transform.position;
         }
 
         protected override void LateUpdate()
         {
             base.LateUpdate();
-                        
-            var dt = Time.deltaTime;
-            DecayKnockback(dt);
-            ApplyVelocity(dt);
+
+            // var dt = Time.deltaTime;
+            // ApplyPosition(dt);
         }
 
         /// <summary>
@@ -197,10 +209,10 @@ namespace MoreMountains
         /// </summary>
         protected virtual void DecayKnockback(float dt)
         {
-            if (KnockbackDecay <= 0) 
+            if (KnockbackDecay <= 0)
                 return;
 
-            if (KnockbackVelocity.sqrMagnitude < 0.0001f) 
+            if (KnockbackVelocity.sqrMagnitude < 0.0001f)
                 return;
 
             // 指数衰减
@@ -223,34 +235,62 @@ namespace MoreMountains
         /// - CurrentMovement 是每帧的位移向量（不是速度），直接应用不需要乘 dt
         /// - KnockbackVelocity 是速度向量，需要乘 dt
         /// </summary>
-        protected virtual void ApplyVelocity(float dt)
+        protected virtual Vector3 ComputeVelocity(float dt)
         {
-            Vector3 displacement;
-            
-            // 优先使用 CharacterMovement 的输出（经过加速/减速处理，已经是每帧位移量）
-            if (_characterMovement != null && _characterMovement.ShouldSetMovement)
+            Vector3 velocityMovement = Vector3.zero;
+            var intentVelocity = IntentVelocity;
+            if (intentVelocity != Vector3.zero)
             {
-                displacement = CurrentMovement;
-                // 同步 CurrentMovement 到 IntentVelocity，供 VolumeManager 等系统使用
-                IntentVelocity = CurrentMovement;
+                velocityMovement = intentVelocity;
             }
-            else
+
+            var knockbackVelocity = KnockbackVelocity;
+            if (knockbackVelocity != Vector3.zero)
             {
-                // 没有 CharacterMovement 或它不设置移动时，使用 IntentVelocity（速度）
-                displacement = IntentVelocity * dt;
+                // 叠加击退速度（速度向量，需要乘 dt）
+                velocityMovement += knockbackVelocity;
             }
-            
-            // 叠加击退速度（速度向量，需要乘 dt）
-            displacement += KnockbackVelocity * dt;
-            
-            // 应用位移
-            Position += (Vector2)displacement;
-            transform.position = Position;
+
+            return velocityMovement;
+        }
+
+        protected void ApplyPosition(float dt)
+        {
+            float t = (Time.time - Time.fixedTime) / Time.fixedDeltaTime;
+            var p = Vector3.Lerp(LastPosition, CurPosition, t);
+            transform.position = p;
         }
 
         protected override void FixedUpdate()
         {
             base.FixedUpdate();
+
+            var dt = Time.fixedDeltaTime;
+            DecayKnockback(dt);
+            var velocityMovement = ComputeVelocity(dt);
+
+            if (!MovementDisabled)
+            {
+                var movement = Vector2.zero;
+                if (CurrentMovement != Vector3.zero)
+                {
+                    movement += (Vector2)CurrentMovement * dt;
+                    CurPosition = movement;
+                }
+
+                if (velocityMovement != Vector3.zero)
+                {
+                    movement += (Vector2)velocityMovement * dt;
+                }
+
+                if (movement != Vector2.zero)
+                {
+                    CurPosition = _rigidBody.position + movement;
+                    _rigidBody.MovePosition(CurPosition);
+                }
+            }
+
+            LastPosition = CurPosition;
         }
 
         /// <summary>
@@ -259,7 +299,7 @@ namespace MoreMountains
         /// </summary>
         public override void AddImpact(Vector3 direction, float force)
         {
-            if (force <= 0) 
+            if (force <= 0)
                 return;
 
             float reducedForce = force * (1f - KnockbackResistance);
@@ -271,7 +311,7 @@ namespace MoreMountains
 
         public override void AddImpact(Vector3 force)
         {
-            if (force.sqrMagnitude <= 0) 
+            if (force.sqrMagnitude <= 0)
                 return;
 
             var reducedForce = force * (1f - KnockbackResistance);
@@ -302,12 +342,13 @@ namespace MoreMountains
 
         public override void MovePosition(Vector3 newPosition)
         {
-            Position = newPosition;
+            _rigidBody.MovePosition(newPosition);
         }
 
         public override void SetPosition(Vector3 newPosition)
         {
-            Position = newPosition;
+            _rigidBody.position = newPosition;
+            transform.position = newPosition;
         }
 
         /// <summary>
@@ -359,6 +400,7 @@ namespace MoreMountains
         /// <param name="state"></param>
         public override void SetKinematic(bool state)
         {
+            _rigidBody.bodyType = state ? RigidbodyType2D.Kinematic : RigidbodyType2D.Dynamic;
         }
 
         /// <summary>
@@ -388,8 +430,12 @@ namespace MoreMountains
             IntentVelocity = Vector2.zero;
             KnockbackVelocity = Vector2.zero;
             MovementDisabled = false;
+            if (_rigidBody)
+            {
+                _rigidBody.linearVelocity = Vector2.zero;
+            }
         }
-        
+
         protected virtual void OnDrawGizmosSelected()
         {
             if (!ShowGizmos)

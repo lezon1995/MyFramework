@@ -45,7 +45,7 @@ namespace MoreMountains
         protected override void Initialization()
         {
             base.Initialization();
-            _orientation2D = _weapon.Owner.GetComponent<Character>()?.FindAbility<CharacterOrientation2D>();
+            _weapon.Owner.FindAbility(out _orientation2D);
             _initialized = true;
             _results = new Collider2D[OverlapMaximum];
             _potentialTargets = new();

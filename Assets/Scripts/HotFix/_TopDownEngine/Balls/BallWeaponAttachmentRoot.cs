@@ -59,7 +59,11 @@ namespace MoreMountains
                 if (child.gameObject.activeSelf)
                     _children.Add(child);
 
-                _childrenRotate.Add(child.GetComponent<MMAutoRotate>());
+                if (child.TryGetComponent<MMAutoRotate>(out var autoRotate))
+                {
+                    _childrenRotate.Add(autoRotate);
+                }
+
                 _childrenSprites.Add(child.GetComponent<SpriteRenderer>());
             }
 
@@ -170,7 +174,10 @@ namespace MoreMountains
 
         public void SetChildRotate(int index, bool rotate)
         {
-            _childrenRotate[index].Rotating = rotate;
+            if (_childrenRotate.TryGet(index, out var autoRotate))
+            {
+                autoRotate.Rotating = rotate;
+            }
         }
 
         public SpriteRenderer GetAttachmentSpriteRenderer(int index)

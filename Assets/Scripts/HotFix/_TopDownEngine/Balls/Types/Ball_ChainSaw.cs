@@ -30,7 +30,7 @@ namespace MoreMountains
             sound.play(SoundDefine.CLAW_HIT);
         }
     
-        protected override void playHitBrickVfx(Brick brick)
+        protected override void playHitBrickVfx(Brick brick, Vector2 normal)
         {
             fx.play(FxDefine.CLAW_FLASH, brick.getWorldPosition());
         }

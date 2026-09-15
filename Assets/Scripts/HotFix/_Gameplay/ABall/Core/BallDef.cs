@@ -49,12 +49,12 @@ namespace MoreMountains
             var levelInitialValues = def.StatsTemplate.LevelInitialValues;
 
             build_HitDamage(sb, item, configs, levelInitialValues, p);
-            build_AttackSpeed(sb, item, configs, levelInitialValues, p);
-            build_Knockback(sb, item, configs, levelInitialValues, p);
-            // build_BallisticSpeed(sb, item, configs, levelInitialValues, p);
             build_Crit(sb, item, configs, levelInitialValues, p);
+            build_BallisticSpeed(sb, item, configs, levelInitialValues, p);
+            build_Knockback(sb, item, configs, levelInitialValues, p);
+            // build_AttackSpeed(sb, item, configs, levelInitialValues, p);
             // build_HitEffectChance(sb, item, configs, levelInitialValues, p);
-            build_Duration(sb, item, configs, levelInitialValues, p);
+            // build_Duration(sb, item, configs, levelInitialValues, p);
             build_DisplayDescription(sb, item, p);
         }
 

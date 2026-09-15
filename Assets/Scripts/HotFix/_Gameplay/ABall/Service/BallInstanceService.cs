@@ -36,7 +36,7 @@ namespace MoreMountains
             return acquireBall(ballType, pos, Vector2.up, level);
         }
 
-        public Ball acquireBall(BallType ballType, Vector2 pos, Vector2 direction, int level = 1)
+        public Ball acquireBall(BallType ballType, Vector2 pos, Vector2 direction, int level = 1, float duration = int.MaxValue)
         {
             if (!ballPools.TryGetValue(ballType, out var pool))
             {
@@ -53,11 +53,11 @@ namespace MoreMountains
             }
 
             var ball = pool.Get();
-            prepareToShoot(ball, pos, direction, level);
+            prepareToShoot(ball, pos, direction, level, duration);
             return ball;
         }
 
-        void prepareToShoot(Ball ball, Vector2 pos, Vector2 direction, int level = 1)
+        void prepareToShoot(Ball ball, Vector2 pos, Vector2 direction, int level, float duration)
         {
             ball.setActive(true);
             ball.setEnabled(true);
@@ -66,7 +66,7 @@ namespace MoreMountains
             ball.refreshInitialHealth();
             ball.setRendererActive(true);
             ball.SetColliderEnabled(true);
-            ball.refreshDuration();
+            ball.setDuration(duration);
             ball.setLevel(level);
             ball.onAcquire();
 

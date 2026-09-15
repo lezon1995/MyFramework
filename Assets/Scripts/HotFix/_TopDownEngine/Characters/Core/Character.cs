@@ -49,6 +49,7 @@ namespace MoreMountains
             Greed = 28, //贪婪
             Curse = 29, //诅咒
             HealRate = 30, //治疗率
+            TriggerChance = 31, //触发概率
         }
 
         /// The possible Movement States the character can be in. These usually correspond to their own class, 

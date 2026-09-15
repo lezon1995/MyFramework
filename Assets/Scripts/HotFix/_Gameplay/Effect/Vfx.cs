@@ -15,7 +15,7 @@ namespace MoreMountains
             path = _path;
         }
 
-        public int play(Vector3 pos, float lifeTime = 0F)
+        public GameEffect play(Vector3 pos, float lifeTime = 0F)
         {
             var effect = mEffectManager.createEffect(path, pos, lifeTime);
             if (lifeTime == 0F)
@@ -27,7 +27,7 @@ namespace MoreMountains
                 }
             }
 
-            return id;
+            return effect;
         }
     }
 }

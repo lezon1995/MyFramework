@@ -1,4 +1,6 @@
-﻿namespace MoreMountains
+﻿using UnityEngine;
+
+namespace MoreMountains
 {
     public class Ball_Wind : Ball
     {
@@ -9,7 +11,7 @@
             sound.play(SoundDefine.BALL_HIT_PASS_THROUGH);
         }
     
-        protected override void playHitBrickVfx(Brick brick)
+        protected override void playHitBrickVfx(Brick brick, Vector2 normal)
         {
             fx.play(FxDefine.BALL_HIT_BRICK, curPos);
         }

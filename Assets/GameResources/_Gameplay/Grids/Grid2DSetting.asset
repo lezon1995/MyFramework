@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Grid2DSetting
   m_EditorClassIdentifier: HotFix::MoreMountains.Grid2DSetting
   CellSize: 0.675
-  Rows: 16
-  Columns: 28
+  Rows: 15
+  Columns: 7
   OriginOffset: {x: 0, y: 0}
   Pivot: 4

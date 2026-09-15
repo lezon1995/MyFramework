@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEditor;
-using System.Collections.Generic;
 
 namespace MoreMountains
 {
@@ -284,7 +283,6 @@ namespace MoreMountains
                     EditorGUI.BeginChangeCheck();
                     monster.monsterDef = (BrickDef)EditorGUILayout.ObjectField("Monster Def", monster.monsterDef, typeof(BrickDef), false);
                     monster.spawnWeight = EditorGUILayout.FloatField(monster.spawnWeight, GUILayout.Width(60));
-                    monster.forceSpawnOnce = EditorGUILayout.Toggle(monster.forceSpawnOnce, GUILayout.Width(50));
                     monster.atLeastSpawnCount = EditorGUILayout.IntField(monster.atLeastSpawnCount, GUILayout.Width(70));
 
                     if (GUILayout.Button("X", GUILayout.Width(30)))

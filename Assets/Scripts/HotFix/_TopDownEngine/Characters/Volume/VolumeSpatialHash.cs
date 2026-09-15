@@ -61,7 +61,7 @@ namespace MoreMountains
         public void Insert(TopDownController2D entity)
         {
             if (entity == null) return;
-            var cellKey = GetCellKey(entity.Position);
+            var cellKey = GetCellKey(entity.CurPosition);
             if (!_cells.TryGetValue(cellKey, out var list))
             {
                 list = ListPool<TopDownController2D>.Get();
@@ -91,7 +91,7 @@ namespace MoreMountains
         public bool UpdatePosition(TopDownController2D entity)
         {
             if (entity == null) return false;
-            var newKey = GetCellKey(entity.Position);
+            var newKey = GetCellKey(entity.CurPosition);
             if (_entityCells.TryGetValue(entity, out var oldKey) && oldKey == newKey)
                 return false;
 
@@ -114,7 +114,7 @@ namespace MoreMountains
                 var entity = entities[i];
                 if (entity == null) continue;
 
-                var pos = entity.Position;
+                var pos = entity.CurPosition;
                 if (UpdatePosition(entity))
                     moved++;
             }
@@ -129,8 +129,8 @@ namespace MoreMountains
         {
             if (entity == null) return;
 
-            int cellX = WorldToCell(entity.Position.x);
-            int cellY = WorldToCell(entity.Position.y);
+            int cellX = WorldToCell(entity.CurPosition.x);
+            int cellY = WorldToCell(entity.CurPosition.y);
 
             for (int dx = -1; dx <= 1; dx++)
             {
@@ -174,7 +174,7 @@ namespace MoreMountains
                         for (int i = 0; i < listCount; i++)
                         {
                             var entity = list[i];
-                            float distSq = (entity.Position - center).sqrMagnitude;
+                            float distSq = (entity.CurPosition - center).sqrMagnitude;
                             if (distSq <= radiusSq)
                                 results.Add(entity);
                         }

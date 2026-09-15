@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: MountainMaterial
-  m_Shader: {fileID: 4800000, guid: f59bc733d27a43a46aea30a3f4f48288, type: 3}
+  m_Shader: {fileID: 4800000, guid: d1a85de39bc66004f9ec76adffae97ba, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -27,8 +27,19 @@ Material:
         m_Texture: {fileID: 2800000, guid: 937abf46de6c46344b320e6285035050, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _OverlayTexB:
+        m_Texture: {fileID: 2800000, guid: 98f2ff53db44c3344923f5831735a6e6, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _OverlayTexR:
+        m_Texture: {fileID: 2800000, guid: 937abf46de6c46344b320e6285035050, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
     - _Scale: 0.06
+    - _ScaleB: 0.02
+    - _ScaleR: 0.06
     m_Colors: []
   m_BuildTextureStacks: []
+  m_AllowLocking: 1

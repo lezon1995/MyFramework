@@ -666,3 +666,22 @@ MonoBehaviour:
       displayType: 0
       displayDecimalDigits: 0
       statIcon: {fileID: 21300000, guid: 3cec33b4ddb3f7148a8921ce8d36badb, type: 3}
+  - def: {fileID: 11400000, guid: 51717323679717c4cb895c43fe26c988, type: 2}
+    configs:
+    - rarity: 0
+      bonusFlat: 0.01
+      bonusPct: 0
+    - rarity: 1
+      bonusFlat: 0.02
+      bonusPct: 0
+    - rarity: 2
+      bonusFlat: 0.03
+      bonusPct: 0
+    - rarity: 3
+      bonusFlat: 0.04
+      bonusPct: 0
+    display:
+      statName: 
+      displayType: 1
+      displayDecimalDigits: 0
+      statIcon: {fileID: 0}

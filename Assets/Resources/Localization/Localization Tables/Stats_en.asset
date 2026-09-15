@@ -146,6 +146,10 @@ MonoBehaviour:
     m_Localized: Cooldown
     m_Metadata:
       m_Items: []
+  - m_Id: 10721510680973312
+    m_Localized: Chance
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

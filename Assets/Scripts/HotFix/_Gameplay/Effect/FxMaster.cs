@@ -24,6 +24,8 @@ public class FxMaster
         map.Add(FxDefine.STAR_FLASH, load("Fx_StarFlash.prefab"));
         map.Add(FxDefine.STAR_FLASH_Blue, load("Fx_StarFlash_Blue.prefab"));
         map.Add(FxDefine.SMOKE_FLASH, load("Fx_SmokeFlash.prefab"));
+        map.Add(FxDefine.STUN_FLASH, load("Fx_Stun.prefab"));
+        map.Add(FxDefine.FOOTBALL_HIT, load("Fx_HitGlow_01.prefab"));
 
         log("Loaded " + map.Count + " Visual Effects");
         log("VFX load time: " + (TimeUtility.getNowTimeStampMS() - startTime) + "ms");
@@ -31,10 +33,10 @@ public class FxMaster
 
     Vfx load(string filename) => new(VFX_DIR + filename);
 
-    public int play(FxDefine key) => play(key, Vector3.zero, 0F);
-    public int play(FxDefine key, Vector3 pos) => play(key, pos, 0F);
+    public GameEffect play(FxDefine key) => play(key, Vector3.zero, 0F);
+    public GameEffect play(FxDefine key, Vector3 pos) => play(key, pos, 0F);
 
-    public int play(FxDefine key, Vector3 pos, float lifeTime)
+    public GameEffect play(FxDefine key, Vector3 pos, float lifeTime)
     {
         if (map.TryGetValue(key, out var vfx))
         {
@@ -42,6 +44,6 @@ public class FxMaster
         }
 
         log("Missing VFX: " + key);
-        return 0;
+        return null;
     }
 }

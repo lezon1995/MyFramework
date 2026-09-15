@@ -6,12 +6,26 @@ namespace MoreMountains
     {
         protected void initializeManagers()
         {
+            loadLevelManager();
             loadCharacterManager();
             loadVolumeManager();
             loadGridManager();
             loadBallManager();
             loadBrickManager();
             loadRelicManager();
+        }
+
+        protected virtual void loadLevelManager()
+        {
+            var manager = Object.FindFirstObjectByType<LevelManager>();
+            if (manager)
+            {
+                levelManager = manager;
+                return;
+            }
+            string path = $"{GAMEPLAY_PATH}/Levels/LevelManager.prefab";
+            var res = resource.loadGameResource<LevelManager>(path);
+            levelManager = Object.Instantiate(res.get());
         }
         
         protected virtual void loadCharacterManager()

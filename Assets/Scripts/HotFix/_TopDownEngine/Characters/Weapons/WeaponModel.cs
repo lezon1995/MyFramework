@@ -80,7 +80,7 @@ namespace MoreMountains
         }
 
         /// <summary>
-        /// On Start we grab our CharacterHandleWeapon component
+        /// On Start, we grab our CharacterHandleWeapon component
         /// </summary>
         protected virtual void Start()
         {

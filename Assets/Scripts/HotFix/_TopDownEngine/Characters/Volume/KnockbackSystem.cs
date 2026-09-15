@@ -99,7 +99,7 @@ namespace MoreMountains
             volumeManager.GetEntitiesInRadius(center, radius, ref entities);
             foreach (var entity in entities)
             {
-                Vector2 toEntity = entity.Position - center;
+                Vector2 toEntity = entity.CurPosition - center;
                 float dist = toEntity.magnitude;
                 if (dist < 0.01f) 
                     continue;
@@ -131,7 +131,7 @@ namespace MoreMountains
             volumeManager.GetEntitiesInRadius(origin, radius, ref entities);
             foreach (var entity in entities)
             {
-                Vector2 toEntity = entity.Position - origin;
+                Vector2 toEntity = entity.CurPosition - origin;
                 float dist = toEntity.magnitude;
                 if (dist < 0.01f) 
                     continue;

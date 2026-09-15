@@ -101,8 +101,8 @@ namespace MoreMountains
         public void GetPotentialSolids(TopDownController2D entity, List<VolumeCollider> results)
         {
             if (entity == null) return;
-            int cellX = WorldToCell(entity.Position.x);
-            int cellY = WorldToCell(entity.Position.y);
+            int cellX = WorldToCell(entity.CurPosition.x);
+            int cellY = WorldToCell(entity.CurPosition.y);
 
             for (int dx = -1; dx <= 1; dx++)
             {
@@ -130,6 +130,13 @@ namespace MoreMountains
     }
 
     #endregion
+
+    public enum VolumeType
+    {
+        None,
+        Entity,
+        Collider,
+    }
 
     /// <summary>
     /// 2D体积碰撞系统管理器
@@ -491,8 +498,8 @@ namespace MoreMountains
             //    必须保证能在一帧内清掉所有重叠，否则会被持续推 → 抖动
             float pushDistance = result.Overlap + 0.001f;
             Vector2 pushDir = result.SurfaceNormal;
-            entity.Position += pushDir * pushDistance;
-            entity.transform.position = entity.Position;
+            entity.CurPosition += pushDir * pushDistance;
+            entity.transform.position = entity.CurPosition;
 
             // 2. 速度处理：实体朝墙方向的速度分量需要清除
             //    SurfaceNormal 是从墙指向实体的方向，所以沿这个方向的速度是"远离墙"的，
@@ -720,10 +727,10 @@ namespace MoreMountains
                     float repelForce = SoftRepulsionStrength * strength * dt;
                     if (SoftRepulsionAffectsPosition)
                     {
-                        a.Position -= repelDir * (repelForce * ratioA);
-                        b.Position += repelDir * (repelForce * ratioB);
-                        a.transform.position = a.Position;
-                        b.transform.position = b.Position;
+                        a.CurPosition -= repelDir * (repelForce * ratioA);
+                        b.CurPosition += repelDir * (repelForce * ratioB);
+                        a.transform.position = a.CurPosition;
+                        b.transform.position = b.CurPosition;
                     }
                     else
                     {
@@ -752,10 +759,10 @@ namespace MoreMountains
                     float separationForce = BaseSeparationForce * dt;
                     float sepA = requiredSeparation * ratioA * separationForce;
                     float sepB = requiredSeparation * ratioB * separationForce;
-                    a.Position -= dir * sepA;
-                    b.Position += dir * sepB;
-                    a.transform.position = a.Position;
-                    b.transform.position = b.Position;
+                    a.CurPosition -= dir * sepA;
+                    b.CurPosition += dir * sepB;
+                    a.transform.position = a.CurPosition;
+                    b.transform.position = b.CurPosition;
                 }
             }
 
@@ -877,11 +884,11 @@ namespace MoreMountains
                 List<TopDownController2D> neighbors;
                 if (EnableSpatialHash && _spatialHash != null)
                 {
-                    neighbors = GetEntitiesInRadiusInternal(current.Position, checkRadius);
+                    neighbors = GetEntitiesInRadiusInternal(current.CurPosition, checkRadius);
                 }
                 else
                 {
-                    neighbors = GetEntitiesInRadiusInternal(current.Position, checkRadius);
+                    neighbors = GetEntitiesInRadiusInternal(current.CurPosition, checkRadius);
                 }
 
                 foreach (var other in neighbors)
@@ -890,7 +897,7 @@ namespace MoreMountains
                         continue;
 
                     // 检查是否在击退方向的后方（相对于当前实体）
-                    Vector2 toOther = other.Position - current.Position;
+                    Vector2 toOther = other.CurPosition - current.CurPosition;
                     float dist = toOther.magnitude;
                     if (dist < 0.01f)
                         continue;
@@ -1063,7 +1070,7 @@ namespace MoreMountains
                 if (entity == null)
                     continue;
 
-                float distSq = (entity.Position - position).sqrMagnitude;
+                float distSq = (entity.CurPosition - position).sqrMagnitude;
                 if (distSq < nearestDistSq)
                 {
                     nearestDistSq = distSq;

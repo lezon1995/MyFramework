@@ -32,6 +32,7 @@
         }
 
         public float moveSpeed => GetStat(Stat.MS).Value;
+        public float triggerChance => GetStat(Stat.TriggerChance).Value;
         public float durationPct
         {
             get

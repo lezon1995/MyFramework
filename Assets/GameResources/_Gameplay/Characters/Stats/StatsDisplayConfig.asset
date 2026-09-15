@@ -57,3 +57,7 @@ MonoBehaviour:
     displayType: 0
     displayDecimalDigits: 0
     statIcon: {fileID: 0}
+  - statName: TriggerChance
+    displayType: 1
+    displayDecimalDigits: 0
+    statIcon: {fileID: 0}

@@ -18,7 +18,7 @@ namespace MoreMountains
             brick.currentHealth = health;
             brick.maxHealth = health;
 
-            brick.Controller2D.enabled = false;
+            // brick.Controller2D.enabled = false;
         }
     }
 }

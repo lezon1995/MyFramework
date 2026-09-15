@@ -9,7 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4539632890920534}
-  - component: {fileID: 3337409042213904390}
   - component: {fileID: 1209124355720660134}
   m_Layer: 0
   m_Name: WeaponAttachment_1
@@ -27,43 +26,12 @@ Transform:
   m_GameObject: {fileID: 1399145012827632}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.8, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 439633906859532771}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3337409042213904390
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1399145012827632}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7f009572b4d918346b24337ef83f88c1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: MoreMountains.Tools::MoreMountains.Tools.MMAutoRotate
-  Rotating: 1
-  RotationSpace: 1
-  UpdateMode: 0
-  RotationSpeed: {x: 0, y: 0, z: 360}
-  Orbiting: 1
-  AdditiveOrbitRotation: 0
-  OrbitCenterTransform: {fileID: 4417269262889042}
-  OrbitCenterOffset: {x: 0, y: 0, z: 0}
-  OrbitRotationAxis: {x: 0, y: 0, z: 1}
-  OrbitRotationSpeed: 180
-  OrbitRadius: 1
-  OrbitCorrectionSpeed: 100000
-  DrawGizmos: 1
-  OrbitPlaneColor: {r: 54, g: 169, b: 225, a: 0.02}
-  OrbitLineColor: {r: 225, g: 225, b: 225, a: 0.1}
-  _orbitCenter: {x: 0, y: 0, z: 0}
-  _worldRotationAxis: {x: 0, y: 0, z: 1}
-  _snappedPosition: {x: 0, y: 0.8, z: 0}
-  _radius: {x: 0, y: 1, z: 0}
 --- !u!212 &1209124355720660134
 SpriteRenderer:
   serializedVersion: 2
@@ -184,7 +152,7 @@ Rigidbody2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1790328835693532}
-  m_BodyType: 1
+  m_BodyType: 0
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
@@ -604,9 +572,12 @@ MonoBehaviour:
   BlockingWeaponStates: 
   DashMode: 1
   DashSpace: 0
+  ObstaclesLayerMask:
+    serializedVersion: 2
+    m_Bits: 49152
   DashDirection: {x: 0, y: 0, z: 1}
-  DashDistance: 6
-  DashDuration: 0.2
+  DashDistance: 2
+  DashDurationCounter: 10
   DashCurve:
     serializedVersion: 2
     m_Curve:
@@ -671,6 +642,7 @@ Transform:
   m_Children:
   - {fileID: 9121196643418015606}
   - {fileID: 7941326615245580022}
+  - {fileID: 3391393109004397984}
   m_Father: {fileID: 4319614708212260}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &415874678191187061
@@ -739,7 +711,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6483896962042285935}
-  - component: {fileID: 9047250727330266465}
   - component: {fileID: 9099877162903262896}
   m_Layer: 0
   m_Name: WeaponAttachment_2
@@ -757,43 +728,12 @@ Transform:
   m_GameObject: {fileID: 553522841460780319}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.69282037, y: 0.39999998, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 439633906859532771}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &9047250727330266465
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 553522841460780319}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7f009572b4d918346b24337ef83f88c1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: MoreMountains.Tools::MoreMountains.Tools.MMAutoRotate
-  Rotating: 1
-  RotationSpace: 1
-  UpdateMode: 0
-  RotationSpeed: {x: 0, y: 0, z: 360}
-  Orbiting: 1
-  AdditiveOrbitRotation: 0
-  OrbitCenterTransform: {fileID: 4417269262889042}
-  OrbitCenterOffset: {x: 0, y: 0, z: 0}
-  OrbitRotationAxis: {x: 0, y: 0, z: 1}
-  OrbitRotationSpeed: 180
-  OrbitRadius: 1
-  OrbitCorrectionSpeed: 100000
-  DrawGizmos: 1
-  OrbitPlaneColor: {r: 54, g: 169, b: 225, a: 0.02}
-  OrbitLineColor: {r: 225, g: 225, b: 225, a: 0.1}
-  _orbitCenter: {x: 0, y: 0, z: 0}
-  _worldRotationAxis: {x: 0, y: 0, z: 1}
-  _snappedPosition: {x: 0.69282037, y: 0.39999998, z: 0}
-  _radius: {x: 0.86602545, y: 0.49999997, z: 0}
 --- !u!212 &9099877162903262896
 SpriteRenderer:
   serializedVersion: 2
@@ -1500,6 +1440,58 @@ LineRenderer:
   m_UseWorldSpace: 1
   m_Loop: 0
   m_ApplyActiveColorSpace: 0
+--- !u!1 &2418952147811342248
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3391393109004397984}
+  - component: {fileID: 6635459648434496665}
+  m_Layer: 12
+  m_Name: SpriteAfterImageEmitter
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3391393109004397984
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2418952147811342248}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4417269262889042}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6635459648434496665
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2418952147811342248}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5213fc0365e37b942b7dd9bf661029fd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: HotFix::MoreMountains.SpriteAfterImageEmitter
+  sourceRenderer: {fileID: 4121308359810217328}
+  afterImageMaterial: {fileID: 2100000, guid: 8e480715507c3b148b07f84df5fad1ae, type: 2}
+  spawnFixedUpdateInterval: 3
+  poolSize: 16
+  alphaMultiplier: 0.8
+  recycleAlphaThreshold: 0.01
+  sortingOrderOffset: -1
+  overrideSortingLayer: 
 --- !u!1 &2624822287606704595
 GameObject:
   m_ObjectHideFlags: 0
@@ -2295,7 +2287,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a5fc6df3155e7544ba07c33c3dcf648, type: 3}
   m_Name: 
   m_EditorClassIdentifier: HotFix::CircleLayoutController
-  radius: 0.8
+  radius: 0
   baseIndex: 0
   drawGizmos: 1
 --- !u!1 &4323458415860692378
@@ -2307,7 +2299,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3875872786092560943}
-  - component: {fileID: 4399661369927794410}
   - component: {fileID: 3775859993041405638}
   m_Layer: 0
   m_Name: WeaponAttachment_6
@@ -2325,43 +2316,12 @@ Transform:
   m_GameObject: {fileID: 4323458415860692378}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.69282037, y: 0.39999998, z: 0}
+  m_LocalPosition: {x: -0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 439633906859532771}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4399661369927794410
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4323458415860692378}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7f009572b4d918346b24337ef83f88c1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: MoreMountains.Tools::MoreMountains.Tools.MMAutoRotate
-  Rotating: 1
-  RotationSpace: 1
-  UpdateMode: 0
-  RotationSpeed: {x: 0, y: 0, z: 360}
-  Orbiting: 1
-  AdditiveOrbitRotation: 0
-  OrbitCenterTransform: {fileID: 4417269262889042}
-  OrbitCenterOffset: {x: 0, y: 0, z: 0}
-  OrbitRotationAxis: {x: 0, y: 0, z: 1}
-  OrbitRotationSpeed: 180
-  OrbitRadius: 1
-  OrbitCorrectionSpeed: 100000
-  DrawGizmos: 1
-  OrbitPlaneColor: {r: 54, g: 169, b: 225, a: 0.02}
-  OrbitLineColor: {r: 225, g: 225, b: 225, a: 0.1}
-  _orbitCenter: {x: 0, y: 0, z: 0}
-  _worldRotationAxis: {x: 0, y: 0, z: 1}
-  _snappedPosition: {x: -0.69282037, y: 0.39999998, z: 0}
-  _radius: {x: -0.86602545, y: 0.49999997, z: 0}
 --- !u!212 &3775859993041405638
 SpriteRenderer:
   serializedVersion: 2
@@ -2521,7 +2481,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8323978208597780609}
-  - component: {fileID: 8333036247260409642}
   - component: {fileID: 2111078415640324077}
   m_Layer: 0
   m_Name: WeaponAttachment_4
@@ -2539,43 +2498,12 @@ Transform:
   m_GameObject: {fileID: 5194137436308865406}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.000000069938224, y: -0.8, z: 0}
+  m_LocalPosition: {x: -0, y: -0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 439633906859532771}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8333036247260409642
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5194137436308865406}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7f009572b4d918346b24337ef83f88c1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: MoreMountains.Tools::MoreMountains.Tools.MMAutoRotate
-  Rotating: 1
-  RotationSpace: 1
-  UpdateMode: 0
-  RotationSpeed: {x: 0, y: 0, z: 360}
-  Orbiting: 1
-  AdditiveOrbitRotation: 0
-  OrbitCenterTransform: {fileID: 4417269262889042}
-  OrbitCenterOffset: {x: 0, y: 0, z: 0}
-  OrbitRotationAxis: {x: 0, y: 0, z: 1}
-  OrbitRotationSpeed: 180
-  OrbitRadius: 1
-  OrbitCorrectionSpeed: 100000
-  DrawGizmos: 1
-  OrbitPlaneColor: {r: 54, g: 169, b: 225, a: 0.02}
-  OrbitLineColor: {r: 225, g: 225, b: 225, a: 0.1}
-  _orbitCenter: {x: 0, y: 0, z: 0}
-  _worldRotationAxis: {x: 0, y: 0, z: 1}
-  _snappedPosition: {x: -0.000000069938224, y: -0.8, z: 0}
-  _radius: {x: -0.00000008742278, y: -1, z: 0}
 --- !u!212 &2111078415640324077
 SpriteRenderer:
   serializedVersion: 2
@@ -3304,7 +3232,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8529090348912131889}
-  - component: {fileID: 1467137976227528195}
   - component: {fileID: 3423383258981828685}
   m_Layer: 0
   m_Name: WeaponAttachment_3
@@ -3322,43 +3249,12 @@ Transform:
   m_GameObject: {fileID: 6345180526046307722}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.6928203, y: -0.40000007, z: 0}
+  m_LocalPosition: {x: 0, y: -0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 439633906859532771}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1467137976227528195
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6345180526046307722}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7f009572b4d918346b24337ef83f88c1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: MoreMountains.Tools::MoreMountains.Tools.MMAutoRotate
-  Rotating: 1
-  RotationSpace: 1
-  UpdateMode: 0
-  RotationSpeed: {x: 0, y: 0, z: 360}
-  Orbiting: 1
-  AdditiveOrbitRotation: 0
-  OrbitCenterTransform: {fileID: 4417269262889042}
-  OrbitCenterOffset: {x: 0, y: 0, z: 0}
-  OrbitRotationAxis: {x: 0, y: 0, z: 1}
-  OrbitRotationSpeed: 180
-  OrbitRadius: 1
-  OrbitCorrectionSpeed: 100000
-  DrawGizmos: 1
-  OrbitPlaneColor: {r: 54, g: 169, b: 225, a: 0.02}
-  OrbitLineColor: {r: 225, g: 225, b: 225, a: 0.1}
-  _orbitCenter: {x: 0, y: 0, z: 0}
-  _worldRotationAxis: {x: 0, y: 0, z: 1}
-  _snappedPosition: {x: 0.6928203, y: -0.40000007, z: 0}
-  _radius: {x: 0.8660254, y: -0.50000006, z: 0}
 --- !u!212 &3423383258981828685
 SpriteRenderer:
   serializedVersion: 2
@@ -3605,7 +3501,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1773574867028704439}
-  - component: {fileID: 6891118274835398373}
   - component: {fileID: 7810574436194755120}
   m_Layer: 0
   m_Name: WeaponAttachment_5
@@ -3623,43 +3518,12 @@ Transform:
   m_GameObject: {fileID: 6632408507592209221}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.6928203, y: -0.40000007, z: 0}
+  m_LocalPosition: {x: -0, y: -0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 439633906859532771}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6891118274835398373
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6632408507592209221}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7f009572b4d918346b24337ef83f88c1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: MoreMountains.Tools::MoreMountains.Tools.MMAutoRotate
-  Rotating: 1
-  RotationSpace: 1
-  UpdateMode: 0
-  RotationSpeed: {x: 0, y: 0, z: 360}
-  Orbiting: 1
-  AdditiveOrbitRotation: 0
-  OrbitCenterTransform: {fileID: 4417269262889042}
-  OrbitCenterOffset: {x: 0, y: 0, z: 0}
-  OrbitRotationAxis: {x: 0, y: 0, z: 1}
-  OrbitRotationSpeed: 180
-  OrbitRadius: 1
-  OrbitCorrectionSpeed: 100000
-  DrawGizmos: 1
-  OrbitPlaneColor: {r: 54, g: 169, b: 225, a: 0.02}
-  OrbitLineColor: {r: 225, g: 225, b: 225, a: 0.1}
-  _orbitCenter: {x: 0, y: 0, z: 0}
-  _worldRotationAxis: {x: 0, y: 0, z: 1}
-  _snappedPosition: {x: -0.6928203, y: -0.40000007, z: 0}
-  _radius: {x: -0.8660254, y: -0.50000006, z: 0}
 --- !u!212 &7810574436194755120
 SpriteRenderer:
   serializedVersion: 2

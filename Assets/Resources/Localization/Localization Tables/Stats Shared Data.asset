@@ -143,6 +143,10 @@ MonoBehaviour:
     m_Key: CD
     m_Metadata:
       m_Items: []
+  - m_Id: 10721510680973312
+    m_Key: TriggerChance
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

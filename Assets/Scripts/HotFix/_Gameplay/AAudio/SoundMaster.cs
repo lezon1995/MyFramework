@@ -28,6 +28,7 @@ namespace MoreMountains
             map.Add(SoundDefine.IRON_HIT, load("ball_iron_hit.wav"));
             map.Add(SoundDefine.VAMPIRE_HIT, load("ball_vampire_hit.wav"));
             map.Add(SoundDefine.SHURIKEN_HIT, load("ball_shuriken_hit.wav"));
+            map.Add(SoundDefine.FOOTBALL_HIT, load("ball_football_hit.wav"));
 
             log("Sound Effect Volume: " + Settings.SOUND_VOLUME);
             log("Loaded " + map.Count + " Sound Effects");

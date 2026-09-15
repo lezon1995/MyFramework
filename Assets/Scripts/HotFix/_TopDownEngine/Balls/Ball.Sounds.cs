@@ -1,4 +1,6 @@
-﻿namespace MoreMountains
+﻿using UnityEngine;
+
+namespace MoreMountains
 {
     public partial class Ball
     {
@@ -7,7 +9,7 @@
             sound.play(SoundDefine.BALL_HIT_BRICK_COMMON);
         }
     
-        protected virtual void playHitBrickVfx(Brick brick)
+        protected virtual void playHitBrickVfx(Brick brick, Vector2 normal)
         {
             fx.play(FxDefine.BALL_HIT_BRICK, curPos);
         }

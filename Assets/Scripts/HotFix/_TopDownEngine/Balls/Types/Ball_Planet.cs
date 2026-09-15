@@ -151,6 +151,7 @@ namespace MoreMountains
             UpdatePosition();
 
             CheckBallExpiration(dt);
+            CheckDashHitExpiration(dt);
         }
 
         /// <summary>

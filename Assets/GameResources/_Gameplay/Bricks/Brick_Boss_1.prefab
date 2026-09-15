@@ -461,6 +461,7 @@ GameObject:
   - component: {fileID: -1421266774468195594}
   - component: {fileID: -5906346836173129937}
   - component: {fileID: -2375815759049658533}
+  - component: {fileID: -6044973080369629558}
   m_Layer: 7
   m_Name: Brick_Boss_1
   m_TagString: Block
@@ -848,6 +849,11 @@ MonoBehaviour:
   TargetAnimator: {fileID: 0}
   DisableAnimatorLogs: 1
   Character: {fileID: 0}
+  Shield:
+    CurrentShield: 0
+    BaseShieldRegen: 0
+    DamageReductionRatio: 0
+    ShieldPenetrationRatio: 0
 --- !u!114 &-5906346836173129937
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -874,6 +880,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: HotFix::MoreMountains.BrickStats
   AutoInitialize: 1
   StatsConfig: {fileID: 11400000, guid: f1e199ef2b3f367448ca3aa88b63c170, type: 2}
+--- !u!114 &-6044973080369629558
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3237124602915234066}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b73f05b31212f0d419ada6564e9c4ddf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: HotFix::MoreMountains.VolumeCollider
+  Enabled: 1
+  AutoRegister: 0
+  CollisionPriority: 1
+  GizmosColor: {r: 0.3, g: 0.8, b: 0.3, a: 0.5}
+  DrawTilemapCellsGizmo: 1
 --- !u!1 &3490370333130838258
 GameObject:
   m_ObjectHideFlags: 0
@@ -1101,6 +1124,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 195e67808f3b49a894cc1525ca488a26, type: 3}
   m_Name: 
   m_EditorClassIdentifier: HotFix::MarbleHero.DamageChunkHealthBarRenderer
+  health: {fileID: 0}
   _spriteRenderer: {fileID: 5658903894415123304}
   _foregroundColor: {r: 0.9, g: 0.15, b: 0.15, a: 1}
   _foregroundProgress: 1
@@ -1108,8 +1132,13 @@ MonoBehaviour:
   _flipHorizontal: 0
   _flipVertical: 0
   _bufferOuterFade: 0.005
-  _defaultChunkColor: {r: 0.78, g: 0.78, b: 0.78, a: 1}
+  defaultChunkColor: {r: 1, g: 0.8196079, b: 0, a: 1}
   _chunkFadeDuration: 1.2
+  _useShield: 1
+  shieldColor: {r: 0.7803922, g: 0.7803922, b: 0.7803922, a: 1}
+  _shieldValue: 0
+  _shieldLength: 0
+  _shieldGlow: 0.3
   _useBorder: 0
   _borderColor: {r: 0, g: 0, b: 0, a: 1}
   _borderWidth: 0.05

@@ -17,7 +17,7 @@ namespace MoreMountains
         public virtual bool onHitEnter(Brick brick, Vector2 normal, out bool triggerRegularHit)
         {
             playHitBrickSfx(brick);
-            playHitBrickVfx(brick);
+            playHitBrickVfx(brick, normal);
             triggerRegularHit = true;
             foreach (var p in powers)
                 p.onHitBrick(brick, normal);
@@ -110,6 +110,13 @@ namespace MoreMountains
 
         protected virtual void onLevelSetup(int lv)
         {
+        }
+
+        public virtual bool onPlayerDashHit(Vector3 position, Vector3 direction)
+        {
+            isDashHitDisable = true;
+            dashHitTimer = 0.2F;
+            return false;
         }
     }
 }

@@ -18,4 +18,5 @@ public static class SoundDefine
     public const string IRON_HIT = "IRON_HIT";
     public const string VAMPIRE_HIT = "VAMPIRE_HIT";
     public const string SHURIKEN_HIT = "SHURIKEN_HIT";
+    public const string FOOTBALL_HIT = "FOOTBALL_HIT";
 }

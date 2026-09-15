@@ -148,9 +148,10 @@ namespace MoreMountains
 
         public void load()
         {
-            brickLayout = new(new(18.9F, 10.8F), 28, 16);
-            int cols = brickLayout.getCols();
-            int rows = brickLayout.getRows();
+            int cols = 7;
+            int rows = 15;
+            float unitSize = 0.675F;
+            brickLayout = new(new(cols * unitSize, rows * unitSize), cols, rows);
             _cellStates = new bool[cols * rows];
         }
 
@@ -320,7 +321,7 @@ namespace MoreMountains
             activeBrickList.add(brick);
 
             // 根据当前世界坐标自动注册 cell 占用 (以 brick 左下角对齐到对应网格 cell)
-            RegisterOccupancyFromWorld(brick);
+            // RegisterOccupancyFromWorld(brick);
 
             return brick;
         }
@@ -392,20 +393,14 @@ namespace MoreMountains
         /// <summary>解除 brick 所占的所有 cell.</summary>
         public void UnregisterOccupancy(Brick brick)
         {
-            if (brick == null)
-                return;
-
             if (!_brickToCells.TryGetValue(brick, out var list))
                 return;
 
             for (int i = 0; i < list.Count; i++)
             {
                 var cell = list[i];
-                //if (_cellToBrick.TryGetValue(cell, out var owner) && owner == brick)
-                //{
                 _cellToBrick.Remove(cell);
                 _cellStates[cell.ToIndex()] = false;
-                //}
             }
 
             list.Clear();
@@ -441,6 +436,17 @@ namespace MoreMountains
         public bool IsCellEmpty(Vector2Int cell)
         {
             return !_cellStates[cell.ToIndex()];
+        }
+
+        static List<Collider2D> collider2Ds = new();
+
+        public bool IsCellEmpty(Vector2 cellPos)
+        {
+            var filter = new ContactFilter2D();
+            filter.useTriggers = true;
+            filter.SetLayerMask(BRICK_LAYER_MASK);
+            var count = Physics2D.OverlapBox(cellPos, new(0.675F, 0.675F), 0, filter, collider2Ds);
+            return count == 0;
         }
 
         /// <summary>查询 cell 上的 brick.</summary>
@@ -542,9 +548,10 @@ namespace MoreMountains
         public void CollectEmptyCells(ref List<Vector2Int> emptyList)
         {
             emptyList.Clear();
-            for (var i = 0; i < _cellStates.Length; i++)
+            var cellStates = _cellStates;
+            for (var i = 0; i < cellStates.Length; i++)
             {
-                if (_cellStates[i])
+                if (cellStates[i])
                     continue;
                 emptyList.Add(i.ToCoord());
             }
