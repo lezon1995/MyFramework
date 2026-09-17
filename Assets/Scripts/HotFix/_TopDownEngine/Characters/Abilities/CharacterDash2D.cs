@@ -201,13 +201,13 @@ namespace MoreMountains
                         case DashSpaces.World:
                             _newPosition = Vector3.Lerp(_dashOrigin, _dashDestination, DashCurve.Evaluate(_dashTimer / DashDuration));
                             _dashTimer += dt;
-                            _controller.MovePosition(_newPosition);
+                            _controller.MovePositionTo(_newPosition);
                             break;
                         case DashSpaces.Local:
                             _oldPosition = _dashTimer == 0 ? _dashOrigin : _newPosition;
                             _newPosition = Vector3.Lerp(_dashOrigin, _dashDestination, DashCurve.Evaluate(_dashTimer / DashDuration));
                             _dashTimer += dt;
-                            _controller.MovePosition(transform.position + _newPosition - _oldPosition);
+                            _controller.MovePositionTo(transform.position + _newPosition - _oldPosition);
                             break;
                     }
                 }

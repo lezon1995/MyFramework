@@ -243,12 +243,12 @@ namespace MoreMountains
                     {
                         case DashSpaces.World:
                             _newPosition = Vector3.Lerp(_dashOrigin, _dashDestination, f);
-                            _controller2D.MovePosition(_newPosition);
+                            _controller2D.MovePositionTo(_newPosition);
                             break;
                         case DashSpaces.Local:
                             _oldPosition = _dashCounter == 0 ? _dashOrigin : _newPosition;
                             _newPosition = Vector3.Lerp(_dashOrigin, _dashDestination, f);
-                            _controller2D.MovePosition(transform.position + _newPosition - _oldPosition);
+                            _controller2D.MovePositionTo(transform.position + _newPosition - _oldPosition);
                             break;
                     }
 

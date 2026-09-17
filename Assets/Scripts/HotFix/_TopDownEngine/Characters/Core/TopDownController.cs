@@ -145,7 +145,8 @@ namespace MoreMountains
         /// <summary>
         /// Moves the controller to the specified position (in world space)
         /// </summary>
-        public abstract void MovePosition(Vector3 newPosition);
+        public abstract void MovePositionTo(Vector3 newPosition);
+        public abstract void MovePositionBy(Vector3 deltaPosition);
 
         /// <summary>
         /// Set the controller to the specified position (in world space)

@@ -341,15 +341,22 @@ namespace MoreMountains
             CurrentMovement = movement;
         }
 
-        public override void MovePosition(Vector3 newPosition)
+        public override void MovePositionTo(Vector3 newPosition)
         {
             // _rigidBody.MovePosition(newPosition);
             CurPosition = newPosition;
         }
 
+        public override void MovePositionBy(Vector3 deltaPosition)
+        {
+            CurPosition += deltaPosition;
+        }
+
         public override void SetPosition(Vector3 newPosition)
         {
             // _rigidBody.position = newPosition;
+            LastPosition = newPosition;
+            CurPosition = newPosition;
             transform.position = newPosition;
         }
 

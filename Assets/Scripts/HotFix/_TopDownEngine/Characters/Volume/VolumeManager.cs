@@ -476,8 +476,7 @@ namespace MoreMountains
             //    必须保证能在一帧内清掉所有重叠，否则会被持续推 → 抖动
             var pushDistance = result.Overlap + 0.001f;
             var pushDir = result.SurfaceNormal;
-            entity.CurPosition += pushDir * pushDistance;
-            entity.transform.position = entity.CurPosition;
+            entity.MovePositionBy(pushDir * pushDistance);
 
             // 2. 速度处理：实体朝墙方向的速度分量需要清除
             //    SurfaceNormal 是从墙指向实体的方向，所以沿这个方向的速度是"远离墙"的，
@@ -639,7 +638,7 @@ namespace MoreMountains
 
                     _collisionCheckCount++;
                 }
-                
+
                 if (!isThisEntityAffectedByOthers)
                 {
                     entity.IntentVelocity = Vector3.zero;
@@ -650,25 +649,31 @@ namespace MoreMountains
         /// <summary>
         /// 处理一对实体的碰撞。
         /// 旁路式：不 new VolumeCollisionResult，用临时变量承载结果。
+        /// 精确相交判定改用 <see cref="VolumeShapeIntersection"/>，避免原先把
+        /// Circle/Rectangle 都退化成 BoundingRadius 圆判定导致的"假重叠"。
         /// </summary>
         bool ProcessPairCollision(TopDownController2D a, TopDownController2D b, float dt)
         {
-            bool hasCollision = false;
-            // 计算碰撞结果（直接用 struct，避免 new）
-            Vector3 centerA = a.VolumeCenter;
-            Vector3 centerB = b.VolumeCenter;
-            float centerDist = Vector2.Distance(centerA, centerB);
-            float combinedRadius = a.Volume.BoundingRadius + b.Volume.BoundingRadius;
-            float overlap = combinedRadius - centerDist;
+            var hasCollision = false;
+            var centerA = a.VolumeCenter;
+            var centerB = b.VolumeCenter;
 
-            if (overlap <= 0f && !EnableSoftRepulsion)
+            // 精确相交判定：支持 Circle/Circle、Circle/Rectangle、Rectangle/Rectangle 三种组合，
+            // 附带真实穿透深度（沿各自最小分离轴）。
+            var intersecting = VolumeShapeIntersection.TryGetOverlap(a.Volume, centerA, b.Volume, centerB, out float overlap, scaling: 1.1F);
+
+            // 软排斥需要在"未真正相交但距离接近"时也能触发。
+            // 软排斥半径使用"沿中心连线的精确当量半径之和"：把 A/B 各自沿中心连线方向投影，
+            // 得到刚好让两形状相切所需的最小中心距。这对长矩形尤其重要——
+            // 旧版用 BoundingRadius 会让对角线长度决定软排斥半径，造成远处误触发 / 近处漏判。
+            var centerDist = Vector2.Distance(centerA, centerB);
+            var repulsionRadius = ComputeSoftRepulsionRadius(a.Volume, b.Volume, centerA, centerB);
+            var softRepulsionRadius = repulsionRadius * SoftRepulsionDistanceRatio;
+
+            if (!intersecting && !EnableSoftRepulsion)
                 return false;
 
-            // 计算方向（仅在需要时）
-            Vector3 dir = overlap > 0f ? (centerB - centerA).normalized : Vector3.zero;
-            float softRepulsionRadius = combinedRadius * SoftRepulsionDistanceRatio;
-
-            // 软排斥（如果启用）
+            // 软排斥（如果启用）—— 与原版保持一致，仅作用在"近距离但不一定相交"的情况
             if (EnableSoftRepulsion && centerDist < softRepulsionRadius && centerDist > 0.0001f)
             {
                 float strength = 1f - (centerDist / softRepulsionRadius);
@@ -678,14 +683,17 @@ namespace MoreMountains
                 {
                     float ratioA = b.CollisionMass / totalMass;
                     float ratioB = a.CollisionMass / totalMass;
-                    Vector3 repelDir = (centerB - centerA) / centerDist;
+                    Vector3 repelDir;
+                    if (centerDist.isZero())
+                        repelDir = Vector3.right;
+                    else
+                        repelDir = (centerB - centerA) / centerDist;
+
                     float repelForce = SoftRepulsionStrength * strength * dt;
                     if (SoftRepulsionAffectsPosition)
                     {
-                        a.CurPosition -= repelDir * (repelForce * ratioA);
-                        b.CurPosition += repelDir * (repelForce * ratioB);
-                        a.transform.position = a.CurPosition;
-                        b.transform.position = b.CurPosition;
+                        a.MovePositionBy(-repelDir * (repelForce * ratioA));
+                        b.MovePositionBy(repelDir * (repelForce * ratioB));
                     }
                     else
                     {
@@ -697,11 +705,20 @@ namespace MoreMountains
                 }
             }
 
-            if (overlap <= 0f)
+            if (!intersecting)
                 return hasCollision;
 
-            // 计算最大允许重叠与所需分离量
-            float otherEffectiveRadius = b.Volume.BoundingRadius * (1f - b.MaxOverlapRatio);
+            // 计算分离方向：圆-圆沿中心连线；矩形参与时走 VolumeShapeIntersection
+            // 提供的最小分离轴，能正确处理矩形边的"轴对齐分离"。
+            Vector3 dir = ComputeSeparationDirection(a, b, centerA, centerB, out float axisOverlap);
+            // axisOverlap 即沿最小分离轴的真实穿透深度（已叠加 scaling=1 的原始尺寸），
+            // 等价于旧版用包围圆算出来的 overlap，但在矩形场景下更精确。
+            overlap = axisOverlap;
+
+            // 计算最大允许重叠与所需分离量。
+            // 注意：maxAllowedOverlap 来自实体自身的 MaxOverlapDistance 字段（与形状无关），
+            // 不再使用 BoundingRadius 派生当量半径——后者在长矩形下会偏大，
+            // 导致 requiredSeparation 偏小甚至为 0，挤压感丢失。
             float maxAllowedOverlap = a.MaxOverlapDistance + b.MaxOverlapDistance;
             float requiredSeparation = Mathf.Max(0f, overlap - maxAllowedOverlap);
 
@@ -716,10 +733,8 @@ namespace MoreMountains
                     float separationForce = BaseSeparationForce * dt;
                     float sepA = requiredSeparation * ratioA * separationForce;
                     float sepB = requiredSeparation * ratioB * separationForce;
-                    a.CurPosition -= dir * sepA;
-                    b.CurPosition += dir * sepB;
-                    a.transform.position = a.CurPosition;
-                    b.transform.position = b.CurPosition;
+                    a.MovePositionBy(-dir * sepA);
+                    b.MovePositionBy(dir * sepB);
                     hasCollision = true;
                 }
             }
@@ -767,8 +782,101 @@ namespace MoreMountains
                 };
                 OnCollisionDetected?.Invoke(evtB);
             }
-            
+
             return hasCollision;
+        }
+
+        /// <summary>
+        /// 计算两个形状在中心连线方向上的"精确当量半径和"——
+        /// 即：让两形状刚好沿该方向相切所需的最小中心距。
+        /// 这相当于 SAT 的第一步投影：把 A、B 各自沿中心连线方向投影，
+        /// 投影半径之和就是沿该方向"贴边但不重叠"的临界距离。
+        /// 相比 BoundingRadius 之和，对长矩形更准确（不会被对角线长度拉大）。
+        /// </summary>
+        static float ComputeSoftRepulsionRadius(VolumeShape a, VolumeShape b, Vector2 centerA, Vector2 centerB)
+        {
+            Vector2 delta = centerB - centerA;
+            Vector2 axis;
+            if (delta.sqrMagnitude > 1e-6f)
+                axis = delta.normalized;
+            else
+                axis = Vector2.right;
+
+            float radiusA = a.GetProjectionRadius(axis);
+            float radiusB = b.GetProjectionRadius(axis);
+            return Mathf.Max(0f, radiusA + radiusB);
+        }
+
+        /// <summary>
+        /// 计算从 A 指向 B 的分离方向与沿该方向的穿透深度。
+        /// - Circle + Circle：直接用中心连线方向，深度 = 半径和 - 中心距。
+        /// - 其它组合：基于分离轴定理（SAT）枚举候选轴，
+        ///   取穿透深度最小的那条轴作为分离方向，深度即为该轴上的真实重叠量。
+        /// 所有计算都在原始尺寸（scaling=1）下进行，与 <see cref="VolumeShapeIntersection"/> 保持一致。
+        /// </summary>
+        static Vector3 ComputeSeparationDirection(
+            TopDownController2D a, TopDownController2D b,
+            Vector2 centerA, Vector2 centerB,
+            out float overlap)
+        {
+            Vector2 centerDelta = centerB - centerA;
+            float deltaSq = centerDelta.sqrMagnitude;
+            Vector2 fallbackAxis = deltaSq > 1e-6f ? centerDelta / Mathf.Sqrt(deltaSq) : Vector2.right;
+
+            // 候选分离轴：X、Y、以及"两个中心连线"作为兜底
+            Span<Vector2> axes = stackalloc Vector2[3]
+            {
+                Vector2.right,
+                Vector2.up,
+                fallbackAxis,
+            };
+
+            // 圆与矩形时，把"圆心到矩形最近点"也作为候选分离轴，
+            // 这是 SAT 处理圆-矩的标准做法。
+            if (a.Volume.Shape != b.Volume.Shape)
+            {
+                bool aIsCircle = a.Volume.Shape == VolumeShapeType.Circle;
+                Vector2 circleCenter = aIsCircle ? centerA : centerB;
+                Vector2 rectCenter = aIsCircle ? centerB : centerA;
+                Vector2 rectHalf = (aIsCircle ? b.Volume.Size : a.Volume.Size) * 0.5f;
+
+                Vector2 closest = rectCenter + new Vector2(
+                    Mathf.Clamp(circleCenter.x - rectCenter.x, -rectHalf.x, rectHalf.x),
+                    Mathf.Clamp(circleCenter.y - rectCenter.y, -rectHalf.y, rectHalf.y));
+                Vector2 axis = circleCenter - closest;
+                if (axis.sqrMagnitude > 1e-6f)
+                    axes[2] = axis.normalized;
+            }
+
+            float minOverlap = float.MaxValue;
+            Vector2 minAxis = fallbackAxis;
+            for (int i = 0; i < 3; i++)
+            {
+                Vector2 axis = axes[i];
+                if (axis.sqrMagnitude < 1e-6f)
+                    continue;
+                axis.Normalize();
+
+                float projA = a.Volume.GetProjectionRadius(axis);
+                float projB = b.Volume.GetProjectionRadius(axis);
+                float axisOverlap = projA + projB - Mathf.Abs(Vector2.Dot(centerDelta, axis));
+                if (axisOverlap <= 0f)
+                {
+                    // 理论上不会到这里（已在外层 TryGetOverlap 判定相交），但保留保护
+                    overlap = 0f;
+                    return fallbackAxis;
+                }
+
+                if (axisOverlap < minOverlap)
+                {
+                    minOverlap = axisOverlap;
+                    minAxis = axis;
+                }
+            }
+
+            overlap = minOverlap;
+            // 分离方向：从 A 指向 B；点积 < 0 时取反向，保证方向与位移一致
+            return Vector2.Dot(centerDelta, minAxis) < 0f ? -minAxis : minAxis;
         }
 
         #endregion
