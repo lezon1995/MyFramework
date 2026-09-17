@@ -19,6 +19,9 @@ namespace MoreMountains
 
         protected SpriteRenderer BallWeaponAttachmentSpriteRenderer;
 
+        public bool HideWeaponRenderer = true;
+        public int ShootFixedUpdateInterval = 5;
+
         public override bool requireTargetToShoot
         {
             get
@@ -39,6 +42,10 @@ namespace MoreMountains
                 if (BallWeaponAttachmentSpriteRenderer)
                 {
                     BallWeaponAttachmentSpriteRenderer.sprite = BallDef.Icon;
+                    if (HideWeaponRenderer)
+                    {
+                        BallWeaponAttachmentSpriteRenderer.enabled = false;
+                    }
                 }
             }
             else
@@ -46,6 +53,10 @@ namespace MoreMountains
                 if (BallWeaponSpriteRenderer)
                 {
                     BallWeaponSpriteRenderer.sprite = BallDef.Icon;
+                    if (HideWeaponRenderer)
+                    {
+                        BallWeaponSpriteRenderer.enabled = false;
+                    }
                 }
             }
 
@@ -88,7 +99,6 @@ namespace MoreMountains
                     BallWeaponAttachmentSpriteRenderer.enabled = true;
 
                     BallWeaponSpriteRenderer.sprite = null;
-                    BallWeaponSpriteRenderer.gameObject.SetActive(true);
                 }
                 else
                 {
@@ -96,7 +106,12 @@ namespace MoreMountains
                     BallWeaponAttachmentSpriteRenderer.enabled = false;
 
                     BallWeaponSpriteRenderer.sprite = def.Icon;
-                    BallWeaponSpriteRenderer.gameObject.SetActive(true);
+                }
+
+                BallWeaponSpriteRenderer.gameObject.SetActive(true);
+                if (HideWeaponRenderer)
+                {
+                    BallWeaponSpriteRenderer.enabled = false;
                 }
             }
             else
@@ -120,17 +135,22 @@ namespace MoreMountains
             if (level > 1)
             {
                 BallLevel = level;
-
-                var rarity = Mathf.Clamp(level - 1, 0, 3);
-                var color = gameDesign.getRarityColor((ItemRarity)rarity);
-                material.SetColor(PixelOutlineColor, color.title);
-                material.SetFloat(PixelOutlineFade, 1F);
+                if (!HideWeaponRenderer)
+                {
+                    var rarity = Mathf.Clamp(level - 1, 0, 3);
+                    var color = gameDesign.getRarityColor((ItemRarity)rarity);
+                    material.SetColor(PixelOutlineColor, color.title);
+                    material.SetFloat(PixelOutlineFade, 1F);
+                }
             }
             else
             {
                 BallLevel = 1;
-                material.SetColor(PixelOutlineColor, Color.clear);
-                material.SetFloat(PixelOutlineFade, 0F);
+                if (!HideWeaponRenderer)
+                {
+                    material.SetColor(PixelOutlineColor, Color.clear);
+                    material.SetFloat(PixelOutlineFade, 0F);
+                }
             }
         }
 
@@ -138,11 +158,6 @@ namespace MoreMountains
         {
             base.SetOwner(owner, handleWeapon);
             _player = owner as APlayer;
-        }
-
-        public override void ShootRequest()
-        {
-            State.ChangeState(States.Use);
         }
 
         protected override void OnOwnerStatsSet()
@@ -195,7 +210,7 @@ namespace MoreMountains
             };
 
             var characterAD = Owner.GetStat(Character.Stat.AD);
-            var weaponAD = GetStat(Ball.Stat.HitDamage);
+            var weaponAD = GetStat(Ball.Stat.AD);
             //Weapon的Damage = (Character.AD + Weapon.AD) * Weapon.AD_Coeff
             DamageModifier = (ref float raw) =>
             {
@@ -211,14 +226,24 @@ namespace MoreMountains
             };
         }
 
+
+        public override void ShootRequest()
+        {
+            var service = _player.BallManagement.Instance;
+            if (service.CanShoot)
+            {
+                service.resetShootCountdown(ShootFixedUpdateInterval);
+                State.ChangeState(States.Use);
+            }
+            else
+            {
+                State.ChangeState(States.Idle);
+            }
+        }
+
         public override GameObject SpawnProjectile(Vector3 spawnPosition, int projectileIndex, int totalProjectiles, bool triggerObjectActivation = true)
         {
-            var ball = _player.BallManagement.Instance.acquireBall(BallDef.Type, spawnPosition, BallLevel);
-            var success = ball != null;
-            // mandatory checks
-            if (!success)
-                return null;
-
+            var ball = _player.BallManagement.Instance.acquireBall(BallDef.Type, spawnPosition, BallLevel, 0F);
             ball.setTeleportPosition(spawnPosition);
             if (_projectileSpawnTransform)
             {
@@ -260,25 +285,16 @@ namespace MoreMountains
             }
 
             var spread = Quaternion.Euler(_randomSpreadDirection);
-            if (Owner == null)
+            var newDirection = spread * transform.right * (Flipped ? -1 : 1);
+            if (Owner.Orientation2D)
             {
-                var direction = spread * transform.rotation * DefaultProjectileDirection;
-                ball.setShootDirection(direction);
-                ball.SetDirection(direction, transform.rotation);
+                ball.setShootDirection(newDirection);
+                ball.SetDirection(newDirection, spread * transform.rotation, Owner.Orientation2D.IsFacingRight);
             }
             else
             {
-                Vector3 newDirection = spread * transform.right * (Flipped ? -1 : 1);
-                if (Owner.Orientation2D)
-                {
-                    ball.setShootDirection(newDirection);
-                    ball.SetDirection(newDirection, spread * transform.rotation, Owner.Orientation2D.IsFacingRight);
-                }
-                else
-                {
-                    ball.setShootDirection(newDirection);
-                    ball.SetDirection(newDirection, spread * transform.rotation);
-                }
+                ball.setShootDirection(newDirection);
+                ball.SetDirection(newDirection, spread * transform.rotation);
             }
 
             if (RotateWeaponOnSpread)

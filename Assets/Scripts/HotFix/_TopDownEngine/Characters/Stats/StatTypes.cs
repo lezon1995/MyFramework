@@ -96,8 +96,8 @@ namespace MoreMountains
         {
             return stat switch
             {
-                Ball.Stat.HitDamage => "HitDamage",
-                Ball.Stat.EffectDamage => "EffectDamage",
+                Ball.Stat.AD => "HitDamage",
+                Ball.Stat.AP => "EffectDamage",
                 Ball.Stat.HitDamageRate => "HitDamageRate",
                 Ball.Stat.EffectDamageRate => "EffectDamageRate",
                 Ball.Stat.AS => Stats.AS,

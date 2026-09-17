@@ -80,6 +80,11 @@ namespace MoreMountains
             }
         }
 
+        public override void OnFixedUpdate(float dt)
+        {
+            _instance?.onFixedUpdate(dt);
+        }
+
         protected override void OnDestroy()
         {
             InventoryLocate.Unregister(_slots);

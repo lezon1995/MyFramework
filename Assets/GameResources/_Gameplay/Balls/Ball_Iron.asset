@@ -269,16 +269,16 @@ MonoBehaviour:
       Data: 4
     - Name: 
       Entry: 4
-      Data: 0.68
+      Data: 0.2
     - Name: 
       Entry: 4
-      Data: 0.78
+      Data: 0.25
     - Name: 
       Entry: 4
-      Data: 0.88
+      Data: 0.3
     - Name: 
       Entry: 4
-      Data: 0.98
+      Data: 0.35
     - Name: 
       Entry: 13
       Data: 
@@ -305,13 +305,13 @@ MonoBehaviour:
       Data: 4
     - Name: 
       Entry: 4
+      Data: 4.5
+    - Name: 
+      Entry: 4
       Data: 5
     - Name: 
       Entry: 4
-      Data: 6
-    - Name: 
-      Entry: 4
-      Data: 7
+      Data: 5.5
     - Name: 
       Entry: 13
       Data: 
@@ -335,16 +335,16 @@ MonoBehaviour:
       Data: 4
     - Name: 
       Entry: 4
-      Data: 3
-    - Name: 
-      Entry: 4
-      Data: 4
-    - Name: 
-      Entry: 4
       Data: 5
     - Name: 
       Entry: 4
+      Data: 5.5
+    - Name: 
+      Entry: 4
       Data: 6
+    - Name: 
+      Entry: 4
+      Data: 6.5
     - Name: 
       Entry: 13
       Data: 
@@ -368,16 +368,16 @@ MonoBehaviour:
       Data: 4
     - Name: 
       Entry: 4
-      Data: 15
-    - Name: 
-      Entry: 4
       Data: 20
     - Name: 
       Entry: 4
-      Data: 25
+      Data: 40
     - Name: 
       Entry: 4
-      Data: 30
+      Data: 60
+    - Name: 
+      Entry: 4
+      Data: 80
     - Name: 
       Entry: 13
       Data: 

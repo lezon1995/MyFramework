@@ -9,8 +9,8 @@ namespace MoreMountains
     {
         public enum Stat
         {
-            HitDamage,
-            EffectDamage,
+            AD,
+            AP,
             HitDamageRate,
             EffectDamageRate,
             AS,

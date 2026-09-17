@@ -49,6 +49,12 @@ namespace MoreMountains
             getOrAddUnityComponent(out shop);
             getOrAddUnityComponent(out rewardSystem);
             getOrAddUnityComponent(out wallet);
+            
+            AddAbility(ballManagement);
+            AddAbility(inventory);
+            AddAbility(shop);
+            AddAbility(rewardSystem);
+            AddAbility(wallet);
 
             originalShootPosition = shootPosition = getWorldPosition();
             setOriginalShootPositionX(shootPosition.x);

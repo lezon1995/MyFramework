@@ -536,7 +536,7 @@ namespace MoreMountains
         public virtual int getHitDamage()
         {
             float hitDamage = 0;
-            if (GetStat(Stat.HitDamage, out var ballHitDamage))
+            if (GetStat(Stat.AD, out var ballHitDamage))
             {
                 hitDamage += ballHitDamage.Value;
             }
@@ -553,7 +553,7 @@ namespace MoreMountains
         public int getEffectDamage()
         {
             float effectDamage = 0;
-            if (GetStat(Stat.EffectDamage, out var ballEffectDamage))
+            if (GetStat(Stat.AP, out var ballEffectDamage))
             {
                 effectDamage += ballEffectDamage.Value;
             }

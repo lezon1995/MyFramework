@@ -1,3 +1,5 @@
+using UnityEngine;
+
 namespace MoreMountains
 {
     public sealed partial class BallInventorySlot
@@ -5,7 +7,7 @@ namespace MoreMountains
         public bool ReadyToShoot { get; set; } = true;
         public Ball BallInstance { get; set; }
         
-        public bool TryShoot(APlayer p, out Ball ballInstance)
+        public bool TryShoot(APlayer p, Vector3 pos, out Ball ballInstance)
         {
             if (IsEmpty)
             {
@@ -13,7 +15,7 @@ namespace MoreMountains
                 return false;
             }
 
-            ballInstance = p.BallManagement.Instance.acquireBall(Item.Type);
+            ballInstance = p.BallManagement.Instance.acquireBall(Item.Type, pos, Item.Level, int.MaxValue);
             var valid = ballInstance != null;
             if (valid)
             {

@@ -37,7 +37,7 @@ namespace MoreMountains
             {
                 UniStats.Stat effectDamageRate = null;
                 float value = damageOnTouch.Dmg.Value;
-                if (_ball && _ball.GetStat(Ball.Stat.EffectDamage, out var effectDamage) && _ball.GetStat(Ball.Stat.EffectDamageRate, out effectDamageRate))
+                if (_ball && _ball.GetStat(Ball.Stat.AP, out var effectDamage) && _ball.GetStat(Ball.Stat.EffectDamageRate, out effectDamageRate))
                 {
                     value += effectDamage.Value * effectDamageRate.Value;
                 }

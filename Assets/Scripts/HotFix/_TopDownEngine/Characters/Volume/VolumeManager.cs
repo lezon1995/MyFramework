@@ -317,7 +317,7 @@ namespace MoreMountains
 
         #endregion
 
-        protected virtual void OnDrawGizmos()
+        protected virtual void OnDrawGizmosSelected()
         {
             // 实体和空间分区网格（仅运行时）
             if (Application.isPlaying)

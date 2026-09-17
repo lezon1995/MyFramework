@@ -25,15 +25,18 @@ namespace MoreMountains
         Dictionary<BallType, ObjectPool<Ball>> ballPools = new();
         Dictionary<BallType, Dictionary<long, Ball>> ballTypeList = new(); // 角色分类列表
         Dictionary<long, Ball> ballGUIDList = new(); // 角色ID索引表
+        Countdown shootCountdown;
+        bool canShoot = true;
+        public bool CanShoot => canShoot;
 
-        public Ball acquireBall(BallType ballType, int level = 1)
+        public Ball acquireBall(BallType ballType, int level, float duration)
         {
-            return acquireBall(ballType, Vector2.zero, Vector2.up, level);
+            return acquireBall(ballType, Vector2.zero, Vector2.up, level, duration);
         }
 
-        public Ball acquireBall(BallType ballType, Vector2 pos, int level = 1)
+        public Ball acquireBall(BallType ballType, Vector2 pos, int level, float duration)
         {
-            return acquireBall(ballType, pos, Vector2.up, level);
+            return acquireBall(ballType, pos, Vector2.up, level, duration);
         }
 
         public Ball acquireBall(BallType ballType, Vector2 pos, Vector2 direction, int level = 1, float duration = int.MaxValue)
@@ -66,7 +69,11 @@ namespace MoreMountains
             ball.refreshInitialHealth();
             ball.setRendererActive(true);
             ball.SetColliderEnabled(true);
-            ball.setDuration(duration);
+            if (duration.isZero())
+                ball.refreshDuration();
+            else
+                ball.setDuration(duration);
+
             ball.setLevel(level);
             ball.onAcquire();
 
@@ -76,13 +83,9 @@ namespace MoreMountains
 
             activeBalls.Add(ball);
             inactiveBalls.Remove(ball);
-            
+
             _owner.Player.applyOnShootBallRelics(ball);
         }
-
-        Ball createBall() => createBall(BallType.Normal);
-
-        T createBall<T>() where T : Ball => createBall(BallType.Normal) as T;
 
         Ball createBall(BallType type)
         {
@@ -230,10 +233,24 @@ namespace MoreMountains
         {
             return activeBalls.Count > 0;
         }
+        
+        public void onFixedUpdate(float dt)
+        {
+            if (shootCountdown.update())
+            {
+                canShoot = true;
+            }
+        }
+
+        public void resetShootCountdown(int countdown)
+        {
+            shootCountdown = countdown;
+            canShoot = false;
+        }
 
         public void onEvent(OnBallDeath e)
         {
-             activeBalls.Remove(e.ball);
+            activeBalls.Remove(e.ball);
         }
 
         public void onEvent(OnBallDeathTotally e)

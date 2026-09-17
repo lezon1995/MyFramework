@@ -45,7 +45,7 @@ namespace MoreMountains
             TimeBetweenUsesModifier = (ref float raw) => raw = 0F;
 
             var characterAD = Owner.GetStat(Character.Stat.AD);
-            var weaponAD = GetStat(Ball.Stat.HitDamage);
+            var weaponAD = GetStat(Ball.Stat.AD);
             //Weapon的Damage = (Character.AD + Weapon.AD) * Weapon.AD_Coeff
             DamageModifier = (ref float raw) =>
             {
@@ -152,7 +152,7 @@ namespace MoreMountains
             Ball ball = null;
             var success = _player.Inventory.BallBag.TryGetSlot(BallItem, out var slot);
             if (success)
-                success &= slot.TryShoot(_player, out ball);
+                success &= slot.TryShoot(_player, spawnPosition, out ball);
 
             // mandatory checks
             if (!success)

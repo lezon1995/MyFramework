@@ -42,7 +42,7 @@ MonoBehaviour:
     m_FallbackState: 0
     m_WaitForCompletion: 0
     m_LocalVariables: []
-  InitialWeapon: {fileID: -4478620210553915232, guid: 03fd8e2ad2614534f9d6b71e5096cc78,
+  InitialWeapon: {fileID: -106265365135329600, guid: d27ec3261c64c75459024b2fa64e1190,
     type: 3}
   MetaHandleWeapon: {fileID: 0}
   RequireTargetToShoot: 0

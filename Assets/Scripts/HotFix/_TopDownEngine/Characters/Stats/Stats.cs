@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using MoreMountains.Tools;
+using Sirenix.OdinInspector;
 using UniStats;
 using UnityEngine;
 
@@ -46,6 +47,7 @@ namespace MoreMountains
         public bool AutoInitialize = true;
 
         [SerializeField]
+        [InlineEditor]
         StatsTemplate StatsConfig;
 
         IStatsTemplate _statsTemplate;

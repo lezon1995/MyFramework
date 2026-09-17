@@ -111,7 +111,7 @@ Material:
     - _BufferProgress: 0.7
     - _BumpScale: 1
     - _ChamferSize: 0.08
-    - _ChunkCount: 3
+    - _ChunkCount: 5
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
     - _Cull: 2
@@ -124,7 +124,7 @@ Material:
     - _FillOrigin: 0
     - _FlipHorizontal: 0
     - _FlipVertical: 0
-    - _ForegroundProgress: 0.91738594
+    - _ForegroundProgress: 0.24455404
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
@@ -153,11 +153,11 @@ Material:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _BorderColor: {r: 0, g: 0, b: 0, a: 1}
     - _BufferColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
-    - _Chunk0: {r: 0.919852, g: 0.9214961, b: 0.44397038, a: 0}
-    - _Chunk1: {r: 0.918619, g: 0.919852, b: 0.62708914, a: 0}
-    - _Chunk2: {r: 0.91738594, g: 0.918619, b: 0.811977, a: 0}
-    - _Chunk3: {r: 0, g: 0, b: 0, a: 0}
-    - _Chunk4: {r: 0, g: 0, b: 0, a: 0}
+    - _Chunk0: {r: 0.2486642, g: 0.24907522, b: 0.4146155, a: 0}
+    - _Chunk1: {r: 0.24743116, g: 0.2486642, b: 0.58455396, a: 0}
+    - _Chunk2: {r: 0.2461981, g: 0.24743116, b: 0.64839745, a: 0}
+    - _Chunk3: {r: 0.24537608, g: 0.2461981, b: 0.77768314, a: 0}
+    - _Chunk4: {r: 0.24455404, g: 0.24537608, b: 0.96946305, a: 0}
     - _Chunk5: {r: 0, g: 0, b: 0, a: 0}
     - _Chunk6: {r: 0, g: 0, b: 0, a: 0}
     - _Chunk7: {r: 0, g: 0, b: 0, a: 0}
@@ -165,8 +165,8 @@ Material:
     - _DamageChunkColor0: {r: 1, g: 0.81960785, b: 0, a: 1}
     - _DamageChunkColor1: {r: 1, g: 0.81960785, b: 0, a: 1}
     - _DamageChunkColor2: {r: 1, g: 0.81960785, b: 0, a: 1}
-    - _DamageChunkColor3: {r: 0, g: 0, b: 0, a: 0}
-    - _DamageChunkColor4: {r: 0, g: 0, b: 0, a: 0}
+    - _DamageChunkColor3: {r: 1, g: 0.81960785, b: 0, a: 1}
+    - _DamageChunkColor4: {r: 1, g: 0.81960785, b: 0, a: 1}
     - _DamageChunkColor5: {r: 0, g: 0, b: 0, a: 0}
     - _DamageChunkColor6: {r: 0, g: 0, b: 0, a: 0}
     - _DamageChunkColor7: {r: 0, g: 0, b: 0, a: 0}

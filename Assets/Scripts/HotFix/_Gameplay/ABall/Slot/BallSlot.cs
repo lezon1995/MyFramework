@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 
 namespace MoreMountains
 {
@@ -73,7 +74,7 @@ namespace MoreMountains
             return old;
         }
 
-        public bool TryShoot(out Ball ballInstance)
+        public bool TryShoot(Vector3 pos, out Ball ballInstance)
         {
             if (IsEmpty)
             {
@@ -81,7 +82,7 @@ namespace MoreMountains
                 return false;
             }
 
-            ballInstance = _owner.Instance.acquireBall(Item.Type);
+            ballInstance = _owner.Instance.acquireBall(Item.Type, pos, Item.Level, int.MaxValue);
             var valid = ballInstance != null;
             if (valid)
             {
