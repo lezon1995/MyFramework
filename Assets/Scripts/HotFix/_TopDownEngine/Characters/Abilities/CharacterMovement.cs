@@ -140,7 +140,7 @@ namespace MoreMountains
 
         public override void OnUpdate(float dt)
         {
-            HandleFrozen();
+            HandleFrozen(dt);
 
             if (AbilityUnauthorized || _conditionState.Not(Character.Conditions.Normal))
             {
@@ -153,7 +153,7 @@ namespace MoreMountains
             }
 
             HandleDirection();
-            HandleMovement();
+            HandleMovement(dt);
             Feedbacks();
         }
 
@@ -203,7 +203,7 @@ namespace MoreMountains
             }
         }
 
-        protected virtual void HandleMovement()
+        protected virtual void HandleMovement(float dt)
         {
             // if we're not walking anymore, we stop our walking sound
             if (_motionState.Not(Character.Motions.Walking) && _startFeedbackIsPlaying)
@@ -245,14 +245,14 @@ namespace MoreMountains
 
             if (ShouldSetMovement)
             {
-                ApplyMovement();
+                ApplyMovement(dt);
             }
         }
 
         /// <summary>
         /// Describes what happens when the character is in the frozen state
         /// </summary>
-        protected virtual void HandleFrozen()
+        protected virtual void HandleFrozen(float dt)
         {
             if (AbilityUnauthorized)
                 return;
@@ -260,41 +260,44 @@ namespace MoreMountains
             if (_conditionState.Is(Character.Conditions.Frozen))
             {
                 _movement = Vector2.zero;
-                ApplyMovement();
+                ApplyMovement(dt);
             }
         }
 
         /// <summary>
         /// Moves the controller
         /// </summary>
-        protected virtual void ApplyMovement()
+        protected virtual void ApplyMovement(float dt)
         {
             _currentInput = _movement;
             _normalizedInput = _currentInput.normalized;
 
             float interpolationSpeed = 1f;
-
-            var dt = Time.deltaTime;
+            Vector2 lerpInput;
             if (Acceleration == 0 || Deceleration == 0)
             {
-                _lerpedInput = AnalogInput ? _currentInput : _normalizedInput;
+                lerpInput = AnalogInput ? _currentInput : _normalizedInput;
             }
             else
             {
                 if (_normalizedInput.magnitude == 0)
                 {
                     _acceleration = Mathf.Lerp(_acceleration, 0f, Deceleration * dt);
-                    _lerpedInput = Vector2.Lerp(_lerpedInput, _lerpedInput * _acceleration, dt * Deceleration);
+                    lerpInput = Vector2.Lerp(_lerpedInput, _lerpedInput * _acceleration, dt * Deceleration);
                     interpolationSpeed = Deceleration;
                 }
                 else
                 {
                     _acceleration = Mathf.Lerp(_acceleration, 1f, Acceleration * dt);
-                    _lerpedInput = AnalogInput ? Vector2.ClampMagnitude(_currentInput, _acceleration) : Vector2.ClampMagnitude(_normalizedInput, _acceleration);
+                    if (AnalogInput)
+                        lerpInput = Vector2.ClampMagnitude(_currentInput, _acceleration);
+                    else
+                        lerpInput = Vector2.ClampMagnitude(_normalizedInput, _acceleration);
                     interpolationSpeed = Acceleration;
                 }
             }
 
+            _lerpedInput = lerpInput;
             Vector3 curMovement = new(_lerpedInput.x, 0f, _lerpedInput.y);
 
             // var moveSpeed = MovementSpeed;
@@ -317,8 +320,8 @@ namespace MoreMountains
                 curMovement = Vector3.zero;
             }
 
-            _controller.SetMovement(curMovement);
             _movementVector = curMovement;
+            _controller.SetMovement(curMovement);
         }
 
         /// <summary>

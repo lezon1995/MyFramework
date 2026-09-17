@@ -10,7 +10,6 @@ public struct BrickTemplate : IEquatable<BrickTemplate>
     public BrickDef def;
     public Vector2 position;
     public Vector2Int size => def.Size;
-    public int health;
 
     public Rect rect => getRect();
 
@@ -25,14 +24,12 @@ public struct BrickTemplate : IEquatable<BrickTemplate>
     {
         position = _position;
         def = _def;
-        health = 0;
     }
 
     public BrickTemplate(Vector2 _position, BrickDef _def, int _health)
     {
         position = _position;
         def = _def;
-        health = _health;
     }
 
     public bool Equals(BrickTemplate other)

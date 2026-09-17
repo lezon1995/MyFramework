@@ -73,11 +73,11 @@ public class StageTemplateEditor : Editor
                 var sMin = WorldToScreen(brickMinWorld, worldBounds, in previewRect);
                 var sMax = WorldToScreen(brickMaxWorld, worldBounds, in previewRect);
                 var rect = new Rect(sMin, sMax - sMin);
-                Color color;
+                Color color = Color.wheat;
                 if (rect.Contains(e.mousePosition))
                     color = Color.gray;
-                else
-                    color = GetColorByHealth(b.health);
+                // else
+                    // color = GetColorByHealth(b.health);
 
                 Handles.DrawSolidRectangleWithOutline(rect, color, Color.black);
             }
@@ -95,7 +95,7 @@ public class StageTemplateEditor : Editor
                 var brickRect = new Rect(b.position.x - size.x * 0.5f, b.position.y - size.y * 0.5f, size.x, size.y);
                 if (brickRect.Contains(mouseWorld))
                 {
-                    var tooltip = $"pos: {b.position}\nsize: {size}\nhealth: {b.health}";
+                    var tooltip = $"pos: {b.position}\nsize: {size}\n";
                     var labelPos = e.mousePosition + new Vector2(14, 14);
                     // 防止 tooltip 超出预览区右边界
                     if (labelPos.x + 160 > previewRect.xMax)

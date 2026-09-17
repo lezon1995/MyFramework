@@ -461,7 +461,7 @@ GameObject:
   - component: {fileID: -1421266774468195594}
   - component: {fileID: -5906346836173129937}
   - component: {fileID: -2375815759049658533}
-  - component: {fileID: 6989499877512620089}
+  - component: {fileID: 4462923969622039932}
   m_Layer: 7
   m_Name: Brick_Boss_3
   m_TagString: Block
@@ -802,6 +802,7 @@ MonoBehaviour:
   size: {x: 0, y: 0}
   brickRenderer: {fileID: -5906346836173129937}
   volumeCollider: {fileID: 0}
+  RegisteredVolumeType: 1
   handleWeapon: {fileID: 0}
 --- !u!114 &-1421266774468195594
 MonoBehaviour:
@@ -880,14 +881,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: HotFix::MoreMountains.BrickStats
   AutoInitialize: 1
   StatsConfig: {fileID: 11400000, guid: f1e199ef2b3f367448ca3aa88b63c170, type: 2}
---- !u!114 &6989499877512620089
+--- !u!114 &4462923969622039932
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3237124602915234066}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b73f05b31212f0d419ada6564e9c4ddf, type: 3}
   m_Name: 

@@ -621,7 +621,6 @@ namespace MoreMountains
 
             if (PreventAllMovementWhileInUse && _characterMovement && _controller)
             {
-                _controller.IntentVelocity = Vector3.zero;
                 _characterMovement.SetMovement(Vector2.zero);
                 _characterMovement.MovementForbidden = true;
             }

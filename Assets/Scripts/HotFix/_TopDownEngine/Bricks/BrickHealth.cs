@@ -729,6 +729,16 @@ namespace MoreMountains
             }
         }
 
+        public override bool ShouldApplyKnockback(Dmg damage)
+        {
+            return base.ShouldApplyKnockback(damage);
+        }
+
+        public override bool ShouldApplyKnockback()
+        {
+            return base.ShouldApplyKnockback();
+        }
+
         public override bool Kill()
         {
             brick.conditionState.ChangeState(Character.Conditions.Dead);

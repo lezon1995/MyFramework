@@ -38,7 +38,7 @@ public class GameHotFix : GameHotFixBase<GameHotFix>
 	{
 		if (isDevOrEditor())
 		{
-			HotFixTest.runAll();
+			// HotFixTest.runAll();
 		}
 	}
 	protected override Type getStartGameSceneType() { return typeof(MainScene); }

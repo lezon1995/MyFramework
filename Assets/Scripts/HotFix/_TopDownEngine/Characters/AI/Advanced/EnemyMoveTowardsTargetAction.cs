@@ -38,7 +38,7 @@ namespace MoreMountains
                 return;
             }
 
-            Move();
+            Move(dt);
         }
 
         /// <summary>
@@ -46,7 +46,7 @@ namespace MoreMountains
         /// 注意：这里只设置 _movement，CharacterMovement 会处理加速/减速并输出到 CurrentMovement
         /// TopDownController 会使用 CurrentMovement 进行实际移动
         /// </summary>
-        protected virtual void Move()
+        protected virtual void Move(float dt)
         {
             if (_brain.Target == null)
             {
@@ -77,12 +77,6 @@ namespace MoreMountains
             _direction *= MonsterAttractionForce;
             // _direction += Random.insideUnitCircle * MonsterWanderForce;
 
-            // 将意图转换为期望速度
-            Vector2 desiredVelocity = _direction.normalized * _movement._movementSpeed;
-
-            // 平滑过渡到期望速度（保留原有速度，让 VolumeManager 处理碰撞反应）
-            var velocity = Vector2.Lerp(_controller.IntentVelocity, desiredVelocity, Time.deltaTime * 5f);
-            _controller.IntentVelocity = velocity;
             _movement.SetMovement(_direction);
         }
 

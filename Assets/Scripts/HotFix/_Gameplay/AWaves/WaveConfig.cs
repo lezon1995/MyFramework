@@ -40,6 +40,9 @@ namespace MoreMountains
         [Tooltip("该类型怪物的基础生成间隔（秒），实际间隔会动态调整")]
         public float baseSpawnInterval = 3f;
 
+        [Tooltip("该怪物是否在本波次强制生成一次")]
+        public bool forceSpawnOnce;
+
         [Tooltip("本波次该怪物至少生成个数（0 表示不限制）。在持续刷怪/有限刷怪模式下，仍会保证该配置累计生成达到该值之前不会被跳过。")]
         [Min(0)]
         public int atLeastSpawnCount;

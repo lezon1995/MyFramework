@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using MoreMountains.Feedbacks;
-// using MoreMountains.InventoryEngine;
 using MoreMountains.Tools;
 using QFSW.QC;
 using Sirenix.OdinInspector;
@@ -152,9 +150,6 @@ namespace MoreMountains
     {
         public QuantumConsole Console;
 
-        [Tooltip("the target frame rate for the game")]
-        public int TargetFrameRate = 300;
-
         [Header("Lives")]
         [Tooltip("the maximum amount of lives the character can currently have")]
         public int MaximumLives;
@@ -230,7 +225,6 @@ namespace MoreMountains
         /// </summary>
         protected virtual void Start()
         {
-            Application.targetFrameRate = TargetFrameRate;
             _initialCurrentLives = CurrentLives;
             _initialMaximumLives = MaximumLives;
         }

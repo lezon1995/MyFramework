@@ -50,7 +50,7 @@ namespace MoreMountains
 
         public Vector2 GetHalfSize()
         {
-            return new Vector2(Mathf.Max(0f, Size.x), Mathf.Max(0f, Size.y)) * 0.5f;
+            return Size * 0.5F;
         }
 
         /// <summary>

@@ -90,7 +90,7 @@ namespace MoreMountains
         /// <summary>
         /// 对区域内的所有实体施打击退力
         /// </summary>
-        public static void ApplyAreaKnockback(Vector2 center, float radius, in KnockbackInfo info)
+        public static void ApplyAreaKnockback(Vector3 center, float radius, in KnockbackInfo info)
         {
             if (volumeManager == null) 
                 return;
@@ -119,7 +119,7 @@ namespace MoreMountains
         /// <summary>
         /// 对扇形区域内的实体施打击退力
         /// </summary>
-        public static void ApplyConeKnockback(Vector2 origin, Vector2 direction, float angle, float radius, in KnockbackInfo info)
+        public static void ApplyConeKnockback(Vector3 origin, Vector3 direction, float angle, float radius, in KnockbackInfo info)
         {
             if (volumeManager == null)
                 return;

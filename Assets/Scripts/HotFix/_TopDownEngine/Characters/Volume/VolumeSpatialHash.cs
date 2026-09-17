@@ -15,8 +15,8 @@ namespace MoreMountains
     {
         float _cellSize;
         float _invCellSize;
-        Dictionary<(int, int), List<TopDownController2D>> _cells = new();
-        Dictionary<TopDownController2D, (int, int)> _entityCells = new();
+        Dictionary<Vector2Int, List<TopDownController2D>> _cells = new();
+        Dictionary<TopDownController2D, Vector2Int> _entityCells = new();
 
         // 用于 GetPotentialColliders 的临时 List（避免每帧 new）
         List<TopDownController2D> _tempResults = new();
@@ -38,9 +38,7 @@ namespace MoreMountains
             int count = entities.Count;
             for (int i = 0; i < count; i++)
             {
-                var entity = entities[i];
-                if (entity == null) continue;
-                Insert(entity);
+                Insert(entities[i]);
             }
         }
 
@@ -60,7 +58,6 @@ namespace MoreMountains
         /// </summary>
         public void Insert(TopDownController2D entity)
         {
-            if (entity == null) return;
             var cellKey = GetCellKey(entity.CurPosition);
             if (!_cells.TryGetValue(cellKey, out var list))
             {
@@ -76,8 +73,9 @@ namespace MoreMountains
         /// </summary>
         public void Remove(TopDownController2D entity)
         {
-            if (entity == null) return;
-            if (!_entityCells.TryGetValue(entity, out var cellKey)) return;
+            if (!_entityCells.TryGetValue(entity, out var cellKey)) 
+                return;
+
             if (_cells.TryGetValue(cellKey, out var list))
                 list.Remove(entity);
             _entityCells.Remove(entity);
@@ -90,7 +88,6 @@ namespace MoreMountains
         /// <returns>实体是否换格子了</returns>
         public bool UpdatePosition(TopDownController2D entity)
         {
-            if (entity == null) return false;
             var newKey = GetCellKey(entity.CurPosition);
             if (_entityCells.TryGetValue(entity, out var oldKey) && oldKey == newKey)
                 return false;
@@ -112,8 +109,6 @@ namespace MoreMountains
             for (int i = 0; i < count; i++)
             {
                 var entity = entities[i];
-                if (entity == null) continue;
-
                 var pos = entity.CurPosition;
                 if (UpdatePosition(entity))
                     moved++;
@@ -127,10 +122,9 @@ namespace MoreMountains
         /// </summary>
         public void GetPotentialColliders(TopDownController2D entity, List<TopDownController2D> results)
         {
-            if (entity == null) return;
-
-            int cellX = WorldToCell(entity.CurPosition.x);
-            int cellY = WorldToCell(entity.CurPosition.y);
+            var pos = entity.CurPosition;
+            int cellX = WorldToCell(pos.x);
+            int cellY = WorldToCell(pos.y);
 
             for (int dx = -1; dx <= 1; dx++)
             {
@@ -154,7 +148,7 @@ namespace MoreMountains
         /// <summary>
         /// 获取圆形区域内所有实体。追加到 results 末尾。
         /// </summary>
-        public void GetEntitiesInCircle(Vector2 center, float radius, List<TopDownController2D> results)
+        public void GetEntitiesInCircle(Vector3 center, float radius, List<TopDownController2D> results)
         {
             int minX = WorldToCell(center.x - radius);
             int maxX = WorldToCell(center.x + radius);
@@ -184,7 +178,7 @@ namespace MoreMountains
         }
 
         int WorldToCell(float worldPos) => Mathf.FloorToInt(worldPos * _invCellSize);
-        (int, int) GetCellKey(Vector2 worldPos) => (WorldToCell(worldPos.x), WorldToCell(worldPos.y));
-        static (int, int) CellToKey(int x, int y) => (x, y);
+        Vector2Int GetCellKey(Vector2 worldPos) => new(WorldToCell(worldPos.x), WorldToCell(worldPos.y));
+        static Vector2Int CellToKey(int x, int y) => new(x, y);
     }
 }

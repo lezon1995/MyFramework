@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: HotFix::MoreMountains.WaveManager
   GridView: {fileID: 0}
-  spawnStrategyType: 1
+  spawnStrategyType: 0
 --- !u!1 &1167641560046562788
 GameObject:
   m_ObjectHideFlags: 0

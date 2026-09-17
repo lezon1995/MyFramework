@@ -148,10 +148,9 @@ namespace MoreMountains
 
         public void load()
         {
-            int cols = 7;
-            int rows = 15;
-            float unitSize = 0.675F;
-            brickLayout = new(new(cols * unitSize, rows * unitSize), cols, rows);
+            brickLayout = new(new(18.9F, 10.8F), 28, 16);
+            int cols = brickLayout.getCols();
+            int rows = brickLayout.getRows();
             _cellStates = new bool[cols * rows];
         }
 
@@ -321,7 +320,7 @@ namespace MoreMountains
             activeBrickList.add(brick);
 
             // 根据当前世界坐标自动注册 cell 占用 (以 brick 左下角对齐到对应网格 cell)
-            // RegisterOccupancyFromWorld(brick);
+            RegisterOccupancyFromWorld(brick);
 
             return brick;
         }
@@ -589,7 +588,7 @@ namespace MoreMountains
             o.TryGetComponent(out Brick brick);
             var countAll = brickPools[def].CountAll;
             brick.setBrickDef(def);
-            brick.setName($"Brick_{size.x}x{size.y}_{countAll}");
+            brick.setName($"Brick_{def.name}_{countAll}");
             brick.setSize(size);
             brick.setID(id);
             brick.setOnBornCompleted(onBrickBornCompleted);

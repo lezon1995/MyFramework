@@ -774,6 +774,7 @@ MonoBehaviour:
   size: {x: 0, y: 0}
   brickRenderer: {fileID: 0}
   volumeCollider: {fileID: 0}
+  RegisteredVolumeType: 1
   handleWeapon: {fileID: 0}
 --- !u!114 &7958842616927788039
 MonoBehaviour:
@@ -823,9 +824,6 @@ MonoBehaviour:
   Character: {fileID: 0}
   Shield:
     CurrentShield: 0
-    MaximumShield: 0
-    BaseShield: 0
-    InitialShieldDrivenByMaximumShield: 1
     BaseShieldRegen: 0
     DamageReductionRatio: 0
     ShieldPenetrationRatio: 0
@@ -897,7 +895,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3237124602915234066}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b73f05b31212f0d419ada6564e9c4ddf, type: 3}
   m_Name: 
@@ -1232,6 +1230,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 195e67808f3b49a894cc1525ca488a26, type: 3}
   m_Name: 
   m_EditorClassIdentifier: HotFix::MarbleHero.DamageChunkHealthBarRenderer
+  health: {fileID: 0}
   _spriteRenderer: {fileID: 5658903894415123304}
   _foregroundColor: {r: 0.9, g: 0.15, b: 0.15, a: 1}
   _foregroundProgress: 1
@@ -1241,6 +1240,11 @@ MonoBehaviour:
   _bufferOuterFade: 0.005
   defaultChunkColor: {r: 1, g: 0.8196079, b: 0, a: 1}
   _chunkFadeDuration: 1.2
+  _useShield: 1
+  shieldColor: {r: 0.7803922, g: 0.7803922, b: 0.7803922, a: 1}
+  _shieldValue: 0
+  _shieldLength: 0
+  _shieldGlow: 0.3
   _useBorder: 0
   _borderColor: {r: 0, g: 0, b: 0, a: 1}
   _borderWidth: 0.05

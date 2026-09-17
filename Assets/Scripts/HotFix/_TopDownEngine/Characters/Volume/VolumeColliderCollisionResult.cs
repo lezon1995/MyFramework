@@ -12,7 +12,7 @@ namespace MoreMountains
         /// <summary>实体中心到碰撞体表面的距离（当实体中心在碰撞体内部时为负数）</summary>
         public float SurfaceDistance;
         /// <summary>从碰撞体表面指向实体中心的法线（用于推出方向）</summary>
-        public Vector2 SurfaceNormal;
+        public Vector3 SurfaceNormal;
         /// <summary>重叠量（> 0 表示有碰撞）</summary>
         public float Overlap;
         public bool IsColliding => Overlap > 0;

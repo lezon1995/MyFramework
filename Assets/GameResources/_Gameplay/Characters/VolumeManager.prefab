@@ -44,11 +44,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2685f9b0e3583be46bf36b0d00365266, type: 3}
   m_Name: 
   m_EditorClassIdentifier: HotFix::MoreMountains.VolumeManager
+  mNeedUpdate: 1
+  mNeedFixedUpdate: 1
   Enabled: 1
   MaxCollisionChecksPerFrame: 1000
   UpdateInterval: 0
-  SpatialHashCellSize: 2
-  EnableSpatialHash: 1
+  SpatialHashCellSize: 1.35
+  UseIncrementalSpatialHash: 1
   BaseSeparationForce: 10
   MassDifferenceInfluence: 0.5
   VelocityDifferenceInfluence: 0.3
@@ -65,3 +67,7 @@ MonoBehaviour:
   ShowCollisionLines: 0
   ShowKnockbackDirections: 0
   ShowSoftRepulsion: 0
+  ShowSpatialHashGrid: 1
+  SpatialHashGridAlpha: 0.3
+  EnableSolidColliders: 1
+  AutoDetectVolumeColliders: 1

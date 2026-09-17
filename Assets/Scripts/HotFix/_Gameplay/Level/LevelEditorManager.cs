@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using Drawing;
 using Sirenix.OdinInspector;
 using UnityEditor;
@@ -160,7 +159,6 @@ namespace MoreMountains
                 }
 
                 Draw.ingame.xy.WireRectangle(template.rect, selectedColor);
-                Draw.ingame.xy.Label2D(template.position, $"{template.health}", 20, LabelAlignment.Center, Color.red);
                 if (template.rect.Contains(mousePos))
                 {
                     if (remove)

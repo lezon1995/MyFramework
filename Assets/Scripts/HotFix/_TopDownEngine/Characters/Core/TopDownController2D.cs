@@ -58,16 +58,16 @@ namespace MoreMountains
         public Color GizmosColor = new(0, 1, 0, 0.3f);
 
         // 运行时数据
-        Vector2 curPosition;
+        Vector3 curPosition;
 
-        public Vector2 CurPosition
+        public Vector3 CurPosition
         {
             get => curPosition;
             set => curPosition = value;
         }
 
         [NonSerialized]
-        public Vector2 ExternalForce;
+        public Vector3 ExternalForce;
 
         [NonSerialized]
         public bool IsRegistered;
@@ -80,7 +80,7 @@ namespace MoreMountains
         public float EffectiveRadius => Volume.BoundingRadius * (1f - MaxOverlapRatio); // 计算有效包围半径（考虑最大重叠）
         public float CollisionMass => Mass * PushForceWeight; // 碰撞质量（考虑推力权重）
 
-        public Vector2 VolumeCenter => Volume.GetWorldCenter(CurPosition);
+        public Vector3 VolumeCenter => Volume.GetWorldCenter(CurPosition);
 
         /// <summary>
         /// 当前总速度 = 意图速度 + 击退速度
@@ -132,7 +132,7 @@ namespace MoreMountains
         public BoxCollider2D boxCollider => _boxCollider;
         public Collider2D Collider2D;
 
-        protected Rigidbody2D _rigidBody;
+        // protected Rigidbody2D _rigidBody;
         protected BoxCollider2D _boxCollider;
         protected CircleCollider2D _circleCollider;
         protected Vector2 _originalColliderSize;
@@ -142,7 +142,7 @@ namespace MoreMountains
         {
             base.Awake();
 
-            TryGetComponent(out _rigidBody);
+            // TryGetComponent(out _rigidBody);
             if (TryGetComponent(out _boxCollider))
                 Collider2D = _boxCollider;
             else if (TryGetComponent(out _circleCollider))
@@ -194,14 +194,14 @@ namespace MoreMountains
             base.Update();
             // Velocity = (transform.position - _lastPosition) / Time.deltaTime;
             // Position = transform.position;
+
+            var dt = Time.deltaTime;
+            ApplyPosition(dt);
         }
 
         protected override void LateUpdate()
         {
             base.LateUpdate();
-
-            // var dt = Time.deltaTime;
-            // ApplyPosition(dt);
         }
 
         /// <summary>
@@ -271,22 +271,23 @@ namespace MoreMountains
 
             if (!MovementDisabled)
             {
-                var movement = Vector2.zero;
+                var movement = Vector3.zero;
                 if (CurrentMovement != Vector3.zero)
                 {
-                    movement += (Vector2)CurrentMovement * dt;
-                    CurPosition = movement;
+                    movement += CurrentMovement * dt;
                 }
 
                 if (velocityMovement != Vector3.zero)
                 {
-                    movement += (Vector2)velocityMovement * dt;
+                    movement += velocityMovement * dt;
                 }
 
-                if (movement != Vector2.zero)
+                if (movement != Vector3.zero)
                 {
-                    CurPosition = _rigidBody.position + movement;
-                    _rigidBody.MovePosition(CurPosition);
+                    // CurPosition = _rigidBody.position + movement;
+                    // _rigidBody.MovePosition(CurPosition);
+                    
+                    CurPosition += movement;
                 }
             }
 
@@ -326,7 +327,7 @@ namespace MoreMountains
         /// </summary>
         public override void AddForce(Vector3 force)
         {
-            ExternalForce += (Vector2)force;
+            ExternalForce += force;
         }
 
         /// <summary>
@@ -342,12 +343,13 @@ namespace MoreMountains
 
         public override void MovePosition(Vector3 newPosition)
         {
-            _rigidBody.MovePosition(newPosition);
+            // _rigidBody.MovePosition(newPosition);
+            CurPosition = newPosition;
         }
 
         public override void SetPosition(Vector3 newPosition)
         {
-            _rigidBody.position = newPosition;
+            // _rigidBody.position = newPosition;
             transform.position = newPosition;
         }
 
@@ -400,7 +402,7 @@ namespace MoreMountains
         /// <param name="state"></param>
         public override void SetKinematic(bool state)
         {
-            _rigidBody.bodyType = state ? RigidbodyType2D.Kinematic : RigidbodyType2D.Dynamic;
+            // _rigidBody.bodyType = state ? RigidbodyType2D.Kinematic : RigidbodyType2D.Dynamic;
         }
 
         /// <summary>
@@ -430,10 +432,10 @@ namespace MoreMountains
             IntentVelocity = Vector2.zero;
             KnockbackVelocity = Vector2.zero;
             MovementDisabled = false;
-            if (_rigidBody)
-            {
-                _rigidBody.linearVelocity = Vector2.zero;
-            }
+            // if (_rigidBody)
+            // {
+            //     _rigidBody.linearVelocity = Vector2.zero;
+            // }
         }
 
         protected virtual void OnDrawGizmosSelected()

@@ -149,7 +149,7 @@ namespace MoreMountains
         {
             if (ball == null || entity == null) return Vector2.zero;
 
-            Vector2 dir = entity.CurPosition - (Vector2)ball.curPos;
+            Vector2 dir = entity.CurPosition - ball.curPos;
             return dir.normalized;
         }
     }

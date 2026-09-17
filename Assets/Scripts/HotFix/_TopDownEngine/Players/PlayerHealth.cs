@@ -401,5 +401,62 @@ namespace MoreMountains
                 Event.trigger(new OnHeal(source, heal));
             }
         }
+
+        public override bool Kill()
+        {
+            if (ImmuneToDamage)
+                return false;
+
+            if (Character)
+            {
+                // we set its dead state to true
+                Character.conditionState.ChangeState(Character.Conditions.Dead);
+                Character.Reset();
+            }
+
+            SetHealth(0, RefreshHealthBarType.Killed);
+
+            // 死亡时清空护盾
+            Shield?.ClearShield();
+
+            DeathMMFeedbacks.Play(transform.position);
+
+            // we make it ignore the collisions from now on
+            if (DisableCollisionsOnDeath)
+            {
+                if (_collider2D)
+                    _collider2D.enabled = false;
+
+                // if we have a controller, removes collisions, restores parameters for a potential respawn, and applies a death force
+                if (_controller)
+                    _controller.CollisionsOff();
+
+                if (DisableChildCollisionsOnDeath)
+                {
+                    foreach (var c in GetComponentsInChildren<Collider2D>())
+                        c.enabled = false;
+                }
+            }
+
+            Event.trigger(new OnDeath());
+
+            if (DisableControllerOnDeath && _controller)
+                _controller.enabled = false;
+
+            if (DisableModelOnDeath && Model)
+                Model.SetActive(false);
+
+            if (DelayBeforeDestruction > 0f)
+            {
+                _coroutineTimeElapsed = 0F;
+                _coroutineState = CoroutineState.DestroyObject;
+            }
+            else
+                DestroyObject();
+
+            _controller.IntentVelocity = Vector3.zero;
+            _player.Controller2D.UnregisterToVolumeManager();
+            return true;
+        }
     }
 }

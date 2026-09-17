@@ -429,9 +429,6 @@ namespace MoreMountains
         /// </summary>
         public void PlaceAt(Vector2Int origin, ref List<Vector2Int> output)
         {
-            if (output == null)
-                throw new ArgumentNullException(nameof(output));
-
             var pivot = PivotOffset;
             output.Clear();
             for (int i = 0; i < _cells.Length; i++)
@@ -439,13 +436,6 @@ namespace MoreMountains
                 var local = _cells[i];
                 output.Add(new(origin.x + local.x - pivot.x, origin.y + local.y - pivot.y));
             }
-        }
-
-        public Vector2Int[] PlaceAt(Vector2Int origin)
-        {
-            var list = new List<Vector2Int>(_cells.Length);
-            PlaceAt(origin, ref list);
-            return list.ToArray();
         }
 
         /// <summary>
