@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Pool;
@@ -11,7 +10,7 @@ namespace MoreMountains
     /// - 无 GC 路径：所有容器预分配/复用
     /// - 配对去重：基于 entity ID 的位运算，不走 HashSet
     /// </summary>
-    public class VolumeSpatialHash
+    public class VolumeEntitySpatialHash
     {
         float _cellSize;
         float _invCellSize;
@@ -21,7 +20,7 @@ namespace MoreMountains
         // 用于 GetPotentialColliders 的临时 List（避免每帧 new）
         List<TopDownController2D> _tempResults = new();
 
-        public VolumeSpatialHash(float cellSize)
+        public VolumeEntitySpatialHash(float cellSize)
         {
             _cellSize = cellSize;
             _invCellSize = 1f / cellSize;

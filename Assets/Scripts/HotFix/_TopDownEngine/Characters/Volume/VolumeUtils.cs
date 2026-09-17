@@ -20,17 +20,22 @@ namespace MoreMountains
             Vector2 centerDelta = centerB - centerA;
             Vector2 fallbackAxis = centerDelta.sqrMagnitude > 0.000001f ? centerDelta.normalized : Vector2.right;
 
-            Vector2[] axes =
+            Span<Vector2> axes = stackalloc Vector2[3]
             {
                 Vector2.right,
                 Vector2.up,
                 fallbackAxis
             };
 
-            if (a.Volume.Shape == VolumeShapeType.Circle && b.Volume.Shape == VolumeShapeType.Rectangle)
-                AddCircleRectangleAxis(a.Volume, centerA, centerB, axes, 2);
-            else if (a.Volume.Shape == VolumeShapeType.Rectangle && b.Volume.Shape == VolumeShapeType.Circle)
-                AddCircleRectangleAxis(b.Volume, centerB, centerA, axes, 2);
+            switch (a.Volume.Shape)
+            {
+                case VolumeShapeType.Circle when b.Volume.Shape == VolumeShapeType.Rectangle:
+                    AddCircleRectangleAxis(a.Volume, centerA, centerB, axes, 2);
+                    break;
+                case VolumeShapeType.Rectangle when b.Volume.Shape == VolumeShapeType.Circle:
+                    AddCircleRectangleAxis(b.Volume, centerB, centerA, axes, 2);
+                    break;
+            }
 
             float minimumOverlap = float.MaxValue;
             Vector2 minimumAxis = fallbackAxis;
@@ -63,7 +68,7 @@ namespace MoreMountains
             return true;
         }
 
-        static void AddCircleRectangleAxis(VolumeShape circleShape, Vector2 circleCenter, Vector2 rectangleCenter, Vector2[] axes, int axisIndex)
+        static void AddCircleRectangleAxis(VolumeShape circleShape, Vector2 circleCenter, Vector2 rectangleCenter, Span<Vector2> axes, int axisIndex)
         {
             Vector2 halfSize = circleShape == null ? Vector2.zero : circleShape.GetHalfSize();
             // 实际传入的是矩形体积，使用 GetHalfSize 取得矩形半尺寸。
@@ -155,18 +160,18 @@ namespace MoreMountains
         {
             Vector2 direction = centerB - centerA;
             float dist = direction.magnitude;
-            if (dist < 0.001f) 
+            if (dist < 0.001f)
                 return Vector2.right;
 
             float combinedRadius = radiusA + radiusB;
             float overlap = combinedRadius - dist;
 
-            if (overlap <= 0) 
+            if (overlap <= 0)
                 return Vector2.zero;
 
             float maxAllowedOverlap = combinedRadius * maxOverlapRatio;
             float requiredSeparation = overlap - maxAllowedOverlap;
-            if (requiredSeparation <= 0) 
+            if (requiredSeparation <= 0)
                 return Vector2.zero;
 
             return direction.normalized * requiredSeparation;
@@ -191,16 +196,16 @@ namespace MoreMountains
             float combinedRadius = radiusA + radiusB;
             float overlap = combinedRadius - dist;
 
-            if (overlap <= 0) 
+            if (overlap <= 0)
                 return (posA, posB);
 
             float maxAllowedOverlap = combinedRadius * maxOverlapRatio;
             float requiredSeparation = overlap - maxAllowedOverlap;
-            if (requiredSeparation <= 0) 
+            if (requiredSeparation <= 0)
                 return (posA, posB);
 
             float totalMass = massA + massB;
-            if (totalMass <= 0) 
+            if (totalMass <= 0)
                 return (posA, posB);
 
             float ratioA = massB / totalMass;
@@ -217,7 +222,7 @@ namespace MoreMountains
         {
             Vector2 direction = point - center;
             float dist = direction.magnitude;
-            if (dist < 0.001f) 
+            if (dist < 0.001f)
                 return center + Vector2.right * radius;
 
             return center + direction.normalized * radius;
@@ -235,11 +240,11 @@ namespace MoreMountains
             float massInfluence = 0.5f,
             float velocityInfluence = 0.3f)
         {
-            if (relativeSpeed < 0.01f) 
+            if (relativeSpeed < 0.01f)
                 return (velA, velB);
 
             float totalMass = massA + massB;
-            if (totalMass <= 0) 
+            if (totalMass <= 0)
                 return (velA, velB);
 
             float squeezeStrength = relativeSpeed * (1f + massInfluence) * (1f + velocityInfluence);
@@ -343,7 +348,7 @@ namespace MoreMountains
 
         public void ApplyTo(TopDownController2D body)
         {
-            if (body == null) 
+            if (body == null)
                 return;
 
             if (body.Volume == null)
@@ -409,7 +414,7 @@ namespace MoreMountains
         /// </summary>
         public static void RegisterMonsters(this VolumeManager manager, List<Brick> bricks)
         {
-            if (manager == null) 
+            if (manager == null)
                 return;
 
             foreach (var brick in bricks)
@@ -419,45 +424,6 @@ namespace MoreMountains
                 {
                     manager.Register(body);
                 }
-            }
-        }
-
-        /// <summary>
-        /// 获取所有在圆形区域内的实体
-        /// </summary>
-        public static List<TopDownController2D> GetEntitiesInCircle(this VolumeManager manager, Vector2 center, float radius, ref List<TopDownController2D> result)
-        {
-            if (manager == null)
-                return result;
-
-            manager.GetEntitiesInRadius(center, radius, ref result);
-            return result;
-        }
-
-        /// <summary>
-        /// 从玩家向外施打击退力
-        /// </summary>
-        public static void ApplyRadialKnockbackFrom(this VolumeManager manager, TopDownController2D source, float force, float? radius = null)
-        {
-            if (manager == null || source == null) 
-                return;
-
-            float checkRadius = radius ?? source.Volume.BoundingRadius * 5f;
-            using var _ = new ListScope<TopDownController2D>(out var entities);
-            manager.GetEntitiesInRadius(source.CurPosition, checkRadius, ref entities);
-
-            foreach (var entity in entities)
-            {
-                if (entity == source) 
-                    continue;
-
-                Vector2 direction = (entity.CurPosition - source.CurPosition);
-                float dist = direction.magnitude;
-                if (dist < 0.01f) 
-                    continue;
-
-                float distanceFactor = 1f - (dist / checkRadius);
-                manager.ApplyKnockback(entity, direction.normalized, force * distanceFactor);
             }
         }
     }

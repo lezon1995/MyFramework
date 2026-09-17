@@ -3006,13 +3006,13 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1310301451419860362, guid: a8b4bf26ce82fc24fa61716e13df479f,
         type: 3}
-      propertyPath: ShowSpatialHashGrid
+      propertyPath: entityManager.SpatialHashCellSize
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1310301451419860362, guid: a8b4bf26ce82fc24fa61716e13df479f,
         type: 3}
-      propertyPath: SpatialHashCellSize
-      value: 1.35
+      propertyPath: colliderManager.SpatialHashCellSize
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1871066171760622856, guid: a8b4bf26ce82fc24fa61716e13df479f,
         type: 3}

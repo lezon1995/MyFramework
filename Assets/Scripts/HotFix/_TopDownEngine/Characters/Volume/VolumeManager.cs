@@ -11,7 +11,7 @@ namespace MoreMountains
     /// 固体碰撞体专用空间分区（从 VolumeSpatialHash 独立出来）
     /// 负责管理场景中静态固体碰撞体的空间索引。
     /// </summary>
-    class VolumeSolidSpatialHash
+    public class VolumeColliderSpatialHash
     {
         public float CellSize => _cellSize;
         float _cellSize;
@@ -20,7 +20,7 @@ namespace MoreMountains
         Dictionary<VolumeCollider, int> _solidColliderCells = new();
         Dictionary<VolumeCollider, List<(int, int)>> _solidColliderKeys = new();
 
-        public VolumeSolidSpatialHash(float cellSize)
+        public VolumeColliderSpatialHash(float cellSize)
         {
             _cellSize = cellSize;
             _invCellSize = 1f / cellSize;
@@ -153,114 +153,20 @@ namespace MoreMountains
         [Tooltip("是否启用体积碰撞系统")]
         public bool Enabled = true;
 
-        [Tooltip("每帧最大碰撞检测次数（防止性能问题）")]
-        public int MaxCollisionChecksPerFrame = 1000;
-
         [Tooltip("系统更新频率（秒），设为0表示每帧更新")]
         public float UpdateInterval;
-
-        [Header("空间分区设置")]
-        [Tooltip("空间分区网格大小（建议设置为最大碰撞半径的2-4倍）")]
-        public float SpatialHashCellSize = 2f;
-
-        [Tooltip("是否使用增量空间哈希更新（仅移动的实体才更新网格，默认开启）")]
-        public bool UseIncrementalSpatialHash = true;
-
-        [Header("碰撞参数")]
-        [Tooltip("基础分离力")]
-        public float BaseSeparationForce = 10f;
-
-        [Tooltip("质量差影响系数")]
-        [Range(0f, 2f)]
-        public float MassDifferenceInfluence = 0.5f;
-
-        [Tooltip("速度差影响系数")]
-        [Range(0f, 2f)]
-        public float VelocityDifferenceInfluence = 0.3f;
-
-        [Header("链式击退参数")]
-        [Tooltip("链式击退开关")]
-        public bool EnableChainKnockback = true;
-
-        [Tooltip("链式击退最大传播层级")]
-        [Range(1, 10)]
-        public int MaxChainLevel = 5;
-
-        [Tooltip("每级链式击退的衰减比率（0-1）")]
-        [Range(0f, 1f)]
-        public float ChainDecayRatio = 0.6f;
-
-        [Tooltip("链式击退检测半径乘数")]
-        [Range(1f, 3f)]
-        public float ChainKnockbackRadiusMultiplier = 1.5f;
-
-        [Tooltip("触发链式击退的最小击退力")]
-        public float MinChainKnockbackForce = 2f;
-
-        [Header("软排斥参数（防止抖动）")]
-        [Tooltip("启用软排斥：当两实体距离小于此距离乘数时，产生柔和的排斥力，避免贴在一起")]
-        public bool EnableSoftRepulsion = true;
-
-        [Tooltip("软排斥作用距离（乘以两实体半径和），大于此距离无排斥力")]
-        [Range(1f, 3f)]
-        public float SoftRepulsionDistanceRatio = 1.5f;
-
-        [Tooltip("软排斥力强度")]
-        [Range(0f, 20f)]
-        public float SoftRepulsionStrength = 5f;
-
-        [Tooltip("软排斥力作用于速度还是位置（true=位置瞬移，false=力影响速度）")]
-        public bool SoftRepulsionAffectsPosition;
 
         [Header("调试")]
         [Tooltip("显示所有实体的碰撞范围")]
         public bool ShowAllGizmos;
 
-        [Tooltip("显示碰撞连线")]
-        public bool ShowCollisionLines;
-
-        [Tooltip("显示击退方向")]
-        public bool ShowKnockbackDirections;
-
-        [Tooltip("显示软排斥力")]
-        public bool ShowSoftRepulsion;
-
         [Tooltip("显示空间分区网格")]
         public bool ShowSpatialHashGrid = true;
 
-        [Tooltip("空间分区网格透明度")]
-        [Range(0.1f, 1f)]
-        public float SpatialHashGridAlpha = 0.3f;
+        public VolumeEntityManager entityManager;
+        public VolumeColliderManager colliderManager;
 
-        [Header("固体碰撞体（边界/障碍物）")]
-        [Tooltip("启用固体碰撞体碰撞检测")]
-        public bool EnableSolidColliders = true;
-
-        [Tooltip("是否自动检测场景中的 VolumeCollider")]
-        public bool AutoDetectVolumeColliders = true;
-
-        // 空间分区
-        VolumeSpatialHash _spatialHash;
-        VolumeSolidSpatialHash _solidSpatialHash;
-
-        // 运行时数据 - 实体
-        List<TopDownController2D> _registeredEntities = new();
-        List<TopDownController2D> _potentialColliders = new();
-        List<KnockbackChainResult> _knockbackChain = new();
-        Queue<TopDownController2D> _entityQueue = new();
-        HashSet<TopDownController2D> _visitedSet = new();
-
-        // 配对去重：位运算版（避免每帧 new HashSet）
-        uint[] _pairKeysBuffer = new uint[4096];
-        int _pairKeysCount;
-
-        // 运行时数据 - 固体碰撞体
-        List<VolumeCollider> _solidColliders = new();
-        List<VolumeCollider> _potentialSolidColliders = new();
-
-        int _collisionCheckCount;
         float _updateTimer;
-        int _totalEntitiesLastFrame;
 
         // 事件
         public event Action<VolumeCollisionEvent> OnCollisionDetected;
@@ -274,21 +180,17 @@ namespace MoreMountains
 
         void InitializeSpatialHash()
         {
-            _spatialHash = new VolumeSpatialHash(SpatialHashCellSize);
-            _solidSpatialHash = new VolumeSolidSpatialHash(SpatialHashCellSize);
+            entityManager.InitializeSpatialHash();
+            colliderManager.InitializeSpatialHash();
         }
 
         protected virtual void Start()
         {
-            if (AutoDetectVolumeColliders)
-            {
-                AutoDetectSolidColliders();
-            }
+            colliderManager.TryAutoDetectSolidColliders();
         }
 
-        public override void OnUpdate(float dt)
+        public override void OnFixedUpdate(float dt)
         {
-            base.OnUpdate(dt);
             if (!Enabled)
                 return;
 
@@ -303,22 +205,14 @@ namespace MoreMountains
 
             // 实体↔实体碰撞（互相挤）
             ProcessAllCollisions(dt);
-
-            _totalEntitiesLastFrame = _registeredEntities.Count;
         }
 
         protected virtual void LateUpdate()
         {
-            // 击退力应用（在 LateUpdate 中，确保击退应用到当前位置后能立即被纠正）
-            ApplyAllKnockbackForces();
-
             // 实体↔固体碰撞体碰撞（必须最后做，否则怪物下一次 LateUpdate 又会穿回去）
             // 这是最后一道保险：把实体推回表面外，并清理朝向墙的速度
-            if (EnableSolidColliders)
-            {
-                var dt = Time.deltaTime;
-                ProcessSolidColliderCollisions(dt);
-            }
+            // var dt = Time.deltaTime;
+            // colliderManager.ProcessSolidColliderCollisions(entityManager.Entities, dt);
         }
 
         #region Spatial Hash
@@ -328,38 +222,8 @@ namespace MoreMountains
         /// </summary>
         void UpdateSpatialHash()
         {
-            if (_spatialHash == null)
-            {
-                InitializeSpatialHash();
-            }
-
-            if (UseIncrementalSpatialHash)
-            {
-                // 增量更新：仅当格子变化时才重建
-                _spatialHash.IncrementalUpdate(_registeredEntities);
-            }
-            else
-            {
-                // 全量重建（实体大幅变化时使用）
-                _spatialHash.Rebuild(_registeredEntities);
-            }
-
-            // 固体碰撞体通常不移动，保持全量重建
-            if (EnableSolidColliders && _solidSpatialHash != null)
-            {
-                RebuildSolidColliderSpatialHash();
-            }
-        }
-
-        /// <summary>
-        /// 获取指定实体的潜在碰撞体
-        /// </summary>
-        void GetPotentialColliders(TopDownController2D entity)
-        {
-            _potentialColliders.Clear();
-
-            // 使用空间分区获取潜在碰撞体
-            _spatialHash.GetPotentialColliders(entity, _potentialColliders);
+            entityManager.UpdateSpatialHash();
+            colliderManager.UpdateSpatialHash();
         }
 
         #endregion
@@ -367,146 +231,14 @@ namespace MoreMountains
         #region Solid Collider Registration
 
         /// <summary>
-        /// 自动检测场景中的 VolumeCollider 并注册
-        /// </summary>
-        [ContextMenu("Auto Detect Solid Colliders")]
-        public void AutoDetectSolidColliders()
-        {
-            _solidColliders.Clear();
-
-            var colliders = FindObjectsByType<VolumeCollider>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
-            foreach (var col in colliders)
-            {
-                if (col.IsEnabled() && col.AutoRegister)
-                {
-                    RegisterSolidCollider(col);
-                }
-            }
-
-            Debug.Log($"[VolumeManager] 自动检测到 {_solidColliders.Count} 个固体碰撞体", this);
-        }
-
-        /// <summary>
         /// 注册固体碰撞体
         /// </summary>
-        public void RegisterSolidCollider(VolumeCollider collider)
-        {
-            if (_solidColliders.Contains(collider))
-                return;
-
-            _solidColliders.Add(collider);
-            _solidSpatialHash?.Insert(collider);
-        }
+        public void RegisterSolidCollider(VolumeCollider collider) => colliderManager.Register(collider);
 
         /// <summary>
         /// 注销固体碰撞体
         /// </summary>
-        public void UnregisterSolidCollider(VolumeCollider collider)
-        {
-            _solidColliders.Remove(collider);
-            _solidSpatialHash?.Remove(collider);
-        }
-
-        /// <summary>
-        /// 当固体碰撞体移动时调用（由 VolumeCollider 在 Update 中调用）
-        /// </summary>
-        public void NotifyColliderMoved(VolumeCollider collider)
-        {
-            // 空间分区会在下一帧自动重建，不需要手动更新
-        }
-
-        /// <summary>
-        /// 重建固体碰撞体的空间分区
-        /// </summary>
-        void RebuildSolidColliderSpatialHash()
-        {
-            _solidSpatialHash.Rebuild(_solidColliders);
-        }
-
-        /// <summary>
-        /// 获取指定实体的潜在固体碰撞体
-        /// </summary>
-        void GetPotentialSolidColliders(TopDownController2D entity)
-        {
-            _potentialSolidColliders.Clear();
-
-            if (_solidSpatialHash != null)
-            {
-                _solidSpatialHash.GetPotentialSolids(entity, _potentialSolidColliders);
-            }
-            else
-            {
-                _potentialSolidColliders.AddRange(_solidColliders);
-            }
-        }
-
-        /// <summary>
-        /// 处理实体与固体碰撞体的碰撞
-        /// </summary>
-        protected virtual void ProcessSolidColliderCollisions(float dt)
-        {
-            if (_solidColliders.Count == 0)
-                return;
-
-            foreach (var entity in _registeredEntities)
-            {
-                GetPotentialSolidColliders(entity);
-
-                foreach (var solid in _potentialSolidColliders)
-                {
-                    if (!solid.IsEnabled())
-                        continue;
-
-                    ProcessEntitySolidCollision(entity, solid, dt);
-                }
-            }
-        }
-
-        /// <summary>
-        /// 处理单个实体与固体碰撞体的碰撞
-        /// </summary>
-        protected virtual void ProcessEntitySolidCollision(TopDownController2D entity, VolumeCollider solid, float dt)
-        {
-            var result = new VolumeColliderCollisionResult(entity, solid);
-
-            if (!result.IsColliding)
-                return;
-
-            // 1. 位置分离：把实体推到表面外（重叠量 + 一点点缓冲，避免下一帧又穿透）
-            //    必须保证能在一帧内清掉所有重叠，否则会被持续推 → 抖动
-            var pushDistance = result.Overlap + 0.001f;
-            var pushDir = result.SurfaceNormal;
-            entity.MovePositionBy(pushDir * pushDistance);
-
-            // 2. 速度处理：实体朝墙方向的速度分量需要清除
-            //    SurfaceNormal 是从墙指向实体的方向，所以沿这个方向的速度是"远离墙"的，
-            //    沿 -SurfaceNormal 的速度才是"撞向墙"，要被消除
-            Vector3 totalVel = entity.IntentVelocity + entity.KnockbackVelocity;
-            float velIntoWall = Vector2.Dot(totalVel, -pushDir);
-
-            if (velIntoWall > 0)
-            {
-                // 撞墙中，清除指向墙的速度分量（按质量比保留部分动能）
-                // 固体质量视为无限大，所以击退速度完全被挡
-                float restitution = 0f; // 不反弹
-                Vector3 reflectedVel = totalVel - (-pushDir) * (velIntoWall * (1f + restitution));
-                // 把反射后的总速度拆分到 IntentVelocity 和 KnockbackVelocity
-                // 简单起见，全部作用在 KnockbackVelocity（IntentVelocity 通常较小）
-                Vector3 newTotal = reflectedVel;
-
-                // 保留 IntentVelocity 的切向分量，把垂直分量设为 0
-                float intentNormal = Vector2.Dot(entity.IntentVelocity, -pushDir);
-                if (intentNormal > 0)
-                {
-                    entity.IntentVelocity += pushDir * intentNormal;
-                }
-
-                // KnockbackVelocity 剩余部分补到 total
-                Vector3 intentRemaining = entity.IntentVelocity;
-                Vector3 neededKnockback = newTotal - intentRemaining;
-                entity.KnockbackVelocity = neededKnockback;
-            }
-        }
+        public void UnregisterSolidCollider(VolumeCollider collider) => colliderManager.Unregister(collider);
 
         #endregion
 
@@ -515,32 +247,12 @@ namespace MoreMountains
         /// <summary>
         /// 注册实体到碰撞系统
         /// </summary>
-        public void Register(TopDownController2D entity)
-        {
-            if (entity.IsRegistered)
-                return;
-
-            _registeredEntities.Add(entity);
-            entity.IsRegistered = true;
-
-            // 插入到空间分区
-            _spatialHash?.Insert(entity);
-        }
+        public void Register(TopDownController2D entity) => entityManager.Register(entity);
 
         /// <summary>
         /// 注销实体
         /// </summary>
-        public void Unregister(TopDownController2D entity)
-        {
-            if (!entity.IsRegistered)
-                return;
-
-            _registeredEntities.Remove(entity);
-            entity.IsRegistered = false;
-
-            // 从空间分区移除
-            _spatialHash?.Remove(entity);
-        }
+        public void Unregister(TopDownController2D entity) => entityManager.Unregister(entity);
 
         /// <summary>
         /// 批量注册实体
@@ -558,14 +270,7 @@ namespace MoreMountains
         /// </summary>
         public void ClearAll()
         {
-            foreach (var entity in _registeredEntities)
-            {
-                if (entity != null)
-                    entity.IsRegistered = false;
-            }
-
-            _registeredEntities.Clear();
-            _spatialHash?.Clear();
+            entityManager.ClearAll();
         }
 
         #endregion
@@ -577,306 +282,8 @@ namespace MoreMountains
         /// </summary>
         protected virtual void ProcessAllCollisions(float dt)
         {
-            _collisionCheckCount = 0;
-            _pairKeysCount = 0;
-
-            ProcessCollisionsOptimized(dt);
-        }
-
-        /// <summary>
-        /// 优化版空间分区碰撞检测。
-        /// 关键优化：
-        /// 1. 位运算配对去重（无 GC）
-        /// 2. 旁路式直接处理，不缓冲结果
-        /// 3. 减少 struct 构造函数调用
-        /// </summary>
-        void ProcessCollisionsOptimized(float dt)
-        {
-            int entityCount = _registeredEntities.Count;
-
-            for (int i = 0; i < entityCount; i++)
-            {
-                bool isThisEntityAffectedByOthers = false;
-                var entity = _registeredEntities[i];
-                _potentialColliders.Clear();
-                _spatialHash.GetPotentialColliders(entity, _potentialColliders);
-
-                int otherCount = _potentialColliders.Count;
-                for (int j = 0; j < otherCount; j++)
-                {
-                    var other = _potentialColliders[j];
-                    // 位运算配对去重（无 GC）
-                    uint idA = (uint)entity.GetInstanceID();
-                    uint idB = (uint)other.GetInstanceID();
-                    uint pairKey = idA < idB
-                        ? (idA << 16) | (idB & 0xFFFF)
-                        : (idB << 16) | (idA & 0xFFFF);
-
-                    bool alreadyProcessed = false;
-                    for (int k = 0; k < _pairKeysCount; k++)
-                    {
-                        if (_pairKeysBuffer[k] == pairKey)
-                        {
-                            alreadyProcessed = true;
-                            break;
-                        }
-                    }
-
-                    if (alreadyProcessed)
-                        continue;
-
-                    if (_pairKeysCount < _pairKeysBuffer.Length)
-                        _pairKeysBuffer[_pairKeysCount++] = pairKey;
-
-                    if (_collisionCheckCount >= MaxCollisionChecksPerFrame)
-                        return;
-
-                    if (ProcessPairCollision(entity, other, dt))
-                    {
-                        isThisEntityAffectedByOthers = true;
-                    }
-
-                    _collisionCheckCount++;
-                }
-
-                if (!isThisEntityAffectedByOthers)
-                {
-                    entity.IntentVelocity = Vector3.zero;
-                }
-            }
-        }
-
-        /// <summary>
-        /// 处理一对实体的碰撞。
-        /// 旁路式：不 new VolumeCollisionResult，用临时变量承载结果。
-        /// 精确相交判定改用 <see cref="VolumeShapeIntersection"/>，避免原先把
-        /// Circle/Rectangle 都退化成 BoundingRadius 圆判定导致的"假重叠"。
-        /// </summary>
-        bool ProcessPairCollision(TopDownController2D a, TopDownController2D b, float dt)
-        {
-            var hasCollision = false;
-            var centerA = a.VolumeCenter;
-            var centerB = b.VolumeCenter;
-
-            // 精确相交判定：支持 Circle/Circle、Circle/Rectangle、Rectangle/Rectangle 三种组合，
-            // 附带真实穿透深度（沿各自最小分离轴）。
-            var intersecting = VolumeShapeIntersection.TryGetOverlap(a.Volume, centerA, b.Volume, centerB, out float overlap, scaling: 1.1F);
-
-            // 软排斥需要在"未真正相交但距离接近"时也能触发。
-            // 软排斥半径使用"沿中心连线的精确当量半径之和"：把 A/B 各自沿中心连线方向投影，
-            // 得到刚好让两形状相切所需的最小中心距。这对长矩形尤其重要——
-            // 旧版用 BoundingRadius 会让对角线长度决定软排斥半径，造成远处误触发 / 近处漏判。
-            var centerDist = Vector2.Distance(centerA, centerB);
-            var repulsionRadius = ComputeSoftRepulsionRadius(a.Volume, b.Volume, centerA, centerB);
-            var softRepulsionRadius = repulsionRadius * SoftRepulsionDistanceRatio;
-
-            if (!intersecting && !EnableSoftRepulsion)
-                return false;
-
-            // 软排斥（如果启用）—— 与原版保持一致，仅作用在"近距离但不一定相交"的情况
-            if (EnableSoftRepulsion && centerDist < softRepulsionRadius && centerDist > 0.0001f)
-            {
-                float strength = 1f - (centerDist / softRepulsionRadius);
-                strength *= strength;
-                float totalMass = a.CollisionMass + b.CollisionMass;
-                if (totalMass > 0f)
-                {
-                    float ratioA = b.CollisionMass / totalMass;
-                    float ratioB = a.CollisionMass / totalMass;
-                    Vector3 repelDir;
-                    if (centerDist.isZero())
-                        repelDir = Vector3.right;
-                    else
-                        repelDir = (centerB - centerA) / centerDist;
-
-                    float repelForce = SoftRepulsionStrength * strength * dt;
-                    if (SoftRepulsionAffectsPosition)
-                    {
-                        a.MovePositionBy(-repelDir * (repelForce * ratioA));
-                        b.MovePositionBy(repelDir * (repelForce * ratioB));
-                    }
-                    else
-                    {
-                        a.IntentVelocity -= repelDir * (repelForce * ratioA);
-                        b.IntentVelocity += repelDir * (repelForce * ratioB);
-                    }
-
-                    hasCollision = true;
-                }
-            }
-
-            if (!intersecting)
-                return hasCollision;
-
-            // 计算分离方向：圆-圆沿中心连线；矩形参与时走 VolumeShapeIntersection
-            // 提供的最小分离轴，能正确处理矩形边的"轴对齐分离"。
-            Vector3 dir = ComputeSeparationDirection(a, b, centerA, centerB, out float axisOverlap);
-            // axisOverlap 即沿最小分离轴的真实穿透深度（已叠加 scaling=1 的原始尺寸），
-            // 等价于旧版用包围圆算出来的 overlap，但在矩形场景下更精确。
-            overlap = axisOverlap;
-
-            // 计算最大允许重叠与所需分离量。
-            // 注意：maxAllowedOverlap 来自实体自身的 MaxOverlapDistance 字段（与形状无关），
-            // 不再使用 BoundingRadius 派生当量半径——后者在长矩形下会偏大，
-            // 导致 requiredSeparation 偏小甚至为 0，挤压感丢失。
-            float maxAllowedOverlap = a.MaxOverlapDistance + b.MaxOverlapDistance;
-            float requiredSeparation = Mathf.Max(0f, overlap - maxAllowedOverlap);
-
-            // 分离
-            if (requiredSeparation > 0f)
-            {
-                float totalMass = a.CollisionMass + b.CollisionMass;
-                if (totalMass > 0f)
-                {
-                    float ratioA = b.CollisionMass / totalMass;
-                    float ratioB = a.CollisionMass / totalMass;
-                    float separationForce = BaseSeparationForce * dt;
-                    float sepA = requiredSeparation * ratioA * separationForce;
-                    float sepB = requiredSeparation * ratioB * separationForce;
-                    a.MovePositionBy(-dir * sepA);
-                    b.MovePositionBy(dir * sepB);
-                    hasCollision = true;
-                }
-            }
-
-            // 挤压
-            float relativeSpeed = (a.TotalVelocity - b.TotalVelocity).magnitude;
-            if (relativeSpeed > 0.01f)
-            {
-                float velAlongCollision = Vector2.Dot(a.TotalVelocity - b.TotalVelocity, dir);
-                if (velAlongCollision > 0f)
-                {
-                    float totalMass = a.CollisionMass + b.CollisionMass;
-                    if (totalMass > 0f)
-                    {
-                        float massRatioA = a.CollisionMass / totalMass;
-                        float massRatioB = b.CollisionMass / totalMass;
-                        float squeezeStrength = relativeSpeed * (1f + MassDifferenceInfluence) * (1f + VelocityDifferenceInfluence);
-                        float squeezeA = velAlongCollision * massRatioB * squeezeStrength * dt * 0.5f;
-                        float squeezeB = velAlongCollision * massRatioA * squeezeStrength * dt * 0.5f;
-                        a.IntentVelocity += (-dir * squeezeA);
-                        b.IntentVelocity += (-dir * squeezeB);
-                        hasCollision = true;
-                    }
-                }
-            }
-
-            // 触发事件（仅在真正重叠且需要分离时）
-            if (overlap > 0.001f)
-            {
-                var evt = new VolumeCollisionEvent
-                {
-                    Self = a,
-                    Other = b,
-                    Result = new VolumeCollisionResult(a, b),
-                    DeltaTime = dt
-                };
-                OnCollisionDetected?.Invoke(evt);
-
-                var evtB = new VolumeCollisionEvent
-                {
-                    Self = b,
-                    Other = a,
-                    Result = new VolumeCollisionResult(b, a),
-                    DeltaTime = dt
-                };
-                OnCollisionDetected?.Invoke(evtB);
-            }
-
-            return hasCollision;
-        }
-
-        /// <summary>
-        /// 计算两个形状在中心连线方向上的"精确当量半径和"——
-        /// 即：让两形状刚好沿该方向相切所需的最小中心距。
-        /// 这相当于 SAT 的第一步投影：把 A、B 各自沿中心连线方向投影，
-        /// 投影半径之和就是沿该方向"贴边但不重叠"的临界距离。
-        /// 相比 BoundingRadius 之和，对长矩形更准确（不会被对角线长度拉大）。
-        /// </summary>
-        static float ComputeSoftRepulsionRadius(VolumeShape a, VolumeShape b, Vector2 centerA, Vector2 centerB)
-        {
-            Vector2 delta = centerB - centerA;
-            Vector2 axis;
-            if (delta.sqrMagnitude > 1e-6f)
-                axis = delta.normalized;
-            else
-                axis = Vector2.right;
-
-            float radiusA = a.GetProjectionRadius(axis);
-            float radiusB = b.GetProjectionRadius(axis);
-            return Mathf.Max(0f, radiusA + radiusB);
-        }
-
-        /// <summary>
-        /// 计算从 A 指向 B 的分离方向与沿该方向的穿透深度。
-        /// - Circle + Circle：直接用中心连线方向，深度 = 半径和 - 中心距。
-        /// - 其它组合：基于分离轴定理（SAT）枚举候选轴，
-        ///   取穿透深度最小的那条轴作为分离方向，深度即为该轴上的真实重叠量。
-        /// 所有计算都在原始尺寸（scaling=1）下进行，与 <see cref="VolumeShapeIntersection"/> 保持一致。
-        /// </summary>
-        static Vector3 ComputeSeparationDirection(
-            TopDownController2D a, TopDownController2D b,
-            Vector2 centerA, Vector2 centerB,
-            out float overlap)
-        {
-            Vector2 centerDelta = centerB - centerA;
-            float deltaSq = centerDelta.sqrMagnitude;
-            Vector2 fallbackAxis = deltaSq > 1e-6f ? centerDelta / Mathf.Sqrt(deltaSq) : Vector2.right;
-
-            // 候选分离轴：X、Y、以及"两个中心连线"作为兜底
-            Span<Vector2> axes = stackalloc Vector2[3]
-            {
-                Vector2.right,
-                Vector2.up,
-                fallbackAxis,
-            };
-
-            // 圆与矩形时，把"圆心到矩形最近点"也作为候选分离轴，
-            // 这是 SAT 处理圆-矩的标准做法。
-            if (a.Volume.Shape != b.Volume.Shape)
-            {
-                bool aIsCircle = a.Volume.Shape == VolumeShapeType.Circle;
-                Vector2 circleCenter = aIsCircle ? centerA : centerB;
-                Vector2 rectCenter = aIsCircle ? centerB : centerA;
-                Vector2 rectHalf = (aIsCircle ? b.Volume.Size : a.Volume.Size) * 0.5f;
-
-                Vector2 closest = rectCenter + new Vector2(
-                    Mathf.Clamp(circleCenter.x - rectCenter.x, -rectHalf.x, rectHalf.x),
-                    Mathf.Clamp(circleCenter.y - rectCenter.y, -rectHalf.y, rectHalf.y));
-                Vector2 axis = circleCenter - closest;
-                if (axis.sqrMagnitude > 1e-6f)
-                    axes[2] = axis.normalized;
-            }
-
-            float minOverlap = float.MaxValue;
-            Vector2 minAxis = fallbackAxis;
-            for (int i = 0; i < 3; i++)
-            {
-                Vector2 axis = axes[i];
-                if (axis.sqrMagnitude < 1e-6f)
-                    continue;
-                axis.Normalize();
-
-                float projA = a.Volume.GetProjectionRadius(axis);
-                float projB = b.Volume.GetProjectionRadius(axis);
-                float axisOverlap = projA + projB - Mathf.Abs(Vector2.Dot(centerDelta, axis));
-                if (axisOverlap <= 0f)
-                {
-                    // 理论上不会到这里（已在外层 TryGetOverlap 判定相交），但保留保护
-                    overlap = 0f;
-                    return fallbackAxis;
-                }
-
-                if (axisOverlap < minOverlap)
-                {
-                    minOverlap = axisOverlap;
-                    minAxis = axis;
-                }
-            }
-
-            overlap = minOverlap;
-            // 分离方向：从 A 指向 B；点积 < 0 时取反向，保证方向与位移一致
-            return Vector2.Dot(centerDelta, minAxis) < 0f ? -minAxis : minAxis;
+            entityManager.ProcessAllCollisions(dt);
+            colliderManager.ProcessSolidColliderCollisions(entityManager.Entities, dt);
         }
 
         #endregion
@@ -897,11 +304,6 @@ namespace MoreMountains
 
             target.AddImpact(direction, actualForce);
 
-            if (EnableChainKnockback && force >= MinChainKnockbackForce)
-            {
-                ProcessChainKnockback(target, direction, force);
-            }
-
             OnKnockbackApplied?.Invoke(new KnockbackEvent
             {
                 Source = null,
@@ -913,210 +315,6 @@ namespace MoreMountains
             });
         }
 
-        /// <summary>
-        /// 处理链式击退
-        /// 链式击退原理：当A被击退时，A会连带击退在A身后（击退方向相反）的其他实体B
-        /// B又会连带击退在B身后的实体C，以此类推
-        /// </summary>
-        protected virtual void ProcessChainKnockback(TopDownController2D source, Vector2 direction, float force)
-        {
-            _knockbackChain.Clear();
-            _visitedSet.Clear();
-
-            // 链式传播：source(0级) -> 1级 -> 2级 -> ...
-            using var _ = new DicScope<TopDownController2D, int>(out var entityLevels);
-
-            // BFS队列，每层记录当前位置
-            _entityQueue.Clear();
-            _entityQueue.Enqueue(source);
-            _visitedSet.Add(source);
-            entityLevels[source] = 0;
-
-            int maxIterations = _registeredEntities.Count * 2;
-            int iterations = 0;
-
-            while (_entityQueue.Count > 0 && iterations < maxIterations)
-            {
-                iterations++;
-                var current = _entityQueue.Dequeue();
-                int currentLevel = entityLevels[current];
-
-                // 超过最大层级，不再传播
-                if (currentLevel >= MaxChainLevel)
-                    continue;
-
-                // 当前层级的检测范围（考虑层级衰减）
-                float levelFactor = 1f - (currentLevel * 0.1f);
-                float checkRadius = current.Volume.BoundingRadius * ChainKnockbackRadiusMultiplier * 2f * levelFactor;
-
-                // 获取当前位置周围的实体
-                var neighbors = GetEntitiesInRadiusInternal(current.CurPosition, checkRadius);
-                foreach (var other in neighbors)
-                {
-                    if (_visitedSet.Contains(other) || other == source)
-                        continue;
-
-                    // 检查是否在击退方向的后方（相对于当前实体）
-                    Vector2 toOther = other.CurPosition - current.CurPosition;
-                    float dist = toOther.magnitude;
-                    if (dist < 0.01f)
-                        continue;
-                    toOther /= dist;
-
-                    // 点积 < 0 表示 angle > 90°，即 other 在 current 的身后方向
-                    float dot = Vector2.Dot(direction, toOther);
-
-                    if (dot < -0.3f) // 约107度范围内
-                    {
-                        _visitedSet.Add(other);
-                        int nextLevel = currentLevel + 1;
-                        entityLevels[other] = nextLevel;
-                        _entityQueue.Enqueue(other);
-
-                        // 计算链式击退力（逐级衰减）
-                        float chainForce = CalculateChainForce(force, nextLevel);
-
-                        if (chainForce > 0.01f)
-                        {
-                            _knockbackChain.Add(new KnockbackChainResult
-                            {
-                                Target = other,
-                                OriginalForce = force,
-                                ActualForce = chainForce,
-                                Direction = direction,
-                                ChainLevel = nextLevel
-                            });
-                        }
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// 获取指定位置周围指定半径内的实体（内部使用，不分配新列表）
-        /// </summary>
-        List<TopDownController2D> GetEntitiesInRadiusInternal(Vector3 position, float radius)
-        {
-            _potentialColliders.Clear();
-            float radiusSq = radius * radius;
-
-            foreach (var entity in _registeredEntities)
-            {
-                float distSq = (entity.VolumeCenter - position).sqrMagnitude;
-                if (distSq <= radiusSq)
-                {
-                    _potentialColliders.Add(entity);
-                }
-            }
-
-            return _potentialColliders;
-        }
-
-        /// <summary>
-        /// 计算链式击退力（经过衰减）
-        /// </summary>
-        protected virtual float CalculateChainForce(float originalForce, int chainLevel)
-        {
-            if (chainLevel <= 0) return originalForce;
-            return originalForce * Mathf.Pow(ChainDecayRatio, chainLevel);
-        }
-
-        /// <summary>
-        /// 应用所有链式击退
-        /// </summary>
-        protected virtual void ApplyAllKnockbackForces()
-        {
-            foreach (var chain in _knockbackChain)
-            {
-                if (!chain.IsValid)
-                    continue;
-
-                chain.Target.AddImpact(chain.Direction, chain.ActualForce);
-
-                OnKnockbackApplied?.Invoke(new KnockbackEvent
-                {
-                    Source = null,
-                    Target = chain.Target,
-                    Direction = chain.Direction,
-                    OriginalForce = chain.OriginalForce,
-                    ActualForce = chain.ActualForce,
-                    ChainLevel = chain.ChainLevel
-                });
-            }
-        }
-
-        #endregion
-
-        #region Query
-
-        /// <summary>
-        /// 获取指定点周围的所有实体
-        /// </summary>
-        public void GetEntitiesInRadius(Vector3 position, float radius, ref List<TopDownController2D> result)
-        {
-            result.Clear();
-            _spatialHash.GetEntitiesInCircle(position, radius, result);
-        }
-
-        /// <summary>
-        /// 通用形状查询：在指定形状范围内的所有实体。形状参数支持圆形与不旋转的矩形。
-        /// </summary>
-        public void GetEntitiesInShape(VolumeShape shape, Vector3 center, ref List<TopDownController2D> result)
-        {
-            result.Clear();
-            if (shape == null)
-                return;
-
-            float boundingRadius = shape.BoundingRadius;
-            _spatialHash.GetEntitiesInCircle(center, boundingRadius, result);
-
-            // 粗筛后再用精确形状裁剪
-            for (int i = result.Count - 1; i >= 0; i--)
-            {
-                if (!VolumeUtils.ContainsShape(shape, center, result[i].VolumeCenter, result[i].Volume))
-                    result.RemoveAt(i);
-            }
-        }
-
-        /// <summary>
-        /// 获取最近的可碰撞实体
-        /// </summary>
-        public TopDownController2D GetNearestEntity(Vector3 position, float maxDistance = float.MaxValue)
-        {
-            TopDownController2D nearest = null;
-            float nearestDistSq = maxDistance * maxDistance;
-
-            foreach (var entity in _registeredEntities)
-            {
-                float distSq = (entity.CurPosition - position).sqrMagnitude;
-                if (distSq < nearestDistSq)
-                {
-                    nearestDistSq = distSq;
-                    nearest = entity;
-                }
-            }
-
-            return nearest;
-        }
-
-        /// <summary>
-        /// 圆形碰撞检测
-        /// </summary>
-        public bool CircleIntersectsCircle(Vector2 centerA, float radiusA, Vector2 centerB, float radiusB)
-        {
-            float distSq = (centerA - centerB).sqrMagnitude;
-            float radiusSum = radiusA + radiusB;
-            return distSq <= radiusSum * radiusSum;
-        }
-
-        /// <summary>
-        /// 点是否在圆内
-        /// </summary>
-        public bool PointInCircle(Vector2 point, Vector2 center, float radius)
-        {
-            return (point - center).sqrMagnitude <= radius * radius;
-        }
-
         #endregion
 
         protected virtual void OnDrawGizmos()
@@ -1124,27 +322,9 @@ namespace MoreMountains
             // 实体和空间分区网格（仅运行时）
             if (Application.isPlaying)
             {
-                if (ShowAllGizmos)
+                if (ShowSpatialHashGrid)
                 {
-                    Gizmos.color = Color.cyan;
-                    foreach (var entity in _registeredEntities)
-                    {
-                        Vector2 center = entity.VolumeCenter;
-                        if (entity.Volume.Shape == VolumeShapeType.Rectangle)
-                            Gizmos.DrawWireCube(center, entity.Volume.Size);
-                        else
-                            Gizmos.DrawWireSphere(center, entity.Volume.Radius);
-                    }
-                }
-
-                if (ShowSpatialHashGrid && _spatialHash != null)
-                {
-                    // DrawSpatialHashGrid(_spatialHash, Color.green);
-                }
-
-                if (ShowSpatialHashGrid && EnableSolidColliders && _solidSpatialHash != null)
-                {
-                    DrawSolidSpatialHashGrid(_solidSpatialHash, Color.yellow);
+                    colliderManager.DrawSolidSpatialHashGrid(Color.yellow);
                 }
             }
             else
@@ -1174,11 +354,11 @@ namespace MoreMountains
         /// </summary>
         void DrawGridPreview()
         {
-            float cellSize = SpatialHashCellSize;
+            float cellSize = colliderManager.SpatialHashCellSize;
             float gridExtent = 10f; // 显示范围
             Vector3 center = transform.position;
 
-            Gizmos.color = new Color(0f, 1f, 0f, SpatialHashGridAlpha);
+            Gizmos.color = new Color(0f, 1f, 0f, colliderManager.SpatialHashGridAlpha);
 
             // 绘制一个范围内的网格预览
             for (float x = -gridExtent; x <= gridExtent; x += cellSize)
@@ -1200,31 +380,6 @@ namespace MoreMountains
             // 绘制中心点
             Gizmos.color = Color.white;
             Gizmos.DrawWireSphere(center, 0.2f);
-        }
-
-        void DrawSolidSpatialHashGrid(VolumeSolidSpatialHash solidHash, Color color)
-        {
-            float cellSize = solidHash.CellSize;
-            float alpha = SpatialHashGridAlpha;
-            Color c = new Color(color.r, color.g, color.b, alpha);
-
-            foreach (var solid in _solidColliders)
-            {
-                var bounds = solid.Collider.bounds;
-                int minX = Mathf.FloorToInt(bounds.min.x / cellSize);
-                int maxX = Mathf.FloorToInt(bounds.max.x / cellSize);
-                int minY = Mathf.FloorToInt(bounds.min.y / cellSize);
-                int maxY = Mathf.FloorToInt(bounds.max.y / cellSize);
-                for (int cx = minX; cx <= maxX; cx++)
-                {
-                    for (int cy = minY; cy <= maxY; cy++)
-                    {
-                        Vector3 center = new Vector3((cx + 0.5f) * cellSize, (cy + 0.5f) * cellSize, 0f);
-                        Gizmos.color = c;
-                        Gizmos.DrawWireCube(center, Vector3.one * cellSize);
-                    }
-                }
-            }
         }
     }
 }

@@ -54,36 +54,6 @@ namespace MoreMountains
                 volumeManager.ApplyKnockback(body, direction, force);
             }
         }
-
-        /// <summary>
-        /// 获取Brick当前的重叠信息
-        /// </summary>
-        public static List<VolumeCollisionResult> GetOverlapInfo(this Brick brick)
-        {
-            var results = new List<VolumeCollisionResult>();
-            if (brick == null || volumeManager == null) 
-                return results;
-
-            var body = brick.GetVolumeBody();
-            if (body == null) 
-                return results;
-
-            using var _ = new ListScope<TopDownController2D>(out var entities);
-            volumeManager.GetEntitiesInRadius(body.VolumeCenter, body.Volume.BoundingRadius * 3f, ref entities);
-            foreach (var entity in entities)
-            {
-                if (entity == body) 
-                    continue;
-
-                var result = new VolumeCollisionResult(body, entity);
-                if (result.IsColliding)
-                {
-                    results.Add(result);
-                }
-            }
-
-            return results;
-        }
     }
 
     /// <summary>

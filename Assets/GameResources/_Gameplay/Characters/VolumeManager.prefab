@@ -47,27 +47,23 @@ MonoBehaviour:
   mNeedUpdate: 1
   mNeedFixedUpdate: 1
   Enabled: 1
-  MaxCollisionChecksPerFrame: 1000
   UpdateInterval: 0
-  SpatialHashCellSize: 1.35
-  UseIncrementalSpatialHash: 1
-  BaseSeparationForce: 10
-  MassDifferenceInfluence: 0.5
-  VelocityDifferenceInfluence: 0.3
-  EnableChainKnockback: 1
-  MaxChainLevel: 5
-  ChainDecayRatio: 0.6
-  ChainKnockbackRadiusMultiplier: 1.5
-  MinChainKnockbackForce: 2
-  EnableSoftRepulsion: 1
-  SoftRepulsionDistanceRatio: 1.5
-  SoftRepulsionStrength: 5
-  SoftRepulsionAffectsPosition: 0
   ShowAllGizmos: 0
-  ShowCollisionLines: 0
-  ShowKnockbackDirections: 0
-  ShowSoftRepulsion: 0
   ShowSpatialHashGrid: 1
-  SpatialHashGridAlpha: 0.3
-  EnableSolidColliders: 1
-  AutoDetectVolumeColliders: 1
+  entityManager:
+    Enabled: 1
+    SpatialHashCellSize: 0.75
+    UseIncrementalSpatialHash: 1
+    DefaultMaxOverlapRatio: 0
+    SeparationEpsilon: 0.001
+    MinOverlapToReact: 0.0001
+    MaxCollisionChecksPerFrame: 1000
+    CollisionPushScale: 1
+    CollisionBumpImpulse: 0
+    RelativeSpeedDeadZone: 0.01
+    LogVerbose: 0
+  colliderManager:
+    SpatialHashCellSize: 0.75
+    EnableSolidColliders: 1
+    AutoDetectVolumeColliders: 1
+    SpatialHashGridAlpha: 0.3

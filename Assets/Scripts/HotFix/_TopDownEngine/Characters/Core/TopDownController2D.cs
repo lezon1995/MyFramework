@@ -171,12 +171,12 @@ namespace MoreMountains
 
         public void RegisterToVolumeManager()
         {
-            volumeManager.Register(this);
+            volumeManager?.Register(this);
         }
 
         public void UnregisterToVolumeManager()
         {
-            volumeManager.Unregister(this);
+            volumeManager?.Unregister(this);
         }
 
         /// <summary>
