@@ -110,8 +110,7 @@ namespace MoreMountains
 
         public void OnDestroy()
         {
-            using var _ = new SafeDictionaryReader<int, Coin>(activeCoins, out var reader);
-            foreach (var (_, coin) in reader)
+            foreach (var (_, coin) in activeCoins)
                 releaseCoin(coin);
 
             activeCoins.clear();
@@ -289,8 +288,7 @@ namespace MoreMountains
             float range = rangeOverride > 0 ? rangeOverride : PickupRange;
             float rangeSq = range * range;
 
-            using var _ = new SafeDictionaryReader<int, Coin>(activeCoins, out var reader);
-            foreach (var (_, coin) in reader)
+            foreach (var (_, coin) in activeCoins)
             {
                 if (coin == null)
                     continue;
@@ -358,8 +356,7 @@ namespace MoreMountains
         /// </summary>
         public void ClearAllCoins()
         {
-            using var _ = new SafeDictionaryReader<int, Coin>(activeCoins, out var reader);
-            foreach (var (_, coin) in reader)
+            foreach (var (_, coin) in activeCoins)
                 releaseCoin(coin);
 
             activeCoins.clear();

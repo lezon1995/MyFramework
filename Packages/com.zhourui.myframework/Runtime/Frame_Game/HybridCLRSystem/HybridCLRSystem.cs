@@ -252,7 +252,7 @@ public class HybridCLRSystem
 			notifyLaunchFailed(errorCallback);
 		}
 	}
-	protected static void launchInternal(Assembly hotFixAssembly, Action errorCallback)
+	protected static void launchInternal(Assembly hotfixAssembly, Action errorCallback)
 	{
 		if (hotfixAssembly == null)
 		{

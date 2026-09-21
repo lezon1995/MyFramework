@@ -38,8 +38,7 @@ public class TemplatePoolManager : FrameSystem
 		// 每隔一定时间销毁不再使用的对象池
 		if (tickTimerLoop(ref mDestroyTimer, elapsedTime, mTimerInterval))
 		{
-			using var a = new SafeDictionaryReader<GameObject, TemplatePool>(mPrefabPoolList);
-			foreach (var item in a.mReadList)
+			foreach (var item in mPrefabPoolList)
 			{
 				TemplatePool pool = item.Value;
 				if (!pool.isEmptyInUse())

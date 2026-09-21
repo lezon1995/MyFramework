@@ -362,7 +362,7 @@ public static class CommandSystemTest
         cmd.setAction(() => executed = true);
 
         sys.pushDelayCommand(cmd, receiver, 1.0f, null);
-        sys.notifyReceiverDestroied(receiver);
+        sys.notifyReceiverDestroyed(receiver);
 
         sys.update(2.0f);
         assertFalse(executed, "receiver 销毁后命令不应执行");
@@ -381,7 +381,7 @@ public static class CommandSystemTest
 
         sys.pushDelayCommand(cmd, r1, 1.0f, null);
         // 通知另一个 receiver 销毁，不应影响 r1 的命令
-        sys.notifyReceiverDestroied(r2);
+        sys.notifyReceiverDestroyed(r2);
 
         sys.update(2.0f);
         assertTrue(executed, "不同 receiver 销毁不应影响其他命令");
@@ -392,7 +392,7 @@ public static class CommandSystemTest
     {
         var sys = new CommandSystem();
         sys.destroy();
-        sys.notifyReceiverDestroied(new TestCmdReceiver());
+        sys.notifyReceiverDestroyed(new TestCmdReceiver());
         // 不崩溃
     }
 

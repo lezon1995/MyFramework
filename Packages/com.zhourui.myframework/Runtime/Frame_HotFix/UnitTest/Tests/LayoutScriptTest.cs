@@ -628,7 +628,7 @@ public static class LayoutScriptTest
 		try
 		{
 			myUGUIObject ui;
-			script.newObject<myUGUIObject>(out ui, null, "NoSuchName12345", false);
+			script.newObject(out ui, null, "NoSuchName12345", false, true);
 			assertNull(ui, "找不到 GameObject 时返回 null(showError=false)");
 		}
 		finally
@@ -645,7 +645,7 @@ public static class LayoutScriptTest
 		myUGUIObject ui = null;
 		try
 		{
-			script.newObject<myUGUIObject>(out ui, null, "TestTarget", false);
+			script.newObject(out ui, null, "TestTarget", false, true);
 			assertNotNull(ui, "newObject 找到场景对象");
 			assertTrue(ReferenceEquals(target, ui.getGameObject()), "绑定到场景中的同名 GameObject");
 		}

@@ -316,8 +316,7 @@ namespace MoreMountains
         {
             if (brickHitTimers.count() > 0)
             {
-                using var _ = new SafeDictionaryReader<Brick, MTimer>(brickHitTimers, out var reader);
-                foreach (var (brick, timer) in reader)
+                foreach (var (brick, timer) in brickHitTimers)
                 {
                     if (timer.update(dt))
                     {

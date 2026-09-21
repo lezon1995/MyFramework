@@ -67,11 +67,9 @@ public class GameEffectPool
 		if (tickTimerLoop(ref mEffectTimer, elapsedTime, 1.0f))
 		{
 			DateTime time = DateTime.Now;
-			using var dictReader = new SafeDictionaryReader<string, SafeList<GameEffect>>(mUnusedEffectList);
-			foreach (var (key, safeList) in dictReader.mReadList)
+			foreach (var (key, safeList) in mUnusedEffectList)
 			{
-				using var listReader = new SafeListReader<GameEffect>(safeList);
-				foreach (var effect in listReader.mReadList)
+				foreach (var effect in safeList)
 				{
 					if ((time - effect.getUnuseTime()).TotalSeconds > mUnuseMaxTime)
 					{

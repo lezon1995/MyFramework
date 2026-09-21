@@ -103,7 +103,7 @@ public class COMWindowUGUIInteractive : GameComponent
 		{
 			return;
 		}
-		mEventTriggerListener = (owner as myUGUIObject).getOrAddUnityComponent<EventTriggerListener>();
+		mEventTriggerListener = (mComponentOwner as myUGUIObject).getOrAddUnityComponent<EventTriggerListener>();
 		mEventTriggerListener.mOnClick += onUGUIClick;
 		mEventTriggerListener.mOnDown += onUGUIMouseDown;
 		mEventTriggerListener.mOnUp += onUGUIMouseUp;

@@ -509,7 +509,7 @@ public static class GameLayoutTest
 		LayoutScript script = new TestLayoutScript();
 		script.setLayout(new GameLayout());
 		// 空 mDragViewLoopList/mWindowObjectRootList → safe() 空安全
-		script.updateAllDragView();
+		script.updateAllDragView(0.1f);
 		script.update(0.1f);      // 空实现
 		script.lateUpdate(0.1f);  // 空实现
 	}

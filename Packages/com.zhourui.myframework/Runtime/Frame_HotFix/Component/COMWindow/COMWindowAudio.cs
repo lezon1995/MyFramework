@@ -6,7 +6,7 @@ public class COMWindowAudio : ComponentAudio
 	//------------------------------------------------------------------------------------------------------------------------------
 	protected override void assignAudioSource()
 	{
-		var window = owner as myUGUIObject;
+		var window = mComponentOwner as myUGUIObject;
 		setAudioSource(window.getOrAddUnityComponent<AudioSource>());
 	}
 }

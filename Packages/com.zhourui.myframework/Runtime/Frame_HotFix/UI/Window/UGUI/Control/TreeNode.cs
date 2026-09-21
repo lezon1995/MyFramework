@@ -14,7 +14,7 @@ public abstract class UGUITreeNode : WindowRecyclableUGUI
 	public override void init()
 	{
 		base.init();
-		mRoot.registerCollider(onNodeClick);
+		mRoot.registeCollider(onNodeClick);
 	}
 	public override void reset()
 	{

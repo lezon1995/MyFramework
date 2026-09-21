@@ -66,8 +66,7 @@ public class WaterSpotEffect : ALogicEffect, IArgs<Ball, Brick>
             }
         }
 
-        using var __ = new SafeDictionaryReader<Brick, Buff>(brickBuffs, out var reader);
-        foreach (var (b, buff) in reader)
+        foreach (var (b, buff) in brickBuffs)
         {
             if (!bricks.contains(b))
             {

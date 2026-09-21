@@ -106,8 +106,7 @@ namespace MoreMountains
 
         public void OnDestroy()
         {
-            using var _ = new SafeDictionaryReader<int, ExpOrb>(activeExps, out var reader);
-            foreach (var (_, exp) in reader)
+            foreach (var (_, exp) in activeExps)
                 releaseExp(exp);
 
             activeExps.clear();
@@ -290,8 +289,7 @@ namespace MoreMountains
             float range = rangeOverride > 0 ? rangeOverride : PickupRange;
             float rangeSq = range * range;
 
-            using var _ = new SafeDictionaryReader<int, ExpOrb>(activeExps, out var reader);
-            foreach (var (_, exp) in reader)
+            foreach (var (_, exp) in activeExps)
             {
                 if (exp == null)
                     continue;
@@ -364,8 +362,7 @@ namespace MoreMountains
         /// </summary>
         public void ClearAllExps()
         {
-            using var _ = new SafeDictionaryReader<int, ExpOrb>(activeExps, out var reader);
-            foreach (var (_, exp) in reader)
+            foreach (var (_, exp) in activeExps)
                 releaseExp(exp);
 
             activeExps.clear();

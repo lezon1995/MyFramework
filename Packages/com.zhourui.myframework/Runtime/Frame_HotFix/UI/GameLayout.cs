@@ -88,7 +88,7 @@ public class GameLayout
 			mRoot.getOrAddUnityComponent<LayoutDebug>().setLayout(this);
 		}
 	}
-	public void update(float elapsedTime)
+	public void update(float dt)
 	{
 		if (!isVisible() || mScript == null || !mScriptInited)
 		{
@@ -97,7 +97,7 @@ public class GameLayout
 		float unscaledTime = mGameFrameworkHotFix.getUnscaledTime();
 		if (mIgnoreTimeScale)
 		{
-			elapsedTime = unscaledTime;
+			dt = unscaledTime;
 		}
 		SafeList<myUGUIObject> updateList = mDefaultUpdateWindow ? mNeedUpdateList : mActiveUpdateList;
 		if (updateList.count() > 0)
@@ -107,7 +107,7 @@ public class GameLayout
 			{
 				if (uiObj.canUpdate())
 				{
-					uiObj.update(uiObj.isIgnoreTimeScale() ? unscaledTime : elapsedTime);
+					uiObj.update(uiObj.isIgnoreTimeScale() ? unscaledTime : dt);
 				}
 			}
 		}
@@ -115,11 +115,11 @@ public class GameLayout
 		using var b = new ProfilerScope("UpdateScript");
 		if (mScript.hasDragViewLoopUpdate())
 		{
-			mScript.updateAllDragView();
+			mScript.updateAllDragView(dt);
 		}
 		if (mScript.isNeedUpdate())
 		{
-			mScript.update(elapsedTime);
+			mScript.update(dt);
 		}
 	}
 	public void onDrawGizmos()

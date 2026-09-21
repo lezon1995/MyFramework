@@ -26,7 +26,7 @@ public class COMCameraFOV : ComponentKeyFrame
     //------------------------------------------------------------------------------------------------------------------------------
     protected override void applyTrembling(float value)
     {
-        var obj = owner as GameCamera;
+        var obj = mComponentOwner as GameCamera;
         obj.setFOVY(lerpSimple(startFOV, targetFOV, value));
     }
 }

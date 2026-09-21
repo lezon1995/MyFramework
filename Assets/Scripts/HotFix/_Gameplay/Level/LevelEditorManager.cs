@@ -147,8 +147,7 @@ namespace MoreMountains
                 Draw.ingame.xy.WireRectangle(grid, color);
             }
 
-            using var _ = new SafeHashSetReader<BrickTemplate>(brickTemplates, out var reader);
-            foreach (var template in reader)
+            foreach (var template in brickTemplates)
             {
                 Color color = Color.gray6;
                 Draw.ingame.xy.SolidRectangle(template.rect, color);

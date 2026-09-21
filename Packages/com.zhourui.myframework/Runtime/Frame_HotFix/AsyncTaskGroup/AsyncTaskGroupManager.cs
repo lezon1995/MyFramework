@@ -9,8 +9,7 @@ public class AsyncTaskGroupManager : FrameSystem
     public override void update(float dt)
     {
         base.update(dt);
-        using var a = new SafeListReader<AsyncTaskGroup>(mGroupList);
-        foreach (AsyncTaskGroup item in a.mReadList)
+        foreach (AsyncTaskGroup item in mGroupList)
         {
             if (item.checkDone())
             {

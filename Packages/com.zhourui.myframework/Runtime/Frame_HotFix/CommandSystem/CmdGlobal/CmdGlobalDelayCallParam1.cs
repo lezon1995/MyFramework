@@ -18,11 +18,11 @@ public class CmdGlobalDelayCallParam1<T> : Command
 	public void setGuard(IRecyclable guard)
 	{
 		mGuard = guard;
-		mGuardAssignID = mGuard.id;
+		mGuardAssignID = mGuard.getAssignID();
 	}
 	public override void execute()
 	{
-		if (mGuard != null && mGuard.id != mGuardAssignID)
+		if (mGuard != null && mGuard.getAssignID() != mGuardAssignID)
 		{
 			return;
 		}

@@ -287,6 +287,21 @@
         "com.unity.modules.imgui": "1.0.0"
       }
     },
+    "com.zhourui.easyecs": {
+      "version": "file:com.zhourui.easyecs",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
+    "com.zhourui.fastgui": {
+      "version": "file:com.zhourui.fastgui",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "com.unity.burst": "1.8.24",
+        "com.unity.textmeshpro": "3.0.6"
+      }
+    },
     "com.zhourui.myframework": {
       "version": "file:com.zhourui.myframework",
       "depth": 0,
@@ -294,6 +309,14 @@
       "dependencies": {
         "com.unity.ugui": "1.0.0",
         "com.unity.textmeshpro": "3.0.6",
+        "com.unity.nuget.newtonsoft-json": "3.2.1"
+      }
+    },
+    "com.zhourui.spinesplitter": {
+      "version": "file:com.zhourui.spinesplitter",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
         "com.unity.nuget.newtonsoft-json": "3.2.1"
       }
     },

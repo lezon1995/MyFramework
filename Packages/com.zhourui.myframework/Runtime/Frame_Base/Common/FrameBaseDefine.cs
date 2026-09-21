@@ -26,17 +26,29 @@ public class FrameBaseDefine
 	public static string F_TEMPORARY_CACHE_PATH = Application.temporaryCachePath + "/";
 #endif
 	public static string F_STREAMING_ASSETS_PATH = Application.streamingAssetsPath + "/";
+	public const string P_ASSET_BUNDLE_BUILD_PATH = "AssetBundleBuild/";
+
 	// 各个平台下的AssetBundle路径不一样,为了避免打包资源时冲突
 #if UNITY_ANDROID
 	public static string F_ASSET_BUNDLE_PATH = F_STREAMING_ASSETS_PATH + ANDROID + "/";
+	public const string F_ASSET_BUNDLE_BUILD_PATH = P_ASSET_BUNDLE_BUILD_PATH + ANDROID + "/";
+
 #elif UNITY_STANDALONE_WIN
 	public static string F_ASSET_BUNDLE_PATH = F_STREAMING_ASSETS_PATH + WINDOWS + "/";
+	public const string F_ASSET_BUNDLE_BUILD_PATH = P_ASSET_BUNDLE_BUILD_PATH + WINDOWS + "/";
+
 #elif UNITY_IOS
 	public static string F_ASSET_BUNDLE_PATH = F_STREAMING_ASSETS_PATH + IOS + "/";
+	public const string F_ASSET_BUNDLE_BUILD_PATH = P_ASSET_BUNDLE_BUILD_PATH + IOS + "/";
+
 #elif UNITY_STANDALONE_OSX
 	public static string F_ASSET_BUNDLE_PATH = F_STREAMING_ASSETS_PATH + MACOS + "/";
+	public const string F_ASSET_BUNDLE_BUILD_PATH = P_ASSET_BUNDLE_BUILD_PATH + MACOS + "/";
+
 #elif UNITY_WEBGL
 	public static string F_ASSET_BUNDLE_PATH = F_STREAMING_ASSETS_PATH + WEBGL + "/";
+	public const string F_ASSET_BUNDLE_BUILD_PATH = P_ASSET_BUNDLE_BUILD_PATH + WEBGL + "/";
+
 #endif
 	// 绝对路径,以F_开头,表示Full
 #if !UNITY_EDITOR && UNITY_WEBGL

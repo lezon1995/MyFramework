@@ -102,8 +102,7 @@ namespace MoreMountains
             }
 
             // 清理已经失效的候选项（已捕获、不再 inUse、或已不在 active 集合）
-            using var __ = new SafeHashSetReader<Ball>(canRecollectedBalls, out var reader);
-            foreach (var b in reader)
+            foreach (var b in canRecollectedBalls)
             {
                 if (capturedBalls.contains(b) || !b.inUse || !activeBalls.Contains(b))
                 {

@@ -99,7 +99,7 @@ public class TemplatePool : ClassObject
 		}
 
 		bool moveToHide = obj.isMoveToHide();
-		if (go.transform.parent == null || go.transform.parent.gameObject != mPrefabPoolManager.getObject())
+		if (go.transform.parent == null || go.transform.parent.gameObject != mPrefabPoolManager.getGameObject())
 		{
 			// 只有在PrefabPoolManager节点下的物体才可以在回收时只改变位置
 			moveToHide = false;
@@ -115,7 +115,7 @@ public class TemplatePool : ClassObject
 			{
 				go.SetActive(false);
 			}
-			setNormalProperty(go, mPrefabPoolManager.getObject());
+			setNormalProperty(go, mPrefabPoolManager.getGameObject());
 		}
 		obj.setUsing(false);
 		mUnuseList.add(obj);
@@ -144,7 +144,7 @@ public class TemplatePool : ClassObject
 			if (go != null)
 			{
 				// 隐藏物体,并且将物体重新挂接到预设管理器下,重置物体变换
-				setNormalProperty(go, mPrefabPoolManager.getObject());
+				setNormalProperty(go, mPrefabPoolManager.getGameObject());
 				if (moveToHide)
 				{
 					go.transform.localPosition = FAR_POSITION;

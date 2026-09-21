@@ -25,7 +25,7 @@ public class MenuAssetBundle
 	[MenuItem(MENU_NAME + "构建AssetBundle", false, 0)]
 	public static void buildAssetBundleMenu()
 	{
-		packAssetBundle(getBuildTarget(), getAssetBundleBuildPath(), true, true);
+		packAssetBundle(getBuildTarget(), F_ASSET_BUNDLE_BUILD_PATH, true, true);
 	}
 
 	[MenuItem(MENU_NAME + "刷新AssetBundle名字", false, 1)]

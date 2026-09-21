@@ -132,6 +132,11 @@ public class SceneInstance : DelayCmdWatcher
         return root && root.activeSelf;
     }
 
+    public bool getActive()
+    {
+        return root && root.activeSelf;
+    }
+
     public GameObject getRoot()
     {
         return root;

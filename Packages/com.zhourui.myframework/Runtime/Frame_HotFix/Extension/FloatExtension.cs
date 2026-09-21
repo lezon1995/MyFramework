@@ -45,6 +45,9 @@ public static class FloatExtension
 			return (int)(value - 0.5f);
 		}
 	}
+
+	public static float sign(this float value) => Mathf.Sign(value);
+	public static int toInt(this float value) => (int)value;
 	// value1大于等于value0则返回1,否则返回0
 	public static int step(this float value0, float value1) { return value1 >= value0 ? 1 : 0; }
 	// 得到value0除以value1的余数
