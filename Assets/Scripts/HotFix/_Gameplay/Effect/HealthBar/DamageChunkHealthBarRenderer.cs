@@ -134,7 +134,6 @@ namespace MoreMountains
         static readonly int kBorderColor = Shader.PropertyToID("_BorderColor");
         static readonly int kBorderWidth = Shader.PropertyToID("_BorderWidth");
         static readonly int kBorderSqueeze = Shader.PropertyToID("_BorderSqueeze");
-        static readonly int kChunkCount = Shader.PropertyToID("_ChunkCount");
         static readonly int kUseShield = Shader.PropertyToID("_UseShield");
         static readonly int kShieldColor = Shader.PropertyToID("_ShieldColor");
         static readonly int kShieldLength = Shader.PropertyToID("_ShieldLength");
@@ -322,12 +321,12 @@ namespace MoreMountains
                     }
                 }
 
-                DamageChunk old = _chunks[oldestIdx];
+                var old = _chunks[oldestIdx];
                 slot = old.index;
                 _chunks.RemoveAt(oldestIdx);
             }
 
-            DamageChunk chunk = new DamageChunk
+            var chunk = new DamageChunk
             {
                 index = slot,
                 start = Mathf.Clamp01(start),
@@ -384,12 +383,17 @@ namespace MoreMountains
 
         void Awake()
         {
-            if (_spriteRenderer == null)
-                TryGetComponent(out _spriteRenderer);
+            TryInitializeMaterial();
 
-            _block = new();
             for (int i = 0; i < MaxChunks; i++)
                 _slotOwner[i] = -1;
+        }
+
+        public void TryInitializeMaterial()
+        {
+            if (_spriteRenderer == null)
+                TryGetComponent(out _spriteRenderer);
+            _block ??= new();
         }
 
         void Update()
@@ -402,12 +406,12 @@ namespace MoreMountains
         void UpdateChunks(float dt)
         {
             float fadeSpeed = _chunkFadeDuration > 0 ? 1f / _chunkFadeDuration : 1f;
+            var delta = fadeSpeed * dt;
 
             for (int i = _chunks.Count - 1; i >= 0; i--)
             {
                 var chunk = _chunks[i];
-                chunk.opacity -= fadeSpeed * dt;
-
+                chunk.opacity -= delta;
                 if (chunk.opacity <= 0f)
                 {
                     chunk.opacity = 0f;
@@ -427,12 +431,6 @@ namespace MoreMountains
 
         public void ApplyToMaterial()
         {
-            if (_spriteRenderer == null)
-                return;
-
-            if (_block == null)
-                return;
-
             _spriteRenderer.GetPropertyBlock(_block);
 
             // 前景
@@ -463,9 +461,6 @@ namespace MoreMountains
             _block.SetFloat(kShieldLength, _shieldLength);
             _block.SetFloat(kShieldGlow, _shieldGlow);
 
-            // DamageChunks
-            _block.SetInt(kChunkCount, _chunks.Count);
-
             for (int i = 0; i < MaxChunks; i++)
             {
                 _block.SetVector(kChunkVec[i], Vector4.zero);
@@ -474,8 +469,8 @@ namespace MoreMountains
 
             for (int i = 0; i < _chunks.Count; i++)
             {
-                DamageChunk chunk = _chunks[i];
-                _block.SetVector(kChunkVec[chunk.index], new Vector3(chunk.start, chunk.end, chunk.opacity));
+                var chunk = _chunks[i];
+                _block.SetVector(kChunkVec[chunk.index], new Vector4(chunk.start, chunk.end, chunk.opacity, 0));
                 _block.SetColor(kChunkColor[chunk.index], chunk.color);
             }
 
@@ -489,6 +484,12 @@ namespace MoreMountains
         void OnValidate()
         {
             if (!Application.isPlaying)
+                return;
+
+            if (_spriteRenderer == null)
+                return;
+
+            if (_block == null)
                 return;
 
             ApplyToMaterial();

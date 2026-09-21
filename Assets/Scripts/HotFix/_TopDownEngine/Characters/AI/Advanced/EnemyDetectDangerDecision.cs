@@ -16,12 +16,11 @@ namespace MoreMountains
         [Tooltip("the offset from the character center")]
         public Vector3 DetectionOriginOffset;
 
-        protected Collider2D[] _results;
+        protected Collider2D[] _results = new Collider2D[10];
 
         public override void Initialization()
         {
             base.Initialization();
-            _results ??= new Collider2D[10];
         }
 
         public override bool Decide()

@@ -16,6 +16,7 @@ namespace MoreMountains
         List<BrickDef> Defs = new();
 
         Dictionary<Vector2Int, List<BrickDef>> defDict;
+        Dictionary<BrickType, BrickDef> brickDefDict = new();
 
         //key: gameObject.GetInstanceID()
         protected Dictionary<int, Brick> activeBricks = new();
@@ -98,7 +99,14 @@ namespace MoreMountains
         {
             base.OnAwake();
 
-            defDict = Defs.GroupBy(def => def.Size).ToDictionary(g => g.Key, g => g.ToList());
+            defDict = Defs
+                .GroupBy(def => def.Size)
+                .ToDictionary(g => g.Key, g => g.ToList());
+
+            brickDefDict.Clear();
+            foreach (var def in Defs)
+                brickDefDict[def.BrickType] = def;
+
             load();
         }
 
@@ -131,6 +139,14 @@ namespace MoreMountains
             {
                 return list.random();
             }
+
+            return null;
+        }
+
+        public BrickDef GetDef(BrickType t)
+        {
+            if (brickDefDict.TryGetValue(t, out var def))
+                return def;
 
             return null;
         }
@@ -338,7 +354,7 @@ namespace MoreMountains
         /// </summary>
         public void RegisterOccupancyFromWorld(Brick brick)
         {
-            if (brick == null || brickLayout == null)
+            if (brickLayout == null)
                 return;
 
             var pos = brick.getWorldPosition();
@@ -355,7 +371,7 @@ namespace MoreMountains
         /// </summary>
         public void RegisterOccupancy(Brick brick, int col, int row, int width, int height)
         {
-            if (brick == null || brickLayout == null)
+            if (brickLayout == null)
                 return;
 
             if (width <= 0 || height <= 0)
@@ -444,7 +460,7 @@ namespace MoreMountains
             var filter = new ContactFilter2D();
             filter.useTriggers = true;
             filter.SetLayerMask(BRICK_LAYER_MASK);
-            var count = Physics2D.OverlapBox(cellPos, new(0.675F, 0.675F), 0, filter, collider2Ds);
+            var count = Physics2D.OverlapBox(cellPos, Vector2.one * BrickUnitSize, 0, filter, collider2Ds);
             return count == 0;
         }
 
@@ -593,6 +609,8 @@ namespace MoreMountains
             brick.setID(id);
             brick.setOnBornCompleted(onBrickBornCompleted);
             brick.setPlayerAsTarget(player);
+            brick.setupWeapon(def.AIHandleWeapon);
+            brick.setupBrain(def.AIBehaviour);
 
             brick.Event.addListener<OnBrickDeath>(this);
             brick.Event.addListener<OnBrickDeathTotally>(this);
@@ -642,9 +660,6 @@ namespace MoreMountains
 
         void destroyBrick(Brick brick)
         {
-            if (brick == null)
-                return;
-
             prefabPool.destroyObject(brick.gameObject, false);
 
             long guid = brick.getGUID();
@@ -672,9 +687,6 @@ namespace MoreMountains
         //------------------------------------------------------------------------------------------------------------------------------
         protected void addBrickToList(Brick brick)
         {
-            if (brick == null)
-                return;
-
             long guid = brick.getGUID();
             // 加入到角色分类列表
             brickTypeList.getOrAddNew(brick.getType()).Add(guid, brick);

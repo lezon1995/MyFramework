@@ -77,5 +77,13 @@ namespace MoreMountains
             fx.play(FxDefine.SMOKE_FLASH, _brick.getWorldPosition());
             onBornAnimationComplete?.Invoke();
         }
+
+        public override void playFxHit(Vector2 normal)
+        {
+        }
+
+        public override void playFxDamage(Vector3 direction)
+        {
+        }
     }
 }

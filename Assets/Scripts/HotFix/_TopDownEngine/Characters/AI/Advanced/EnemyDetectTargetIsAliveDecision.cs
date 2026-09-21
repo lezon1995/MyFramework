@@ -22,7 +22,7 @@
         /// <returns></returns>
         protected virtual bool CheckIfTargetIsAlive()
         {
-            if (_brain.Target == null)
+            if (_brain.NoTarget)
                 return false;
 
             if (_brain.Target.TryGetComponent(out _character))

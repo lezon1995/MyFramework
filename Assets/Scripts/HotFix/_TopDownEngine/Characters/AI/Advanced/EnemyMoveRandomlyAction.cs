@@ -74,7 +74,6 @@ namespace MoreMountains
         /// <summary>
         /// Moves the character
         /// </summary>
-        /// <param name="dt"></param>
         protected virtual void Move(float dt)
         {
             _direction *= MonsterAttractionForce;

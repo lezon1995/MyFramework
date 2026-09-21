@@ -87,7 +87,6 @@ namespace MoreMountains.Tools
         /// <summary>
         /// Performs this state's actions
         /// </summary>
-        /// <param name="dt"></param>
         public virtual void PerformActions(float dt)
         {
             for (var i = 0; i < Actions.Count; i++)
@@ -108,9 +107,6 @@ namespace MoreMountains.Tools
             {
                 var t = Transitions[i];
                 var decision = t.Decision;
-                if (decision == null)
-                    continue;
-
                 if (decision.Decide())
                 {
                     var trueState = t.TrueState;

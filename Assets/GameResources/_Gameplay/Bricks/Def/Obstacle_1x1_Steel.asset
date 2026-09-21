@@ -12,9 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb4e6f4626e14ce988bbce44e5e5156d, type: 3}
   m_Name: Obstacle_1x1_Steel
   m_EditorClassIdentifier: HotFix::MoreMountains.BrickDef
+  BrickType: 1002
   Type: 3
   Size: {x: 1, y: 1}
-  UnitIcon: {fileID: 0}
+  UnitIcon: {fileID: 21300000, guid: 60ce313a9bf1a4348b84de8206d925a5, type: 3}
   BlockIcon: {fileID: 0}
   StatsTemplate: {fileID: 11400000, guid: 0eae5f4b5c187ce4fa6c63380be90cdf, type: 2}
   PrefabName: ObstacleBrick_1x1_Steel
@@ -24,3 +25,6 @@ MonoBehaviour:
   BonusArmorPerWave: 2
   BonusKnockbackResistPerWave: 0.02
   BossHealthBarSize: {x: 600, y: 50}
+  AIBehaviour: {fileID: 5290813838179023476, guid: 2cbab09a2972e2446b790652b326ceb7,
+    type: 3}
+  AIHandleWeapon: {fileID: 0}

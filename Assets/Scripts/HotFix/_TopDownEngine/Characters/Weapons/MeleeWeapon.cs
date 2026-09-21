@@ -173,9 +173,9 @@ namespace MoreMountains
         /// <summary>
         /// When the weapon is used, we trigger our attack routine
         /// </summary>
-        public override void WeaponUse()
+        public override void OnWeaponUse()
         {
-            base.WeaponUse();
+            base.OnWeaponUse();
             Timing.RunCoroutine(MeleeWeaponAttack(Dmg));
         }
 

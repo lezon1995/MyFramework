@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -28,6 +29,12 @@ namespace MoreMountains.Tools
         /// the current target
         [MMReadOnly]
         public Transform Target;
+
+        public bool HasTarget { get; set; }
+        public bool NoTarget { get; set; } = true;
+        //当某个AIAction执行到一半时如果不想被其他AIDecision中断
+        //可以使决策锁住，暂停决策判断，待AIAction执行完毕再恢复决策判断
+        public bool IsDecisionLocked { get; set; }
 
         /// the last known world position of the target
         [MMReadOnly]
@@ -68,10 +75,12 @@ namespace MoreMountains.Tools
         {
             Owner = owner;
         }
-        
+
         public virtual void SetTarget(Transform target)
         {
-            Target =  target;
+            Target = target;
+            HasTarget = target != null;
+            NoTarget = !HasTarget;
         }
 
         public virtual void GetAttachedActions(ref List<AIAction> actions)
@@ -125,7 +134,7 @@ namespace MoreMountains.Tools
         /// <summary>
         /// Every frame we update our current state
         /// </summary>
-        protected virtual void Update()
+        /*protected virtual void Update()
         {
             if (!BrainActive)
                 return;
@@ -135,22 +144,56 @@ namespace MoreMountains.Tools
 
             if (Time.timeScale == 0f)
                 return;
-            
+
             var dt = Time.deltaTime;
 
-            if (Time.time - _lastActionsUpdate > ActionsFrequency)
+            var time = Time.time;
+            if (time - _lastActionsUpdate > ActionsFrequency)
             {
                 CurrentState.PerformActions(dt);
-                _lastActionsUpdate = Time.time;
+                _lastActionsUpdate = time;
             }
 
             if (!BrainActive)
                 return;
 
-            if (Time.time - _lastDecisionsUpdate > DecisionFrequency)
+            if (time - _lastDecisionsUpdate > DecisionFrequency)
             {
                 CurrentState.EvaluateTransitions();
-                _lastDecisionsUpdate = Time.time;
+                _lastDecisionsUpdate = time;
+            }
+
+            TimeInThisState += dt;
+
+            StoreLastKnownPosition();
+        }*/
+        protected void FixedUpdate()
+        {
+            if (!BrainActive)
+                return;
+
+            if (CurrentState == null)
+                return;
+
+            if (Time.timeScale == 0f)
+                return;
+
+            var dt = Time.fixedDeltaTime;
+
+            var time = Time.time;
+            if (time - _lastActionsUpdate > ActionsFrequency)
+            {
+                CurrentState.PerformActions(dt);
+                _lastActionsUpdate = time;
+            }
+
+            if (!BrainActive)
+                return;
+
+            if (time - _lastDecisionsUpdate > DecisionFrequency && !IsDecisionLocked)
+            {
+                CurrentState.EvaluateTransitions();
+                _lastDecisionsUpdate = time;
             }
 
             TimeInThisState += dt;
@@ -238,7 +281,7 @@ namespace MoreMountains.Tools
         /// </summary>
         protected virtual void StoreLastKnownPosition()
         {
-            if (Target)
+            if (HasTarget)
             {
                 _lastKnownTargetPosition = Target.transform.position;
             }
@@ -252,6 +295,8 @@ namespace MoreMountains.Tools
             InitializeDecisions();
             InitializeActions();
             BrainActive = true;
+            IsDecisionLocked = false;
+            SetTarget(null);
             enabled = true;
 
             if (CurrentState != null)

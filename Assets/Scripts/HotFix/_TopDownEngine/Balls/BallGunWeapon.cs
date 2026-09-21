@@ -235,10 +235,6 @@ namespace MoreMountains
                 service.resetShootCountdown(ShootFixedUpdateInterval);
                 State.ChangeState(States.Use);
             }
-            else
-            {
-                State.ChangeState(States.Idle);
-            }
         }
 
         public override GameObject SpawnProjectile(Vector3 spawnPosition, int projectileIndex, int totalProjectiles, bool triggerObjectActivation = true)

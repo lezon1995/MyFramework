@@ -37,5 +37,16 @@ namespace MoreMountains
                 view.setSize(size);
             }
         }
+        
+        public override void playFxHit(Vector2 normal)
+        {
+        }
+        
+        public override void playFxDamage(Vector3 direction)
+        {
+            flashRemainSeconds = 0.04F;
+            matBlock.SetFloat(StrongTintFade, 1);
+            matUnit.SetFloat(StrongTintFade, 1);
+        }
     }
 }

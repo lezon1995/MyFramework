@@ -169,6 +169,7 @@ namespace MoreMountains
         [TitleGroup("Bindings")]
         [Tooltip("The brain currently associated with this character, if it's an Advanced AI. By default the engine will pick the one on this object, but you can attach another one if you'd like")]
         public AIBrain CharacterBrain;
+        public CharacterHandleWeapon CharacterHandleWeapon;
 
         public MMStateMachine<Motions> motionState;
         public MMStateMachine<Conditions> conditionState;
@@ -656,7 +657,6 @@ namespace MoreMountains
         /// <summary>
         /// Calls all registered abilities' Process methods
         /// </summary>
-        /// <param name="dt"></param>
         protected virtual void UpdateAbilities(float dt)
         {
             foreach (var ability in _characterAbilities)
@@ -741,10 +741,11 @@ namespace MoreMountains
                 Health.Resurrect();
             }
 
-            if (CharacterBrain)
+            var brain = CharacterBrain;
+            if (brain)
             {
-                CharacterBrain.enabled = true;
-                CharacterBrain.ResetBrain();
+                brain.enabled = true;
+                brain.ResetBrain();
             }
 
             // facing direction
@@ -853,19 +854,21 @@ namespace MoreMountains
         /// </summary>
         public virtual void onEvent(OnRevive e)
         {
-            if (CharacterBrain)
+            var brain = CharacterBrain;
+            if (brain)
             {
-                CharacterBrain.enabled = true;
-                CharacterBrain.ResetBrain();
+                brain.enabled = true;
+                brain.ResetBrain();
             }
         }
 
         public virtual void onEvent(OnDeath e)
         {
-            if (CharacterBrain)
+            var brain = CharacterBrain;
+            if (brain)
             {
-                CharacterBrain.TransitionToState("");
-                CharacterBrain.enabled = false;
+                brain.TransitionToState("");
+                brain.enabled = false;
             }
 
             motionState.ChangeState(Motions.Idle);

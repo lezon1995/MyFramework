@@ -30,7 +30,7 @@ public class RockQuakeEffect : ALogicEffect, IArgs<Ball, Brick>
             var filter = new ContactFilter2D();
             filter.useTriggers = true;
             filter.SetLayerMask(BRICK_LAYER_MASK);
-            var count = Physics2D.OverlapBox(ball.getWorldPosition(), new Vector2(0.675F, 0.675F) * 3F, 0F, filter, colliders);
+            var count = Physics2D.OverlapBox(ball.getWorldPosition(), Vector2.one * (BrickUnitSize * 3F), 0F, filter, colliders);
             for (var i = 0; i < count; i++)
             {
                 if (colliders[i].TryGetComponent(out Brick b))

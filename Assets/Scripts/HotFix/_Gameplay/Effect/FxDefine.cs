@@ -17,4 +17,5 @@ public enum FxDefine
     SMOKE_FLASH,   // 烟雾闪烁
     STUN_FLASH,   // 命中闪烁
     FOOTBALL_HIT,   // 命中闪烁
+    EXPLODE_RED,   // 命中闪烁
 }

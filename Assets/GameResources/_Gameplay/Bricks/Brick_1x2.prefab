@@ -455,8 +455,6 @@ Transform:
   - {fileID: 2680391634669396040}
   - {fileID: 2921623624187788054}
   - {fileID: 6157069043393152285}
-  - {fileID: 5117558561624646427}
-  - {fileID: 5222427655472634967}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!50 &-70445197222268683
@@ -654,8 +652,8 @@ MonoBehaviour:
   WalkSpeed: 6
   ShouldSetMovement: 1
   IdleThreshold: 0.05
-  Acceleration: 10
-  Deceleration: 10
+  acceleration: 0
+  deceleration: 0
   InterpolateMovementSpeed: 0
   WalkParticles: []
   TouchTheGroundParticles: []
@@ -764,7 +762,8 @@ MonoBehaviour:
   Buffable: {fileID: 9109685432449184292}
   Exp: {fileID: 0}
   AdditionalAbilityNodes: []
-  CharacterBrain: {fileID: 1826302842361204560}
+  CharacterBrain: {fileID: 0}
+  CharacterHandleWeapon: {fileID: 0}
   Orientation2D: {fileID: 0}
   Movement: {fileID: 0}
   type: 0
@@ -1823,166 +1822,6 @@ Transform:
   - {fileID: 7376557250965316797}
   m_Father: {fileID: 2680391634669396040}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1001 &6192007530552430272
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 5098559960325705308}
-    m_Modifications:
-    - target: {fileID: 2132353554852106903, guid: 7e83faed0f51c7046932b5d1b7a31bf3,
-        type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2132353554852106903, guid: 7e83faed0f51c7046932b5d1b7a31bf3,
-        type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2132353554852106903, guid: 7e83faed0f51c7046932b5d1b7a31bf3,
-        type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2132353554852106903, guid: 7e83faed0f51c7046932b5d1b7a31bf3,
-        type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2132353554852106903, guid: 7e83faed0f51c7046932b5d1b7a31bf3,
-        type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2132353554852106903, guid: 7e83faed0f51c7046932b5d1b7a31bf3,
-        type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2132353554852106903, guid: 7e83faed0f51c7046932b5d1b7a31bf3,
-        type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2132353554852106903, guid: 7e83faed0f51c7046932b5d1b7a31bf3,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2132353554852106903, guid: 7e83faed0f51c7046932b5d1b7a31bf3,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2132353554852106903, guid: 7e83faed0f51c7046932b5d1b7a31bf3,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6966934714350094134, guid: 7e83faed0f51c7046932b5d1b7a31bf3,
-        type: 3}
-      propertyPath: m_Name
-      value: AIWeapon_1_Bullet_Slow
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 7e83faed0f51c7046932b5d1b7a31bf3, type: 3}
---- !u!4 &5222427655472634967 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 2132353554852106903, guid: 7e83faed0f51c7046932b5d1b7a31bf3,
-    type: 3}
-  m_PrefabInstance: {fileID: 6192007530552430272}
-  m_PrefabAsset: {fileID: 0}
---- !u!1001 &6250369501515352048
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 5098559960325705308}
-    m_Modifications:
-    - target: {fileID: 1277049322733004011, guid: ebe53281eadb90b458145f2da2e49112,
-        type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1277049322733004011, guid: ebe53281eadb90b458145f2da2e49112,
-        type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1277049322733004011, guid: ebe53281eadb90b458145f2da2e49112,
-        type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1277049322733004011, guid: ebe53281eadb90b458145f2da2e49112,
-        type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1277049322733004011, guid: ebe53281eadb90b458145f2da2e49112,
-        type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1277049322733004011, guid: ebe53281eadb90b458145f2da2e49112,
-        type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1277049322733004011, guid: ebe53281eadb90b458145f2da2e49112,
-        type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1277049322733004011, guid: ebe53281eadb90b458145f2da2e49112,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1277049322733004011, guid: ebe53281eadb90b458145f2da2e49112,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1277049322733004011, guid: ebe53281eadb90b458145f2da2e49112,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2257245688778120783, guid: ebe53281eadb90b458145f2da2e49112,
-        type: 3}
-      propertyPath: m_Name
-      value: AIBehaviour_Patrol_Shoot
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: ebe53281eadb90b458145f2da2e49112, type: 3}
---- !u!114 &1826302842361204560 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5757167335483623584, guid: ebe53281eadb90b458145f2da2e49112,
-    type: 3}
-  m_PrefabInstance: {fileID: 6250369501515352048}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e18b4d59e05d441aa1484013cb172420, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: HotFix::MoreMountains.EnemyBrain
---- !u!4 &5117558561624646427 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 1277049322733004011, guid: ebe53281eadb90b458145f2da2e49112,
-    type: 3}
-  m_PrefabInstance: {fileID: 6250369501515352048}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &6415343288752711351
 PrefabInstance:
   m_ObjectHideFlags: 0

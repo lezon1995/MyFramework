@@ -81,11 +81,11 @@ public class PoisonBurningEffect : ALogicEffect
     {
         var shape = buffFx.shape;
         var scale = shape.scale;
-        scale.x = 0.675F * size.x;
+        scale.x = BrickUnitSize * size.x;
         shape.scale = scale;
 
         var position = shape.position;
-        position.y = -(0.675F * size.y * 0.5F);
+        position.y = -(BrickUnitSize * size.y * 0.5F);
         shape.position = position;
     }
 

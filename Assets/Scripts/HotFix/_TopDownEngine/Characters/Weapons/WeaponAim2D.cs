@@ -161,11 +161,11 @@ namespace MoreMountains
                     if (_weapon.Owner == null)
                         return;
 
-                    _currentAim = _weapon.Owner.CameraDirection;
-                    _currentAimAbsolute = _weapon.Owner.CameraDirection;
+                    CurrentAim = _weapon.Owner.CameraDirection;
+                    CurrentAimAbsolute = _weapon.Owner.CameraDirection;
                     if (_hasOrientation2D)
                     {
-                        _currentAim = _weapon.Owner.Orientation2D.IsFacingRight ? _currentAim : -_currentAim;
+                        CurrentAim = _weapon.Owner.Orientation2D.IsFacingRight ? _currentAim : -_currentAim;
                     }
 
                     _direction = -(transform.position - _currentAim);
@@ -192,8 +192,8 @@ namespace MoreMountains
         /// </summary>
         public virtual void GetOffAim()
         {
-            _currentAim = Vector2.right;
-            _currentAimAbsolute = Vector2.right;
+            CurrentAim = Vector2.right;
+            CurrentAimAbsolute = Vector2.right;
             _direction = Vector2.right;
         }
 
@@ -202,10 +202,10 @@ namespace MoreMountains
         /// </summary>
         public virtual void GetScriptAim()
         {
-            _currentAimAbsolute = _currentAim;
+            CurrentAimAbsolute = _currentAim;
             if (_hasOrientation2D)
             {
-                _currentAim = _weapon.Owner.Orientation2D.IsFacingRight ? _currentAim : -_currentAim;
+                CurrentAim = _weapon.Owner.Orientation2D.IsFacingRight ? _currentAim : -_currentAim;
             }
 
             _direction = -(transform.position - _currentAim);
@@ -229,24 +229,24 @@ namespace MoreMountains
 
             TestLastMovement();
 
-            _currentAimAbsolute = _inputMovement;
+            CurrentAimAbsolute = _inputMovement;
 
             if (_hasOrientation2D)
             {
                 if (_weapon.Owner.Orientation2D.IsFacingRight)
                 {
-                    _currentAim = _inputMovement;
+                    CurrentAim = _inputMovement;
                     _direction = transform.position + _currentAim;
                 }
                 else
                 {
-                    _currentAim = -_inputMovement;
+                    CurrentAim = -_inputMovement;
                     _direction = -(transform.position - _currentAim);
                 }
             }
             else
             {
-                _currentAim = _inputMovement;
+                CurrentAim = _inputMovement;
                 _direction = transform.position + _currentAim;
             }
 
@@ -270,24 +270,24 @@ namespace MoreMountains
             _inputMovement = input.SecondaryMovement;
             TestLastMovement();
 
-            _currentAimAbsolute = _inputMovement;
+            CurrentAimAbsolute = _inputMovement;
 
             if (_hasOrientation2D)
             {
                 if (_weapon.Owner.Orientation2D.IsFacingRight)
                 {
-                    _currentAim = _inputMovement;
+                    CurrentAim = _inputMovement;
                     _direction = transform.position + _currentAim;
                 }
                 else
                 {
-                    _currentAim = -_inputMovement;
+                    CurrentAim = -_inputMovement;
                     _direction = -(transform.position - _currentAim);
                 }
             }
             else
             {
-                _currentAim = _inputMovement;
+                CurrentAim = _inputMovement;
                 _direction = transform.position + _currentAim;
             }
 
@@ -306,19 +306,19 @@ namespace MoreMountains
             _direction.z = _weapon.Owner.transform.position.z;
 
             _reticlePosition = _direction;
-            _currentAimAbsolute = _direction - _weapon.transform.position;
-            _currentAim = _direction - _weapon.transform.position;
+            CurrentAimAbsolute = _direction - _weapon.transform.position;
+            CurrentAim = _direction - _weapon.transform.position;
 
             if (_hasOrientation2D)
             {
                 if (_weapon.Owner.Orientation2D.IsFacingRight)
                 {
-                    _currentAim = _direction - _weapon.transform.position;
-                    _currentAimAbsolute = _currentAim;
+                    CurrentAim = _direction - _weapon.transform.position;
+                    CurrentAimAbsolute = _currentAim;
                 }
                 else
                 {
-                    _currentAim = _weapon.transform.position - _direction;
+                    CurrentAim = _weapon.transform.position - _direction;
                 }
             }
         }

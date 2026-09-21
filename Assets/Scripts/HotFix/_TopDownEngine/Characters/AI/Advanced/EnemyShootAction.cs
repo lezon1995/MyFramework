@@ -40,6 +40,7 @@ namespace MoreMountains
         protected ProjectileWeapon _projectileWeapon;
         protected Vector3 _weaponAimDirection;
         protected bool _shooting;
+        protected bool _hasTargetHandleWeapon;
 
         /// <summary>
         /// On init, we grab our CharacterHandleWeapon ability
@@ -56,12 +57,13 @@ namespace MoreMountains
             {
                 _character?.FindAbility(out TargetHandleWeaponAbility);
             }
+
+            _hasTargetHandleWeapon = TargetHandleWeaponAbility != null;
         }
 
         /// <summary>
         /// On PerformAction we face and aim if needed, and we shoot
         /// </summary>
-        /// <param name="dt"></param>
         public override void PerformAction(float dt)
         {
             MakeChangesToTheWeapon();
@@ -78,7 +80,7 @@ namespace MoreMountains
             if (OnlyAimWhenInState && !_shooting)
                 return;
 
-            if (TargetHandleWeaponAbility == null)
+            if (!_hasTargetHandleWeapon)
                 return;
 
             if (TargetHandleWeaponAbility.CurrentWeapon)
@@ -139,7 +141,7 @@ namespace MoreMountains
             if (!AimAtTarget)
                 return;
 
-            if (TargetHandleWeaponAbility == null)
+            if (!_hasTargetHandleWeapon)
                 return;
 
             if (TargetHandleWeaponAbility.CurrentWeapon)
@@ -149,14 +151,15 @@ namespace MoreMountains
 
                 if (_weaponAim)
                 {
+                    var target = _brain.Target;
                     if (AimOrigin == AimOrigins.SpawnPoint && _projectileWeapon)
                     {
                         _projectileWeapon.DetermineSpawnPosition();
-                        _weaponAimDirection = _brain.Target.position - _projectileWeapon.SpawnPosition;
+                        _weaponAimDirection = target.position - _projectileWeapon.SpawnPosition;
                     }
                     else
                     {
-                        _weaponAimDirection = _brain.Target.position - _character.transform.position;
+                        _weaponAimDirection = target.position - _character.transform.position;
                     }
                 }
             }
@@ -167,7 +170,8 @@ namespace MoreMountains
         /// </summary>
         protected virtual void Shoot()
         {
-            TargetHandleWeaponAbility.ShootStart();
+            var handleWeapon = TargetHandleWeaponAbility;
+            handleWeapon.ShootStart();
         }
 
         /// <summary>

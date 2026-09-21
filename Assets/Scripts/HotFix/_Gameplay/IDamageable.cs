@@ -1,12 +1,5 @@
 ﻿namespace MoreMountains;
 
-public interface IReusable
-{
-    bool inUse { get; set; }
-    void onAcquire();
-    void onRelease();
-}
-
 public interface IDmgCalculator
 {
     float computeDamageAlgo(Dmg.Algos algo, float value, float curHealth, float maxHealth);

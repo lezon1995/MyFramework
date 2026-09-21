@@ -20,5 +20,13 @@ namespace MoreMountains
 
             // brick.Controller2D.enabled = false;
         }
+
+        [Command("brick-gen", "调试命令：生成一个砖块")]
+        public static void BrickGen(BrickType t)
+        {
+            var def = brickManager.GetDef(t);
+            var brick = brickManager.acquireBrick(def, Vector2.zero);
+            // brick.Controller2D.enabled = false;
+        }
     }
 }

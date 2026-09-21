@@ -17,7 +17,7 @@ namespace MoreMountains.Tools
         /// if this is true, the pool will try not to create a new waiting pool if it finds one with the same name.
         public bool MutualizeWaitingPools;
 
-        /// if this is true, all waiting and active objects will be regrouped under an empty game object. Otherwise they'll just be at top level in the hierarchy
+        /// if this is true, all waiting and active objects will be regrouped under an empty game object. Otherwise, they'll just be at top level in the hierarchy
         public bool NestWaitingPool = true;
 
         /// if this is true, the waiting pool will be nested under this object
@@ -111,7 +111,7 @@ namespace MoreMountains.Tools
         {
             if (_pools.Count == 0)
             {
-                var pools = FindObjectsOfType<MMObjectPool>();
+                var pools = Object.FindObjectsByType<MMObjectPool>(FindObjectsSortMode.InstanceID);
                 if (pools.Length > 0)
                 {
                     _pools.AddRange(pools);
@@ -189,7 +189,7 @@ namespace MoreMountains.Tools
         /// </summary>
         /// <param name="scene"></param>
         /// <param name="loadSceneMode"></param>
-        private void OnSceneLoaded(Scene scene, LoadSceneMode loadSceneMode)
+        void OnSceneLoaded(Scene scene, LoadSceneMode loadSceneMode)
         {
             if (this == null)
                 return;
@@ -206,7 +206,7 @@ namespace MoreMountains.Tools
         /// <summary>
         /// On Destroy we remove ourselves from the list of poolers 
         /// </summary>
-        private void OnDestroy()
+        void OnDestroy()
         {
             if (_objectPool && NestUnderThis)
             {

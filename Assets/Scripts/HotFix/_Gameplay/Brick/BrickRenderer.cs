@@ -10,16 +10,17 @@ namespace MoreMountains
     [RequireComponent(typeof(Brick))]
     public class BrickRenderer : MonoBehaviour
     {
-        static int StrongTintFade = Shader.PropertyToID("_StrongTintFade");
-        static int FrozenFade = Shader.PropertyToID("_FrozenFade");
-        static int BrickBorn = Animator.StringToHash("BrickBorn");
-        static int BrickIdle = Animator.StringToHash("BrickIdle");
-        static int BrickHit_1 = Animator.StringToHash("BrickHit_1");
-        static int BrickHit_2 = Animator.StringToHash("BrickHit_2");
-        static int BrickHit_3 = Animator.StringToHash("BrickHit_3");
-        static int BrickDie_1 = Animator.StringToHash("BrickDie_1");
-        static int BrickDie_2 = Animator.StringToHash("BrickDie_2");
-        static int BrickDie_3 = Animator.StringToHash("BrickDie_3");
+        protected static int StrongTintFade = Shader.PropertyToID("_StrongTintFade");
+        protected static int FrozenFade = Shader.PropertyToID("_FrozenFade");
+        protected static int PoisonFade = Shader.PropertyToID("_PoisonFade");
+        protected static int BrickBorn = Animator.StringToHash("BrickBorn");
+        protected static int BrickIdle = Animator.StringToHash("BrickIdle");
+        protected static int BrickHit_1 = Animator.StringToHash("BrickHit_1");
+        protected static int BrickHit_2 = Animator.StringToHash("BrickHit_2");
+        protected static int BrickHit_3 = Animator.StringToHash("BrickHit_3");
+        protected static int BrickDie_1 = Animator.StringToHash("BrickDie_1");
+        protected static int BrickDie_2 = Animator.StringToHash("BrickDie_2");
+        protected static int BrickDie_3 = Animator.StringToHash("BrickDie_3");
 
         protected Brick _brick;
 
@@ -32,8 +33,8 @@ namespace MoreMountains
         SpriteRenderer spriteShield;
         TextMeshPro shieldAmount;
 
-        Material matBlock, matUnit;
-        Timer flashRemainSeconds;
+        protected Material matBlock, matUnit;
+        protected Timer flashRemainSeconds;
 
         public HealthBar healthBar;
         BrickAnimationReceiver receiver;
@@ -150,14 +151,14 @@ namespace MoreMountains
             curAnimation = AnimationState.BORN;
         }
 
-        public void playFxDamage(Vector3 direction)
+        public virtual void playFxDamage(Vector3 direction)
         {
             flashRemainSeconds = 0.08F;
             matBlock.SetFloat(StrongTintFade, 1);
             matUnit.SetFloat(StrongTintFade, 1);
         }
 
-        public void playFxHit(Vector2 normal)
+        public virtual void playFxHit(Vector2 normal)
         {
             if (_brick.IsDead())
                 return;
@@ -373,6 +374,7 @@ namespace MoreMountains
                 health.SetText(cur.IToS());
 
                 var f = Mathf.Clamp01(((float)cur) / max);
+                barRenderer.TryInitializeMaterial();
                 barRenderer.SetProgress(f);
                 barRenderer.ClearAllChunks();
                 barRenderer.ApplyToMaterial();
@@ -416,6 +418,13 @@ namespace MoreMountains
             var fade = b ? 1F : 0F;
             matBlock.SetFloat(FrozenFade, fade);
             matUnit.SetFloat(FrozenFade, fade);
+        }
+
+        public void setPoisonEffect(bool b)
+        {
+            var fade = b ? 1F : 0F;
+            matBlock.SetFloat(PoisonFade, fade);
+            matUnit.SetFloat(PoisonFade, fade);
         }
 
         public void setFrostEffect(float f)

@@ -146,7 +146,6 @@ namespace MoreMountains
         /// <summary>
         /// Every frame we check if it's needed to update the ammo display
         /// </summary>
-        /// <param name="dt"></param>
         public override void OnUpdate(float dt)
         {
             HandleCharacterState();

@@ -23,7 +23,7 @@ namespace MoreMountains
 
         public override void PerformAction(float dt)
         {
-            if (brick.IsDead())
+            if (_brick.IsDead())
             {
                 _movement.SetMovement(Vector2.zero);
                 return;
@@ -34,7 +34,7 @@ namespace MoreMountains
 
         protected virtual void Strafe()
         {
-            if (_brain.Target == null)
+            if (_brain.NoTarget)
             {
                 _movement.SetMovement(Vector2.zero);
                 return;
@@ -59,7 +59,7 @@ namespace MoreMountains
                 {
                     Vector2 radialDirection = toTarget.normalized;
                     float radialSpeed = currentDistance > OrbitRadius ? 1f : -1f;
-                    _direction += radialDirection * radialSpeed * 0.5f;
+                    _direction += radialDirection * (radialSpeed * 0.5f);
                 }
             }
 

@@ -27,7 +27,7 @@ namespace MoreMountains.Tools
         }
 
         /// <summary>
-        /// Fills the object pool with the gameobject type you've specified in the inspector
+        /// Fills the object pool with the game-object type you've specified in the inspector
         /// </summary>
         public override void FillObjectPool()
         {

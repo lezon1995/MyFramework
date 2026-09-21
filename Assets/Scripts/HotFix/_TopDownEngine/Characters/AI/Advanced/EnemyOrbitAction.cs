@@ -27,7 +27,7 @@ namespace MoreMountains
 
         public override void PerformAction(float dt)
         {
-            if (brick.IsDead())
+            if (_brick.IsDead())
             {
                 _movement.SetMovement(Vector2.zero);
                 return;
@@ -38,7 +38,7 @@ namespace MoreMountains
 
         protected virtual void Orbit()
         {
-            if (_brain.Target == null)
+            if (_brain.NoTarget)
             {
                 _movement.SetMovement(Vector2.zero);
                 return;
@@ -54,7 +54,7 @@ namespace MoreMountains
                 ? new Vector2(toTarget.y, -toTarget.x).normalized
                 : new Vector2(-toTarget.y, toTarget.x).normalized;
 
-            _direction = tangent * OrbitSpeed;
+            _direction = tangent;
 
             // 径向速度（靠近/远离以保持距离）
             if (Mathf.Abs(currentDistance - OrbitRadius) > RadiusTolerance)
@@ -65,7 +65,7 @@ namespace MoreMountains
             }
 
             // 只通过 CharacterMovement 设置移动
-            _movement.SetMovement(_direction);
+            _movement.SetMovement(_direction, OrbitSpeed);
         }
 
         public override void OnExitState()

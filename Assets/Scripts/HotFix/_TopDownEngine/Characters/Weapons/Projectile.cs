@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Drawing;
 using MoreMountains.Tools;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -188,6 +187,18 @@ namespace MoreMountains
                 _collider2D.enabled = true;
 
             inUse = true;
+        }
+
+        protected override void Update()
+        {
+            if (mNeedUpdate)
+            {
+                OnUpdate(Time.deltaTime);
+            }
+        }
+
+        public override void OnUpdate(float dt)
+        {
         }
 
         /// <summary>

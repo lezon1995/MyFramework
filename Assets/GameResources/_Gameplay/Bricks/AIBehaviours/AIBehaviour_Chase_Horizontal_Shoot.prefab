@@ -1,0 +1,246 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1725937555355092021
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5302428075379076138}
+  - component: {fileID: 833164591389336400}
+  - component: {fileID: 8100571718902752386}
+  m_Layer: 0
+  m_Name: AIDecisions
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5302428075379076138
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1725937555355092021}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1277049322733004011}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &833164591389336400
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1725937555355092021}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 48ee8ed7e0a240df972db7726a29fdfb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: HotFix::MoreMountains.EnemyDetectTargetIsAliveDecision
+  Label: 
+--- !u!114 &8100571718902752386
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1725937555355092021}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 251ec4b1d5454c89ad5aa21f33e716eb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: HotFix::MoreMountains.EnemyDetectDistanceToTargetDecision
+  Label: 
+  ComparisonMode: 1
+  ComparisonDirection: 1
+  Distance: 0.2
+--- !u!1 &2257245688778120783
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1277049322733004011}
+  - component: {fileID: 5757167335483623584}
+  m_Layer: 0
+  m_Name: AIBehaviour_Chase_Horizontal_Shoot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1277049322733004011
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2257245688778120783}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 5302428075379076138}
+  - {fileID: 8287411899423608099}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5757167335483623584
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2257245688778120783}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e18b4d59e05d441aa1484013cb172420, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: HotFix::MoreMountains.EnemyBrain
+  Owner: {fileID: 0}
+  States:
+  - StateName: Chasing
+    Actions:
+      array:
+      - {fileID: 5078465417207804136}
+      - {fileID: 4155204979182707720}
+    Transitions:
+      array:
+      - Decision: {fileID: 8100571718902752386}
+        TrueState: Attacking
+        FalseState: 
+  - StateName: Attacking
+    Actions:
+      array:
+      - {fileID: 2437250994365753945}
+    Transitions:
+      array:
+      - Decision: {fileID: 8100571718902752386}
+        TrueState: 
+        FalseState: Chasing
+  TimeInThisState: 0
+  Target: {fileID: 0}
+  _lastKnownTargetPosition: {x: 0, y: 0, z: 0}
+  BrainActive: 1
+  ResetBrainOnStart: 0
+  ResetBrainOnEnable: 0
+  ActionsFrequency: 0
+  DecisionFrequency: 0
+  RandomizeFrequencies: 0
+  RandomActionFrequency: {x: 0.5, y: 1}
+  RandomDecisionFrequency: {x: 0.5, y: 1}
+  brick: {fileID: 0}
+--- !u!1 &4423458167620751395
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8287411899423608099}
+  - component: {fileID: 4155204979182707720}
+  - component: {fileID: 2437250994365753945}
+  - component: {fileID: 6534953895421321961}
+  - component: {fileID: 5078465417207804136}
+  m_Layer: 0
+  m_Name: AIActions
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8287411899423608099
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4423458167620751395}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1277049322733004011}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4155204979182707720
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4423458167620751395}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f603917ff76d4de78b856115739005b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: HotFix::MoreMountains.EnemyAimWeaponAtTargetAction
+  InitializationMode: 0
+  Label: 
+  TargetHandleWeaponAbility: {fileID: 0}
+  AimOrigin: 0
+  FaceTarget: 1
+  AimAtTarget: 1
+--- !u!114 &2437250994365753945
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4423458167620751395}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e49b5d36f4a4234961f38b0703a1220, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: HotFix::MoreMountains.EnemyShootAction
+  InitializationMode: 0
+  Label: 
+  TargetHandleWeaponAbility: {fileID: 0}
+  AimOrigin: 0
+  FaceTarget: 1
+  AimAtTarget: 1
+  OnlyAimWhenInState: 0
+--- !u!114 &6534953895421321961
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4423458167620751395}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ab34c022addc417b8ae0137bf2909540, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: HotFix::MoreMountains.EnemyDoNothingAction
+  InitializationMode: 0
+  Label: 
+--- !u!114 &5078465417207804136
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4423458167620751395}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47557c9dd44293a41bc6710b083332de, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: HotFix::MoreMountains.EnemyMoveTowardsTargetAction
+  InitializationMode: 0
+  Label: 
+  UseMinimumXDistance: 0
+  MinimumXDistance: 1
+  MovementConstraint: 1

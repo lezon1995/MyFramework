@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace MoreMountains
 {
@@ -10,16 +11,26 @@ namespace MoreMountains
         /// The possible comparison modes
         public enum ComparisonModes
         {
-            StrictlyLowerThan,
-            LowerThan,
+            Lower,
+            LowerEqual,
             Equals,
-            GreaterThan,
-            StrictlyGreaterThan
+            GreaterEqual,
+            Greater
+        }
+
+        /// the possible rotation modes for the character
+        public enum ComparisonDirections
+        {
+            Free,
+            Horizontal,
+            Vertical,
         }
 
         /// the comparison mode
         [Tooltip("the comparison mode")]
-        public ComparisonModes ComparisonMode = ComparisonModes.GreaterThan;
+        public ComparisonModes ComparisonMode = ComparisonModes.GreaterEqual;
+
+        public ComparisonDirections ComparisonDirection = ComparisonDirections.Free;
 
         /// the distance to compare with
         [Tooltip("the distance to compare with")]
@@ -40,39 +51,38 @@ namespace MoreMountains
         /// <returns></returns>
         protected virtual bool EvaluateDistance()
         {
-            if (_brain.Target == null)
-            {
+            if (_brain.NoTarget)
                 return false;
-            }
 
-            float distance = Vector3.Distance(transform.position, _brain.Target.position);
-
-            if (ComparisonMode == ComparisonModes.StrictlyLowerThan)
+            float distance = 0F;
+            var selfPos = transform.position;
+            var targetPos = _brain.Target.position;
+            switch (ComparisonDirection)
             {
-                return (distance < Distance);
+                case ComparisonDirections.Free:
+                    distance = Vector3.Distance(selfPos, targetPos);
+                    break;
+                case ComparisonDirections.Horizontal:
+                    selfPos.y = 0;
+                    targetPos.y = 0;
+                    distance = (selfPos.x - targetPos.x).abs();
+                    break;
+                case ComparisonDirections.Vertical:
+                    selfPos.x = 0;
+                    targetPos.x = 0;
+                    distance = (selfPos.y - targetPos.y).abs();
+                    break;
             }
 
-            if (ComparisonMode == ComparisonModes.LowerThan)
+            return ComparisonMode switch
             {
-                return (distance <= Distance);
-            }
-
-            if (ComparisonMode == ComparisonModes.Equals)
-            {
-                return (distance == Distance);
-            }
-
-            if (ComparisonMode == ComparisonModes.GreaterThan)
-            {
-                return (distance >= Distance);
-            }
-
-            if (ComparisonMode == ComparisonModes.StrictlyGreaterThan)
-            {
-                return (distance > Distance);
-            }
-
-            return false;
+                ComparisonModes.Lower => distance < Distance,
+                ComparisonModes.LowerEqual => distance <= Distance,
+                ComparisonModes.Equals => distance.isEqual(Distance),
+                ComparisonModes.GreaterEqual => distance >= Distance,
+                ComparisonModes.Greater => distance > Distance,
+                _ => false
+            };
         }
     }
 }

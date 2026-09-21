@@ -6,10 +6,16 @@ namespace MoreMountains
     [CreateAssetMenu(menuName = "MyFramework/Gameplay/BrickDef")]
     public sealed class BrickDef : ScriptableObject
     {
+        public BrickType BrickType;
         public SpawnEnemyType Type;
         public Vector2Int Size = new(1, 1);
+
+        [PreviewField]
         public Sprite UnitIcon;
+
+        [PreviewField]
         public Sprite BlockIcon;
+
         public BrickStatsTemplate StatsTemplate;
         public string PrefabName;
 
@@ -21,5 +27,8 @@ namespace MoreMountains
 
         [ShowIf("@this.Type == SpawnEnemyType.Boss")]
         public Vector2 BossHealthBarSize = new(600F, 50F);
+
+        public EnemyBrain AIBehaviour;
+        public CharacterHandleWeapon AIHandleWeapon;
     }
 }

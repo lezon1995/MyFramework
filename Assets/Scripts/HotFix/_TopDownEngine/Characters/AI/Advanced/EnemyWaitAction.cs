@@ -31,7 +31,7 @@ namespace MoreMountains
 
         public override void PerformAction(float dt)
         {
-            if (brick.IsDead())
+            if (_brick.IsDead())
             {
                 _movement.SetMovement(Vector2.zero);
                 return;

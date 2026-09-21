@@ -3,6 +3,16 @@ using UnityEngine;
 
 namespace MoreMountains
 {
+    /// the possible rotation modes for the character
+    public enum Movements
+    {
+        Free,
+        Strict2DirectionsHorizontal,
+        Strict2DirectionsVertical,
+        Strict4Directions,
+        Strict8Directions
+    }
+
     /// <summary>
     /// Add this ability to a Character to have it handle ground movement (walk, and potentially run, crawl, etc) in x and z direction for 3D, x and y for 2D
     /// Animator parameters : Speed (float), Walking (bool)
@@ -10,16 +20,6 @@ namespace MoreMountains
     [AddComponentMenu("TopDown Engine/Character/Abilities/CharacterMovement")]
     public class CharacterMovement : CharacterAbility
     {
-        /// the possible rotation modes for the character
-        public enum Movements
-        {
-            Free,
-            Strict2DirectionsHorizontal,
-            Strict2DirectionsVertical,
-            Strict4Directions,
-            Strict8Directions
-        }
-
         /// if this is true, movement will be forbidden (as well as flip)
         public virtual bool MovementForbidden { get; set; }
 
@@ -60,10 +60,10 @@ namespace MoreMountains
 
         [Header("Acceleration")]
         [Tooltip("the acceleration to apply to the current speed / 0f : no acceleration, instant full speed")]
-        public float Acceleration = 10f;
+        public float acceleration;
 
         [Tooltip("the deceleration to apply to the current speed / 0f : no deceleration, instant stop")]
-        public float Deceleration = 10f;
+        public float deceleration;
 
         [Tooltip("whether or not to interpolate movement speed")]
         public bool InterpolateMovementSpeed;
@@ -97,6 +97,7 @@ namespace MoreMountains
         public Vector2 _lerpedInput;
         public float _acceleration;
         public bool _walkParticlesPlaying;
+        protected float _momentSpeedMultiplier;
 
         protected const string _speedAnimationParameterName = "Speed";
         protected const string _walkingAnimationParameterName = "Walking";
@@ -132,10 +133,12 @@ namespace MoreMountains
             MovementForbidden = false;
 
             foreach (var system in TouchTheGroundParticles)
-                if (system) system.Stop();
+                if (system)
+                    system.Stop();
 
             foreach (var system in WalkParticles)
-                if (system) system.Stop();
+                if (system)
+                    system.Stop();
         }
 
         public override void OnUpdate(float dt)
@@ -167,9 +170,15 @@ namespace MoreMountains
                 return;
 
             _movement = InputAuthorized ? _curInput : Vector2.zero;
+            _momentSpeedMultiplier = 1F;
         }
 
-        public virtual void SetMovement(Vector2 value) => _movement = value;
+        public virtual void SetMovement(Vector2 value, float multiplier = 1F)
+        {
+            _movement = value;
+            _momentSpeedMultiplier = multiplier;
+        }
+
         public virtual void SetHorizontalMovement(float value) => _movement.x = value;
         public virtual void SetVerticalMovement(float value) => _movement.y = value;
 
@@ -274,26 +283,29 @@ namespace MoreMountains
 
             float interpolationSpeed = 1f;
             Vector2 lerpInput;
-            if (Acceleration == 0 || Deceleration == 0)
+            if (acceleration == 0 || deceleration == 0)
             {
-                lerpInput = AnalogInput ? _currentInput : _normalizedInput;
+                if (AnalogInput)
+                    lerpInput = _currentInput;
+                else
+                    lerpInput = _normalizedInput;
             }
             else
             {
                 if (_normalizedInput.magnitude == 0)
                 {
-                    _acceleration = Mathf.Lerp(_acceleration, 0f, Deceleration * dt);
-                    lerpInput = Vector2.Lerp(_lerpedInput, _lerpedInput * _acceleration, dt * Deceleration);
-                    interpolationSpeed = Deceleration;
+                    _acceleration = Mathf.Lerp(_acceleration, 0f, deceleration * dt);
+                    lerpInput = Vector2.Lerp(_lerpedInput, _lerpedInput * _acceleration, dt * deceleration);
+                    interpolationSpeed = deceleration;
                 }
                 else
                 {
-                    _acceleration = Mathf.Lerp(_acceleration, 1f, Acceleration * dt);
+                    _acceleration = Mathf.Lerp(_acceleration, 1f, acceleration * dt);
                     if (AnalogInput)
                         lerpInput = Vector2.ClampMagnitude(_currentInput, _acceleration);
                     else
                         lerpInput = Vector2.ClampMagnitude(_normalizedInput, _acceleration);
-                    interpolationSpeed = Acceleration;
+                    interpolationSpeed = acceleration;
                 }
             }
 
@@ -301,18 +313,18 @@ namespace MoreMountains
             Vector3 curMovement = new(_lerpedInput.x, 0f, _lerpedInput.y);
 
             // var moveSpeed = MovementSpeed;
-            var moveSpeed = walkSpeed;
+            var moveSpeedNew = walkSpeed * _momentSpeedMultiplier * MovementSpeedMultiplier;
             if (InterpolateMovementSpeed)
-                _movementSpeed = Mathf.Lerp(_movementSpeed, moveSpeed * MovementSpeedMultiplier, interpolationSpeed * dt);
+                _movementSpeed = Mathf.Lerp(_movementSpeed, moveSpeedNew, interpolationSpeed * dt);
             else
-                _movementSpeed = moveSpeed * MovementSpeedMultiplier;
+                _movementSpeed = moveSpeedNew;
 
             _movementSpeed /= 100F;
             curMovement *= _movementSpeed;
 
-            if (curMovement.magnitude > moveSpeed * MovementSpeedMultiplier)
+            if (curMovement.magnitude > moveSpeedNew)
             {
-                curMovement = Vector3.ClampMagnitude(curMovement, moveSpeed);
+                curMovement = Vector3.ClampMagnitude(curMovement, moveSpeedNew);
             }
 
             if (_currentInput.magnitude <= IdleThreshold && _controller.CurrentMovement.magnitude < IdleThreshold)

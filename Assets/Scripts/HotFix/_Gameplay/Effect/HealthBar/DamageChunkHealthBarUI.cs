@@ -53,7 +53,7 @@ namespace MoreMountains
         [Tooltip("Chunk 透明度从 1.0 衰减到 0 的总时长（秒）")]
         [SerializeField]
         float _chunkFadeDuration = 1.2f;
-        
+
         [Header("Shield")]
         [SerializeField]
         bool _useShield = true;
@@ -71,7 +71,6 @@ namespace MoreMountains
         [Range(0f, 1f)]
         [SerializeField]
         float _shieldGlow = 0.3f;
-        
 
         [Header("Border")]
         [SerializeField]
@@ -109,7 +108,7 @@ namespace MoreMountains
         int _currentHp => health.CurrentHealth;
         int _maxHp => health.maximumHealth;
         int _shield => health.Shield.CurrentShield;
-        
+
         // Shader Property IDs
         static readonly int kForegroundColor = Shader.PropertyToID("_ForegroundColor");
         static readonly int kForegroundProgress = Shader.PropertyToID("_ForegroundProgress");
@@ -123,7 +122,6 @@ namespace MoreMountains
         static readonly int kBorderColor = Shader.PropertyToID("_BorderColor");
         static readonly int kBorderWidth = Shader.PropertyToID("_BorderWidth");
         static readonly int kBorderSqueeze = Shader.PropertyToID("_BorderSqueeze");
-        static readonly int kChunkCount = Shader.PropertyToID("_ChunkCount");
         static readonly int kUseShield = Shader.PropertyToID("_UseShield");
         static readonly int kShieldColor = Shader.PropertyToID("_ShieldColor");
         static readonly int kShieldLength = Shader.PropertyToID("_ShieldLength");
@@ -131,18 +129,26 @@ namespace MoreMountains
 
         static readonly int[] kChunkVec =
         {
-            Shader.PropertyToID("_Chunk0"), Shader.PropertyToID("_Chunk1"),
-            Shader.PropertyToID("_Chunk2"), Shader.PropertyToID("_Chunk3"),
-            Shader.PropertyToID("_Chunk4"), Shader.PropertyToID("_Chunk5"),
-            Shader.PropertyToID("_Chunk6"), Shader.PropertyToID("_Chunk7"),
+            Shader.PropertyToID("_Chunk0"), 
+            Shader.PropertyToID("_Chunk1"),
+            Shader.PropertyToID("_Chunk2"), 
+            Shader.PropertyToID("_Chunk3"),
+            Shader.PropertyToID("_Chunk4"), 
+            Shader.PropertyToID("_Chunk5"),
+            Shader.PropertyToID("_Chunk6"), 
+            Shader.PropertyToID("_Chunk7"),
         };
 
         static readonly int[] kChunkColor =
         {
-            Shader.PropertyToID("_DamageChunkColor0"), Shader.PropertyToID("_DamageChunkColor1"),
-            Shader.PropertyToID("_DamageChunkColor2"), Shader.PropertyToID("_DamageChunkColor3"),
-            Shader.PropertyToID("_DamageChunkColor4"), Shader.PropertyToID("_DamageChunkColor5"),
-            Shader.PropertyToID("_DamageChunkColor6"), Shader.PropertyToID("_DamageChunkColor7"),
+            Shader.PropertyToID("_DamageChunkColor0"), 
+            Shader.PropertyToID("_DamageChunkColor1"),
+            Shader.PropertyToID("_DamageChunkColor2"), 
+            Shader.PropertyToID("_DamageChunkColor3"),
+            Shader.PropertyToID("_DamageChunkColor4"), 
+            Shader.PropertyToID("_DamageChunkColor5"),
+            Shader.PropertyToID("_DamageChunkColor6"), 
+            Shader.PropertyToID("_DamageChunkColor7"),
         };
 
         Material _material;
@@ -159,12 +165,12 @@ namespace MoreMountains
             get => _foregroundProgress;
             set => _foregroundProgress = Mathf.Clamp01(value);
         }
-        
+
         public void SetHealth(Health h)
         {
             health = h;
         }
-        
+
         /// <summary>
         /// 一键设置血量和护盾（推荐使用）
         /// </summary>
@@ -203,7 +209,7 @@ namespace MoreMountains
             ForegroundProgress = curPct;
             ClearAllChunks();
         }
-        
+
         /// <summary>
         /// 扣血：前景立即减少，产生一个新的 DamageChunk。
         /// </summary>
@@ -288,12 +294,12 @@ namespace MoreMountains
                     }
                 }
 
-                DamageChunk old = _chunks[oldestIdx];
+                var old = _chunks[oldestIdx];
                 slot = old.index;
                 _chunks.RemoveAt(oldestIdx);
             }
 
-            DamageChunk chunk = new DamageChunk
+            var chunk = new DamageChunk
             {
                 index = slot,
                 start = start,
@@ -350,6 +356,14 @@ namespace MoreMountains
 
         void Awake()
         {
+            TryInitializeMaterial();
+
+            for (int i = 0; i < MaxChunks; i++)
+                _slotOwner[i] = -1;
+        }
+
+        public void TryInitializeMaterial()
+        {
             if (_image == null)
                 TryGetComponent(out _image);
 
@@ -359,8 +373,6 @@ namespace MoreMountains
                 _material = _image.material;
             }
 
-            for (int i = 0; i < MaxChunks; i++)
-                _slotOwner[i] = -1;
         }
 
         void Update()
@@ -380,13 +392,13 @@ namespace MoreMountains
         void UpdateChunks(float dt)
         {
             float fadeSpeed = _chunkFadeDuration > 0 ? 1f / _chunkFadeDuration : 1f;
+            var delta = fadeSpeed * dt;
 
             // 倒序遍历方便安全删除
             for (int i = _chunks.Count - 1; i >= 0; i--)
             {
                 var chunk = _chunks[i];
-                chunk.opacity -= fadeSpeed * dt;
-
+                chunk.opacity -= delta;
                 if (chunk.opacity <= 0f)
                 {
                     chunk.opacity = 0f;
@@ -406,12 +418,6 @@ namespace MoreMountains
 
         public void ApplyToMaterial()
         {
-            if (_image == null)
-                return;
-
-            if (_material == null)
-                return;
-
             // 前景
             _material.SetColor(kForegroundColor, _foregroundColor);
             _material.SetFloat(kForegroundProgress, _foregroundProgress);
@@ -433,15 +439,12 @@ namespace MoreMountains
             _material.SetColor(kBorderColor, _borderColor);
             _material.SetFloat(kBorderWidth, _borderWidth);
             _material.SetFloat(kBorderSqueeze, _borderSqueeze);
-            
+
             // 护盾
             _material.SetInt(kUseShield, _useShield ? 1 : 0);
             _material.SetColor(kShieldColor, shieldColor);
             _material.SetFloat(kShieldLength, _shieldLength);
             _material.SetFloat(kShieldGlow, _shieldGlow);
-
-            // DamageChunks
-            _material.SetInt(kChunkCount, _chunks.Count);
 
             // 先把所有 chunk vec/color 初始化为 (0,0,0,0)，保证空槽安全
             for (int i = 0; i < MaxChunks; i++)
@@ -453,8 +456,8 @@ namespace MoreMountains
             // 填入活跃 chunk
             for (int i = 0; i < _chunks.Count; i++)
             {
-                DamageChunk chunk = _chunks[i];
-                _material.SetVector(kChunkVec[chunk.index], new Vector3(chunk.start, chunk.end, chunk.opacity));
+                var chunk = _chunks[i];
+                _material.SetVector(kChunkVec[chunk.index], new Vector4(chunk.start, chunk.end, chunk.opacity, 0));
                 _material.SetColor(kChunkColor[chunk.index], chunk.color);
             }
         }
@@ -468,6 +471,12 @@ namespace MoreMountains
             if (!Application.isPlaying)
                 return;
 
+            if (_image == null)
+                return;
+
+            if (_material == null)
+                return;
+            
             ApplyToMaterial();
         }
 #endif

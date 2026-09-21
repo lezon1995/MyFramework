@@ -147,7 +147,7 @@ namespace MoreMountains
             }
         }
 
-        [Tooltip("whether or not the time between uses can be interrupted by releasing the shoot button (if true, releasing the button will cancel the time between uses)")]
+        [Tooltip("whether the time between uses can be interrupted by releasing the shoot button (if true, releasing the button will cancel the time between uses)")]
         public bool TimeBetweenUsesReleaseInterruption = true;
 
         [Header("Burst Mode")]
@@ -322,6 +322,7 @@ namespace MoreMountains
         [MMInspectorGroup("Stats")]
         [Tooltip("the Stats script associated to this Weapon, will be grabbed automatically if left empty")]
         public Stats Stats;
+
         protected bool _hasStats;
 
         public bool IsCritThisFrame { get; set; }
@@ -730,6 +731,7 @@ namespace MoreMountains
             if (delay > 0)
             {
                 _delayBeforeUseTimer = delay;
+                OnEnterDelayBeforeUse();
                 State.ChangeState(States.DelayBeforeUse);
             }
             else
@@ -738,6 +740,10 @@ namespace MoreMountains
             }
 
             return true;
+        }
+
+        protected virtual void OnEnterDelayBeforeUse()
+        {
         }
 
         public virtual void ExitWeaponDelayBeforeUse(States toState)
@@ -786,7 +792,7 @@ namespace MoreMountains
         public virtual bool CaseWeaponUse()
         {
             DetermineWeaponCrit();
-            WeaponUse();
+            OnWeaponUse();
             _delayBetweenUsesTimer = timeBetweenUses;
             State.ChangeState(States.DelayBetweenUses);
             return true;
@@ -812,10 +818,19 @@ namespace MoreMountains
         void RestartOrTurnOff()
         {
             _delayBetweenUsesTimer.kill();
-            if (TriggerMode == TriggerModes.Auto && !_triggerReleased)
-                State.ChangeState(States.Start);
-            else
-                TurnWeaponOff();
+            switch (TriggerMode)
+            {
+                case TriggerModes.Auto:
+                    if (!_triggerReleased)
+                        State.ChangeState(States.Start);
+                    else
+                        TurnWeaponOff();
+                    break;
+
+                case TriggerModes.SemiAuto:
+                    TurnWeaponOff();
+                    break;
+            }
         }
 
         public void ResetUseTimer()
@@ -933,6 +948,7 @@ namespace MoreMountains
             if (now - _lastShootRequestAt < timeBetweenUses)
                 return;
 
+            _delayBeforeUseTimer.kill();
             var remainingShots = UseBurstMode ? BurstLength : 1;
             switch (remainingShots)
             {
@@ -1030,7 +1046,7 @@ namespace MoreMountains
         /// <summary>
         /// When the weapon is used, plays the corresponding sound
         /// </summary>
-        public virtual void WeaponUse()
+        public virtual void OnWeaponUse()
         {
             ApplyRecoil();
             TriggerWeaponUsedFeedback();

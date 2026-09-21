@@ -485,7 +485,6 @@ Transform:
   - {fileID: 2680391634669396040}
   - {fileID: 859959086508004618}
   - {fileID: 2488688475314870218}
-  - {fileID: 4190584941945319538}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!50 &-6411493073612663454
@@ -683,8 +682,8 @@ MonoBehaviour:
   WalkSpeed: 6
   ShouldSetMovement: 1
   IdleThreshold: 0.05
-  Acceleration: 10
-  Deceleration: 10
+  acceleration: 0
+  deceleration: 0
   InterpolateMovementSpeed: 0
   WalkParticles: []
   TouchTheGroundParticles: []
@@ -793,7 +792,8 @@ MonoBehaviour:
   Buffable: {fileID: 1869582164082399622}
   Exp: {fileID: 0}
   AdditionalAbilityNodes: []
-  CharacterBrain: {fileID: 63045782978540900}
+  CharacterBrain: {fileID: 0}
+  CharacterHandleWeapon: {fileID: 0}
   Orientation2D: {fileID: 0}
   Movement: {fileID: 6784063828938475265}
   type: 2
@@ -1941,90 +1941,4 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 897814016289301418, guid: fc6efbcd0cc9d77468f88b479fdc2277,
     type: 3}
   m_PrefabInstance: {fileID: 3385640310901716064}
-  m_PrefabAsset: {fileID: 0}
---- !u!1001 &5310664154701631248
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 5098559960325705308}
-    m_Modifications:
-    - target: {fileID: 1143618025525489925, guid: 2cb4f204bc0d10544bd927036d8d38a6,
-        type: 3}
-      propertyPath: m_Name
-      value: AIBehaviour_Chase
-      objectReference: {fileID: 0}
-    - target: {fileID: 8328481876912406370, guid: 2cb4f204bc0d10544bd927036d8d38a6,
-        type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0.46486
-      objectReference: {fileID: 0}
-    - target: {fileID: 8328481876912406370, guid: 2cb4f204bc0d10544bd927036d8d38a6,
-        type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.85961
-      objectReference: {fileID: 0}
-    - target: {fileID: 8328481876912406370, guid: 2cb4f204bc0d10544bd927036d8d38a6,
-        type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8328481876912406370, guid: 2cb4f204bc0d10544bd927036d8d38a6,
-        type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8328481876912406370, guid: 2cb4f204bc0d10544bd927036d8d38a6,
-        type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8328481876912406370, guid: 2cb4f204bc0d10544bd927036d8d38a6,
-        type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8328481876912406370, guid: 2cb4f204bc0d10544bd927036d8d38a6,
-        type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8328481876912406370, guid: 2cb4f204bc0d10544bd927036d8d38a6,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8328481876912406370, guid: 2cb4f204bc0d10544bd927036d8d38a6,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8328481876912406370, guid: 2cb4f204bc0d10544bd927036d8d38a6,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 2cb4f204bc0d10544bd927036d8d38a6, type: 3}
---- !u!114 &63045782978540900 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5290813838179023476, guid: 2cb4f204bc0d10544bd927036d8d38a6,
-    type: 3}
-  m_PrefabInstance: {fileID: 5310664154701631248}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e18b4d59e05d441aa1484013cb172420, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: HotFix::MoreMountains.EnemyBrain
---- !u!4 &4190584941945319538 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 8328481876912406370, guid: 2cb4f204bc0d10544bd927036d8d38a6,
-    type: 3}
-  m_PrefabInstance: {fileID: 5310664154701631248}
   m_PrefabAsset: {fileID: 0}

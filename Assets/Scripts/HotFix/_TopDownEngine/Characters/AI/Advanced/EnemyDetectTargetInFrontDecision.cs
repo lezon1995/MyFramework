@@ -27,7 +27,7 @@ namespace MoreMountains
 
         public override bool Decide()
         {
-            if (_brain.Target == null)
+            if (_brain.NoTarget)
                 return false;
 
             return IsTargetInFront();

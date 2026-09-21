@@ -4,14 +4,14 @@ namespace MoreMountains
 {
     public abstract class EnemyAction : AIAction
     {
-        protected Brick brick;
-        protected TopDownController _controller => brick.Controller;
-        protected CharacterMovement _movement => brick.Movement;
+        protected Brick _brick;
+        protected TopDownController2D _controller2D => _brick.Controller2D;
+        protected CharacterMovement _movement => _brick.Movement;
 
         protected override void Awake()
         {
             base.Awake();
-            this.TryGetComponentInParent(out brick);
+            this.TryGetComponentInParent(out _brick);
         }
     }
 }

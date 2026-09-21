@@ -17,12 +17,11 @@ namespace MoreMountains
         [Tooltip("the minimum number of targets required to return true")]
         public int MinimumTargetCount = 3;
 
-        protected Collider2D[] _results;
+        protected Collider2D[] _results = new Collider2D[20];
 
         public override void Initialization()
         {
             base.Initialization();
-            _results ??= new Collider2D[20];
         }
 
         public override bool Decide()

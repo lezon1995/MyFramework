@@ -26,18 +26,18 @@ namespace MoreMountains
 
         public override void PerformAction(float dt)
         {
-            if (brick.IsDead())
+            if (_brick.IsDead())
             {
                 _movement.SetMovement(Vector2.zero);
                 return;
             }
 
-            Zigzag();
+            Zigzag(dt);
         }
 
-        protected virtual void Zigzag()
+        protected virtual void Zigzag(float dt)
         {
-            if (_brain.Target == null)
+            if (_brain.NoTarget)
             {
                 _movement.SetMovement(Vector2.zero);
                 return;
@@ -61,7 +61,7 @@ namespace MoreMountains
             _perpendicularDirection = new Vector2(-toTarget.y, toTarget.x);
 
             // 定时切换方向
-            _timer += Time.deltaTime * ZigzagFrequency;
+            _timer += dt * ZigzagFrequency;
             if (_timer >= 1f)
             {
                 _timer = 0f;
@@ -70,10 +70,10 @@ namespace MoreMountains
 
             // 计算最终移动方向
             Vector2 zigzagOffset = _perpendicularDirection * (_zigzagRight ? ZigzagWidth : -ZigzagWidth);
-            _direction = (toTarget + zigzagOffset * 0.5f).normalized * SpeedMultiplier;
+            _direction = (toTarget + zigzagOffset * 0.5f).normalized;
 
             // 只通过 CharacterMovement 设置移动
-            _movement.SetMovement(_direction);
+            _movement.SetMovement(_direction, SpeedMultiplier);
         }
 
         public override void OnExitState()

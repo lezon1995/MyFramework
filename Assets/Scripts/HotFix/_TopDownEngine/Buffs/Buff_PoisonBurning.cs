@@ -2,6 +2,26 @@
 {
     public class Buff_PoisonBurning : Buff
     {
+        protected override void OnAfterAdd()
+        {
+            base.OnAfterAdd();
+
+            if (Target.Character is Brick b)
+            {
+                b.brickRenderer.setPoisonEffect(true);
+            }
+        }
+
+        protected override void OnBeforeRemove()
+        {
+            base.OnBeforeRemove();
+
+            if (Target.Character is Brick b)
+            {
+                b.brickRenderer.setPoisonEffect(false);
+            }
+        }
+        
         protected override bool TryGetPeriodDamage(out Dmg dmg)
         {
             var mag = periodDamage;

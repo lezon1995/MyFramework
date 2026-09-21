@@ -27,7 +27,6 @@ Shader "Game/DamageChunkHealthBar"
 
         // --- DamageChunk 分段缓冲（最多 8 段） ---
         [Header(Damage Chunks (max 8))]
-        _ChunkCount ("Active Chunk Count", Int) = 0
         // 每段 float3 = (startProgress, endProgress, opacity)，x,y ∈ [0,1], z ∈ [0,1]
         _Chunk0 ("Chunk 0 (start, end, opacity)", Vector) = (0,0,0,0)
         _Chunk1 ("Chunk 1 (start, end, opacity)", Vector) = (0,0,0,0)
@@ -135,7 +134,6 @@ Shader "Game/DamageChunkHealthBar"
             half      _BorderSqueeze;
 
             // DamageChunks
-            int       _ChunkCount;
             float3    _Chunk0, _Chunk1, _Chunk2, _Chunk3;
             float3    _Chunk4, _Chunk5, _Chunk6, _Chunk7;
             fixed4    _DamageChunkColor0, _DamageChunkColor1, _DamageChunkColor2, _DamageChunkColor3;
@@ -222,8 +220,6 @@ Shader "Game/DamageChunkHealthBar"
 
                 for (int ci = 0; ci < 8; ci++)
                 {
-                    if (ci >= _ChunkCount) break;
-
                     half3 chunkData;
                     switch (ci)
                     {

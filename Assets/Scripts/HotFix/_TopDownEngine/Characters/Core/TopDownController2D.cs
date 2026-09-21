@@ -333,7 +333,6 @@ namespace MoreMountains
         /// <summary>
         /// Sets the current movement
         /// </summary>
-        /// <param name="movement"></param>
         public override void SetMovement(Vector3 movement)
         {
             movement.y = movement.z;

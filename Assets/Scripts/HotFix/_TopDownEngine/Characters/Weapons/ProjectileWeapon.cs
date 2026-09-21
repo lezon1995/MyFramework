@@ -105,9 +105,9 @@ namespace MoreMountains
         /// <summary>
         /// Called everytime the weapon is used
         /// </summary>
-        public override void WeaponUse()
+        public override void OnWeaponUse()
         {
-            base.WeaponUse();
+            base.OnWeaponUse();
 
             DetermineSpawnPosition();
 

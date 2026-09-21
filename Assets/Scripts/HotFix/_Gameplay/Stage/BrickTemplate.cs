@@ -6,7 +6,7 @@ namespace MoreMountains;
 [Serializable]
 public struct BrickTemplate : IEquatable<BrickTemplate>
 {
-    public static Vector2 cellSize = new(0.675F, 0.675F);
+    public static Vector2 cellSize = Vector2.one * BrickUnitSize;
     public BrickDef def;
     public Vector2 position;
     public Vector2Int size => def.Size;

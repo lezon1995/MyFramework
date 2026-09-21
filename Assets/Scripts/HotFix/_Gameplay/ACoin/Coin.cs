@@ -121,19 +121,19 @@ namespace MoreMountains
             _pickupTimer = 0f;
             _segmentVerticalRadius = 0f;
             _segmentMaxHeight = 0f;
-            _segmentPositions = null;
-            _segmentHeights = null;
+            UN_ARRAY(ref _segmentPositions);
+            UN_ARRAY(ref _segmentHeights);
             _startPos = Vector2.zero;
             _finalLandingPos = Vector2.zero;
 
-            if (_spriteRenderer != null)
+            if (_spriteRenderer)
             {
                 Color c = _spriteRenderer.color;
                 c.a = 1f;
                 _spriteRenderer.color = c;
             }
 
-            if (_transformCache != null)
+            if (_transformCache)
             {
                 _transformCache.localScale = Vector3.one;
                 _transformCache.localRotation = Quaternion.identity;
@@ -191,7 +191,7 @@ namespace MoreMountains
 
             State = CoinState.Dropping;
 
-            if (_spriteRenderer != null)
+            if (_spriteRenderer)
             {
                 Color c = _spriteRenderer.color;
                 c.a = 1f;
@@ -287,7 +287,7 @@ namespace MoreMountains
             _transformCache.localRotation = Quaternion.Euler(0f, 0f, rotationZ);
 
             // 淡出效果
-            if (_spriteRenderer != null)
+            if (_spriteRenderer)
             {
                 Color c = _spriteRenderer.color;
                 c.a = Mathf.Lerp(1f, 0f, t);
@@ -349,8 +349,8 @@ namespace MoreMountains
             int totalSegments = Mathf.Max(0, _dropConfig.BounceCount) + 1;
             int totalPoints = totalSegments + 1;
 
-            _segmentPositions = new Vector2[totalPoints];
-            _segmentHeights = new float[totalSegments];
+            ARRAY_PERSIST(out _segmentHeights, totalSegments);
+            ARRAY_PERSIST(out _segmentPositions, totalPoints);
 
             // === 1. 计算椭圆上的理论最终落点 P_theoretical ===
             float a = _dropConfig.HorizontalSpread;
@@ -446,7 +446,7 @@ namespace MoreMountains
             // 起点处的 Collider 会被 CircleCast 忽略（origin 在 Collider 内时不命中），
             // 但为安全起见，忽略极近距离的命中
             const float minHitDistance = 0.05f;
-            if (hit.collider != null && hit.distance >= minHitDistance && hit.distance < theoreticalDistance)
+            if (hit.collider && hit.distance >= minHitDistance && hit.distance < theoreticalDistance)
             {
                 // 圆心停在 hit.distance 位置（探针外缘刚好接触障碍物表面，金币边缘贴紧障碍物）
                 Vector2 clipCenter = startPos + normDir * hit.distance;

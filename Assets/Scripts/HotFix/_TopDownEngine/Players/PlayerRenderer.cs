@@ -273,6 +273,7 @@ namespace MoreMountains
                 health.SetText(cur.IToS());
 
                 var f = Mathf.Clamp01(((float)cur) / max);
+                barRenderer.TryInitializeMaterial();
                 barRenderer.SetProgress(f);
                 barRenderer.ClearAllChunks();
                 barRenderer.ApplyToMaterial();

@@ -1,5 +1,3 @@
-using UnityEngine;
-
 namespace MoreMountains
 {
     /// <summary>
@@ -14,15 +12,15 @@ namespace MoreMountains
         public override void Initialization()
         {
             base.Initialization();
-            if (brick != null)
+            if (_brick != null)
             {
-                brick.FindAbility(out _orientation2D);
+                _brick.FindAbility(out _orientation2D);
             }
         }
 
         public override void PerformAction(float dt)
         {
-            if (brick.IsDead())
+            if (_brick.IsDead())
                 return;
 
             FaceTarget();
@@ -30,7 +28,7 @@ namespace MoreMountains
 
         protected virtual void FaceTarget()
         {
-            if (_brain.Target == null || _orientation2D == null)
+            if (_brain.NoTarget || _orientation2D == null)
                 return;
 
             if (transform.position.x > _brain.Target.position.x)

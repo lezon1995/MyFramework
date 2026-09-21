@@ -48,6 +48,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: HotFix::MoreMountains.EnemyBrain
   Owner: {fileID: 0}
   States:
+  - StateName: Moving
+    Actions:
+      array:
+      - {fileID: 6526618761731102170}
+      - {fileID: 4155204979182707720}
+    Transitions:
+      array:
+      - Decision: {fileID: 5694272266023228274}
+        TrueState: Deciding
+        FalseState: 
+  - StateName: Deciding
+    Actions:
+      array:
+      - {fileID: 3228144080992261030}
+    Transitions:
+      array:
+      - Decision: {fileID: 3699248949310036015}
+        TrueState: Orbiting
+        FalseState: 
   - StateName: Orbiting
     Actions:
       array:
@@ -58,7 +77,7 @@ MonoBehaviour:
       array:
       - Decision: {fileID: 5694272266023228274}
         TrueState: 
-        FalseState: 
+        FalseState: Moving
   TimeInThisState: 0
   Target: {fileID: 0}
   _lastKnownTargetPosition: {x: 0, y: 0, z: 0}
@@ -81,6 +100,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4698582577727100423}
   - component: {fileID: 5694272266023228274}
+  - component: {fileID: 3699248949310036015}
   m_Layer: 0
   m_Name: AIDecisions
   m_TagString: Untagged
@@ -116,7 +136,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: HotFix::MoreMountains.EnemyDetectTargetRadiusDecision
   Label: 
-  Radius: 50
+  Radius: 5
   DetectionOriginOffset: {x: 0, y: 0, z: 0}
   TargetLayer:
     serializedVersion: 2
@@ -129,6 +149,19 @@ MonoBehaviour:
   CanTargetSelf: 0
   TargetCheckFrequency: 1
   OverlapMaximum: 10
+--- !u!114 &3699248949310036015
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2493700625847126664}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 48ee8ed7e0a240df972db7726a29fdfb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: HotFix::MoreMountains.EnemyDetectTargetIsAliveDecision
+  Label: 
 --- !u!1 &7559962357408024181
 GameObject:
   m_ObjectHideFlags: 0
@@ -141,6 +174,8 @@ GameObject:
   - component: {fileID: 4155204979182707720}
   - component: {fileID: 2437250994365753945}
   - component: {fileID: 6556905315391520394}
+  - component: {fileID: 6526618761731102170}
+  - component: {fileID: 3228144080992261030}
   m_Layer: 0
   m_Name: AIActions
   m_TagString: Untagged
@@ -219,3 +254,35 @@ MonoBehaviour:
   Clockwise: 1
   ApproachSpeed: 1
   RadiusTolerance: 0.5
+--- !u!114 &6526618761731102170
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7559962357408024181}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47557c9dd44293a41bc6710b083332de, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: HotFix::MoreMountains.EnemyMoveTowardsTargetAction
+  InitializationMode: 0
+  Label: 
+  UseMinimumXDistance: 1
+  MinimumXDistance: 1
+  MonsterAttractionForce: 1
+  MonsterWanderForce: 0.5
+--- !u!114 &3228144080992261030
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7559962357408024181}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ab34c022addc417b8ae0137bf2909540, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: HotFix::MoreMountains.EnemyDoNothingAction
+  InitializationMode: 0
+  Label: 

@@ -79,7 +79,7 @@ namespace MoreMountains
         /// <summary>
         /// 创建默认配置
         /// </summary>
-        public static ExpDropConfig Default => new()
+        public static ExpDropConfig Default = new()
         {
             DropDuration = 0.6f,
             BounceCount = 2,
@@ -194,7 +194,7 @@ namespace MoreMountains
         /// <summary>
         /// 创建默认配置
         /// </summary>
-        public static ExpPickupConfig Default => new()
+        public static ExpPickupConfig Default = new()
         {
             FleeDuration = 0.25f,
             FlyToPlayerSpeed = 12f,

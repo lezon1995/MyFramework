@@ -34,6 +34,7 @@ namespace MoreMountains
         {
             base.onAcquire();
             SetColliderEnabled(false);
+            CharacterBrain.SetTarget(player.getTransform());
             CharacterBrain.BrainActive = false;
             brickRenderer.setRendererActive(true);
             brickRenderer.setHealthBarActive(false);
@@ -60,6 +61,7 @@ namespace MoreMountains
         {
             SetColliderEnabled(true);
             CharacterBrain.ResetBrain();
+            CharacterBrain.SetTarget(player.getTransform());
             brickRenderer.setHealthBarActive(true);
             onBornCompleted?.Invoke(this);
         }
@@ -91,6 +93,11 @@ namespace MoreMountains
         public Vector2Int getSize() => size;
         public void setSize(Vector2Int v) => size = v;
 
+        public float getMaxWidthOrHeight()
+        {
+            return Mathf.Max(BrickUnitSize * size.x, BrickUnitSize * size.y);
+        }
+
         public void setSortingOrder(int order)
         {
             brickRenderer.setSortingOrder(order);
@@ -107,6 +114,77 @@ namespace MoreMountains
             brickRenderer.setBlockSprite(d.BlockIcon);
             brickRenderer.setUnitSprite(d.UnitIcon);
             brickRenderer.onBrickDefSet(d);
+        }
+
+        public void setupBrain(EnemyBrain brainTemplate)
+        {
+            if (brainTemplate == null)
+                return;
+
+            var brain = CharacterBrain;
+            if (brain)
+            {
+                Destroy(brain);
+            }
+
+            if (brainTemplate)
+            {
+                InstantiateBrain(brainTemplate);
+            }
+            else
+            {
+                CharacterBrain = null;
+            }
+
+            // OnBrainChange?.Invoke();
+        }
+        
+        protected virtual void InstantiateBrain(EnemyBrain newBrain)
+        {
+            EnemyBrain curBrain = Instantiate(newBrain, transform);
+            CharacterBrain = curBrain;
+
+            if (curBrain)
+            {
+                curBrain.name = newBrain.name;
+                curBrain.transform.localPosition = Vector3.zero;
+                curBrain.SetOwner(gameObject);
+            }
+        }
+
+        public void setupWeapon(CharacterHandleWeapon weaponTemplate)
+        {
+            if (weaponTemplate == null)
+                return;
+
+            var ability = CharacterHandleWeapon;
+            if (ability)
+            {
+                RemoveAbility(ability);
+                Destroy(ability.gameObject);
+            }
+
+            if (weaponTemplate)
+            {
+                InstantiateWeapon(weaponTemplate);
+            }
+            else
+            {
+                CharacterHandleWeapon = null;
+            }
+
+            // OnBrainChange?.Invoke();
+        }
+        
+        protected virtual void InstantiateWeapon(CharacterHandleWeapon newBrain)
+        {
+            var ability = Instantiate(newBrain, transform);
+            CharacterHandleWeapon = ability;
+
+            if (ability)
+            {
+                AddAbility(ability);
+            }
         }
     }
 }

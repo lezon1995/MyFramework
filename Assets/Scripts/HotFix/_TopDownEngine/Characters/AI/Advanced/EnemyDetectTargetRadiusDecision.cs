@@ -178,9 +178,6 @@ namespace MoreMountains
 
         int Comparison(Transform a, Transform b)
         {
-            if (a == null || b == null)
-                return 0;
-
             var selfPos = transform.position;
             var dist1 = Vector2.SqrMagnitude(selfPos - a.transform.position);
             var dist2 = Vector2.SqrMagnitude(selfPos - b.transform.position);
@@ -265,13 +262,6 @@ namespace MoreMountains
                     Draw.xy.Circle(Vector3.zero, Radius, Color.yellow * new Color(1, 1, 1, 0.5f));
                 }
             }
-        }
-
-        /// <summary>
-        /// Draws gizmos for the detection circle
-        /// </summary>
-        protected virtual void OnDrawGizmosSelected()
-        {
         }
     }
 }

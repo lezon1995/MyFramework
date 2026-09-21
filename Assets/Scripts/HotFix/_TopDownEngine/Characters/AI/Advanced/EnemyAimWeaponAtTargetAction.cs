@@ -63,10 +63,9 @@ namespace MoreMountains
         /// <summary>
         /// On PerformAction we face and aim if needed, and we shoot
         /// </summary>
-        /// <param name="dt"></param>
         public override void PerformAction(float dt)
         {
-            if (_brain.Target == null)
+            if (_brain.NoTarget)
                 return;
 
             TestFaceTarget();
@@ -107,19 +106,20 @@ namespace MoreMountains
 
                 if (_weaponAim)
                 {
+                    var target = _brain.Target;
                     if (AimOrigin == AimOrigins.SpawnPoint && _projectileWeapon)
                     {
                         _projectileWeapon.DetermineSpawnPosition();
-                        _weaponAimDirection = _brain.Target.position - _projectileWeapon.SpawnPosition;
+                        _weaponAimDirection = target.position - _projectileWeapon.SpawnPosition;
                     }
                     else
                     {
-                        _weaponAimDirection = _brain.Target.position - _character.transform.position;
+                        _weaponAimDirection = target.position - _character.transform.position;
                     }
+
+                    _weaponAim.SetCurrentAim(_weaponAimDirection);
                 }
             }
-
-            _weaponAim.SetCurrentAim(_weaponAimDirection);
         }
     }
 }

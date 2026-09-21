@@ -14,7 +14,7 @@ namespace MoreMountains
         public float MinimumRetreatDistance = 3f;
 
         [Tooltip("if true, will stop retreating once outside the maximum retreat distance")]
-        public bool StopAtMaxDistance = false;
+        public bool StopAtMaxDistance;
 
         [Tooltip("the maximum distance to retreat to")]
         public float MaximumRetreatDistance = 10f;
@@ -23,7 +23,7 @@ namespace MoreMountains
 
         public override void PerformAction(float dt)
         {
-            if (brick.IsDead())
+            if (_brick.IsDead())
             {
                 _movement.SetMovement(Vector2.zero);
                 return;
@@ -34,7 +34,7 @@ namespace MoreMountains
 
         protected virtual void Retreat()
         {
-            if (_brain.Target == null)
+            if (_brain.NoTarget)
             {
                 _movement.SetMovement(Vector2.zero);
                 return;
@@ -57,11 +57,8 @@ namespace MoreMountains
                 }
             }
 
-            // 应用速度倍率
-            _direction *= RetreatSpeedMultiplier;
-
             // 只通过 CharacterMovement 设置移动
-            _movement.SetMovement(_direction);
+            _movement.SetMovement(_direction, RetreatSpeedMultiplier);
         }
 
         public override void OnExitState()

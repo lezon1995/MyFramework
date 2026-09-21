@@ -123,10 +123,18 @@ namespace MoreMountains
         public virtual Quaternion CurrentRotation => transform.rotation;
 
         /// the weapon's current direction
-        public virtual Vector3 CurrentAim => _currentAim;
+        public virtual Vector3 CurrentAim
+        {
+            get => _currentAim;
+            set => _currentAim = value;
+        }
 
         /// the weapon's current direction, absolute (flip independent)
-        public virtual Vector3 CurrentAimAbsolute => _currentAimAbsolute;
+        public virtual Vector3 CurrentAimAbsolute
+        {
+            get => _currentAimAbsolute;
+            set => _currentAimAbsolute = value;
+        }
 
         /// the current angle the weapon is aiming at
         public virtual float CurrentAngle { get; protected set; }
@@ -214,7 +222,7 @@ namespace MoreMountains
         /// <param name="newAim">New aim.</param>
         public virtual void SetCurrentAim(Vector3 newAim, bool setAimAsLastNonNullMovement = false)
         {
-            _currentAim = newAim;
+            CurrentAim = newAim;
         }
 
         protected virtual void GetCurrentAim()

@@ -86,7 +86,7 @@ namespace MoreMountains
         /// <summary>
         /// 创建默认配置
         /// </summary>
-        public static CoinDropConfig Default => new()
+        public static CoinDropConfig Default = new()
         {
             DropDuration = 0.6f,
             BounceCount = 2,
@@ -177,7 +177,7 @@ namespace MoreMountains
         /// <summary>
         /// 创建默认配置
         /// </summary>
-        public static CoinPickupConfig Default => new()
+        public static CoinPickupConfig Default = new()
         {
             PickupDuration = 0.5f,
             PickupCurve = MMTween.MMTweenCurve.EaseOutCubic,

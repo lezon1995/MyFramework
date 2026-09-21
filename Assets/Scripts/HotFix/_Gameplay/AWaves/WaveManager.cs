@@ -1110,7 +1110,7 @@ namespace MoreMountains
 
             // 计算基于覆盖率的理想怪物数量
             float spawnArea = (_spawnAreaMax.x - _spawnAreaMin.x) * (_spawnAreaMax.y - _spawnAreaMin.y);
-            float monsterSize = 0.675f;
+            float monsterSize = BrickUnitSize;
             float totalMonsterSlots = spawnArea / (monsterSize * monsterSize);
             int targetMonsterCount = Mathf.FloorToInt(totalMonsterSlots * targetCoverage);
             targetMonsterCount = Mathf.Max(1, targetMonsterCount);

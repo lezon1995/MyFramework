@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb4e6f4626e14ce988bbce44e5e5156d, type: 3}
   m_Name: 1x2_Shrimp
   m_EditorClassIdentifier: HotFix::MoreMountains.BrickDef
-  Type: 0
+  BrickType: 10103
+  Type: 1
   Size: {x: 1, y: 2}
   UnitIcon: {fileID: 21300000, guid: b32abb1d893f0f04387ad919eb86f32b, type: 3}
   BlockIcon: {fileID: -860062829, guid: edfcb8cb4314a1e408878ee8f275b6ce, type: 3}
@@ -24,3 +25,6 @@ MonoBehaviour:
   BonusArmorPerWave: 3
   BonusKnockbackResistPerWave: 0.03
   BossHealthBarSize: {x: 600, y: 50}
+  AIBehaviour: {fileID: 5290813838179023476, guid: db9c54e6adc091c48a50ea0e4a73cc5b,
+    type: 3}
+  AIHandleWeapon: {fileID: 0}

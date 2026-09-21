@@ -19,17 +19,16 @@ namespace MoreMountains
         [Tooltip("the minimum distance to maintain from danger")]
         public float SafeDistance = 2f;
 
-        protected Collider2D[] _results;
+        protected Collider2D[] _results = new Collider2D[10];
 
         public override void Initialization()
         {
             base.Initialization();
-            _results ??= new Collider2D[10];
         }
 
         public override void PerformAction(float dt)
         {
-            if (brick.IsDead())
+            if (_brick.IsDead())
             {
                 _movement.SetMovement(Vector2.zero);
                 return;

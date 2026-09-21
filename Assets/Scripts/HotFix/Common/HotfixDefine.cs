@@ -3,7 +3,7 @@
 public static class HotfixDefine
 {
     public const string GAMEPLAY_PATH = "_Gameplay";
-
+    public const float BrickUnitSize = 0.675f;
 
     public const int BALL_LAYER = 6;
     public const int BALL_LAYER_MASK = 1 << BALL_LAYER;
@@ -13,6 +13,9 @@ public static class HotfixDefine
     public const int BORDER_RIGHT_LAYER = 9;
     public const int BORDER_TOP_LAYER = 10;
     public const int BORDER_BOT_LAYER = 11;
+    public const int CHARACTER_LAYER = 12;
+    public const int CHARACTER_LAYER_MASK = 1 << CHARACTER_LAYER;
+
     public const int OBSTACLE_LAYER = 14;
     public const int BORDER_LEFT_LAYER_MASK = 1 << BORDER_LEFT_LAYER;
     public const int BORDER_RIGHT_LAYER_MASK = 1 << BORDER_RIGHT_LAYER;

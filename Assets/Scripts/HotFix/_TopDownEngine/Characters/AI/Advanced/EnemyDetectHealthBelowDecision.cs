@@ -38,7 +38,7 @@ namespace MoreMountains
             if (ReturnTrueWhenDead && _health.IsDead())
                 return true;
 
-            float healthPercent = _health.CurrentHealth / _health.MaximumHealth;
+            float healthPercent = _health.CurrentHealth /(float) _health.MaximumHealth;
             return healthPercent < HealthThreshold;
         }
     }

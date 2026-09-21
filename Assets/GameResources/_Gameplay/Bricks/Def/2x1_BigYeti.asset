@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb4e6f4626e14ce988bbce44e5e5156d, type: 3}
   m_Name: 2x1_BigYeti
   m_EditorClassIdentifier: HotFix::MoreMountains.BrickDef
-  Type: 0
+  BrickType: 10302
+  Type: 1
   Size: {x: 2, y: 1}
   UnitIcon: {fileID: 21300000, guid: 9895bbe0d66ebb84e855a6c183268451, type: 3}
   BlockIcon: {fileID: 21300000, guid: 8552a93ee6dfe2746a993c46e3151d80, type: 3}
@@ -24,3 +25,7 @@ MonoBehaviour:
   BonusArmorPerWave: 3
   BonusKnockbackResistPerWave: 0.03
   BossHealthBarSize: {x: 600, y: 50}
+  AIBehaviour: {fileID: 5757167335483623584, guid: 0adde9554b3d90c4ea5d3a982bb72316,
+    type: 3}
+  AIHandleWeapon: {fileID: 1930686074977734752, guid: 65a914e0e3010dd48970593c039b6402,
+    type: 3}

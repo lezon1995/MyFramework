@@ -155,7 +155,6 @@ namespace MoreMountains
         /// <summary>
         /// On process ability, we flip to face the direction set in settings
         /// </summary>
-        /// <param name="dt"></param>
         public override void OnUpdate(float dt)
         {
             if (_conditionState.Not(Character.Conditions.Normal))

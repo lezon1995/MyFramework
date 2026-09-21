@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb4e6f4626e14ce988bbce44e5e5156d, type: 3}
   m_Name: 2x1_Antlion
   m_EditorClassIdentifier: HotFix::MoreMountains.BrickDef
-  Type: 0
+  BrickType: 10301
+  Type: 1
   Size: {x: 2, y: 1}
   UnitIcon: {fileID: 21300000, guid: c0c7307a83b7d204b93171ec61d49cb6, type: 3}
   BlockIcon: {fileID: 21300000, guid: 3d56b7d7a27adb5469f313ac41fc2e2f, type: 3}
@@ -24,3 +25,7 @@ MonoBehaviour:
   BonusArmorPerWave: 3
   BonusKnockbackResistPerWave: 0.03
   BossHealthBarSize: {x: 600, y: 50}
+  AIBehaviour: {fileID: 5757167335483623584, guid: 0adde9554b3d90c4ea5d3a982bb72316,
+    type: 3}
+  AIHandleWeapon: {fileID: 1930686074977734752, guid: 565f0ea5bad2d954fb4475d2db1d58e9,
+    type: 3}

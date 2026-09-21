@@ -9,4 +9,5 @@ public interface IHealthBarRenderer
     void SetProgress(float curPct);
     void ClearAllChunks();
     void ApplyToMaterial();
+    void TryInitializeMaterial();
 }

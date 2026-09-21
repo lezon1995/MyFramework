@@ -26,6 +26,7 @@ public class FxMaster
         map.Add(FxDefine.SMOKE_FLASH, load("Fx_SmokeFlash.prefab"));
         map.Add(FxDefine.STUN_FLASH, load("Fx_Stun.prefab"));
         map.Add(FxDefine.FOOTBALL_HIT, load("Fx_HitGlow_01.prefab"));
+        map.Add(FxDefine.EXPLODE_RED, load("Fx_Explode_Red.prefab"));
 
         log("Loaded " + map.Count + " Visual Effects");
         log("VFX load time: " + (TimeUtility.getNowTimeStampMS() - startTime) + "ms");
