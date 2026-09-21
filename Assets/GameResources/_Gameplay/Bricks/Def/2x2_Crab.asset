@@ -27,5 +27,5 @@ MonoBehaviour:
   BossHealthBarSize: {x: 600, y: 50}
   AIBehaviour: {fileID: 5757167335483623584, guid: b2a8eb5c3bd06e941836b17048ab8a2e,
     type: 3}
-  AIHandleWeapon: {fileID: 1930686074977734752, guid: 162159feb8f6b514ea784353e2981e68,
+  AIHandleWeapon: {fileID: 1930686074977734752, guid: 65a914e0e3010dd48970593c039b6402,
     type: 3}
