@@ -1,4 +1,4 @@
-global using static FrameDefine;
+﻿global using static FrameDefine;
 global using static FrameBaseDefine;
 global using static UnityUtility;
 global using static StringUtility;
@@ -11,11 +11,13 @@ global using static GameDefine;
 global using static HotfixDefine;
 global using static GBR;
 
+using Obfuz;
 using System;
 using MoreMountains;
 using static FrameBaseUtility;
 using static GBR;
 
+[ObfuzIgnore]
 public class GameHotFix : GameHotFixBase<GameHotFix>
 {
 	//----------------------------------------------------------------------------------------------------------------------------------

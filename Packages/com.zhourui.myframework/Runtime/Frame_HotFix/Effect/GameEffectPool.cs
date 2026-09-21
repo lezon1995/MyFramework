@@ -22,8 +22,7 @@ public class GameEffectPool
 			foreach (var item0 in mUnusedEffectList)
 			{
 				var list = item0.Value;
-				using var a = new SafeListReader<GameEffect>(list);
-				foreach (var item in a.mReadList)
+				foreach (var item in list)
 				{
 					list.removeIf(item, item.getFilePath().startWith(path));
 				}
@@ -45,8 +44,7 @@ public class GameEffectPool
 			foreach (var item0 in mUnusedEffectList)
 			{
 				var list = item0.Value;
-				using var a = new SafeListReader<GameEffect>(list);
-				foreach (var item in a.mReadList)
+				foreach (var item in list)
 				{
 					list.removeIf(item, item.getGameObject() == obj);
 				}

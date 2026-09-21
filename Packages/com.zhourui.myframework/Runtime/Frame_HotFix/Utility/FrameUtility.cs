@@ -425,7 +425,13 @@ public class FrameUtility
 	{
 		if (mClassPool == null)
 		{
-			return createInstance<ClassObject>(type);
+			var obj = createInstance<ClassObject>(type);
+			if (obj != null)
+			{
+				obj.setDestroy(false);
+				obj.onCreate();
+			}
+			return obj;
 		}
 		return mClassPool?.newClass(type, true);
 	}
@@ -433,7 +439,13 @@ public class FrameUtility
 	{
 		if (mClassPool == null)
 		{
-			return createInstance<ClassObject>(type) as T;
+			var obj = createInstance<ClassObject>(type);
+			if (obj != null)
+			{
+				obj.setDestroy(false);
+				obj.onCreate();
+			}
+			return obj as T;
 		}
 		return mClassPool?.newClass(type, true) as T;
 	}
@@ -472,7 +484,13 @@ public class FrameUtility
 	{
 		if (mClassPool == null)
 		{
-			return createInstance<ClassObject>(type);
+			var obj = createInstance<ClassObject>(type);
+			if (obj != null)
+			{
+				obj.setDestroy(false);
+				obj.onCreate();
+			}
+			return obj;
 		}
 		return mClassPool?.newClass(type, false);
 	}
@@ -480,7 +498,13 @@ public class FrameUtility
 	{
 		if (mClassPool == null)
 		{
-			return createInstance<ClassObject>(type) as T;
+			var obj = createInstance<ClassObject>(type);
+			if (obj != null)
+			{
+				obj.setDestroy(false);
+				obj.onCreate();
+			}
+			return obj as T;
 		}
 		return mClassPool?.newClass(type, false) as T;
 	}
@@ -1775,7 +1799,7 @@ public class FrameUtility
             assetPath = projectPathToFullPath(assetPath);
         }
         // 如果是属于一个SpriteAtlas的图片,则不进行压缩
-        return isFileExist(getFilePath(assetPath, true) + getFolderName(assetPath) + ".spriteatlasv2");
+        return isFileExist(getFilePath(assetPath, true) + getFolderName(assetPath) + SPRITE_ATLAS_SUFFIX);
     }
 #if !UNITY_WEBGL
     // 压缩为zip文件,路径为绝对路径

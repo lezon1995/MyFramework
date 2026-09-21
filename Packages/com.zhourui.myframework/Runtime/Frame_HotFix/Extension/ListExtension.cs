@@ -198,11 +198,14 @@ public static class ListExtension
 	}
 	public static void remove<T>(this List<T> list, List<T> removeValues)
 	{
-		if (removeValues.isEmpty())
+		if (list.isEmpty() || removeValues == list || removeValues.isEmpty())
 		{
 			return;
 		}
-		removeValues.For(item => list.Remove(item));
+		foreach (T item in removeValues)
+		{
+			list.Remove(item);
+		}
 	}
 	// 移除第一个满足条件的元素（仅移除一个，不是全部）
 	public static bool remove<T>(this List<T> list, Predicate<T> condition)
@@ -221,7 +224,6 @@ public static class ListExtension
 		}
 		return false;
 	}
-	// 注意：遍历中删除元素可能导致跳过相邻匹配项（RemoveAt后索引i未回退）
 	// 如果需要删除所有匹配项，请用removeAll
 	public static int removeAll<T>(this List<T> list, Predicate<T> condition)
 	{
@@ -229,16 +231,7 @@ public static class ListExtension
 		{
 			return 0;
 		}
-		int count = 0;
-		for (int i = 0; i < list.Count; ++i)
-		{
-			if (condition(list[i]))
-			{
-				list.RemoveAt(i);
-				++count;
-			}
-		}
-		return count;
+		return list.RemoveAll(condition);
 	}
 	// 将index处元素与最后一个元素交换，然后移除末尾元素（O(1)删除，不保持顺序）
 	public static T swapToEndAndRemove<T>(this List<T> list, int index)
@@ -282,6 +275,10 @@ public static class ListExtension
 		{
 			return;
 		}
+		if (list.Capacity < list.Count + dic.Count)
+		{
+			list.Capacity = list.Count + dic.Count;
+		}
 		foreach (var item in dic)
 		{
 			list.add(item.Key);
@@ -292,6 +289,10 @@ public static class ListExtension
 		if (dic.isEmpty())
 		{
 			return;
+		}
+		if (list.Capacity < list.Count + dic.Count)
+		{
+			list.Capacity = list.Count + dic.Count;
 		}
 		foreach (var item in dic)
 		{
@@ -309,6 +310,14 @@ public static class ListExtension
 	}
 	public static void addRangeNotNull<T>(this List<T> list, List<T> values) where T : class
 	{
+		if (list == null || values.isEmpty() || list == values)
+		{
+			return;
+		}
+		if (list.Capacity < list.Count + values.count())
+		{
+			list.Capacity = list.Count + values.count();
+		}
 		for (int i = 0; i < values.Count; ++i)
 		{
 			list.addNotNull(values[i]);
@@ -316,6 +325,14 @@ public static class ListExtension
 	}
 	public static void addRangeNotNull<T>(this List<T> list, T[] values) where T : class
 	{
+		if (list == null || values.isEmpty())
+		{
+			return;
+		}
+		if (list.Capacity < list.Count + values.count())
+		{
+			list.Capacity = list.Count + values.count();
+		}
 		for (int i = 0; i < values.Length; ++i)
 		{
 			list.addNotNull(values[i]);
@@ -349,6 +366,14 @@ public static class ListExtension
 	}
 	public static T addClass<T>(this List<T> list) where T : ClassObject, new()
 	{
+		return list.add(CLASS<T>());
+	}
+	public static T addClassIf<T>(this List<T> list, bool condition) where T : ClassObject, new()
+	{
+		if (!condition)
+		{
+			return null;
+		}
 		return list.add(CLASS<T>());
 	}
 	public static T addNew<T>(this List<T> list) where T : new()
@@ -420,6 +445,10 @@ public static class ListExtension
     }
     public static List<T> addRange<T>(this List<T> list, List<T> other, int count)
 	{
+		if (list == null || other.isEmpty() || count <= 0)
+		{
+			return list;
+		}
 		count = count.clampMax(other.count());
 		if (list.Capacity < list.Count + count)
 		{
@@ -433,6 +462,11 @@ public static class ListExtension
 	}
 	public static List<T> addRange<T>(this List<T> list, List<T> other, int startIndex, int count)
 	{
+		if (list == null || other.isEmpty() || count <= 0 || startIndex >= other.Count)
+		{
+			return list;
+		}
+		startIndex = startIndex.clampMin();
 		count = count.clampMax(other.count() - startIndex);
 		if (list.Capacity < list.Count + count)
 		{
@@ -446,7 +480,7 @@ public static class ListExtension
 	}
 	public static List<T> addRange<T>(this List<T> list, List<T> other)
 	{
-		if (list == null || other == null || other.Count == 0)
+		if (list == null || other.isEmpty())
 		{
 			return list;
 		}
@@ -491,7 +525,15 @@ public static class ListExtension
 	}
 	public static List<T> addRange<T>(this List<T> list, T[] other, int count)
 	{
+		if (list == null || other.isEmpty() || count <= 0)
+		{
+			return list;
+		}
 		count = count.clampMax(other.count());
+		if (list.Capacity < list.Count + count)
+		{
+			list.Capacity = list.Count + count;
+		}
 		for (int i = 0; i < count; ++i)
 		{
 			list.add(other[i]);
@@ -500,6 +542,11 @@ public static class ListExtension
 	}
 	public static List<T> addRange<T>(this List<T> list, T[] other, int startIndex, int count)
 	{
+		if (list == null || other.isEmpty() || count <= 0 || startIndex >= other.Length)
+		{
+			return list;
+		}
+		startIndex = startIndex.clampMin();
 		count = count.clampMax(other.count() - startIndex);
 		if (list.Capacity < list.Count + count)
 		{
@@ -513,7 +560,7 @@ public static class ListExtension
 	}
 	public static List<T> addRange<T>(this List<T> list, T[] other)
 	{
-		if (list == null || other == null || other.Length == 0)
+		if (list == null || other.isEmpty())
 		{
 			return list;
 		}
@@ -604,6 +651,10 @@ public static class ListExtension
 	
 	public static List<T> addRange<T>(this List<T> list, Span<T> other)
 	{
+		if (other.isEmpty())
+		{
+			return list;
+		}
 		if (list.Capacity < list.Count + other.Length)
 		{
 			list.Capacity = list.Count + other.Length;
@@ -616,6 +667,11 @@ public static class ListExtension
 	}
 	public static List<T> addRange<T>(this List<T> list, Span<T> other, int count)
 	{
+		if (count <= 0)
+		{
+			return list;
+		}
+		count = count.clampMax(other.Length);
 		if (list.Capacity < list.Count + count)
 		{
 			list.Capacity = list.Count + count;
@@ -628,8 +684,12 @@ public static class ListExtension
 	}
 	public static List<T> setRange<T>(this List<T> list, List<T> other)
 	{
+		if (list == other)
+		{
+			return list;
+		}
 		list.Clear();
-		if (other == null || other.Count == 0)
+		if (other.isEmpty())
 		{
 			return list;
 		}
@@ -639,7 +699,7 @@ public static class ListExtension
 	public static List<T> setRange<T>(this List<T> list, T[] other)
 	{
 		list.Clear();
-		if (other == null || other.Length == 0)
+		if (other.isEmpty())
 		{
 			return list;
 		}
@@ -661,7 +721,7 @@ public static class ListExtension
 	public static List<Base> setRangeDerived<Base, T>(this List<Base> list, List<T> other) where T : Base
 	{
 		list.Clear();
-		if (other == null || other.Count == 0)
+		if (other.isEmpty())
 		{
 			return list;
 		}
@@ -708,9 +768,10 @@ public static class ListExtension
 	public static List<T> setRange<T>(this List<T> list, Span<T> other, int count)
 	{
 		list.Clear();
-		if (list.Capacity < other.Length)
+		count = count.clampMax(other.Length);
+		if (list.Capacity < count)
 		{
-			list.Capacity = other.Length;
+			list.Capacity = count;
 		}
 		for (int i = 0; i < count; ++i)
 		{
@@ -725,6 +786,10 @@ public static class ListExtension
 		{
 			return list;
 		}
+		if (list.Capacity < dic.Count)
+		{
+			list.Capacity = dic.Count;
+		}
 		foreach (var item in dic)
 		{
 			list.add(item.Key);
@@ -737,6 +802,10 @@ public static class ListExtension
 		if (dic.isEmpty())
 		{
 			return list;
+		}
+		if (list.Capacity < dic.Count)
+		{
+			list.Capacity = dic.Count;
 		}
 		foreach (var item in dic)
 		{
@@ -806,7 +875,7 @@ public static class ListExtension
 	// 将sourceList中的所有元素添加到targetList中,并清空sourceList,返回targetList
 	public static List<T> moveTo<T>(this List<T> sourceList, List<T> targetList)
 	{
-		if (sourceList.isEmpty())
+		if (sourceList == targetList || sourceList.isEmpty())
 		{
 			return targetList;
 		}
@@ -823,7 +892,7 @@ public static class ListExtension
 		}
 		return list.removeAt(list.Count - 1);
 	}
-	public static T getLast<T>(this List<T> list)
+	public static T last<T>(this List<T> list)
 	{
 		if (list.isEmpty())
 		{
@@ -993,6 +1062,7 @@ public static class ListExtension
 			index = -1;
 			return false;
 		}
+		startIndex = startIndex.clampMin();
 		for (int i = startIndex; i < list.Count; ++i)
 		{
 			if (match(list[i]))
@@ -1006,12 +1076,12 @@ public static class ListExtension
 	}
 	public static bool find<T>(this List<T> list, int startIndex, int count, Predicate<T> match, out int index)
 	{
-		if (list.isEmpty() || match == null)
+		if (list.isEmpty() || match == null || startIndex < 0 || count <= 0)
 		{
 			index = -1;
 			return false;
 		}
-		count = getMin(count, list.Count);
+		count = count.clampMax(list.Count - startIndex);
 		for (int i = 0; i < count; ++i)
 		{
 			if (match(list[i + startIndex]))
@@ -1079,14 +1149,14 @@ public static class ListExtension
 	public static List<T> safe<T>(this List<T> original)							{ return original ?? EmptyList<T>.getEmptyList(); }
 	public static T first<T>(this List<T> list)
 	{
-		foreach (T item in list)
-		{
-			return item;
-		}
-		return default;
+		return list.get(0);
 	}
 	public static T first<T>(this List<T> list, Predicate<T> action)
 	{
+		if (list.isEmpty())
+		{
+			return default;
+		}
 		foreach (T item in list)
 		{
 			if (action(item))

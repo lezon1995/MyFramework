@@ -12,6 +12,7 @@ using static FileUtility;
 using UObject = UnityEngine.Object;
 
 // 用于管理SpriteAtlas和MultiSprite封装以后的对象
+// 由于所有图集都已经勾选了Include In Build,所以可能已经不需要再注册SpriteAtlasManager.atlasRequested了
 public class AtlasManager : FrameSystem
 {
 	protected Dictionary<string, List<AtlasLoadParam>> mLoadRequestList = new();    // 图集异步加载请求列表
@@ -69,8 +70,7 @@ public class AtlasManager : FrameSystem
 		// 检查是否有需要卸载的图集
 		if (mAtlasList.count() > 0 && tickTimerLoop(ref mCheckTimer, elapsedTime, CHECK_INTERVAL))
 		{
-			using var a = new SafeDictionaryReader<string, AtlasBase>(mAtlasList);
-			foreach (var item in a.mReadList)
+		foreach (var item in mAtlasList)
 			{
 				// 图集本身的引用为0,且其中的图片没有在任何地方被引用,并且这个图集不在不允许卸载的列表中,则可以卸载这个图集
 				if (item.Value.getReferenceCount() == 0 && allowUnloadAtlas(item.Key))
@@ -258,11 +258,9 @@ public class AtlasManager : FrameSystem
 			action(null);
 			return;
 		}
-		mResourceManager.loadGameResourceAsync<SpriteAtlas>(path, atlas =>
-		{
-			mSpriteAtlasList.Add(name, atlas);
-			action(atlas.get());
-		});
+		atlas = mResourceManager.loadGameResource<SpriteAtlas>(path);
+		mSpriteAtlasList.Add(name, atlas);
+		action(atlas.get());
 	}
 	// 图集资源已经加载完成,从assets中解析并创建图集信息
 	protected static AtlasBase atlasLoaded<T>(T[] assets, ResourceRef<UObject> mainAsset, string loadPath) where T : UObject

@@ -21,7 +21,7 @@ public class ListPoolThread : FrameSystem
 		base.init();
 		if (isEditor())
 		{
-			mObject.AddComponent<ListPoolThreadDebug>();
+			go.AddComponent<ListPoolThreadDebug>();
 		}
 	}
 	public override void destroy()

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using static UnityUtility;
 using static StringUtility;
-using static MathUtility;
 using static FrameUtility;
 using static FrameBaseUtility;
 
@@ -68,7 +67,7 @@ public class ArrayPool : FrameSystem
 			Debug.LogError("只能在主线程中使用ArrayPool");
 			return null;
 		}
-		// if (!isPow2(size))
+		// if (!size.isPow2())
 		// {
 		// 	Debug.LogError("只有长度为2的n次方的数组才能使用ArrayPool");
 		// 	return null;
@@ -137,6 +136,10 @@ public class ArrayPool : FrameSystem
 			Debug.LogError("只能在主线程中使用ArrayPool");
 			return;
 		}
+		if (arrayList == null)
+		{
+			return;
+		}
 		if (isEditor())
 		{
 			foreach (T[] item in arrayList)
@@ -194,11 +197,11 @@ public class ArrayPool : FrameSystem
 		foreach (T[] array in allArrayList)
 		{
 			int length = array.Length;
-			if (typeList0.TryGetValue(length, out arrayList) && arrayList.Remove(array))
+			if (typeList0 != null && typeList0.TryGetValue(length, out arrayList) && arrayList.Remove(array))
 			{
 				continue;
 			}
-			if (typeList1.TryGetValue(length, out arrayList) && arrayList.Remove(array))
+			if (typeList1 != null && typeList1.TryGetValue(length, out arrayList) && arrayList.Remove(array))
 			{
 				continue;
 			}

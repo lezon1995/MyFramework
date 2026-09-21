@@ -2,8 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
+using System.Reflection.Emit;
 using System.Collections;
 using TMPro;
+using TMPro;
+using System.Text;
+using System.Text.RegularExpressions;
 #if USE_SPINE
 using Spine.Unity;
 #endif
@@ -32,38 +36,57 @@ using UEventSystem = UnityEngine.EventSystems.EventSystem;
 // 与Unity相关的工具函数
 public class UnityUtility
 {
-	protected static bool mShowMessageBox = true;					// 是否显示报错提示框,用来判断提示框显示次数
-	protected static LOG_LEVEL mLogLevel = LOG_LEVEL.FORCE;			// 当前的日志过滤等级
+	protected static Collider[] mColliderOverlapResults = new Collider[32];
+	protected static RaycastHit[] mColliderCastResults = new RaycastHit[32];
+	protected static bool mShowMessageBox = true;                   // 是否显示报错提示框,用来判断提示框显示次数
+	protected static LOG_LEVEL mLogLevel = LOG_LEVEL.FORCE;         // 当前的日志过滤等级
 	protected static PointerEventData mEventData;                   // 缓存一个对象,避免每次都重新new一个
-	protected static Vector2Int mHardwareScreenSize = new(Screen.currentResolution.width, Screen.currentResolution.height);	// 显示器宽高
-	protected static Vector2Int mScreenSize = new(Screen.width, Screen.height);					// 窗口宽高
-	protected static Vector2Int mHalfScreenSize = new(Screen.width >> 1, Screen.height >> 1);	// 窗口宽高的一半
-	protected static float mScreenAspect = mScreenSize.x / (float)mScreenSize.y;				// 屏幕宽高比
-	protected static Vector2 mScreenScale = new(mScreenSize.x * (1.0f / FrameSettings.getUISize().x), 
-												mScreenSize.y * (1.0f / FrameSettings.getUISize().y));		// 当前分辨率相对于标准分辨率的缩放
+	protected static Vector2Int mHardwareScreenSize = new(Screen.currentResolution.width, Screen.currentResolution.height); // 显示器宽高
+	protected static Vector2Int mScreenSize = new(Screen.width, Screen.height);                 // 窗口宽高
+	protected static Vector2Int mHalfScreenSize = new(Screen.width >> 1, Screen.height >> 1);   // 窗口宽高的一半
+	protected static float mScreenAspect = mScreenSize.x / (float)mScreenSize.y;                // 屏幕宽高比
+	protected static Vector2 mScreenScale = new(mScreenSize.x / FrameSettings.getUISize().x,
+												mScreenSize.y / FrameSettings.getUISize().y);      // 当前分辨率相对于标准分辨率的缩放
 	public static void setLogLevel(LOG_LEVEL level)
 	{
 		mLogLevel = level;
 		log("log level: " + mLogLevel);
 	}
 	public static LOG_LEVEL getLogLevel() { return mLogLevel; }
+	[HideInCallstack]
 	public static void logException(Exception e, string info = null)
 	{
-		if (info.isEmpty())
+		if (e == null)
 		{
-			info = "";
+			UDebug.LogError(info.isEmpty() ? "异常对象为空" : info);
+			return;
 		}
-		else
+		string originInfo = info;
+		string errorInfo = info ?? "";
+		Exception curException = e;
+		int depth = 0;
+		while (curException != null)
 		{
-			info += ", ";
+			errorInfo +=
+				"\nexception[" + depth + "]:" +
+				curException.GetType().FullName +
+				"\nmessage:" + curException.Message +
+				"\nstack:" + curException.StackTrace;
+
+			curException = curException.InnerException;
+			++depth;
 		}
-		info += e.Message + ", stack:" + e.StackTrace;
-		if (e.InnerException != null)
+		if (isEditor())
 		{
-			info += "\ninner exception:" + e.InnerException.Message + ", stack:" + e.InnerException.StackTrace;
+			info += ",编辑器中双击下一条日志可跳转到抛异常的具体代码位置";
 		}
 		logError(info);
+		if (isEditor())
+		{
+			makeExceptionStack(e, originInfo);
+		}
 	}
+	[HideInCallstack]
 	public static void logError(string info)
 	{
 		if (isMainThread() && mShowMessageBox && Application.isPlaying)
@@ -86,34 +109,42 @@ public class UnityUtility
 			UDebug.LogError(info);
 		}
 	}
+	[HideInCallstack]
 	public static void logNoLock(string info)
 	{
 		logNoLock(info, null, LOG_LEVEL.FORCE, null);
 	}
+	[HideInCallstack]
 	public static void log(string info)
 	{
 		log(info, null, LOG_LEVEL.FORCE, null);
 	}
+	[HideInCallstack]
 	public static void log(string info, UObject obj)
 	{
 		log(info, null, LOG_LEVEL.FORCE, obj);
 	}
+	[HideInCallstack]
 	public static void log(string info, string color)
 	{
 		log(info, color, LOG_LEVEL.FORCE, null);
 	}
+	[HideInCallstack]
 	public static void log(string info, Color32 color)
 	{
 		log(info, colorToRGBString(color), LOG_LEVEL.FORCE, null);
 	}
+	[HideInCallstack]
 	public static void log(string info, Color32 color, UObject obj)
 	{
 		log(info, colorToRGBString(color), LOG_LEVEL.FORCE, obj);
 	}
+	[HideInCallstack]
 	public static void log(string info, LOG_LEVEL level)
 	{
 		log(info, null, level, null);
 	}
+	[HideInCallstack]
 	public static void log(string info, string color, LOG_LEVEL level, UObject obj)
 	{
 		if ((int)level < (int)mLogLevel)
@@ -138,6 +169,7 @@ public class UnityUtility
 			UDebug.Log(info, obj);
 		}
 	}
+	[HideInCallstack]
 	public static void logNoLock(string info, string color, LOG_LEVEL level, UObject obj)
 	{
 		if ((int)level < (int)mLogLevel)
@@ -161,6 +193,7 @@ public class UnityUtility
 			UDebug.Log(info, obj);
 		}
 	}
+	[HideInCallstack]
 	public static void logWarning(string info)
 	{
 		if (isMainThread() && isPlaying())
@@ -183,20 +216,20 @@ public class UnityUtility
 		mHalfScreenSize = new(mScreenSize.x >> 1, mScreenSize.y >> 1);
 		mScreenAspect = mScreenSize.x.divide(mScreenSize.y);   // 屏幕宽高比
 		Vector2Int uiSize = FrameSettings.getUISize();
-        mScreenScale = new(mScreenSize.x * (1.0f / uiSize.x), mScreenSize.y * (1.0f / uiSize.y));   // 当前分辨率相对于标准分辨率的缩放
+		mScreenScale = new(mScreenSize.x / uiSize.x, mScreenSize.y / uiSize.y);   // 当前分辨率相对于标准分辨率的缩放
 		setScreenSizeBase(mScreenSize, fullScreen);
 		GameCamera camera = mCameraManager.getUICamera();
 		camera?.MOVE(new(0.0f, 0.0f, -(mScreenSize.y * 0.5f).divide((camera.getFOVY(true) * 0.5f).tan())));
 		GameCamera blurCamera = mCameraManager.getUIBlurCamera();
 		blurCamera?.MOVE(new(0.0f, 0.0f, -(mScreenSize.y * 0.5f).divide((blurCamera.getFOVY(true) * 0.5f).tan())));
 	}
-	public static List<GameObject> getGameObjectWithTag(GameObject parent, string tag)
+	public static List<GameObject> findGameObjectWithTag(GameObject parent, string tag)
 	{
 		List<GameObject> objList = new();
-		getGameObjectWithTag(parent, tag, objList);
+		findGameObjectWithTag(parent, tag, objList);
 		return objList;
 	}
-	public static void getGameObjectWithTag(GameObject parent, string tag, List<GameObject> objList)
+	public static void findGameObjectWithTag(GameObject parent, string tag, List<GameObject> objList)
 	{
 		// 如果父节点为空,则不再查找,不支持全局查找,因为这样容易出错
 		if (parent == null)
@@ -210,7 +243,7 @@ public class UnityUtility
 			Transform child = parentTrans.GetChild(i);
 			objList.addIf(child.gameObject, child.CompareTag(tag));
 			// 递归查找子节点
-			getGameObjectWithTag(child.gameObject, tag, objList);
+			findGameObjectWithTag(child.gameObject, tag, objList);
 		}
 	}
 	public static GameObject findOrCreateRootGameObject(string name)
@@ -232,7 +265,7 @@ public class UnityUtility
 		return obj;
 	}
 	// 查找所有名字为name的GameObject
-	public static void getAllGameObject(List<GameObject> list, string name, GameObject parent, bool recursive = true)
+	public static void findAllGameObject(List<GameObject> list, string name, GameObject parent, bool recursive = true)
 	{
 		if (name.isEmpty())
 		{
@@ -240,7 +273,7 @@ public class UnityUtility
 		}
 		if (parent == null)
 		{
-			logError("parent不能为空,查找无父节点的GameObject请使用getRootGameObject");
+			logError("parent不能为空");
 			return;
 		}
 		// 第一级子节点中查找
@@ -256,7 +289,7 @@ public class UnityUtility
 		{
 			for (int i = 0; i < childCount; ++i)
 			{
-				getAllGameObject(list, name, parentTrans.GetChild(i).gameObject, true);
+				findAllGameObject(list, name, parentTrans.GetChild(i).gameObject, true);
 			}
 		}
 	}
@@ -264,6 +297,17 @@ public class UnityUtility
 	{
 		GameObject obj = UObject.Instantiate(oriObj);
 		obj.name = name;
+		return obj;
+	}
+	public static GameObject cloneObject(GameObject oriObj, GameObject parent, string name)
+	{
+		return cloneObject(oriObj, parent.transform, name);
+	}
+	public static GameObject cloneObject(GameObject oriObj, Transform parent, string name)
+	{
+		GameObject obj = UObject.Instantiate(oriObj);
+		obj.name = name;
+		obj.transform.SetParent(parent.transform, false);
 		return obj;
 	}
 	public static void cloneObjectAsync(GameObject oriObj, string name, GameObjectCallback callback)
@@ -341,18 +385,29 @@ public class UnityUtility
 	}
 	public static void findShaders(GameObject go)
 	{
-		// 普通渲染器
+		// findMaterialShader本身只在编辑器中有实际作用。
+		// 非编辑器下直接返回,避免无意义地遍历Renderer和材质。
+		if (!isEditor() || go == null)
+		{
+			return;
+		}
+
+		// Renderer.material/materials的getter会让Renderer获得独立材质实例。
+		// 这里的目的只是重新绑定Shader,不能因此破坏原本共享的Material引用。
 		using var a = new ListScope<Renderer>(out var renderers);
+		using var b = new ListScope<Material>(out var materials);
 		go.GetComponentsInChildren(true, renderers);
 		foreach (Renderer renderer in renderers)
 		{
-			foreach (Material item in renderer.materials)
+			materials.Clear();
+			renderer.GetSharedMaterials(materials);
+			foreach (Material item in materials)
 			{
 				findMaterialShader(item);
 			}
 		}
 		// 可能会用到材质的组件
-		using var b = new ListScope<Projector>(out var projectors);
+		using var c = new ListScope<Projector>(out var projectors);
 		go.GetComponentsInChildren(true, projectors);
 		foreach (Projector projector in projectors)
 		{
@@ -730,7 +785,15 @@ public class UnityUtility
 	public static void getMinMaxCorner(BoxCollider box, out Vector3 min, out Vector3 max, GameObject parent, int precision = 4)
 	{
 		Vector3 halfSize = getHalfBoxSize(box, parent);
-		Vector3 worldBoxCenter = worldToLocal(parent.transform, localToWorld(box.transform, box.center));
+		Vector3 worldBoxCenter;
+		if (parent != null)
+		{
+			worldBoxCenter = worldToLocal(parent.transform, localToWorld(box.transform, box.center));
+		}
+		else
+		{
+			worldBoxCenter = localToWorld(box.transform, box.center);
+		}
 		min = new(float.MaxValue, float.MaxValue, float.MaxValue);
 		max = new(float.MinValue, float.MinValue, float.MinValue);
 		getMinMaxVector3(worldBoxCenter + new Vector3(-halfSize.x, -halfSize.y, -halfSize.z), ref min, ref max);
@@ -752,44 +815,6 @@ public class UnityUtility
 		return min0.isLess(max1) && max0.isGreater(min1) ||
 			   min1.isLess(max0) && max1.isGreater(min0);
 	}
-	public static int overlapAllBox(BoxCollider collider, Collider[] results, int layer = -1)
-	{
-		Transform transform = collider.transform;
-		Vector3 colliderWorldPos = localToWorld(transform, collider.center);
-		int hitCount = Physics.OverlapBoxNonAlloc(colliderWorldPos, collider.size * 0.5f, results, transform.localRotation, layer);
-		return results.removeValue(hitCount, collider);
-	}
-	public static int overlapAllBox(BoxCollider2D collider, Collider2D[] results, int layer = -1)
-	{
-		Transform transform = collider.transform;
-		Vector2 colliderWorldPos = localToWorld(transform, collider.offset);
-		int hitCount = Physics2D.OverlapBoxNonAlloc(colliderWorldPos, collider.size, transform.localEulerAngles.z, results, layer);
-		return results.removeValue(hitCount, collider);
-	}
-	public static int overlapAllSphere(SphereCollider collider, Collider[] results, int layer = -1)
-	{
-		Transform transform = collider.transform;
-		Vector3 colliderWorldPos = localToWorld(transform, collider.center);
-		int hitCount = Physics.OverlapSphereNonAlloc(colliderWorldPos, collider.radius, results, layer);
-		return results.removeValue(hitCount, collider);
-	}
-	public static int overlapAllSphere(CircleCollider2D collider, Collider2D[] results, int layer = -1)
-	{
-		Transform transform = collider.transform;
-		Vector2 colliderWorldPos = localToWorld(transform, collider.offset);
-		int hitCount = Physics2D.OverlapCircleNonAlloc(colliderWorldPos, collider.radius, results, layer);
-		return results.removeValue(hitCount, collider);
-	}
-	public static int overlapAllCapsule(CapsuleCollider collider, Collider[] results, int layer = -1)
-	{
-		Transform transform = collider.transform;
-		Vector3 point0 = collider.center + new Vector3(0.0f, collider.height * 0.5f, 0.0f);
-		Vector3 point1 = collider.center - new Vector3(0.0f, collider.height * 0.5f, 0.0f);
-		point0 = localToWorld(transform, point0);
-		point1 = localToWorld(transform, point1);
-		int hitCount = Physics.OverlapCapsuleNonAlloc(point0, point1, collider.radius, results, layer);
-		return results.removeValue(hitCount, collider);
-	}
 	public static int overlapAllCapsule(CharacterController collider, Collider[] results, int layer = -1)
 	{
 		Transform transform = collider.transform;
@@ -798,13 +823,6 @@ public class UnityUtility
 		point0 = localToWorld(transform, point0);
 		point1 = localToWorld(transform, point1);
 		int hitCount = Physics.OverlapCapsuleNonAlloc(point0, point1, collider.radius, results, layer);
-		return results.removeValue(hitCount, collider);
-	}
-	public static int overlapAllCapsule(CapsuleCollider2D collider, Collider2D[] results, int layer = -1)
-	{
-		Transform transform = collider.transform;
-		float eulerZ = transform.localEulerAngles.z;
-		int hitCount = Physics2D.OverlapCapsuleNonAlloc(transform.position, collider.size, collider.direction, eulerZ, results, layer);
 		return results.removeValue(hitCount, collider);
 	}
 	public static bool overlapBoxIgnoreY(BoxCollider box0, BoxCollider box1, GameObject parent, int precision = 4)
@@ -838,6 +856,104 @@ public class UnityUtility
 		Vector3 delta = worldToLocal(collider.transform, worldPos) - collider.center;
 		return delta.x.abs() <= collider.size.x * 0.5 && delta.y.abs() <= collider.size.y * 0.5f;
 	}
+	// 检测指定碰撞体从上一帧位置移动到当前位置时，与哪些碰撞体发生重叠。
+	// 会检测上一帧位置、移动过程中扫过的区域以及当前帧位置，避免高速移动时穿过较薄碰撞体而漏检。
+	// 支持BoxCollider、SphereCollider和CapsuleCollider。
+	// lastWorldPos为碰撞体Transform上一帧的世界坐标，默认认为移动期间旋转和缩放没有变化。
+	// results用于接收检测到的碰撞体，返回值表示results中的有效元素数量。
+	// layer为参与检测的LayerMask，默认-1表示检测所有层。
+	// 检测结果会排除collider自身，并对上一帧重叠、扫掠命中和当前帧重叠的结果进行去重。
+	public static int overlapCollider(Collider collider, Vector3 lastWorldPos, Collider[] results, int layer = -1)
+	{
+		if (collider == null || results.isEmpty())
+		{
+			return 0;
+		}
+
+		int availableCount = results.Length.getGreaterPow2();
+		if (mColliderCastResults.Length < availableCount)
+		{
+			mColliderCastResults = new RaycastHit[availableCount];
+		}
+		if (mColliderOverlapResults.Length < availableCount)
+		{
+			mColliderOverlapResults = new Collider[availableCount];
+		}
+
+		// 先检测当前帧位置的重叠
+		int resultCount = overlapCollider(collider, results, layer);
+		Transform transform = collider.transform;
+		Vector3 moveDelta = transform.position - lastWorldPos;
+		float moveDistance = moveDelta.magnitude;
+		if (moveDistance <= 0.0001f)
+		{
+			return resultCount;
+		}
+
+		Vector3 moveDirection = moveDelta / moveDistance;
+		int startOverlapCount;
+		int castCount;
+		mColliderOverlapResults.setAllValue(null);
+		QueryTriggerInteraction interaction = QueryTriggerInteraction.UseGlobal;
+		if (collider is BoxCollider box)
+		{
+			Vector3 scale = transform.lossyScale;
+			Vector3 halfExtents = box.size.multi(scale.abs()) * 0.5f;
+			Vector3 currentCenter = transform.TransformPoint(box.center);
+			Vector3 lastCenter = currentCenter - moveDelta;
+			// 检测上一帧位置，避免目标在扫掠起点已经重叠时被Cast忽略
+			startOverlapCount = Physics.OverlapBoxNonAlloc(lastCenter, halfExtents, mColliderOverlapResults, transform.rotation, layer, interaction);
+			castCount = Physics.BoxCastNonAlloc(lastCenter, halfExtents, moveDirection, mColliderCastResults, transform.rotation, moveDistance, layer, interaction);
+		}
+		else if (collider is SphereCollider sphere)
+		{
+			Vector3 scale = transform.lossyScale;
+			float radius = sphere.radius * getMax(scale.x.abs(), scale.y.abs(), scale.z.abs());
+			Vector3 currentCenter = transform.TransformPoint(sphere.center);
+			Vector3 lastCenter = currentCenter - moveDelta;
+			startOverlapCount = Physics.OverlapSphereNonAlloc(lastCenter, radius, mColliderOverlapResults, layer, interaction);
+			castCount = Physics.SphereCastNonAlloc(lastCenter, radius, moveDirection, mColliderCastResults, moveDistance, layer, interaction);
+		}
+		else if (collider is CapsuleCollider capsule)
+		{
+			getCapsuleWorldInfo(capsule, out Vector3 currentPoint0, out Vector3 currentPoint1, out float radius);
+			Vector3 lastPoint0 = currentPoint0 - moveDelta;
+			Vector3 lastPoint1 = currentPoint1 - moveDelta;
+			startOverlapCount = Physics.OverlapCapsuleNonAlloc(lastPoint0, lastPoint1, radius, mColliderOverlapResults, layer, interaction);
+			castCount = Physics.CapsuleCastNonAlloc(lastPoint0, lastPoint1, radius, moveDirection, mColliderCastResults, moveDistance, layer, interaction);
+		}
+		else
+		{
+			logError("不支持的碰撞体类型:" + collider.GetType());
+			return resultCount;
+		}
+
+		// 合并上一帧位置的重叠结果
+		for (int i = 0; i < startOverlapCount; ++i)
+		{
+			resultCount = addOverlapColliderResult(collider, mColliderOverlapResults[i], results, resultCount);
+			if (resultCount >= results.Length)
+			{
+				return resultCount;
+			}
+		}
+
+		// 合并移动路径中的扫掠结果
+		for (int i = 0; i < castCount; ++i)
+		{
+			resultCount = addOverlapColliderResult(collider, mColliderCastResults[i].collider, results, resultCount);
+			if (resultCount >= results.Length)
+			{
+				return resultCount;
+			}
+		}
+		return resultCount;
+	}
+	// 检测指定碰撞体在当前位置与哪些碰撞体发生重叠。
+	// 支持BoxCollider、SphereCollider和CapsuleCollider。
+	// results用于接收检测到的碰撞体，返回值表示results中的有效元素数量。
+	// layer为参与检测的LayerMask，默认-1表示检测所有层。
+	// 检测结果会排除collider自身。
 	public static int overlapCollider(Collider collider, Collider[] results, int layer = -1)
 	{
 		if (collider == null)
@@ -845,17 +961,24 @@ public class UnityUtility
 			return 0;
 		}
 		results.setAllValue(null);
+		Transform transform = collider.transform;
 		if (collider is BoxCollider box)
 		{
-			return overlapAllBox(box, results, layer);
+			Vector3 colliderWorldPos = localToWorld(transform, box.center);
+			int hitCount = Physics.OverlapBoxNonAlloc(colliderWorldPos, box.size * 0.5f, results, transform.localRotation, layer);
+			return results.removeValue(hitCount, collider);
 		}
 		else if (collider is SphereCollider sphere)
 		{
-			return overlapAllSphere(sphere, results, layer);
+			Vector3 colliderWorldPos = localToWorld(transform, sphere.center);
+			int hitCount = Physics.OverlapSphereNonAlloc(colliderWorldPos, sphere.radius, results, layer);
+			return results.removeValue(hitCount, collider);
 		}
 		else if (collider is CapsuleCollider capsule)
 		{
-			return overlapAllCapsule(capsule, results, layer);
+			getCapsuleWorldInfo(capsule, out Vector3 point0, out Vector3 point1, out float radius);
+			int hitCount = Physics.OverlapCapsuleNonAlloc(point0, point1, radius, results, layer, QueryTriggerInteraction.UseGlobal);
+			return results.removeValue(hitCount, collider);
 		}
 		else
 		{
@@ -870,18 +993,25 @@ public class UnityUtility
 			return 0;
 		}
 		results.setAllValue(null);
+		Transform transform = collider.transform;
 		int hitCount = 0;
 		if (collider is BoxCollider2D box2D)
 		{
-			hitCount = overlapAllBox(box2D, results, layer);
+			Vector2 colliderWorldPos = localToWorld(transform, collider.offset);
+			hitCount = Physics2D.OverlapBoxNonAlloc(colliderWorldPos, box2D.size, transform.localEulerAngles.z, results, layer);
+			return results.removeValue(hitCount, collider);
 		}
 		else if (collider is CircleCollider2D circle2D)
 		{
-			hitCount = overlapAllSphere(circle2D, results, layer);
+			Vector2 colliderWorldPos = localToWorld(transform, collider.offset);
+			hitCount = Physics2D.OverlapCircleNonAlloc(colliderWorldPos, circle2D.radius, results, layer);
+			return results.removeValue(hitCount, collider);
 		}
 		else if (collider is CapsuleCollider2D capsule2D)
 		{
-			hitCount = overlapAllCapsule(capsule2D, results, layer);
+			float eulerZ = transform.localEulerAngles.z;
+			hitCount = Physics2D.OverlapCapsuleNonAlloc(transform.position, capsule2D.size, capsule2D.direction, eulerZ, results, layer);
+			return results.removeValue(hitCount, collider);
 		}
 		else
 		{
@@ -1100,8 +1230,8 @@ public class UnityUtility
 		{
 			Type T = Type.GetType("UnityEditor.GameView,UnityEditor");
 			MethodInfo GetSizeOfMainGameView = T.GetMethod("GetSizeOfMainGameView", BindingFlags.NonPublic | BindingFlags.Static);
-            Vector2 value = (Vector2)GetSizeOfMainGameView.Invoke(null, null);
-            return new Vector2Int((int)value.x, (int)value.y);
+			Vector2 value = (Vector2)GetSizeOfMainGameView.Invoke(null, null);
+			return new Vector2Int((int)value.x, (int)value.y);
 		}
 		else
 		{
@@ -1299,9 +1429,9 @@ public class UnityUtility
 #if USE_URP
 	public static void setRenderScale(float scale)
 	{
-        // 获取当前活动的URP资产
+		// 获取当前活动的URP资产
 #if UNITY_6000_0_OR_NEWER
-        var urpAsset = (UniversalRenderPipelineAsset)GraphicsSettings.defaultRenderPipeline;
+		var urpAsset = (UniversalRenderPipelineAsset)GraphicsSettings.defaultRenderPipeline;
 #else
 		var urpAsset = (UniversalRenderPipelineAsset)GraphicsSettings.renderPipelineAsset;
 #endif
@@ -1322,24 +1452,70 @@ public class UnityUtility
 			return 1.0f;
 		}
 		return urpAsset.renderScale;
-    }
+	}
 #endif
+	public static Texture2D captureCamera(Camera camera, int width, string name)
+	{
+		if (camera == null)
+		{
+			return null;
+		}
+		int height = (width / camera.aspect).round().clampMin(1);
+		RenderTexture oldActive = RenderTexture.active;
+		RenderTexture renderTexture = RenderTexture.GetTemporary(width, height, 24, RenderTextureFormat.ARGB32);
+		Texture2D preview = new(width, height, TextureFormat.RGB24, false);
+		try
+		{
+#if USE_URP
+			UniversalRenderPipeline.SingleCameraRequest request = new();
+			if (!RenderPipeline.SupportsRenderRequest(camera, request))
+			{
+				destroyUnityObject(preview);
+				preview = null;
+				return null;
+			}
+			request.destination = renderTexture;
+			RenderPipeline.SubmitRenderRequest(camera, request);
+#else
+			RenderTexture oldTarget = camera.targetTexture;
+			try
+			{
+				camera.targetTexture = renderTexture;
+				camera.Render();
+			}
+			finally
+			{
+				camera.targetTexture = oldTarget;
+			}
+#endif
+			RenderTexture.active = renderTexture;
+			preview.ReadPixels(new Rect(0.0f, 0.0f, width, height), 0, 0, false);
+			preview.Apply(false, false);
+			preview.name = name;
+		}
+		finally
+		{
+			RenderTexture.active = oldActive;
+			RenderTexture.ReleaseTemporary(renderTexture);
+		}
+		return preview;
+	}
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR
-    public static int getLastError()
+	public static int getLastError()
 	{
 		return Kernel32.GetLastError();
 	}
 #endif
-    //------------------------------------------------------------------------------------------------------------------------------
-    protected static IEnumerator instantiateCoroutine(GameObject origin, string name, GameObjectCallback callback)
-    {
+	//------------------------------------------------------------------------------------------------------------------------------
+	protected static IEnumerator instantiateCoroutine(GameObject origin, string name, GameObjectCallback callback)
+	{
 #if UNITY_6000_0_OR_NEWER
 		var ret = UObject.InstantiateAsync(origin);
 		yield return ret;
 		GameObject go = ret.Result.get(0);
 #else
-        GameObject go = UObject.Instantiate(origin);
-        yield return null;
+		GameObject go = UObject.Instantiate(origin);
+		yield return null;
 #endif
 		if (go != null)
 		{
@@ -1353,5 +1529,286 @@ public class UnityUtility
 		{
 			logException(e, "实例化游戏对象异常");
 		}
+	}
+	// 获取CapsuleCollider当前状态下的世界坐标参数
+	protected static void getCapsuleWorldInfo(CapsuleCollider collider, out Vector3 point0, out Vector3 point1, out float radius)
+	{
+		Transform transform = collider.transform;
+		Vector3 scale = transform.lossyScale;
+		float scaleX = scale.x.abs();
+		float scaleY = scale.y.abs();
+		float scaleZ = scale.z.abs();
+		Vector3 localAxis;
+		float heightScale;
+		float radiusScale;
+		if (collider.direction == 0)
+		{
+			// X轴胶囊
+			localAxis = Vector3.right;
+			heightScale = scaleX;
+			radiusScale = getMax(scaleY, scaleZ);
+		}
+		else if (collider.direction == 1)
+		{
+			// Y轴胶囊
+			localAxis = Vector3.up;
+			heightScale = scaleY;
+			radiusScale = getMax(scaleX, scaleZ);
+		}
+		else
+		{
+			// Z轴胶囊
+			localAxis = Vector3.forward;
+			heightScale = scaleZ;
+			radiusScale = getMax(scaleX, scaleY);
+		}
+
+		Vector3 center = transform.TransformPoint(collider.center);
+		Vector3 worldAxis = transform.TransformDirection(localAxis).normalized;
+		radius = collider.radius * radiusScale;
+		// CapsuleCollider.height包含两端半球的直径
+		float height = getMax(collider.height * heightScale, radius * 2.0f);
+		// Physics.OverlapCapsule和CapsuleCast需要传入两个半球的球心
+		float halfLineLength = height * 0.5f - radius;
+		point0 = center + worldAxis * halfLineLength;
+		point1 = center - worldAxis * halfLineLength;
+	}
+	protected static int addOverlapColliderResult(Collider sourceCollider, Collider targetCollider, Collider[] results, int resultCount)
+	{
+		if (targetCollider == null || targetCollider == sourceCollider || resultCount >= results.Length || results.contains(targetCollider))
+		{
+			return resultCount;
+		}
+		results[resultCount++] = targetCollider;
+		return resultCount;
+	}
+	// 在Unity编辑器中根据异常调用栈创建一条可定位的错误日志。
+	// 日志会显示异常类型、错误信息和完整调用栈，双击日志时会直接跳转到异常实际发生的代码位置，
+	// 而不是跳转到捕获异常或调用logException的位置。
+	// 此功能依赖UnityEditor内部接口，仅在UNITY_EDITOR环境下生效；
+	// 无法获取有效文件和行号或内部接口不可用时，不会创建可定位日志。
+	protected static void makeExceptionStack(Exception e, string info = null)
+	{
+#if UNITY_EDITOR
+		try
+		{
+			// 优先查找最深层内部异常,因为真正的错误可能被外层异常包装
+			Exception targetException = e;
+			while (targetException.InnerException != null)
+			{
+				targetException = targetException.InnerException;
+			}
+			StackFrame targetFrame = null;
+			Exception frameException = targetException;
+			while (frameException != null && targetFrame == null)
+			{
+				foreach (StackFrame frame in new StackTrace(frameException, true).GetFrames().safe())
+				{
+					if (!frame.GetFileName().isEmpty() && frame.GetFileLineNumber() > 0)
+					{
+						targetFrame = frame;
+						break;
+					}
+				}
+				// 内部异常中没有可定位的调试信息时,再尝试最外层异常
+				if (ReferenceEquals(frameException, e))
+				{
+					break;
+				}
+				frameException = e;
+			}
+			if (targetFrame == null)
+			{
+				return;
+			}
+			string filePath = targetFrame.GetFileName();
+			int line = targetFrame.GetFileLineNumber();
+			int column = targetFrame.GetFileColumnNumber();
+			if (column <= 0)
+			{
+				column = 1;
+			}
+			Assembly editorAssembly = typeof(UnityEditor.EditorApplication).Assembly;
+			Type logEntriesType = editorAssembly.GetType("UnityEditor.LogEntries");
+			Type logEntryType = editorAssembly.GetType("UnityEditor.LogEntry");
+			Type consoleWindowType = editorAssembly.GetType("UnityEditor.ConsoleWindow");
+			if (logEntriesType == null || logEntryType == null || consoleWindowType == null)
+			{
+				return;
+			}
+			const int logIdentifier = 0x4D4C4558;
+			const string callbackRegisterKey = "UnityUtility.ExceptionLogDoubleClickCallback";
+			BindingFlags instanceFieldFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+			BindingFlags staticFieldFlags = BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
+			bool callbackRegistered = AppDomain.CurrentDomain.GetData(callbackRegisterKey) is bool registered && registered;
+			if (!callbackRegistered)
+			{
+				EventInfo callbackEvent = consoleWindowType.GetEvent("entryWithManagedCallbackDoubleClicked", staticFieldFlags);
+				FieldInfo callbackField = null;
+				Type callbackType = null;
+				if (callbackEvent != null)
+				{
+					callbackType = callbackEvent.EventHandlerType;
+				}
+				else
+				{
+					callbackField = consoleWindowType.GetField("entryWithManagedCallbackDoubleClicked", staticFieldFlags);
+					callbackType = callbackField?.FieldType;
+				}
+				if (callbackType != null)
+				{
+					ParameterInfo[] callbackParameters = callbackType.GetMethod("Invoke")?.GetParameters();
+					if (callbackParameters.count() == 1)
+					{
+						Type callbackEntryType = callbackParameters[0].ParameterType;
+						FieldInfo identifierField = callbackEntryType.GetField("identifier", instanceFieldFlags);
+						FieldInfo fileField = callbackEntryType.GetField("file", instanceFieldFlags);
+						FieldInfo lineField = callbackEntryType.GetField("line", instanceFieldFlags);
+						FieldInfo columnField = callbackEntryType.GetField("column", instanceFieldFlags);
+						MethodInfo openFileMethod = logEntriesType.GetMethod("OpenFileOnSpecificLineAndColumn", staticFieldFlags);
+						if (identifierField != null && fileField != null && lineField != null && columnField != null && openFileMethod != null)
+						{
+							DynamicMethod callbackMethod = new("openExceptionFile", typeof(void), new Type[] { callbackEntryType }, typeof(UnityUtility).Module, true);
+							ILGenerator il = callbackMethod.GetILGenerator();
+							Label returnLabel = il.DefineLabel();
+							// 只处理UnityUtility创建的异常日志,不影响其他系统的双击回调
+							il.Emit(OpCodes.Ldarg_0);
+							il.Emit(OpCodes.Ldfld, identifierField);
+							il.Emit(OpCodes.Ldc_I4, logIdentifier);
+							il.Emit(OpCodes.Bne_Un_S, returnLabel);
+							il.Emit(OpCodes.Ldarg_0);
+							il.Emit(OpCodes.Ldfld, fileField);
+							il.Emit(OpCodes.Ldarg_0);
+							il.Emit(OpCodes.Ldfld, lineField);
+							il.Emit(OpCodes.Ldarg_0);
+							il.Emit(OpCodes.Ldfld, columnField);
+							il.Emit(OpCodes.Call, openFileMethod);
+							il.MarkLabel(returnLabel);
+							il.Emit(OpCodes.Ret);
+							Delegate callback = callbackMethod.CreateDelegate(callbackType);
+							if (callbackEvent != null)
+							{
+								callbackEvent.GetAddMethod(true)?.Invoke(null, new object[] { callback });
+							}
+							else if (callbackField != null)
+							{
+								Delegate oldCallback = callbackField.GetValue(null) as Delegate;
+								callbackField.SetValue(null, Delegate.Combine(oldCallback, callback));
+							}
+							AppDomain.CurrentDomain.SetData(callbackRegisterKey, true);
+						}
+					}
+				}
+			}
+			object logEntry = Activator.CreateInstance(logEntryType, true);
+			string logMessage = makeUnityExceptionMessage(e, info, out int callstackStartUTF16, out int callstackStartUTF8);
+			logEntryType.GetField("message", instanceFieldFlags)?.SetValue(logEntry, logMessage);
+			logEntryType.GetField("file", instanceFieldFlags)?.SetValue(logEntry, filePath);
+			logEntryType.GetField("line", instanceFieldFlags)?.SetValue(logEntry, line);
+			logEntryType.GetField("column", instanceFieldFlags)?.SetValue(logEntry, column);
+			logEntryType.GetField("identifier", instanceFieldFlags)?.SetValue(logEntry, logIdentifier);
+			// 告诉Unity Console从哪个字符开始属于调用栈
+			logEntryType.GetField("callstackTextStartUTF16", instanceFieldFlags)?.SetValue(logEntry, callstackStartUTF16);
+			logEntryType.GetField("callstackTextStartUTF8", instanceFieldFlags)?.SetValue(logEntry, callstackStartUTF8);
+			// ScriptingException | DontExtractStacktrace
+			logEntryType.GetField("mode", instanceFieldFlags)?.SetValue(logEntry, (1 << 17) | (1 << 18));
+			MethodInfo addMessageMethod = logEntriesType.GetMethod("AddMessageWithDoubleClickCallback", staticFieldFlags);
+			addMessageMethod?.Invoke(null, new object[] { logEntry });
+		}
+		catch (Exception editorException)
+		{
+			UDebug.LogError("创建可定位异常日志失败:" + editorException);
+		}
+#endif
+	}
+	// 将异常转换为Unity Console可显示和点击的日志格式。
+	// 每一层包含源码文件和行号的调用栈都会被转换为可点击链接。
+	protected static string makeUnityExceptionMessage(Exception e, string info, out int callstackStartUTF16, out int callstackStartUTF8)
+	{
+		string exceptionText = e.ToString().Replace("\r\n", "\n").Replace('\r', '\n');
+
+		// Mono异常调用栈格式:
+		// at Test.execute() [0x00000] in E:\Project\Test.cs:10
+		//
+		// 转换为Unity Console的超链接格式:
+		// at Test.execute() [0x00000] (at <link="href='E:\Project\Test.cs' line='10'">E:\Project\Test.cs:10</link>)
+
+		string hyperlinkColor = getUnityConsoleHyperlinkColor();
+		// 将Mono格式的调用栈转换为Unity Console超链接格式
+		exceptionText = Regex.Replace
+		(
+			exceptionText,
+			@"\s+in\s+(.+):(?:line\s+)?(\d+)\s*$",
+			match =>
+			{
+				string filePath = match.Groups[1].Value.Trim();
+				string lineString = match.Groups[2].Value;
+				string linkFilePath = escapeUnityConsoleLink(filePath);
+				string linkText = escapeUnityConsoleLink(filePath + ":" + lineString);
+				return " (at <color=" + hyperlinkColor + "><link=\"href='" + linkFilePath + "' line='" + lineString + "'\">" + linkText + "</link></color>)";
+			},
+			RegexOptions.Multiline
+		);
+
+		// 兼容已经是(at 文件:行号),但还没有添加link标签的调用栈
+		exceptionText = Regex.Replace
+		(
+			exceptionText,
+			@"\(at\s+(?!<color|<link)(.+):(\d+)\)",
+			match =>
+			{
+				string filePath = match.Groups[1].Value.Trim();
+				string lineString = match.Groups[2].Value;
+				string linkFilePath = escapeUnityConsoleLink(filePath);
+				string linkText = escapeUnityConsoleLink(filePath + ":" + lineString);
+				return "(at <color=" + hyperlinkColor + "><link=\"href='" + linkFilePath + "' line='" + lineString + "'\">" + linkText + "</link></color>)";
+			}
+		);
+
+		string logMessage;
+		if (info.isEmpty())
+		{
+			logMessage = exceptionText;
+		}
+		else
+		{
+			logMessage = info + "\n" + exceptionText;
+		}
+
+		// 调用栈超链接已经手动生成,不再让Unity重复解析调用栈
+		callstackStartUTF16 = logMessage.Length;
+		callstackStartUTF8 = Encoding.UTF8.GetByteCount(logMessage);
+		return logMessage;
+	}
+	// 转义Unity Console超链接中的特殊字符。
+	protected static string escapeUnityConsoleLink(string value)
+	{
+		if (value == null)
+		{
+			return "";
+		}
+		return value.Replace("&", "&amp;")
+					.Replace("\"", "&quot;")
+					.Replace("'", "&apos;")
+					.Replace("<", "&lt;")
+					.Replace(">", "&gt;");
+	}
+	// 获取与Unity Console一致的堆栈超链接颜色。
+	protected static string getUnityConsoleHyperlinkColor()
+	{
+#if UNITY_EDITOR
+		try
+		{
+			MethodInfo method = typeof(UnityEditor.EditorGUIUtility).GetMethod("GetHyperlinkColorForSkin", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+			if (method?.Invoke(null, null) is string color && !color.isEmpty())
+			{
+				return color;
+			}
+		}
+		catch { }
+		return UnityEditor.EditorGUIUtility.isProSkin ? "#40a0ff" : "#0000FF";
+#else
+		return "#0000FF";
+#endif
 	}
 }

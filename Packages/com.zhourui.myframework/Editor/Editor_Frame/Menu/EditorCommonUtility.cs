@@ -23,7 +23,7 @@ using static FrameBaseDefine;
 
 public class FileRefGUIDs
 {
-	public List<string> mGUIDs;			// 此文件中存储的guid列表
+	public List<string> mGUIDs;         // 此文件中存储的guid列表
 	public string mProjectFileName;     // 相对于项目的相对路径,也就是以Assets开头
 	public string mProjectFileGUID;     // 此文件自己的guid
 	public void init(List<string> guidLines, string projectFileName)
@@ -368,7 +368,7 @@ public class EditorCommonUtility
 				}
 			}
 		}
-		
+
 		if (checkUnuseOnly)
 		{
 			foreach (string item in guidList)
@@ -530,7 +530,7 @@ public class EditorCommonUtility
 		DateTime start = DateTime.Now;
 		// key是guid,value是该guid被引用的文件信息列表
 		Dictionary<string, List<FileRefGUIDs>> inverseGuidList = new();
-		List<string> excludePatterns = new() 
+		List<string> excludePatterns = new()
 		{
 			".png", ".tpsheet", ".tpsheet.meta", ".prefab.meta", ".bytes", ".bytes.meta", ".txt", ".txt.meta", ".ttf", ".ttc", ".shader"
 		};
@@ -943,16 +943,16 @@ public class EditorCommonUtility
 	// 图片尺寸是否为2的n次方
 	public static bool isSizePow2(Texture2D tex)
 	{
-		return isPow2(tex.width) && isPow2(tex.height);
+		return tex.width.isPow2() && tex.height.isPow2();
 	}
 	// 是否忽略该文件
 	public static bool isIgnoreFile(string filePath, List<string> ignoreArr = null)
 	{
-		if (FrameEditorSettings.getInstance().IgnoreScriptCheck.contains(str=> filePath.Contains(str)))
+		if (FrameEditorSettings.getInstance().IgnoreScriptCheck.contains(str => filePath.Contains(str)))
 		{
 			return true;
 		}
-		if (ignoreArr != null && ignoreArr.contains(item=> filePath.Contains(item)))
+		if (ignoreArr != null && ignoreArr.contains(item => filePath.Contains(item)))
 		{
 			return true;
 		}
@@ -1159,45 +1159,6 @@ public class EditorCommonUtility
 				continue;
 			}
 		}
-	}
-	// 根据名称获取程序集
-	public static Assembly getAssembly(string assemblyName)
-	{
-		// 获取Assembly集合
-		foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
-		{
-			if (assembly.GetName().Name == assemblyName)
-			{
-				return assembly;
-			}
-		}
-		return null;
-	}
-	// 加载热更程序集
-	public static Assembly loadHotFixAssembly()
-	{
-#if USE_HYBRID_CLR
-		string dllFileName = F_ASSET_BUNDLE_PATH + HOTFIX_BYTES_FILE;
-#else
-		string dllFileName = null;
-#endif
-		if (!isFileExist(dllFileName))
-		{
-			return null;
-		}
-		return Assembly.LoadFile(dllFileName);
-	}
-	public static Type findClass(Assembly assembly, string className)
-	{
-		// 获取到类型
-		foreach (Type type in (assembly?.GetTypes()).safe())
-		{
-			if (type.Name == className)
-			{
-				return type;
-			}
-		}
-		return null;
 	}
 	// 检测命令命名规范
 	public static void doCheckCommandName(string filePath, string[] lines)
@@ -1474,7 +1435,7 @@ public class EditorCommonUtility
 			if (findFunctionName(line, out _, out _) ||
 				hasLongStr(line) ||
 				findMemberVariableName(line) != null ||
-				line.Contains(" delegate ") || 
+				line.Contains(" delegate ") ||
 				line.Contains("//"))
 			{
 				continue;
@@ -1651,7 +1612,7 @@ public class EditorCommonUtility
 			{
 				continue;
 			}
-			if (line.Contains("[ProtoMember(") && 
+			if (line.Contains("[ProtoMember(") &&
 				line.rangeToFirst(line.findFirstSubstr("[ProtoMember(", 0, true), ',').SToI() - 1 != realOrder++)
 			{
 				Debug.LogError("Protobuf的消息字段顺序检测:有不符合规定的字段顺序." + addFileLine(file, i + 1));
@@ -3149,47 +3110,23 @@ public class EditorCommonUtility
 		}
 		return BuildTargetGroup.Unknown;
 	}
-	public static string getAssetBundlePath(bool fullOrInProject, BuildTarget target = BuildTarget.NoTarget)
-	{
-		if (target == BuildTarget.NoTarget)
-			target = getBuildTarget();
-
-		return target switch
-		{
-			BuildTarget.Android => fullOrInProject ? F_ASSET_BUNDLE_ANDROID_PATH : P_ASSET_BUNDLE_ANDROID_PATH,
-			BuildTarget.WebGL => fullOrInProject ? F_ASSET_BUNDLE_WEBGL_PATH : P_ASSET_BUNDLE_WEBGL_PATH,
-			BuildTarget.iOS => fullOrInProject ? F_ASSET_BUNDLE_IOS_PATH : P_ASSET_BUNDLE_IOS_PATH,
-			BuildTarget.StandaloneWindows => fullOrInProject ? F_ASSET_BUNDLE_WINDOWS_PATH : P_ASSET_BUNDLE_WINDOWS_PATH,
-			BuildTarget.StandaloneWindows64 => fullOrInProject ? F_ASSET_BUNDLE_WINDOWS_PATH : P_ASSET_BUNDLE_WINDOWS_PATH,
-			BuildTarget.StandaloneOSX => fullOrInProject ? F_ASSET_BUNDLE_MACOS_PATH : P_ASSET_BUNDLE_MACOS_PATH,
-			_ => null
-		};
-	}
-
-	public static string getAssetBundleBuildPath(BuildTarget target = BuildTarget.NoTarget)
-	{
-		if (target == BuildTarget.NoTarget)
-			target = getBuildTarget();
-
-		return target switch
-		{
-			BuildTarget.Android => P_ASSET_BUNDLE_ANDROID_BUILD_PATH,
-			BuildTarget.WebGL => P_ASSET_BUNDLE_WEBGL_BUILD_PATH,
-			BuildTarget.iOS => P_ASSET_BUNDLE_IOS_BUILD_PATH,
-			BuildTarget.StandaloneWindows => P_ASSET_BUNDLE_WINDOWS_BUILD_PATH,
-			BuildTarget.StandaloneWindows64 => P_ASSET_BUNDLE_WINDOWS_BUILD_PATH,
-			BuildTarget.StandaloneOSX => P_ASSET_BUNDLE_MACOS_BUILD_PATH,
-			_ => null
-		};
-	}
-	
 	public static bool multiSpriteToSpritePNG(Texture2D tex2D, string outputPath)
 	{
+		if (tex2D == null)
+		{
+			return false;
+		}
+
 		bool backupReadable = tex2D.isReadable;
 		string texPath = AssetDatabase.GetAssetPath(tex2D);
-		bool modified = false;
 		var importer = AssetImporter.GetAtPath(texPath) as TextureImporter;
+		if (importer == null)
+		{
+			return false;
+		}
+
 		TextureImporterCompression backupCompress = importer.textureCompression;
+		bool modified = false;
 		if (!tex2D.isReadable)
 		{
 			importer.isReadable = true;
@@ -3200,29 +3137,61 @@ public class EditorCommonUtility
 			importer.textureCompression = TextureImporterCompression.Uncompressed;
 			modified = true;
 		}
-		if (modified)
+
+		try
 		{
-			importer.SaveAndReimport();
-		}
-		validPath(ref outputPath);
-		foreach (UObject obj in AssetDatabase.LoadAllAssetsAtPath(texPath))
-		{
-			if (obj is not Sprite sprite)
+			if (modified)
 			{
-				continue;
+				importer.SaveAndReimport();
 			}
-			Rect r = sprite.textureRect;
-			Texture2D output = new((int)r.width, (int)r.height);
-			output.SetPixels(sprite.texture.GetPixels((int)r.x, (int)r.y, (int)r.width, (int)r.height));
-			output.Apply();
-			output.name = sprite.name;
-			writeFile(outputPath + sprite.name + ".png", output.EncodeToPNG());
+
+			// SaveAndReimport后原来的tex2D引用虽然一般还能用，
+			// 但这里重新获取一次更加稳妥。
+			tex2D = AssetDatabase.LoadAssetAtPath<Texture2D>(texPath);
+			if (tex2D == null)
+			{
+				return false;
+			}
+
+			validPath(ref outputPath);
+			foreach (UObject obj in AssetDatabase.LoadAllAssetsAtPath(texPath))
+			{
+				if (obj is not Sprite sprite)
+				{
+					continue;
+				}
+
+				// 必须使用rect。
+				// rect保存的是MultiSprite切片的完整矩形，包括原PNG中的透明留白。
+				// textureRect可能是经过Tight/Trim之后的实际纹理区域。
+				Rect rect = sprite.rect;
+				int x = rect.x.round();
+				int y = rect.y.round();
+				int width = rect.width.round();
+				int height = rect.height.round();
+
+				Texture2D output = new(width, height, TextureFormat.RGBA32, false, false);
+				try
+				{
+					output.SetPixels(tex2D.GetPixels(x, y, width, height));
+					output.Apply(false, false);
+					output.name = sprite.name;
+					writeFile(outputPath + sprite.name + ".png", output.EncodeToPNG());
+				}
+				finally
+				{
+					UObject.DestroyImmediate(output);
+				}
+			}
 		}
-		if (modified)
+		finally
 		{
-			importer.isReadable = backupReadable;
-			importer.textureCompression = backupCompress;
-			importer.SaveAndReimport();
+			if (modified)
+			{
+				importer.isReadable = backupReadable;
+				importer.textureCompression = backupCompress;
+				importer.SaveAndReimport();
+			}
 		}
 		return true;
 	}
@@ -3273,20 +3242,20 @@ public class EditorCommonUtility
 			image.type = Image.Type.Tiled;
 		}
 	}
-    public static void pingAsset(string assetPath)
-    {
-        var asset = AssetDatabase.LoadAssetAtPath<UObject>(assetPath);
-        if (asset == null)
-        {
-            EditorUtility.DisplayDialog("提示", "无法定位资源:\n" + assetPath, "OK");
-            return;
-        }
-        Selection.activeObject = asset;
-        EditorGUIUtility.PingObject(asset);
-    }
-    //------------------------------------------------------------------------------------------------------------------------------
-    // 获取字体的引用信息 filePath 文件路径 assetType类型 tipText提示信息
-    protected static Dictionary<string, Dictionary<string, PrefabNodeItem>> getResourceReferenceInfo(string filePath, string suffix, string key, string tipText = "")
+	public static void pingAsset(string assetPath)
+	{
+		var asset = AssetDatabase.LoadAssetAtPath<UObject>(assetPath);
+		if (asset == null)
+		{
+			EditorUtility.DisplayDialog("提示", "无法定位资源:\n" + assetPath, "OK");
+			return;
+		}
+		Selection.activeObject = asset;
+		EditorGUIUtility.PingObject(asset);
+	}
+	//------------------------------------------------------------------------------------------------------------------------------
+	// 获取字体的引用信息 filePath 文件路径 assetType类型 tipText提示信息
+	protected static Dictionary<string, Dictionary<string, PrefabNodeItem>> getResourceReferenceInfo(string filePath, string suffix, string key, string tipText = "")
 	{
 		// 初始化和查找相应文件
 		Dictionary<string, Dictionary<string, PrefabNodeItem>> allPrefabMap = new();

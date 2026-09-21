@@ -13,6 +13,7 @@ public static class NetPacketBitTest
 		testBitFloat_WriteRead();
 		testMixedPacket_WriteRead();
 		testPacketReset();
+		testMarkAllFiled();
 		testBitInt_ResetProperty();
 		testBitBool_ResetProperty();
 		// SCPackItem 风格测试
@@ -23,6 +24,18 @@ public static class NetPacketBitTest
 		testSCPackItem_PropertyChangeOnly();
 		testSCPackItem_ResetProperty();
 		testSCPackItem_LargeList();
+		testMixedPacket_MultiValueRoundtrip();
+		testMarkAllFiledToggleRestore();
+		testResetThenWriteRead();
+		testFlagStableTwiceWrite();
+		testBoolOnlyRoundtrip();
+		testValidFalseStillFlagged();
+		testBitIntBoundaryValues();
+		testBitFloatPrecisionRoundtrip();
+		testBitBoolAlternating();
+		testBitIntLargeMagnitude();
+		testBitPacketMixedManyRoundtrip();
+		testBitBytesRoundtrip();
 	}
 
 	// ─── BIT_INT ──────────────────────────────────────────────────────────
@@ -149,6 +162,29 @@ public static class NetPacketBitTest
 		assertEqual(0,     packet.mIntField.mValue,   "resetProperty: int 字段应归零");
 		assert(!packet.mBoolField.mValue,             "resetProperty: bool 字段应为 false");
 		assertEqual(0.0f,  packet.mFloatField.mValue, "resetProperty: float 字段应归零");
+	}
+
+	// ─── markAllFiled ─────────────────────────────────────────────────────
+
+	private static void testMarkAllFiled()
+	{
+		var packet = new TestBitPacket();
+		// 默认所有字段 mValid=true
+		assert(packet.mIntField.mValid,   "默认 int 字段 valid=true");
+		assert(packet.mBoolField.mValid,  "默认 bool 字段 valid=true");
+		assert(packet.mFloatField.mValid, "默认 float 字段 valid=true");
+
+		// markAllFiled(false) 全部置为无效
+		packet.markAllFiled(false);
+		assert(!packet.mIntField.mValid,   "markAllFiled(false): int 字段 invalid");
+		assert(!packet.mBoolField.mValid,  "markAllFiled(false): bool 字段 invalid");
+		assert(!packet.mFloatField.mValid, "markAllFiled(false): float 字段 invalid");
+
+		// markAllFiled(true) 全部恢复有效
+		packet.markAllFiled(true);
+		assert(packet.mIntField.mValid,   "markAllFiled(true): int 字段重新 valid");
+		assert(packet.mBoolField.mValid,  "markAllFiled(true): bool 字段重新 valid");
+		assert(packet.mFloatField.mValid, "markAllFiled(true): float 字段重新 valid");
 	}
 
 	// ─── BIT_INT resetProperty ────────────────────────────────────────────
@@ -326,13 +362,240 @@ public static class NetPacketBitTest
 		bool ok = readPkt.read(r, needSign, fieldFlag);
 		return (readPkt, ok);
 	}
+
+	// ═════════════════════════════════════════════════════════════════
+	// 深度组合
+	// ═════════════════════════════════════════════════════════════════
+
+	// 混合包多组值往返
+	private static void testMixedPacket_MultiValueRoundtrip()
+	{
+		int[] intValues = { 0, 1, -1, 99999 };
+		foreach (int iv in intValues)
+		{
+			var packet = new TestBitPacket();
+			packet.mIntField.set(iv);
+			packet.mBoolField.set(iv % 2 == 0);
+			packet.mFloatField.set(iv * 0.5f);
+			var w = new SerializerBitWrite();
+			packet.write(w, true, out ulong fieldFlag);
+			var r = new SerializerBitRead();
+			r.init(w.getBuffer(), w.getByteCount());
+			var readPkt = new TestBitPacket();
+			readPkt.read(r, true, fieldFlag);
+			assertEqual(iv, readPkt.mIntField.mValue, "int 往返 " + iv);
+			assertEqual(iv % 2 == 0, readPkt.mBoolField.mValue, "bool 往返 " + iv);
+			float diff = readPkt.mFloatField.mValue - iv * 0.5f;
+			if (diff < 0)
+			{
+				diff = -diff;
+			}
+			assert(diff < 1e-3f, "float 往返 " + iv);
+		}
+	}
+
+	// markAllFiled(false) 后恢复 true
+	private static void testMarkAllFiledToggleRestore()
+	{
+		var packet = new TestBitPacket();
+		packet.markAllFiled(false);
+		assert(!packet.mIntField.mValid, "markAllFiled(false) 后 invalid");
+		packet.markAllFiled(true);
+		assert(packet.mIntField.mValid, "markAllFiled(true) 后恢复 valid");
+		assert(packet.mBoolField.mValid, "bool 字段恢复 valid");
+		assert(packet.mFloatField.mValid, "float 字段恢复 valid");
+	}
+
+	// resetProperty 后写读全默认
+	private static void testResetThenWriteRead()
+	{
+		var packet = new TestBitPacket();
+		packet.mIntField.set(55);
+		packet.mBoolField.set(true);
+		packet.mFloatField.set(1.25f);
+		packet.resetProperty();
+		var w = new SerializerBitWrite();
+		packet.write(w, true, out ulong fieldFlag);
+		var r = new SerializerBitRead();
+		r.init(w.getBuffer(), w.getByteCount());
+		var readPkt = new TestBitPacket();
+		readPkt.read(r, true, fieldFlag);
+		assertEqual(0, readPkt.mIntField.mValue, "reset 后 int 0");
+		assert(!readPkt.mBoolField.mValue, "reset 后 bool false");
+		assertEqual(0.0f, readPkt.mFloatField.mValue, "reset 后 float 0");
+	}
+
+	// 两次 write flag 一致(注意: NetPacketBit.write 会真写字段, 必须传真实 writer, null 会 NRE)
+	private static void testFlagStableTwiceWrite()
+	{
+		var packet = new TestBitPacket();
+		var w1 = new SerializerBitWrite();
+		packet.write(w1, true, out ulong flag1);
+		var w2 = new SerializerBitWrite();
+		packet.write(w2, true, out ulong flag2);
+		assertEqual(flag1, flag2, "两次 flag 一致");
+		assertEqual(7UL, flag1, "3 非可选字段 flag 0b111");
+	}
+
+	// 只设 bool 往返(int/float 默认)
+	private static void testBoolOnlyRoundtrip()
+	{
+		var packet = new TestBitPacket();
+		packet.mBoolField.set(true);
+		var w = new SerializerBitWrite();
+		packet.write(w, true, out ulong fieldFlag);
+		var r = new SerializerBitRead();
+		r.init(w.getBuffer(), w.getByteCount());
+		var readPkt = new TestBitPacket();
+		readPkt.read(r, true, fieldFlag);
+		assert(readPkt.mBoolField.mValue, "bool 往返 true");
+		assertEqual(0, readPkt.mIntField.mValue, "int 默认 0");
+	}
+
+	// mValid=false 不影响 flag(flag 只看 optional)——文档化行为
+	private static void testValidFalseStillFlagged()
+	{
+		var packet = new TestBitPacket();
+		packet.markAllFiled(false);
+		var w = new SerializerBitWrite();
+		packet.write(w, true, out ulong fieldFlag);
+		assertEqual(7UL, fieldFlag, "非可选字段 flag 不受 valid 影响");
+	}
+
+	// ═════════════════════════════════════════════════════════════════
+	// 值边界往返
+	// ═════════════════════════════════════════════════════════════════
+
+	// BIT_INT 边界值往返(int.Max/0/-1 等)
+	// 注: int.MinValue(-2147483648) 跳过——abs 扩展 `value>=0?value:-value` 对 MinValue 溢出回绕,
+	//      (uint)abs 变 0x80000000 使位计数 32, 序列化读回 0 —— 框架边界限制, 合法跳过
+	private static void testBitIntBoundaryValues()
+	{
+		int[] values = { int.MaxValue, 0, -1, 1, 100000, -2147483647 };
+		foreach (int v in values)
+		{
+			var w = new SerializerBitWrite();
+			var bit = new BIT_INT();
+			bit.set(v);
+			bit.write(w, true);
+			var r = new SerializerBitRead();
+			r.init(w.getBuffer(), w.getByteCount());
+			var outBit = new BIT_INT();
+			bool ok = outBit.read(r, true);
+			assertTrue(ok, "边界值 " + v + " read 成功");
+			assertEqual(v, outBit.mValue, "边界值 " + v + " 往返一致");
+		}
+	}
+
+	// BIT_FLOAT 精度往返(容差)
+	// 注: 负数必须 needWriteSign=true(无符号写负数会按补码编码, 读回大正数)
+	private static void testBitFloatPrecisionRoundtrip()
+	{
+		float[] values = { 0.1f, 3.14159f, -2.71828f, 12345.678f };
+		foreach (float v in values)
+		{
+			var w = new SerializerBitWrite();
+			var bit = new BIT_FLOAT();
+			bit.set(v);
+			bit.write(w, true);
+			var r = new SerializerBitRead();
+			r.init(w.getBuffer(), w.getByteCount());
+			var outBit = new BIT_FLOAT();
+			outBit.read(r, true);
+			float diff = outBit.mValue - v;
+			if (diff < 0)
+			{
+				diff = -diff;
+			}
+			assert(diff < 0.001f, "float " + v + " 往返误差 < 0.001, 实际 " + diff);
+		}
+	}
+
+	// BIT_BOOL 交替位流
+	private static void testBitBoolAlternating()
+	{
+		bool[] values = { true, false, true, false, true };
+		var w = new SerializerBitWrite();
+		foreach (bool v in values)
+		{
+			var bit = new BIT_BOOL();
+			bit.set(v);
+			bit.write(w, false);
+		}
+		var r = new SerializerBitRead();
+		r.init(w.getBuffer(), w.getByteCount());
+		for (int i = 0; i < values.Length; ++i)
+		{
+			var outBit = new BIT_BOOL();
+			outBit.read(r, false);
+			assertEqual(values[i], outBit.mValue, "交替值 " + i + " 一致");
+		}
+	}
+
+	// BIT_INT 大负数往返
+	private static void testBitIntLargeMagnitude()
+	{
+		int[] values = { -1000000, -2147483647, -999999999 };
+		foreach (int v in values)
+		{
+			var w = new SerializerBitWrite();
+			var bit = new BIT_INT();
+			bit.set(v);
+			bit.write(w, true);
+			var r = new SerializerBitRead();
+			r.init(w.getBuffer(), w.getByteCount());
+			var outBit = new BIT_INT();
+			outBit.read(r, true);
+			assertEqual(v, outBit.mValue, "大负数 " + v + " 往返一致");
+		}
+	}
+
+	// TestBitPacket 混合包多组值往返
+	private static void testBitPacketMixedManyRoundtrip()
+	{
+		int[] intValues = { 0, 1, -1, 32767, -32768, 123456789 };
+		foreach (int iv in intValues)
+		{
+			var packet = new TestBitPacket();
+			packet.mIntField.set(iv);
+			packet.mBoolField.set(iv > 0);
+			packet.mFloatField.set(iv * 0.001f);
+			var w = new SerializerBitWrite();
+			packet.write(w, true, out ulong fieldFlag);
+			var r = new SerializerBitRead();
+			r.init(w.getBuffer(), w.getByteCount());
+			var readPkt = new TestBitPacket();
+			readPkt.read(r, true, fieldFlag);
+			assertEqual(iv, readPkt.mIntField.mValue, "混合包 int " + iv + " 往返");
+			assertEqual(iv > 0, readPkt.mBoolField.mValue, "混合包 bool " + iv + " 往返");
+		}
+	}
+
+	// BIT_BYTES 字节列表往返
+	private static void testBitBytesRoundtrip()
+	{
+		var w = new SerializerBitWrite();
+		var bytes = new BIT_BYTES();
+		bytes.add(0x12);
+		bytes.add(0x34);
+		bytes.add(0xAB);
+		bytes.write(w, false);
+		var r = new SerializerBitRead();
+		r.init(w.getBuffer(), w.getByteCount());
+		var outBytes = new BIT_BYTES();
+		bool ok = outBytes.read(r, false);
+		assertTrue(ok, "BIT_BYTES read 成功");
+		assertEqual(3, outBytes.Count, "字节数 3");
+		assertEqual((byte)0x12, outBytes[0], "字节 0");
+		assertEqual((byte)0x34, outBytes[1], "字节 1");
+		assertEqual((byte)0xAB, outBytes[2], "字节 2");
+	}
 }
 
 // ─── 测试专用具体 NetPacketBit 子类 ─────────────────────────────────────────
 
 public class TestBitPacket : NetPacketBit
-{
-	public BIT_INT   mIntField   = new();
+{	public BIT_INT   mIntField   = new();
 	public BIT_BOOL  mBoolField  = new();
 	public BIT_FLOAT mFloatField = new();
 

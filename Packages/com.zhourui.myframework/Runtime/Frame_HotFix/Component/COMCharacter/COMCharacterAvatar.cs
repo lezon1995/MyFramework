@@ -77,7 +77,7 @@ public class COMCharacterAvatar : GameComponent
 	public override void init(ComponentOwner owner)
 	{
 		base.init(owner);
-		mCharacter = base.mComponentOwner as Character;
+		mCharacter = base.owner as Character;
 	}
 	public override void update(float dt)
 	{
@@ -338,7 +338,7 @@ public class COMCharacterAvatar : GameComponent
 		if (mRelationship == AVATAR_RELATIONSHIP.AVATAR_AS_CHARACTER)
 		{
 			mCharacter.setObject(go);
-			setNormalProperty(go, mCharacterManager.getObject(), null, lastScale, lastRotation, lastPosition);
+			setNormalProperty(go, mCharacterManager.getGameObject(), null, lastScale, lastRotation, lastPosition);
 		}
 		// 将模型节点挂接在角色节点下
 		else if (mRelationship == AVATAR_RELATIONSHIP.AVATAR_AS_CHILD)
@@ -381,9 +381,9 @@ public class COMCharacterAvatar : GameComponent
 		{
 			return;
 		}
-		if (mObject.activeSelf != mActive)
+		if (mObject.activeSelf != active)
 		{
-			mObject.SetActive(mActive);
+			mObject.SetActive(active);
 		}
 		mObject.TryGetComponent(out mController);
 		mObject.TryGetComponent(out mModelTransform);

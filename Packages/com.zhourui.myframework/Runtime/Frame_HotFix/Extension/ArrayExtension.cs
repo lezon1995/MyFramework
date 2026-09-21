@@ -1,8 +1,7 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
-using static BinaryUtility;
 using static FrameUtility;
 
 // 空数组,在返回空数组时避免分配新对象
@@ -25,10 +24,8 @@ public static class ArrayExtension
 		{
 			return;
 		}
-		for (int i = 0; i < list.Length; ++i)
-		{
-			list[i] = default;
-		}
+		// Array.Clear由运行时执行批量清零,在IL2CPP下明显优于托管逐元素循环。
+		Array.Clear(list, 0, list.Length);
 	}
 	public static void setAllValue<T>(this T[] list, T value)
 	{
@@ -36,10 +33,8 @@ public static class ArrayExtension
 		{
 			return;
 		}
-		for (int i = 0; i < list.Length; ++i)
-		{
-			list[i] = value;
-		}
+		// 保留原API语义,但避免百万级数组在C#层逐元素赋值。
+		Array.Fill(list, value);
 	}
 	public static T[] setRange<T>(this T[] list, List<T> other)
 	{
@@ -253,7 +248,7 @@ public static class ArrayExtension
 			return string.Empty;
 		}
 		// 默认为UTF8
-		return removeLastZero((encoding ?? Encoding.UTF8).GetString(bytes));
+		return (encoding ?? Encoding.UTF8).GetString(bytes).removeLastZero();
 	}
 	public static string bytesToString(this byte[] bytes, int count)
 	{
@@ -270,7 +265,7 @@ public static class ArrayExtension
 			return string.Empty;
 		}
 		// 默认为UTF8
-		return removeLastZero((encoding ?? Encoding.UTF8).GetString(bytes, startIndex, count));
+		return (encoding ?? Encoding.UTF8).GetString(bytes, startIndex, count).removeLastZero();
 	}
 	// 移除数组中的第index个元素，将后面的元素前移覆盖
 	// validElementCount: 数组中当前有效的元素个数（可能小于数组容量）
@@ -311,5 +306,13 @@ public static class ArrayExtension
 	public static void sort<T>(this T[] array, Comparison<T> comparison)
 	{
 		Array.Sort(array, comparison);
-	} 
+	}
+	public static T random<T>(this T[] list)
+	{
+		if (list.isEmpty())
+		{
+			return default;
+		}
+		return list[UnityEngine.Random.Range(0, list.Length)];
+	}
 }

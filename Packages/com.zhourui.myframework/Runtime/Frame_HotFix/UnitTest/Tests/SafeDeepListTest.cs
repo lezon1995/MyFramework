@@ -1,281 +1,171 @@
-using System.Collections.Generic;
 using static TestAssert;
 
-public class SafeDeepListTest
+// SafeDeepList: 可深度嵌套安全遍历的列表(纯 C# ClassObject, 直接 new 可测)
+// 核心特性: 遍历时复制主列表到快照, 遍历期间对主列表的修改不影响本次遍历
+public static class SafeDeepListTest
 {
 	public static void Run()
 	{
-		testAddAndCount();
-		testAddAndContains();
-		testRemove();
+		testAddCount();
+		testContainsRemove();
 		testClear();
-		testGetMainList();
-		testStartForeachReturnsCopy();
-		testStartForeachReusesTempList();
-		testEndForeach();
+		testSnapshotUnchangedByAdd();
+		testSnapshotUnchangedByRemove();
 		testNestedForeach();
 		testIsForeaching();
-		testAddDuringForeach();
-		testRemoveDuringForeach();
-		testClearDuringForeach();
+		testDispose();
 		testResetProperty();
-		testEnumerator();
-		testMultipleInstances();
-		testEmptyList();
-		testAddDuplicateValues();
-		testStartForeachEmptyList();
-		testMultipleStartForeachEndForeach();
-		testGetMainListModification();
+		testGetMainList();
 	}
-	//------------------------------------------------------------------------------------------------------------------------------
-	private static void testAddAndCount()
+
+	// add/count 基本操作
+	private static void testAddCount()
 	{
-		SafeDeepList<int> list = new();
-		assertEqual(0, list.count());
+		SafeDeepList<int> list = new SafeDeepList<int>();
+		assertEqual(0, list.count(), "初始 count 0");
 		list.add(10);
-		assertEqual(1, list.count());
 		list.add(20);
 		list.add(30);
-		assertEqual(3, list.count());
+		assertEqual(3, list.count(), "add 3 个后 count 3");
+		assertTrue(list.contains(20), "contains 命中");
+		assertFalse(list.contains(99), "contains 未命中");
 	}
-	private static void testAddAndContains()
+
+	// remove
+	private static void testContainsRemove()
 	{
-		SafeDeepList<string> list = new();
-		list.add("hello");
-		list.add("world");
-		assertTrue(list.contains("hello"));
-		assertTrue(list.contains("world"));
-		assertFalse(list.contains("nonexistent"));
+		SafeDeepList<string> list = new SafeDeepList<string>();
+		list.add("a");
+		list.add("b");
+		list.remove("a");
+		assertFalse(list.contains("a"), "remove 后不再包含");
+		assertTrue(list.contains("b"), "remove 后保留 b");
+		assertEqual(1, list.count(), "remove 后 count 1");
 	}
-	private static void testRemove()
-	{
-		SafeDeepList<int> list = new();
-		list.add(1);
-		list.add(2);
-		list.add(3);
-		list.remove(2);
-		assertEqual(2, list.count());
-		assertTrue(list.contains(1));
-		assertFalse(list.contains(2));
-		assertTrue(list.contains(3));
-	}
+
+	// clear
 	private static void testClear()
 	{
-		SafeDeepList<int> list = new();
+		SafeDeepList<int> list = new SafeDeepList<int>();
 		list.add(1);
 		list.add(2);
 		list.clear();
-		assertEqual(0, list.count());
-		assertFalse(list.contains(1));
+		assertEqual(0, list.count(), "clear 后 count 0");
 	}
-	private static void testGetMainList()
+
+	// 遍历快照: 遍历期间 add 不影响本次遍历
+	private static void testSnapshotUnchangedByAdd()
 	{
-		SafeDeepList<int> list = new();
-		list.add(100);
-		list.add(200);
-		List<int> main = list.getMainList();
-		assertEqual(2, main.Count);
-		assertEqual(100, main[0]);
-		assertEqual(200, main[1]);
-		// 修改主列表应反映到 SafeDeepList
-		main.Add(300);
-		assertEqual(3, list.count());
-	}
-	private static void testStartForeachReturnsCopy()
-	{
-		SafeDeepList<int> list = new();
+		SafeDeepList<int> list = new SafeDeepList<int>();
 		list.add(1);
 		list.add(2);
-		list.add(3);
-		List<int> snapshot = list.startForeach();
-		assertEqual(3, snapshot.Count);
-		// 修改 snapshot 不应影响原列表
-		snapshot.Clear();
-		snapshot.Add(999);
-		assertEqual(3, list.count());
-		assertEqual(1, list.getMainList()[0]);
-		list.endForeach(snapshot);
+		int seen = 0;
+		foreach (int v in list)
+		{
+			// 遍历中向主列表添加新元素(只加一次)
+			if (seen == 0)
+			{
+				list.add(3);
+			}
+			++seen;
+		}
+		assertEqual(2, seen, "快照遍历只看到遍历前的 2 个元素");
+		assertEqual(3, list.count(), "遍历后主列表包含新元素(count 3)");
+		assertTrue(list.contains(3), "遍历后新元素已加入主列表");
 	}
-	private static void testStartForeachReusesTempList()
+
+	// 遍历快照: 遍历期间 remove 不影响本次遍历, 但主列表已删除
+	private static void testSnapshotUnchangedByRemove()
 	{
-		SafeDeepList<int> list = new();
+		SafeDeepList<int> list = new SafeDeepList<int>();
 		list.add(1);
 		list.add(2);
-		List<int> snapshot1 = list.startForeach();
-		list.endForeach(snapshot1);
-		// 第二次 startForeach 应复用已回收的列表
-		List<int> snapshot2 = list.startForeach();
-		// snapshot2 可能是之前回收的 snapshot1
-		assertEqual(2, snapshot2.Count);
-		list.endForeach(snapshot2);
+		int seen = 0;
+		foreach (int v in list)
+		{
+			list.remove(2);
+			++seen;
+		}
+		assertEqual(2, seen, "快照遍历仍看到 2 个元素(删除不影响快照)");
+		assertEqual(1, list.count(), "主列表已删除(count 1)");
 	}
-	private static void testEndForeach()
-	{
-		SafeDeepList<int> list = new();
-		list.add(10);
-		list.add(20);
-		List<int> snapshot = list.startForeach();
-		assertTrue(list.isForeaching());
-		list.endForeach(snapshot);
-		assertFalse(list.isForeaching());
-	}
+
+	// 嵌套遍历: 遍历中再次遍历(深度快照)
 	private static void testNestedForeach()
 	{
-		SafeDeepList<int> list = new();
+		SafeDeepList<int> list = new SafeDeepList<int>();
 		list.add(1);
 		list.add(2);
 		list.add(3);
-		List<int> outer = list.startForeach();
-		assertTrue(list.isForeaching());
-		// 嵌套遍历
-		List<int> inner = list.startForeach();
-		assertEqual(3, inner.Count);
-		list.endForeach(inner);
-		assertTrue(list.isForeaching()); // 外层仍在遍历
-		list.endForeach(outer);
-		assertFalse(list.isForeaching());
+		int outerCount = 0;
+		foreach (int vOuter in list)
+		{
+			int innerCount = 0;
+			foreach (int vInner in list)
+			{
+				++innerCount;
+			}
+			assertEqual(3, innerCount, "嵌套遍历每次看到 3 个元素");
+			++outerCount;
+		}
+		assertEqual(3, outerCount, "外层遍历 3 次");
 	}
+
+	// isForeaching: 遍历中状态
 	private static void testIsForeaching()
 	{
-		SafeDeepList<int> list = new();
-		assertFalse(list.isForeaching());
-		List<int> snapshot = list.startForeach();
-		assertTrue(list.isForeaching());
-		list.endForeach(snapshot);
-		assertFalse(list.isForeaching());
+		SafeDeepList<int> list = new SafeDeepList<int>();
+		list.add(1);
+		assertFalse(list.isForeaching(), "初始未在遍历中");
+		foreach (int v in list)
+		{
+			assertTrue(list.isForeaching(), "遍历中 isForeaching true");
+		}
+		assertFalse(list.isForeaching(), "遍历结束后 isForeaching false");
 	}
-	private static void testAddDuringForeach()
+
+	// Dispose: 枚举器显式释放(快照回收)
+	private static void testDispose()
 	{
-		SafeDeepList<int> list = new();
+		SafeDeepList<int> list = new SafeDeepList<int>();
 		list.add(1);
 		list.add(2);
-		List<int> snapshot = list.startForeach();
-		// 遍历中添加元素
-		list.add(3);
-		// 快照应只有原始数据
-		assertEqual(2, snapshot.Count);
-		// 主列表包含新元素
-		assertEqual(3, list.count());
-		list.endForeach(snapshot);
+		using (SafeDeepList<int>.SafeDeepListEnumerator enumerator = list.GetEnumerator())
+		{
+			int count = 0;
+			while (enumerator.MoveNext())
+			{
+				++count;
+			}
+			assertEqual(2, count, "枚举器遍历到 2 个元素");
+		}
+		// Dispose 后再次遍历正常
+		using (SafeDeepList<int>.SafeDeepListEnumerator enumerator = list.GetEnumerator())
+		{
+			assertTrue(enumerator.MoveNext(), "Dispose 后重新遍历正常");
+		}
 	}
-	private static void testRemoveDuringForeach()
-	{
-		SafeDeepList<int> list = new();
-		list.add(1);
-		list.add(2);
-		list.add(3);
-		List<int> snapshot = list.startForeach();
-		// 遍历中删除元素
-		list.remove(2);
-		// 快照不受影响
-		assertEqual(3, snapshot.Count);
-		// 主列表已删除
-		assertEqual(2, list.count());
-		assertFalse(list.contains(2));
-		list.endForeach(snapshot);
-	}
-	private static void testClearDuringForeach()
-	{
-		SafeDeepList<int> list = new();
-		list.add(1);
-		list.add(2);
-		List<int> snapshot = list.startForeach();
-		list.clear();
-		assertEqual(2, snapshot.Count); // 快照不受影响
-		assertEqual(0, list.count());
-		list.endForeach(snapshot);
-	}
+
+	// resetProperty: 复位清空
 	private static void testResetProperty()
 	{
-		SafeDeepList<int> list = new();
+		SafeDeepList<int> list = new SafeDeepList<int>();
 		list.add(1);
 		list.add(2);
-		list.add(3);
 		list.resetProperty();
-		assertEqual(0, list.count());
-		assertFalse(list.isForeaching());
+		assertEqual(0, list.count(), "resetProperty 后 count 0");
 	}
-	private static void testEnumerator()
+
+	// getMainList: 实时主列表引用, 修改直接反映到列表
+	private static void testGetMainList()
 	{
-		SafeDeepList<int> list = new();
-		list.add(10);
-		list.add(20);
-		list.add(30);
-		int sum = 0;
-		var enumerator = list.GetEnumerator();
-		while (enumerator.MoveNext())
-		{
-			sum += enumerator.Current;
-		}
-		assertEqual(60, sum);
-	}
-	private static void testMultipleInstances()
-	{
-		SafeDeepList<int> list1 = new();
-		SafeDeepList<int> list2 = new();
-		list1.add(1);
-		list1.add(2);
-		list2.add(10);
-		list2.add(20);
-		list2.add(30);
-		assertEqual(2, list1.count());
-		assertEqual(3, list2.count());
-		assertTrue(list1.contains(1));
-		assertTrue(list2.contains(20));
-		assertFalse(list1.contains(10));
-	}
-	private static void testEmptyList()
-	{
-		SafeDeepList<int> list = new();
-		assertEqual(0, list.count());
-		assertFalse(list.contains(0));
-		assertFalse(list.isForeaching());
-		List<int> snapshot = list.startForeach();
-		assertEqual(0, snapshot.Count);
-		list.endForeach(snapshot);
-	}
-	private static void testAddDuplicateValues()
-	{
-		SafeDeepList<int> list = new();
-		list.add(5);
-		list.add(5); // List 允许重复
-		assertEqual(2, list.count());
-	}
-	private static void testStartForeachEmptyList()
-	{
-		SafeDeepList<int> list = new();
-		List<int> snapshot = list.startForeach();
-		assertEqual(0, snapshot.Count);
-		list.endForeach(snapshot);
-		// 再次 start/end
-		snapshot = list.startForeach();
-		assertEqual(0, snapshot.Count);
-		list.endForeach(snapshot);
-	}
-	private static void testMultipleStartForeachEndForeach()
-	{
-		SafeDeepList<int> list = new();
+		SafeDeepList<int> list = new SafeDeepList<int>();
 		list.add(1);
-		list.add(2);
-		list.add(3);
-		for (int i = 0; i < 5; ++i)
-		{
-			List<int> snapshot = list.startForeach();
-			assertEqual(3, snapshot.Count);
-			list.endForeach(snapshot);
-		}
-		// 多次 start/end 后列表内容不变
-		assertEqual(3, list.count());
-	}
-	private static void testGetMainListModification()
-	{
-		SafeDeepList<int> list = new();
-		list.add(1);
-		List<int> main = list.getMainList();
+		var main = list.getMainList();
+		assertEqual(1, main.Count, "getMainList 与列表同步");
+		// 通过主列表修改直接反映
 		main.Add(2);
-		main.Add(3);
-		assertEqual(3, list.count());
-		assertTrue(list.contains(2));
-		assertTrue(list.contains(3));
+		assertEqual(2, list.count(), "主列表修改反映到列表 count");
+		assertTrue(list.contains(2), "主列表新增元素可见");
 	}
 }

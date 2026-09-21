@@ -836,15 +836,15 @@ public class StringUtility
 		// 不足1MB
 		if (size < 1024 * 1024)
 		{
-			return (size * (1.0f / 1024.0f)).FToS(1) + "KB";
+			return (size / 1024.0f).FToS(1) + "KB";
 		}
 		// 不足1GB
 		if (size < 1024 * 1024 * 1024)
 		{
-			return (size * (1.0f / (1024.0f * 1024.0f))).FToS(1) + "MB";
+			return (size / (1024.0f * 1024.0f)).FToS(1) + "MB";
 		}
 		// 大于1GB
-		return (size * (1.0f / (1024.0f * 1024.0f * 1024.0f))).FToS(1) + "GB";
+		return (size / (1024.0f * 1024.0f * 1024.0f)).FToS(1) + "GB";
 	}
 	public static string addSprite(string originString, string spriteName, float width = 1.0f)
 	{
@@ -1317,13 +1317,14 @@ public class StringUtility
 		charColorList.RemoveRange(originContent.Length, charColorList.Count - originContent.Length);
 		return originContent;
 	}
+	public static MyStringBuilder mBuilder = new();
 	// 字符串拼接,当拼接小于等于4个字符串时,直接使用+号最快,GC与StringBuilder一致
 	public static string strcat(string str0, string str1, string str2, string str3, string str4)
 	{
 		if (isMainThread())
 		{
-			using var a = new MyStringBuilderScope(out var builder);
-			return builder.add(str0, str1, str2, str3, str4).ToString();
+			mBuilder.clear();
+			return mBuilder.add(str0, str1, str2, str3, str4).ToString();
 		}
 		else
 		{
@@ -1335,8 +1336,8 @@ public class StringUtility
 	{
 		if (isMainThread())
 		{
-			using var a = new MyStringBuilderScope(out var builder);
-			return builder.add(str0, str1, str2, str3, str4, str5).ToString();
+			mBuilder.clear();
+			return mBuilder.add(str0, str1, str2, str3, str4, str5).ToString();
 		}
 		else
 		{
@@ -1348,8 +1349,8 @@ public class StringUtility
 	{
 		if (isMainThread())
 		{
-			using var a = new MyStringBuilderScope(out var builder);
-			return builder.add(str0, str1, str2, str3, str4, str5, str6).ToString();
+			mBuilder.clear();
+			return mBuilder.add(str0, str1, str2, str3, str4, str5, str6).ToString();
 		}
 		else
 		{
@@ -1361,8 +1362,8 @@ public class StringUtility
 	{
 		if (isMainThread())
 		{
-			using var a = new MyStringBuilderScope(out var builder);
-			return builder.add(str0, str1, str2, str3, str4, str5, str6, str7).ToString();
+			mBuilder.clear();
+			return mBuilder.add(str0, str1, str2, str3, str4, str5, str6, str7).ToString();
 		}
 		else
 		{
@@ -1374,8 +1375,8 @@ public class StringUtility
 	{
 		if (isMainThread())
 		{
-			using var a = new MyStringBuilderScope(out var builder);
-			return builder.add(str0, str1, str2, str3, str4, str5, str6, str7, str8).ToString();
+			mBuilder.clear();
+			return mBuilder.add(str0, str1, str2, str3, str4, str5, str6, str7, str8).ToString();
 		}
 		else
 		{
@@ -1387,8 +1388,8 @@ public class StringUtility
 	{
 		if (isMainThread())
 		{
-			using var a = new MyStringBuilderScope(out var builder);
-			return builder.add(str0, str1, str2, str3, str4, str5, str6, str7, str8, str9).ToString();
+			mBuilder.clear();
+			return mBuilder.add(str0, str1, str2, str3, str4, str5, str6, str7, str8, str9).ToString();
 		}
 		else
 		{
@@ -1400,8 +1401,8 @@ public class StringUtility
 	{
 		if (isMainThread())
 		{
-			using var a = new MyStringBuilderScope(out var builder);
-			return builder.add(str0, str1, str2, str3, str4, str5, str6, str7, str8, str9, str10).ToString();
+			mBuilder.clear();
+			return mBuilder.add(str0, str1, str2, str3, str4, str5, str6, str7, str8, str9, str10).ToString();
 		}
 		else
 		{

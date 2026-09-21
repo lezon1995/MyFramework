@@ -15,7 +15,7 @@ public class DropItem : WindowRecyclableUGUI, IDropItem
 	public override void init()
 	{
 		base.init();
-		mRoot.registeCollider(onClick);
+		mRoot.registerCollider(onClick);
 		if (mHover != null)
 		{
 			mRoot.setHoverCallback(onHover);

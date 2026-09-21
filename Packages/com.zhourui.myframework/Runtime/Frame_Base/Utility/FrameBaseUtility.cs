@@ -13,6 +13,11 @@ using UnityEditor;
 using UObject = UnityEngine.Object;
 using UDebug = UnityEngine.Debug;
 using static FrameBaseDefine;
+using System.Reflection;
+using System.Linq;
+using System.Reflection.Emit;
+using System.Text.RegularExpressions;
+using System.Text;
 
 public class FrameBaseUtility
 {
@@ -270,23 +275,40 @@ public class FrameBaseUtility
 		}
 		return "";
 	}
+	[HideInCallstack]
 	public static void logExceptionBase(Exception e, string info = null)
 	{
-		if (info == null || info.Length == 0)
+		if (e == null)
 		{
-			info = "";
+			UDebug.LogError(string.IsNullOrEmpty(info) ? "异常对象为空" : info);
+			return;
 		}
-		else
+		string originInfo = info;
+		string errorInfo = info ?? "";
+		Exception curException = e;
+		int depth = 0;
+		while (curException != null)
 		{
-			info += ", ";
+			errorInfo +=
+				"\nexception[" + depth + "]:" +
+				curException.GetType().FullName +
+				"\nmessage:" + curException.Message +
+				"\nstack:" + curException.StackTrace;
+
+			curException = curException.InnerException;
+			++depth;
 		}
-		info += e.Message + ", stack:" + e.StackTrace;
-		if (e.InnerException != null)
+		if (isEditor())
 		{
-			info += "\ninner exception:" + e.InnerException.Message + ", stack:" + e.InnerException.StackTrace;
+			errorInfo += ",编辑器中双击下一条日志可跳转到抛异常的具体代码位置";
 		}
-		logErrorBase(info);
+		logErrorBase(errorInfo);
+		if (isEditor())
+		{
+			makeExceptionStack(e, info);
+		}
 	}
+	[HideInCallstack]
 	public static void logErrorBase(string info)
 	{
 		if (mShowMessageBox)
@@ -309,6 +331,7 @@ public class FrameBaseUtility
 			UDebug.LogError(info);
 		}
 	}
+	[HideInCallstack]
 	public static void logBase(string info)
 	{
 		if (isIOS() && !isEditor())
@@ -320,6 +343,7 @@ public class FrameBaseUtility
 			UDebug.Log(info);
 		}
 	}
+	[HideInCallstack]
 	public static void logWarningBase(string info)
 	{
 		if (isIOS() && !isEditor())
@@ -330,6 +354,149 @@ public class FrameBaseUtility
 		{
 			UDebug.LogWarning(info);
 		}
+	}
+	// 在Unity编辑器中根据异常调用栈创建一条可定位的错误日志。
+	// 日志会显示异常类型、错误信息和完整调用栈，双击日志时会直接跳转到异常实际发生的代码位置，
+	// 而不是跳转到捕获异常或调用logException的位置。
+	// 此功能依赖UnityEditor内部接口，仅在UNITY_EDITOR环境下生效；
+	// 无法获取有效文件和行号或内部接口不可用时，不会创建可定位日志。
+	protected static void makeExceptionStack(Exception e, string info = null)
+	{
+#if UNITY_EDITOR
+		try
+		{
+			// 优先查找最深层内部异常,因为真正的错误可能被外层异常包装
+			Exception targetException = e;
+			while (targetException.InnerException != null)
+			{
+				targetException = targetException.InnerException;
+			}
+			StackFrame targetFrame = null;
+			Exception frameException = targetException;
+			while (frameException != null && targetFrame == null)
+			{
+				StackFrame[] frames = new StackTrace(frameException, true).GetFrames();
+				if (frames != null)
+				{
+					foreach (StackFrame frame in frames)
+					{
+						if (!string.IsNullOrEmpty(frame.GetFileName()) && frame.GetFileLineNumber() > 0)
+						{
+							targetFrame = frame;
+							break;
+						}
+					}
+				}
+				// 内部异常中没有可定位的调试信息时,再尝试最外层异常
+				if (ReferenceEquals(frameException, e))
+				{
+					break;
+				}
+				frameException = e;
+			}
+			if (targetFrame == null)
+			{
+				return;
+			}
+			string filePath = targetFrame.GetFileName();
+			int line = targetFrame.GetFileLineNumber();
+			int column = targetFrame.GetFileColumnNumber();
+			if (column <= 0)
+			{
+				column = 1;
+			}
+			Assembly editorAssembly = typeof(EditorApplication).Assembly;
+			Type logEntriesType = editorAssembly.GetType("UnityEditor.LogEntries");
+			Type logEntryType = editorAssembly.GetType("UnityEditor.LogEntry");
+			Type consoleWindowType = editorAssembly.GetType("UnityEditor.ConsoleWindow");
+			if (logEntriesType == null || logEntryType == null || consoleWindowType == null)
+			{
+				return;
+			}
+			const int logIdentifier = 0x4D4C4558;
+			const string callbackRegisterKey = "UnityUtility.ExceptionLogDoubleClickCallback";
+			BindingFlags instanceFieldFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+			BindingFlags staticFieldFlags = BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
+			bool callbackRegistered = AppDomain.CurrentDomain.GetData(callbackRegisterKey) is bool registered && registered;
+			if (!callbackRegistered)
+			{
+				EventInfo callbackEvent = consoleWindowType.GetEvent("entryWithManagedCallbackDoubleClicked", staticFieldFlags);
+				FieldInfo callbackField = null;
+				Type callbackType = null;
+				if (callbackEvent != null)
+				{
+					callbackType = callbackEvent.EventHandlerType;
+				}
+				else
+				{
+					callbackField = consoleWindowType.GetField("entryWithManagedCallbackDoubleClicked", staticFieldFlags);
+					callbackType = callbackField?.FieldType;
+				}
+				if (callbackType != null)
+				{
+					ParameterInfo[] callbackParameters = callbackType.GetMethod("Invoke")?.GetParameters();
+					if (callbackParameters != null && callbackParameters.Length == 1)
+					{
+						Type callbackEntryType = callbackParameters[0].ParameterType;
+						FieldInfo identifierField = callbackEntryType.GetField("identifier", instanceFieldFlags);
+						FieldInfo fileField = callbackEntryType.GetField("file", instanceFieldFlags);
+						FieldInfo lineField = callbackEntryType.GetField("line", instanceFieldFlags);
+						FieldInfo columnField = callbackEntryType.GetField("column", instanceFieldFlags);
+						MethodInfo openFileMethod = logEntriesType.GetMethod("OpenFileOnSpecificLineAndColumn", staticFieldFlags);
+						if (identifierField != null && fileField != null && lineField != null && columnField != null && openFileMethod != null)
+						{
+							DynamicMethod callbackMethod = new("openExceptionFile", typeof(void), new Type[] { callbackEntryType }, typeof(FrameBaseUtility).Module, true);
+							ILGenerator il = callbackMethod.GetILGenerator();
+							Label returnLabel = il.DefineLabel();
+							// 只处理UnityUtility创建的异常日志,不影响其他系统的双击回调
+							il.Emit(OpCodes.Ldarg_0);
+							il.Emit(OpCodes.Ldfld, identifierField);
+							il.Emit(OpCodes.Ldc_I4, logIdentifier);
+							il.Emit(OpCodes.Bne_Un_S, returnLabel);
+							il.Emit(OpCodes.Ldarg_0);
+							il.Emit(OpCodes.Ldfld, fileField);
+							il.Emit(OpCodes.Ldarg_0);
+							il.Emit(OpCodes.Ldfld, lineField);
+							il.Emit(OpCodes.Ldarg_0);
+							il.Emit(OpCodes.Ldfld, columnField);
+							il.Emit(OpCodes.Call, openFileMethod);
+							il.MarkLabel(returnLabel);
+							il.Emit(OpCodes.Ret);
+							Delegate callback = callbackMethod.CreateDelegate(callbackType);
+							if (callbackEvent != null)
+							{
+								callbackEvent.GetAddMethod(true)?.Invoke(null, new object[] { callback });
+							}
+							else if (callbackField != null)
+							{
+								Delegate oldCallback = callbackField.GetValue(null) as Delegate;
+								callbackField.SetValue(null, Delegate.Combine(oldCallback, callback));
+							}
+							AppDomain.CurrentDomain.SetData(callbackRegisterKey, true);
+						}
+					}
+				}
+			}
+			object logEntry = Activator.CreateInstance(logEntryType, true);
+			string logMessage = makeUnityExceptionMessage(e, info, out int callstackStartUTF16, out int callstackStartUTF8);
+			logEntryType.GetField("message", instanceFieldFlags)?.SetValue(logEntry, logMessage);
+			logEntryType.GetField("file", instanceFieldFlags)?.SetValue(logEntry, filePath);
+			logEntryType.GetField("line", instanceFieldFlags)?.SetValue(logEntry, line);
+			logEntryType.GetField("column", instanceFieldFlags)?.SetValue(logEntry, column);
+			logEntryType.GetField("identifier", instanceFieldFlags)?.SetValue(logEntry, logIdentifier);
+			// 告诉Unity Console从哪个字符开始属于调用栈
+			logEntryType.GetField("callstackTextStartUTF16", instanceFieldFlags)?.SetValue(logEntry, callstackStartUTF16);
+			logEntryType.GetField("callstackTextStartUTF8", instanceFieldFlags)?.SetValue(logEntry, callstackStartUTF8);
+			// ScriptingException | DontExtractStacktrace
+			logEntryType.GetField("mode", instanceFieldFlags)?.SetValue(logEntry, (1 << 17) | (1 << 18));
+			MethodInfo addMessageMethod = logEntriesType.GetMethod("AddMessageWithDoubleClickCallback", staticFieldFlags);
+			addMessageMethod?.Invoke(null, new object[] { logEntry });
+		}
+		catch (Exception editorException)
+		{
+			UDebug.LogError("创建可定位异常日志失败:" + editorException);
+		}
+#endif
 	}
 	public static void setScreenSizeBase(Vector2Int size, bool fullScreen)
 	{
@@ -452,7 +619,7 @@ public class FrameBaseUtility
 	public static Vector2 getScreenScale(Vector2 rootSize)
 	{
 		Vector2Int uiSize = FrameSettings.getUISize();
-		return new(rootSize.x * (1.0f / uiSize.x), rootSize.y * (1.0f / uiSize.y));
+		return new(rootSize.x / uiSize.x, rootSize.y / uiSize.y);
 	}
 	public static void destroyUnityObject(UObject obj, bool immediately = false, bool allowDestroyAssets = false)
 	{
@@ -550,20 +717,31 @@ public class FrameBaseUtility
 		{
 			return VERSION_COMPARE.EQUAL;
 		}
-		const long MaxMiddleVersion = 100000000000;
-		long[] source = new long[3] { long.Parse(sourceFormatStr[0]), long.Parse(sourceFormatStr[1]), long.Parse(sourceFormatStr[2]) };
-		long[] target = new long[3] { long.Parse(targetFormatStr[0]), long.Parse(targetFormatStr[1]), long.Parse(targetFormatStr[2]) };
-		long sourceFullVersion = source[0] * MaxMiddleVersion * MaxMiddleVersion + source[1] * MaxMiddleVersion + source[2];
-		long targetFullVersion = target[0] * MaxMiddleVersion * MaxMiddleVersion + target[1] * MaxMiddleVersion + target[2];
-		long sourceBigVersion = source[0] * MaxMiddleVersion + source[1];
-		long targetBigVersion = target[0] * MaxMiddleVersion + target[1];
-		if (sourceBigVersion > targetBigVersion)
+		long[] source = new long[3];
+		long[] target = new long[3];
+		for (int i = 0; i < 3; ++i)
 		{
-			higherVersion = VERSION_COMPARE.LOCAL_LOWER;
+			if (!long.TryParse(sourceFormatStr[i], out source[i]))
+			{
+				lowerVersion = VERSION_COMPARE.REMOTE_LOWER;
+				higherVersion = VERSION_COMPARE.REMOTE_LOWER;
+				return VERSION_COMPARE.REMOTE_LOWER;
+			}
+			if (!long.TryParse(targetFormatStr[i], out target[i]))
+			{
+				lowerVersion = VERSION_COMPARE.LOCAL_LOWER;
+				higherVersion = VERSION_COMPARE.LOCAL_LOWER;
+				return VERSION_COMPARE.LOCAL_LOWER;
+			}
 		}
-		else if (sourceBigVersion < targetBigVersion)
+
+		if (source[0] != target[0])
 		{
-			higherVersion = VERSION_COMPARE.REMOTE_LOWER;
+			higherVersion = source[0] > target[0] ? VERSION_COMPARE.LOCAL_LOWER : VERSION_COMPARE.REMOTE_LOWER;
+		}
+		else if (source[1] != target[1])
+		{
+			higherVersion = source[1] > target[1] ? VERSION_COMPARE.LOCAL_LOWER : VERSION_COMPARE.REMOTE_LOWER;
 		}
 		else
 		{
@@ -581,18 +759,19 @@ public class FrameBaseUtility
 		{
 			lowerVersion = VERSION_COMPARE.EQUAL;
 		}
-		if (sourceFullVersion > targetFullVersion)
+
+		for (int i = 0; i < 3; ++i)
 		{
-			return VERSION_COMPARE.LOCAL_LOWER;
+			if (source[i] > target[i])
+			{
+				return VERSION_COMPARE.LOCAL_LOWER;
+			}
+			if (source[i] < target[i])
+			{
+				return VERSION_COMPARE.REMOTE_LOWER;
+			}
 		}
-		else if (sourceFullVersion < targetFullVersion)
-		{
-			return VERSION_COMPARE.REMOTE_LOWER;
-		}
-		else
-		{
-			return VERSION_COMPARE.EQUAL;
-		}
+		return VERSION_COMPARE.EQUAL;
 	}
 	public static string checkValidVersion(string version)
 	{
@@ -736,5 +915,95 @@ public class FrameBaseUtility
 		{
 			logExceptionBase(e);
 		}
+	}
+	// 将异常转换为Unity Console可显示和点击的日志格式。
+	// 每一层包含源码文件和行号的调用栈都会被转换为可点击链接。
+	protected static string makeUnityExceptionMessage(Exception e, string info, out int callstackStartUTF16, out int callstackStartUTF8)
+	{
+		string exceptionText = e.ToString().Replace("\r\n", "\n").Replace('\r', '\n');
+
+		// Mono异常调用栈格式:
+		// at Test.execute() [0x00000] in E:\Project\Test.cs:10
+		//
+		// 转换为Unity Console的超链接格式:
+		// at Test.execute() [0x00000] (at <link="href='E:\Project\Test.cs' line='10'">E:\Project\Test.cs:10</link>)
+
+		string hyperlinkColor = getUnityConsoleHyperlinkColor();
+		// 将Mono格式的调用栈转换为Unity Console超链接格式
+		exceptionText = Regex.Replace
+		(
+			exceptionText,
+			@"\s+in\s+(.+):(?:line\s+)?(\d+)\s*$",
+			match =>
+			{
+				string filePath = match.Groups[1].Value.Trim();
+				string lineString = match.Groups[2].Value;
+				string linkFilePath = escapeUnityConsoleLink(filePath);
+				string linkText = escapeUnityConsoleLink(filePath + ":" + lineString);
+				return " (at <color=" + hyperlinkColor + "><link=\"href='" + linkFilePath + "' line='" + lineString + "'\">" + linkText + "</link></color>)";
+			},
+			RegexOptions.Multiline
+		);
+
+		// 兼容已经是(at 文件:行号),但还没有添加link标签的调用栈
+		exceptionText = Regex.Replace
+		(
+			exceptionText,
+			@"\(at\s+(?!<color|<link)(.+):(\d+)\)",
+			match =>
+			{
+				string filePath = match.Groups[1].Value.Trim();
+				string lineString = match.Groups[2].Value;
+				string linkFilePath = escapeUnityConsoleLink(filePath);
+				string linkText = escapeUnityConsoleLink(filePath + ":" + lineString);
+				return "(at <color=" + hyperlinkColor + "><link=\"href='" + linkFilePath + "' line='" + lineString + "'\">" + linkText + "</link></color>)";
+			}
+		);
+
+		string logMessage;
+		if (string.IsNullOrEmpty(info))
+		{
+			logMessage = exceptionText;
+		}
+		else
+		{
+			logMessage = info + "\n" + exceptionText;
+		}
+
+		// 调用栈超链接已经手动生成,不再让Unity重复解析调用栈
+		callstackStartUTF16 = logMessage.Length;
+		callstackStartUTF8 = Encoding.UTF8.GetByteCount(logMessage);
+		return logMessage;
+	}
+	// 转义Unity Console超链接中的特殊字符。
+	protected static string escapeUnityConsoleLink(string value)
+	{
+		if (value == null)
+		{
+			return "";
+		}
+		return value.Replace("&", "&amp;")
+					.Replace("\"", "&quot;")
+					.Replace("'", "&apos;")
+					.Replace("<", "&lt;")
+					.Replace(">", "&gt;");
+	}
+	// 获取与Unity Console一致的堆栈超链接颜色。
+	protected static string getUnityConsoleHyperlinkColor()
+	{
+#if UNITY_EDITOR
+		try
+		{
+			MethodInfo method = typeof(EditorGUIUtility).GetMethod("GetHyperlinkColorForSkin", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+			if (method?.Invoke(null, null) is string color && !string.IsNullOrEmpty(color))
+			{
+				return color;
+			}
+		}
+		catch { }
+		return EditorGUIUtility.isProSkin ? "#40a0ff" : "#0000FF";
+#else
+		return "#0000FF";
+#endif
 	}
 }

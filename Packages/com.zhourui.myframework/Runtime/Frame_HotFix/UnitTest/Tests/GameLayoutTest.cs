@@ -1,5 +1,9 @@
 using static TestAssert;
 
+using System.Collections.Generic;
+using System.Reflection;
+using UnityEngine;
+using UObject = UnityEngine.Object;
 // GameLayout 布局实例单元测试
 // GameLayout 是纯 POCO 类（无基类），可直接 new GameLayout() 测试全部 getter/setter
 // init/setVisible/setVisibleForce/destroy/registerUIObject/unregisterUIObject 等方法需要完整运行时初始化
@@ -22,6 +26,14 @@ public static class GameLayoutTest
 		testDefaultRoot();
 		testDefaultUIObjectList();
 		testDefaultVisible();
+		testOnDrawGizmosSafe();
+		testGetAllColliderEmpty();
+		testGetAllColliderAppendMode();
+		testGetAllColliderClearMode();
+		testSetLayerWithRoot();
+		testSetLayerDifferentLayers();
+		testRefreshUIDepthNoIgnore();
+		testRefreshUIDepthWithChildTree();
 
 		// === getter/setter 配对 ===
 		testSetName();
@@ -62,6 +74,16 @@ public static class GameLayoutTest
 
 		// === getDefaultLayer ===
 		testDefaultLayerValue();
+	
+
+		testRegisterUnregisterUIObject();
+		testRegisterMultipleAndLookup();
+		testNotifyNeedUpdate();
+		testUpdateNullRootSafe();
+		testScriptSetLayoutRoot();
+		testScriptUpdateAllDragViewEmpty();
+		testScriptOnHideEmpty();
+		testDestroyNullRoot();
 	}
 	// ================================================================
 	//  默认值
@@ -333,5 +355,327 @@ public static class GameLayoutTest
 	{
 		var layout = new GameLayout();
 		assertEqual(0, layout.getDefaultLayer());
+	}
+
+
+	
+
+	// ═════════════════════════════════════════════════════════════════
+	// 辅助: 创建带 RectTransform 的 myUGUIObject
+	// ═════════════════════════════════════════════════════════════════
+	private static myUGUIObject createUI()
+	{
+		GameObject go = new GameObject("TestLayoutUI");
+		go.AddComponent<RectTransform>();
+		myUGUIObject ui = new myUGUIObject();
+		ui.setObject(go);
+		ui.init();
+		return ui;
+	}
+
+	// ═════════════════════════════════════════════════════════════════
+	// registerUIObject → 加入 mObjectList/mGameObjectSearchList/mNeedUpdateList
+	// unregisterUIObject → 全部移除
+	// ═════════════════════════════════════════════════════════════════
+	private static void testRegisterUnregisterUIObject()
+	{
+		GameLayout layout = new GameLayout();
+		myUGUIObject ui = createUI();
+		try
+		{
+			layout.registerUIObject(ui);
+			Dictionary<int, myUGUIObject> list = layout.getUIObjectList();
+			assertEqual(1, list.Count, "register 后 mGameObjectSearchList 含 1 个");
+			assertTrue(ReferenceEquals(ui, layout.getUIObject(ui.getGameObject())), "getUIObject 按 GameObject 反查命中");
+			// 默认 mDefaultUpdateWindow=true → 注册后进入 mNeedUpdateList
+			assertTrue(layout.canUIObjectUpdate(ui), "mDefaultUpdateWindow=true → 注册后 canUIObjectUpdate");
+			layout.unregisterUIObject(ui);
+			assertEqual(0, layout.getUIObjectList().Count, "unregister 后 mGameObjectSearchList 清空");
+			assertFalse(layout.canUIObjectUpdate(ui), "unregister 后 canUIObjectUpdate=false");
+			assertNull(layout.getUIObject(ui.getGameObject()), "unregister 后 getUIObject 返回 null");
+		}
+		finally
+		{
+			layout.unregisterUIObject(ui);
+			UObject.DestroyImmediate(ui.getGameObject());
+		}
+	}
+
+	// ═════════════════════════════════════════════════════════════════
+	// register 多个 UI → 列表计数 + 独立反查
+	// ═════════════════════════════════════════════════════════════════
+	private static void testRegisterMultipleAndLookup()
+	{
+		GameLayout layout = new GameLayout();
+		myUGUIObject ui1 = createUI();
+		myUGUIObject ui2 = createUI();
+		try
+		{
+			layout.registerUIObject(ui1);
+			layout.registerUIObject(ui2);
+			assertEqual(2, layout.getUIObjectList().Count, "register 2 个后列表含 2 个");
+			assertTrue(ReferenceEquals(ui1, layout.getUIObject(ui1.getGameObject())), "反查 ui1");
+			assertTrue(ReferenceEquals(ui2, layout.getUIObject(ui2.getGameObject())), "反查 ui2");
+			// 不相同的 GameObject 反查不到
+			GameObject other = new GameObject("Other");
+			try
+			{
+				assertNull(layout.getUIObject(other), "未注册的 GameObject 反查 null");
+			}
+			finally
+			{
+				UObject.DestroyImmediate(other);
+			}
+		}
+		finally
+		{
+			layout.unregisterUIObject(ui1);
+			layout.unregisterUIObject(ui2);
+			UObject.DestroyImmediate(ui1.getGameObject());
+			UObject.DestroyImmediate(ui2.getGameObject());
+		}
+	}
+
+	// ═════════════════════════════════════════════════════════════════
+	// notifyUIObjectNeedUpdate — 显式增删 mNeedUpdateList
+	// ═════════════════════════════════════════════════════════════════
+	private static void testNotifyNeedUpdate()
+	{
+		GameLayout layout = new GameLayout();
+		myUGUIObject ui = createUI();
+		try
+		{
+			// 初始未注册 → canUIObjectUpdate=false
+			assertFalse(layout.canUIObjectUpdate(ui), "未注册时 canUIObjectUpdate=false");
+			layout.notifyUIObjectNeedUpdate(ui, true);
+			assertTrue(layout.canUIObjectUpdate(ui), "notify(true) 后 canUIObjectUpdate=true");
+			layout.notifyUIObjectNeedUpdate(ui, false);
+			assertFalse(layout.canUIObjectUpdate(ui), "notify(false) 后 canUIObjectUpdate=false");
+			// 再次添加→移除
+			layout.notifyUIObjectNeedUpdate(ui, true);
+			assertTrue(layout.canUIObjectUpdate(ui), "二次 notify(true) 后 canUIObjectUpdate=true");
+			layout.notifyUIObjectNeedUpdate(ui, false);
+			assertFalse(layout.canUIObjectUpdate(ui), "二次 notify(false) 后 canUIObjectUpdate=false");
+			// 移除不存在的元素安全(SafeList.remove 返回 false)
+			layout.notifyUIObjectNeedUpdate(ui, false);
+			assertFalse(layout.canUIObjectUpdate(ui), "空列表 notify(false) 仍 false");
+		}
+		finally
+		{
+			layout.notifyUIObjectNeedUpdate(ui, false);
+			UObject.DestroyImmediate(ui.getGameObject());
+		}
+	}
+
+	// ═════════════════════════════════════════════════════════════════
+	// update — mRoot=null → isVisible()=false → 直接 return 不抛异常
+	// ═════════════════════════════════════════════════════════════════
+	private static void testUpdateNullRootSafe()
+	{
+		GameLayout layout = new GameLayout();
+		assertFalse(layout.isVisible(), "mRoot=null → isVisible=false");
+		layout.update(0.1f);   // 空安全
+		layout.lateUpdate(0.1f); // 空安全
+	}
+
+	// ═════════════════════════════════════════════════════════════════
+	// LayoutScript — setLayout/setRoot 读写
+	// ═════════════════════════════════════════════════════════════════
+	private static void testScriptSetLayoutRoot()
+	{
+		GameLayout layout = new GameLayout();
+		LayoutScript script = new TestLayoutScript();
+		assertNull(script.getLayout(), "默认 getLayout=null");
+		script.setLayout(layout);
+		assertTrue(ReferenceEquals(layout, script.getLayout()), "setLayout 后 getLayout 同一引用");
+		assertNull(script.getRoot(), "默认 getRoot=null");
+		myUGUIObject root = createUI();
+		try
+		{
+			script.setRoot(root);
+			assertTrue(ReferenceEquals(root, script.getRoot()), "setRoot 后 getRoot 同一引用");
+		}
+		finally
+		{
+			UObject.DestroyImmediate(root.getGameObject());
+		}
+	}
+
+	// ═════════════════════════════════════════════════════════════════
+	// updateAllDragView — 空容器空安全
+	// ═════════════════════════════════════════════════════════════════
+	private static void testScriptUpdateAllDragViewEmpty()
+	{
+		LayoutScript script = new TestLayoutScript();
+		script.setLayout(new GameLayout());
+		// 空 mDragViewLoopList/mWindowObjectRootList → safe() 空安全
+		script.updateAllDragView();
+		script.update(0.1f);      // 空实现
+		script.lateUpdate(0.1f);  // 空实现
+	}
+
+	// ═════════════════════════════════════════════════════════════════
+	// onHide — 空容器 + 空安全依赖链(mEventSystem?/mInputSystem?/mPoolRootList.safe())
+	// ═════════════════════════════════════════════════════════════════
+	private static void testScriptOnHideEmpty()
+	{
+		LayoutScript script = new TestLayoutScript();
+		script.setLayout(new GameLayout());
+		script.onHide();
+		// onHide 内部: interruptAllCommand/clearLocalization/mEventSystem?.unlistenEvent
+		//            /mWindowObjectRootList.safe() 空容器/mPoolRootList.For 空容器/mInputSystem?.unlistenKey
+		script.onHide(); // 重复调用也安全
+	}
+
+	// ═════════════════════════════════════════════════════════════════
+	// destroy — mRoot=null 时仅 mScript=null 分支跳过 + destroyWindow(null) 安全
+	// (mPrefab 为 null → mResourceManager.unload 需确认 null 安全)
+	// ═════════════════════════════════════════════════════════════════
+	private static void testDestroyNullRoot()
+	{
+		GameLayout layout = new GameLayout();
+		// mScript=null → 跳过 mScript.destroy/mLayoutManager.notifyLayoutChanged
+		// mRoot=null → destroyWindow(null, true) 空安全(MyUGUIObjectTest 已验证)
+		layout.destroy();
+	}
+
+	// ═════════════════════════════════════════════════════════════════
+	// 深度组合
+	// ═════════════════════════════════════════════════════════════════
+
+	// onDrawGizmos mScript=null 空安全(isVisible && mScript!=null 才执行)
+	private static void testOnDrawGizmosSafe()
+	{
+		GameLayout layout = new GameLayout();
+		layout.onDrawGizmos();
+		layout.onDrawGizmos();
+		// 无异常即通过
+	}
+
+	// getAllCollider 空 layout → colliders 空
+	private static void testGetAllColliderEmpty()
+	{
+		GameLayout layout = new GameLayout();
+		List<Collider> colliders = new List<Collider>();
+		layout.getAllCollider(colliders);
+		assertEqual(0, colliders.Count, "空 layout 无 collider");
+	}
+
+	// getAllCollider append=true 保留原列表
+	private static void testGetAllColliderAppendMode()
+	{
+		GameLayout layout = new GameLayout();
+		List<Collider> colliders = new List<Collider>();
+		colliders.Add(new BoxCollider());
+		layout.getAllCollider(colliders, true);
+		assertEqual(1, colliders.Count, "append 模式保留原项");
+	}
+
+	// getAllCollider append=false 清空原列表
+	private static void testGetAllColliderClearMode()
+	{
+		GameLayout layout = new GameLayout();
+		List<Collider> colliders = new List<Collider>();
+		colliders.Add(new BoxCollider());
+		layout.getAllCollider(colliders, false);
+		assertEqual(0, colliders.Count, "非 append 模式清空原项");
+	}
+
+	// ═════════════════════════════════════════════════════════════════
+	// setLayer / refreshUIDepth(反射注入 mRoot)
+	// ═════════════════════════════════════════════════════════════════
+
+	// 反射注入 mRoot(myUGUICanvas) 后 setLayer 生效
+	private static void testSetLayerWithRoot()
+	{
+		var go = new GameObject("GL_Layer");
+		go.AddComponent<RectTransform>();
+		try
+		{
+			myUGUICanvas root = new myUGUICanvas();
+			root.setObject(go);
+			GameLayout layout = new GameLayout();
+			injectRoot(layout, root);
+			layout.setLayer(5);
+			assertEqual(5, go.layer, "setLayer 后 GameObject.layer 生效");
+		}
+		finally
+		{
+			UObject.DestroyImmediate(go);
+		}
+	}
+
+	// setLayer 多次切换
+	private static void testSetLayerDifferentLayers()
+	{
+		var go = new GameObject("GL_Layer2");
+		go.AddComponent<RectTransform>();
+		try
+		{
+			myUGUICanvas root = new myUGUICanvas();
+			root.setObject(go);
+			GameLayout layout = new GameLayout();
+			injectRoot(layout, root);
+			layout.setLayer(0);
+			assertEqual(0, go.layer, "layer 0");
+			layout.setLayer(10);
+			assertEqual(10, go.layer, "layer 10");
+			layout.setLayer(3);
+			assertEqual(3, go.layer, "layer 3");
+		}
+		finally
+		{
+			UObject.DestroyImmediate(go);
+		}
+	}
+
+	// refreshUIDepth(ignoreInactive=false) 注入 mRoot 后不炸
+	private static void testRefreshUIDepthNoIgnore()
+	{
+		var go = new GameObject("GL_Depth");
+		go.AddComponent<RectTransform>();
+		try
+		{
+			myUGUICanvas root = new myUGUICanvas();
+			root.setObject(go);
+			GameLayout layout = new GameLayout();
+			injectRoot(layout, root);
+			layout.refreshUIDepth(root, false);
+			// 无异常即通过
+		}
+		finally
+		{
+			UObject.DestroyImmediate(go);
+		}
+	}
+
+	// refreshUIDepth 带子物体树不炸
+	private static void testRefreshUIDepthWithChildTree()
+	{
+		var go = new GameObject("GL_Depth2");
+		go.AddComponent<RectTransform>();
+		try
+		{
+			var childGo = new GameObject("GL_Child");
+			childGo.AddComponent<RectTransform>();
+			childGo.transform.SetParent(go.transform);
+			myUGUICanvas root = new myUGUICanvas();
+			root.setObject(go);
+			GameLayout layout = new GameLayout();
+			injectRoot(layout, root);
+			layout.refreshUIDepth(root, false);
+			// 无异常即通过
+		}
+		finally
+		{
+			UObject.DestroyImmediate(go);
+		}
+	}
+
+	// 反射注入 mRoot 字段
+	static void injectRoot(GameLayout layout, myUGUICanvas root)
+	{
+		FieldInfo field = typeof(GameLayout).GetField("mRoot", BindingFlags.NonPublic | BindingFlags.Instance);
+		field.SetValue(layout, root);
 	}
 }

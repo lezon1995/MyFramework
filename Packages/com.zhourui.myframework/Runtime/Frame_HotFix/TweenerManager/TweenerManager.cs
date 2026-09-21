@@ -8,8 +8,7 @@ public class TweenerManager : FrameSystem
 	public override void update(float elapsedTime)
 	{
 		base.update(elapsedTime);
-		using var a = new SafeDictionaryReader<long, MyTweener>(mTweenerList);
-		foreach (var item in a.mReadList)
+		foreach (var item in mTweenerList)
 		{
 			item.Value.update(item.Value.isIgnoreTimeScale() ? mGameFrameworkHotFix.getUnscaledTime() : elapsedTime);
 		}
@@ -17,7 +16,7 @@ public class TweenerManager : FrameSystem
 	public MyTweenerFloat createTweenerFloat()
 	{
 		CLASS(out MyTweenerFloat tweener).init();
-		mTweenerList.add(tweener.getAssignID(), tweener);
+		mTweenerList.add(tweener.id, tweener);
 		return tweener;
 	}
 	public void destroyTweener(MyTweener tweener)
@@ -26,7 +25,7 @@ public class TweenerManager : FrameSystem
 		{
 			return;
 		}
-		mTweenerList.remove(tweener.getAssignID());
+		mTweenerList.remove(tweener.id);
 		UN_CLASS(ref tweener);
 	}
 }

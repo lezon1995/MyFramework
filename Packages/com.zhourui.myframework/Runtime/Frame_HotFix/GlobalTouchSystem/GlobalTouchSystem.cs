@@ -17,6 +17,7 @@ public class GlobalTouchSystem : FrameSystem
 	protected List<MouseCastObjectSet> mMouseCastObjectList = new();    // 所有场景中物体所对应的摄像机的列表,每个摄像机的物体列表根据深度排序
 	protected SafeList<MovableObject> mActiveOnlyMovableObject = new();	// 当前只允许交互的3D物体,用于实现类似新手引导之类的功能,限定只能进行指定的操作
 	protected SafeList<myUGUIObject> mActiveOnlyUIObject = new();		// 当前只允许交互的UI物体,用于实现类似新手引导之类的功能,限定只能进行指定的操作,因为要对UI排序,所以只能分成两个列表
+	protected int mRaycastVersion = 1;                                  // 任何可能改变射线检测结果的状态发生变化时递增,TouchInfo用它判断静止触点是否需要重新Raycast
 	protected bool mUseGlobalTouch = true;                              // 是否使用全局触摸检测来进行界面的输入检测
 	protected bool mActiveOnlyUIListDirty;								// UI的仅激活列表是否有修改,需要进行排序
 	public GlobalTouchSystem()
@@ -32,7 +33,15 @@ public class GlobalTouchSystem : FrameSystem
 		mActiveOnlyUIObject.clear();
 		base.destroy();
 	}
-	public void setUseGlobalTouch(bool use) { mUseGlobalTouch = use; }
+	public void setUseGlobalTouch(bool use)
+	{
+		if (mUseGlobalTouch == use)
+		{
+			return;
+		}
+		mUseGlobalTouch = use;
+		notifyRaycastChanged();
+	}
 	public IMouseEventCollect getHoverObject(Vector3 pos, IMouseEventCollect ignoreWindow = null, bool ignorePassRay = false)
 	{
 		// 返回最上层的物体
@@ -77,13 +86,7 @@ public class GlobalTouchSystem : FrameSystem
 		{
 			return;
 		}
-		foreach (MouseCastWindowSet item in mMouseCastWindowList)
-		{
-			item.update();
-		}
-
-		using var a = new SafeDictionaryReader<int, TouchPoint>(mInputSystem.getTouchPointList());
-		foreach (var item in a.mReadList)
+		foreach (var item in mInputSystem.getTouchPointList())
 		{
 			if (item.Value.isCurrentDown())
 			{
@@ -121,15 +124,18 @@ public class GlobalTouchSystem : FrameSystem
 		}
 	}
 	public bool isColliderRegisted(IMouseEventCollect obj) { return mAllObjectSet.Contains(obj); }
+	public int getRegisteredColliderCount() { return mAllObjectSet.Count; }
+	// 获取当前射线检测场景版本,同时检查摄像机状态,确保鼠标静止时摄像机变化也会触发Hover刷新
+	public int getRaycastVersion()
+	{
+		checkRaycastCameraState();
+		return mRaycastVersion;
+	}
+	// 场景可交互物体发生位置/旋转/缩放/激活/输入状态变化时调用
+	public void notifyObjectChanged() { notifyRaycastChanged(); }
 	// 注册碰撞器,只有注册了的碰撞器才会进行检测,showError是否显示重复注册的报错
 	public void registeCollider(IMouseEventCollect obj, GameCamera camera = null)
 	{
-		// 允许自动添加碰撞盒
-		if (obj.getCollider(true) == null)
-		{
-			logError("注册碰撞体的物体上找不到碰撞体组件! name:" + obj.getName() + ", " + obj.getDescription());
-			return;
-		}
 		if (mAllObjectSet.Contains(obj))
 		{
 			return;
@@ -137,6 +143,11 @@ public class GlobalTouchSystem : FrameSystem
 
 		if (obj is myUGUIObject uiObj)
 		{
+			if (uiObj.getCollider(true) == null)
+			{
+				logError("注册碰撞体的UI上找不到碰撞体组件! name:" + obj.getName());
+				return;
+			}
 			// 寻找窗口对应的摄像机
 			camera ??= mCameraManager.getUICamera();
 			if (camera == null)
@@ -158,10 +169,24 @@ public class GlobalTouchSystem : FrameSystem
 				mouseCastSet = new();
 				mMouseCastWindowList.add(mouseCastSet).setCamera(camera);
 			}
-			mouseCastSet.addWindow(uiObj);
+			if (mouseCastSet.addWindow(uiObj))
+			{
+				uiObj.notifyMouseCastRegiste(true);
+			}
 		}
-		else if (obj is MovableObject)
+		else if (obj is MovableObject movable)
 		{
+			// 已有3D或者2D碰撞体都可以注册
+			if (movable.getCollider() == null &&
+				movable.getCollider2D() == null)
+			{
+				// 保持原来MovableObject没有Collider时自动生成3D BoxCollider的行为
+				if (movable.getCollider(true) == null)
+				{
+					logError("注册碰撞体的物体上找不到碰撞体组件! name:" + obj.getName());
+					return;
+				}
+			}
 			// 如果没有指定一个摄像机,则会使用当前主摄像机
 			camera ??= getMainCamera();
 			MouseCastObjectSet mouseCastSet = null;
@@ -179,12 +204,15 @@ public class GlobalTouchSystem : FrameSystem
 				mMouseCastObjectList.add(mouseCastSet).setCamera(camera);
 			}
 			mouseCastSet.addObject(obj);
+			movable.notifyMouseCastRegiste(true);
 		}
 		else
 		{
 			logError("不支持的注册类型:" + obj.GetType());
+			return;
 		}
 		mAllObjectSet.Add(obj);
+		notifyRaycastChanged();
 	}
 	// parent的区域中只有passOnlyArea的区域可以穿透
 	public void bindPassOnlyArea(IMouseEventCollect parent, IMouseEventCollect passOnlyArea)
@@ -195,6 +223,7 @@ public class GlobalTouchSystem : FrameSystem
 			return;
 		}
 		mPassOnlyArea.add(parent, passOnlyArea);
+		notifyRaycastChanged();
 	}
 	// parent的区域中才能允许parent的子节点接收射线检测
 	public void bindPassOnlyParent(IMouseEventCollect parent)
@@ -204,7 +233,10 @@ public class GlobalTouchSystem : FrameSystem
 			logError("需要先注册碰撞体,才能绑定父节点穿透区域, name:" + parent.getName() + ", " + parent.getDescription());
 			return;
 		}
-		mParentPassOnlyList.Add(parent);
+		if (mParentPassOnlyList.Add(parent))
+		{
+			notifyRaycastChanged();
+		}
 	}
 	// 注销碰撞器
 	public void unregisteCollider(IMouseEventCollect obj)
@@ -226,14 +258,16 @@ public class GlobalTouchSystem : FrameSystem
 			for (int i = 0; i < count; ++i)
 			{
 				MouseCastWindowSet item = mMouseCastWindowList[i];
-				if (item.removeWindow(window))
+				if (!item.removeWindow(window))
 				{
-					if (item.isEmpty())
-					{
-						mMouseCastWindowList.RemoveAt(i);
-					}
-					break;
+					continue;
 				}
+				window.notifyMouseCastRegiste(false);
+				if (item.isEmpty())
+				{
+					mMouseCastWindowList.RemoveAt(i);
+				}
+				break;
 			}
 		}
 		else if (obj is MovableObject movable)
@@ -252,6 +286,7 @@ public class GlobalTouchSystem : FrameSystem
 					break;
 				}
 			}
+			movable.notifyMouseCastRegiste(false);
 		}
 		else
 		{
@@ -261,19 +296,21 @@ public class GlobalTouchSystem : FrameSystem
 		// key或者value中任意一个注销了,都要从列表中移除
 		if (!mPassOnlyArea.remove(obj))
 		{
-			using var a = new SafeDictionaryReader<IMouseEventCollect, IMouseEventCollect>(mPassOnlyArea);
-			foreach (var item in a.mReadList)
+			foreach (var item in mPassOnlyArea)
 			{
 				mPassOnlyArea.removeIf(item.Key, item.Value == obj);
 			}
 		}
+		notifyRaycastChanged();
 	}
-	public void notifyWindowActiveChanged()
+	public void notifyWindowActiveChanged() { notifyWindowChanged(); }
+	public void notifyWindowChanged()
 	{
 		foreach (MouseCastWindowSet item in mMouseCastWindowList)
 		{
-			item.notifyWindowActiveChanged();
+			item.notifyWindowChanged();
 		}
+		notifyRaycastChanged();
 	}
 	public void setActiveOnlyObject(IMouseEventCollect obj)
 	{
@@ -288,6 +325,7 @@ public class GlobalTouchSystem : FrameSystem
 		{
 			mActiveOnlyMovableObject.addNotNull(movable);
 		}
+		notifyRaycastChanged();
 	}
 	public void addActiveOnlyObject(IMouseEventCollect obj)
 	{
@@ -300,6 +338,7 @@ public class GlobalTouchSystem : FrameSystem
 		{
 			mActiveOnlyMovableObject.addNotNull(movable);
 		}
+		notifyRaycastChanged();
 	}
 	public bool hasActiveOnlyObject() { return mActiveOnlyMovableObject.count() > 0 || mActiveOnlyUIObject.count() > 0; }
 	// 将obj以及obj的所有父节点都放入列表,适用于滑动列表中的节点响应.因为需要依赖于父节点先接收事件,子节点才能正常接收事件
@@ -314,6 +353,7 @@ public class GlobalTouchSystem : FrameSystem
 		mActiveOnlyMovableObject.clear();
 		mActiveOnlyUIObject.setRange(list);
 		mActiveOnlyUIListDirty = true;
+		notifyRaycastChanged();
 	}
 	public void addActiveOnlyObjectWithAllParent(myUGUIObject obj)
 	{
@@ -332,6 +372,7 @@ public class GlobalTouchSystem : FrameSystem
 			mActiveOnlyUIObject.addUnique(item);
 		}
 		mActiveOnlyUIListDirty = true;
+		notifyRaycastChanged();
 	}
 	//------------------------------------------------------------------------------------------------------------------------------
 	protected void notifyTouchPress(TouchPoint touch)
@@ -353,8 +394,7 @@ public class GlobalTouchSystem : FrameSystem
 					item.onScreenTouchDown(pos, touchID);
 				}
 			}
-			using var a = new SafeListReader<IMouseEventCollect>(touchInfo.getPressList());
-			foreach (IMouseEventCollect obj in a.mReadList)
+			foreach (IMouseEventCollect obj in touchInfo.getPressList())
 			{
 				// 如果此时窗口已经被销毁了,则不再通知,因为可能在onScreenMouseDown中销毁了
 				if (mAllObjectSet.Contains(obj))
@@ -366,48 +406,36 @@ public class GlobalTouchSystem : FrameSystem
 		// 只允许指定的物体接收事件时
 		else
 		{
-			using (var a = new SafeListReader<myUGUIObject>(mActiveOnlyUIObject))
-			{ 
-				foreach (IMouseEventCollect item in a.mReadList)
+			foreach (IMouseEventCollect item in mActiveOnlyUIObject)
+			{
+				if (mAllObjectSet.Contains(item) && item.isReceiveScreenTouch())
 				{
-					if (mAllObjectSet.Contains(item) && item.isReceiveScreenTouch())
-					{
-						item.onScreenTouchDown(pos, touchID);
-					}
+					item.onScreenTouchDown(pos, touchID);
 				}
 			}
 
-			using (var b = new SafeListReader<MovableObject>(mActiveOnlyMovableObject))
+			foreach (IMouseEventCollect item in mActiveOnlyMovableObject)
 			{
-				foreach (IMouseEventCollect item in b.mReadList)
+				if (mAllObjectSet.Contains(item) && item.isReceiveScreenTouch())
 				{
-					if (mAllObjectSet.Contains(item) && item.isReceiveScreenTouch())
-					{
-						item.onScreenTouchDown(pos, touchID);
-					}
+					item.onScreenTouchDown(pos, touchID);
 				}
 			}
 
 			// 因为onScreenMouseDown里可能会移除物体,所以这里还要再判断一次mAllObjectSet.Contains
-			using (var c = new SafeListReader<myUGUIObject>(mActiveOnlyUIObject))
+			foreach (IMouseEventCollect item in mActiveOnlyUIObject)
 			{
-				foreach (IMouseEventCollect item in c.mReadList)
+				if (mAllObjectSet.Contains(item) && touchInfo.getPressList().contains(item))
 				{
-					if (mAllObjectSet.Contains(item) && touchInfo.getPressList().contains(item))
-					{
-						item.onTouchDown(pos, touchID);
-					}
+					item.onTouchDown(pos, touchID);
 				}
 			}
 
-			using (var d = new SafeListReader<MovableObject>(mActiveOnlyMovableObject))
+			foreach (IMouseEventCollect item in mActiveOnlyMovableObject)
 			{
-				foreach (IMouseEventCollect item in d.mReadList)
+				if (mAllObjectSet.Contains(item) && touchInfo.getPressList().contains(item))
 				{
-					if (mAllObjectSet.Contains(item) && touchInfo.getPressList().contains(item))
-					{
-						item.onTouchDown(pos, touchID);
-					}
+					item.onTouchDown(pos, touchID);
 				}
 			}
 		}
@@ -432,8 +460,7 @@ public class GlobalTouchSystem : FrameSystem
 				}
 			}
 
-			using var a = new SafeListReader<IMouseEventCollect>(touchInfo.getPressList());
-			foreach (IMouseEventCollect obj in a.mReadList)
+			foreach (IMouseEventCollect obj in touchInfo.getPressList())
 			{
 				// 如果此时窗口已经被销毁了,则不再通知,因为可能在onScreenMouseUp中销毁了
 				if (mAllObjectSet.Contains(obj))
@@ -446,48 +473,36 @@ public class GlobalTouchSystem : FrameSystem
 		else
 		{
 			// 为了保险起见,在每次遍历时都会判断mAllObjectSet.Contains(item)
-			using (var a = new SafeListReader<myUGUIObject>(mActiveOnlyUIObject))
+			foreach (IMouseEventCollect item in mActiveOnlyUIObject)
 			{
-				foreach (IMouseEventCollect item in a.mReadList)
+				if (mAllObjectSet.Contains(item) && item.isReceiveScreenTouch())
 				{
-					if (mAllObjectSet.Contains(item) && item.isReceiveScreenTouch())
-					{
-						item.onScreenTouchUp(pos, touchID);
-					}
+					item.onScreenTouchUp(pos, touchID);
 				}
 			}
 
-			using (var b = new SafeListReader<MovableObject>(mActiveOnlyMovableObject))
+			foreach (IMouseEventCollect item in mActiveOnlyMovableObject)
 			{
-				foreach (IMouseEventCollect item in b.mReadList)
+				if (mAllObjectSet.Contains(item) && item.isReceiveScreenTouch())
 				{
-					if (mAllObjectSet.Contains(item) && item.isReceiveScreenTouch())
-					{
-						item.onScreenTouchUp(pos, touchID);
-					}
+					item.onScreenTouchUp(pos, touchID);
 				}
 			}
 
 			// 因为onScreenMouseUp里可能会移除物体,所以这里还要再判断一次mAllObjectSet.Contains
-			using (var c = new SafeListReader<myUGUIObject>(mActiveOnlyUIObject))
+			foreach (IMouseEventCollect item in mActiveOnlyUIObject)
 			{
-				foreach (IMouseEventCollect item in c.mReadList)
+				if (mAllObjectSet.Contains(item) && touchInfo.getPressList().contains(item))
 				{
-					if (mAllObjectSet.Contains(item) && touchInfo.getPressList().contains(item))
-					{
-						item.onTouchUp(pos, touchID);
-					}
+					item.onTouchUp(pos, touchID);
 				}
 			}
 
-			using (var d = new SafeListReader<MovableObject>(mActiveOnlyMovableObject))
+			foreach (IMouseEventCollect item in mActiveOnlyMovableObject)
 			{
-				foreach (IMouseEventCollect item in d.mReadList)
+				if (mAllObjectSet.Contains(item) && touchInfo.getPressList().contains(item))
 				{
-					if (mAllObjectSet.Contains(item) && touchInfo.getPressList().contains(item))
-					{
-						item.onTouchUp(pos, touchID);
-					}
+					item.onTouchUp(pos, touchID);
 				}
 			}
 		}
@@ -608,12 +623,12 @@ public class GlobalTouchSystem : FrameSystem
 		foreach (IMouseEventCollect box in moveObjectList)
 		{
 			// 将所有射线碰到的物体都放到列表中
-			if (box.isActiveInHierarchy() && 
-				box.isHandleInput() && 
-				box.getCollider() != null && 
-				box.getCollider().Raycast(ray, out RaycastHit hit, 10000.0f))
+			if (box.isActiveInHierarchy() &&
+				box.isHandleInput() &&
+				box is MovableObject movable &&
+				movable.raycastSelf(ref ray, out Vector3 hitPoint, 10000.0f))
 			{
-				sortList.Add(new((hit.point - ray.origin).getSquaredLength(), box));
+				sortList.Add(new((hitPoint - ray.origin).getSquaredLength(), box));
 			}
 		}
 		// 根据相交点由近到远的顺序排序
@@ -657,8 +672,24 @@ public class GlobalTouchSystem : FrameSystem
 
 		// 射线检测
 		continueRay = true;
-		foreach (IMouseEventCollect window in windowOrderList)
+		// 仅用于在Editor中方便调试
+		List<string> nameList = null;
+		if (isEditor())
 		{
+			LIST(out nameList);
+			foreach (IMouseEventCollect window in windowOrderList)
+			{
+				nameList.add(window.getName());
+			}
+		}
+		for (int i = 0; i < windowOrderList.Count; ++i)
+		{
+			IMouseEventCollect window = windowOrderList[i];
+			string name = null;
+			if (isEditor())
+			{
+				name = nameList[i];
+			}
 			if (window.isDestroy())
 			{
 				logError("窗口已经被销毁,无法访问:" + window.getName());
@@ -707,6 +738,7 @@ public class GlobalTouchSystem : FrameSystem
 				break;
 			}
 		}
+		UN_LIST(ref nameList);
 	}
 	// obj的所有父节点中是否允许射线选中obj
 	// bindParentList是当前激活的已绑定的仅父节点区域穿透的列表
@@ -722,6 +754,36 @@ public class GlobalTouchSystem : FrameSystem
 			}
 		}
 		return true;
+	}
+	// TouchInfo即使在鼠标静止时也会调用getRaycastVersion,这里只检查数量很少的摄像机状态,不扫描所有窗口和Collider
+	protected void checkRaycastCameraState()
+	{
+		bool changed = false;
+		foreach (MouseCastWindowSet item in mMouseCastWindowList)
+		{
+			changed |= item.checkCameraStateChanged();
+		}
+		GameCamera mainCamera = getMainCamera();
+		foreach (MouseCastObjectSet item in mMouseCastObjectList)
+		{
+			changed |= item.checkCameraStateChanged(item.mCamera ?? mainCamera);
+		}
+		if (changed)
+		{
+			notifyRaycastChanged();
+		}
+	}
+	protected void notifyRaycastChanged()
+	{
+		//在 unchecked 中允许整数溢出，它会直接绕回：2147483647 -> -2147483648 而不会抛 OverflowException
+		unchecked
+		{
+			++mRaycastVersion;
+			if (mRaycastVersion == 0)
+			{
+				mRaycastVersion = 1;
+			}
+		}
 	}
 	protected void checkActiveOnlyOrder()
 	{

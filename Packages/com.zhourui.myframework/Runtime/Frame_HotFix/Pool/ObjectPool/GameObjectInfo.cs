@@ -5,7 +5,6 @@ using static UnityUtility;
 using static FrameBaseUtility;
 
 // 已经从资源加载的物体的信息
-[Serializable]
 public class GameObjectInfo : ClassObject
 {
 	protected PrefabPool mPool;			// 所属的对象池

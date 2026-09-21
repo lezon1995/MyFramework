@@ -1,9 +1,11 @@
 ﻿using UnityEditor;
 using UnityEditor.Build.Reporting;
 using UnityEditor.SceneManagement;
+using UnityEditorInternal;
 #if USE_HYBRID_CLR
 using HybridCLR.Editor;
 using HybridCLR.Editor.Commands;
+using HybridCLR.Editor.Settings;
 #endif
 using System;
 using System.Collections.Generic;
@@ -66,7 +68,7 @@ public abstract class PlatformBase
 			mName = WEBGL;
 		}
 		mTarget = target;
-		mAssetBundleFullPath = getAssetBundlePath(true);
+		mAssetBundleFullPath = F_ASSET_BUNDLE_PATH;
 	}
 	// containOnlyFileList如果不为空,则表示只拷贝列表中指定的文件
 	// 可用于单独更新某个文件,比如单独更新表格文件,使之既能够更新FileList,又能单独将要上传的文件放到独立的文件夹中
@@ -117,23 +119,41 @@ public abstract class PlatformBase
 		{
 			CompileDllCommand.CompileDll(EditorUserBuildSettings.activeBuildTarget);
 		}
+
+		// 检查项目配置文件中的热更列表是否与HybridCLR中设置的一致
+		AssemblyDefinitionAsset[] hybridCLRList = HybridCLRSettings.Instance.hotUpdateAssemblyDefinitions;
+		List<string> frameSettingsList = FrameSettings.getHotFixList();
+		if (hybridCLRList.Length != frameSettingsList.Count)
+		{
+			logError("FrameSettings中的热更程序集数量与HybridCLR中的数量不一致,FrameSettings:" + frameSettingsList.Count + ", HybridCLR:" + hybridCLRList.Length);
+		}
+		else
+		{
+			for (int i = 0; i < hybridCLRList.Length; ++i)
+			{
+				if (hybridCLRList[i].name != frameSettingsList[i])
+				{
+					logError("FrameSettings中的热更程序集数量与HybridCLR中的配置不一致");
+				}
+			}
+		}
+
 		string hotFixSrcPath = SettingsUtil.GetHotUpdateDllsOutputDirByTarget(EditorUserBuildSettings.activeBuildTarget) + "/";
-		copyFile(hotFixSrcPath + HOTFIX_FILE, mAssetBundleFullPath + HOTFIX_BYTES_FILE);
-		copyFile(hotFixSrcPath + HOTFIX_FRAME_FILE, mAssetBundleFullPath + HOTFIX_FRAME_BYTES_FILE);
+		foreach (string name in frameSettingsList)
+		{
+			copyFile(hotFixSrcPath + name + ".dll", mAssetBundleFullPath + name + ".dll.bytes");
+		}
 		// 拷贝补充数据dll
 		string aotDllSrcPath = SettingsUtil.GetAssembliesPostIl2CppStripDir(EditorUserBuildSettings.activeBuildTarget) + "/";
 		foreach (string aotFile in AOTGenericReferences.PatchedAOTAssemblyList)
 		{
-			copyFile(aotDllSrcPath + aotFile, mAssetBundleFullPath + aotFile + DATA_SUFFIX);
+			copyFile(aotDllSrcPath + aotFile, mAssetBundleFullPath + aotFile + ".bytes");
 		}
 		checkAccessMissingMetadata();
 
 #if USE_OBFUZ
 		// 对dll进行混淆,dll顺序很重要,被依赖的需要在前面
 		log("开始混淆dll");
-		// 重命名dll,因为混淆时需要dll文件,在obfuscate会进行还原
-		renameFile(mAssetBundleFullPath + HOTFIX_BYTES_FILE, mAssetBundleFullPath + HOTFIX_FILE);
-		renameFile(mAssetBundleFullPath + HOTFIX_FRAME_BYTES_FILE, mAssetBundleFullPath + HOTFIX_FRAME_FILE);
 		obfuscate(mBuildVersion, mTestClient);
 		log("完成混淆dll");
 #endif
@@ -142,8 +162,10 @@ public abstract class PlatformBase
 		if (FrameSettings.getAESKey().count() == 16)
 		{
 			log("开始加密生成的dll");
-			encryptFileAES(mAssetBundleFullPath + HOTFIX_BYTES_FILE, FrameSettings.getAESKey(), FrameSettings.getAESIV());
-			encryptFileAES(mAssetBundleFullPath + HOTFIX_FRAME_BYTES_FILE, FrameSettings.getAESKey(), FrameSettings.getAESIV());
+			foreach (string name in frameSettingsList)
+			{
+				encryptFileAES(mAssetBundleFullPath + name + ".dll.bytes", FrameSettings.getAESKey(), FrameSettings.getAESIV());
+			}
 			log("完成加密生成的dll");
 		}
 #endif
@@ -171,15 +193,15 @@ public abstract class PlatformBase
 	// 检查所有的热更dll,以及AOT的dll是否都存在
 	public bool checkAllDllExist()
 	{
-		List<string> dllList = new()
+		List<string> dllList = new();
+		foreach (string name in FrameSettings.getHotFixList())
 		{
-			mAssetBundleFullPath + HOTFIX_BYTES_FILE,
-			mAssetBundleFullPath + HOTFIX_FRAME_BYTES_FILE
-		};
+			dllList.add(mAssetBundleFullPath + name + ".dll.bytes");
+		}
 #if USE_HYBRID_CLR
 		foreach (string aotFile in AOTGenericReferences.PatchedAOTAssemblyList)
 		{
-			dllList.Add(mAssetBundleFullPath + aotFile + DATA_SUFFIX);
+			dllList.Add(mAssetBundleFullPath + aotFile + ".bytes");
 		}
 #endif
 		bool allExist = true;
@@ -252,16 +274,16 @@ public abstract class PlatformBase
 	}
 	public string generateMainVersion()
 	{
-		string number0 = mVersionNumber[0];
-		string number1 = (mVersionNumber[1].SToI() + 1).IToS();
+		string number0 = mVersionNumber.get(0).isEmpty() ? "0" : mVersionNumber.get(0);
+		string number1 = (mVersionNumber.get(1).SToI() + 1).IToS();
 		string number2 = "1";
 		return new List<string>() { number0, number1, number2 }.stringsToString('.');
 	}
 	public string generateSubVersion()
 	{
-		string number0 = mVersionNumber[0];
-		string number1 = mVersionNumber[1];
-		string number2 = (mVersionNumber[2].SToI() + 1).IToS();
+		string number0 = mVersionNumber.get(0).isEmpty() ? "0" : mVersionNumber.get(0);
+		string number1 = mVersionNumber.get(0).isEmpty() ? "0" : mVersionNumber.get(1);
+		string number2 = (mVersionNumber.get(2).SToI() + 1).IToS();
 		return new List<string>() { number0, number1, number2 }.stringsToString('.');
 	}
 	// 是否仅本地版本号的低位版本号大于远端的低位版本号
@@ -271,15 +293,18 @@ public abstract class PlatformBase
 		{
 			return false;
 		}
-		return getVersionPart(mRemoteVersion, 0) == mVersionNumber[0].SToL() &&
-			   getVersionPart(mRemoteVersion, 1) == mVersionNumber[1].SToL() &&
-			   getVersionPart(mRemoteVersion, 2) < mVersionNumber[2].SToL();
+		return getVersionPart(mRemoteVersion, 0) == mVersionNumber.get(0).SToL() &&
+			   getVersionPart(mRemoteVersion, 1) == mVersionNumber.get(1).SToL() &&
+			   getVersionPart(mRemoteVersion, 2) < mVersionNumber.get(2).SToL();
 	}
 	// 下载远端的版本号
 	public void updateRemoteVersion()
 	{
-		mRemoteVersion = mObjectStorageSystem.downloadTxt(getRemotePathInEditor("") + VERSION);
-		log("更新远端版本号:" + mRemoteVersion);
+		mRemoteVersion = mObjectStorageSystem?.downloadTxt(getRemotePathInEditor("") + VERSION);
+		if (!mRemoteVersion.isEmpty())
+		{
+			log("更新远端版本号:" + mRemoteVersion);
+		}
 		updateEditVersionNumber();
 	}
 	// 将本地的版本号上传到远端
@@ -288,7 +313,7 @@ public abstract class PlatformBase
 		string remotePath = getRemotePathInEditor("") + VERSION;
 		uploadSingleFile(mAssetBundleFullPath + VERSION, remotePath, true);
 		// 上传版本号以后立即刷新cdn
-		mObjectStorageSystem.refreshCDN(remotePath);
+		mObjectStorageSystem?.refreshCDN(remotePath);
 		updateRemoteVersion();
 		return true;
 	}
@@ -313,9 +338,9 @@ public abstract class PlatformBase
 		// 因为中间可能会上传失败,所以需要多次重试,最多尝试3次
 		log("开始上传文件, path:" + uploadLocalPath);
 		progressBar(displayTitle, "正在获取远端文件列表");
-		var remoteFileList = mObjectStorageSystem.getFileList(remotePath);
+		var remoteFileList = mObjectStorageSystem?.getFileList(remotePath);
 		remoteFileList.remove(mIgnoreFile);
-		log("远端共" + remoteFileList.Count + "个文件");
+		log("远端共" + remoteFileList.count() + "个文件");
 		progressBar(displayTitle, "正在计算本地文件列表");
 		// 对比远端和本地的文件,删除远端无用的文件
 		// 排除的文件和排除的目录
@@ -578,6 +603,10 @@ public abstract class PlatformBase
 	}
 	protected bool doDelete(List<string> deleteList, string remotePath, string displayTitle)
 	{
+		if (mObjectStorageSystem == null)
+		{
+			return false;
+		}
 		bool hasError = false;
 		log("需要删除" + deleteList.Count + "个文件");
 		for (int i = 0; i < deleteList.Count; ++i)
@@ -617,6 +646,10 @@ public abstract class PlatformBase
 	}
 	protected bool uploadSingleFile(string file, string remotePath, bool noCache)
 	{
+		if (mObjectStorageSystem == null)
+		{
+			return false;
+		}
 		log("上传文件:" + file + ", 远端路径:" + remotePath);
 		// 如果上传失败,则最多重试5次
 		HttpStatusCode code = 0;
@@ -625,10 +658,12 @@ public abstract class PlatformBase
 			code = mObjectStorageSystem.upload(file, remotePath, noCache);
 		}
 		catch { }
-		if (code != HttpStatusCode.OK)
+		// 只要在200到300之间都算是成功
+		if (code < HttpStatusCode.OK || code >= HttpStatusCode.Ambiguous)
 		{
 			logError("上传失败:" + file + ", 远端路径:" + remotePath + ", code:" + code);
+			return false;
 		}
-		return code == HttpStatusCode.OK;
+		return true;
 	}
 }

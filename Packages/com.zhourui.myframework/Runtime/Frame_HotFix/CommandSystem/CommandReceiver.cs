@@ -5,26 +5,26 @@ using static FrameBaseHotFix;
 // 命令接收者基类,只有命令接收者的子类可以接收命令
 public class CommandReceiver : ClassObject
 {
-    protected string mName; // 接收者名字
+    protected string name; // 接收者名字
     protected long mDelayCmdCountSubThread; // 子线程中此对象剩余未执行的延迟命令数量
     protected long mDelayCmdCountMainThread; // 主线程中此对象剩余未执行的延迟命令数量
 
     public override void resetProperty()
     {
         base.resetProperty();
-        mName = null;
+        name = null;
         mDelayCmdCountSubThread = 0;
         mDelayCmdCountMainThread = 0;
     }
 
     public string getName()
     {
-        return mName;
+        return name;
     }
 
     public virtual void setName(string name)
     {
-        this.mName = name;
+        this.name = name;
     }
 
     public void addReceiveDelayCmd()

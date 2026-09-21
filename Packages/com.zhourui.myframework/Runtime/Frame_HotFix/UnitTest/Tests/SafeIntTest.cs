@@ -14,6 +14,24 @@ public static class SafeIntTest
 		testOverwrite();
 		testMultipleInstances();
 		testEquals();
+	
+
+		testIntMinMax();
+		testNegativeBoundaries();
+		testRepeatedSetGet_Stable();
+		testManyRoundTrips();
+		testAlternatingSetGet();
+		testBoundaryNearMax();
+		testOddEvenPatterns();
+		testInterleavedInstances();
+		testSameValueAcrossInstances_IndependentCipher();
+		testZeroAndPositiveSequence();
+		testConstructorValue();
+		testSetOverwriteSequence();
+		testStructCopyIndependent();
+		testEqualsReflexive();
+		testEqualsCopy();
+		testZeroAfterSet();
 	}
 
 	// ─── set / get 基本读写 ──────────────────────────────────────────────
@@ -92,5 +110,190 @@ public static class SafeIntTest
 		assertEqual(5, a.get(), "Equals via get a: 期望 5");
 		assertEqual(5, b.get(), "Equals via get b: 期望 5");
 		assertEqual(6, c.get(), "Equals via get c: 期望 6");
+		// Equals 的确定性语义(不依赖随机):
+		assertTrue(a.Equals(a), "反身性 a.Equals(a) 必为 true");
+		SafeInt copy = a;
+		assertTrue(copy.Equals(a), "结构体复制 copy=a 后 copy.Equals(a) 必为 true");
+		assertTrue(a.Equals(copy), "结构体复制后 a.Equals(copy) 必为 true");
+	}
+
+
+	
+
+	// ─── int 极值 ──────────────────────────────────────────────────────
+	private static void testIntMinMax()
+	{
+		var min = new SafeInt(int.MinValue);
+		var max = new SafeInt(int.MaxValue);
+		assertEqual(int.MinValue, min.get(), "int.MinValue 往返");
+		assertEqual(int.MaxValue, max.get(), "int.MaxValue 往返");
+	}
+
+	// ─── 负值边界 ─────────────────────────────────────────────────────
+	private static void testNegativeBoundaries()
+	{
+		int[] vals = { -1, -128, -1000, -32768, -2147483648 };
+		foreach (int v in vals)
+		{
+			var si = new SafeInt(v);
+			assertEqual(v, si.get(), $"负值往返 {v}");
+		}
+	}
+
+	// ─── set 多次后 get 应始终稳定 ────────────────────────────────────
+	private static void testRepeatedSetGet_Stable()
+	{
+		var si = new SafeInt(0);
+		si.set(12345);
+		for (int i = 0; i < 50; ++i)
+		{
+			assertEqual(12345, si.get(), $"set 后多次 get 稳定[{i}]");
+		}
+	}
+
+	// ─── 大量 set/get 往返 ───────────────────────────────────────────
+	private static void testManyRoundTrips()
+	{
+		var si = new SafeInt(0);
+		for (int i = 0; i < 200; ++i)
+		{
+			si.set(i);
+			assertEqual(i, si.get(), $"连续 set/get[{i}]");
+		}
+	}
+
+	// ─── 交错 set：读取到最新写入值 ──────────────────────────────────
+	private static void testAlternatingSetGet()
+	{
+		var si = new SafeInt(0);
+		si.set(100);
+		assertEqual(100, si.get(), "先 100");
+		si.set(200);
+		assertEqual(200, si.get(), "再 200");
+		si.set(-50);
+		assertEqual(-50, si.get(), "再 -50");
+	}
+
+	// ─── 逼近但不超过 int.MaxValue 的边界 ────────────────────────────
+	private static void testBoundaryNearMax()
+	{
+		long[] big = { 2147483647L, 2147483646L, 1073741823L };
+		foreach (long v in big)
+		{
+			var si = new SafeInt((int)v);
+			assertEqual((int)v, si.get(), $"逼近最大值 {v}");
+		}
+	}
+
+	// ─── 奇偶模式 ─────────────────────────────────────────────────────
+	private static void testOddEvenPatterns()
+	{
+		for (int i = -10; i <= 10; ++i)
+		{
+			var si = new SafeInt(i);
+			assertEqual(i, si.get(), $"奇偶模式 {i}");
+		}
+	}
+
+	// ─── 多实例交错，互不干扰 ────────────────────────────────────────
+	private static void testInterleavedInstances()
+	{
+		var a = new SafeInt(11);
+		var b = new SafeInt(22);
+		var c = new SafeInt(33);
+		a.set(111);
+		b.set(222);
+		c.set(333);
+		assertEqual(111, a.get(), "a=111");
+		assertEqual(222, b.get(), "b=222");
+		assertEqual(333, c.get(), "c=333");
+		a.set(1);
+		assertEqual(1, a.get(), "a 改 1");
+		assertEqual(222, b.get(), "b 不受影响");
+		assertEqual(333, c.get(), "c 不受影响");
+	}
+
+	// ─── 相同值但不同实例密文独立 ───────────────────────────────────
+	private static void testSameValueAcrossInstances_IndependentCipher()
+	{
+		var a = new SafeInt(7);
+		var b = new SafeInt(7);
+		var c = new SafeInt(7);
+		assertEqual(7, a.get(), "a=7");
+		assertEqual(7, b.get(), "b=7");
+		assertEqual(7, c.get(), "c=7");
+		// Equals 应在内部密文一致时成立（但不同实例密文不同）
+		b.set(7);
+		c.set(7);
+		assertEqual(7, b.get(), "b 重设仍 7");
+		assertEqual(7, c.get(), "c 重设仍 7");
+	}
+
+	// ─── 零与正数序列 ────────────────────────────────────────────────
+	private static void testZeroAndPositiveSequence()
+	{
+		int[] vals = { 0, 1, 2, 10, 100, 1000, 65535, 1000000 };
+		var si = new SafeInt(0);
+		foreach (int v in vals)
+		{
+			si.set(v);
+			assertEqual(v, si.get(), $"正数序列 {v}");
+		}
+	}
+
+	// ─── 组合场景 ────────────────────────────────────────────────────────
+
+	// 构造直接设值
+	private static void testConstructorValue()
+	{
+		SafeInt si = new SafeInt(42);
+		assertEqual(42, si.get(), "构造设值 42");
+		SafeInt negative = new SafeInt(-7);
+		assertEqual(-7, negative.get(), "构造设值 -7");
+	}
+
+	// 连续 set 覆盖序列
+	private static void testSetOverwriteSequence()
+	{
+		SafeInt si = new SafeInt();
+		si.set(1);
+		si.set(2);
+		si.set(3);
+		assertEqual(3, si.get(), "三次 set 后取最后值");
+		si.set(100);
+		assertEqual(100, si.get(), "再次 set 覆盖");
+	}
+
+	// 结构体复制独立: copy 改值不影响原实例
+	private static void testStructCopyIndependent()
+	{
+		SafeInt a = new SafeInt(5);
+		SafeInt copy = a;
+		copy.set(9);
+		assertEqual(5, a.get(), "原实例不受 copy 影响");
+		assertEqual(9, copy.get(), "copy 独立取值");
+	}
+
+	// Equals 反身性(内部加密字段结构相等)
+	private static void testEqualsReflexive()
+	{
+		SafeInt a = new SafeInt(7);
+		assertTrue(a.Equals(a), "a.Equals(a) 反身性成立");
+	}
+
+	// 结构体复制后 Equals 成立(字段完全一致)
+	private static void testEqualsCopy()
+	{
+		SafeInt a = new SafeInt(7);
+		SafeInt copy = a;
+		assertTrue(copy.Equals(a), "复制实例 Equals 成立");
+	}
+
+	// set(0) 后 get 0
+	private static void testZeroAfterSet()
+	{
+		SafeInt si = new SafeInt(5);
+		si.set(0);
+		assertEqual(0, si.get(), "set(0) 后 get 0");
 	}
 }

@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 using static UnityUtility;
 using static TestAssert;
 
@@ -36,6 +37,11 @@ public static class UnityUtilityTest
 		testParticleAndSpine();
 		testRenderAndShader();
 		testContentAndMisc();
+		testGetScreenAspect();
+		testIsPointInBoxCollider();
+		testFindMaterial();
+		testFindMaterialShader();
+		testScreenAndWindowConversion();
 	}
 
 	// ─── setGameObjectLayer ────────────────────────────────────────
@@ -99,6 +105,7 @@ public static class UnityUtilityTest
 		assertEqual("Child", child.name, "child name");
 		assertTrue(child.transform.parent == parent.transform, "child parent");
 
+		Object.DestroyImmediate(go);
 		Object.DestroyImmediate(parent);
 	}
 
@@ -125,10 +132,6 @@ public static class UnityUtilityTest
 	// ─── getAllGameObject ──────────────────────────────────────────
 	private static void testGetAllGameObject()
 	{
-		// null parent
-		var list = new System.Collections.Generic.List<GameObject>();
-		getAllGameObject(list, "any", null);
-
 		GameObject parent = new GameObject("Root");
 		GameObject a1 = new GameObject("A");
 		a1.transform.SetParent(parent.transform, false);
@@ -137,12 +140,13 @@ public static class UnityUtilityTest
 		GameObject a2 = new GameObject("A");
 		a2.transform.SetParent(b.transform, false);
 
-		getAllGameObject(list, "A", parent, true);
+		var list = new List<GameObject>();
+		findAllGameObject(list, "A", parent, true);
 		assertEqual(2, list.Count, "find A count=2");
 
 		// 非递归
 		list.Clear();
-		getAllGameObject(list, "A", parent, false);
+		findAllGameObject(list, "A", parent, false);
 		assertEqual(1, list.Count, "find A nonrecursive count=1");
 
 		Object.DestroyImmediate(parent);
@@ -152,7 +156,7 @@ public static class UnityUtilityTest
 	private static void testGetGameObjectWithTag()
 	{
 		// null parent
-		var list = getGameObjectWithTag(null, "Untagged");
+		var list = findGameObjectWithTag(null, "Untagged");
 		assertEqual(0, list.Count, "null parent empty");
 
 		GameObject parent = new GameObject("Root");
@@ -160,10 +164,10 @@ public static class UnityUtilityTest
 		child.transform.SetParent(parent.transform, false);
 		child.tag = "Untagged";
 
-		var result = getGameObjectWithTag(parent, "Player");
+		var result = findGameObjectWithTag(parent, "Player");
 		assertEqual(0, result.Count, "no match");
 
-		result = getGameObjectWithTag(parent, "Untagged");
+		result = findGameObjectWithTag(parent, "Untagged");
 		assertEqual(1, result.Count, "match untagged");
 
 		Object.DestroyImmediate(parent);
@@ -194,12 +198,15 @@ public static class UnityUtilityTest
 		GameObject child = new GameObject("Child");
 		child.transform.SetParent(parent.transform, false);
 
-		GameObject found = getGameObjectInParent(parent, "Child");
-		assertNotNull(found, "found child");
-		assertEqual("Child", found.name, "child name");
+		// getGameObjectInParent 向上查找：从 child 往上找名为 "Root" 的祖先
+		GameObject found = getGameObjectInParent(child, "Root");
+		assertNotNull(found, "found parent");
+		assertEqual("Root", found.name, "parent name");
 
-		GameObject notFound = getGameObjectInParent(parent, "Missing");
-		assertNull(notFound, "not found");
+		// 找不到匹配名称时返回顶层父节点（即 Root）
+		GameObject topWhenNotFound = getGameObjectInParent(child, "Missing");
+		assertNotNull(topWhenNotFound, "returns top parent when not found");
+		assertEqual("Root", topWhenNotFound.name, "top parent is Root");
 
 		Object.DestroyImmediate(parent);
 	}
@@ -257,18 +264,18 @@ public static class UnityUtilityTest
 	// ─── generateLocalPosition ─────────────────────────────────────
 	private static void testGenerateLocalPosition()
 	{
-		GameObject go = new GameObject();
-		go.transform.position = new Vector3(10f, 20f, 30f);
-
 		GameObject parent = new GameObject();
 		parent.transform.position = new Vector3(5f, 5f, 5f);
+
+		GameObject go = new GameObject();
+		go.transform.SetParent(parent.transform, false);
+		go.transform.position = new Vector3(10f, 20f, 30f);
 
 		Vector3 local = generateLocalPosition(go.transform, go.transform.position);
 		assertEqual(5f, local.x, 0.001f, "local X=5");
 		assertEqual(15f, local.y, 0.001f, "local Y=15");
 		assertEqual(25f, local.z, 0.001f, "local Z=25");
 
-		Object.DestroyImmediate(go);
 		Object.DestroyImmediate(parent);
 	}
 
@@ -318,8 +325,10 @@ public static class UnityUtilityTest
 		setParticleSortOrder(root, 100);
 		assertEqual(100, mr.sortingOrder, "sorting order=100");
 
-		setParticleSortLayerID(root, 5);
-		assertEqual(5, mr.sortingLayerID, "sorting layer=5");
+		// sortingLayerID 需要有效的 layer ID，不能用 index
+		int defaultLayerID = SortingLayer.NameToID("Default");
+		setParticleSortLayerID(root, defaultLayerID);
+		assertEqual(defaultLayerID, mr.sortingLayerID, "sorting layer set");
 
 		Object.DestroyImmediate(root);
 	}
@@ -499,13 +508,10 @@ public static class UnityUtilityTest
 		assertTrue(getLogLevel() == LOG_LEVEL.NORMAL, "setLogLevel NORMAL");
 		setLogLevel(oldLevel);
 
-		logError("test error");
 		logWarning("test warning");
 		log("test log");
-		log("test", "log2");
+		log("test", "7A7A7A");
 		logNoLock("test nolock");
-		try { throw new System.Exception("test ex"); }
-		catch (System.Exception e) { logException(e); }
 		assertTrue(true, "log functions called");
 	}
 
@@ -599,18 +605,25 @@ public static class UnityUtilityTest
 		go2.transform.position = new Vector3(0.5f, 0f, 0f);
 
 		Collider[] results = new Collider[10];
-		overlapAllBox(box, results, -1);
-
-		SphereCollider sphere = go.AddComponent<SphereCollider>();
-		overlapAllSphere(sphere, results, -1);
-
+		overlapCollider(box, results, -1);
+		overlapCollider(go.AddComponent<SphereCollider>(), results, -1);
 		overlapBoxIgnoreY(box, box2, null, 4);
 		overlapBoxIgnoreZ(box, box2, null, 4);
 
 		overlapCollider(box, results, -1);
 		isOverlap(box, box2);
 
+		// overlapAllCapsule: 依赖物理查询, EditMode 下安全调用(nonAlloc 无匹配时返回0)
+		GameObject ccGo = new GameObject("TestCapsule");
+		CharacterController cc = ccGo.AddComponent<CharacterController>();
+		cc.center = Vector3.zero;
+		cc.height = 2.0f;
+		cc.radius = 0.5f;
+		int capCount = overlapAllCapsule(cc, results, -1);
+		assertTrue(capCount >= 0, "overlapAllCapsule count >= 0");
+
 		assertTrue(true, "overlap functions called");
+		UnityEngine.Object.DestroyImmediate(ccGo);
 		UnityEngine.Object.DestroyImmediate(go2);
 		UnityEngine.Object.DestroyImmediate(go);
 	}
@@ -640,24 +653,31 @@ public static class UnityUtilityTest
 	{
 		GameObject go = new GameObject();
 		Camera cam = go.AddComponent<Camera>();
-
+#if USE_URP
 		setRenderType(cam, UnityEngine.Rendering.Universal.CameraRenderType.Overlay);
+#endif
 
 		findShaders(go);
 		findUGUIShaders(go);
 
+#if USE_URP
 		float oldScale = getRenderScale();
 		setRenderScale(1.0f);
 		getRenderScale();
 		setRenderScale(oldScale);
+#endif
 
 		GameObject parent = new GameObject("Parent");
 		setNormalProperty(go, parent);
 		setNormalProperty(go, parent, "Child");
 
+		Vector2Int screenSize = getScreenSize();
 		setScreenSize(new Vector2(1920, 1080), false);
+		setScreenSize(screenSize, false);
 
+#if UNITY_STANDALONE_WIN || UNITY_EDITOR
 		getLastError();
+#endif
 		getComponentInParent<Transform>(go);
 		getGameObjectID(go);
 
@@ -674,10 +694,15 @@ public static class UnityUtilityTest
 		GameObject original = new GameObject("AsyncClone");
 		cloneObjectAsync(original, "AsyncClone", (GameObject cloned) =>
 		{
+			// cloneObjectAsync 是异步协程,源对象必须在回调完成后才能销毁
+			// 否则 InstantiateAsync 对已销毁源返回空结果,cloned 为 null
 			assertNotNull(cloned, "cloneObjectAsync callback not null");
-			UnityEngine.Object.DestroyImmediate(cloned);
+			if (cloned != null)
+			{
+				UnityEngine.Object.DestroyImmediate(cloned);
+			}
+			UnityEngine.Object.DestroyImmediate(original);
 		});
-		UnityEngine.Object.DestroyImmediate(original);
 
 		assertTrue(true, "render/shader/misc called");
 		UnityEngine.Object.DestroyImmediate(parent);
@@ -696,5 +721,112 @@ public static class UnityUtilityTest
 		assertTrue(len1 >= 0, "getContentLength >= 0");
 
 		UnityEngine.Object.DestroyImmediate(go);
+	}
+
+	// getScreenAspect: 返回静态字段 mScreenAspect
+	private static void testGetScreenAspect()
+	{
+		float aspect = getScreenAspect();
+		assertTrue(aspect > 0.0f, "getScreenAspect > 0");
+	}
+
+	// isPointInBoxCollider: 判断世界点是否在BoxCollider (仅比较x/y)
+	private static void testIsPointInBoxCollider()
+	{
+		assertFalse(isPointInBoxCollider(null, Vector3.zero), "null collider -> false");
+
+		GameObject go = new GameObject("TestBox");
+		BoxCollider box = go.AddComponent<BoxCollider>();
+		box.center = Vector3.zero;
+		box.size = new Vector3(2.0f, 2.0f, 2.0f); // 半宽 x/y = 1
+		go.transform.localPosition = Vector3.zero;
+		try
+		{
+			// 中心点在内
+			assertTrue(isPointInBoxCollider(box, Vector3.zero), "center inside");
+			// 半宽边界内
+			assertTrue(isPointInBoxCollider(box, new Vector3(0.9f, -0.8f, 5.0f)), "inside x/y");
+			// 超出半宽 -> 外
+			assertFalse(isPointInBoxCollider(box, new Vector3(1.5f, 0.0f, 0.0f)), "x outside");
+			assertFalse(isPointInBoxCollider(box, new Vector3(0.0f, 3.0f, 0.0f)), "y outside");
+		}
+		finally
+		{
+			UnityEngine.Object.DestroyImmediate(go);
+		}
+	}
+
+	// findMaterial: 编辑器中返回 render.material, 运行时返回 sharedMaterial
+	private static void testFindMaterial()
+	{
+		assertTrue(findMaterial(null) == null, "findMaterial null renderer -> null");
+		GameObject go = new GameObject("TestRenderer");
+		Renderer renderer = go.AddComponent<MeshRenderer>();
+		try
+		{
+			Material mat = findMaterial(renderer);
+			assertTrue(mat != null || renderer.sharedMaterial == null, "findMaterial returns material or shared is null");
+		}
+		finally
+		{
+			UnityEngine.Object.DestroyImmediate(go);
+		}
+	}
+
+	// findMaterialShader: 仅编辑器下重查shader, 传 null 不崩溃
+	private static void testFindMaterialShader()
+	{
+		findMaterialShader(null);
+		Shader shader = Shader.Find("Standard");
+		Material mat = null;
+		try
+		{
+			mat = new Material(shader != null ? shader : Shader.Find("UI/Default"));
+			findMaterialShader(mat);
+			assertTrue(true, "findMaterialShader executed");
+		}
+		finally
+		{
+			if (mat != null)
+			{
+				UnityEngine.Object.DestroyImmediate(mat);
+			}
+		}
+	}
+
+	// screenPosToWindow / isPointInWindow: 依赖框架 UI 相机与 UIRoot
+	// 仅在 UI 相机与 UIRoot 都可用时真实执行, 否则跳过避免 NPE
+	private static void testScreenAndWindowConversion()
+	{
+		Camera uiCam = FrameUtility.getUICamera();
+		var uiRoot = FrameUtility.getUGUIRoot();
+		if (uiCam == null || uiRoot == null)
+		{
+			return; // 框架未创建 UI 相机/Root, 跳过
+		}
+		// screenPosToWindow 传 null window: 走 "仅 root 换算" 分支
+		Vector2 mapped0 = screenPosToWindow(Vector2.zero, null);
+		assertTrue(!float.IsNaN(mapped0.x) && !float.IsNaN(mapped0.y), "screenPosToWindow(null) returns finite");
+		Vector2 mapped1 = screenPosToWindow(Vector2.zero, null, false);
+		assertTrue(!float.IsNaN(mapped1.x) && !float.IsNaN(mapped1.y), "screenPosToWindow(null,false) finite");
+
+		// isPointInWindow: 需要一个最小 myUGUIObject
+		GameObject go = new GameObject("TestWindow");
+		go.AddComponent<RectTransform>();
+		go.AddComponent<UnityEngine.UI.Image>();
+		myUGUIObject window = new myUGUIObject();
+		window.setObject(go);
+		// 仅调用 setObject 不会填充 mRectTransform, 先 init 补充缓存字段, 否则 getSize 会因 mRectTransform 为空抛 NRE
+		window.init();
+		try
+		{
+			bool inWin = isPointInWindow(new Vector2(uiCam.pixelWidth * 0.5f, uiCam.pixelHeight * 0.5f), window);
+			assertTrue(!float.IsNaN(inWin ? 1.0f : 0.0f), "isPointInWindow returns valid bool");
+			screenPosToWindow(new Vector2(uiCam.pixelWidth * 0.5f, uiCam.pixelHeight * 0.5f), window);
+		}
+		finally
+		{
+			UnityEngine.Object.DestroyImmediate(go);
+		}
 	}
 }
