@@ -25,14 +25,21 @@ namespace MoreMountains.Tools
         protected virtual bool ShouldInitialize => InitializationMode switch
         {
             InitializationModes.EveryTime => true,
-            InitializationModes.OnlyOnce => _initialized == false,
+            InitializationModes.OnlyOnce => !_initialized,
             _ => true
         };
 
         protected virtual void Awake() => _brain = GetComponentInParent<AIBrain>();
         public virtual void Initialization() => _initialized = true;
         public abstract void PerformAction(float dt);
-        public virtual void OnEnterState() => ActionInProgress = true;
-        public virtual void OnExitState() => ActionInProgress = false;
+        public virtual void OnEnterState()
+        {
+            ActionInProgress = true;
+        }
+
+        public virtual void OnExitState()
+        {
+            ActionInProgress = false;
+        }
     }
 }

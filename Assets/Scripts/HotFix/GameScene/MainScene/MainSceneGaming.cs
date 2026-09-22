@@ -67,13 +67,13 @@ public class MainSceneGaming : SceneProcedure
         //     // balls.add(ball);
         // }
 
-        if (isKeyCurrentDown(KeyCode.R))
-        {
-            foreach (var ball in player.BallManagement.Instance.getActiveBalls())
-            {
-                player.recollectBall(ball);
-            }
-        }
+        // if (isKeyCurrentDown(KeyCode.R))
+        // {
+        //     foreach (var ball in player.BallManagement.Instance.getActiveBalls())
+        //     {
+        //         player.recollectBall(ball);
+        //     }
+        // }
 
         gameInstance.update(elapsedTime);
     }

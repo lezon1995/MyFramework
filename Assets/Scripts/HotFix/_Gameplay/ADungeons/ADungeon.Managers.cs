@@ -13,6 +13,10 @@ namespace MoreMountains
             loadBallManager();
             loadBrickManager();
             loadRelicManager();
+            
+            var rows = gridManager.Setting.Rows;
+            var cols = gridManager.Setting.Columns;
+            brickManager.load(BrickUnitSize, cols, rows);
         }
 
         protected virtual void loadLevelManager()

@@ -51,6 +51,8 @@ namespace MoreMountains
             lineMat0 = lines[0].sharedMaterial;
             lineMat1 = lines[1].sharedMaterial;
             lineMat2 = lines[2].sharedMaterial;
+            
+            lineMat0.mainTextureScale = new(4, 1);
         }
 
         protected override void HandleInput()
@@ -84,7 +86,6 @@ namespace MoreMountains
 
             //Material Anim
             float offset = Time.time * -1f;
-            lineMat0.mainTextureScale = new(1, 1);
             lineMat0.SetTextureOffset(MainTex, new(offset, 0f));
             lineMat1.SetTextureOffset(MainTex, new(offset, 0f));
             lineMat2.SetTextureOffset(MainTex, new(offset, 0f));

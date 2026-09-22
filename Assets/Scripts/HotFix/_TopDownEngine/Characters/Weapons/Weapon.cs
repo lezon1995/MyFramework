@@ -669,6 +669,10 @@ namespace MoreMountains
             ProcessWeaponState(dt);
         }
 
+        protected virtual void OnDestroy()
+        {
+        }
+
         /// <summary>
         /// Called every lastUpdate, processes the weapon's state machine
         /// </summary>
@@ -691,7 +695,6 @@ namespace MoreMountains
                 _ => false
             };
         }
-
 
         protected void OnStateChange(States pre, States cur)
         {
@@ -945,7 +948,7 @@ namespace MoreMountains
         protected void DoShootRequest()
         {
             var now = Time.time;
-            if (now - _lastShootRequestAt < timeBetweenUses)
+            if (!CanShootBetweenUses(now)) 
                 return;
 
             _delayBeforeUseTimer.kill();
@@ -964,6 +967,14 @@ namespace MoreMountains
                     Timing.RunCoroutine(ShootRequestCo(remainingShots));
                     break;
             }
+        }
+
+        protected virtual bool CanShootBetweenUses(float now)
+        {
+            if (now - _lastShootRequestAt < timeBetweenUses)
+                return false;
+
+            return true;
         }
 
         /// <summary>

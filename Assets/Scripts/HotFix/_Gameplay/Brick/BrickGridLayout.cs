@@ -12,6 +12,11 @@ public class BrickGridLayout
 
     BrickGridTemplate template;
 
+    public static BrickGridLayout New(float cellSize, int col, int row)
+    {
+        return new(new(cellSize * col, cellSize * row), col, row);
+    }
+
     public BrickGridLayout(Vector2 _size, int _col, int _row)
     {
         template = new(_row, _col, _size);

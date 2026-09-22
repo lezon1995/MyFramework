@@ -142,26 +142,14 @@ namespace MoreMountains
         [Header("Spawn Position")]
         [Tooltip("生成位置偏向边界的概率（0-1），值越大越偏向边界")]
         [Range(0f, 1f)]
-        public float edgeBiasProbability = 0.5f;
+        public float EdgeBiasProbability = 0.5f;
 
         [Tooltip("生成位置偏向边界的百分比（0-1），值越大越偏向边界")] 
         [Range(0f, 1f)]
-        public float edgeBiasPercent = 0.7f;
+        public float EdgeBiasPercent = 0.5f;
 
         [Range(0f, 1f)]
         public float edgeBiasPercentAmplitude = 0.15f;
-
-        [Header("Shape Spawning")]
-        [Tooltip("是否启用形状生成（从 ShapesLibrary 中随机选取 ShapeEntry 生成砖块组合）")]
-        public bool enableShapeSpawning;
-
-        [Tooltip("形状生成权重（数值越高越容易被选中），设为0时只生成单个砖块")]
-        [Range(0f, 100f)]
-        public float shapeSpawnWeight = 30f;
-
-        [Tooltip("形状生成时，最多尝试找到空置位置的次数")]
-        [Range(1, 50)]
-        public int shapeSpawnMaxRetries = 20;
 
         public int KillCount { get; set; }
         public int SpawnCount { get; set; }
@@ -190,15 +178,15 @@ namespace MoreMountains
         public float defenseMultiplier = 1f;
         public float knockbackResistMultiplier = 1f;
 
-        public void ApplyWaveScaling(int currentWave, WaveConfig baseConfig, WaveLevelConfig levelConfig)
+        public void ApplyWaveScaling(int currentWave, WaveConfig c, WaveLevelConfig lc)
         {
             // 使用波次配置的增长倍率
             float waveMultiplier = currentWave;
-            healthMultiplier = Mathf.Pow(baseConfig.healthScaling * levelConfig.globalHealthScalingPerWave, waveMultiplier - 1);
-            damageMultiplier = Mathf.Pow(baseConfig.damageScaling * levelConfig.globalDamageScalingPerWave, waveMultiplier - 1);
-            speedMultiplier = Mathf.Pow(baseConfig.speedScaling * levelConfig.globalSpeedScalingPerWave, waveMultiplier - 1);
-            defenseMultiplier = Mathf.Pow(baseConfig.defenseScaling * levelConfig.globalDefenseScalingPerWave, waveMultiplier - 1);
-            knockbackResistMultiplier = Mathf.Pow(baseConfig.knockbackResistScaling * levelConfig.globalKnockbackResistScalingPerWave, waveMultiplier - 1);
+            healthMultiplier = Mathf.Pow(c.healthScaling * lc.globalHealthScalingPerWave, waveMultiplier - 1);
+            damageMultiplier = Mathf.Pow(c.damageScaling * lc.globalDamageScalingPerWave, waveMultiplier - 1);
+            speedMultiplier = Mathf.Pow(c.speedScaling * lc.globalSpeedScalingPerWave, waveMultiplier - 1);
+            defenseMultiplier = Mathf.Pow(c.defenseScaling * lc.globalDefenseScalingPerWave, waveMultiplier - 1);
+            knockbackResistMultiplier = Mathf.Pow(c.knockbackResistScaling * lc.globalKnockbackResistScalingPerWave, waveMultiplier - 1);
         }
 
         public void Reset()

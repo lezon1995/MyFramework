@@ -26,7 +26,7 @@ MonoBehaviour:
     color: {r: 1, g: 1, b: 1, a: 1}
   - sprite: {fileID: 512191485, guid: 402167e13a5b1d84bb33c1f1cfc3f3c2, type: 3}
     color: {r: 1, g: 1, b: 1, a: 1}
-  ContentScale: 1.1
+  ContentScale: 0.9
   StartSequenceDuration: 0.25
   StaticDuration: 0.35
   FloatingDuration: 0

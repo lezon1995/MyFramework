@@ -135,6 +135,7 @@ Material:
     - _ReceiveShadows: 1
     - _ShieldChunkCount: 1
     - _ShieldGlow: 0.3
+    - _ShieldLength: 0
     - _ShieldOffset: 0.01
     - _ShieldProgress: 0.275
     - _ShieldWidth: 0.03

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Sirenix.OdinInspector;
 using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -20,6 +21,7 @@ namespace MoreMountains
     {
         [Header("Settings (可选: 拖入 ScriptableObject 配置)")]
         [Tooltip("可选. 若提供, 将由它定义网格参数 (覆盖下方内联参数).")]
+        [InlineEditor]
         public GridSetting Setting;
         
         [Header("网格形状库")]

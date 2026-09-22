@@ -462,7 +462,6 @@ GameObject:
   - component: {fileID: 1681178672596040620}
   - component: {fileID: -2375815759049658533}
   - component: {fileID: 754006816191615645}
-  - component: {fileID: 3273235108152660052}
   m_Layer: 7
   m_Name: Brick_3x1
   m_TagString: Block
@@ -899,29 +898,6 @@ MonoBehaviour:
   CollisionPriority: 1
   GizmosColor: {r: 0.3, g: 0.8, b: 0.3, a: 0.5}
   DrawTilemapCellsGizmo: 1
---- !u!114 &3273235108152660052
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3237124602915234066}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0f2751167f3ca2649934ca5b4fa4a4e3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: HotFix::MoreMountains.BrickGridMover
-  InitializeOnAwake: 1
-  AbilityStartSfx: {fileID: 0}
-  AbilityInProgressSfx: {fileID: 0}
-  AbilityStopSfx: {fileID: 0}
-  AbilityStartFeedbacks: {fileID: 0}
-  AbilityStopFeedbacks: {fileID: 0}
-  AbilityPermitted: 0
-  BlockingMovementStates: 
-  BlockingConditionStates: 
-  BlockingWeaponStates: 
-  config: {fileID: 11400000, guid: 27a312c52d7dde941a9cc001cd127977, type: 2}
 --- !u!1 &3490370333130838258
 GameObject:
   m_ObjectHideFlags: 0

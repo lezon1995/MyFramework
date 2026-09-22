@@ -88,6 +88,8 @@ namespace MoreMountains
         protected override void OnFixedUpdate(float dt)
         {
         }
+        
+        protected override bool CanShootBetweenUses(float now) => true;
 
         protected override void OnEnterDelayBeforeUse()
         {
@@ -176,6 +178,11 @@ namespace MoreMountains
 
             Owner.CharacterBrain.IsDecisionLocked = false;
 
+            ReleaseEffect();
+        }
+
+        void ReleaseEffect()
+        {
             if (arcRegion)
             {
                 mEffectManager.destroyEffect(ref indicatorEffect);
@@ -235,6 +242,11 @@ namespace MoreMountains
             }
 
             return nextGameObject;
+        }
+        
+        protected override void OnDestroy()
+        {
+            ReleaseEffect();
         }
     }
 }

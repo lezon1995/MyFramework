@@ -244,8 +244,8 @@ namespace MoreMountains
 
             // 生成位置设置
             EditorGUILayout.LabelField("Spawn Position", EditorStyles.miniLabel);
-            wave.edgeBiasProbability = EditorGUILayout.Slider("Edge Bias Probability", wave.edgeBiasProbability, 0f, 1f);
-            wave.edgeBiasPercent = EditorGUILayout.Slider("Edge Bias Percent", wave.edgeBiasPercent, 0f, 1f);
+            wave.EdgeBiasProbability = EditorGUILayout.Slider("Edge Bias Probability", wave.EdgeBiasProbability, 0f, 1f);
+            wave.EdgeBiasPercent = EditorGUILayout.Slider("Edge Bias Percent", wave.EdgeBiasPercent, 0f, 1f);
             wave.edgeBiasPercentAmplitude = EditorGUILayout.Slider("Edge Bias Percent Amplitude", wave.edgeBiasPercentAmplitude, 0f, 1f);
             EditorGUILayout.LabelField($"0 = Random, 1 = Always Edge", EditorStyles.miniLabel);
 

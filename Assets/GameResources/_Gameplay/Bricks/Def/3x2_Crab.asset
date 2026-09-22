@@ -25,4 +25,6 @@ MonoBehaviour:
   BonusArmorPerWave: 3
   BonusKnockbackResistPerWave: 0.03
   BossHealthBarSize: {x: 600, y: 50}
-  AIBehaviour: {fileID: 0}
+  AIBehaviour: {fileID: 5290813838179023476, guid: 2cb4f204bc0d10544bd927036d8d38a6,
+    type: 3}
+  AIHandleWeapon: {fileID: 0}

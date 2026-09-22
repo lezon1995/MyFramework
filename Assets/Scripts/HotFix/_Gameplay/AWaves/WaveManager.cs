@@ -120,29 +120,9 @@ namespace MoreMountains
         MonsterScalingData _scalingData = new();
         int _forceSpawnIndex;
         Random _spawnRandom;
-        Vector2 _spawnAreaMin;
-        Vector2 _spawnAreaMax;
+        Func<Vector2> _spawnAreaMin;
+        Func<Vector2> _spawnAreaMax;
 
-        // ---------------------------------------------------------------
-        // Grid 网格视图 (取代 brickLayout).
-        //
-        // 如果在 Inspector 里手动指定, 则优先使用;
-        // 否则 Awake 时通过 FindObjectOfType 自动获取场景中的第一个 GridManager.
-        // 它提供 Rows / Columns / CellSize / OriginOffset 等, 把 spawn 点锚定到网格 cell 中心.
-        // ---------------------------------------------------------------
-
-        [Tooltip("网格管理器. 不指定时, 在首次 spawn 时通过 FindObjectOfType 自动获取场景中的 GridManager.")]
-        public GridManager GridView;
-
-        [Tooltip("形状库列表. 当 enableShapeSpawning 为 true 时, 从这些库中随机选取形状生成.")]
-        Dictionary<int, List<ShapeEntry>> shapeDict = new();
-
-        List<int> shapeCellCount = new();
-
-        GridManager _resolvedGridView;
-        bool _gridViewResolved;
-
-        // 问题2修复：击败所有怪物策略的最大生成数量
         int _waveMaxTotalSpawn;
         int _waveCurrentTotalSpawn;
 
@@ -177,60 +157,7 @@ namespace MoreMountains
         void Awake()
         {
             _spawnRandom = new();
-
-            var gridManager = ResolveGridManager();
-            // 收集所有库中所有非空形状
-            using var _ = new ListScope<ShapeEntry>(out var allShapes);
-            foreach (var lib in gridManager.ShapesLibrary)
-            {
-                if (!lib) continue;
-
-                allShapes.AddRange(lib.shapes);
-            }
-
-            foreach (var g in allShapes.GroupBy(entry => entry.expandedCells.Count))
-            {
-                shapeDict[g.Key] = g.ToList();
-            }
-
-            shapeCellCount.AddRange(shapeDict.Keys);
-            shapeCellCount.Sort();
         }
-
-        /// <summary>
-        /// 解析 GridManager 引用. 优先用 Inspector 字段; 否则尝试从场景里找.
-        /// 返回 null 表示当前场景中没有可用的 GridManager.
-        /// </summary>
-        public GridManager ResolveGridManager()
-        {
-            if (_gridViewResolved)
-                return _resolvedGridView;
-
-            if (GridView)
-            {
-                _resolvedGridView = GridView;
-                _gridViewResolved = true;
-                return _resolvedGridView;
-            }
-
-#if UNITY_2023_1_OR_NEWER
-            _resolvedGridView = FindFirstObjectByType<GridManager>(FindObjectsInactive.Include);
-#else
-            _resolvedGridView = UnityEngine.Object.FindObjectOfType<GridManager>(true);
-#endif
-            _gridViewResolved = true;
-            return _resolvedGridView;
-        }
-
-        /// <summary>
-        /// 清空 GridView 缓存 (例如场景切换或手动换引用时手动调用).
-        /// </summary>
-        public void InvalidateGridView()
-        {
-            _resolvedGridView = null;
-            _gridViewResolved = false;
-        }
-
 
         public void Update()
         {
@@ -278,8 +205,18 @@ namespace MoreMountains
             HasBossSpawned = false;
 
             // 设置生成区域
-            _spawnAreaMin = new(levelConfig.spawnAreaLeft, levelConfig.spawnAreaBottom);
-            _spawnAreaMax = new(levelConfig.spawnAreaRight, levelConfig.spawnAreaTop);
+            _spawnAreaMin = () =>
+            {
+                var borderMin = levelManager.getBorderMinPos();
+                var areaMin = new Vector2(levelConfig.spawnAreaLeft, levelConfig.spawnAreaBottom);
+                return new(Mathf.Max(borderMin.x, areaMin.x), Mathf.Max(borderMin.y, areaMin.y));
+            };
+            _spawnAreaMax = () =>
+            {
+                var borderMax = levelManager.getBorderMaxPos();
+                var areaMax = new Vector2(levelConfig.spawnAreaRight, levelConfig.spawnAreaTop);
+                return new(Mathf.Min(borderMax.x, areaMax.x), Mathf.Min(borderMax.y, areaMax.y));
+            };
 
             // 初始化随机种子
             _spawnRandom = new();
@@ -528,53 +465,32 @@ namespace MoreMountains
         {
             if (CurWave is not { enableSmartSpawning: true })
             {
-                return GetEdgeBiasedRandomEmptyCell(out var emptyCell, out spawnPos);
-            }
-
-            var gm = ResolveGridManager();
-            if (gm == null)
-            {
-                return GetEdgeBiasedRandomEmptyCell(out var emptyCell, out spawnPos);
-            }
-
-            var grid = gm.CurrentGrid();
-            if (grid.Columns <= 0 || grid.Rows <= 0)
-            {
-                spawnPos = Vector2.zero;
-                return false;
-            }
-
-            // 收集所有空置 cell (基于 grid 的 cols/rows), brickManager 上的占用表依然作为来源.
-            using var _ = new ListScope<Vector2Int>(out var emptyList);
-            brickManager.CollectEmptyCells(ref emptyList);
-            if (emptyList.Count == 0)
-            {
-                spawnPos = Vector2.zero;
-                return false;
+                return GetEdgeBiasedRandomPosition(out spawnPos);
             }
 
             sparsePositions.Clear();
-            var sampleCount = Mathf.Min(20, emptyList.Count);
-            var radius = CurWave.denseRadius;
-            for (var i = 0; i < sampleCount; i++)
+            // 查找稀疏区域
+            int sampleCount = 20;
+            for (int i = 0; i < sampleCount; i++)
             {
-                var cell = emptyList[_spawnRandom.Next(emptyList.Count)];
-                var cellCenter = grid.CellToWorld(cell);
-                var samplePos = new Vector3(cellCenter.x, cellCenter.y, 0);
-                var nearbyCount = CountNearbyMonsters(samplePos, radius);
+                // 问题4修复：使用边界偏移的位置采样
+                GetEdgeBiasedRandomPosition(out var samplePos);
+                int nearbyCount = CountNearbyMonsters(samplePos, CurWave.denseRadius);
                 if (nearbyCount <= CurWave.sparseThreshold)
                 {
                     sparsePositions.Add(samplePos);
                 }
             }
 
+            // 如果找到足够多的稀疏位置，从中选择一个
             if (sparsePositions.Count > 0)
             {
                 spawnPos = sparsePositions[_spawnRandom.Next(sparsePositions.Count)];
                 return true;
             }
 
-            return GetEdgeBiasedRandomEmptyCell(out var _emptyCell, out spawnPos);
+            // 没有稀疏区域，选择边界位置
+            return GetEdgeBiasedRandomPosition(out spawnPos);
         }
 
         /// <summary>
@@ -1103,13 +1019,20 @@ namespace MoreMountains
 
             if (CurLevel != null)
             {
-                if (targetCoverage <= 0) targetCoverage = CurLevel.globalTargetCoverageRatio;
-                if (minInterval <= 0) minInterval = CurLevel.globalMinSpawnInterval;
-                if (maxInterval <= 0) maxInterval = CurLevel.globalMaxSpawnInterval;
+                if (targetCoverage <= 0) 
+                    targetCoverage = CurLevel.globalTargetCoverageRatio;
+
+                if (minInterval <= 0) 
+                    minInterval = CurLevel.globalMinSpawnInterval;
+
+                if (maxInterval <= 0) 
+                    maxInterval = CurLevel.globalMaxSpawnInterval;
             }
 
             // 计算基于覆盖率的理想怪物数量
-            float spawnArea = (_spawnAreaMax.x - _spawnAreaMin.x) * (_spawnAreaMax.y - _spawnAreaMin.y);
+            var areaMax = _spawnAreaMax();
+            var areaMin = _spawnAreaMin();
+            float spawnArea = (areaMax.x - areaMin.x) * (areaMax.y - areaMin.y);
             float monsterSize = BrickUnitSize;
             float totalMonsterSlots = spawnArea / (monsterSize * monsterSize);
             int targetMonsterCount = Mathf.FloorToInt(totalMonsterSlots * targetCoverage);
@@ -1258,18 +1181,6 @@ namespace MoreMountains
 
         void SpawnRandomMonster()
         {
-            // 决定是生成形状还是单个砖块
-            if (CurWave is { enableShapeSpawning: true } && shapeDict is { Count: > 0 })
-            {
-                // 按权重决定是否生成形状
-                float shapeRoll = (float)_spawnRandom.NextDouble() * (CurWave.shapeSpawnWeight + 100f);
-                if (shapeRoll < CurWave.shapeSpawnWeight)
-                {
-                    SpawnRandomShape();
-                    return;
-                }
-            }
-
             var type = GetWeightedEnemyType();
             if (SelectMonsterByType(type, out var monsterDef, out var pickedConfig))
             {
@@ -1277,191 +1188,70 @@ namespace MoreMountains
             }
         }
 
-        /// <summary>
-        /// 从 ShapesLibrary 中随机选取一个 ShapeEntry，在空置的网格位置上生成砖块组合。
-        /// </summary>
-        void SpawnRandomShape()
+        bool GetEdgeBiasedRandomPosition(out Vector2 result)
         {
-            if (shapeDict.Count == 0)
+            result = Vector2.zero;
+            var areaMax = _spawnAreaMax();
+            var areaMin = _spawnAreaMin();
+            float areaWidth = areaMax.x - areaMin.x;
+            float areaHeight = areaMax.y - areaMin.y;
+
+            // 如果区域无效，返回玩家位置附近
+            if (areaWidth <= 0 || areaHeight <= 0)
             {
-                Debug.LogWarning("[WaveManager] ShapeLibraries is empty, falling back to single brick spawn.");
-                return;
-            }
-
-            //随机选择这次形状的Cell个数
-            var cellCount = shapeCellCount[_spawnRandom.Next(shapeCellCount.Count)];
-
-            // 随机挑一个形状
-            var shapeEntries = shapeDict[cellCount];
-            var selectedShape = shapeEntries[_spawnRandom.Next(shapeEntries.Count)];
-
-            // 获取形状在世界中的生成位置（使用 edge-biased 逻辑寻找空位）
-            GetEdgeBiasedRandomEmptyCell(out var randomEmptyCell, out var randomEmptyCellPos);
-            var maxRetries = CurWave?.shapeSpawnMaxRetries ?? 20;
-            var found = brickManager.FindEmptyCellForShape(randomEmptyCell, selectedShape.bricks, out var emptyCell, maxRetries);
-            if (!found)
-            {
-                Debug.Log($"[WaveManager] Could not find empty spot for shape '{selectedShape.name}' after {maxRetries} retries.");
-                return;
-            }
-
-            // 生成砖块
-            using var a = new ListScope<BrickTemplate>(out var spawnedBricks);
-            var success = brickManager.acquireShape(emptyCell, selectedShape.bricks, CurWave, ref spawnedBricks);
-            if (!success || spawnedBricks.Count == 0)
-            {
-                Debug.LogWarning($"[WaveManager] acquireShape returned empty for shape '{selectedShape.name}'.");
-                return;
-            }
-
-            // Debug.Log($"[WaveManager] Spawned shape '{selectedShape.name}' with {spawnedBricks.Count} bricks at {emptyCell}");
-
-            // 如果配置了形状上生成怪物，则在每个砖块上生成一个怪物
-            foreach (var template in spawnedBricks)
-            {
-                var type = GetWeightedEnemyType();
-                if (SelectMonsterByType(type, out var monsterDef, out var pickedConfig))
+                Debug.LogWarning("[GetEdgeBiasedRandomPosition] Invalid spawn area! Using player position + offset");
+                if (player != null)
                 {
-                    SpawnMonster(template.def, template.position, originConfig: pickedConfig);
+                    result = player.getWorldPosition() + new Vector3(5, 5, 0);
+                    return true;
                 }
-            }
-        }
 
-        /// <summary>
-        /// 问题4修复：获取偏向边界的随机位置
-        /// 改造后: 优先用 Grid2D 系统 (GridView) 取得 cols/rows,
-        /// 在"未占用的边缘 cell"中随机挑一个, 返回该 cell 中心的世界坐标.
-        /// Grid2D 不可用时, 退回到玩家附近.
-        /// </summary>
-        bool GetEdgeBiasedRandomEmptyCell(out Vector2Int result, out Vector2 cellPos)
-        {
-            var gm = ResolveGridManager();
-            if (gm == null)
-            {
-                result = Vector2Int.zero;
-                cellPos = Vector2.zero;
                 return false;
             }
 
-            var grid = gm.CurrentGrid();
-            if (grid.Columns <= 0 || grid.Rows <= 0)
-            {
-                result = Vector2Int.zero;
-                cellPos = Vector2.zero;
-                return false;
-            }
+            float x, y;
 
-            int cols = grid.Columns;
-            int rows = grid.Rows;
-
-            // 边缘 cell (第一行/最后一行/第一列/最后一列), 且未被占
-            float edgeProbability = CurWave?.edgeBiasProbability ?? 0.8f;
+            // 根据配置的edgeBias决定在边界区域生成的概率
+            float edgeProbability = CurWave?.EdgeBiasProbability ?? 0.8f;
             bool preferEdge = (float)_spawnRandom.NextDouble() < edgeProbability;
-
-            bool hasPicked = false;
-            Vector2Int picked = default;
-
             if (preferEdge)
             {
-                float edgePercent = CurWave?.edgeBiasPercent ?? 0.8f;
+                float edgePercent = CurWave?.EdgeBiasPercent ?? 0.8f;
                 float edgePercentAmplitude = CurWave?.edgeBiasPercentAmplitude ?? 0.1f;
 
-                // 从 4 个边里随机选, 在该边上随机抽一个未被占的 cell
+                // 选择是哪条边：上、下、左、右
                 int edge = _spawnRandom.Next(4);
-                int tries = 0;
-                const int kMaxTries = 32;
-                while (tries++ < kMaxTries)
-                {
-                    Vector2Int candidate;
-                    int x;
-                    int y;
-                    switch (edge)
-                    {
-                        case 0:
-                            x = Mathf.RoundToInt(Mathf.Lerp(0, cols - 1, (float)_spawnRandom.NextDouble()));
-                            y = Mathf.RoundToInt(Mathf.Lerp(rows / 2F, rows - 1, (float)(edgePercent + edgePercentAmplitude * (_spawnRandom.NextDouble() * 2F - 1F))));
-                            candidate = new(x, y); // top
-                            break;
-                        case 1:
-                            x = Mathf.RoundToInt(Mathf.Lerp(0, cols - 1, (float)_spawnRandom.NextDouble()));
-                            y = Mathf.RoundToInt(Mathf.Lerp(rows / 2F - 1, 0, (float)(edgePercent + edgePercentAmplitude * (_spawnRandom.NextDouble() * 2F - 1F))));
-                            candidate = new(x, y); // bottom
-                            break;
-                        case 2:
-                            x = Mathf.RoundToInt(Mathf.Lerp(cols / 2F - 1, 0, (float)(edgePercent + edgePercentAmplitude * (_spawnRandom.NextDouble() * 2F - 1F))));
-                            y = Mathf.RoundToInt(Mathf.Lerp(0, rows - 1, (float)_spawnRandom.NextDouble()));
-                            candidate = new(x, y); // left
-                            break;
-                        case 3:
-                            x = Mathf.RoundToInt(Mathf.Lerp(cols / 2F, cols - 1, (float)(edgePercent + edgePercentAmplitude * (_spawnRandom.NextDouble() * 2F - 1F))));
-                            y = Mathf.RoundToInt(Mathf.Lerp(0, rows - 1, (float)_spawnRandom.NextDouble()));
-                            candidate = new(x, y); // right
-                            break;
-                        default:
-                            candidate = new(_spawnRandom.Next(cols), _spawnRandom.Next(rows)); // random
-                            break;
-                    }
+                var midX = (areaMin.x + areaMax.x) * 0.5F;
+                var midY = (areaMin.y + areaMax.y) * 0.5F;
 
-                    if (brickManager == null || brickManager.IsCellEmpty(candidate))
-                    {
-                        hasPicked = true;
-                        picked = candidate;
+                switch (edge)
+                {
+                    case 0: // 上边 - y使用固定的地图上边界
+                        x = Mathf.Lerp(areaMin.x, areaMax.x, (float)_spawnRandom.NextDouble());
+                        y = Mathf.Lerp(midY, areaMax.y, (float)(edgePercent + edgePercentAmplitude * (_spawnRandom.NextDouble() * 2F - 1F)));
                         break;
-                    }
+                    case 1: // 下边 - y使用固定的地图下边界
+                        x = Mathf.Lerp(areaMin.x, areaMax.x, (float)_spawnRandom.NextDouble());
+                        y = Mathf.Lerp(midY, areaMin.y, (float)(edgePercent + edgePercentAmplitude * (_spawnRandom.NextDouble() * 2F - 1F)));
+                        break;
+                    case 2: // 左边 - x使用固定的地图左边界
+                        x = Mathf.Lerp(midX, areaMin.x, (float)(edgePercent + edgePercentAmplitude * (_spawnRandom.NextDouble() * 2F - 1F)));
+                        y = Mathf.Lerp(areaMin.y, areaMax.y, (float)_spawnRandom.NextDouble());
+                        break;
+                    default: // 右边 - x使用固定的地图右边界
+                        x = Mathf.Lerp(midX, areaMax.x, (float)(edgePercent + edgePercentAmplitude * (_spawnRandom.NextDouble() * 2F - 1F)));
+                        y = Mathf.Lerp(areaMin.y, areaMax.y, (float)_spawnRandom.NextDouble());
+                        break;
                 }
             }
-
-            // 没在边缘抽到, 退回到"grid 上所有 cell" 中任选一个空置的
-            if (!hasPicked)
+            else
             {
-                if (brickManager != null)
-                {
-                    hasPicked = GetRandomEmptyCell(out picked);
-                }
-                else
-                {
-                    // 没有 brickManager, 随机挑一个 grid 上的 cell
-                    hasPicked = GetRandomCell(cols, rows, out picked);
-                }
+                // 中间区域 - 使用整个区域
+                x = Mathf.Lerp(areaMin.x, areaMax.x, (float)_spawnRandom.NextDouble());
+                y = Mathf.Lerp(areaMin.y, areaMax.y, (float)_spawnRandom.NextDouble());
             }
 
-            if (!hasPicked)
-            {
-                result = Vector2Int.zero;
-                cellPos = Vector2.zero;
-                return false;
-            }
-
-            // 落在 grid 外的 cell 视为"无" (例如 brickManager 残留的占用记录超出 grid 范围)
-            if (picked.x < 0 || picked.x >= cols || picked.y < 0 || picked.y >= rows)
-            {
-                result = Vector2Int.zero;
-                cellPos = Vector2.zero;
-                return false;
-            }
-
-            result = picked;
-            cellPos = grid.CellToWorld(picked);
-            return true;
-        }
-
-        bool GetRandomEmptyCell(out Vector2Int cell)
-        {
-            using var _ = new ListScope<Vector2Int>(out var emptyCells);
-            brickManager.CollectEmptyCells(ref emptyCells);
-            if (emptyCells.Count > 0)
-            {
-                cell = emptyCells[_spawnRandom.Next(emptyCells.Count)];
-                return true;
-            }
-
-            cell = default;
-            return false;
-        }
-
-        bool GetRandomCell(int cols, int rows, out Vector2Int cell)
-        {
-            cell = new(_spawnRandom.Next(cols), _spawnRandom.Next(rows));
+            result = new(x, y);
             return true;
         }
 
@@ -1471,7 +1261,7 @@ namespace MoreMountains
             float radiusSq = radius * radius;
             foreach (var monster in ActiveMonsters)
             {
-                if (monster == null || monster.IsDead())
+                if (monster.IsDead())
                     continue;
 
                 var monsterPos = monster.getWorldPosition();

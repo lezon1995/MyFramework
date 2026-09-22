@@ -1,7 +1,5 @@
-﻿using System;
-using Unity.Cinemachine;
+﻿using Unity.Cinemachine;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace MoreMountains.Tools
 {

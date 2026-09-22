@@ -238,8 +238,7 @@ namespace MoreMountains
                     _isDelaying = false;
                     DashStart();
 
-                    mEffectManager.destroyEffect(ref indicatorEffect);
-                    lineRegion = null;
+                    ReleaseEffect();
                 }
             }
             else if (_isCooldown)
@@ -249,6 +248,12 @@ namespace MoreMountains
                     _isCooldown = false;
                 }
             }
+        }
+
+        void ReleaseEffect()
+        {
+            mEffectManager.destroyEffect(ref indicatorEffect);
+            lineRegion = null;
         }
 
         /// <summary>
@@ -301,6 +306,11 @@ namespace MoreMountains
             _isDashing = false;
             _isCooldown = false;
             _movement.SetMovement(Vector2.zero);
+        }
+
+        public override void onEvent(OnDeath e)
+        {
+            ReleaseEffect();
         }
     }
 }

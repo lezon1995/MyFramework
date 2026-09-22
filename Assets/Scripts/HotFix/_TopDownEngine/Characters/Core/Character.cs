@@ -174,7 +174,7 @@ namespace MoreMountains
         public MMStateMachine<Motions> motionState;
         public MMStateMachine<Conditions> conditionState;
 
-        public IEventRouter Event => this;
+        public IEventRouter Event => Health.Event;
         public virtual InputManager Input { get; protected set; }
         public virtual Animator Animator { get; protected set; }
         public virtual HashSet<int> AnimatorParameters { get; protected set; }

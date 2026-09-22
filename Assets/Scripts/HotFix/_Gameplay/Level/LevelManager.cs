@@ -59,6 +59,16 @@ namespace MoreMountains
             return new(getBorderWidth(), getBorderHeight());
         }
 
+        public Vector2 getBorderMinPos()
+        {
+            return new(borderLeft.getWorldPosition().x, borderBot.getWorldPosition().y);
+        }
+
+        public Vector2 getBorderMaxPos()
+        {
+            return new(borderRight.getWorldPosition().x, borderTop.getWorldPosition().y);
+        }
+
         public float getBorderWidth()
         {
             return (borderRight.getWorldPosition().x - borderLeft.getWorldPosition().x).abs();
