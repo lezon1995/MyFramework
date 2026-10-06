@@ -143,13 +143,15 @@ namespace MoreMountains
     public struct OnMonsterKilled_Wave
     {
         public Brick Monster;
+        public APlayer Player;
         public SpawnEnemyType Type;
         public int WaveNumber;
         public float TimeSinceWaveStart;
 
-        public OnMonsterKilled_Wave(Brick monster, SpawnEnemyType type, int waveNumber, float elapsedTime)
+        public OnMonsterKilled_Wave(Brick monster, APlayer p, SpawnEnemyType type, int waveNumber, float elapsedTime)
         {
             Monster = monster;
+            Player = p;
             Type = type;
             WaveNumber = waveNumber;
             TimeSinceWaveStart = elapsedTime;

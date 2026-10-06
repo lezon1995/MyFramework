@@ -41,9 +41,7 @@ public class LightningStrike3 : BuffObject, IDoAttackKillEffect
             if (randomBrick.IsDead())
                 continue;
 
-            var dmg = ball.getSkillDmg(randomBrick);
-            dmg.Crit();
-            randomBrick.Health.Damage(ref dmg, ball.gameObject, ball.Player);
+            ball.onSkillHitEnter(randomBrick);
         }
 
         UnityEngine.Pool.ListPool<Brick>.Release(list);

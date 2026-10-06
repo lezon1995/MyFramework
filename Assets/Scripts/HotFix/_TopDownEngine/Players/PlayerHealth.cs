@@ -304,7 +304,7 @@ namespace MoreMountains
                     //检测是否死亡
                     if (IsDead())
                     {
-                        var isLethal = Kill();
+                        var isLethal = Kill(source);
                         if (source && isLethal && !dmg.Self)
                             source.Health.Event.trigger(new DoKill(Character, instigator));
 
@@ -402,7 +402,7 @@ namespace MoreMountains
             }
         }
 
-        public override bool Kill()
+        public override bool Kill(Character killBySource = null)
         {
             if (ImmuneToDamage)
                 return false;

@@ -19,8 +19,8 @@ MonoBehaviour:
   BlockIcon: {fileID: 767241737, guid: bac3111782729304c9f7ec625973166b, type: 3}
   StatsTemplate: {fileID: 11400000, guid: aba22f151ab220346b0af84c06505add, type: 2}
   PrefabName: 
-  BonusHealthPerWave: 40
-  BonusDamagePerWave: 0.5
+  BonusHealthPerWave: 80
+  BonusDamagePerWave: 5
   BonusMoveSpeedPerWave: 8
   BonusArmorPerWave: 3
   BonusKnockbackResistPerWave: 0.03

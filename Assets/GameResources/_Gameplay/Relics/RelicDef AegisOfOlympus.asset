@@ -13,6 +13,9 @@ MonoBehaviour:
   m_Name: RelicDef AegisOfOlympus
   m_EditorClassIdentifier: HotFix::MoreMountains.RelicDef
   Type: 30213
+  TagInfo:
+    MechanicTags: 
+    StatusTags: 
   BasePrice: 150
   SellRefund: 75
   CarryLimit: 0
@@ -49,6 +52,9 @@ MonoBehaviour:
     m_FallbackState: 0
     m_WaitForCompletion: 0
     m_LocalVariables: []
+  MetaHandleWeapon: {fileID: -4105011669793033285, guid: cfb01db04d69cc2489b1a2afac36f881,
+    type: 3}
+  Args: []
   references:
     version: 2
     RefIds: []

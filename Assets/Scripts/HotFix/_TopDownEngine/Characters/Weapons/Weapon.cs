@@ -74,6 +74,22 @@ namespace MoreMountains
 
             return Stats.GetStat(key.Key(), out stat);
         }
+        
+        public UniStats.Stat GetStat(string key)
+        {
+            return _hasStats ? Stats.GetStat(key) : null;
+        }
+
+        public bool GetStat(string key, out UniStats.Stat stat)
+        {
+            if (!_hasStats)
+            {
+                stat = null;
+                return false;
+            }
+
+            return Stats.GetStat(key, out stat);
+        }
     }
 
     /// <summary>

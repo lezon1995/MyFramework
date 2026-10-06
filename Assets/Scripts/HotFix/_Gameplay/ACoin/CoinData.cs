@@ -157,12 +157,30 @@ namespace MoreMountains
         /// <summary>
         /// 拾取动画时长
         /// </summary>
-        public float PickupDuration = 0.3f;
+        public float FleeDuration = 0.15f;
+
+        /// <summary>
+        /// 飞向玩家阶段速度（世界单位/秒）
+        /// 经验值物品从远离点飞向玩家位置时的飞行速度
+        /// 到位置后触发实际到账
+        /// </summary>
+        public float FlyToPlayerSpeed = 12f;
+
+        /// <summary>
+        /// 远离阶段距离（世界单位）
+        /// 经验值物品飞离玩家的距离（从当前位置沿远离玩家方向）
+        /// </summary>
+        public float FleeDistance = 1.2f;
 
         /// <summary>
         /// 拾取动画曲线（当前用于缩放/旋转/淡出，位置使用二次贝塞尔曲线）
         /// </summary>
-        public MMTween.MMTweenCurve PickupCurve = MMTween.MMTweenCurve.EaseOutCubic;
+        public MMTween.MMTweenCurve FleeCurve = MMTween.MMTweenCurve.EaseOutCubic;
+
+        /// <summary>
+        /// 飞向阶段缓动曲线
+        /// </summary>
+        public MMTween.MMTweenCurve FlyToPlayerCurve = MMTween.MMTweenCurve.EaseInQuadratic;
 
         /// <summary>
         /// 拾取时旋转总角度（度）
@@ -175,14 +193,23 @@ namespace MoreMountains
         public float MinScale = 0.3f;
 
         /// <summary>
+        /// 飞向玩家的过程中是否锁定追踪玩家实时位置（追踪会更自然）
+        /// </summary>
+        public bool TrackPlayerDuringFly = true;
+
+        /// <summary>
         /// 创建默认配置
         /// </summary>
         public static CoinPickupConfig Default = new()
         {
-            PickupDuration = 0.5f,
-            PickupCurve = MMTween.MMTweenCurve.EaseOutCubic,
-            RotationDegrees = 0F,
-            MinScale = 1.0f
+            FleeDuration = 0.25f,
+            FlyToPlayerSpeed = 12f,
+            FleeDistance = 1.0f,
+            FleeCurve = MMTween.MMTweenCurve.EaseOutQuadratic,
+            FlyToPlayerCurve = MMTween.MMTweenCurve.EaseInQuadratic,
+            RotationDegrees = 0f,
+            MinScale = 1f,
+            TrackPlayerDuringFly = true,
         };
 
         /// <summary>
@@ -190,10 +217,14 @@ namespace MoreMountains
         /// </summary>
         public static CoinPickupConfig Quick => new()
         {
-            PickupDuration = 0.3f,
-            PickupCurve = MMTween.MMTweenCurve.EaseOutQuadratic,
-            RotationDegrees = 0F,
-            MinScale = 1.0f
+            FleeDuration = 0.08f,
+            FlyToPlayerSpeed = 18f,
+            FleeDistance = 0.8f,
+            FleeCurve = MMTween.MMTweenCurve.EaseOutQuadratic,
+            FlyToPlayerCurve = MMTween.MMTweenCurve.EaseInQuadratic,
+            RotationDegrees = 360f,
+            MinScale = 0.2f,
+            TrackPlayerDuringFly = true,
         };
 
         /// <summary>
@@ -201,10 +232,14 @@ namespace MoreMountains
         /// </summary>
         public static CoinPickupConfig Fancy => new()
         {
-            PickupDuration = 0.8f,
-            PickupCurve = MMTween.MMTweenCurve.EaseInOutCubic,
-            RotationDegrees = 0F,
-            MinScale = 1.0f
+            FleeDuration = 0.25f,
+            FlyToPlayerSpeed = 8f,
+            FleeDistance = 1.6f,
+            FleeCurve = MMTween.MMTweenCurve.EaseOutCubic,
+            FlyToPlayerCurve = MMTween.MMTweenCurve.EaseInCubic,
+            RotationDegrees = 720f,
+            MinScale = 0.1f,
+            TrackPlayerDuringFly = true,
         };
     }
 }

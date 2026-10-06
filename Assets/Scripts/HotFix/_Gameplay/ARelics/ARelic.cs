@@ -18,12 +18,22 @@ namespace MoreMountains
         public RelicTier tier;
         LandingSound landingSFX;
         float rotation;
-        string assetURL;
 
-        public APlayer _player { get; set; }
+        protected APlayer _player { get; set; }
         public RelicDef def { get; set; }
+        public RelicItem item { get; set; }
 
-        public void setDef(RelicDef d) => def = d;
+        public void setRelicDef(RelicDef d)
+        {
+            def = d;
+            onRelicDefSet(d);
+        }
+
+        protected virtual void onRelicDefSet(RelicDef d)
+        {
+        }
+
+        public void setRelicItem(RelicItem d) => item = d;
         Dictionary<Character.Stat, string> modKeys;
 
         public enum LandingSound
@@ -40,12 +50,10 @@ namespace MoreMountains
             relicId = setId;
             relicStrings = languagePack.getRelicStrings(relicId);
             DESCRIPTIONS = relicStrings.DESCRIPTIONS;
-            imgUrl = imgName;
             name = relicStrings.NAME;
             flavorText = relicStrings.FLAVOR;
             this.tier = tier;
             landingSFX = sfx;
-            assetURL = "images/relics/" + imgName;
         }
 
         public int getPrice()
@@ -91,6 +99,10 @@ namespace MoreMountains
         }
 
         public void onObtainCard(ACard c)
+        {
+        }
+
+        public virtual void onPickupGold(int amount)
         {
         }
 
@@ -353,15 +365,12 @@ namespace MoreMountains
             builder.addFieldData(flavorText);
             builder.addFieldData(cost);
             builder.addFieldData(tier.ToString());
-            builder.addFieldData(assetURL);
             return builder.toString();
         }
 
         public override string ToString() => name;
 
         public int CompareTo(ARelic arg0) => string.Compare(name, arg0.name, StringComparison.Ordinal);
-
-        public string getAssetURL() => assetURL;
 
         public Dictionary<string, object> getLocStrings()
         {
@@ -449,7 +458,11 @@ namespace MoreMountains
         {
         }
 
-        public virtual void onBallHitBrick(APlayer p, Ball ball, Brick brick, Vector2 normal, ref bool triggerRegularHit)
+        public virtual void onBallImpactHitBrick(APlayer p, Ball ball, Brick brick, Vector2 normal, ref bool triggerRegularHit)
+        {
+        }
+
+        public virtual void onBallSkillHitBrick(APlayer p, Ball ball, Brick brick)
         {
         }
 
@@ -462,6 +475,18 @@ namespace MoreMountains
         }
 
         public virtual void onBallKillBrick(APlayer p, Ball ball, Brick brick)
+        {
+        }
+
+        public virtual void onBallCauseHitDamage(APlayer p, Ball ball, Brick brick, in Dmg dmg)
+        {
+        }
+
+        public virtual void onDropCoin(APlayer p, Coin coin)
+        {
+        }
+
+        public virtual void onCauseDotDamage(APlayer p, Brick brick, in Dmg dmg)
         {
         }
     }

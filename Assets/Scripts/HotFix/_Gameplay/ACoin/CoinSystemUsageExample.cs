@@ -111,7 +111,7 @@ namespace MoreMountains
             // 修改全局拾取配置
             coinManager.PickupConfig = new CoinPickupConfig
             {
-                PickupDuration = 0.3f,
+                // PickupDuration = 0.3f,
                 RotationDegrees = 720f,
                 MinScale = 0.3f
             };

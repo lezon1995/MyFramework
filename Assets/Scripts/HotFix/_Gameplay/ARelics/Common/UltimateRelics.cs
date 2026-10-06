@@ -124,8 +124,7 @@ public class SwordOfDamocles : ARelic
 }
 
 /// <summary>
-/// AmuletOfLife - 生命护符
-/// 生命偷取+15%
+/// 击杀单位时额外掉落1~3枚数值在1~6的金币
 /// </summary>
 public class AmuletOfLife : ARelic
 {
@@ -133,6 +132,24 @@ public class AmuletOfLife : ARelic
 
     public AmuletOfLife() : base(ID, "AmuletOfLife.png", RelicTier.SPECIAL, LandingSound.MAGICAL)
     {
+    }
+
+    int minDropCount, maxDropCount;
+    int minDropValue, maxDropValue;
+
+    protected override void onRelicDefSet(RelicDef d)
+    {
+        minDropCount = (int)d.Args[0];
+        maxDropCount = (int)d.Args[1];
+        minDropValue = (int)d.Args[2];
+        maxDropValue = (int)d.Args[3];
+    }
+
+    public override void onBallKillBrick(APlayer p, Ball ball, Brick brick)
+    {
+        var value = randomInt(minDropValue, maxDropValue);
+        var count = randomInt(minDropCount, maxDropCount);
+        CoinDropHelper.DropCoins(brick.getCenterPosition(), ball.Direction, value, count, p: _player);
     }
 
     public override ARelic makeCopy() => new AmuletOfLife();

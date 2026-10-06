@@ -94,7 +94,7 @@ namespace MoreMountains
         {
         }
 
-        public override void onHitBrick(Brick brick, Vector2 hitNormal)
+        public override void onImpactHitBrick(Brick brick, Vector2 hitNormal)
         {
             if (!ChainEnabled || volumeManager == null)
                 return;

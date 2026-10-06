@@ -112,16 +112,16 @@ TrailRenderer:
       m_RotationOrder: 4
     colorGradient:
       serializedVersion: 2
-      key0: {r: 0.94509804, g: 1, b: 0, a: 1}
-      key1: {r: 0.94509804, g: 1, b: 0, a: 1}
-      key2: {r: 0.94509804, g: 1, b: 0, a: 0}
-      key3: {r: 0.85882354, g: 0.29411772, b: 0.30517673, a: 0}
+      key0: {r: 1, g: 0, b: 0, a: 1}
+      key1: {r: 1, g: 1, b: 1, a: 1}
+      key2: {r: 1, g: 1, b: 1, a: 0}
+      key3: {r: 1, g: 1, b: 1, a: 0}
       key4: {r: 0, g: 0, b: 0, a: 0}
       key5: {r: 0, g: 0, b: 0, a: 0}
       key6: {r: 0, g: 0, b: 0, a: 0}
       key7: {r: 0, g: 0, b: 0, a: 0}
       ctime0: 0
-      ctime1: 29298
+      ctime1: 22590
       ctime2: 63029
       ctime3: 63029
       ctime4: 0
@@ -138,7 +138,7 @@ TrailRenderer:
       atime7: 0
       m_Mode: 0
       m_ColorSpace: 0
-      m_NumColorKeys: 3
+      m_NumColorKeys: 2
       m_NumAlphaKeys: 3
     numCornerVertices: 0
     numCapVertices: 0
@@ -167,7 +167,7 @@ GameObject:
   - component: {fileID: 897927845639465654}
   - component: {fileID: 1043905476673499497}
   m_Layer: 16
-  m_Name: Fx_MissileProjectile
+  m_Name: Fx_MissileProjectile_Red
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5088,6 +5088,7 @@ MonoBehaviour:
     Direction: {x: 0, y: 0, z: 0}
     TriggerEffect: 1
     IsLethal: 0
+    IsDOT: 0
     HitNormal: {x: 0, y: 0}
     Mix:
       On: 0
@@ -5166,3 +5167,8 @@ MonoBehaviour:
   TargetAnimator: {fileID: 0}
   DisableAnimatorLogs: 1
   Character: {fileID: 0}
+  Shield:
+    CurrentShield: 0
+    BaseShieldRegen: 0
+    DamageReductionRatio: 0
+    ShieldPenetrationRatio: 0

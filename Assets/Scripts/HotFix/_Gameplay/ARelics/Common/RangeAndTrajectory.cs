@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+
 namespace MoreMountains;
 
 /// <summary>
@@ -182,9 +185,7 @@ public class PrecisionBeam : ARelic
 }
 
 /// <summary>
-/// ArcShot - 弧形射击
-/// 球沿弧线飞行
-/// [设计文案] 弯曲的弹道
+/// 技能会施加1层【灼烧】
 /// </summary>
 public class ArcShot : ARelic
 {
@@ -192,13 +193,30 @@ public class ArcShot : ARelic
 
     public ArcShot() : base(ID, "ArcShot.png", RelicTier.UNCOMMON, LandingSound.SOLID)
     {
+        onEffectEnd = OnEffectEnd;
+    }
+    
+    Dictionary<Brick, MagicBurningEffect> affectedBricks = new();
+    Action<Brick> onEffectEnd;
+
+    void OnEffectEnd(Brick brick)
+    {
+        affectedBricks.Remove(brick);
     }
 
-    // TODO: 需要实现弧线飞行
-    // public override void onShootBall(Ball ball)
-    // {
-    //     ball.SetCurvedPath(true);
-    // }
+    public override void onBallSkillHitBrick(APlayer p, Ball ball, Brick brick)
+    {
+        if (!affectedBricks.TryGetValue(brick, out var effect))
+        {
+            effect = effectManager.addLogic<MagicBurningEffect>();
+            effect.with(ball, brick, onEffectEnd);
+            affectedBricks[brick] = effect;
+        }
+        else
+        {
+            effect.tryApply();
+        }
+    }
 
     public override ARelic makeCopy() => new ArcShot();
 }

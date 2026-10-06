@@ -96,7 +96,7 @@ namespace MoreMountains
         public void OnGoldCollected(int amount)
         {
             TotalGoldCollected += amount;
-            _player.gainGold(amount);
+            _player.pickupGold(amount);
 
             OnGoldCollectedEvent?.Invoke(amount);
             new OnGoldPickedUp_S(this, amount, Position).trigger();

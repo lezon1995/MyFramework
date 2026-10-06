@@ -11,7 +11,7 @@ namespace MoreMountains;
 public class FireBurningEffect : ALogicEffect
     , IArgs<Ball, Brick, Action<Brick>>
 {
-    protected const string path = $"{GAMEPLAY_PATH}/Effects/Fx_FireBurning.prefab";
+    protected const string fx_path = $"{GAMEPLAY_PATH}/Effects/Fx_FireFlash_Red.prefab";
     protected const string buff_path = $"{GAMEPLAY_PATH}/Buffs/Buff_FireBurning.prefab";
 
     protected Ball ball;
@@ -35,8 +35,8 @@ public class FireBurningEffect : ALogicEffect
         ball = b1;
         brick = b2;
         onRemoved = a;
-        
-        var effect = mEffectManager.createEffect(path);
+
+        var effect = mEffectManager.createEffect(fx_path);
         buffEffect = effect;
         effect.tryGetUnityComponent(out buffFx);
         refreshEffectPosition();

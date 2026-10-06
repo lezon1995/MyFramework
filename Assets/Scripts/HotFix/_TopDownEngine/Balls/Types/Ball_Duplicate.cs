@@ -38,7 +38,7 @@
                     ball.SetOwner(Owner);
                     ball.SetPlayer(Player);
                     var dmg = _weapon.Dmg;
-                    dmg.SetDmgRate(0.5F);
+                    // dmg.SetDmgRate(0.5F);
                     ball.SetDamage(dmg);
                 }
 

@@ -196,7 +196,7 @@ namespace MoreMountains
         /// <param name="value">每枚金币价值</param>
         /// <param name="count">金币数量</param>
         /// <param name="config">掉落配置</param>
-        public static void DropCoins(Vector2 position, Vector2 direction, int value, int count, CoinDropConfig config = null)
+        public static void DropCoins(Vector2 position, Vector2 direction, int value, int count = 1, CoinDropConfig config = null, APlayer p = null)
         {
             var manager = CoinManager.Instance;
             if (manager == null)
@@ -214,14 +214,14 @@ namespace MoreMountains
                 Quaternion rotation = Quaternion.AngleAxis(angle, Vector3.forward);
                 Vector2 scatteredDir = rotation * baseDir;
 
-                manager.DropCoin(position, scatteredDir, value, config);
+                manager.DropCoin(position, scatteredDir, value, config, p);
             }
         }
 
         /// <summary>
         /// 根据配置表掉落金币
         /// </summary>
-        public static void DropCoinsByConfig(Vector2 monsterPos, Vector2 playerPos, CoinDropTable table, string monsterTypeId)
+        public static void DropCoinsByConfig(Vector2 monsterPos, Vector2 playerPos, CoinDropTable table, string monsterTypeId, APlayer p = null)
         {
             if (table == null)
                 return;
@@ -248,7 +248,7 @@ namespace MoreMountains
                 Quaternion rotation = Quaternion.AngleAxis(angle, Vector3.forward);
                 Vector2 scatteredDir = rotation * baseDir;
 
-                manager.DropCoin(monsterPos, scatteredDir, config.coinValue, dropCfg);
+                manager.DropCoin(monsterPos, scatteredDir, config.coinValue, dropCfg, p);
             }
         }
     }

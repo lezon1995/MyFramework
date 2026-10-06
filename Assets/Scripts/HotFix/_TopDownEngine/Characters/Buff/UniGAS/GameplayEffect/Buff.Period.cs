@@ -178,6 +178,7 @@ namespace MoreMountains
         {
             if (TryGetPeriodDamage(out var dmg))
             {
+                dmg.SetDOT();
                 Target.Health.Damage(ref dmg, gameObject, source: Source.Character);
                 IsKillByPeriodDamage = dmg.IsLethal;
             }

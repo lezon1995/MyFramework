@@ -17,10 +17,10 @@ namespace MoreMountains
         ///   • Remove / RemoveAt / Clear 移除非空 item 时,从此处移除对应 relic。
         ///   • 集合内不允许出现 null(UnderlyingRelic == null 时也不会被加入)。
         /// </summary>
-        readonly List<ARelic> relics;
+        List<ARelic> relics;
 
         /// <summary>对外只读访问,供业务层(如 RelicService)遍历当前激活的遗物。</summary>
-        public IReadOnlyList<ARelic> Relics => relics;
+        public List<ARelic> Relics => relics;
 
         public RelicBag(APlayer p, int capacity, int maxCapacity) : base(p, capacity, maxCapacity, "RelicBag")
         {

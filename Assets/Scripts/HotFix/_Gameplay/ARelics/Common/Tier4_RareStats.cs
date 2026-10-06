@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using UniStats;
+using UnityEngine;
 
 namespace MoreMountains;
 
@@ -210,9 +212,7 @@ public class InfernalContract : ARelic
 }
 
 /// <summary>
-/// AngelicProtection - 天使守护
-/// 免疫一次致命伤害（每波次一次）
-/// [设计文案] 天使的保护，抵挡致命一击
+/// 对球撞击角色范围以外的敌人时，对敌人发射1~3枚魔法飞弹
 /// </summary>
 public class AngelicProtection : ARelic
 {
@@ -222,23 +222,71 @@ public class AngelicProtection : ARelic
     {
     }
 
-    // TODO: 需要实现免疫致命伤害的机制
-    // private bool hasProtection = true;
-    //
-    // public override void atBattleStart()
-    // {
-    //     hasProtection = true;
-    // }
-    //
-    // public override int onLoseHpLast(int damageAmount)
-    // {
-    //     if (hasProtection && damageAmount >= owner.CurrentHealth)
-    //     {
-    //         hasProtection = false;
-    //         return owner.CurrentHealth - 1; // 保留1点血
-    //     }
-    //     return damageAmount;
-    // }
+    int minCount, maxCount, gap;
+
+    protected override void onRelicDefSet(RelicDef d)
+    {
+        minCount = (int)d.Args[0];
+        maxCount = (int)d.Args[1];
+        gap = (int)d.Args[2];
+    }
+
+    class Pair : ClassObject
+    {
+        public Brick brick;
+        public int fixedUpdateCounter;
+        public override void resetProperty()
+        {
+            base.resetProperty();
+            brick = null;
+            fixedUpdateCounter = 0;
+        }
+    }
+
+    SafeList<Pair> list = new();
+
+    public override void onUpdate(float dt)
+    {
+        foreach (var pair in list)
+        {
+            bool needRemove = false;
+            if (pair.fixedUpdateCounter>0)
+            {
+                pair.fixedUpdateCounter--;
+            }
+            else
+            {
+                needRemove = true;
+            }
+
+            if (list.removeIf(pair, needRemove))
+            {
+                if (_player.relicMetaHandleWeapons.TryGetValue(item.Slot, out var metaHandleWeapon))
+                {
+                    if (metaHandleWeapon.CurrentWeapon is MissileProjectileWeapon weapon)
+                    {
+                        weapon.SetStatsOwner(_player);
+                        weapon.SetAimTarget(pair.brick.transform);
+                    }
+                }
+
+                metaHandleWeapon.ShootStart();
+                UN_CLASS(pair);
+            }
+        }
+    }
+
+    public override void onBallImpactHitBrick(APlayer p, Ball ball, Brick brick, Vector2 normal, ref bool triggerRegularHit)
+    {
+        var count = randomInt(minCount, maxCount);
+        for (int i = 0; i < count; i++)
+        {
+            var pair = CLASS<Pair>();
+            pair.brick =  brick;
+            pair.fixedUpdateCounter = i * gap;
+            list.add(pair);
+        }
+    }
 
     public override ARelic makeCopy() => new AngelicProtection();
 }

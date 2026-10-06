@@ -19,12 +19,12 @@ MonoBehaviour:
   BlockIcon: {fileID: -170986944, guid: 2ee7323d7caf93742bfeb3c64e4a7558, type: 3}
   StatsTemplate: {fileID: 11400000, guid: 0213671d69424f847aa9727ba43a9950, type: 2}
   PrefabName: Brick_Boss_3
-  BonusHealthPerWave: 90
-  BonusDamagePerWave: 0.5
+  BonusHealthPerWave: 180
+  BonusDamagePerWave: 10
   BonusMoveSpeedPerWave: 10
   BonusArmorPerWave: 3
   BonusKnockbackResistPerWave: 0.03
   BossHealthBarSize: {x: 1000, y: 50}
-  AIBehaviour: {fileID: 5757167335483623584, guid: b2a8eb5c3bd06e941836b17048ab8a2e,
+  AIBehaviour: {fileID: 5290813838179023476, guid: 310bbfac8152c3941a691fb4c7f32a0d,
     type: 3}
   AIHandleWeapon: {fileID: 0}

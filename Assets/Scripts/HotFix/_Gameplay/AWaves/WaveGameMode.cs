@@ -145,7 +145,7 @@ namespace MoreMountains
         // 退出游戏
         public void QuitGame()
         {
-            waveManager.Reset();
+            waveManager.ResetWaveManager();
             TotalPlayTime = 0f;
             TotalKills = 0;
             Time.timeScale = 1f;
@@ -287,7 +287,7 @@ namespace MoreMountains
             }
         }
 
-        void HandleMonsterKilled(Brick monster)
+        void HandleMonsterKilled(Brick monster, APlayer p)
         {
             if (monster)
             {
@@ -296,6 +296,7 @@ namespace MoreMountains
                 {
                     new OnMonsterKilled_Wave(
                         monster,
+                        p,
                         GetSpawnType(monster),
                         waveManager.WaveNumber,
                         waveManager.WaveTimeElapsed

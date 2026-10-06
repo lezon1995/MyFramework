@@ -20,7 +20,7 @@ public class BallHitCountTriggerElectricChainPower : BallPower, IArgs<int>
         countdown = default;
     }
 
-    public override void onHitBrick(Brick brick, Vector2 normal)
+    public override void onImpactHitBrick(Brick brick, Vector2 normal)
     {
         if (countdown.update())
         {

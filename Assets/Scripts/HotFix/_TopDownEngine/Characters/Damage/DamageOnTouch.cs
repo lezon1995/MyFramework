@@ -141,6 +141,8 @@ namespace MoreMountains
         protected Vector3 _knockbackScriptDirection;
         protected Vector3 _damageScriptDirection;
 
+        public Vector3 DamageDirection => _damageDirection;
+
         #region Initialization
 
         /// <summary>
@@ -559,7 +561,7 @@ namespace MoreMountains
         /// <summary>
         /// Applies knockback if needed
         /// </summary>
-        protected virtual void ApplyKnockback(Health colliderHealth, TopDownController controller, Dmg damage)
+        public virtual void ApplyKnockback(Health colliderHealth, TopDownController controller, Dmg damage)
         {
             if (DamageCausedKnockbackType != KnockbackStyles.AddForce)
                 return;
@@ -579,7 +581,7 @@ namespace MoreMountains
         /// <summary>
         /// Applies knockback if we're in a 2D context
         /// </summary>
-        protected virtual void ApplyKnockback2D(ref Vector3 force)
+        public virtual void ApplyKnockback2D(ref Vector3 force)
         {
             switch (DamageCausedKnockbackDirection)
             {
@@ -670,6 +672,7 @@ namespace MoreMountains
         public Vector3 Direction;
         public bool TriggerEffect;
         public bool IsLethal;
+        public bool IsDOT;
         public Vector2 HitNormal;
         public Mixed Mix;
         public int Hash => hash;
@@ -699,6 +702,7 @@ namespace MoreMountains
             TriggerEffect = true;
             HitNormal = Vector2.up;
             IsLethal = false;
+            IsDOT = false;
             hash = 0;
         }
 
@@ -721,6 +725,7 @@ namespace MoreMountains
             TriggerEffect = true;
             HitNormal = Vector2.up;
             IsLethal = false;
+            IsDOT = false;
             hash = 0;
         }
 
@@ -879,6 +884,11 @@ namespace MoreMountains
         public void SetMetaType(int type)
         {
             MetaType = type;
+        }
+
+        public void SetDOT()
+        {
+            IsDOT = true;
         }
 
         public void SetHash(int hash)

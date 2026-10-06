@@ -79,9 +79,7 @@ public class LaserVertical : BuffObject, IDoAttackEffect
                     botBricks.Add(b);
             }
             
-            var dmg = ball.getSkillDmg(brick);
-            dmg.Crit();
-            brick.Health.Damage(ref dmg, ball.gameObject, ball.Player);
+            ball.onSkillHitEnter(brick);
 
             if (topBricks.Count > 0)
                 startTask(topBricks, ball).Forget();
@@ -100,9 +98,7 @@ public class LaserVertical : BuffObject, IDoAttackEffect
             if (brick.IsDead())
                 continue;
 
-            var dmg = ball.getSkillDmg(brick);
-            dmg.Crit();
-            brick.Health.Damage(ref dmg, ball.gameObject, ball.Player);
+            ball.onSkillHitEnter(brick);
         }
 
         UnityEngine.Pool.ListPool<Brick>.Release(list);

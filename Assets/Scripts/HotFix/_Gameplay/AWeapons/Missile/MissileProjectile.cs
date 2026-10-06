@@ -17,7 +17,7 @@ namespace MoreMountains
         // ====== 注入字段（Launch 时填充） ======
         MissileProjectileWeaponDefinition _def;
         Character _caster;
-        Ball _ball;
+        IStatsGetter _statsOwner;
         Vector2 _p0; // 起点（角色身上）
         Vector2 _p1; // 控制点：target→caster 反向 + 随机偏角 + 抬升
         Vector2 _impactScatter; // 命中点散布（生成时随机一次后锁定）
@@ -37,14 +37,28 @@ namespace MoreMountains
             {
                 UniStats.Stat effectDamageRate = null;
                 float value = damageOnTouch.Dmg.Value;
-                if (_ball && _ball.GetStat(Ball.Stat.AP, out var effectDamage) && _ball.GetStat(Ball.Stat.EffectDamageRate, out effectDamageRate))
-                {
-                    value += effectDamage.Value * effectDamageRate.Value;
-                }
 
-                if (damageOnTouch.Source && damageOnTouch.Source.GetStat(Character.Stat.AP, out var stat) && effectDamageRate)
+                UniStats.Stat ap;
+                switch (_statsOwner)
                 {
-                    value += stat.Value * effectDamageRate.Value;
+                    case Ball ball:
+                        if (ball.GetStat(Ball.Stat.AP, out ap) && ball.GetStat(Ball.Stat.EffectDamageRate, out effectDamageRate))
+                        {
+                            value = ap.Value * effectDamageRate.Value;
+                        }
+                        
+                        if (damageOnTouch.Source && damageOnTouch.Source.GetStat(Character.Stat.AP, out var stat) && effectDamageRate)
+                        {
+                            value += stat.Value * effectDamageRate.Value;
+                        }
+
+                        break;
+                    case APlayer player:
+                        if (player.GetStat(Character.Stat.AP, out ap))
+                        {
+                            value = ap.Value * 0.1F;
+                        }
+                        break;
                 }
 
                 return Dmg.AP((int)value);
@@ -62,14 +76,14 @@ namespace MoreMountains
         public void Launch(
             MissileProjectileWeaponDefinition def,
             Character caster,
-            Ball ball,
+            IStatsGetter owner,
             float arcHeightOffset,
             Vector2 p1,
             float flightDuration)
         {
             _def = def;
             _caster = caster;
-            _ball = ball;
+            _statsOwner = owner;
             _arcHeightOffset = arcHeightOffset;
             _p1 = p1;
             _flightDuration = Mathf.Max(0.01f, flightDuration);
@@ -102,7 +116,7 @@ namespace MoreMountains
         /// 所以用这个估算的弧长会比实际略短,Resolution 里给了一个 1.1 系数来补偿。
         /// </summary>
         public Vector2 GetTargetPosition() =>
-            _target ? (Vector2)_target.position : _p0;
+            _hasTarget ? (Vector2)_target.position : _p0;
 
         /// <summary>
         /// 根据 (target→caster) 反向 + 随机偏转 + 抬升,计算 P1 控制点。
@@ -155,7 +169,7 @@ namespace MoreMountains
             if (_def == null)
                 return _p0 + Vector2.up;
 
-            var targetPos = (Vector2)(_target ? _target.position : transform.position);
+            var targetPos = (Vector2)(_hasTarget ? _target.position : transform.position);
             return ComputeOutgoingControlPoint(
                 casterPos: _p0,
                 targetPos: targetPos,
@@ -184,7 +198,7 @@ namespace MoreMountains
 
         protected override void Movement(float dt)
         {
-            if (_target == null)
+            if (!_hasTarget)
             {
                 _health.Kill();
                 return;

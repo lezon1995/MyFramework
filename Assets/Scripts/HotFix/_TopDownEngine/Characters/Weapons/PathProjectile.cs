@@ -20,7 +20,7 @@ namespace MoreMountains
 
         protected override void Movement(float dt)
         {
-            if (_target == null)
+            if (!_hasTarget)
                 return;
 
             transform.position = Vector3.MoveTowards(transform.position, _target.position, dt * moveSpeed);

@@ -53,7 +53,7 @@ namespace MoreMountains
         {
             base.SetTarget(target);
 
-            if (_target == null)
+            if (!_hasTarget)
                 return;
             
             var direction = (_target.position - transform.position).normalized;
@@ -108,7 +108,7 @@ namespace MoreMountains
 
         protected override void Movement(float dt)
         {
-            if (_target == null)
+            if (!_hasTarget)
             {
                 _health.Kill();
                 return;

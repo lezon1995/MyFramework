@@ -13,6 +13,9 @@ MonoBehaviour:
   m_Name: RelicDef AngelicProtection
   m_EditorClassIdentifier: HotFix::MoreMountains.RelicDef
   Type: 30059
+  TagInfo:
+    MechanicTags: 
+    StatusTags: 
   BasePrice: 105
   SellRefund: 52
   CarryLimit: 0
@@ -49,6 +52,12 @@ MonoBehaviour:
     m_FallbackState: 0
     m_WaitForCompletion: 0
     m_LocalVariables: []
+  MetaHandleWeapon: {fileID: -4105011669793033285, guid: 58b137ffa921b5f48ab9ec11e40c4f23,
+    type: 3}
+  Args:
+  - 1
+  - 3
+  - 4
   references:
     version: 2
     RefIds: []

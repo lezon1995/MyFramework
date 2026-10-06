@@ -1,3 +1,6 @@
+using MoreMountains.Tools;
+using UnityEngine;
+
 namespace MoreMountains;
 
 /// <summary>
@@ -65,9 +68,7 @@ public class KnowledgeGem : ARelic
 }
 
 /// <summary>
-/// AncientTome - 古老典籍
-/// 技能解锁更快
-/// [设计文案] 加速技能学习
+/// 当敌人受到DOT伤害时获得实际造成伤害*10%的金币
 /// </summary>
 public class AncientTome : ARelic
 {
@@ -77,11 +78,22 @@ public class AncientTome : ARelic
     {
     }
 
-    // TODO: 需要实现技能加速
-    // public override void onEquip(APlayer p)
-    // {
-    //     p.SkillUnlockSpeed *= 1.5f;
-    // }
+    int minAmount, maxAmount;
+    float convertRate;
+
+    protected override void onRelicDefSet(RelicDef d)
+    {
+        convertRate = d.Args[0];
+        minAmount = (int)d.Args[1];
+        maxAmount = (int)d.Args[2];
+    }
+
+    public override void onCauseDotDamage(APlayer p, Brick brick, in Dmg dmg)
+    {
+        var amount = (int)Mathf.Clamp(dmg.DamageDealt * convertRate, minAmount, maxAmount) ;
+        p.gainGold(amount);
+        new GainCoinTextEvent(amount, brick.getTransform()).trigger();
+    }
 
     public override ARelic makeCopy() => new AncientTome();
 }

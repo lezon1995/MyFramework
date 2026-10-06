@@ -25,17 +25,26 @@ namespace MoreMountains
                 return Item;
 
             RelicItem previous = Item;
+            if (previous != null)
+                previous.Slot = null;
+
             Item = item;
+            if (item != null)
+                item.Slot = this;
+
             OnSlotChanged?.Invoke(this);
             return previous;
         }
-        
+
         public bool TrySet(RelicItem item)
         {
             if (IsOccupied)
                 return false;
 
             Item = item;
+            if (item != null)
+                item.Slot = this;
+
             OnSlotChanged?.Invoke(this);
             return true;
         }

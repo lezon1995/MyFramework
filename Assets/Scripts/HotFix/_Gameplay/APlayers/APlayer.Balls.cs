@@ -31,7 +31,8 @@ namespace MoreMountains
         public PlayerWallet Wallet => wallet;
 
         public CharacterHandleWeapon[] mainHandleWeapons;
-        public Dictionary<BallInventorySlot, MetaHandleWeapon> metaHandleWeapons = new();
+        public Dictionary<BallInventorySlot, MetaHandleWeapon> ballMetaHandleWeapons = new();
+        public Dictionary<RelicInventorySlot, MetaHandleWeapon> relicMetaHandleWeapons = new();
         public BallWeaponAttachmentRoot ballWeaponAttachmentRoot;
         public Transform metaHandleWeaponsParent;
 
@@ -49,7 +50,7 @@ namespace MoreMountains
             getOrAddUnityComponent(out shop);
             getOrAddUnityComponent(out rewardSystem);
             getOrAddUnityComponent(out wallet);
-            
+
             AddAbility(ballManagement);
             AddAbility(inventory);
             AddAbility(shop);
@@ -131,7 +132,7 @@ namespace MoreMountains
                     if (ballDef.MetaHandleWeapon)
                     {
                         var metaHandleWeapon = InstantiateMetaHandleWeapon(ballDef.MetaHandleWeapon);
-                        metaHandleWeapons[slot] = metaHandleWeapon;
+                        ballMetaHandleWeapons[slot] = metaHandleWeapon;
                         AddAbility(metaHandleWeapon);
                     }
                 }
@@ -140,10 +141,10 @@ namespace MoreMountains
                     ballGunWeapon.SetBallLevel(ballLevel);
                     ballGunWeapon.SetBallDef(null);
 
-                    if (metaHandleWeapons.TryGetValue(slot, out var metaHandleWeapon))
+                    if (ballMetaHandleWeapons.TryGetValue(slot, out var metaHandleWeapon))
                     {
                         RemoveAbility(metaHandleWeapon);
-                        metaHandleWeapons.Remove(slot);
+                        ballMetaHandleWeapons.Remove(slot);
                         Destroy(metaHandleWeapon.gameObject);
                     }
                 }
@@ -161,7 +162,7 @@ namespace MoreMountains
                     if (ballDef.MetaHandleWeapon)
                     {
                         var metaHandleWeapon = InstantiateMetaHandleWeapon(ballDef.MetaHandleWeapon);
-                        metaHandleWeapons[slot] = metaHandleWeapon;
+                        ballMetaHandleWeapons[slot] = metaHandleWeapon;
                         AddAbility(metaHandleWeapon);
                     }
                 }
@@ -171,10 +172,10 @@ namespace MoreMountains
                     ballSlotWeapon.SetBallLevel(ballLevel);
                     ballSlotWeapon.SetBallDef(null);
 
-                    if (metaHandleWeapons.TryGetValue(slot, out var metaHandleWeapon))
+                    if (ballMetaHandleWeapons.TryGetValue(slot, out var metaHandleWeapon))
                     {
                         RemoveAbility(metaHandleWeapon);
-                        metaHandleWeapons.Remove(slot);
+                        ballMetaHandleWeapons.Remove(slot);
                         Destroy(metaHandleWeapon.gameObject);
                     }
                 }
@@ -191,6 +192,31 @@ namespace MoreMountains
             }
 
             ballWeaponAttachmentRoot.RefreshLayout();
+        }
+
+        public void OnRelicInventorySlotChanged(RelicInventorySlot slot)
+        {
+            var relicItem = slot.Item;
+            var relicDef = relicItem == null ? null : relicItem.Def;
+            var relicInstance = relicItem == null ? null : relicItem.UnderlyingRelic;
+            if (relicDef)
+            {
+                if (relicDef.MetaHandleWeapon)
+                {
+                    var metaHandleWeapon = InstantiateMetaHandleWeapon(relicDef.MetaHandleWeapon);
+                    relicMetaHandleWeapons[slot] = metaHandleWeapon;
+                    AddAbility(metaHandleWeapon);
+                }
+            }
+            else
+            {
+                if (relicMetaHandleWeapons.TryGetValue(slot, out var metaHandleWeapon))
+                {
+                    RemoveAbility(metaHandleWeapon);
+                    relicMetaHandleWeapons.Remove(slot);
+                    Destroy(metaHandleWeapon.gameObject);
+                }
+            }
         }
 
         /// <summary>

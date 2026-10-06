@@ -134,7 +134,7 @@ MonoBehaviour:
   ApplicationRequiredTags: []
   ApplicationIgnoredTags: []
   main:
-    Name: "\u707C\u70E7"
+    Name: "\u71C3\u70E7"
     Desc: "\u6301\u7EED4\u79D2\uFF0C\u6BCF\u79D2\u9020\u62105\u70B9\u4F24\u5BB3"
     Type: 1
     InstanceMode: 0

@@ -6,7 +6,7 @@ namespace MoreMountains
     {
         // public List<ARelic> relics = new();
 
-        public IReadOnlyList<ARelic> relics => inventory.RelicBag.Relics;
+        public List<ARelic> relics => inventory.RelicBag.Relics;
 
         public void gainRelic(RelicDef def)
         {
@@ -69,6 +69,12 @@ namespace MoreMountains
             }
 
             return null;
+        }
+
+        public void updateRelics(float dt)
+        {
+            for (int i = 0; i < relics.Count; i++)
+                relics[i].onUpdate(dt);
         }
 
         public List<string> getRelicNames()

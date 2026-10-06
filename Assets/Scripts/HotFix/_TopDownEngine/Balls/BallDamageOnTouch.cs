@@ -14,7 +14,7 @@ namespace MoreMountains
             TryGetComponent(out ball);
         }
 
-        protected override void ApplyKnockback(Health colliderHealth, TopDownController controller, Dmg damage)
+        public override void ApplyKnockback(Health colliderHealth, TopDownController controller, Dmg damage)
         {
             if (DamageCausedKnockbackType != KnockbackStyles.AddForce)
                 return;
@@ -122,9 +122,8 @@ namespace MoreMountains
                 else
                 {
                     ball.lastHittable = brick;
-                    var dmg = ball.getHitDmg(brick, normal);
-                    brick.onHitEnter(ball, normal);
-                    ball.onHitEnter(brick, normal, out var triggerRegularHit);
+
+                    ball.onImpactHitEnter(brick, normal, out var triggerRegularHit);
                     ball.collidingBrick = brick;
 
                     if (triggerRegularHit)
@@ -144,8 +143,6 @@ namespace MoreMountains
                     HitDamageableEvent?.Invoke(_colliderHealth);
 
                     DetermineDamageDirection();
-                    _colliderHealth.Damage(ref dmg, gameObject, Source, InvincibilityDuration, _damageDirection);
-                    ApplyKnockback(_colliderHealth, _colliderController, dmg);
                 }
             }
             else
@@ -153,13 +150,9 @@ namespace MoreMountains
                 switch (resistDamageType)
                 {
                     case ResistDamageType.None:
-                        break;
                     case ResistDamageType.Invincible:
-                        break;
                     case ResistDamageType.ImmuneToDamage:
-                        break;
                     case ResistDamageType.Dead:
-                        break;
                     case ResistDamageType.Disabled:
                         break;
                 }

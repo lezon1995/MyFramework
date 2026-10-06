@@ -15,7 +15,7 @@ namespace MoreMountains
 
         static Dictionary<Brick, int> stolenBricks = new();
 
-        public override bool onHitEnter(Brick brick, Vector2 normal, out bool triggerRegularHit)
+        public override bool onImpactHitEnter(Brick brick, Vector2 normal, out bool triggerRegularHit)
         {
             if (brick.GetStat(Brick.Stat.AR, out var ar))
             {
@@ -59,7 +59,7 @@ namespace MoreMountains
                 stolenBricks[brick]++;
             }
 
-            return base.onHitEnter(brick, normal, out triggerRegularHit);
+            return base.onImpactHitEnter(brick, normal, out triggerRegularHit);
         }
 
         public override int getHitDamage()

@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using MoreMountains.Tools;
 using UniStats;
 using UnityEngine;
 using Random = System.Random;
@@ -35,7 +35,7 @@ namespace MoreMountains
     /// <summary>
     /// 波次刷怪管理器 - 核心系统
     /// </summary>
-    public class WaveManager : MonoBehaviour
+    public class WaveManager : MonoBehaviour, IEvent<OnBrickDeath>
     {
         #region Properties
 
@@ -146,7 +146,7 @@ namespace MoreMountains
         public event Action<WaveLevelConfig> OnLevelComplete;
         public event Action<GameResult> OnGameEnd;
         public event Action<Brick> OnMonsterSpawned;
-        public event Action<Brick> OnMonsterKilled;
+        public event Action<Brick, APlayer> OnMonsterKilled;
         public event Action<WaveState> OnStateChanged;
         public event Action<float> OnWaveTimeUpdate;
         public event Action OnRewardSelectionStarted;
@@ -182,7 +182,6 @@ namespace MoreMountains
                     break;
             }
 
-            UpdateMonsterStates();
             OnWaveTimeUpdate?.Invoke(WaveTimeRemaining);
         }
 
@@ -376,14 +375,7 @@ namespace MoreMountains
             {
                 // 应用属性增长
                 ApplyScalingToMonster(monster);
-
-                // 添加到活跃列表
-                ActiveMonsters.Add(monster);
-                if (monsterDef.Type == SpawnEnemyType.Boss)
-                {
-                    ActiveBosses.Add(monster);
-                }
-
+                RegisterMonster(monster, monsterDef.Type);
                 WaveSpawnCount++;
                 _waveCurrentTotalSpawn++;
                 RecordConfigSpawn(originConfig); // 累计 originConfig 的生成数量
@@ -395,10 +387,18 @@ namespace MoreMountains
             return monster;
         }
 
+        
+        public void onEvent(OnBrickDeath e)
+        {
+            e.brick.Event.removeListener<OnBrickDeath>(this);
+            
+            UnregisterMonster(e.brick, e.killer);
+        }
+        
         /// <summary>
         /// 注册一个外部生成的怪物
         /// </summary>
-        public void RegisterExternalMonster(Brick monster, SpawnEnemyType type)
+        public void RegisterMonster(Brick monster, SpawnEnemyType type)
         {
             if (monster == null)
                 return;
@@ -408,12 +408,14 @@ namespace MoreMountains
             {
                 ActiveBosses.Add(monster);
             }
+            
+            monster.Event.addListener<OnBrickDeath>(this);
         }
 
         /// <summary>
         /// 注销一个怪物
         /// </summary>
-        public void UnregisterMonster(Brick monster)
+        public void UnregisterMonster(Brick monster, Character killer)
         {
             if (monster == null)
                 return;
@@ -422,7 +424,7 @@ namespace MoreMountains
             ActiveBosses.Remove(monster);
             WaveKillCount++;
             NotifyMonsterKilled(); // 持续刷怪：通知击杀
-            OnMonsterKilled?.Invoke(monster);
+            OnMonsterKilled?.Invoke(monster, killer as APlayer);
         }
 
         /// <summary>
@@ -764,7 +766,7 @@ namespace MoreMountains
         /// <summary>
         /// 重置波次管理器
         /// </summary>
-        public void Reset()
+        public void ResetWaveManager()
         {
             ClearAllActiveMonsters();
             CurLevel = null;
@@ -844,9 +846,6 @@ namespace MoreMountains
 
             // 处理普通怪物生成
             ProcessMonsterSpawn(dt);
-
-            // 清理死亡怪物
-            CleanupDeadMonsters();
         }
 
         void UpdateClearing(float dt)
@@ -855,43 +854,6 @@ namespace MoreMountains
             if (ActiveMonsterCount == 0)
             {
                 FinishWaveCompletion();
-            }
-        }
-
-        void UpdateMonsterStates()
-        {
-            // 定期检查并清理死亡怪物
-            for (int i = ActiveMonsters.Count - 1; i >= 0; i--)
-            {
-                var monster = ActiveMonsters[i];
-                if (monster == null || monster.IsDead())
-                {
-                    // 问题3修复：当怪物死亡时，更新击杀计数
-                    if (monster && monster.IsDead())
-                    {
-                        WaveKillCount++;
-                        NotifyMonsterKilled(); // 持续刷怪：通知击杀
-                        OnMonsterKilled?.Invoke(monster);
-                    }
-
-                    ActiveMonsters.RemoveAt(i);
-                }
-            }
-
-            for (int i = ActiveBosses.Count - 1; i >= 0; i--)
-            {
-                var boss = ActiveBosses[i];
-                if (boss == null || boss.IsDead())
-                {
-                    if (boss && boss.IsDead())
-                    {
-                        WaveKillCount++;
-                        NotifyMonsterKilled(); // 持续刷怪：通知击杀
-                        OnMonsterKilled?.Invoke(boss);
-                    }
-
-                    ActiveBosses.RemoveAt(i);
-                }
             }
         }
 
@@ -1352,26 +1314,6 @@ namespace MoreMountains
             }
         }
 
-        void CleanupDeadMonsters()
-        {
-            for (int i = ActiveMonsters.Count - 1; i >= 0; i--)
-            {
-                var monster = ActiveMonsters[i];
-                if (monster == null || monster.IsDead())
-                {
-                    // 问题3修复：确保死亡时更新击杀计数
-                    if (monster)
-                    {
-                        WaveKillCount++;
-                        NotifyMonsterKilled(); // 持续刷怪：通知击杀
-                        OnMonsterKilled?.Invoke(monster);
-                    }
-
-                    ActiveMonsters.RemoveAt(i);
-                }
-            }
-        }
-
         void CompleteWave()
         {
             SetState(WaveState.Clearing);
@@ -1415,7 +1357,7 @@ namespace MoreMountains
 
         public void OnDestroy()
         {
-            Reset();
+            ResetWaveManager();
         }
 
 

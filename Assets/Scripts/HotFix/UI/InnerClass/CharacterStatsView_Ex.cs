@@ -9,4 +9,9 @@ public partial class CharacterStatsView
     {
         PlayerStatItemPool.newItemList(dataList, onBuild);
     }
+
+    public void SetRemainCoin(int coin)
+    {
+        textRemainCoin.setText(coin);
+    }
 }

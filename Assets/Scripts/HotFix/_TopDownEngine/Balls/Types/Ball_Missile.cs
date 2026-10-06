@@ -8,11 +8,11 @@
         {
             base.onEvent(e);
 
-            if (Player.metaHandleWeapons.TryGetValue(Slot, out var metaHandleWeapon))
+            if (Player.ballMetaHandleWeapons.TryGetValue(Slot, out var metaHandleWeapon))
             {
                 if (metaHandleWeapon.CurrentWeapon is MissileProjectileWeapon weapon)
                 {
-                    weapon.SetBallOwner(this);
+                    weapon.SetStatsOwner(this);
                     weapon.SetAimTarget(e.brick.transform);
                 }
 

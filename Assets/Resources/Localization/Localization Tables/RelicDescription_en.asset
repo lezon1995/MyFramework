@@ -19,31 +19,31 @@ MonoBehaviour:
     m_Items: []
   m_TableData:
   - m_Id: 17956860383233
-    m_Localized: Immune to all negative effects
+    m_Localized: "\u62FE\u53D6\u91D1\u5E01\u65F6\u6709\u51E0\u7387\u5BF9\u9644\u8FD1\u7684\u654C\u4EBA\u53D1\u5C04\u4E00\u679A\u8FFD\u8E2A\u5B50\u5F39"
     m_Metadata:
       m_Items: []
   - m_Id: 17956860383234
-    m_Localized: Attack speed gradually increases
+    m_Localized: "\u9020\u6210\u4F24\u5BB3\u65F6\u670920%\u51E0\u7387\u989D\u5916\u6389\u843D1~6\u91D1\u5E01"
     m_Metadata:
       m_Items: []
   - m_Id: 17956860383235
-    m_Localized: Gain extra ammo at the start of each wave
+    m_Localized: "\u6389\u843D\u91D1\u5E01\u65F6\u7ACB\u5373\u62FE\u53D6"
     m_Metadata:
       m_Items: []
   - m_Id: 17956860383236
-    m_Localized: Life steal +15%
+    m_Localized: "\u51FB\u6740\u5355\u4F4D\u65F6\u989D\u5916\u6389\u843D1~3\u679A\u6570\u503C\u57281~6\u7684\u91D1\u5E01"
     m_Metadata:
       m_Items: []
   - m_Id: 17956860383237
-    m_Localized: Faster skill unlock
+    m_Localized: "\u5F53\u654C\u4EBA\u53D7\u5230DOT\u4F24\u5BB3\u65F6\u83B7\u5F97\u5B9E\u9645\u9020\u6210\u4F24\u5BB3*10%\u7684\u91D1\u5E01"
     m_Metadata:
       m_Items: []
   - m_Id: 17956860383238
-    m_Localized: Immune to one lethal hit (once per wave)
+    m_Localized: "\u5BF9\u7403\u649E\u51FB\u89D2\u8272\u8303\u56F4\u4EE5\u5916\u7684\u654C\u4EBA\u65F6\uFF0C\u5BF9\u654C\u4EBA\u53D1\u5C041~3\u679A\u9B54\u6CD5\u98DE\u5F39"
     m_Metadata:
       m_Items: []
   - m_Id: 17956860383239
-    m_Localized: 20% chance to clear screen on kill
+    m_Localized: "\u6BCF\u6B21\u9020\u6210\u649E\u51FB\u4F24\u5BB3\u65F6\u4F1A\u63D0\u4F9B1\u70B9AP\uFF0C\u6BCF\u6B21\u9020\u6210\u9B54\u6CD5\u4F24\u5BB3\u65F6\u4F1A\u63D0\u4F9B1\u70B9AD"
     m_Metadata:
       m_Items: []
   - m_Id: 17956860383240

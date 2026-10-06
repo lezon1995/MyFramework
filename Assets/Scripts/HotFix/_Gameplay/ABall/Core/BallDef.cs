@@ -317,6 +317,10 @@ namespace MoreMountains
                 var ballDmgRate = configs.get(statBallDmgRate);
                 var statHitDamageRate = Ball.Stat.HitDamageRate.Key();
                 var hitDamageRate = configs.get(statHitDamageRate);
+                if (initialLevelValues.TryGetValue(statHitDamageRate, out var hitDamageRates))
+                {
+                    hitDamageRate = hitDamageRates.get(item.levelIndex);
+                }
 
                 UniStats.Stat ad = null;
                 UniStats.Stat playerDmgRate = null;

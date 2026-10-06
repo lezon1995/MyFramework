@@ -41,6 +41,29 @@ namespace MoreMountains
         public int instanceID => _instanceID;
 
         protected int _instanceID;
+        
+        
+        /// <summary>
+        /// 拾取阶段进度（0-1，0=刚开始拾取，1=已到达玩家位置）
+        /// 仅在 BeingCollected 状态下有效
+        /// </summary>
+        public float PickupProgress { get; protected set; }
+
+        /// <summary>
+        /// 拾取阶段子阶段（远离阶段 / 飞向阶段）
+        /// </summary>
+        public PickupPhase pickupPhase { get; protected set; } = PickupPhase.None;
+
+        #endregion
+        
+        #region Public Enums
+
+        public enum PickupPhase
+        {
+            None,
+            Flee,        // 远离阶段
+            FlyToPlayer  // 飞向玩家阶段
+        }
 
         #endregion
 
@@ -75,12 +98,20 @@ namespace MoreMountains
 
         // 拾取动画状态
         Vector2 _pickupStartPos;
+        Vector2 _fleeEndPos;
         Transform _pickupTarget;
-        float _pickupTimer;
-        float _pickupDuration;
+        float _fleeTimer;
+        float _flyToPlayerTimer;
+        float _fleeDuration;
+        float _flyToPlayerSpeed;
+        float _flyToPlayerTraveled;
+        float _flyToPlayerTotalDistance;
+        float _fleeDistance;
         float _pickupRotationDegrees;
         float _pickupMinScale;
-        MMTween.MMTweenCurve _pickupCurve;
+        MMTween.MMTweenCurve _fleeCurve;
+        MMTween.MMTweenCurve _flyToPlayerCurve;
+        bool _trackPlayerDuringFly;
 
         #endregion
 
@@ -118,13 +149,19 @@ namespace MoreMountains
             Value = 1;
             _dropTimer = 0f;
             _currentBounceIndex = 0;
-            _pickupTimer = 0f;
+            _fleeTimer = 0f;
+            _flyToPlayerTimer = 0f;
+            _flyToPlayerTraveled = 0f;
+            _flyToPlayerTotalDistance = 0f;
+            _pickupTarget = null;
             _segmentVerticalRadius = 0f;
             _segmentMaxHeight = 0f;
             UN_ARRAY(ref _segmentPositions);
             UN_ARRAY(ref _segmentHeights);
             _startPos = Vector2.zero;
             _finalLandingPos = Vector2.zero;
+            pickupPhase = PickupPhase.None;
+            PickupProgress = 0f;
 
             if (_spriteRenderer)
             {
@@ -190,6 +227,8 @@ namespace MoreMountains
             setupCurrentSegment();
 
             State = CoinState.Dropping;
+            pickupPhase = PickupPhase.None;
+            PickupProgress = 0f;
 
             if (_spriteRenderer)
             {
@@ -202,13 +241,15 @@ namespace MoreMountains
         /// <summary>
         /// 尝试开始拾取动画
         /// </summary>
-        public bool TryStartPickup(Transform targetTransform)
+        public bool TryStartPickup(Transform targetTransform, bool force)
         {
-            if (State != CoinState.Grounded)
+            if (!force && State != CoinState.Grounded)
                 return false;
 
             initPickupAnimation(_transformCache.position, targetTransform);
             State = CoinState.BeingCollected;
+            pickupPhase = PickupPhase.Flee;
+            PickupProgress = 0f;
             return true;
         }
 
@@ -250,54 +291,91 @@ namespace MoreMountains
             if (State != CoinState.BeingCollected)
                 return;
 
-            _pickupTimer += dt;
-            float linearT = _pickupDuration > 0f ? Mathf.Clamp01(_pickupTimer / _pickupDuration) : 1f;
-
-            // 应用 PickupCurve 曲线（默认 EaseOutCubic）：让位置、缩放、旋转同步缓动
-            float t = MMTween.Evaluate(linearT, _pickupCurve);
-
-            // 单段抛物线：从起始位置飞向目标位置
-            Vector2 midPoint = (_pickupStartPos + (Vector2)_pickupTarget.position) * 0.5f;
-            Vector2 toTarget = (Vector2)_pickupTarget.position - _pickupStartPos;
-            float dist = toTarget.magnitude;
-
-            // 控制点：垂直于运动方向偏移以形成弧线（模拟抛物线）
-            if (dist > 0.001f)
+            
+            // === 阶段 1：远离阶段 ===
+            if (pickupPhase == PickupPhase.Flee)
             {
-                Vector2 perpendicular = new Vector2(-toTarget.y, toTarget.x).normalized;
-                // 弧度随距离增加，但有上限
-                midPoint += perpendicular * Mathf.Min(0.5f, dist * 0.25f);
-                midPoint += Vector2.up * Mathf.Min(1f, dist * 0.4f);
-            }
-            else
-            {
-                midPoint += Vector2.up * 0.5f;
-            }
+                _fleeTimer += dt;
+                float linearT = _fleeDuration > 0f ? Mathf.Clamp01(_fleeTimer / _fleeDuration) : 1f;
+                float t = MMTween.Evaluate(linearT, _fleeCurve);
 
-            Vector2 newPos = evaluateQuadraticBezier(_pickupStartPos, midPoint, _pickupTarget.position, t);
+                Vector2 newPos = Vector2.Lerp(_pickupStartPos, _fleeEndPos, t);
 
-            // 拾取过程中金币会缩小并旋转
-            float scaleMultiplier = Mathf.Lerp(1f, _pickupMinScale, t);
-            var currentPos = _transformCache.position;
-            _transformCache.position = new Vector3(newPos.x, newPos.y, currentPos.z);
-            _transformCache.localScale = Vector3.one * scaleMultiplier;
+                // 远离阶段：保持大小（甚至略微放大），慢速旋转
+                float scaleMultiplier = Mathf.Lerp(1f, 1.05f, t);
+                var currentPos = _transformCache.position;
+                _transformCache.position = new Vector3(newPos.x, newPos.y, currentPos.z);
+                _transformCache.localScale = Vector3.one * scaleMultiplier;
 
-            // 旋转效果
-            float rotationZ = t * _pickupRotationDegrees;
-            _transformCache.localRotation = Quaternion.Euler(0f, 0f, rotationZ);
+                float rotZ = linearT * _pickupRotationDegrees * 0.3f; // 经验值物品总旋转量的 30% 用于远离阶段
+                _transformCache.localRotation = Quaternion.Euler(0f, 0f, rotZ);
 
-            // 淡出效果
-            if (_spriteRenderer)
-            {
-                Color c = _spriteRenderer.color;
-                c.a = Mathf.Lerp(1f, 0f, t);
-                _spriteRenderer.color = c;
+                PickupProgress = linearT * 0.3f;
+
+                if (linearT >= 1f)
+                {
+                    // 远离阶段完成，进入飞向玩家阶段
+                    pickupPhase = PickupPhase.FlyToPlayer;
+                    _flyToPlayerTimer = 0f;
+
+                    // 快照飞向阶段总距离：以阶段切换瞬间玩家与逃离终点的距离为参考
+                    Vector2 initialTargetPos = _pickupTarget != null ? (Vector2)_pickupTarget.position : _fleeEndPos;
+                    _flyToPlayerTotalDistance = Vector2.Distance(_fleeEndPos, initialTargetPos);
+                    _flyToPlayerTraveled = 0f;
+                }
+                return;
             }
 
-            // 拾取动画完成
-            if (t >= 0.8f)
+            // === 阶段 2：飞向玩家阶段（基于速度推进）===
+            if (pickupPhase == PickupPhase.FlyToPlayer)
             {
-                onPickupComplete();
+                // 终点：玩家实时位置（可选：跟随玩家移动）
+                Vector2 targetPos = _pickupTarget != null ? (Vector2)_pickupTarget.position : _fleeEndPos;
+
+                // 用初始快照距离计算线性进度，保证速度恒定（视觉上由 FlyToPlayerCurve 做缓动）
+                float linearT;
+                if (_flyToPlayerTotalDistance > 0f)
+                {
+                    _flyToPlayerTraveled += _flyToPlayerSpeed * dt;
+                    linearT = Mathf.Clamp01(_flyToPlayerTraveled / _flyToPlayerTotalDistance);
+                }
+                else
+                {
+                    // 玩家已在逃离终点（距离为 0），直接完成
+                    linearT = 1f;
+                }
+                float t = MMTween.Evaluate(linearT, _flyToPlayerCurve);
+
+                // 起点：经验值物品在远离阶段结束时的位置（_fleeEndPos）
+                // 终点：玩家实时位置
+                Vector2 newPos = Vector2.Lerp(_fleeEndPos, targetPos, t);
+
+                // 缩放：从 1.05 平滑缩到 _pickupMinScale
+                float scaleMultiplier = Mathf.Lerp(1.05f, _pickupMinScale, t);
+
+                // 旋转：飞向阶段使用 70% 总旋转量
+                float rotZ = (_pickupRotationDegrees * 0.3f) + linearT * (_pickupRotationDegrees * 0.7f);
+
+                var currentPos = _transformCache.position;
+                _transformCache.position = new Vector3(newPos.x, newPos.y, currentPos.z);
+                _transformCache.localScale = Vector3.one * scaleMultiplier;
+                _transformCache.localRotation = Quaternion.Euler(0f, 0f, rotZ);
+
+                // 淡出（最后 50% 进度开始淡出）
+                if (_spriteRenderer != null)
+                {
+                    Color c = _spriteRenderer.color;
+                    c.a = Mathf.Lerp(1f, 0f, Mathf.InverseLerp(0.5f, 1f, linearT));
+                    _spriteRenderer.color = c;
+                }
+
+                PickupProgress = 0.3f + linearT * 0.7f;
+
+                // 飞向玩家阶段完成 → 经验值到账
+                if (linearT >= 1f)
+                {
+                    onPickupComplete();
+                }
             }
         }
 
@@ -314,9 +392,9 @@ namespace MoreMountains
         /// </summary>
         public void ForceCollect()
         {
-            if (State == CoinState.Grounded || State == CoinState.BeingCollected)
+            if (State is CoinState.Grounded or CoinState.BeingCollected)
             {
-                _pickupTimer = _pickupDuration;
+                _flyToPlayerTraveled = _flyToPlayerTotalDistance;
                 onPickupComplete();
             }
         }
@@ -528,11 +606,32 @@ namespace MoreMountains
         {
             _pickupStartPos = startPos;
             _pickupTarget = targetTransform;
-            _pickupTimer = 0f;
-            _pickupDuration = _pickupConfig.PickupDuration;
+
+            // 远离方向：从玩家指向经验值物品（远离玩家）
+            Vector2 awayDir = startPos - (Vector2)targetTransform.position;
+            if (awayDir.sqrMagnitude < 0.0001f)
+            {
+                // 玩家与经验值物品重叠时，使用一个随机方向
+                awayDir = Random.insideUnitCircle.normalized;
+            }
+            else
+            {
+                awayDir.Normalize();
+            }
+
+            _fleeDistance = Mathf.Max(0f, _pickupConfig.FleeDistance);
+            _fleeEndPos = _pickupStartPos + awayDir * _fleeDistance;
+
+            _fleeDuration = Mathf.Max(0.0001f, _pickupConfig.FleeDuration);
+            _flyToPlayerSpeed = Mathf.Max(0f, _pickupConfig.FlyToPlayerSpeed);
+            _fleeCurve = _pickupConfig.FleeCurve;
+            _flyToPlayerCurve = _pickupConfig.FlyToPlayerCurve;
             _pickupRotationDegrees = _pickupConfig.RotationDegrees;
             _pickupMinScale = _pickupConfig.MinScale;
-            _pickupCurve = _pickupConfig.PickupCurve;
+            _trackPlayerDuringFly = _pickupConfig.TrackPlayerDuringFly;
+
+            _fleeTimer = 0f;
+            _flyToPlayerTimer = 0f;
         }
 
         /// <summary>
@@ -541,7 +640,9 @@ namespace MoreMountains
         void onPickupComplete()
         {
             State = CoinState.Collected;
-            _pickupTimer = 0f;
+            pickupPhase = PickupPhase.None;
+            PickupProgress = 1f;
+            _flyToPlayerTimer = 0f;
         }
 
         /// <summary>

@@ -7,6 +7,7 @@
         Poison,
         Bleed,
         Electrified,
+        Magic,
     }
     public class Buff_FireBurning : Buff
     {
@@ -28,6 +29,27 @@
                 return 0F;
             }
         }
+        
+        protected override void OnAfterAdd()
+        {
+            base.OnAfterAdd();
+
+            if (Target.Character is Brick b)
+            {
+                
+            }
+        }
+
+        protected override void OnBeforeRemove()
+        {
+            base.OnBeforeRemove();
+
+            if (Target.Character is Brick b)
+            {
+                
+            }
+        }
+        
         
         protected override bool TryGetPeriodDamage(out Dmg dmg)
         {

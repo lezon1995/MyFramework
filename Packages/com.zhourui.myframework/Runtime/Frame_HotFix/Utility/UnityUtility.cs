@@ -380,7 +380,14 @@ public class UnityUtility
 			{
 				logError("不支持shader:" + shaderName);
 			}
-			material.shader = shader;
+
+			if (!material.isVariant)
+			{
+				material.shader = shader;
+			}
+			else
+			{
+			}
 		}
 	}
 	public static void findShaders(GameObject go)

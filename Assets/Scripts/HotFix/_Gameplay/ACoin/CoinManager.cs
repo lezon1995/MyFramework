@@ -153,7 +153,7 @@ namespace MoreMountains
         /// <param name="value">金币价值</param>
         /// <param name="config">掉落配置（可选）</param>
         /// <returns>生成的金币对象</returns>
-        public Coin DropCoin(Vector2 position, Vector2 dropDirection, int value = 1, CoinDropConfig config = null)
+        public Coin DropCoin(Vector2 position, Vector2 dropDirection, int value = 1, CoinDropConfig config = null, APlayer p = null)
         {
             config ??= DropConfig;
 
@@ -165,6 +165,7 @@ namespace MoreMountains
 
             activeCoins[coin.instanceID] = coin;
             OnCoinSpawned?.Invoke(coin);
+            p?.onDropCoin(coin);
 
             return coin;
         }
@@ -173,7 +174,7 @@ namespace MoreMountains
         /// 在指定位置掉落多个金币（每个金币方向随机偏移一个小角度）
         /// 落点 = 各方向射线与椭圆边界的交点
         /// </summary>
-        public void DropCoins(Vector2 position, Vector2 dropDirection, int count, int valuePerCoin = 1, CoinDropConfig config = null)
+        public void DropCoins(Vector2 position, Vector2 dropDirection, int count, int valuePerCoin = 1, CoinDropConfig config = null, APlayer p = null)
         {
             if (count <= 0 || valuePerCoin <= 0)
                 return;
@@ -189,14 +190,14 @@ namespace MoreMountains
                 Quaternion rotation = Quaternion.AngleAxis(angle, Vector3.forward);
                 Vector2 scatteredDir = rotation * baseDir;
 
-                DropCoin(position, scatteredDir, valuePerCoin, config);
+                DropCoin(position, scatteredDir, valuePerCoin, config, p);
             }
         }
 
         /// <summary>
         /// 一次性掉落指定总价值的金币（自动拆分，每个方向随机偏移一个小角度）
         /// </summary>
-        public void DropCoinBurst(Vector2 position, Vector2 dropDirection, int totalValue, int coinsPerDrop = 1, CoinDropConfig config = null)
+        public void DropCoinBurst(Vector2 position, Vector2 dropDirection, int totalValue, int coinsPerDrop = 1, CoinDropConfig config = null, APlayer p = null)
         {
             if (totalValue <= 0 || coinsPerDrop <= 0)
                 return;
@@ -217,14 +218,14 @@ namespace MoreMountains
                 int value = (i == coinsPerDrop - 1) ? remaining : coinValue;
                 remaining -= value;
 
-                DropCoin(position, scatteredDir, value, config);
+                DropCoin(position, scatteredDir, value, config, p);
             }
         }
 
         /// <summary>
         /// 根据怪物掉落配置掉落金币（每个金币方向随机偏移一个小角度）
         /// </summary>
-        public void DropCoinsByMonsterConfig(Vector2 monsterPos, Vector2 playerPos, MonsterCoinDropConfig config)
+        public void DropCoinsByMonsterConfig(Vector2 monsterPos, Vector2 playerPos, MonsterCoinDropConfig config, APlayer p)
         {
             if (config == null)
                 return;
@@ -246,7 +247,7 @@ namespace MoreMountains
                 Quaternion rotation = Quaternion.AngleAxis(angle, Vector3.forward);
                 Vector2 scatteredDir = rotation * baseDir;
 
-                DropCoin(monsterPos, scatteredDir, config.coinValue, dropCfg);
+                DropCoin(monsterPos, scatteredDir, config.coinValue, dropCfg, p);
             }
         }
 
@@ -327,7 +328,7 @@ namespace MoreMountains
 
             foreach (var coin in coinsToPickup)
             {
-                if (coin && coin.TryStartPickup(targetTransform))
+                if (coin && coin.TryStartPickup(targetTransform, false))
                 {
                     totalValue += coin.Value;
                 }
@@ -341,10 +342,7 @@ namespace MoreMountains
         /// </summary>
         public bool PickupCoin(Coin coin, Transform target)
         {
-            if (coin == null || coin.State != CoinState.Grounded)
-                return false;
-
-            return coin.TryStartPickup(target);
+            return coin.TryStartPickup(target, true);
         }
 
         #endregion

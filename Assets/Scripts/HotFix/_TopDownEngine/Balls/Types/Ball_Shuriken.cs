@@ -76,7 +76,7 @@ namespace MoreMountains
 
         protected override void Movement(float dt)
         {
-            if (_target == null)
+            if (!_hasTarget)
                 return;
 
             prePos = curPos;

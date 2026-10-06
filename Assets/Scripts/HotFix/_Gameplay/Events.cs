@@ -61,12 +61,12 @@ public struct OnBallHitBorderBot
 public struct OnBrickDeath
 {
     public Brick brick;
-    public Vector3 deathPosition;
+    public Character killer;
 
-    public OnBrickDeath(Brick b)
+    public OnBrickDeath(Brick b, Character killBy)
     {
         brick = b;
-        deathPosition = b.getWorldPosition();
+        killer = killBy;
     }
 }
 

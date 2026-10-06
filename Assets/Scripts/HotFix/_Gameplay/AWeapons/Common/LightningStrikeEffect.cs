@@ -21,9 +21,8 @@ public class LightningStrikeEffect : ALogicEffect, IArgs<Ball, Brick>
             var effect = mEffectManager.createEffect(path, 0.5F);
             var pos = brick.getWorldPosition();
             effect.setWorldPosition(pos);
-            
-            var dmg = ball.getSkillDmg(brick);
-            brick.Health.Damage(ref dmg, ball.gameObject, ball.Player);
+
+            ball.onSkillHitEnter(brick);
         }
     }
 

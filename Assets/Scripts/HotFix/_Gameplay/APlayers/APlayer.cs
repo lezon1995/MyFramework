@@ -199,8 +199,9 @@ namespace MoreMountains
         public override void OnFixedUpdate(float dt)
         {
             base.OnFixedUpdate(dt);
-        }
 
+            updateRelics(dt);
+        }
 
         public void decreaseMaxHealth(int amount)
         {
@@ -238,6 +239,17 @@ namespace MoreMountains
             else
             {
                 log("NEGATIVE MONEY???");
+            }
+        }
+
+        public void pickupGold(int amount)
+        {
+            gainGold(amount);
+            
+            if (amount > 0)
+            {
+                foreach (var relic in relics)
+                    relic.onPickupGold(amount);
             }
         }
 
@@ -637,10 +649,22 @@ namespace MoreMountains
                 relic.onBallHitBorderRight(this, ball, border, ref normal);
         }
 
-        public void onBallHitBrick(Ball ball, Brick brick, Vector2 normal, ref bool triggerRegularHit)
+        public void onBallImpactHitBrick(Ball ball, Brick brick, Vector2 normal, ref bool triggerRegularHit)
         {
             foreach (var relic in relics)
-                relic.onBallHitBrick(this, ball, brick, normal, ref triggerRegularHit);
+                relic.onBallImpactHitBrick(this, ball, brick, normal, ref triggerRegularHit);
+        }
+
+        public void onBallSkillHitBrick(Ball ball, Brick brick)
+        {
+            foreach (var relic in relics)
+                relic.onBallSkillHitBrick(this, ball, brick);
+        }
+
+        public void onBallCauseHitDamage(Ball ball, Brick brick, in Dmg dmg)
+        {
+            foreach (var relic in relics)
+                relic.onBallCauseHitDamage(this, ball, brick, in dmg);
         }
 
         public void onBallHitObstacle(Ball ball, Obstacle obstacle, ref Vector2 normal)
@@ -659,6 +683,18 @@ namespace MoreMountains
         {
             foreach (var relic in relics)
                 relic.onBallKillBrick(this, ball, brick);
+        }
+        
+        public void onDropCoin(Coin coin)
+        {
+            foreach (var relic in relics)
+                relic.onDropCoin(this, coin);
+        }
+
+        protected override void OnCauseDotDamage(Character target, in Dmg dmg)
+        {
+            foreach (var relic in relics)
+                relic.onCauseDotDamage(this, target as Brick, in dmg);
         }
 
         public bool equalWith(APlayer other)

@@ -25,7 +25,7 @@
 
             if (chance.check())
             {
-                CoinDropHelper.DropCoins(curPos, Direction, 1, 1);
+                CoinDropHelper.DropCoins(curPos, Direction, 1, p: _player);
             }
         }
     }

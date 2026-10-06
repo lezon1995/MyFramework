@@ -11,7 +11,9 @@ namespace MoreMountains
         static string[] levelInitialNames =
         {
             Ball.Stat.AD.Key(),
+            Ball.Stat.HitDamageRate.Key(),
             Ball.Stat.AP.Key(),
+            Ball.Stat.EffectDamageRate.Key(),
             Ball.Stat.AS.Key(),
             Ball.Stat.BallisticSpeed.Key(),
             Ball.Stat.Duration.Key(),

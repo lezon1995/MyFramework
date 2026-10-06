@@ -8,10 +8,10 @@ namespace MoreMountains
 
         Countdown countdown;
         
-        public override bool onHitEnter(Brick brick, Vector2 normal, out bool triggerRegularHit)
+        public override bool onImpactHitEnter(Brick brick, Vector2 normal, out bool triggerRegularHit)
         {
             countdown = 5;
-            return base.onHitEnter(brick, normal, out triggerRegularHit);
+            return base.onImpactHitEnter(brick, normal, out triggerRegularHit);
         }
         
         protected override void OnFixedUpdateOverlappingBrick(Brick brick, float dt)

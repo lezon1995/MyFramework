@@ -87,7 +87,7 @@ namespace MoreMountains
             Health.ReceiveHealth(heal, null, this);
         }
 
-        public virtual bool kill() => Health.Kill();
+        public virtual bool kill(Character killBySource = null) => Health.Kill(killBySource);
         public bool IsDeadTotally() => Health.IsDeadTotally;
 
         public Vector2Int getSize() => size;

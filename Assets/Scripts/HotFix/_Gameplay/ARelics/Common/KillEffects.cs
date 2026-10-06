@@ -1,4 +1,7 @@
+using System.Collections.Generic;
+using MoreMountains.Tools;
 using UniStats;
+using UnityEngine;
 
 namespace MoreMountains;
 
@@ -272,11 +275,10 @@ public class Hunter : ARelic
 }
 
 /// <summary>
-/// Annihilator - 歼灭者
-/// 击杀时有20%概率清空屏幕
-/// [设计文案] 毁灭一切的力量
+/// 每次造成撞击伤害时会提供1点AP
+/// 每次造成魔法伤害时会提供1点AD
 /// </summary>
-public class Annihilator : ARelic
+public class Annihilator : ARelic, IEvent<OnBallExpired>
 {
     public static string ID = "Annihilator";
 
@@ -284,18 +286,88 @@ public class Annihilator : ARelic
     {
     }
 
-    // TODO: 需要实现清屏机制
-    // public override void onBallKillBrick(APlayer p, Ball ball, Brick brick)
-    // {
-    //     if (UnityEngine.Random.value < 0.2f)
-    //     {
-    //         // 清除屏幕所有敌人
-    //         foreach (var enemy in p.GetActiveBricks())
-    //         {
-    //             enemy.Destroy();
-    //         }
-    //     }
-    // }
+    int deltaAD, deltaAP;
+    Dictionary<Ball, int> ballAdDict = new();
+    Dictionary<Ball, int> ballApDict = new();
+
+    protected override void onRelicDefSet(RelicDef d)
+    {
+        deltaAD = (int)d.Args[0];
+        deltaAP = (int)d.Args[1];
+    }
+
+    public override void onBallImpactHitBrick(APlayer p, Ball ball, Brick brick, Vector2 normal, ref bool triggerRegularHit)
+    {
+        if (p.GetStat(Character.Stat.AP, out var ap))
+        {
+            if (ap.BonusFlat.GetMod(ID, out var mod))
+            {
+                mod.Value += deltaAP;
+            }
+            else
+            {
+                ap.BonusFlat.AddFlat(deltaAP, ID);
+            }
+
+            if (!ballApDict.TryAdd(ball, deltaAP))
+            {
+                ballApDict[ball] += deltaAP;
+            }
+            else
+            {
+                ball.Event.addListener<OnBallExpired>(this);
+            }
+        }
+    }
+
+    public override void onBallSkillHitBrick(APlayer p, Ball ball, Brick brick)
+    {
+        if (p.GetStat(Character.Stat.AD, out var ad))
+        {
+            if (ad.BonusFlat.GetMod(ID, out var mod))
+            {
+                mod.Value += deltaAD;
+            }
+            else
+            {
+                ad.BonusFlat.AddFlat(deltaAD, ID);
+            }
+
+            if (!ballAdDict.TryAdd(ball, deltaAD))
+            {
+                ballAdDict[ball] += deltaAD;
+            }
+            else
+            {
+                ball.Event.addListener<OnBallExpired>(this);
+            }
+        }
+    }
+
+    public void onEvent(OnBallExpired e)
+    {
+        var ball = e.ball;
+        ball.Event.removeListener<OnBallExpired>(this);
+
+        ballApDict.Remove(ball, out var ballAp);
+        ballAdDict.Remove(ball, out var ballAd);
+
+        if (_player.GetStat(Character.Stat.AP, out var ap))
+        {
+            if (ap.BonusFlat.GetMod(ID, out var mod))
+            {
+                mod.Value -= ballAp;
+            }
+        }
+
+        if (_player.GetStat(Character.Stat.AD, out var ad))
+        {
+            if (ad.BonusFlat.GetMod(ID, out var mod))
+            {
+                mod.Value -= ballAd;
+            }
+        }
+    }
 
     public override ARelic makeCopy() => new Annihilator();
 }

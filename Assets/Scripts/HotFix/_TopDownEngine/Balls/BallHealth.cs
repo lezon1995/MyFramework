@@ -124,7 +124,7 @@ namespace MoreMountains
             }
         }
 
-        public override bool Kill()
+        public override bool Kill(Character killBySource = null)
         {
             SetHealth(0, RefreshHealthBarType.Killed);
 

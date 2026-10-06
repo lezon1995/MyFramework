@@ -33,7 +33,7 @@ public class BallPower : APower, IArgs<Ball>
     {
     }
 
-    public virtual void onHitBrick(Brick brick, Vector2 hitNormal)
+    public virtual void onImpactHitBrick(Brick brick, Vector2 hitNormal)
     {
     }
 

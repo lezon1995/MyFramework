@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6510983383056138673}
   - component: {fileID: -4105011669793033285}
   m_Layer: 0
-  m_Name: MissileProjectileHandleWeapon
+  m_Name: MissileProjectileHandleWeapon_Yellow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

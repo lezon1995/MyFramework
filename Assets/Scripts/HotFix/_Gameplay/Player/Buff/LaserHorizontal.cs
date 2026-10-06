@@ -79,9 +79,7 @@ public class LaserHorizontal : BuffObject, IDoAttackEffect
                     rightBricks.Add(b);
             }
 
-            var dmg = ball.getSkillDmg(brick);
-            dmg.Crit();
-            brick.Health.Damage(ref dmg, ball.gameObject, ball.Player);
+            ball.onSkillHitEnter(brick);
 
             if (leftBricks.Count > 0)
                 startTask(leftBricks, ball).Forget();
@@ -100,9 +98,7 @@ public class LaserHorizontal : BuffObject, IDoAttackEffect
             if (brick.IsDead())
                 continue;
 
-            var dmg = ball.getSkillDmg(brick);
-            dmg.Crit();
-            brick.Health.Damage(ref dmg, ball.gameObject, ball.Player);
+            ball.onSkillHitEnter(brick);
         }
 
         UnityEngine.Pool.ListPool<Brick>.Release(list);

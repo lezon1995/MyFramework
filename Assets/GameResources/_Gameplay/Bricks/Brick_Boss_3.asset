@@ -43,7 +43,7 @@ MonoBehaviour:
       Data: HealthMax
     - Name: $v
       Entry: 4
-      Data: 4000
+      Data: 9000
     - Name: 
       Entry: 8
       Data: 
@@ -67,7 +67,7 @@ MonoBehaviour:
       Data: AD
     - Name: $v
       Entry: 4
-      Data: 30
+      Data: 200
     - Name: 
       Entry: 8
       Data: 
@@ -187,7 +187,7 @@ MonoBehaviour:
       Data: KnockbackResistance
     - Name: $v
       Entry: 4
-      Data: 0.75
+      Data: 1
     - Name: 
       Entry: 8
       Data: 
@@ -204,6 +204,26 @@ MonoBehaviour:
     - Name: comparer
       Entry: 9
       Data: 1
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: LevelInitialValues
+      Entry: 7
+      Data: 3|System.Collections.Generic.Dictionary`2[[System.String, mscorlib],[System.Single[],
+        mscorlib]], mscorlib
+    - Name: comparer
+      Entry: 7
+      Data: 4|System.Collections.Generic.GenericEqualityComparer`1[[System.String,
+        mscorlib]], mscorlib
+    - Name: 
+      Entry: 8
+      Data: 
     - Name: 
       Entry: 12
       Data: 0

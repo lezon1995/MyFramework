@@ -14,7 +14,7 @@ public class BrokenTripod : ARelic
     {
     }
 
-    public override void onBallHitBrick(APlayer p, Ball ball, Brick brick, Vector2 normal, ref bool triggerRegularHit)
+    public override void onBallImpactHitBrick(APlayer p, Ball ball, Brick brick, Vector2 normal, ref bool triggerRegularHit)
     {
         if (normal == Vector2.down)
         {

@@ -21,12 +21,14 @@ namespace MoreMountains
 
         /// <summary>关联的 ARelic 实例（或其子类）；由 RelicService 解析回传。</summary>
         public ARelic UnderlyingRelic;
+        public RelicInventorySlot Slot;
 
         public override void resetProperty()
         {
             base.resetProperty();
             Def = null;
             UnderlyingRelic = null;
+            Slot = null;
         }
         
         /// <summary>工厂方法。系统内部创建都用它。</summary>
@@ -35,7 +37,8 @@ namespace MoreMountains
             var item = CLASS<RelicItem>();
             item.Def = def;
             item.UnderlyingRelic = underlying;
-            underlying.setDef(def);
+            underlying.setRelicDef(def);
+            underlying.setRelicItem(item);
             return item;
         }
         

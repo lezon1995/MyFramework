@@ -13,6 +13,9 @@ MonoBehaviour:
   m_Name: RelicDef AncientTome
   m_EditorClassIdentifier: HotFix::MoreMountains.RelicDef
   Type: 30164
+  TagInfo:
+    MechanicTags: 
+    StatusTags: 
   BasePrice: 70
   SellRefund: 35
   CarryLimit: 0
@@ -49,6 +52,11 @@ MonoBehaviour:
     m_FallbackState: 0
     m_WaitForCompletion: 0
     m_LocalVariables: []
+  MetaHandleWeapon: {fileID: 0}
+  Args:
+  - 0.1
+  - 1
+  - 10
   references:
     version: 2
     RefIds: []

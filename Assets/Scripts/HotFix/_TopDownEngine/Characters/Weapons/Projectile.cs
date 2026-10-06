@@ -83,6 +83,7 @@ namespace MoreMountains
         protected Weapon _weapon;
         protected Character _owner;
         protected Transform _target;
+        protected bool _hasTarget;
         protected Health _targetHealth;
         protected Vector3 _movement;
         protected float _initialSpeed;
@@ -339,11 +340,13 @@ namespace MoreMountains
             if (target)
             {
                 _target = target;
+                _hasTarget = true;
                 target.TryGetComponent(out _targetHealth);
             }
             else
             {
                 _target = null;
+                _hasTarget = false;
                 _targetHealth = null;
             }
         }

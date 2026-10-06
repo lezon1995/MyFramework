@@ -229,10 +229,10 @@ namespace MoreMountains
 
         public override void ShootRequest()
         {
-            var service = _player.BallManagement.Instance;
-            if (service.CanShoot)
+            // var service = _player.BallManagement.Instance;
+            // if (service.CanShoot)
             {
-                service.resetShootCountdown(ShootFixedUpdateInterval);
+                // service.resetShootCountdown(ShootFixedUpdateInterval);
                 State.ChangeState(States.Use);
             }
         }

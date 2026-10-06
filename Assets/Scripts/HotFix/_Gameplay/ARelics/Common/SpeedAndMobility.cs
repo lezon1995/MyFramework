@@ -177,23 +177,25 @@ public class Afterburner : ARelic
     {
     }
 
-    // TODO: 需要实现攻速逐渐增加
-    // private float attackSpeedBonus = 0f;
-    //
-    // public override void onPlayerTurnUpdate(APlayer p, float dt)
-    // {
-    //     attackSpeedBonus += 0.01f * dt;
-    //     foreach (var ball in p.Balls)
-    //     {
-    //         ball.GetStat(Ball.Stat.AS, out var stat);
-    //         stat.SetBasePct(attackSpeedBonus);
-    //     }
-    // }
-    //
-    // public override void atBattleStart()
-    // {
-    //     attackSpeedBonus = 0f;
-    // }
+    float dropChance => chance + _player.triggerChance;
+    float chance;
+    int minCoinValue, maxCoinValue;
+
+    protected override void onRelicDefSet(RelicDef d)
+    {
+        chance = d.Args[0];
+        minCoinValue = (int)d.Args[1];
+        maxCoinValue = (int)d.Args[2];
+    }
+
+    public override void onBallCauseHitDamage(APlayer p, Ball ball, Brick brick, in Dmg dmg)
+    {
+        if (randomHit(dropChance))
+        {
+            var value = randomInt(minCoinValue, maxCoinValue);
+            CoinDropHelper.DropCoins(ball.curPos, ball.Direction, value, p: _player);
+        }
+    }
 
     public override ARelic makeCopy() => new Afterburner();
 }

@@ -48,6 +48,7 @@ namespace MoreMountains
             _relicBag.OnItemAdded += InventoryEvents.RaiseRelicAdded;
             _relicBag.OnItemRemoved += InventoryEvents.RaiseRelicRemoved;
             _relicBag.OnBagChanged += InventoryEvents.RaiseRelicBagChanged;
+            _relicBag.OnSlotChanged = _player.OnRelicInventorySlotChanged;
 
             if (!_systemReadyRaised)
             {

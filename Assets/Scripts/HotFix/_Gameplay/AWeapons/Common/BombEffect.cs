@@ -38,12 +38,9 @@ public class BombEffect : ALogicEffect, IArgs<Ball, Brick>
                 {
                     if (b.IsDead())
                         continue;
-                    
-                    var dmg = ball.getSkillDmg(b);
-                    b.Health.Damage(ref dmg, ball.gameObject, ball.Player);
-                    var knockbackForce = ball.getKnockbackForce(b.Health, dmg.IsLethal);
+
                     var dir = (b.getWorldPosition() - explosionPos).normalized;
-                    b.Health.ApplyKnockback(knockbackForce.magnitude * dir);
+                    ball.onSkillHitEnter(b, dir);
                 }
             }
             

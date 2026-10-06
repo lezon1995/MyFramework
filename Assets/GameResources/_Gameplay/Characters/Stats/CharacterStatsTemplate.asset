@@ -43,7 +43,7 @@ MonoBehaviour:
       Data: AD
     - Name: $v
       Entry: 4
-      Data: 0
+      Data: 100
     - Name: 
       Entry: 8
       Data: 
@@ -79,7 +79,7 @@ MonoBehaviour:
       Data: AP
     - Name: $v
       Entry: 4
-      Data: 0
+      Data: 100
     - Name: 
       Entry: 8
       Data: 
@@ -139,7 +139,7 @@ MonoBehaviour:
       Data: MS
     - Name: $v
       Entry: 4
-      Data: 300
+      Data: 335
     - Name: 
       Entry: 8
       Data: 
@@ -199,7 +199,7 @@ MonoBehaviour:
       Data: HealthMax
     - Name: $v
       Entry: 4
-      Data: 20
+      Data: 500
     - Name: 
       Entry: 8
       Data: 
@@ -211,7 +211,7 @@ MonoBehaviour:
       Data: HealthRegen
     - Name: $v
       Entry: 4
-      Data: 0
+      Data: 4
     - Name: 
       Entry: 8
       Data: 
@@ -247,7 +247,7 @@ MonoBehaviour:
       Data: AR
     - Name: $v
       Entry: 4
-      Data: 0
+      Data: 25
     - Name: 
       Entry: 8
       Data: 
@@ -259,7 +259,7 @@ MonoBehaviour:
       Data: MR
     - Name: $v
       Entry: 4
-      Data: 0
+      Data: 30
     - Name: 
       Entry: 8
       Data: 

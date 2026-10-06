@@ -52,26 +52,27 @@ namespace MoreMountains
             if (!Enabled || coinManager == null || e.Monster == null)
                 return;
 
+            var p = e.Player;
             var monsterTypeId = GetMonsterTypeId(e.Monster);
             var dropConfig = DropTable.GetConfig(monsterTypeId);
             dropConfig.CustomDropDirection = e.Monster.Health.LastDamageDirection;
 
             // 计算掉落方向（基于怪物到玩家的方向）
             Vector2 monsterPos = e.Monster.transform.position;
-            Vector2 playerPos = player != null ? player.transform.position : monsterPos;
+            Vector2 playerPos = p ? p.transform.position : monsterPos;
 
-            coinManager.DropCoinsByMonsterConfig(monsterPos, playerPos, dropConfig);
+            coinManager.DropCoinsByMonsterConfig(monsterPos, playerPos, dropConfig, p);
         }
 
         /// <summary>
         /// 直接掉落金币（无需通过事件）
         /// </summary>
-        public void DropCoins(Vector2 position, Vector2 direction, int coinCount, int coinValue = 1, CoinDropConfig config = null)
+        public void DropCoins(Vector2 position, Vector2 direction, int coinCount, int coinValue = 1, CoinDropConfig config = null, APlayer p = null)
         {
             if (!Enabled || coinManager == null)
                 return;
 
-            coinManager.DropCoins(position, direction, coinCount, coinValue, config);
+            coinManager.DropCoins(position, direction, coinCount, coinValue, config, p);
         }
 
         /// <summary>

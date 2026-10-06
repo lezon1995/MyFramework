@@ -37,9 +37,8 @@ public class RockQuakeEffect : ALogicEffect, IArgs<Ball, Brick>
                 {
                     if (b.IsDead())
                         continue;
-                    
-                    var dmg = ball.getSkillDmg(b);
-                    b.Health.Damage(ref dmg, ball.gameObject, ball.Player);
+        
+                    ball.onSkillHitEnter(b);
                 }
             }
             

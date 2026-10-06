@@ -1,8 +1,7 @@
 ﻿namespace MoreMountains;
 
 /// <summary>
-/// 弹药供给
-/// 当前回合数为3的倍数时获得1个基础球
+/// 掉落金币时立即拾取
 /// </summary>
 public class AmmoSupply : ARelic
 {
@@ -22,13 +21,12 @@ public class AmmoSupply : ARelic
         base.onUnequip(p);
     }
 
-    public override void onPlayerTurnBegin(APlayer p)
+    public override void onDropCoin(APlayer p, Coin coin)
     {
-        var b = GameActionManager.turn % 3 == 0;
-        if (b)
-        {
-            p.ballMaxCount++;
-        }
+        if (coin.State is CoinState.BeingCollected or CoinState.Collected)
+            return;
+
+        coinManager.PickupCoin(coin, p.getTransform());
     }
 
     public override ARelic makeCopy() => new AmmoSupply();

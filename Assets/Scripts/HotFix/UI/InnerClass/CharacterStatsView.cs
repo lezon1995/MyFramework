@@ -9,6 +9,7 @@ public partial class CharacterStatsView : WindowObjectUGUI
 {
 	// auto generate member start
 	protected myUGUIObject G;
+	protected myUGUITextTMP textRemainCoin;
 	protected WindowStructPool<PlayerStatItem> PlayerStatItemPool;
 	// auto generate member end
 	public CharacterStatsView(IWindowObjectOwner parent) : base(parent)
@@ -21,6 +22,7 @@ public partial class CharacterStatsView : WindowObjectUGUI
 	{
 		// auto generate assignWindowInternal start
 		newObject(out G, "G");
+		newObject(out textRemainCoin, "Coin/TextRemainCoin");
 		PlayerStatItemPool.assignTemplate(mRoot, "G/PlayerStatItem");
 		// auto generate assignWindowInternal end
 	}

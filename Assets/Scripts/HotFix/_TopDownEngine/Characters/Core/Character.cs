@@ -888,6 +888,11 @@ namespace MoreMountains
         {
             Combat.Turn(true);
             onDoDmg?.Invoke(this, e.Character, e.Dmg);
+            
+            if (e.Dmg.IsDOT)
+            {
+                OnCauseDotDamage(e.Character, in e.Dmg);
+            }
         }
 
         public virtual void onEvent(DoKill e)
@@ -948,6 +953,10 @@ namespace MoreMountains
         protected virtual void OnBasicAttackWinddown()
         {
             onBasicAttackWinddown?.Invoke(this);
+        }
+        
+        protected virtual void OnCauseDotDamage(Character target, in Dmg dmg)
+        {
         }
 
         /// <summary>
@@ -1023,6 +1032,22 @@ namespace MoreMountains
             }
 
             return Stats.GetStat(key.Key(), out stat);
+        }
+        
+        public UniStats.Stat GetStat(string key)
+        {
+            return _hasStats ? Stats.GetStat(key) : null;
+        }
+
+        public bool GetStat(string key, out UniStats.Stat stat)
+        {
+            if (!_hasStats)
+            {
+                stat = null;
+                return false;
+            }
+
+            return Stats.GetStat(key, out stat);
         }
 
         public override void onRelease()

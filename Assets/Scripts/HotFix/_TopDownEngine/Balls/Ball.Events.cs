@@ -14,15 +14,52 @@ namespace MoreMountains
         protected void addListeners() => Event.addAllListeners(this);
         protected void removeListeners() => Event.removeAllListeners(this);
 
-        public virtual bool onHitEnter(Brick brick, Vector2 normal, out bool triggerRegularHit)
+        public virtual bool onImpactHitEnter(Brick brick, Vector2 normal, out bool triggerRegularHit)
         {
+            var dmg = getHitDmg(brick, normal);
+            brick.onHitEnter(this, normal);
+
             playHitBrickSfx(brick);
             playHitBrickVfx(brick, normal);
             triggerRegularHit = true;
             foreach (var p in powers)
-                p.onHitBrick(brick, normal);
+                p.onImpactHitBrick(brick, normal);
 
-            _player.onBallHitBrick(this, brick, normal, ref triggerRegularHit);
+            _player.onBallImpactHitBrick(this, brick, normal, ref triggerRegularHit);
+
+            brick.Health.Damage(ref dmg, gameObject, _player, DamageOnTouch.InvincibilityDuration, DamageOnTouch.DamageDirection);
+            DamageOnTouch.ApplyKnockback(brick.Health, brick.Controller2D, dmg);
+
+            onCauseHitDamage(brick, in dmg);
+
+            return true;
+        }
+
+        public virtual bool onSkillHitEnter(Brick b, Vector3 knockbackDir = default, float knockbackForce = 0F)
+        {
+            var dmg = getSkillDmg(b);
+
+            _player.onBallSkillHitBrick(this, b);
+
+            b.Health.Damage(ref dmg, gameObject, _player);
+            var force = getKnockbackForce(b.Health, dmg.IsLethal);
+            Vector3 knockback;
+            if (knockbackDir.isZero())
+                knockback = force * knockbackForce;
+            else
+                knockback = force.magnitude * knockbackDir;
+
+            if (!knockback.isZero())
+            {
+                b.Health.ApplyKnockback(knockback, dmg);
+            }
+
+            return true;
+        }
+
+        public virtual bool onCauseHitDamage(Brick brick, in Dmg dmg)
+        {
+            _player.onBallCauseHitDamage(this, brick, in dmg);
             return true;
         }
 

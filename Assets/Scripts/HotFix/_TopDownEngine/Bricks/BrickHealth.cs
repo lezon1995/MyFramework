@@ -380,7 +380,7 @@ namespace MoreMountains
                     //检测是否死亡
                     if (IsDead())
                     {
-                        var isLethal = Kill();
+                        var isLethal = Kill(source);
                         if (isLethal)
                         {
                             if (dmg.TriggerEffect)
@@ -616,7 +616,7 @@ namespace MoreMountains
                     //检测是否死亡
                     if (IsDead())
                     {
-                        var isLethal = Kill();
+                        var isLethal = Kill(source);
                         if (isLethal)
                         {
                             if (dmg.TriggerEffect)
@@ -739,7 +739,7 @@ namespace MoreMountains
             return base.ShouldApplyKnockback();
         }
 
-        public override bool Kill()
+        public override bool Kill(Character killBySource = null)
         {
             brick.conditionState.ChangeState(Character.Conditions.Dead);
             brick.Reset();
@@ -756,7 +756,7 @@ namespace MoreMountains
                 r.onMonsterDeath(brick);
 
             {
-                var e = new OnBrickDeath(brick);
+                var e = new OnBrickDeath(brick, killBySource);
                 e.trigger(this);
                 e.trigger(brick);
                 e.trigger();

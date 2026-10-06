@@ -14,6 +14,7 @@ namespace MoreMountains
         CharacterInfoView _view;
         APlayer _player;
 
+        Action<int> onCoinChanged;
         Action<int> onLevelUp;
         Action<int, int> onLevelChanged;
         Action<int, int> onExpChanged;
@@ -24,6 +25,7 @@ namespace MoreMountains
 
         CharacterInfoBinder()
         {
+            onCoinChanged = OnCoinChanged;
             onLevelUp = OnLevelUpAction;
             onLevelChanged = OnLevelChanged;
             onExpChanged = OnExpChanged;
@@ -43,11 +45,14 @@ namespace MoreMountains
 
             // 等级 / 经验 监听可在此处挂 PlayerWallet.OnBalanceChanged 等
             // 当前简化：使用固定占位 1/0，后续接入等级系统替换。
+            _view.CharacterStatsView.SetRemainCoin(player.Wallet?.Balance ?? 0);
             _view.CharacterExpView.SetLevel(player.Exp.Level);
             _view.CharacterExpView.SetExp(player.Exp.currentExp, player.Exp.currentLevelRequiredExp);
             _view.CharacterHealthView.SetHealth(player.currentHealth, player.maxHealth);
             _view.CharacterHealthView.SetShield(0, player.Health.Shield.CurrentShield);
 
+            player.Wallet.OnBalanceChanged += onCoinChanged;
+            
             player.Exp.onLevelUp += onLevelUp;
             player.Exp.onLevelChanged += onLevelChanged;
             player.Exp.onExpChanged += onExpChanged;
@@ -111,6 +116,11 @@ namespace MoreMountains
             });
         }
 
+        void OnCoinChanged(int curCoin)
+        {
+            RefreshCoin(curCoin);
+        }
+
         void OnLevelUpAction(int curLevel)
         {
             _player.BallManagement.ExpandSlots(1);
@@ -145,6 +155,7 @@ namespace MoreMountains
         {
             if (_player)
             {
+                _player.Wallet.OnBalanceChanged -= onCoinChanged;
                 _player.Exp.onLevelUp -= onLevelUp;
                 _player.Exp.onLevelChanged -= onLevelChanged;
                 _player.Exp.onExpChanged -= onExpChanged;
@@ -161,6 +172,7 @@ namespace MoreMountains
             _player = null;
         }
 
+        public void RefreshCoin(int cur) => _view.CharacterStatsView.SetRemainCoin(cur);
         public void RefreshExp(int cur, int max) => _view.CharacterExpView.SetExp(cur, max);
         public void RefreshHealth(int cur, int max) => _view.CharacterHealthView.SetHealth(cur, max);
         public void RefreshShield(int pre, int cur) => _view.CharacterHealthView.SetShield(pre, cur);

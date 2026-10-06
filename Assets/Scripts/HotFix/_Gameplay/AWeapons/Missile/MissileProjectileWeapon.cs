@@ -23,13 +23,17 @@ namespace MoreMountains
         [Tooltip("Living Weapon 升级档开关。打开后会发射 UpgradedMissileCount 枚飞弹。")]
         public bool Upgraded;
 
-        Ball _ball;
+        IStatsGetter _statsOwner;
 
-        public void SetBallOwner(Ball ball)
+        public void SetStatsOwner(IStatsGetter owner)
         {
-            _ball = ball;
+            _statsOwner = owner;
         }
-        
+
+        protected override void OnOwnerStatsSet()
+        {
+        }
+
         public override GameObject SpawnProjectile(Vector3 spawnPosition, int projectileIndex, int totalProjectiles, bool triggerObjectActivation = true)
         {
             if (Definition == null || Owner == null)
@@ -37,9 +41,6 @@ namespace MoreMountains
 
             // 让基类负责对象池/位置/方向/owner/target/damage 的初始化
             var go = base.SpawnProjectile(spawnPosition, projectileIndex, totalProjectiles, triggerObjectActivation);
-            if (go == null)
-                return null;
-
             if (!go.TryGetComponent<MissileProjectile>(out var missile))
                 return go;
 
@@ -75,7 +76,7 @@ namespace MoreMountains
             missile.Launch(
                 def: Definition,
                 caster: Owner,
-                ball: _ball,
+                owner: _statsOwner,
                 arcHeightOffset: arcHeightOffset,
                 p1: p1,
                 flightDuration: flightDuration);

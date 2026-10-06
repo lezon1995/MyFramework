@@ -39,9 +39,7 @@ public class Mjolnir : ARelic
 }
 
 /// <summary>
-/// AegisOfOlympus - 奥林匹斯之盾
-/// 免疫所有负面效果
-/// [设计文案] 神的庇护
+/// 拾取金币时有几率对附近的敌人发射一枚追踪子弹
 /// </summary>
 public class AegisOfOlympus : ARelic
 {
@@ -51,11 +49,22 @@ public class AegisOfOlympus : ARelic
     {
     }
 
-    // TODO: 需要实现免疫负面效果
-    // public override void onEquip(APlayer p)
-    // {
-    //     p.ImmuneToDebuffs = true;
-    // }
+    public override void onPickupGold(int amount)
+    {
+        if (brickManager.getRandomActiveBrick(out var brick))
+        {
+            if (_player.relicMetaHandleWeapons.TryGetValue(item.Slot, out var metaHandleWeapon))
+            {
+                if (metaHandleWeapon.CurrentWeapon is MissileProjectileWeapon weapon)
+                {
+                    weapon.SetStatsOwner(_player);
+                    weapon.SetAimTarget(brick.transform);
+                }
+            }
+
+            metaHandleWeapon.ShootStart();
+        }
+    }
 
     public override ARelic makeCopy() => new AegisOfOlympus();
 }
