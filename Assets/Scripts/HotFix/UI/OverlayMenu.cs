@@ -23,6 +23,7 @@ public partial class OverlayMenu : LayoutScript
 		bossHealthBarView = new(this);
 		waveLevelView = new(this);
 		// auto generate constructor end
+		mNeedUpdate = false;
 	}
 	public override void assignWindow()
 	{

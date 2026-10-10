@@ -10,9 +10,7 @@ public class RageStack : ARelic
     public static string ID = "RageStack";
     private int stackCount = 0;
 
-    public RageStack() : base(ID, "RageStack.png", RelicTier.RARE, LandingSound.HEAVY)
-    {
-    }
+    public RageStack() : base(ID, "RageStack.png", RelicTier.RARE, LandingSound.HEAVY) { }
 
     // TODO: 需要实现怒气叠加
     // public override void onBallKillBrick(APlayer p, Ball ball, Brick brick)
@@ -42,9 +40,7 @@ public class MomentumGain : ARelic
 {
     public static string ID = "MomentumGain";
 
-    public MomentumGain() : base(ID, "MomentumGain.png", RelicTier.RARE, LandingSound.SOLID)
-    {
-    }
+    public MomentumGain() : base(ID, "MomentumGain.png", RelicTier.RARE, LandingSound.SOLID) { }
 
     // TODO: 需要实现持续射击增伤
     // private int consecutiveHits = 0;
@@ -74,9 +70,7 @@ public class WarriorSpirit : ARelic
 {
     public static string ID = "WarriorSpirit";
 
-    public WarriorSpirit() : base(ID, "WarriorSpirit.png", RelicTier.RARE, LandingSound.HEAVY)
-    {
-    }
+    public WarriorSpirit() : base(ID, "WarriorSpirit.png", RelicTier.RARE, LandingSound.HEAVY) { }
 
     // TODO: 需要实现波次击杀属性
     // private int waveKills = 0;
@@ -99,26 +93,18 @@ public class WarriorSpirit : ARelic
 }
 
 /// <summary>
-/// BeastMode - 野兽模式
-/// 血量越低属性越高
-/// [设计文案] 野兽的觉醒
+/// 技能暴击会造成小型爆炸效果
 /// </summary>
 public class BeastMode : ARelic
 {
     public static string ID = "BeastMode";
 
-    public BeastMode() : base(ID, "BeastMode.png", RelicTier.RARE, LandingSound.HEAVY)
-    {
-    }
+    public BeastMode() : base(ID, "BeastMode.png", RelicTier.RARE, LandingSound.HEAVY) { }
 
-    // TODO: 需要实现低血量属性增益
-    // public override void onPlayerTurnUpdate(APlayer p, float dt)
-    // {
-    //     var healthPercent = p.HealthPercent;
-    //     var bonus = (1f - healthPercent) * 0.5f; // 血量越低加成越高
-    //     p.DamageMultiplier = 1f + bonus;
-    //     p.SpeedMultiplier = 1f + bonus;
-    // }
+    public override void onBallSkillCrit(APlayer p, Ball ball, Brick brick)
+    {
+        effectManager.addLogic<CritSkillExplodeEffect>().with(ball, brick);
+    }
 
     public override ARelic makeCopy() => new BeastMode();
 }
@@ -132,9 +118,7 @@ public class RisingPower : ARelic
 {
     public static string ID = "RisingPower";
 
-    public RisingPower() : base(ID, "RisingPower.png", RelicTier.RARE, LandingSound.SOLID)
-    {
-    }
+    public RisingPower() : base(ID, "RisingPower.png", RelicTier.RARE, LandingSound.SOLID) { }
 
     // TODO: 需要实现战斗时间累积伤害
     // private float battleTime = 0f;
@@ -167,9 +151,7 @@ public class EscalatingForce : ARelic
 {
     public static string ID = "EscalatingForce";
 
-    public EscalatingForce() : base(ID, "EscalatingForce.png", RelicTier.RARE, LandingSound.SOLID)
-    {
-    }
+    public EscalatingForce() : base(ID, "EscalatingForce.png", RelicTier.RARE, LandingSound.SOLID) { }
 
     // TODO: 需要实现命中累积伤害
     // private int totalHits = 0;
@@ -194,9 +176,7 @@ public class InfiniteGrowth : ARelic
 {
     public static string ID = "InfiniteGrowth";
 
-    public InfiniteGrowth() : base(ID, "InfiniteGrowth.png", RelicTier.SPECIAL, LandingSound.MAGICAL)
-    {
-    }
+    public InfiniteGrowth() : base(ID, "InfiniteGrowth.png", RelicTier.SPECIAL, LandingSound.MAGICAL) { }
 
     // TODO: 需要实现持续属性增长
     // public override void onPlayerTurnUpdate(APlayer p, float dt)
@@ -217,9 +197,7 @@ public class Overdrive : ARelic
 {
     public static string ID = "Overdrive";
 
-    public Overdrive() : base(ID, "Overdrive.png", RelicTier.RARE, LandingSound.HEAVY)
-    {
-    }
+    public Overdrive() : base(ID, "Overdrive.png", RelicTier.RARE, LandingSound.HEAVY) { }
 
     // TODO: 需要实现战斗增益
     // private float combatTime = 0f;
@@ -237,24 +215,18 @@ public class Overdrive : ARelic
 }
 
 /// <summary>
-/// BattleRage - 战斗狂热
-/// 战斗中获得攻速
-/// [设计文案] 战斗的狂热
+/// 撞击暴击会造成小型爆炸效果
 /// </summary>
 public class BattleRage : ARelic
 {
     public static string ID = "BattleRage";
 
-    public BattleRage() : base(ID, "BattleRage.png", RelicTier.RARE, LandingSound.HEAVY)
-    {
-    }
+    public BattleRage() : base(ID, "BattleRage.png", RelicTier.RARE, LandingSound.HEAVY) { }
 
-    // TODO: 需要实现战斗攻速增益
-    // public override void onBallKillBrick(APlayer p, Ball ball, Brick brick)
-    // {
-    //     ball.GetStat(Ball.Stat.AS, out var stat);
-    //     stat.AddPct(0.02f);
-    // }
+    public override void onBallImpactCrit(APlayer p, Ball ball, Brick brick)
+    {
+        effectManager.addLogic<CritImpactExplodeEffect>().with(ball, brick);
+    }
 
     public override ARelic makeCopy() => new BattleRage();
 }
@@ -268,9 +240,7 @@ public class BloodPact : ARelic
 {
     public static string ID = "BloodPact";
 
-    public BloodPact() : base(ID, "BloodPact.png", RelicTier.SPECIAL, LandingSound.HEAVY)
-    {
-    }
+    public BloodPact() : base(ID, "BloodPact.png", RelicTier.SPECIAL, LandingSound.HEAVY) { }
 
     // TODO: 需要实现消耗生命获得力量
     // public override void onPlayerTurnUpdate(APlayer p, float dt)

@@ -63,15 +63,17 @@ namespace MoreMountains
             return true;
         }
 
-        public virtual bool onCritHit(Brick brick)
+        public virtual bool onImpactCrit(Brick brick)
         {
             counters.critHit.count();
+            _player.onBallImpactCrit(this, brick);
             return true;
         }
 
-        public virtual bool onCritSkill(Brick brick)
+        public virtual bool onSkillCrit(Brick brick)
         {
             counters.critSkill.count();
+            _player.onBallSkillCrit(this, brick);
             return true;
         }
 

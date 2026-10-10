@@ -56,7 +56,7 @@ namespace MoreMountains
 
             float distance = 0F;
             var selfPos = transform.position;
-            var targetPos = _brain.Target.position;
+            var targetPos = getTargetPosition();
             switch (ComparisonDirection)
             {
                 case ComparisonDirections.Free:

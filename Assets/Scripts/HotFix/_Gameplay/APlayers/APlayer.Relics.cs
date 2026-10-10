@@ -71,6 +71,12 @@ namespace MoreMountains
             return null;
         }
 
+        public void fixedUpdateRelics(float dt)
+        {
+            for (int i = 0; i < relics.Count; i++)
+                relics[i].onFixedUpdate(dt);
+        }
+
         public void updateRelics(float dt)
         {
             for (int i = 0; i < relics.Count; i++)

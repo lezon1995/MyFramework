@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace MoreMountains
 {
@@ -44,7 +45,10 @@ namespace MoreMountains
         public bool JustGotGrounded { get; set; }
         public Vector3 CurrentMovement { get; set; }
         public Vector3 CurrentDirection { get; set; }
-        public bool MovementDisabled { get; set; }
+        public Func<bool> MovementDisabledGetter { get; set; }
+        public bool ForcedMovementDisabled { get; set; }
+
+        public bool MovementDisabled => ForcedMovementDisabled || MovementDisabledGetter();
 
         /// the surface modifier object below our character (if any)
         // public virtual SurfaceModifier SurfaceModifierBelow { get; set; }
@@ -199,7 +203,6 @@ namespace MoreMountains
             JustGotGrounded = false;
             CurrentMovement = Vector3.zero;
             CurrentDirection = Vector3.zero;
-            MovementDisabled = false;
         }
     }
 }

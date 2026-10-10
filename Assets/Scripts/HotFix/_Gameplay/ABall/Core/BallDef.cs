@@ -87,7 +87,7 @@ namespace MoreMountains
                     playerDuration = p.GetStat(Character.Stat.Duration);
                 }
 
-                var duration = ballDuration * (1F + (playerDuration?.Value ?? 0F));
+                var duration = ballDuration * (playerDuration?.Value ?? 1F);
                 if (playerDuration is { BonusValue: > 0 })
                 {
                     sb.add(duration.FToS(1).color(universalColor.enhanced), "s");
@@ -211,7 +211,7 @@ namespace MoreMountains
                     playerBallisticSpeed = p.GetStat(Character.Stat.BallisticSpeed);
                 }
 
-                var logicBallisticSpeed = ballBallisticSpeed * (1 + (playerBallisticSpeed?.Value ?? 0F));
+                var logicBallisticSpeed = ballBallisticSpeed * (playerBallisticSpeed?.Value ?? 1F);
                 if (playerBallisticSpeed is { BonusValue: > 0 })
                 {
                     sb.add(logicBallisticSpeed.FToS(0).color(universalColor.enhanced));
@@ -330,7 +330,7 @@ namespace MoreMountains
                     playerDmgRate = p.GetStat(Character.Stat.DmgRate);
                 }
 
-                var dmgRate = ballDmgRate * (1F + (playerDmgRate?.Value ?? 0F));
+                var dmgRate = ballDmgRate * (playerDmgRate?.Value ?? 1F);
                 var hitDamage = rawHitDamage + hitDamageRate * (ad?.Value ?? 0F);
                 hitDamage *= dmgRate;
                 if (ad is { BonusValue: > 0 } || playerDmgRate is { BonusValue: > 0 })

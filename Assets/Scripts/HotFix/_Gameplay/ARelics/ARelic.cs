@@ -29,9 +29,7 @@ namespace MoreMountains
             onRelicDefSet(d);
         }
 
-        protected virtual void onRelicDefSet(RelicDef d)
-        {
-        }
+        protected virtual void onRelicDefSet(RelicDef d) { }
 
         public void setRelicItem(RelicItem d) => item = d;
         Dictionary<Character.Stat, string> modKeys;
@@ -90,33 +88,19 @@ namespace MoreMountains
             this.counter = counter;
         }
 
-        public void onPlayCard(ACard c)
-        {
-        }
+        public void onPlayCard(ACard c) { }
 
-        public void onPreviewObtainCard(ACard c)
-        {
-        }
+        public void onPreviewObtainCard(ACard c) { }
 
-        public void onObtainCard(ACard c)
-        {
-        }
+        public void onObtainCard(ACard c) { }
 
-        public virtual void onPickupGold(int amount)
-        {
-        }
+        public virtual void onPickupGold(int amount) { }
 
-        public void onGainGold()
-        {
-        }
+        public void onGainGold() { }
 
-        public void onLoseGold()
-        {
-        }
+        public void onLoseGold() { }
 
-        public void onSpendGold()
-        {
-        }
+        public void onSpendGold() { }
 
         public virtual void onEquip(APlayer p)
         {
@@ -133,6 +117,10 @@ namespace MoreMountains
                     else if (!mod.BonusPct.isZero())
                     {
                         modKey = stat.BonusPct.AddFlat(mod.BonusPct, name: Guid.NewGuid().ToString());
+                    }
+                    else if (!mod.BonusRatio.isZero())
+                    {
+                        modKey = stat.BonusRatio.AddFlat(mod.BonusRatio, name: Guid.NewGuid().ToString());
                     }
 
                     modKeys ??= DictionaryPool<Character.Stat, string>.Get();
@@ -160,6 +148,10 @@ namespace MoreMountains
                         {
                             stat.BonusPct.RemoveMod(modKey);
                         }
+                        else if (!mod.BonusRatio.isZero())
+                        {
+                            stat.BonusRatio.RemoveMod(modKey);
+                        }
                     }
                 }
             }
@@ -173,163 +165,86 @@ namespace MoreMountains
                 _player = null;
         }
 
-        public void atPreBattle()
-        {
-        }
+        public void atPreBattle() { }
 
-        public void atBattleStart()
-        {
-        }
+        public void atBattleStart() { }
 
-        public void onSpawnMonster(AMonster monster)
-        {
-        }
+        public void onSpawnMonster(AMonster monster) { }
 
-        public void atBattleStartPreDraw()
-        {
-        }
+        public void atBattleStartPreDraw() { }
 
-        public void atTurnStart()
-        {
-        }
+        public void atTurnStart() { }
 
-        public void atTurnStartPostDraw()
-        {
-        }
+        public void atTurnStartPostDraw() { }
 
-        public void onPlayerEndTurn()
-        {
-        }
+        public void onPlayerEndTurn() { }
 
-        public virtual void onShootBall(Ball ball)
-        {
-        }
+        public virtual void onShootBall(Ball ball) { }
 
-        public virtual void onEnterBloodied()
-        {
-        }
+        public virtual void onEnterBloodied() { }
 
-        public virtual void onExitBloodied()
-        {
-        }
+        public virtual void onExitBloodied() { }
 
-        public void onManualDiscard()
-        {
-        }
+        public void onManualDiscard() { }
 
-        public void onVictory()
-        {
-        }
+        public void onVictory() { }
 
-        public void onMonsterDeath(AMonster m)
-        {
-        }
+        public void onMonsterDeath(AMonster m) { }
 
-        public void onBlockBroken(ACreature m)
-        {
-        }
+        public void onBlockBroken(ACreature m) { }
 
-        public void onPlayerGainBlock(ref int blockAmount)
-        {
-        }
+        public void onPlayerGainBlock(ref int blockAmount) { }
 
-        public void onPlayerHeal(ref int healAmount)
-        {
-        }
+        public virtual void onBeforeHeal(ref int healAmount) { }
+        public virtual void onAfterHeal(Heal heal) { }
 
-        public void onMeditate()
-        {
-        }
+        public void onMeditate() { }
 
-        public void onEnergyRecharge()
-        {
-        }
+        public void onEnergyRecharge() { }
 
-        public void beforeEnergyPrep()
-        {
-        }
+        public void beforeEnergyPrep() { }
 
-        public void onRest()
-        {
-        }
+        public void onRest() { }
 
-        public void onRitual()
-        {
-        }
+        public void onRitual() { }
 
-        public void onEnterRestRoom()
-        {
-        }
+        public void onEnterRestRoom() { }
 
-        public void onRefreshHand()
-        {
-        }
+        public void onRefreshHand() { }
 
-        public void onShuffle()
-        {
-        }
+        public void onShuffle() { }
 
-        public void onSmith()
-        {
-        }
+        public void onSmith() { }
 
-        public void onAttack(DamageInfo info, int damageAmount, ACreature target)
-        {
-        }
+        public void onAttack(DamageInfo info, int damageAmount, ACreature target) { }
 
-        public void onAttacked(DamageInfo info, ref int damageAmount)
-        {
-        }
+        public void onAttacked(DamageInfo info, ref int damageAmount) { }
 
-        public void onAttackedToChangeDamage(DamageInfo info, ref int damageAmount)
-        {
-        }
+        public void onAttackedToChangeDamage(DamageInfo info, ref int damageAmount) { }
 
-        public void onAttackToChangeDamage(DamageInfo info, ref int damageAmount)
-        {
-        }
+        public void onAttackToChangeDamage(DamageInfo info, ref int damageAmount) { }
 
-        public void onExhaust(ACard card)
-        {
-        }
+        public void onExhaust(ACard card) { }
 
-        public void onTrigger()
-        {
-        }
+        public void onTrigger() { }
 
-        public void onTrigger(ACreature target)
-        {
-        }
+        public void onTrigger(ACreature target) { }
 
         public bool checkTrigger() => false;
 
-        public void onEnterRoom(ARoom room)
-        {
-        }
+        public void onEnterRoom(ARoom room) { }
 
-        public void justEnteredRoom(ARoom room)
-        {
-        }
+        public void justEnteredRoom(ARoom room) { }
 
-        public void onCardDraw(ACard card)
-        {
-        }
+        public void onCardDraw(ACard card) { }
 
-        public void onChestOpen(bool bossChest)
-        {
-        }
+        public void onChestOpen(bool bossChest) { }
 
-        public void onChestOpenAfter(bool bossChest)
-        {
-        }
+        public void onChestOpenAfter(bool bossChest) { }
 
-        public void onDrawOrDiscard()
-        {
-        }
+        public void onDrawOrDiscard() { }
 
-        public void onMasterDeckChange()
-        {
-        }
+        public void onMasterDeckChange() { }
 
         public float atDamageModify(float damage, ACard c) => damage;
 
@@ -384,57 +299,33 @@ namespace MoreMountains
 
         public bool canSpawn() => true;
 
-        public void onUsePotion()
-        {
-        }
+        public void onUsePotion() { }
 
         // public void onChangeStance(AbstractStance prevStance, AbstractStance newStance)
         // {
         // }
 
-        public void onLoseHp(int damageAmount)
-        {
-        }
+        public void onLoseHp(int damageAmount) { }
 
-        public void onLoseHpLast(ref int damageAmount)
-        {
-        }
+        public void onLoseHpLast(ref int damageAmount) { }
 
-        public void wasHPLost(int damageAmount)
-        {
-        }
+        public void wasHPLost(int damageAmount) { }
 
-        public virtual void onPlayerTurnUpdate(APlayer p, float dt)
-        {
-        }
+        public virtual void onPlayerTurnUpdate(APlayer p, float dt) { }
 
-        public virtual void onBallBeginOverlappingBrickAll(APlayer p, Ball ball, Brick brick)
-        {
-        }
+        public virtual void onBallBeginOverlappingBrickAll(APlayer p, Ball ball, Brick brick) { }
 
-        public virtual void onBallEndOverlappingBrickAll(APlayer p, Ball ball, Brick brick, bool prematurely)
-        {
-        }
+        public virtual void onBallEndOverlappingBrickAll(APlayer p, Ball ball, Brick brick, bool prematurely) { }
 
-        public virtual void onBallBeginOverlappingBrickOne(APlayer p, Ball ball, Brick brick)
-        {
-        }
+        public virtual void onBallBeginOverlappingBrickOne(APlayer p, Ball ball, Brick brick) { }
 
-        public virtual void onBallEndOverlappingBrickOne(APlayer p, Ball ball, Brick brick, bool prematurely)
-        {
-        }
+        public virtual void onBallEndOverlappingBrickOne(APlayer p, Ball ball, Brick brick, bool prematurely) { }
 
-        public virtual void onPlayerTurnBegin(APlayer p)
-        {
-        }
+        public virtual void onPlayerTurnBegin(APlayer p) { }
 
-        public virtual void onPlayerTurnEnd(APlayer p)
-        {
-        }
+        public virtual void onPlayerTurnEnd(APlayer p) { }
 
-        public virtual void onFightingPhaseEnd(APlayer p)
-        {
-        }
+        public virtual void onFightingPhaseEnd(APlayer p) { }
 
         public virtual ARelic makeCopy()
         {
@@ -442,52 +333,25 @@ namespace MoreMountains
             return (ARelic)instance;
         }
 
-        public virtual void onBallHitBorderBot(APlayer p, Ball ball, BorderBot border, Vector2 normal, ref bool forceReturn)
-        {
-        }
-
-        public virtual void onBallHitBorderTop(APlayer p, Ball ball, BorderTop border, ref Vector2 normal)
-        {
-        }
-
-        public virtual void onBallHitBorderLeft(APlayer p, Ball ball, BorderLeft border, ref Vector2 normal)
-        {
-        }
-
-        public virtual void onBallHitBorderRight(APlayer p, Ball ball, BorderRight border, ref Vector2 normal)
-        {
-        }
-
-        public virtual void onBallImpactHitBrick(APlayer p, Ball ball, Brick brick, Vector2 normal, ref bool triggerRegularHit)
-        {
-        }
-
-        public virtual void onBallSkillHitBrick(APlayer p, Ball ball, Brick brick)
-        {
-        }
-
-        public virtual void onBallHitObstacle(APlayer p, Ball ball, Obstacle obstacle, ref Vector2 normal)
-        {
-        }
-
-        public virtual void onBallReflect(APlayer p, Ball ball, Vector2 normal, bool fromBrick, ref Vector2 reflectDir)
-        {
-        }
-
-        public virtual void onBallKillBrick(APlayer p, Ball ball, Brick brick)
-        {
-        }
-
-        public virtual void onBallCauseHitDamage(APlayer p, Ball ball, Brick brick, in Dmg dmg)
-        {
-        }
-
-        public virtual void onDropCoin(APlayer p, Coin coin)
-        {
-        }
-
-        public virtual void onCauseDotDamage(APlayer p, Brick brick, in Dmg dmg)
-        {
-        }
+        public virtual void onBallHitBorderBot(APlayer p, Ball ball, BorderBot border, Vector2 normal, ref bool forceReturn) { }
+        public virtual void onBallHitBorderTop(APlayer p, Ball ball, BorderTop border, ref Vector2 normal) { }
+        public virtual void onBallHitBorderLeft(APlayer p, Ball ball, BorderLeft border, ref Vector2 normal) { }
+        public virtual void onBallHitBorderRight(APlayer p, Ball ball, BorderRight border, ref Vector2 normal) { }
+        public virtual void onBallImpactHitBrick(APlayer p, Ball ball, Brick brick, Vector2 normal, ref bool triggerRegularHit) { }
+        public virtual void onBallSkillHitBrick(APlayer p, Ball ball, Brick brick) { }
+        public virtual void onBallImpactCrit(APlayer p, Ball ball, Brick brick) { }
+        public virtual void onBallSkillCrit(APlayer p, Ball ball, Brick brick) { }
+        public virtual void onBallHitObstacle(APlayer p, Ball ball, Obstacle obstacle, ref Vector2 normal) { }
+        public virtual void onBallReflect(APlayer p, Ball ball, Vector2 normal, bool fromBrick, ref Vector2 reflectDir) { }
+        public virtual void onBallKillBrick(APlayer p, Ball ball, Brick brick) { }
+        public virtual void onKillBrick(APlayer p, Brick brick) { }
+        public virtual void onBallCauseHitDamage(APlayer p, Ball ball, Brick brick, in Dmg dmg) { }
+        public virtual void onDropCoin(APlayer p, Coin coin) { }
+        public virtual void onCauseDotDamage(APlayer p, Brick brick, in Dmg dmg) { }
+        public virtual void onPlayerStartDash(APlayer p, Vector3 start, Vector3 end) { }
+        public virtual void onPlayerStopDash(APlayer p) { }
+        public virtual void onPlayerDashing(APlayer p, Vector3 pos) { }
+        public virtual void onShield(APlayer p, int amount) { }
+        public virtual void onBallDoHitEffect(APlayer p, Ball ball, DoHitEffect e, float delay) { }
     }
 }

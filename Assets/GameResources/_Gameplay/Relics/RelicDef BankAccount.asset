@@ -13,6 +13,9 @@ MonoBehaviour:
   m_Name: RelicDef BankAccount
   m_EditorClassIdentifier: HotFix::MoreMountains.RelicDef
   Type: 30158
+  TagInfo:
+    MechanicTags: 
+    StatusTags: 
   BasePrice: 50
   SellRefund: 25
   CarryLimit: 0
@@ -20,12 +23,15 @@ MonoBehaviour:
   - stat: 5
     BonusFlat: 4
     BonusPct: 0
+    BonusRatio: 0
   - stat: 24
     BonusFlat: 0.1
     BonusPct: 0
+    BonusRatio: 0
   - stat: 13
     BonusFlat: 0.1
     BonusPct: 0
+    BonusRatio: 0
   Icon: {fileID: 21300000, guid: e54463aa954580f42bac86b137d04eaa, type: 3}
   Rarity: 1
   DisplayName:
@@ -46,6 +52,9 @@ MonoBehaviour:
     m_FallbackState: 0
     m_WaitForCompletion: 0
     m_LocalVariables: []
+  MetaHandleWeapon: {fileID: 0}
+  Args:
+  - 0.025
   references:
     version: 2
     RefIds: []

@@ -10,7 +10,7 @@ namespace MoreMountains
         protected DamageOnTouch damageOnTouch;
         public new BrickStats Stats => stats as BrickStats;
         public CharacterHandleWeapon handleWeapon;
-        
+
         protected override void OnAwake()
         {
             base.OnAwake();
@@ -60,9 +60,7 @@ namespace MoreMountains
             new OnBrickColliderChanged().trigger();
         }
 
-        protected override void UpdateAnimators()
-        {
-        }
+        protected override void UpdateAnimators() { }
 
         public override void onEvent(OnRevive e)
         {
@@ -100,8 +98,38 @@ namespace MoreMountains
         public override void OnFixedUpdate(float dt)
         {
             base.OnFixedUpdate(dt);
-            
-            
+        }
+
+        public override void Freeze()
+        {
+            base.Freeze();
+            _controller.SetMovement(Vector2.zero);
+            conditionState.ChangeState(Conditions.Frozen);
+            brickRenderer.setFreezeEffect(true);
+        }
+
+        public override void UnFreeze()
+        {
+            if (conditionState.CurrentState == Conditions.Frozen)
+            {
+                conditionState.ChangeState(Conditions.Normal);
+            }
+
+            brickRenderer.setFreezeEffect(false);
+        }
+
+        public override void Stun()
+        {
+            _controller.SetMovement(Vector2.zero);
+            conditionState.ChangeState(Conditions.Stunned);
+        }
+
+        public override void UnStun()
+        {
+            if (conditionState.CurrentState == Conditions.Stunned)
+            {
+                conditionState.ChangeState(Conditions.Normal);
+            }
         }
 
         void DebugDrawRect()

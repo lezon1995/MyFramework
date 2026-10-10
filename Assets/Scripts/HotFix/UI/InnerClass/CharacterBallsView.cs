@@ -34,4 +34,16 @@ public partial class CharacterBallsView : WindowObjectUGUI
 	{
 		base.onShow();
 	}
+
+	public override void update(float dt)
+	{
+		base.update(dt);
+		
+		var used = BallInventoryItemPool.getUsedList();
+		for (int i = 0; i < used.Count; i++)
+		{
+			var ballInventoryItem = used[i];
+			ballInventoryItem.update(dt);
+		}
+	}
 }

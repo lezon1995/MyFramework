@@ -38,7 +38,7 @@ namespace MoreMountains
             if (_orientation2D == null)
                 return false;
 
-            Vector2 directionToTarget = (_brain.Target.position - transform.position).normalized;
+            Vector2 directionToTarget = (getTargetPosition() - transform.position).normalized;
             Vector2 facingDirection = _orientation2D.IsFacingRight ? Vector2.right : Vector2.left;
 
             float angle = Vector2.Angle(facingDirection, directionToTarget);

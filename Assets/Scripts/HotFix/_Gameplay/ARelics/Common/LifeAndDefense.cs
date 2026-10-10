@@ -53,9 +53,7 @@ public class StoneSkin : ARelic
 }
 
 /// <summary>
-/// BarrierWard - 屏障护符
-/// 战斗开始时获得护盾
-/// [设计文案] 开始的保护屏障
+/// 获得护盾时对随机一个敌人造成魔法伤害
 /// </summary>
 public class BarrierWard : ARelic
 {
@@ -65,11 +63,27 @@ public class BarrierWard : ARelic
     {
     }
 
-    // TODO: 需要实现战斗开始获得护盾
-    // public override void atBattleStart()
-    // {
-    //     owner.AddShield(3);
-    // }
+    float rate;
+    float duration;
+
+    protected override void onRelicDefSet(RelicDef d)
+    {
+        rate = d.Args[0];
+        duration = d.Args[1];
+    }
+    
+    public override void onShield(APlayer p, int amount)
+    {
+        if (brickManager.getRandomActiveBrick(out var brick))
+        {
+            var f = rate + _player.ap / 100F;
+            var value = (int)(amount * f);
+            if (value > 0)
+            {
+                effectManager.addLogic<LaserLine2Effect>().with(_player, brick, value, duration);
+            }
+        }
+    }
 
     public override ARelic makeCopy() => new BarrierWard();
 }

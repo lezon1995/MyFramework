@@ -163,7 +163,7 @@ MonoBehaviour:
       Data: CritDamage
     - Name: $v
       Entry: 4
-      Data: 0
+      Data: 1
     - Name: 
       Entry: 8
       Data: 
@@ -175,7 +175,7 @@ MonoBehaviour:
       Data: DmgRate
     - Name: $v
       Entry: 4
-      Data: 0
+      Data: 1
     - Name: 
       Entry: 8
       Data: 
@@ -295,7 +295,7 @@ MonoBehaviour:
       Data: BallisticSpeed
     - Name: $v
       Entry: 4
-      Data: 0
+      Data: 1
     - Name: 
       Entry: 8
       Data: 
@@ -343,7 +343,7 @@ MonoBehaviour:
       Data: Duration
     - Name: $v
       Entry: 4
-      Data: 0
+      Data: 1
     - Name: 
       Entry: 8
       Data: 
@@ -391,7 +391,7 @@ MonoBehaviour:
       Data: HealRate
     - Name: $v
       Entry: 4
-      Data: 0
+      Data: 1
     - Name: 
       Entry: 8
       Data: 

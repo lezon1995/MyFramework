@@ -133,6 +133,11 @@ public class GameEffectManager
         return effect as T;
     }
 
+    public bool containsLogic(ALogicEffect e)
+    {
+        return logicEffects.Contains(e);
+    }
+
     public void clear()
     {
         clearLogicEffects();

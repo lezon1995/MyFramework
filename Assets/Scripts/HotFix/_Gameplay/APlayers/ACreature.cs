@@ -16,6 +16,7 @@ namespace MoreMountains
 
         float healthHideTimer { get; set; }
         public int lastDamageTaken { get; set; }
+        public bool inStealth { get; set; }
 
         public virtual int currentHealth
         {

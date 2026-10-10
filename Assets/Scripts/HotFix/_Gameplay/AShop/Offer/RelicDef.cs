@@ -24,7 +24,7 @@ namespace MoreMountains
 
         public LocalizedString DisplayName;
         public LocalizedString DisplayDescription;
-        
+
         public MetaHandleWeapon MetaHandleWeapon;
         public float[] Args;
 
@@ -61,19 +61,21 @@ namespace MoreMountains
                 sb.add(" ");
 
                 ModsDisplayConfig.Instance.TryGetDisplayConfig(statKey, out var displayConfig);
-                
+
                 var bonusFlat = mod.BonusFlat;
                 var bonusPct = mod.BonusPct;
+                var bonusRatio = mod.BonusRatio;
+                bool isModifier = !bonusRatio.isZero();
+
                 if (bonusFlat > 0)
                 {
                     var color = universalColor.enhanced.toRGBA();
-                    
                     sb.colorString(color, "+", displayConfig.displayValue(bonusFlat));
                 }
                 else if (bonusFlat < 0)
                 {
                     var color = universalColor.reduced.toRGBA();
-                    sb.colorString(color, displayConfig.displayValue(bonusFlat));
+                    sb.colorString(color, "-", displayConfig.displayValue(bonusFlat));
                 }
                 else if (bonusPct > 0)
                 {
@@ -83,11 +85,30 @@ namespace MoreMountains
                 else if (bonusPct < 0)
                 {
                     var color = universalColor.reduced.toRGBA();
-                    sb.colorString(color, displayConfig.displayValue(bonusPct));
+                    sb.colorString(color, "-", displayConfig.displayValue(bonusPct));
+                }
+                else if (bonusRatio > 0)
+                {
+                    var color = universalColor.enhanced.toRGBA();
+                    sb.colorString(color, "+", displayConfig.displayValue(bonusRatio));
+                }
+                else if (bonusRatio < 0)
+                {
+                    var color = universalColor.reduced.toRGBA();
+                    sb.colorString(color, "-", displayConfig.displayValue(bonusRatio));
                 }
 
-                var statName = LocalizedStats.getName(statKey);
-                sb.add(statName);
+                if (isModifier)
+                {
+                    var statName = LocalizedStats.getName($"{statKey}_Modify");
+                    sb.add(statName);
+                }
+                else
+                {
+                    var statName = LocalizedStats.getName(statKey);
+                    sb.add(statName);
+                }
+
                 sb.addLine();
             }
 

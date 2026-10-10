@@ -68,10 +68,19 @@ namespace MoreMountains
                 outgoingYawSpreadMax: Definition.OutgoingYawSpreadMax,
                 outgoingYawSpreadMin: Definition.OutgoingYawSpreadMin,
                 outgoingVerticalLift: Definition.OutgoingVerticalLift);
+            
+            Debug.DrawLine(p0, p1, Color.yellow, 2F);
+            Debug.DrawLine(p2, p1, Color.red, 2F);
 
             // === 3. 算飞行时间 ===
             var flightDuration = Definition.ResolveFlightDuration(p0, p2, p1);
 
+            BezierSegments segments = BezierSegments.One;
+            if (randomHit(0.5F))
+            {
+                segments = BezierSegments.Two;
+            }
+            
             // === 4. Launch ===
             missile.Launch(
                 def: Definition,
@@ -79,7 +88,9 @@ namespace MoreMountains
                 owner: _statsOwner,
                 arcHeightOffset: arcHeightOffset,
                 p1: p1,
-                flightDuration: flightDuration);
+                flightDuration: flightDuration,
+                segments
+                );
 
             return go;
         }

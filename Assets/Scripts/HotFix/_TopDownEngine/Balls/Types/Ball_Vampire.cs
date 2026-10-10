@@ -15,9 +15,8 @@ namespace MoreMountains
 
         TextMeshPro textHealthStorage;
 
-        public float convertRate = 0.15F;
-        public float baseHealthStorage = 5F;
-        public float baseHealthStorageRate = 0.2F;
+        public float ConvertRate = 0.5F;
+        public float MaxHealthRate = 0.25F;
         public float curHealthStorage;
 
         protected override void OnAwake()
@@ -40,11 +39,6 @@ namespace MoreMountains
             setCurHealthStorage(0F);
         }
 
-        protected override void playHitBrickSfx(Brick brick)
-        {
-            sound.play(SoundDefine.VAMPIRE_HIT);
-        }
-
         protected override void CheckBallExpiration(float dt)
         {
         }
@@ -56,6 +50,7 @@ namespace MoreMountains
             {
                 var heal = new Heal((int)value);
                 _player.Health.ReceiveHealth(heal, source: _player);
+                sound.play(SoundDefine.HEAL_EFFECT);
             }
         }
 
@@ -63,14 +58,17 @@ namespace MoreMountains
         {
             base.onEvent(e);
 
-            var healthStorage = convertRate * e.dmg.DamageDealt;
+            var rate = ConvertRate + _player.ap / 1000F;
+            var healthStorage = rate * e.dmg.DamageDealt;
             var value = Mathf.Clamp(curHealthStorage + healthStorage, 0, getMaxHealthStorage());
             setCurHealthStorage(value);
         }
 
         float getMaxHealthStorage()
         {
-            var maxHealthStorage = baseHealthStorage + baseHealthStorageRate * _player.GetStat(Character.Stat.AP).Value;
+            var healthRate = MaxHealthRate + _player.ap / 1000F;
+            var healthStorage = _player.GetStat(Character.Stat.HealthMax).Value * healthRate;
+            var maxHealthStorage = healthStorage;
             return maxHealthStorage;
         }
 

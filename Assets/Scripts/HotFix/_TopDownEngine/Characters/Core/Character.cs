@@ -67,9 +67,9 @@ namespace MoreMountains
         {
             Normal,
             Frozen,
+            Stunned,
             Paused,
             Dead,
-            Stunned,
             Poisoned,
         }
 
@@ -106,6 +106,7 @@ namespace MoreMountains
         , IEvent<OnDeath>
         , IEvent<OnHit>
         , IEvent<OnHeal>
+        , IEvent<OnShield>
         , IEvent<OnDmg>
         , IEvent<DoDmg>
         , IEvent<OnCombat>
@@ -113,6 +114,8 @@ namespace MoreMountains
         , IEvent<DoDashDodge>
         , IEvent<DoChanceDodge>
         , IEvent<DoKill>
+        , IEvent<DoDashStart>
+        , IEvent<DoDashEnd>
         , IStatsGetter<Character.Stat>
     {
         public ComponentFlags Flags { get; set; }
@@ -169,6 +172,7 @@ namespace MoreMountains
         [TitleGroup("Bindings")]
         [Tooltip("The brain currently associated with this character, if it's an Advanced AI. By default the engine will pick the one on this object, but you can attach another one if you'd like")]
         public AIBrain CharacterBrain;
+
         public CharacterHandleWeapon CharacterHandleWeapon;
 
         public MMStateMachine<Motions> motionState;
@@ -188,7 +192,12 @@ namespace MoreMountains
             get
             {
                 if (_controller == null)
-                    TryGetComponent(out _controller);
+                {
+                    if (TryGetComponent(out _controller))
+                    {
+                        _controller.MovementDisabledGetter = MovementDisabled;
+                    }
+                }
 
                 return _controller;
             }
@@ -234,9 +243,11 @@ namespace MoreMountains
 
         public Action<Character> onDeath { get; set; }
         public Action<Character, Character> onDoKill { get; set; }
+        public Action<Character> onDoDash { get; set; }
         public Action<Character, Character, Dmg> onDoDmg { get; set; }
         public Action<Character, Character, Dmg> onTakeDmg { get; set; }
         public Action<Character, Character, Heal> onTakeHeal { get; set; }
+        public Action<Character, int> onTakeShield { get; set; }
         public Action<Character> onBasicAttackWinddown { get; set; }
 
         /// <summary>
@@ -261,7 +272,10 @@ namespace MoreMountains
             SetInputManager();
 
             // we store our components for further use 
-            TryGetComponent(out _controller);
+            if (TryGetComponent(out _controller))
+            {
+                _controller.MovementDisabledGetter = MovementDisabled;
+            }
 
             if (Health == null)
                 TryGetComponent(out Health);
@@ -308,6 +322,21 @@ namespace MoreMountains
             Combat.Character = this;
 
             TopDownEngineEvent.Trigger(TopDownEngineEventTypes.CharacterInitialized, this);
+        }
+
+        protected virtual bool MovementDisabled()
+        {
+            var state = conditionState.CurrentState;
+            if (state
+                is Conditions.Frozen
+                or Conditions.Stunned
+                or Conditions.Paused
+                or Conditions.Dead)
+            {
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -817,6 +846,22 @@ namespace MoreMountains
             }
         }
 
+        public virtual void Stun()
+        {
+            _controller.SetGravityActive(false);
+            _controller.SetMovement(Vector2.zero);
+            conditionState.ChangeState(Conditions.Stunned);
+        }
+
+        public virtual void UnStun()
+        {
+            if (conditionState.CurrentState == Conditions.Stunned)
+            {
+                _controller.SetGravityActive(true);
+                conditionState.ChangeState(Conditions.Normal);
+            }
+        }
+
         /// <summary>
         /// Called to disable the player (at the end of a level for example. 
         /// It won't move and respond to input after this.
@@ -875,20 +920,23 @@ namespace MoreMountains
             onDeath?.Invoke(this);
         }
 
-        public virtual void onEvent(OnHit e)
-        {
-        }
+        public virtual void onEvent(OnHit e) { }
 
         public virtual void onEvent(OnHeal e)
         {
             onTakeHeal?.Invoke(e.Source, this, e.Heal);
         }
 
+        public virtual void onEvent(OnShield e)
+        {
+            onTakeShield?.Invoke(e.Source, e.ShieldAmount);
+        }
+
         public virtual void onEvent(DoDmg e)
         {
             Combat.Turn(true);
             onDoDmg?.Invoke(this, e.Character, e.Dmg);
-            
+
             if (e.Dmg.IsDOT)
             {
                 OnCauseDotDamage(e.Character, in e.Dmg);
@@ -899,6 +947,13 @@ namespace MoreMountains
         {
             onDoKill?.Invoke(this, e.Character);
         }
+
+        public virtual void onEvent(DoDashStart e)
+        {
+            onDoDash?.Invoke(this);
+        }
+
+        public virtual void onEvent(DoDashEnd e) { }
 
         public virtual void onEvent(OnDmg e)
         {
@@ -915,13 +970,9 @@ namespace MoreMountains
                 Buffable.NotifyOnCombat(e.IsOn);
         }
 
-        public virtual void onEvent(DoDashDodge e)
-        {
-        }
+        public virtual void onEvent(DoDashDodge e) { }
 
-        public virtual void onEvent(DoChanceDodge e)
-        {
-        }
+        public virtual void onEvent(DoChanceDodge e) { }
 
         public virtual void onEvent(OnWindup e)
         {
@@ -942,22 +993,16 @@ namespace MoreMountains
             }
         }
 
-        protected virtual void OnBasicAttackWindup()
-        {
-        }
+        protected virtual void OnBasicAttackWindup() { }
 
-        protected virtual void OnBasicAttackWindupCanceled()
-        {
-        }
+        protected virtual void OnBasicAttackWindupCanceled() { }
 
         protected virtual void OnBasicAttackWinddown()
         {
             onBasicAttackWinddown?.Invoke(this);
         }
-        
-        protected virtual void OnCauseDotDamage(Character target, in Dmg dmg)
-        {
-        }
+
+        protected virtual void OnCauseDotDamage(Character target, in Dmg dmg) { }
 
         /// <summary>
         /// OnEnable, we register our OnRevive event
@@ -975,6 +1020,7 @@ namespace MoreMountains
                 Health.Event.addListener<OnDeath>(this);
                 Health.Event.addListener<OnHit>(this);
                 Health.Event.addListener<OnHeal>(this);
+                Health.Event.addListener<OnShield>(this);
                 Health.Event.addListener<OnDmg>(this);
                 Health.Event.addListener<DoDmg>(this);
                 Health.Event.addListener<DoKill>(this);
@@ -998,6 +1044,7 @@ namespace MoreMountains
                 Health.Event.removeListener<OnDeath>(this);
                 Health.Event.removeListener<OnHit>(this);
                 Health.Event.removeListener<OnHeal>(this);
+                Health.Event.removeListener<OnShield>(this);
                 Health.Event.removeListener<OnDmg>(this);
                 Health.Event.removeListener<DoDmg>(this);
                 Health.Event.removeListener<DoKill>(this);
@@ -1033,7 +1080,7 @@ namespace MoreMountains
 
             return Stats.GetStat(key.Key(), out stat);
         }
-        
+
         public UniStats.Stat GetStat(string key)
         {
             return _hasStats ? Stats.GetStat(key) : null;

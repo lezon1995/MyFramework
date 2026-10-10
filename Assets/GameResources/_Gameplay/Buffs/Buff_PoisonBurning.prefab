@@ -134,7 +134,7 @@ MonoBehaviour:
   ApplicationRequiredTags: []
   ApplicationIgnoredTags: []
   main:
-    Name: "\u6BD2\u70E7\u7403buff"
+    Name: "\u4E2D\u6BD2"
     Desc: 
     Type: 1
     InstanceMode: 0

@@ -52,10 +52,9 @@ namespace MoreMountains
         protected void loadWaveManager()
         {
             string path1 = $"{GAMEPLAY_PATH}/Levels/WaveGameMode.prefab";
-            string path2 = $"{GAMEPLAY_PATH}/Levels/WaveLevelConfig.asset";
             var res = resource.loadGameResource<WaveGameMode>(path1);
             waveGameMode = Object.Instantiate(res.get());
-            waveLevelConfig = resource.loadGameResource<WaveLevelConfig>(path2);
+            waveLevelConfig = levelManager.LevelMap.WaveLevelConfig;
             waveGameMode.StartGame(waveLevelConfig);
             waveManager = waveGameMode.waveManager;
         }

@@ -33,7 +33,7 @@ public abstract class APower : ClassObject, IComparable<APower>
     public override void resetProperty()
     {
         base.resetProperty();
-        
+
         fontScale = 0;
         UN_CLASS_LIST(effect);
         name = null;
@@ -86,9 +86,7 @@ public abstract class APower : ClassObject, IComparable<APower>
         }
     }
 
-    public void updateParticles()
-    {
-    }
+    public void updateParticles() { }
 
     public void update(float dt)
     {
@@ -98,9 +96,7 @@ public abstract class APower : ClassObject, IComparable<APower>
         onUpdate(dt);
     }
 
-    protected virtual void onUpdate(float dt)
-    {
-    }
+    protected virtual void onUpdate(float dt) { }
 
     void updateFlash(float dt)
     {
@@ -131,9 +127,7 @@ public abstract class APower : ClassObject, IComparable<APower>
         }
     }
 
-    public virtual void updateDescription()
-    {
-    }
+    public virtual void updateDescription() { }
 
     public virtual void stackPower(int stackAmount)
     {
@@ -175,79 +169,43 @@ public abstract class APower : ClassObject, IComparable<APower>
     public virtual float atDamageFinalReceive(float damage, DamageInfo.DamageType type, ACard card) => atDamageFinalReceive(damage, type);
     public virtual float atDamageReceive(float damage, DamageInfo.DamageType damageType, ACard card) => atDamageReceive(damage, damageType);
 
-    public virtual void atStartOfTurn()
-    {
-    }
+    public virtual void atStartOfTurn() { }
 
-    public virtual void duringTurn()
-    {
-    }
+    public virtual void duringTurn() { }
 
-    public virtual void atStartOfTurnPostDraw()
-    {
-    }
+    public virtual void atStartOfTurnPostDraw() { }
 
-    public virtual void atEndOfTurn(bool isPlayer)
-    {
-    }
+    public virtual void atEndOfTurn(bool isPlayer) { }
 
-    public virtual void atEndOfTurnPreEndTurnCards(bool isPlayer)
-    {
-    }
+    public virtual void atEndOfTurnPreEndTurnCards(bool isPlayer) { }
 
-    public virtual void atEndOfRound()
-    {
-    }
+    public virtual void atEndOfRound() { }
 
-    public virtual void onScry()
-    {
-    }
+    public virtual void onScry() { }
 
-    public virtual void onDamageAllEnemies(int[] damage)
-    {
-    }
+    public virtual void onDamageAllEnemies(int[] damage) { }
 
-    public virtual void onHeal(ref int healAmount){}
+    public virtual void onBeforeHeal(ref int healAmount) { }
 
-    public virtual void onAttacked(DamageInfo Info, ref int damageAmount)
-    {
-    }
+    public virtual void onAttacked(DamageInfo Info, ref int damageAmount) { }
 
-    public virtual void onAttack(DamageInfo Info, int damageAmount, ACreature target)
-    {
-    }
+    public virtual void onAttack(DamageInfo Info, int damageAmount, ACreature target) { }
 
-    public virtual void onAttackedToChangeDamage(DamageInfo Info, ref int damageAmount)
-    {
-    }
+    public virtual void onAttackedToChangeDamage(DamageInfo Info, ref int damageAmount) { }
 
-    public virtual void onAttackToChangeDamage(DamageInfo Info, ref int damageAmount)
-    {
-    }
+    public virtual void onAttackToChangeDamage(DamageInfo Info, ref int damageAmount) { }
 
-    public virtual void onInflictDamage(DamageInfo Info, int damageAmount, ACreature target)
-    {
-    }
+    public virtual void onInflictDamage(DamageInfo Info, int damageAmount, ACreature target) { }
 
-    public virtual void onPlayCard(ACard card)
-    {
-    }
+    public virtual void onPlayCard(ACard card) { }
 
-    public virtual void wasHPLost(DamageInfo Info, int damageAmount)
-    {
-    }
+    public virtual void wasHPLost(DamageInfo Info, int damageAmount) { }
 
-    public virtual void onSpecificTrigger()
-    {
-    }
+    public virtual void onSpecificTrigger() { }
 
-    public virtual void triggerMarks(ACard card)
-    {
-    }
+    public virtual void triggerMarks(ACard card) { }
 
-    public virtual void onDeath()
-    {
-    }
+    public virtual void onDeath() { }
 
     public virtual float modifyBlock(float blockAmount) => blockAmount;
 
@@ -258,33 +216,19 @@ public abstract class APower : ClassObject, IComparable<APower>
 
     public virtual float modifyBlockLast(float blockAmount) => blockAmount;
 
-    public virtual void onGainedBlock(float blockAmount)
-    {
-    }
+    public virtual void onGainedBlock(float blockAmount) { }
 
-    public virtual void onGainCharge(int chargeAmount)
-    {
-    }
+    public virtual void onGainCharge(int chargeAmount) { }
 
-    public virtual void onRemove()
-    {
-    }
+    public virtual void onRemove() { }
 
-    public virtual void onEnergyRecharge()
-    {
-    }
+    public virtual void onEnergyRecharge() { }
 
-    public virtual void onDrawOrDiscard()
-    {
-    }
+    public virtual void onDrawOrDiscard() { }
 
-    public virtual void onAfterCardPlayed(ACard usedCard)
-    {
-    }
+    public virtual void onAfterCardPlayed(ACard usedCard) { }
 
-    public virtual void onInitialApplication()
-    {
-    }
+    public virtual void onInitialApplication() { }
 
     public int CompareTo(APower other) => priority.CompareTo(other.priority);
 
@@ -300,9 +244,7 @@ public abstract class APower : ClassObject, IComparable<APower>
         // ADungeon.effectList.add(new FlashPowerEffect(this));
     }
 
-    public virtual void onApplyPower(APower power, ACreature target, ACreature source)
-    {
-    }
+    public virtual void onApplyPower(APower power, ACreature target, ACreature source) { }
 
     public Dictionary<string, object> getLocStrings()
     {
@@ -312,13 +254,9 @@ public abstract class APower : ClassObject, IComparable<APower>
         return powerData;
     }
 
-    public virtual void onLoseHp(ref int damageAmount)
-    {
-    }
+    public virtual void onLoseHp(ref int damageAmount) { }
 
-    public virtual void onVictory()
-    {
-    }
+    public virtual void onVictory() { }
 
     public virtual bool canPlayCard(ACard card)
     {

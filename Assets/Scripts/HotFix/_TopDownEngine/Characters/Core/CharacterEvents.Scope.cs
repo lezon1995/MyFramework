@@ -28,6 +28,18 @@ namespace MoreMountains
         }
     }
 
+    public struct OnShield
+    {
+        public Character Source;
+        public int ShieldAmount;
+
+        public OnShield(Character source, int amount)
+        {
+            Source = source;
+            ShieldAmount = amount;
+        }
+    }
+
     public struct DoKill
     {
         public Character Character;
@@ -40,8 +52,19 @@ namespace MoreMountains
         }
     }
 
-    public struct DoDash
+    public struct DoDashStart
     {
+        public Vector3 StartPosition;
+        public Vector3 EndPosition;
+        public DoDashStart(Vector3 start, Vector3 end)
+        {
+            StartPosition = start;
+            EndPosition = end;
+        }
+    }
+    public struct DoDashEnd
+    {
+        public DoDashEnd() { }
     }
 
     public struct DoDashDodge

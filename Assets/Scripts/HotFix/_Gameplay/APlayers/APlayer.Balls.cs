@@ -127,6 +127,7 @@ namespace MoreMountains
 
                 if (ballDef)
                 {
+                    ballGunWeapon.SetBallItem(ballItem);
                     ballGunWeapon.SetBallDef(ballDef);
                     ballGunWeapon.SetBallLevel(ballLevel);
                     if (ballDef.MetaHandleWeapon)
@@ -138,6 +139,7 @@ namespace MoreMountains
                 }
                 else
                 {
+                    ballGunWeapon.SetBallItem(null);
                     ballGunWeapon.SetBallLevel(ballLevel);
                     ballGunWeapon.SetBallDef(null);
 

@@ -123,6 +123,7 @@ public static class FloatExtension
 	}
 	public static float toRadian(this float degree) { return degree * Mathf.Deg2Rad; }
 	public static float toDegree(this float radian) { return radian * Mathf.Rad2Deg; }
+	public static float clamp01(this float value)=>value.clamp(0.0F, 1.0F);
 	public static float clamp(this float value, float min, float max)
 	{
 		if (min > max || min.isEqual(max))

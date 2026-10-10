@@ -50,17 +50,11 @@ namespace MoreMountains
             return retVal;
         }
 
-        public override string getPortraitImageName()
-        {
-            return "ironcladPortrait.jpg";
-        }
-
         public override ACard getStartCardForEvent()
         {
             return null;
             // return new Bash();
         }
-
 
         public override string getTitle(PlayerClass plyrClass)
         {

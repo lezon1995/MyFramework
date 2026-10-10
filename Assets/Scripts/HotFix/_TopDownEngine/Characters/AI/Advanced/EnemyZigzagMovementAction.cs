@@ -43,7 +43,7 @@ namespace MoreMountains
                 return;
             }
 
-            var targetPos = _brain.Target.position;
+            var targetPos = getTargetPosition();
             var selfPos = transform.position;
             float distance = Vector3.Distance(selfPos, targetPos);
 

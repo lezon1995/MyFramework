@@ -703,6 +703,7 @@ MonoBehaviour:
     Direction: {x: 0, y: 0, z: 0}
     TriggerEffect: 0
     IsLethal: 0
+    IsDOT: 0
     HitNormal: {x: 0, y: 0}
     Mix:
       On: 0

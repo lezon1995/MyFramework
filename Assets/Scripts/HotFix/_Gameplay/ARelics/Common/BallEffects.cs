@@ -1,26 +1,35 @@
-using UniStats;
-using UnityEngine;
-
 namespace MoreMountains;
 
 /// <summary>
-/// BallOfFlames - 火焰球
-/// 球附带灼烧效果
-/// [设计文案] 炽热的火焰球，对敌人造成持续灼烧伤害
+/// 获得治疗时对最近的敌人造成(200+AP)%治疗量的魔法伤害
 /// </summary>
 public class BallOfFlames : ARelic
 {
     public static string ID = "BallOfFlames";
 
-    public BallOfFlames() : base(ID, "BallOfFlames.png", RelicTier.UNCOMMON, LandingSound.HEAVY)
+    public BallOfFlames() : base(ID, "BallOfFlames.png", RelicTier.UNCOMMON, LandingSound.HEAVY) { }
+
+    float rate;
+    float duration;
+
+    protected override void onRelicDefSet(RelicDef d)
     {
+        rate = d.Args[0];
+        duration = d.Args[1];
     }
 
-    // TODO: 需要实现灼烧效果机制
-    // public override void onShootBall(Ball ball)
-    // {
-    //     ball.AddEffect(BallEffect.Burning);
-    // }
+    public override void onAfterHeal(Heal heal)
+    {
+        if (brickManager.getNearestActiveBrick(_player.getWorldPosition(), out var brick))
+        {
+            var f = rate + _player.ap / 100F;
+            var value = (int)(heal.ActualHealAmount * f);
+            if (value > 0)
+            {
+                effectManager.addLogic<LaserLineEffect>().with(_player, brick, value, duration);
+            }
+        }
+    }
 
     public override ARelic makeCopy() => new BallOfFlames();
 }
@@ -34,9 +43,7 @@ public class IceBall : ARelic
 {
     public static string ID = "IceBall";
 
-    public IceBall() : base(ID, "IceBall.png", RelicTier.UNCOMMON, LandingSound.SOLID)
-    {
-    }
+    public IceBall() : base(ID, "IceBall.png", RelicTier.UNCOMMON, LandingSound.SOLID) { }
 
     // TODO: 需要实现减速效果机制
     // public override void onBallHitBrick(APlayer p, Ball ball, Brick brick, Vector2 normal, ref bool triggerRegularHit)
@@ -56,9 +63,7 @@ public class ThunderBall : ARelic
 {
     public static string ID = "ThunderBall";
 
-    public ThunderBall() : base(ID, "ThunderBall.png", RelicTier.RARE, LandingSound.MAGICAL)
-    {
-    }
+    public ThunderBall() : base(ID, "ThunderBall.png", RelicTier.RARE, LandingSound.MAGICAL) { }
 
     // TODO: 需要实现眩晕效果机制
     // public override void onBallHitBrick(APlayer p, Ball ball, Brick brick, Vector2 normal, ref bool triggerRegularHit)
@@ -78,9 +83,7 @@ public class PoisonBall : ARelic
 {
     public static string ID = "PoisonBall";
 
-    public PoisonBall() : base(ID, "PoisonBall.png", RelicTier.UNCOMMON, LandingSound.SOLID)
-    {
-    }
+    public PoisonBall() : base(ID, "PoisonBall.png", RelicTier.UNCOMMON, LandingSound.SOLID) { }
 
     // TODO: 需要实现中毒效果机制
     // public override void onBallHitBrick(APlayer p, Ball ball, Brick brick, Vector2 normal, ref bool triggerRegularHit)
@@ -100,9 +103,7 @@ public class LightningBall : ARelic
 {
     public static string ID = "LightningBall";
 
-    public LightningBall() : base(ID, "LightningBall.png", RelicTier.RARE, LandingSound.MAGICAL)
-    {
-    }
+    public LightningBall() : base(ID, "LightningBall.png", RelicTier.RARE, LandingSound.MAGICAL) { }
 
     // TODO: 需要实现闪电链效果
     // public override void onBallHitBrick(APlayer p, Ball ball, Brick brick, Vector2 normal, ref bool triggerRegularHit)
@@ -123,9 +124,7 @@ public class LaserBall : ARelic
 {
     public static string ID = "LaserBall";
 
-    public LaserBall() : base(ID, "LaserBall.png", RelicTier.RARE, LandingSound.SOLID)
-    {
-    }
+    public LaserBall() : base(ID, "LaserBall.png", RelicTier.RARE, LandingSound.SOLID) { }
 
     // TODO: 需要实现穿透效果
     // public override void onShootBall(Ball ball)
@@ -145,9 +144,7 @@ public class ExplosiveBall : ARelic
 {
     public static string ID = "ExplosiveBall";
 
-    public ExplosiveBall() : base(ID, "ExplosiveBall.png", RelicTier.UNCOMMON, LandingSound.HEAVY)
-    {
-    }
+    public ExplosiveBall() : base(ID, "ExplosiveBall.png", RelicTier.UNCOMMON, LandingSound.HEAVY) { }
 
     // TODO: 需要实现爆炸范围伤害
     // public override void onBallHitBrick(APlayer p, Ball ball, Brick brick, Vector2 normal, ref bool triggerRegularHit)
@@ -168,9 +165,7 @@ public class HomingBall : ARelic
 {
     public static string ID = "HomingBall";
 
-    public HomingBall() : base(ID, "HomingBall.png", RelicTier.RARE, LandingSound.MAGICAL)
-    {
-    }
+    public HomingBall() : base(ID, "HomingBall.png", RelicTier.RARE, LandingSound.MAGICAL) { }
 
     // TODO: 需要实现追踪机制
     // public override void onShootBall(Ball ball)
@@ -191,9 +186,7 @@ public class RicochetBall : ARelic
 {
     public static string ID = "RicochetBall";
 
-    public RicochetBall() : base(ID, "RicochetBall.png", RelicTier.UNCOMMON, LandingSound.SOLID)
-    {
-    }
+    public RicochetBall() : base(ID, "RicochetBall.png", RelicTier.UNCOMMON, LandingSound.SOLID) { }
 
     // TODO: 需要实现额外反弹次数
     // public override void onShootBall(Ball ball)
@@ -213,9 +206,7 @@ public class SplittingBall : ARelic
 {
     public static string ID = "SplittingBall";
 
-    public SplittingBall() : base(ID, "SplittingBall.png", RelicTier.RARE, LandingSound.MAGICAL)
-    {
-    }
+    public SplittingBall() : base(ID, "SplittingBall.png", RelicTier.RARE, LandingSound.MAGICAL) { }
 
     // TODO: 需要实现分裂机制
     // public override void onShootBall(Ball ball)

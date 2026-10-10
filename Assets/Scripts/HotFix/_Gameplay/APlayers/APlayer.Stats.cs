@@ -38,8 +38,7 @@
             get
             {
                 var value = GetStat(Stat.Duration).Value;
-                var pct = 1 + value;
-                return pct;
+                return value;
             }
         }
     }

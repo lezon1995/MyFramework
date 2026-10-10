@@ -56,6 +56,11 @@ public partial class BallInventoryItem : IBallOperationTarget
         iconBg.setColor(c.iconBg);
     }
 
+    public void SetBgFillAmount(float v)
+    {
+        bgFillAmount?.setFillPercent(v);
+    }
+
     // IBallOperationTarget 实现
 
     public void BeginFollowMouse(RectTransform iconSource)

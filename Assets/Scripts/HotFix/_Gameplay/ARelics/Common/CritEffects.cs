@@ -8,9 +8,7 @@ public class CriticalEye : ARelic
 {
     public static string ID = "CriticalEye";
 
-    public CriticalEye() : base(ID, "CriticalEye.png", RelicTier.COMMON, LandingSound.SOLID)
-    {
-    }
+    public CriticalEye() : base(ID, "CriticalEye.png", RelicTier.COMMON, LandingSound.SOLID) { }
 
     public override ARelic makeCopy() => new CriticalEye();
 }
@@ -23,9 +21,7 @@ public class SharpClaws : ARelic
 {
     public static string ID = "SharpClaws";
 
-    public SharpClaws() : base(ID, "SharpClaws.png", RelicTier.UNCOMMON, LandingSound.SOLID)
-    {
-    }
+    public SharpClaws() : base(ID, "SharpClaws.png", RelicTier.UNCOMMON, LandingSound.SOLID) { }
 
     public override ARelic makeCopy() => new SharpClaws();
 }
@@ -39,9 +35,7 @@ public class VampiricFangs : ARelic
 {
     public static string ID = "VampiricFangs";
 
-    public VampiricFangs() : base(ID, "VampiricFangs.png", RelicTier.RARE, LandingSound.SOLID)
-    {
-    }
+    public VampiricFangs() : base(ID, "VampiricFangs.png", RelicTier.RARE, LandingSound.SOLID) { }
 
     // TODO: 需要实现暴击回血
     // public override void onBallHitBrick(APlayer p, Ball ball, Brick brick, Vector2 normal, ref bool triggerRegularHit)
@@ -64,9 +58,7 @@ public class LightningStrike : ARelic
 {
     public static string ID = "LightningStrike";
 
-    public LightningStrike() : base(ID, "LightningStrike.png", RelicTier.RARE, LandingSound.MAGICAL)
-    {
-    }
+    public LightningStrike() : base(ID, "LightningStrike.png", RelicTier.RARE, LandingSound.MAGICAL) { }
 
     // TODO: 需要实现暴击闪电
     // public override void onBallHitBrick(APlayer p, Ball ball, Brick brick, Vector2 normal, ref bool triggerRegularHit)
@@ -89,9 +81,7 @@ public class CriticalMass : ARelic
 {
     public static string ID = "CriticalMass";
 
-    public CriticalMass() : base(ID, "CriticalMass.png", RelicTier.RARE, LandingSound.SOLID)
-    {
-    }
+    public CriticalMass() : base(ID, "CriticalMass.png", RelicTier.RARE, LandingSound.SOLID) { }
 
     // TODO: 需要实现高暴击率时的额外暴击率
     // public override void onEquip(APlayer p)
@@ -112,15 +102,22 @@ public class CriticalMass : ARelic
 }
 
 /// <summary>
-/// AssassinDagger - 刺客匕首
-/// 暴击伤害+40%
+/// 球速提高100%，持续时间减少50%
 /// </summary>
 public class AssassinDagger : ARelic
 {
     public static string ID = "AssassinDagger";
 
-    public AssassinDagger() : base(ID, "AssassinDagger.png", RelicTier.RARE, LandingSound.SOLID)
+    public AssassinDagger() : base(ID, "AssassinDagger.png", RelicTier.RARE, LandingSound.SOLID) { }
+
+    public override void onEquip(APlayer p)
     {
+        base.onEquip(p);
+    }
+
+    public override void onUnequip(APlayer p)
+    {
+        base.onUnequip(p);
     }
 
     public override ARelic makeCopy() => new AssassinDagger();
@@ -135,9 +132,7 @@ public class LuckyStar : ARelic
 {
     public static string ID = "LuckyStar";
 
-    public LuckyStar() : base(ID, "LuckyStar.png", RelicTier.RARE, LandingSound.MAGICAL)
-    {
-    }
+    public LuckyStar() : base(ID, "LuckyStar.png", RelicTier.RARE, LandingSound.MAGICAL) { }
 
     // TODO: 需要实现暴击随机增益
     // private enum RandomBuff { Speed, Damage, Shield, Heal }
@@ -169,9 +164,7 @@ public class CrimsonEdge : ARelic
 {
     public static string ID = "CrimsonEdge";
 
-    public CrimsonEdge() : base(ID, "CrimsonEdge.png", RelicTier.RARE, LandingSound.SOLID)
-    {
-    }
+    public CrimsonEdge() : base(ID, "CrimsonEdge.png", RelicTier.RARE, LandingSound.SOLID) { }
 
     // TODO: 需要实现暴击流血
     // public override void onBallHitBrick(APlayer p, Ball ball, Brick brick, Vector2 normal, ref bool triggerRegularHit)
@@ -194,9 +187,7 @@ public class PrecisionStrike : ARelic
 {
     public static string ID = "PrecisionStrike";
 
-    public PrecisionStrike() : base(ID, "PrecisionStrike.png", RelicTier.UNCOMMON, LandingSound.SOLID)
-    {
-    }
+    public PrecisionStrike() : base(ID, "PrecisionStrike.png", RelicTier.UNCOMMON, LandingSound.SOLID) { }
 
     public override ARelic makeCopy() => new PrecisionStrike();
 }
@@ -210,9 +201,7 @@ public class Bloodlust : ARelic
 {
     public static string ID = "Bloodlust";
 
-    public Bloodlust() : base(ID, "Bloodlust.png", RelicTier.RARE, LandingSound.HEAVY)
-    {
-    }
+    public Bloodlust() : base(ID, "Bloodlust.png", RelicTier.RARE, LandingSound.HEAVY) { }
 
     // TODO: 需要实现暴击伤害叠加
     // private float damageBonus = 0f;

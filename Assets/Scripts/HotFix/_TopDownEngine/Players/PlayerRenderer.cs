@@ -131,9 +131,7 @@ namespace MoreMountains
             new DodgeChanceTextEvent(true, _player.transform).trigger();
         }
 
-        public void playFxHit(Vector2 normal)
-        {
-        }
+        public void playFxHit(Vector2 normal) { }
 
         public void playFxHeal()
         {
@@ -214,6 +212,14 @@ namespace MoreMountains
             fx.play(FxDefine.BRICK_DESTROY, _player.getWorldPosition());
         }
 
+        public void setStealthEffect(bool b)
+        {
+            var alpha = b ? 0.5F : 1F;
+            var time = 0.2F;
+            Tween.Alpha(spriteUnit, alpha, time, ease: Ease.OutCubic);
+            Tween.Alpha(spriteShadow, alpha, time, ease: Ease.OutCubic);
+            Tween.Alpha(spriteShield, alpha, time, ease: Ease.OutCubic);
+        }
 
         public class HealthBar
         {
@@ -283,9 +289,7 @@ namespace MoreMountains
                 barUI.ApplyToMaterial();
             }
 
-            public void update(float dt)
-            {
-            }
+            public void update(float dt) { }
         }
 
 

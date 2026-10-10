@@ -349,7 +349,7 @@ namespace MoreMountains
         public override void ReceiveHealth(Heal heal, GameObject instigator = null, Character source = null)
         {
             //阵亡后无法再回血
-            if (CurrentHealth <= 0F)
+            if (IsDead())
                 return;
 
             var healing = ComputeHealAlgo(heal.Algo, heal.Value);
@@ -358,28 +358,28 @@ namespace MoreMountains
                 return;
 
             foreach (var r in _player.relics)
-                r.onPlayerHeal(ref healing);
+                r.onBeforeHeal(ref healing);
 
             foreach (var p in _player.powers)
-                p.onHeal(ref healing);
+                p.onBeforeHeal(ref healing);
 
             int newHealth;
-            int actualHealing;
+            int actualHealAmount;
             int maxHealth = maximumHealth;
 
             if (CurrentHealth + healing <= maxHealth)
             {
                 newHealth = CurrentHealth + healing;
-                actualHealing = healing;
+                actualHealAmount = healing;
             }
             else
             {
                 newHealth = maxHealth;
-                actualHealing = maxHealth - CurrentHealth;
+                actualHealAmount = maxHealth - CurrentHealth;
             }
 
-            heal.SetHealing(actualHealing);
-            if (Mathf.FloorToInt(actualHealing) > 0 /* && actualHealing / maxHealth > 0.01F*/)
+            heal.SetActualHealAmount(actualHealAmount);
+            if (Mathf.FloorToInt(actualHealAmount) > 0 /* && actualHealAmount / maxHealth > 0.01F*/)
             {
                 new HealTextEvent(heal, transform).trigger();
             }
@@ -400,6 +400,9 @@ namespace MoreMountains
 
                 Event.trigger(new OnHeal(source, heal));
             }
+            
+            foreach (var r in _player.relics)
+                r.onAfterHeal(heal);
         }
 
         public override bool Kill(Character killBySource = null)

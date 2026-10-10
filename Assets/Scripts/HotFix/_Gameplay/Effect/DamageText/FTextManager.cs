@@ -340,12 +340,12 @@ public class FTextManager : FrameSystem
     public static void showHealing(Transform target, Heal heal)
     {
         const TextType TYPE = TextType.Healing;
-        new FText.Data(heal.Healing.IToS(), TYPE)
+        new FText.Data(heal.ActualHealAmount.IToS(), TYPE)
             .setSetting(TYPE)
-            .setValue(heal.Healing)
+            .setValue(heal.ActualHealAmount)
             .setDirection(Vector3.up)
             .setTarget(target)
-            .setExtraContentSize(Mathf.InverseLerp(50, 1000, heal.Healing) * 0.25F) //this should be based on the amount of damage
+            .setExtraContentSize(Mathf.InverseLerp(50, 1000, heal.ActualHealAmount) * 0.25F) //this should be based on the amount of damage
             .setType(0)
             .setMetaType(0)
             .show();

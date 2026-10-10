@@ -273,8 +273,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b63ee405294b41c29fd2111de32c8d4c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: HotFix::MoreMountains.Ironclad
-  mNeedUpdate: 1
-  mNeedFixedUpdate: 1
+  mNeedUpdate: 0
+  mNeedFixedUpdate: 0
   CharacterType: 0
   PlayerID: Player1
   CharacterAnimator: {fileID: 0}
@@ -605,7 +605,7 @@ MonoBehaviour:
     m_RotationOrder: 4
   Cooldown:
     Unlimited: 0
-    ConsumptionDuration: 0
+    ConsumptionDuration: 4
     PauseOnEmptyDuration: 0
     RefillDuration: 0
     CanInterruptRefill: 1

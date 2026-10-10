@@ -1,4 +1,6 @@
-﻿namespace MoreMountains;
+﻿using MoreMountains.Tools;
+
+namespace MoreMountains;
 
 public class MainMusic
 {

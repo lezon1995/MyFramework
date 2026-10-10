@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using UniStats;
+
 namespace MoreMountains;
 
 /// <summary>
@@ -9,9 +12,7 @@ public class PrismSphere : ARelic
 {
     public static string ID = "PrismSphere";
 
-    public PrismSphere() : base(ID, "PrismSphere.png", RelicTier.COMMON, LandingSound.MAGICAL)
-    {
-    }
+    public PrismSphere() : base(ID, "PrismSphere.png", RelicTier.COMMON, LandingSound.MAGICAL) { }
 
     // TODO: 需要实现彩虹光效果
     // public override void onShootBall(Ball ball)
@@ -31,9 +32,7 @@ public class CrystalBall : ARelic
 {
     public static string ID = "CrystalBall";
 
-    public CrystalBall() : base(ID, "CrystalBall.png", RelicTier.UNCOMMON, LandingSound.MAGICAL)
-    {
-    }
+    public CrystalBall() : base(ID, "CrystalBall.png", RelicTier.UNCOMMON, LandingSound.MAGICAL) { }
 
     // TODO: 需要实现预测功能
     // public override void onEquip(APlayer p)
@@ -53,9 +52,7 @@ public class MagicLantern : ARelic
 {
     public static string ID = "MagicLantern";
 
-    public MagicLantern() : base(ID, "MagicLantern.png", RelicTier.UNCOMMON, LandingSound.MAGICAL)
-    {
-    }
+    public MagicLantern() : base(ID, "MagicLantern.png", RelicTier.UNCOMMON, LandingSound.MAGICAL) { }
 
     // TODO: 需要实现照亮功能
     // public override void onEquip(APlayer p)
@@ -75,9 +72,7 @@ public class MirrorBall : ARelic
 {
     public static string ID = "MirrorBall";
 
-    public MirrorBall() : base(ID, "MirrorBall.png", RelicTier.COMMON, LandingSound.SOLID)
-    {
-    }
+    public MirrorBall() : base(ID, "MirrorBall.png", RelicTier.COMMON, LandingSound.SOLID) { }
 
     // TODO: 需要实现闪光特效
     // public override void onShootBall(Ball ball)
@@ -97,9 +92,7 @@ public class DiscoBall : ARelic
 {
     public static string ID = "DiscoBall";
 
-    public DiscoBall() : base(ID, "DiscoBall.png", RelicTier.UNCOMMON, LandingSound.SOLID)
-    {
-    }
+    public DiscoBall() : base(ID, "DiscoBall.png", RelicTier.UNCOMMON, LandingSound.SOLID) { }
 
     // TODO: 需要实现节拍增强
     // public override void onEquip(APlayer p)
@@ -112,23 +105,67 @@ public class DiscoBall : ARelic
 }
 
 /// <summary>
-/// AuroraSphere - 极光球
-/// 美丽极光效果
-/// [设计文案] 北极之光
+/// 发射球时，移速提高10%，持续0.5秒
 /// </summary>
 public class AuroraSphere : ARelic
 {
     public static string ID = "AuroraSphere";
 
-    public AuroraSphere() : base(ID, "AuroraSphere.png", RelicTier.UNCOMMON, LandingSound.MAGICAL)
+    public AuroraSphere() : base(ID, "AuroraSphere.png", RelicTier.UNCOMMON, LandingSound.MAGICAL) { }
+
+    float delta;
+    float duration;
+    SafeDictionary<Ball, float> timers = new();
+
+    protected override void onRelicDefSet(RelicDef d)
     {
+        delta = d.Args[0];
+        duration = d.Args[1];
     }
 
-    // TODO: 需要实现极光效果
-    // public override void onShootBall(Ball ball)
-    // {
-    //     ball.AddEffect(BallEffect.Aurora);
-    // }
+    public override void onFixedUpdate(float dt)
+    {
+        foreach (var (ball, _) in timers)
+        {
+            if (timers[ball] <= 0)
+            {
+                timers.remove(ball);
+                
+                if (_player.GetStat(Character.Stat.MS, out var globalMS))
+                {
+                    if (globalMS.BonusPct.GetMod(ID, out var mod))
+                    {
+                        mod.Value -= delta;
+                        if (mod.Value.isZero())
+                        {
+                            globalMS.BonusPct.RemoveMod(ID);
+                        }
+                    }
+                }
+                
+                continue;
+            }
+
+            timers[ball] -= dt;
+        }
+    }
+
+    public override void onShootBall(Ball ball)
+    {
+        if (_player.GetStat(Character.Stat.MS, out var globalMS))
+        {
+            if (globalMS.BonusPct.GetMod(ID, out var mod))
+            {
+                mod.Value += delta;
+            }
+            else
+            {
+                globalMS.BonusPct.AddFlat(delta, ID);
+            }
+
+            timers[ball] = duration;
+        }
+    }
 
     public override ARelic makeCopy() => new AuroraSphere();
 }
@@ -142,9 +179,7 @@ public class StarDust : ARelic
 {
     public static string ID = "StarDust";
 
-    public StarDust() : base(ID, "StarDust.png", RelicTier.COMMON, LandingSound.MAGICAL)
-    {
-    }
+    public StarDust() : base(ID, "StarDust.png", RelicTier.COMMON, LandingSound.MAGICAL) { }
 
     // TODO: 需要实现星光轨迹
     // public override void onShootBall(Ball ball)
@@ -164,9 +199,7 @@ public class RainbowTrail : ARelic
 {
     public static string ID = "RainbowTrail";
 
-    public RainbowTrail() : base(ID, "RainbowTrail.png", RelicTier.COMMON, LandingSound.SOLID)
-    {
-    }
+    public RainbowTrail() : base(ID, "RainbowTrail.png", RelicTier.COMMON, LandingSound.SOLID) { }
 
     // TODO: 需要实现彩虹尾迹
     // public override void onShootBall(Ball ball)
@@ -186,9 +219,7 @@ public class SparkleEffect : ARelic
 {
     public static string ID = "SparkleEffect";
 
-    public SparkleEffect() : base(ID, "SparkleEffect.png", RelicTier.COMMON, LandingSound.SOLID)
-    {
-    }
+    public SparkleEffect() : base(ID, "SparkleEffect.png", RelicTier.COMMON, LandingSound.SOLID) { }
 
     // TODO: 需要实现闪亮粒子
     // public override void onShootBall(Ball ball)
@@ -208,9 +239,7 @@ public class FireworkBall : ARelic
 {
     public static string ID = "FireworkBall";
 
-    public FireworkBall() : base(ID, "FireworkBall.png", RelicTier.UNCOMMON, LandingSound.SOLID)
-    {
-    }
+    public FireworkBall() : base(ID, "FireworkBall.png", RelicTier.UNCOMMON, LandingSound.SOLID) { }
 
     // TODO: 需要实现烟花效果
     // public override void onBallKillBrick(APlayer p, Ball ball, Brick brick)

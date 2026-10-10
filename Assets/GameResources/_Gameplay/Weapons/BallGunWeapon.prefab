@@ -92,7 +92,7 @@ MonoBehaviour:
   DelayBeforeUseMultiplier: 1
   DelayBeforeUseReleaseInterruption: 1
   TimeBetweenUses: 1
-  TimeBetweenUsesReleaseInterruption: 1
+  TimeBetweenUsesReleaseInterruption: 0
   UseBurstMode: 0
   BurstLength: 3
   BurstTimeBetweenShots: 0.1

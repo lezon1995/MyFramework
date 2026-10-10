@@ -38,7 +38,7 @@ namespace MoreMountains.Tools
 
         /// the last known world position of the target
         [MMReadOnly]
-        public Vector3 _lastKnownTargetPosition;
+        public Vector3 LastKnownTargetPosition;
 
         [Header("State")]
         public bool BrainActive = true;
@@ -283,7 +283,7 @@ namespace MoreMountains.Tools
         {
             if (HasTarget)
             {
-                _lastKnownTargetPosition = Target.transform.position;
+                LastKnownTargetPosition = Target.transform.position;
             }
         }
 

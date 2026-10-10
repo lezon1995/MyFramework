@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-namespace MoreMountains
+﻿namespace MoreMountains
 {
     public class Ball_ElectricityStrike : Ball
     {
@@ -9,7 +7,7 @@ namespace MoreMountains
         public override void onEvent(DoHitEffect e)
         {
             base.onEvent(e);
-            
+
             effectManager.addLogic<ElectricityStrikeEffect>().with(this, e.brick, 1);
         }
     }

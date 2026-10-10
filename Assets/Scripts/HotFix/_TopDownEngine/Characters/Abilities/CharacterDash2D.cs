@@ -130,7 +130,7 @@ namespace MoreMountains
             }
 
             HandleDashMode();
-            _character.Event.trigger(new DoDash());
+            _character.Event.trigger(new DoDashStart(_dashOrigin, _dashDestination));
             
             TargetDamageOnTouch.SetActive(true);
         }

@@ -40,6 +40,10 @@ namespace MoreMountains
             }
         }
 
+        float shootCooldownRemainProgress;
+        public void setCooldownProgress(float progress) => shootCooldownRemainProgress = progress;
+        public float getCooldownProgress() => shootCooldownRemainProgress;
+
         public bool isMaxLevel() => Level >= getMaxLevel();
         public int getMaxLevel() => 4;
 
@@ -55,6 +59,7 @@ namespace MoreMountains
             Def = null;
             Level = 1;
             Uid = Guid.Empty;
+            shootCooldownRemainProgress = 0;
         }
 
         /// <summary>工厂方法。系统内部创建都用它。</summary>

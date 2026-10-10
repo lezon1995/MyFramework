@@ -31,7 +31,7 @@ namespace MoreMountains
             if (_brain.NoTarget || _orientation2D == null)
                 return;
 
-            if (transform.position.x > _brain.Target.position.x)
+            if (transform.position.x > getTargetPosition().x)
                 _orientation2D.FaceDirection(-1);
             else
                 _orientation2D.FaceDirection(1);

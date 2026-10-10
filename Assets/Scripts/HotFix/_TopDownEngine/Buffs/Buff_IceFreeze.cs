@@ -8,8 +8,7 @@
 
             if (Target.Character is Brick b)
             {
-                b.brickRenderer.setFreezeEffect(true);
-                b.Controller.MovementDisabled = true;
+                b.Freeze();
             }
         }
 
@@ -19,8 +18,7 @@
 
             if (Target.Character is Brick b)
             {
-                b.brickRenderer.setFreezeEffect(false);
-                b.Controller.MovementDisabled = false;
+                b.UnFreeze();
             }
         }
     }

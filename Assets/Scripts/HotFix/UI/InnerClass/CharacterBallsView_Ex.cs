@@ -17,7 +17,13 @@ public partial class CharacterBallsView : IBallsContainerView
         BallInventoryItemPool.newItem(slotList.Count);
         var used = BallInventoryItemPool.getUsedList();
         for (int i = 0; i < slotList.Count; i++)
-            onBuild?.Invoke(i, used[i], slotList[i]);
+        {
+            var ballInventoryItem = used[i];
+            var ballInventorySlot = slotList[i];
+            ballInventoryItem.SetInteractable(false);
+            ballInventoryItem.SetBgFillAmount(0);
+            onBuild?.Invoke(i, ballInventoryItem, ballInventorySlot);
+        }
     }
 
     public bool GetUsedItem(int index, out BallInventoryItem item)

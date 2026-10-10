@@ -8,37 +8,37 @@ namespace MoreMountains
 {
     public struct Heal
     {
-        public int Value;
+        public float Value;
         public Algos Algo;
-        public int Healing;
+        public int ActualHealAmount;
 
-        public static Heal Fixed(int value) => new(value, Algos.Fixed);
-        public static Heal CurPct(int value) => new(value, Algos.CurPct);
-        public static Heal LostPct(int value) => new(value, Algos.LostPct);
-        public static Heal AllPct(int value) => new(value, Algos.AllPct);
+        public static Heal Fixed(float value) => new(value, Algos.Fixed);
+        public static Heal CurPct(float value) => new(value, Algos.CurPct);
+        public static Heal LostPct(float value) => new(value, Algos.LostPct);
+        public static Heal AllPct(float value) => new(value, Algos.AllPct);
 
-        public Heal(int value) : this()
+        public Heal(float value) : this()
         {
             Value = value;
+            ActualHealAmount = (int)value;
             Algo = Algos.Fixed;
-            Healing = value;
         }
 
-        public Heal(int value, Algos algo)
+        public Heal(float value, Algos algo)
         {
             Value = value;
+            ActualHealAmount = (int)value;
             Algo = algo;
-            Healing = value;
         }
 
         public bool IsValid()
         {
-            return Healing > 0F;
+            return ActualHealAmount > 0F;
         }
 
-        public void SetHealing(int value)
+        public void SetActualHealAmount(int value)
         {
-            Healing = value;
+            ActualHealAmount = value;
         }
 
         public enum Algos
@@ -311,6 +311,7 @@ namespace MoreMountains
             Initialization();
             InitializeCurrentHealth(RefreshHealthBarType.Born);
             Shield?.SetHealth(this);
+            Shield?.SetCharacter(Character);
         }
 
         /// <summary>
@@ -949,15 +950,15 @@ namespace MoreMountains
             return actualDamage > 0;
         }
 
-        protected virtual int ComputeHealAlgo(Heal.Algos algo, int value)
+        protected virtual int ComputeHealAlgo(Heal.Algos algo, float value)
         {
             return algo switch
             {
-                Heal.Algos.Fixed => value,
-                Heal.Algos.CurPct => CurrentHealth * value,
-                Heal.Algos.LostPct => (maximumHealth - CurrentHealth) * value,
-                Heal.Algos.AllPct => maximumHealth * value,
-                _ => value
+                Heal.Algos.Fixed => (int)value,
+                Heal.Algos.CurPct => (int)(CurrentHealth * value),
+                Heal.Algos.LostPct => (int)((maximumHealth - CurrentHealth) * value),
+                Heal.Algos.AllPct => (int)(maximumHealth * value),
+                _ => (int)value
             };
         }
 
@@ -967,7 +968,7 @@ namespace MoreMountains
             {
                 if (Character.GetStat(Character.Stat.HealRate, out var healRate))
                 {
-                    return (int)(value * (1 + healRate.Value));
+                    return (int)(value * healRate.Value);
                 }
             }
 
@@ -1234,7 +1235,7 @@ namespace MoreMountains
                 actualHealing = maxHealth - CurrentHealth;
             }
 
-            heal.SetHealing(actualHealing);
+            heal.SetActualHealAmount(actualHealing);
             if (Mathf.FloorToInt(actualHealing) > 0 /* && actualHealing / maxHealth > 0.01F*/)
             {
                 new HealTextEvent(heal, transform).trigger();

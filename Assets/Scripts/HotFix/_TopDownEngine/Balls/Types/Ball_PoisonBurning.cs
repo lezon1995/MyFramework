@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace MoreMountains
+﻿namespace MoreMountains
 {
     /// <summary>
     /// 毒烧球特点：
@@ -12,33 +9,12 @@ namespace MoreMountains
     {
         public override BallType BallType => BallType.PoisonBurning;
 
-        static Dictionary<Brick, PoisonBurningEffect> affectedBricks = new();
-        Action<Brick> onEffectEnd;
-
-        public Ball_PoisonBurning()
-        {
-            onEffectEnd = OnEffectEnd;
-        }
-
-        void OnEffectEnd(Brick brick)
-        {
-            affectedBricks.Remove(brick);
-        }
-        
         public override void onEvent(DoHitEffect e)
         {
             base.onEvent(e);
 
-            if (!affectedBricks.TryGetValue(e.brick, out var effect))
-            {
-                effect = effectManager.addLogic<PoisonBurningEffect>();
-                effect.with(this, e.brick, onEffectEnd);
-                affectedBricks[e.brick] = effect;
-            }
-            else
-            {
-                effect.tryApply();
-            }
+            var b = e.brick;
+            PoisonBurningEffect.Apply(_player, b);
         }
     }
 }

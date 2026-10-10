@@ -13,7 +13,7 @@ namespace MoreMountains
             base.Initialization();
             brick = Character as Brick;
         }
-        
+
         protected override void InitializeShield()
         {
             if (Shield != null)
@@ -193,8 +193,6 @@ namespace MoreMountains
                 _collider2D.enabled = true;
             }
 
-            _controller.MovementDisabled = false;
-
             Character.conditionState?.ChangeState(Character.Conditions.Normal);
         }
 
@@ -234,11 +232,11 @@ namespace MoreMountains
 
             if (instigator.TryGetComponent(out Ball ball))
             {
-                DamageByBall(ref dmg, ball, source, invincibleTime, direction, calculator);
+                DamageByBall(ref dmg, ball, source as APlayer, invincibleTime, direction, calculator);
             }
             else
             {
-                DamageByOther(ref dmg, instigator, source, invincibleTime, direction, calculator);
+                DamageByOther(ref dmg, instigator, source as APlayer, invincibleTime, direction, calculator);
             }
         }
 
@@ -250,7 +248,7 @@ namespace MoreMountains
             }
         }
 
-        void DamageByBall(ref Dmg dmg, Ball ball, Character source, float invincibleTime, Vector3 direction, IDmgCalculator calculator)
+        void DamageByBall(ref Dmg dmg, Ball ball, APlayer source, float invincibleTime, Vector3 direction, IDmgCalculator calculator)
         {
             if (dmg.hasAttackEffect())
             {
@@ -271,7 +269,7 @@ namespace MoreMountains
                 dmg.SetDirection(direction);
 
                 // if (dmg.DamageDealt > 0)
-                    // new DmgTextEvent(dmg, transform).trigger();
+                // new DmgTextEvent(dmg, transform).trigger();
             }
 
             //触发本次伤害所造成的攻击特效/技能特效
@@ -296,10 +294,10 @@ namespace MoreMountains
             if (dmg.IsCrit)
             {
                 if (dmg.hasAttackEffect())
-                    ball.onCritHit(brick);
+                    ball.onImpactCrit(brick);
 
                 if (dmg.hasSkillEffect())
-                    ball.onCritSkill(brick);
+                    ball.onSkillCrit(brick);
             }
 
             Event.trigger(new OnHit());
@@ -326,7 +324,7 @@ namespace MoreMountains
 
                         new DmgTextEvent(shieldedDmg, transform).trigger();
                     }
-                    
+
                     // 护盾完全被打破时触发特殊事件
                     if (!Shield.HasShield)
                     {
@@ -346,7 +344,7 @@ namespace MoreMountains
                 {
                     dmg.SetDamageDealt(actualHealthDamage);
                     new DmgTextEvent(dmg, transform).trigger();
-                    
+
                     float preHealth = CurrentHealth;
                     SetHealth(CurrentHealth - actualHealthDamage, RefreshHealthBarType.ReceiveDamage);
                     LastDamage = actualHealthDamage;
@@ -400,6 +398,8 @@ namespace MoreMountains
                                     ball.getPlayer().Event.trigger(e);
                                     ball.onSkillKill(brick);
                                 }
+                                
+                                source?.onKillBrick(brick);
                             }
                         }
 
@@ -456,18 +456,30 @@ namespace MoreMountains
                         var count = value.toInt();
                         var pct = value - count;
                         var e = new DoHitEffect(ball, brick, in dmg);
+                        const float deltaDelay = 0.1F;
 
-                        for (int i = 0; i < count; i++)
+                        int i = 0;
+                        for (; i < count; i++)
                         {
-                            ball.Event.trigger(e);
-                            ball.getPlayer().Event.trigger(e);
+                            if (i == 0)
+                            {
+                                ball.Event.trigger(e);
+                                ball.getPlayer().Event.trigger(e);
+                            }
+                            else
+                            {
+                                effectManager.addLogic<BallDoHitEffect>().with(ball, e, deltaDelay * i);
+                            }
                         }
 
                         if (randomHit(pct))
                         {
-                            ball.Event.trigger(e);
-                            ball.getPlayer().Event.trigger(e);
+                            i++;
+                            effectManager.addLogic<BallDoHitEffect>().with(ball, e, deltaDelay * i);
                         }
+
+                        i++;
+                        source.onBallDoHitEffect(ball, e, deltaDelay * i);
                     }
                 }
 
@@ -481,7 +493,7 @@ namespace MoreMountains
         }
 
 
-        void DamageByOther(ref Dmg dmg, GameObject instigator, Character source, float invincibleTime, Vector3 direction, IDmgCalculator calculator)
+        void DamageByOther(ref Dmg dmg, GameObject instigator, APlayer source, float invincibleTime, Vector3 direction, IDmgCalculator calculator)
         {
             // if (dmg.hasAttackEffect())
             // {
@@ -502,7 +514,7 @@ namespace MoreMountains
                 dmg.SetDirection(direction);
 
                 // if (dmg.DamageDealt > 0)
-                    // new DmgTextEvent(dmg, transform).trigger();
+                // new DmgTextEvent(dmg, transform).trigger();
             }
 
             //触发本次伤害所造成的攻击特效/技能特效
@@ -576,7 +588,7 @@ namespace MoreMountains
 
                         new DmgTextEvent(shieldedDmg, transform).trigger();
                     }
-                    
+
                     // 护盾完全被打破时触发特殊事件
                     if (!Shield.HasShield)
                     {
@@ -596,7 +608,7 @@ namespace MoreMountains
                 {
                     dmg.SetDamageDealt(actualHealthDamage);
                     new DmgTextEvent(dmg, transform).trigger();
-                    
+
                     float preHealth = CurrentHealth;
                     SetHealth(CurrentHealth - actualHealthDamage, RefreshHealthBarType.ReceiveDamage);
                     LastDamage = actualHealthDamage;
@@ -636,6 +648,8 @@ namespace MoreMountains
                                 //     ball.getPlayer().Event.trigger(e);
                                 //     ball.onSkillKill(brick);
                                 // }
+                                
+                                source?.onKillBrick(brick);
                             }
                         }
 
@@ -693,7 +707,7 @@ namespace MoreMountains
                 return;
 
             foreach (var p in brick.powers)
-                p.onHeal(ref healing);
+                p.onBeforeHeal(ref healing);
 
             int newHealth;
             int actualHealing;
@@ -710,7 +724,7 @@ namespace MoreMountains
                 actualHealing = maxHealth - CurrentHealth;
             }
 
-            heal.SetHealing(actualHealing);
+            heal.SetActualHealAmount(actualHealing);
             if (Mathf.FloorToInt(actualHealing) > 0 /* && actualHealing / maxHealth > 0.01F*/)
             {
                 new HealTextEvent(heal, transform).trigger();
@@ -782,8 +796,6 @@ namespace MoreMountains
 
             if (DisableControllerOnDeath)
                 _controller.enabled = false;
-
-            _controller.MovementDisabled = true;
 
             if (DisableModelOnDeath && Model)
                 Model.SetActive(false);

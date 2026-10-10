@@ -245,7 +245,7 @@ public class AngelicProtection : ARelic
 
     SafeList<Pair> list = new();
 
-    public override void onUpdate(float dt)
+    public override void onFixedUpdate(float dt)
     {
         foreach (var pair in list)
         {

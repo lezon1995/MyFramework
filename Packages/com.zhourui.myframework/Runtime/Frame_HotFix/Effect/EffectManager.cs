@@ -248,6 +248,11 @@ public class EffectManager : FrameSystem
 	{
 		return createEffect(nameWithPath, null, null, true, true, default, 0, lifeTime);
 	}
+	
+	public GameEffect createEffect(string nameWithPath, float lifeTime, GameObject parent)
+	{
+		return createEffect(nameWithPath, null, parent, true, true, default, 0, lifeTime);
+	}
 
 	public GameEffect createEffect(string nameWithPath, Vector3 pos, float lifeTime = -1F)
 	{

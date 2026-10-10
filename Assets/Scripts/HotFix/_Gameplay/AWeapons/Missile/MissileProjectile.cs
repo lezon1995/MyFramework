@@ -1,7 +1,15 @@
+using System;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace MoreMountains
 {
+    public enum BezierSegments
+    {
+        One,
+        Two
+    }
+
     /// <summary>
     /// 卡莎 Q 的单枚飞弹。
     /// - 沿二次贝塞尔曲线从生成点飞到目标点；
@@ -20,15 +28,19 @@ namespace MoreMountains
         IStatsGetter _statsOwner;
         Vector2 _p0; // 起点（角色身上）
         Vector2 _p1; // 控制点：target→caster 反向 + 随机偏角 + 抬升
+
+        Vector2 _p_mid => (_p0 + _p_end) * 0.5f;
+        Vector2 _p2 => _p_mid + (_p_mid - _p1).normalized * 2;
+
+        // 终点（每帧实时读 _target.position,叠加一次性散布）
+        Vector2 _p_end => (Vector2)_target.position + _impactScatter;
         Vector2 _impactScatter; // 命中点散布（生成时随机一次后锁定）
         float _arcHeightOffset; // 弧线高度偏移（jitter + interleave 叠加）
         float _flightDuration; // 飞行时间（秒）
 
-        // 终点（每帧实时读 _target.position,叠加一次性散布）
-        Vector2 _p2 => (Vector2)_target.position + _impactScatter;
-
         float _elapsed;
         bool _exploded;
+        BezierSegments _segments;
 
         protected override void OnStatsSet()
         {
@@ -46,7 +58,7 @@ namespace MoreMountains
                         {
                             value = ap.Value * effectDamageRate.Value;
                         }
-                        
+
                         if (damageOnTouch.Source && damageOnTouch.Source.GetStat(Character.Stat.AP, out var stat) && effectDamageRate)
                         {
                             value += stat.Value * effectDamageRate.Value;
@@ -58,6 +70,7 @@ namespace MoreMountains
                         {
                             value = ap.Value * 0.1F;
                         }
+
                         break;
                 }
 
@@ -79,7 +92,8 @@ namespace MoreMountains
             IStatsGetter owner,
             float arcHeightOffset,
             Vector2 p1,
-            float flightDuration)
+            float flightDuration,
+            BezierSegments segments)
         {
             _def = def;
             _caster = caster;
@@ -87,6 +101,7 @@ namespace MoreMountains
             _arcHeightOffset = arcHeightOffset;
             _p1 = p1;
             _flightDuration = Mathf.Max(0.01f, flightDuration);
+            _segments = segments;
 
             _elapsed = 0f;
             _exploded = false;
@@ -159,24 +174,9 @@ namespace MoreMountains
             var p1 = casterPos + dir * outgoingDistance;
 
             // 垂直抬升
-            p1 += Vector2.up * outgoingVerticalLift;
+            // p1 += Vector2.up * outgoingVerticalLift;
 
             return p1;
-        }
-
-        Vector2 ComputeOutgoingControlPointForInstance()
-        {
-            if (_def == null)
-                return _p0 + Vector2.up;
-
-            var targetPos = (Vector2)(_hasTarget ? _target.position : transform.position);
-            return ComputeOutgoingControlPoint(
-                casterPos: _p0,
-                targetPos: targetPos,
-                outgoingDistance: _def.OutgoingDistance,
-                outgoingYawSpreadMax: _def.OutgoingYawSpreadMax,
-                outgoingYawSpreadMin: _def.OutgoingYawSpreadMin,
-                outgoingVerticalLift: _def.OutgoingVerticalLift);
         }
 
         static Vector2 RotateVector2(Vector2 v, float degrees)
@@ -218,19 +218,59 @@ namespace MoreMountains
 
             // 计算归一化飞行进度
             var t = Mathf.Clamp01(_elapsed / _flightDuration);
+            switch (_segments)
+            {
+                case BezierSegments.One:
+                {
+                    // 二次贝塞尔曲线：P0 → P1 → P_End
+                    // P1 在 Launch 时已经按 (target→caster) 反向 + 随机偏转 + 抬升算好。
+                    // 这里再叠加 arcHeightOffset（jitter + interleave）,让相邻飞弹的弧线不完全一样。
+                    var p1 = _p1;
+                    var pos = Bezier2(_p0, p1, _p_end, t);
+                    transform.position = pos;
 
-            // 二次贝塞尔曲线：P0 → P1 → P2
-            // P1 在 Launch 时已经按 (target→caster) 反向 + 随机偏转 + 抬升算好。
-            // 这里再叠加 arcHeightOffset（jitter + interleave）,让相邻飞弹的弧线不完全一样。
-            var p1 = _p1 + Vector2.up * _arcHeightOffset;
-            var pos = Bezier2(_p0, p1, _p2, t);
-            transform.position = pos;
+                    // 朝向当前运动方向（首尾用切线近似，避免端点速度为 0 时抖动）
+                    var dt2 = 0.01f;
+                    var ahead = Mathf.Min(t + dt2, 1f);
+                    var aheadPos = Bezier2(_p0, p1, _p_end, ahead);
+                    UpdateRotationByVelocity(pos, aheadPos);
+                }
+                    break;
+                case BezierSegments.Two:
+                {
+                    if (t < 0.5F)
+                    {
+                        var f = Mathf.InverseLerp(0F, 0.5F, t);
+                        // 二次贝塞尔曲线：P0 → P1 → P_Mid
+                        // P1 在 Launch 时已经按 (target→caster) 反向 + 随机偏转 + 抬升算好。
+                        // 这里再叠加 arcHeightOffset（jitter + interleave）,让相邻飞弹的弧线不完全一样。
+                        var p1 = _p1;
+                        var pos = Bezier2(_p0, p1, _p_mid, f);
+                        transform.position = pos;
 
-            // 朝向当前运动方向（首尾用切线近似，避免端点速度为 0 时抖动）
-            var dt2 = 0.01f;
-            var ahead = Mathf.Min(t + dt2, 1f);
-            var aheadPos = Bezier2(_p0, p1, _p2, ahead);
-            UpdateRotationByVelocity(pos, aheadPos);
+                        // 朝向当前运动方向（首尾用切线近似，避免端点速度为 0 时抖动）
+                        var dt2 = 0.01f;
+                        var ahead = Mathf.Min(f + dt2, 1f);
+                        var aheadPos = Bezier2(_p0, p1, _p_mid, ahead);
+                        UpdateRotationByVelocity(pos, aheadPos);
+                    }
+                    else
+                    {
+                        var f = Mathf.InverseLerp(0.5F, 1F, t);
+                        // 二次贝塞尔曲线：P_Mid → P2 → P_End
+                        var p2 = _p2;
+                        var pos = Bezier2(_p_mid, p2, _p_end, f);
+                        transform.position = pos;
+
+                        // 朝向当前运动方向（首尾用切线近似，避免端点速度为 0 时抖动）
+                        var dt2 = 0.01f;
+                        var ahead = Mathf.Min(f + dt2, 1f);
+                        var aheadPos = Bezier2(_p_mid, p2, _p_end, ahead);
+                        UpdateRotationByVelocity(pos, aheadPos);
+                    }
+                }
+                    break;
+            }
 
             // 到达终点：引爆
             if (t >= 1f)
@@ -295,7 +335,7 @@ namespace MoreMountains
 
         void PlayImpactEffects()
         {
-            fx?.play(_def.ImpactVfxKey, _p2, _def.ImpactVfxLifetime);
+            fx?.play(_def.ImpactVfxKey, _p_end, _def.ImpactVfxLifetime);
 
             // SFX
             if (_def && !string.IsNullOrEmpty(_def.ImpactSoundKey))
@@ -316,8 +356,6 @@ namespace MoreMountains
             TryClearTrails();
         }
 
-        protected override void FaceMovementDirection(Vector3 newDirection)
-        {
-        }
+        protected override void FaceMovementDirection(Vector3 newDirection) { }
     }
 }

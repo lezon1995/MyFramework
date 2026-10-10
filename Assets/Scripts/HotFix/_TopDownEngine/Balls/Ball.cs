@@ -142,13 +142,11 @@ namespace MoreMountains
             SpeedModifier = (ref float raw) =>
             {
                 float speed = raw;
-                var ballMS = GetStat(Stat.BallisticSpeed);
-                if (ballMS)
+                if (GetStat(Stat.BallisticSpeed, out var ballMS))
                     speed = ballMS.Value;
 
-                var globalMS = Player.GetStat(Character.Stat.BallisticSpeed);
-                if (globalMS)
-                    speed *= (1 + globalMS.Value);
+                if (Player.GetStat(Character.Stat.BallisticSpeed, out var globalMS))
+                    speed *= globalMS.Value;
 
                 raw = speed;
             };
@@ -467,7 +465,7 @@ namespace MoreMountains
         {
             BounceFeedback.Play();
             var reflectDir = Vector2.Reflect(Direction, hitNormal).normalized;
-            Debug.DrawLine(curPos, curPos + (Vector3)reflectDir, Color.red, 1F);
+            // Debug.DrawLine(curPos, curPos + (Vector3)reflectDir, Color.red, 1F);
             bool fromBrick = hitObject.layer == LayerManager.Brick;
             _player.onBallReflect(this, hitNormal, fromBrick, ref reflectDir);
             float angle = Vector2.Angle(Direction, reflectDir);

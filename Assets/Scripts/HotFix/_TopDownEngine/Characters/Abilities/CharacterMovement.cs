@@ -266,7 +266,7 @@ namespace MoreMountains
             if (AbilityUnauthorized)
                 return;
 
-            if (_conditionState.Is(Character.Conditions.Frozen))
+            if (_conditionState.Is(Character.Conditions.Frozen, Character.Conditions.Stunned))
             {
                 _movement = Vector2.zero;
                 ApplyMovement(dt);

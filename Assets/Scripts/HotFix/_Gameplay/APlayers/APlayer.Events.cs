@@ -54,5 +54,18 @@ namespace MoreMountains
         {
             playerRenderer.playFxDodge();
         }
+
+        public override void onEvent(DoDashStart e)
+        {
+            base.onEvent(e);
+
+            onPlayerStartDash(e.StartPosition, e.EndPosition);
+        }
+        public override void onEvent(DoDashEnd e)
+        {
+            base.onEvent(e);
+
+            onPlayerStopDash();
+        }
     }
 }

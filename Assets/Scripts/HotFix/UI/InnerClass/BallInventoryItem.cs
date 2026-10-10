@@ -7,49 +7,57 @@ public partial class BallInventoryItem : WindowRecyclableUGUI
 // auto generate classname end
 {
     // auto generate member start
-	protected myUGUIButton btn;
-	protected myUGUIObject highlight;
-	protected myUGUIObject highlightHovered;
-	protected myUGUIObject normal;
-	protected myUGUIImageSimple itemBorder;
-	protected myUGUIImageSimple iconBg;
-	protected myUGUIObject disable;
-	protected myUGUIObject upgrade;
-	protected myUGUIObject merge;
-	protected myUGUIObject focus;
-	protected myUGUIImageSimple icon;
+    protected myUGUIButton btn;
+    protected myUGUIObject highlight;
+    protected myUGUIObject highlightHovered;
+    protected myUGUIObject normal;
+    protected myUGUIImageSimple itemBorder;
+    protected myUGUIImageSimple iconBg;
+    protected myUGUIObject disable;
+    protected myUGUIObject upgrade;
+    protected myUGUIObject merge;
+    protected myUGUIObject focus;
+
+    protected myUGUIImageSimple icon;
+
     // auto generate member end
+
+    protected myUGUIImageSimple bgFillAmount;
+
     public BallInventoryItem(IWindowObjectOwner parent) : base(parent)
     {
         // auto generate constructor start
         // auto generate constructor end
     }
+
     protected override void assignWindowInternal()
     {
         // auto generate assignWindowInternal start
-		newObject(out btn, "Btn");
-		newObject(out highlight, "Btn/Highlight");
-		newObject(out highlightHovered, "Btn/HighlightHovered");
-		newObject(out normal, "Btn/Normal");
-		newObject(out itemBorder, "Btn/Normal/Border");
-		newObject(out iconBg, "Btn/Normal/Bg");
-		newObject(out disable, "Btn/Disable");
-		newObject(out upgrade, "Btn/TextUpgrade");
-		newObject(out merge, "Btn/TextMerge");
-		newObject(out focus, "Btn/Focus");
-		newObject(out icon, "Btn/Icon");
+        newObject(out btn, "Btn");
+        newObject(out highlight, "Btn/Highlight");
+        newObject(out highlightHovered, "Btn/HighlightHovered");
+        newObject(out normal, "Btn/Normal");
+        newObject(out itemBorder, "Btn/Normal/Border");
+        newObject(out iconBg, "Btn/Normal/Bg");
+        newObject(out disable, "Btn/Disable");
+        newObject(out upgrade, "Btn/TextUpgrade");
+        newObject(out merge, "Btn/TextMerge");
+        newObject(out focus, "Btn/Focus");
+        newObject(out icon, "Btn/Icon");
         // auto generate assignWindowInternal end
+        newObject(out bgFillAmount, "Btn/Normal/FillAmount", false);
     }
 
     public int slotIndex = -1;
+    public bool interactable;
     public BallInventoryBinder inventoryBinder;
     public BallTooltipTrigger tooltipTrigger;
 
     public override void init()
     {
         base.init();
-		// auto generate init start
-		// auto generate init end
+        // auto generate init start
+        // auto generate init end
 
         // 挂 Bridge 组件
         var go = mRoot.getGameObject();
@@ -57,6 +65,7 @@ public partial class BallInventoryItem : WindowRecyclableUGUI
         {
             bridge = go.AddComponent<BallOperationTargetBridge>();
         }
+
         bridge.Target = this;
 
         go.TryGetComponent(out tooltipTrigger);
@@ -70,6 +79,8 @@ public partial class BallInventoryItem : WindowRecyclableUGUI
         {
             listener.SetOnPointerPressed(OnPointerPressed);
         }
+
+        interactable = true;
     }
 
     public override void onShow()
@@ -85,9 +96,17 @@ public partial class BallInventoryItem : WindowRecyclableUGUI
         inventoryBinder = binder;
     }
 
+    public void SetInteractable(bool b)
+    {
+        interactable = b;
+    }
+
     void OnPointerPressed(UnityEngine.EventSystems.PointerEventData data)
     {
-        if (data.button != UnityEngine.EventSystems.PointerEventData.InputButton.Left) 
+        if (!interactable)
+            return;
+
+        if (data.button != UnityEngine.EventSystems.PointerEventData.InputButton.Left)
             return;
 
         if (!BallOperationStateManager.Instance.IsActive && isOccupied)
@@ -96,6 +115,14 @@ public partial class BallInventoryItem : WindowRecyclableUGUI
             if (iconRect != null)
                 BallOperationStateManager.Instance.TryEnter(this, iconRect);
         }
+    }
+
+    public override void update(float dt)
+    {
+        base.update(dt);
+
+        if (Item)
+            SetBgFillAmount((1 - Item.getCooldownProgress()).clamp01());
     }
 
     // 原有事件转发(仅在非操作状态时)

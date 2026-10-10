@@ -8,5 +8,6 @@ namespace MoreMountains
         public Character.Stat stat;
         public float BonusFlat;
         public float BonusPct;
+        public float BonusRatio;
     }
 }

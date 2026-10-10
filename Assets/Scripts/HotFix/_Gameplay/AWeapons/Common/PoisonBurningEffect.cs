@@ -1,20 +1,22 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace MoreMountains;
 
 public class PoisonBurningEffect : ALogicEffect
-    , IArgs<Ball, Brick, Action<Brick>>
+    , IArgs<APlayer, Brick>
 {
+    public static Dictionary<Brick, PoisonBurningEffect> affectedBricks = new();
+
     protected const string path = $"{GAMEPLAY_PATH}/Effects/Fx_PoisonBurning.prefab";
     protected const string buff_path = $"{GAMEPLAY_PATH}/Buffs/Buff_PoisonBurning.prefab";
 
-    protected Ball ball;
+    protected APlayer _player;
     protected Brick brick;
     protected Buff buffPrototype;
     protected ParticleSystem buffFx;
     protected GameEffect buffEffect;
-    Action<Brick> onRemoved;
     Action onBuffRemoved;
     Action onBuffPeriodDamage;
     Action<int, int> onBuffStackChanged;
@@ -26,12 +28,11 @@ public class PoisonBurningEffect : ALogicEffect
         onBuffStackChanged = OnBuffStackChanged;
     }
 
-    public void onCreate(Ball b1, Brick b2, Action<Brick> a)
+    public void onCreate(APlayer b1, Brick b2)
     {
         duration = float.MaxValue;
-        ball = b1;
+        _player = b1;
         brick = b2;
-        onRemoved = a;
 
         var effect = mEffectManager.createEffect(path);
         buffEffect = effect;
@@ -50,7 +51,7 @@ public class PoisonBurningEffect : ALogicEffect
             buffPrototype.OnRemoved = onBuffRemoved;
             buffPrototype.OnPeriodDamage = onBuffPeriodDamage;
             buffPrototype.OnStackChanged = onBuffStackChanged;
-            brick.Buffable.ApplyBuff(buffPrototype, ball.Buffable);
+            brick.Buffable.ApplyBuff(buffPrototype, _player.Buffable);
         }
     }
 
@@ -98,12 +99,12 @@ public class PoisonBurningEffect : ALogicEffect
     void OnBuffRemoved()
     {
         isDone = true;
-        onRemoved?.Invoke(brick);
+        affectedBricks.Remove(brick);
     }
 
     public bool tryApply()
     {
-        brick.Buffable.ApplyBuff(buffPrototype, ball.Buffable);
+        brick.Buffable.ApplyBuff(buffPrototype, _player.Buffable);
         return true;
     }
 
@@ -129,9 +130,8 @@ public class PoisonBurningEffect : ALogicEffect
     public override void resetProperty()
     {
         base.resetProperty();
-        ball = null;
+        _player = null;
         brick = null;
-        onRemoved = null;
         // onBuffRemoved = null;
         // onBuffPeriodDamage = null;
         // onBuffStackChanged = null;
@@ -148,5 +148,19 @@ public class PoisonBurningEffect : ALogicEffect
         }
 
         buffFx = null;
+    }
+
+    public static void Apply(APlayer p, Brick b)
+    {
+        if (!affectedBricks.TryGetValue(b, out var effect))
+        {
+            effect = effectManager.addLogic<PoisonBurningEffect>();
+            effect.with(p, b);
+            affectedBricks[b] = effect;
+        }
+        else
+        {
+            effect.tryApply();
+        }
     }
 }

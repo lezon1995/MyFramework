@@ -82,7 +82,7 @@ namespace MoreMountains
 
             if (_orientation2D)
             {
-                if (transform.position.x > _brain.Target.position.x)
+                if (transform.position.x > getTargetPosition().x)
                     _orientation2D.FaceDirection(-1);
                 else
                     _orientation2D.FaceDirection(1);

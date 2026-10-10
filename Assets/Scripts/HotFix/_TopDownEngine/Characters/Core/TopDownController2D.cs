@@ -437,7 +437,6 @@ namespace MoreMountains
             base.Reset();
             IntentVelocity = Vector2.zero;
             KnockbackVelocity = Vector2.zero;
-            MovementDisabled = false;
             // if (_rigidBody)
             // {
             //     _rigidBody.linearVelocity = Vector2.zero;

@@ -30,6 +30,8 @@ namespace MoreMountains
         Action<Brick> onBrickBornCompleted;
         public SafeDictionary<Brick, (Ball, MTimer)> brickDamageTimers = new();
 
+        static Comparison<Brick> nearestComparison = Comparison;
+
         public BrickManager()
         {
             onBrickBornCompleted = OnBrickBornCompleted;
@@ -159,6 +161,31 @@ namespace MoreMountains
                 randomBricks.addUnique(list.get(index));
 
             return randomBricks.any();
+        }
+
+        static Vector3 playerPos;
+
+        public bool getNearestActiveBrick(Vector3 pos, out Brick nearestBrick, List<Brick> excepts = null)
+        {
+            playerPos = pos;
+            using var _ = new ListScope<Brick>(out var list);
+            list.addRange(activeBricks.Values);
+            if (excepts.count() > 0)
+            {
+                foreach (var except in excepts)
+                    list.Remove(except);
+            }
+            
+            list.Sort(nearestComparison);
+            nearestBrick = list.get(0);
+            return nearestBrick != null;
+        }
+
+        static int Comparison(Brick b1, Brick b2)
+        {
+            var d1 = (b1.getWorldPosition() - playerPos).sqrMagnitude;
+            var d2 = (b2.getWorldPosition() - playerPos).sqrMagnitude;
+            return d1.CompareTo(d2);
         }
 
         public Dictionary<int, Brick> getActiveBricks()

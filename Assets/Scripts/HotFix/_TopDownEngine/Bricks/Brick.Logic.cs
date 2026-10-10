@@ -34,6 +34,7 @@ namespace MoreMountains
         {
             base.onAcquire();
             SetColliderEnabled(false);
+            inStealth = false;
             CharacterBrain.SetTarget(player.getTransform());
             CharacterBrain.BrainActive = false;
             brickRenderer.setRendererActive(true);

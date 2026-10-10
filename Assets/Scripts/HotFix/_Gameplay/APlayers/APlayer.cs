@@ -55,6 +55,7 @@ namespace MoreMountains
         public override void onAcquire()
         {
             base.onAcquire();
+            inStealth = false;
             _controller2D.RegisterToVolumeManager();
         }
 
@@ -69,8 +70,6 @@ namespace MoreMountains
             Input = InputManager.Instance;
             UpdateInputManagersInAbilities();
         }
-
-        public abstract string getPortraitImageName();
 
         public virtual List<string> getStartingDeck()
         {
@@ -194,13 +193,14 @@ namespace MoreMountains
             base.OnUpdate(dt);
 
             updatePowers(dt);
+            updateRelics(dt);
         }
 
         public override void OnFixedUpdate(float dt)
         {
             base.OnFixedUpdate(dt);
 
-            updateRelics(dt);
+            fixedUpdateRelics(dt);
         }
 
         public void decreaseMaxHealth(int amount)
@@ -655,10 +655,22 @@ namespace MoreMountains
                 relic.onBallImpactHitBrick(this, ball, brick, normal, ref triggerRegularHit);
         }
 
+        public void onBallImpactCrit(Ball ball, Brick brick)
+        {
+            foreach (var relic in relics)
+                relic.onBallImpactCrit(this, ball, brick);
+        }
+
         public void onBallSkillHitBrick(Ball ball, Brick brick)
         {
             foreach (var relic in relics)
                 relic.onBallSkillHitBrick(this, ball, brick);
+        }
+
+        public void onBallSkillCrit(Ball ball, Brick brick)
+        {
+            foreach (var relic in relics)
+                relic.onBallSkillCrit(this, ball, brick);
         }
 
         public void onBallCauseHitDamage(Ball ball, Brick brick, in Dmg dmg)
@@ -684,6 +696,12 @@ namespace MoreMountains
             foreach (var relic in relics)
                 relic.onBallKillBrick(this, ball, brick);
         }
+
+        public void onKillBrick(Brick brick)
+        {
+            foreach (var relic in relics)
+                relic.onKillBrick(this, brick);
+        }
         
         public void onDropCoin(Coin coin)
         {
@@ -696,10 +714,42 @@ namespace MoreMountains
             foreach (var relic in relics)
                 relic.onCauseDotDamage(this, target as Brick, in dmg);
         }
+        
+        public void onPlayerStartDash(Vector3 start, Vector3 end)
+        {
+            foreach (var relic in relics)
+                relic.onPlayerStartDash(this, start, end);
+        }
+
+        public void onPlayerStopDash()
+        {
+            foreach (var relic in relics)
+                relic.onPlayerStopDash(this);
+        }
+
+        public void onPlayerDashing(Vector3 p)
+        {
+            foreach (var relic in relics)
+                relic.onPlayerDashing(this, p);
+        }
+        
+        public override void onEvent(OnShield e)
+        {
+            base.onEvent(e);
+            
+            foreach (var relic in relics)
+                relic.onShield(this, e.ShieldAmount);
+        }
 
         public bool equalWith(APlayer other)
         {
             return this == other;
+        }
+
+        public void onBallDoHitEffect(Ball ball, DoHitEffect e, float delay)
+        {
+            foreach (var relic in relics)
+                relic.onBallDoHitEffect(this, ball, e, delay);
         }
     }
 }

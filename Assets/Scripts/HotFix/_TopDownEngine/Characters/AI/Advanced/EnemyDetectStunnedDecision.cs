@@ -10,9 +10,11 @@ namespace MoreMountains
             if (brick == null)
                 return false;
 
-            return brick.conditionState.CurrentState == Character.Conditions.Stunned ||
-                   brick.conditionState.CurrentState == Character.Conditions.Frozen ||
-                   brick.conditionState.CurrentState == Character.Conditions.Poisoned;
+            var state = brick.conditionState.CurrentState;
+            return state 
+                is Character.Conditions.Stunned 
+                or Character.Conditions.Frozen 
+                or Character.Conditions.Poisoned;
         }
     }
 }

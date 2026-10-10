@@ -144,9 +144,7 @@ public class LuckyCoin : ARelic
 }
 
 /// <summary>
-/// BankAccount - 银行账户
-/// 携带金币上限翻倍
-/// [设计文案] 存更多的钱
+/// 击杀目标后获得2.5%最大生命值的护盾
 /// </summary>
 public class BankAccount : ARelic
 {
@@ -156,11 +154,18 @@ public class BankAccount : ARelic
     {
     }
 
-    // TODO: 需要实现金币上限
-    // public override void onEquip(APlayer p)
-    // {
-    //     p.MaxGold *= 2f;
-    // }
+    float value;
+    
+    protected override void onRelicDefSet(RelicDef d)
+    {
+        value = d.Args[0];
+    }
+
+    public override void onKillBrick(APlayer p, Brick brick)
+    {
+        int shieldAmount = (int)(p.maxHealth * value);
+        p.Health.Shield.AddShield(shieldAmount);
+    }
 
     public override ARelic makeCopy() => new BankAccount();
 }

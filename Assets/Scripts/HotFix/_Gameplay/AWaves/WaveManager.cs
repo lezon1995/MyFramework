@@ -758,9 +758,9 @@ namespace MoreMountains
         public void SetAllMonstersMovementAbilityPermitted(bool active)
         {
             foreach (var brick in ActiveMonsters)
-                brick.Controller.MovementDisabled = !active;
+                brick.Controller.ForcedMovementDisabled = !active;
             foreach (var brick in ActiveBosses)
-                brick.Controller.MovementDisabled = !active;
+                brick.Controller.ForcedMovementDisabled = !active;
         }
 
         /// <summary>

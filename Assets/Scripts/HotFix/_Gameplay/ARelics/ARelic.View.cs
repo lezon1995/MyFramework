@@ -12,8 +12,12 @@ namespace MoreMountains
         public string[] DESCRIPTIONS;
         // public List<PowerTip> tips = new();
         // FloatyEffect f_effect = new FloatyEffect(10.0F, 0.2F);
-
+        
         public virtual void onUpdate(float dt)
+        {
+        }
+
+        public virtual void onFixedUpdate(float dt)
         {
         }
 

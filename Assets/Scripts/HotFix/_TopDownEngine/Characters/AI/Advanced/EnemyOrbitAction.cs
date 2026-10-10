@@ -44,7 +44,7 @@ namespace MoreMountains
                 return;
             }
 
-            var targetPos = _brain.Target.position;
+            var targetPos = getTargetPosition();
             var selfPos = transform.position;
             var toTarget = (targetPos - selfPos);
             float currentDistance = toTarget.magnitude;

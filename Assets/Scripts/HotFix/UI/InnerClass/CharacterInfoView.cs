@@ -41,4 +41,10 @@ public partial class CharacterInfoView : WindowObjectUGUI
 	{
 		base.onShow();
 	}
+
+	public override void update(float dt)
+	{
+		base.update(dt);
+		characterBallsView.update(dt);
+	}
 }

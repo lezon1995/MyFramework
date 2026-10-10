@@ -10,9 +10,9 @@ namespace MoreMountains
 
         [MMInspectorGroup("ID")]
         public BallDef BallDef;
-
+        public BallItem BallItem { get; set; }
+        public BallInventorySlot BallSlot { get; set; }
         public int BallLevel;
-        public BallInventorySlot BallSlot;
 
         [MMInspectorGroup("ID")]
         public SpriteRenderer BallWeaponSpriteRenderer;
@@ -67,6 +67,8 @@ namespace MoreMountains
         protected override void OnUpdate(float dt)
         {
             base.OnUpdate(dt);
+
+            BallItem?.setCooldownProgress(_delayBetweenUsesTimer.pct);
         }
 
         protected override void OnLateUpdate(float dt)
@@ -79,10 +81,8 @@ namespace MoreMountains
             BallWeaponAttachmentSpriteRenderer = spriteRenderer;
         }
 
-        public void SetBallSlot(BallInventorySlot slot)
-        {
-            BallSlot = slot;
-        }
+        public void SetBallSlot(BallInventorySlot slot) => BallSlot = slot;
+        public void SetBallItem(BallItem item) => BallItem = item;
 
         public void SetBallDef(BallDef def)
         {

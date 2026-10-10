@@ -13,6 +13,9 @@ MonoBehaviour:
   m_Name: RelicDef AuroraSphere
   m_EditorClassIdentifier: HotFix::MoreMountains.RelicDef
   Type: 30256
+  TagInfo:
+    MechanicTags: 
+    StatusTags: 
   BasePrice: 35
   SellRefund: 17
   CarryLimit: 0
@@ -46,6 +49,10 @@ MonoBehaviour:
     m_FallbackState: 0
     m_WaitForCompletion: 0
     m_LocalVariables: []
+  MetaHandleWeapon: {fileID: 0}
+  Args:
+  - 0.1
+  - 1
   references:
     version: 2
     RefIds: []

@@ -10,13 +10,12 @@ namespace MoreMountains
     [Serializable]
     public class HealthShield
     {
+        Character _character;
         Health _health;
 
-        public void SetHealth(Health health)
-        {
-            _health = health;
-        }
-        
+        public void SetHealth(Health health) => _health = health;
+        public void SetCharacter(Character character) => _character = character;
+
         #region Fields
 
         [Header("护盾基础属性")]
@@ -98,6 +97,8 @@ namespace MoreMountains
         {
             if (value <= 0)
                 return;
+
+            _character.Event.trigger(new OnShield(_character, value));
 
             int newShield = CurrentShield + value;
             SetShield(newShield);

@@ -138,12 +138,13 @@ namespace MoreMountains
             }
 
             HandleDashMode();
-            _character.Event.trigger(new DoDash());
 
             TargetDamageOnTouch.SetActive(true);
 
             if (_spriteEmitter)
                 _spriteEmitter.Begin();
+
+            _character.Event.trigger(new DoDashStart(_dashOrigin, _dashDestination));
         }
 
         protected virtual void HandleDashMode()
@@ -203,6 +204,7 @@ namespace MoreMountains
             _dashing = false;
             _hasTriggerFx = false;
             // _controller.FreeMovement = true;
+            _character.Event.trigger(new DoDashEnd());
 
             TargetDamageOnTouch.SetActive(false);
 
@@ -235,7 +237,7 @@ namespace MoreMountains
 
             if (_dashing)
             {
-                if (_dashCounter < DashDurationCounter)
+                if (_dashCounter <= DashDurationCounter)
                 {
                     var f = DashCurve.Evaluate(_dashCounter / (float)DashDurationCounter);
                     _dashCounter++;
@@ -263,8 +265,10 @@ namespace MoreMountains
                     if (hasHit && !_hasTriggerFx)
                     {
                         _hasTriggerFx = true;
-                        _dashHitFx = fx.play(FxDefine.STUN_FLASH, _controller2D.CurPosition,  0.5F);
+                        _dashHitFx = fx.play(FxDefine.STUN_FLASH, _controller2D.CurPosition, 0.5F);
                     }
+
+                    _player.onPlayerDashing(_newPosition);
                 }
                 else
                 {
@@ -317,15 +321,11 @@ namespace MoreMountains
         /// <summary>
         /// Adds required animator parameters to the animator parameters list if they exist
         /// </summary>
-        protected override void InitializeAnimatorParameters()
-        {
-        }
+        protected override void InitializeAnimatorParameters() { }
 
         /// <summary>
         /// At the end of each cycle, we send our Running status to the character's animator
         /// </summary>
-        public override void UpdateAnimator()
-        {
-        }
+        public override void UpdateAnimator() { }
     }
 }

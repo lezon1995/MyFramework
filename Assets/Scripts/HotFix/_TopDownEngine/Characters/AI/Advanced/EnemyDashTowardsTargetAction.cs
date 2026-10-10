@@ -99,7 +99,7 @@ namespace MoreMountains
             if (_isDelaying || _isCooldown || _brain.NoTarget)
                 return;
 
-            float distance = Vector3.Distance(transform.position, _brain.Target.position);
+            float distance = Vector3.Distance(transform.position, getTargetPosition());
             if (distance >= MinDistanceToDash && distance <= MaxDashDistance)
             {
                 StartDashDelay();
@@ -117,7 +117,7 @@ namespace MoreMountains
             _isDelaying = true;
             _delayTimer = DashDelay;
             _dashOrigin = transform.position;
-            _dashDirection = (_brain.Target.position - _dashOrigin).normalized;
+            _dashDirection = (getTargetPosition() - _dashOrigin).normalized;
             _dashDirection = ConstrainDirection(_dashDirection);
             HandleDashMode();
 
@@ -146,7 +146,7 @@ namespace MoreMountains
             DashFeedback.Play(transform.position);
 
             HandleDashMode();
-            _brick.Event.trigger(new DoDash());
+            _brick.Event.trigger(new DoDashStart(_dashOrigin, _dashDestination));
 
             if (_spriteEmitter)
                 _spriteEmitter.Begin();

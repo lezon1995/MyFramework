@@ -21,7 +21,7 @@ namespace MoreMountains
 
         [Tooltip("遗物背包容量上限")]
         public int MaxRelicBagCapacity = 6;
-        
+
         BallBag _ballBag;
         RelicBag _relicBag;
 
@@ -34,21 +34,26 @@ namespace MoreMountains
         {
             base.Initialization();
 
-            _ballBag = new(_player, BallBagCapacity, MaxBallBagCapacity);
-            _relicBag = new(_player, RelicBagCapacity, MaxRelicBagCapacity);
+            if (_ballBag == null)
+            {
+                _ballBag = new(_player, BallBagCapacity, MaxBallBagCapacity);
+                // 把背包变更桥接到 InventoryEvents，便于跨模块订阅。
+                _ballBag.OnItemAdded += InventoryEvents.RaiseBallAdded;
+                _ballBag.OnItemRemoved += InventoryEvents.RaiseBallRemoved;
+                _ballBag.OnBagChanged += InventoryEvents.RaiseBallBagChanged;
+                _ballBag.OnSlotChanged = _player.OnBallInventorySlotChanged;
+                _ballBag.OnSlotItemUpgraded = _player.OnBallInventorySlotItemUpgraded;
+                _ballBag.OnSlotItemDowngraded = _player.OnBallInventorySlotItemDowngraded;
+            }
 
-            // 把背包变更桥接到 InventoryEvents，便于跨模块订阅。
-            _ballBag.OnItemAdded += InventoryEvents.RaiseBallAdded;
-            _ballBag.OnItemRemoved += InventoryEvents.RaiseBallRemoved;
-            _ballBag.OnBagChanged += InventoryEvents.RaiseBallBagChanged;
-            _ballBag.OnSlotChanged = _player.OnBallInventorySlotChanged;
-            _ballBag.OnSlotItemUpgraded = _player.OnBallInventorySlotItemUpgraded;
-            _ballBag.OnSlotItemDowngraded = _player.OnBallInventorySlotItemDowngraded;
-
-            _relicBag.OnItemAdded += InventoryEvents.RaiseRelicAdded;
-            _relicBag.OnItemRemoved += InventoryEvents.RaiseRelicRemoved;
-            _relicBag.OnBagChanged += InventoryEvents.RaiseRelicBagChanged;
-            _relicBag.OnSlotChanged = _player.OnRelicInventorySlotChanged;
+            if (_relicBag == null)
+            {
+                _relicBag = new(_player, RelicBagCapacity, MaxRelicBagCapacity);
+                _relicBag.OnItemAdded += InventoryEvents.RaiseRelicAdded;
+                _relicBag.OnItemRemoved += InventoryEvents.RaiseRelicRemoved;
+                _relicBag.OnBagChanged += InventoryEvents.RaiseRelicBagChanged;
+                _relicBag.OnSlotChanged = _player.OnRelicInventorySlotChanged;
+            }
 
             if (!_systemReadyRaised)
             {
@@ -64,6 +69,7 @@ namespace MoreMountains
                 _systemReadyRaised = false;
                 InventoryEvents.RaiseSystemDestroy(this);
             }
+
             _ballBag = null;
             _relicBag = null;
         }
@@ -75,7 +81,7 @@ namespace MoreMountains
 
         public bool AddBall(BallItem ball)
         {
-            if (_ballBag == null || ball == null) 
+            if (_ballBag == null || ball == null)
                 return false;
 
             try
@@ -88,10 +94,10 @@ namespace MoreMountains
                 return false;
             }
         }
-        
+
         public bool AddRelic(RelicDef def)
         {
-            if (_relicBag == null || def == null) 
+            if (_relicBag == null || def == null)
                 return false;
 
             RelicItem item = null;
@@ -110,7 +116,7 @@ namespace MoreMountains
 
         public bool AddRelic(RelicItem item)
         {
-            if (_relicBag == null || item == null) 
+            if (_relicBag == null || item == null)
                 return false;
 
             try

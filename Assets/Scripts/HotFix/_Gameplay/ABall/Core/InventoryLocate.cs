@@ -8,7 +8,7 @@ namespace MoreMountains
     /// </summary>
     public static class InventoryLocate
     {
-        static readonly List<IInventoryHolder> Holders = new();
+        public static readonly List<IInventoryHolder> Holders = new();
 
         public static void Register(IInventoryHolder h)
         {

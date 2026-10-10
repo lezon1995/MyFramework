@@ -13,6 +13,9 @@ MonoBehaviour:
   m_Name: RelicDef BallOfFlames
   m_EditorClassIdentifier: HotFix::MoreMountains.RelicDef
   Type: 30061
+  TagInfo:
+    MechanicTags: 
+    StatusTags: 
   BasePrice: 50
   SellRefund: 25
   CarryLimit: 0
@@ -46,6 +49,10 @@ MonoBehaviour:
     m_FallbackState: 0
     m_WaitForCompletion: 0
     m_LocalVariables: []
+  MetaHandleWeapon: {fileID: 0}
+  Args:
+  - 2
+  - 0.3
   references:
     version: 2
     RefIds: []

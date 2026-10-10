@@ -147,6 +147,14 @@ MonoBehaviour:
     m_Key: TriggerChance
     m_Metadata:
       m_Items: []
+  - m_Id: 20039001936777216
+    m_Key: BallisticSpeed_Modify
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20039292706902016
+    m_Key: AS_Modify
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

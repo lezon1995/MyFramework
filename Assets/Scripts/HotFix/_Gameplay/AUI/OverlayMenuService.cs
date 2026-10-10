@@ -1,5 +1,3 @@
-using System;
-
 namespace MoreMountains
 {
     /// <summary>

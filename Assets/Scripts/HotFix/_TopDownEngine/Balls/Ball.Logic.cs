@@ -597,7 +597,7 @@ namespace MoreMountains
             dmg.setAttackEffect();
             _player.GetStat(Character.Stat.DmgRate, out var playerDmgRate);
             GetStat(Stat.DmgRate, out var ballDmgRate);
-            var dmgRate = (1 + playerDmgRate.Value) * ballDmgRate.Value;
+            var dmgRate = playerDmgRate.Value * ballDmgRate.Value;
             dmg.SetDmgRate(dmgRate);
             dmg.setHitNormal(normal);
 
@@ -609,7 +609,7 @@ namespace MoreMountains
 
             _player.GetStat(Character.Stat.CritDamage, out var playerCritDamage);
             GetStat(Stat.CritDamage, out var ballCritDamage);
-            var critDamage = (1 + playerCritDamage.Value) * ballCritDamage.Value;
+            var critDamage = playerCritDamage.Value * ballCritDamage.Value;
             dmg.SetCritDamage(critDamage);
 
             return dmg;
@@ -638,10 +638,9 @@ namespace MoreMountains
 
         public virtual void refreshDuration()
         {
-            _player.GetStat(Character.Stat.Duration, out var playerDuration);
             GetStat(Stat.Duration, out var ballDuration);
-            var duration = ballDuration.Value * (1 + playerDuration.Value);
-            lifeDuration = duration;
+            var duration = ballDuration.Value * _player.durationPct;
+            lifeDuration = duration.clampMin(1F);
             isExpired = false;
         }
 
@@ -653,8 +652,9 @@ namespace MoreMountains
 
         public void setDuration(float duration)
         {
-            lifeDuration = duration;
-            isExpired = duration <= 0 || duration.isZero();
+            var d = duration.clampMin(1F);
+            lifeDuration = d;
+            isExpired = d <= 0 || d.isZero();
         }
 
         public float getDurationRemain()

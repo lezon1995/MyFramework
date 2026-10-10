@@ -40,7 +40,7 @@ namespace MoreMountains
                 return;
             }
 
-            var targetPos = _brain.Target.position;
+            var targetPos = getTargetPosition();
             var selfPos = transform.position;
 
             // 计算远离目标的方向

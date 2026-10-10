@@ -5,6 +5,8 @@ namespace MoreMountains
 {
     public class LevelManager : MainManagerBehaviour
     {
+        public LevelMap LevelMap;
+
         public BorderLeft borderLeft;
         public BorderRight borderRight;
         public BorderTop borderTop;

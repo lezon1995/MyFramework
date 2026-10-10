@@ -13,6 +13,9 @@ MonoBehaviour:
   m_Name: RelicDef BallSwarm
   m_EditorClassIdentifier: HotFix::MoreMountains.RelicDef
   Type: 30223
+  TagInfo:
+    MechanicTags: 
+    StatusTags: 
   BasePrice: 70
   SellRefund: 35
   CarryLimit: 0
@@ -20,15 +23,19 @@ MonoBehaviour:
   - stat: 23
     BonusFlat: 0.1
     BonusPct: 0
+    BonusRatio: 0
   - stat: 22
     BonusFlat: 0.06
     BonusPct: 0
+    BonusRatio: 0
   - stat: 16
     BonusFlat: 0.1
     BonusPct: 0
+    BonusRatio: 0
   - stat: 13
     BonusFlat: 0.15
     BonusPct: 0
+    BonusRatio: 0
   Icon: {fileID: 21300000, guid: 094d594ebb7b86b4085d6a9912fb43e2, type: 3}
   Rarity: 2
   DisplayName:
@@ -49,6 +56,10 @@ MonoBehaviour:
     m_FallbackState: 0
     m_WaitForCompletion: 0
     m_LocalVariables: []
+  MetaHandleWeapon: {fileID: 0}
+  Args:
+  - 0.2
+  - 0.02
   references:
     version: 2
     RefIds: []

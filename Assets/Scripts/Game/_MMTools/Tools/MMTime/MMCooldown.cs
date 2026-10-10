@@ -83,10 +83,7 @@ namespace MoreMountains.Tools
             };
         }
 
-        public virtual bool NotReady()
-        {
-            return !Ready();
-        }
+        public virtual bool NotReady() => !Ready();
 
         /// <summary>
         /// Stops consuming the object 

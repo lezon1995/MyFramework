@@ -3,7 +3,7 @@
 namespace MoreMountains
 {
     public class Buff_Rune_SuddenImpact : Buff
-        , IEvent<DoDash>
+        , IEvent<DoDashStart>
     {
         public Buff Buff;
 
@@ -17,7 +17,7 @@ namespace MoreMountains
             Target.Event.removeListener(this);
         }
 
-        public void onEvent(DoDash e)
+        public void onEvent(DoDashStart e)
         {
             Target.ApplyBuff(Buff);
         }

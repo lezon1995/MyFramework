@@ -1,4 +1,5 @@
 using UniStats;
+using UnityEngine;
 
 namespace MoreMountains;
 
@@ -10,9 +11,7 @@ public class GoldenSphere : ARelic
 {
     public static string ID = "GoldenSphere";
 
-    public GoldenSphere() : base(ID, "GoldenSphere.png", RelicTier.UNCOMMON, LandingSound.SOLID)
-    {
-    }
+    public GoldenSphere() : base(ID, "GoldenSphere.png", RelicTier.UNCOMMON, LandingSound.SOLID) { }
 
     public override ARelic makeCopy() => new GoldenSphere();
 }
@@ -26,9 +25,7 @@ public class ChainReaction : ARelic
     public static string ID = "ChainReaction";
     private int killCount = 0;
 
-    public ChainReaction() : base(ID, "ChainReaction.png", RelicTier.UNCOMMON, LandingSound.SOLID)
-    {
-    }
+    public ChainReaction() : base(ID, "ChainReaction.png", RelicTier.UNCOMMON, LandingSound.SOLID) { }
 
     public override void onBallKillBrick(APlayer p, Ball ball, Brick brick)
     {
@@ -48,9 +45,7 @@ public class HeavyBall : ARelic
 {
     public static string ID = "HeavyBall";
 
-    public HeavyBall() : base(ID, "HeavyBall.png", RelicTier.UNCOMMON, LandingSound.HEAVY)
-    {
-    }
+    public HeavyBall() : base(ID, "HeavyBall.png", RelicTier.UNCOMMON, LandingSound.HEAVY) { }
 
     public override ARelic makeCopy() => new HeavyBall();
 }
@@ -64,9 +59,7 @@ public class ElasticString : ARelic
 {
     public static string ID = "ElasticString";
 
-    public ElasticString() : base(ID, "ElasticString.png", RelicTier.UNCOMMON, LandingSound.SOLID)
-    {
-    }
+    public ElasticString() : base(ID, "ElasticString.png", RelicTier.UNCOMMON, LandingSound.SOLID) { }
 
     // TODO: 需要在Ball类中添加MaxBounceCount属性
     // public override void onShootBall(Ball ball)
@@ -85,23 +78,50 @@ public class LuckyCharm : ARelic
 {
     public static string ID = "LuckyCharm";
 
-    public LuckyCharm() : base(ID, "LuckyCharm.png", RelicTier.UNCOMMON, LandingSound.SOLID)
-    {
-    }
+    public LuckyCharm() : base(ID, "LuckyCharm.png", RelicTier.UNCOMMON, LandingSound.SOLID) { }
 
     public override ARelic makeCopy() => new LuckyCharm();
 }
 
 /// <summary>
-/// ArmorPlate - 装甲板
-/// 护甲+3
+/// 闪避时会隐身1.5秒
 /// </summary>
 public class ArmorPlate : ARelic
 {
     public static string ID = "ArmorPlate";
 
-    public ArmorPlate() : base(ID, "ArmorPlate.png", RelicTier.UNCOMMON, LandingSound.HEAVY)
+    public ArmorPlate() : base(ID, "ArmorPlate.png", RelicTier.UNCOMMON, LandingSound.HEAVY) { }
+
+    StealthEffect effect;
+    float duration;
+
+    protected override void onRelicDefSet(RelicDef d)
     {
+        duration = d.Args[0];
+    }
+
+    public override void onFixedUpdate(float dt)
+    {
+        if (effect != null)
+        {
+            if (!effectManager.containsLogic(effect))
+            {
+                effect = null;
+            }
+        }
+    }
+
+    public override void onPlayerStartDash(APlayer p, Vector3 start, Vector3 end)
+    {
+        if (effect is { isDone: false } && effectManager.containsLogic(effect))
+        {
+            effect.duration = duration;
+        }
+        else
+        {
+            effect = effectManager.addLogic<StealthEffect>();
+            effect.with(p, duration);
+        }
     }
 
     public override ARelic makeCopy() => new ArmorPlate();
@@ -115,9 +135,7 @@ public class SpeedBoots : ARelic
 {
     public static string ID = "SpeedBoots";
 
-    public SpeedBoots() : base(ID, "SpeedBoots.png", RelicTier.UNCOMMON, LandingSound.SOLID)
-    {
-    }
+    public SpeedBoots() : base(ID, "SpeedBoots.png", RelicTier.UNCOMMON, LandingSound.SOLID) { }
 
     public override ARelic makeCopy() => new SpeedBoots();
 }
@@ -130,9 +148,7 @@ public class VampiricTouch : ARelic
 {
     public static string ID = "VampiricTouch";
 
-    public VampiricTouch() : base(ID, "VampiricTouch.png", RelicTier.UNCOMMON, LandingSound.SOLID)
-    {
-    }
+    public VampiricTouch() : base(ID, "VampiricTouch.png", RelicTier.UNCOMMON, LandingSound.SOLID) { }
 
     public override ARelic makeCopy() => new VampiricTouch();
 }
@@ -145,9 +161,7 @@ public class PiercingGaze : ARelic
 {
     public static string ID = "PiercingGaze";
 
-    public PiercingGaze() : base(ID, "PiercingGaze.png", RelicTier.UNCOMMON, LandingSound.SOLID)
-    {
-    }
+    public PiercingGaze() : base(ID, "PiercingGaze.png", RelicTier.UNCOMMON, LandingSound.SOLID) { }
 
     public override ARelic makeCopy() => new PiercingGaze();
 }
@@ -161,9 +175,7 @@ public class GlassArmor : ARelic
 {
     public static string ID = "GlassArmor";
 
-    public GlassArmor() : base(ID, "GlassArmor.png", RelicTier.UNCOMMON, LandingSound.HEAVY)
-    {
-    }
+    public GlassArmor() : base(ID, "GlassArmor.png", RelicTier.UNCOMMON, LandingSound.HEAVY) { }
 
     public override ARelic makeCopy() => new GlassArmor();
 }

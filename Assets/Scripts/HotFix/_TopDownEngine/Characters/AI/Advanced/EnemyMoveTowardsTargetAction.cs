@@ -44,13 +44,13 @@ namespace MoreMountains
         /// </summary>
         protected virtual void Move(float dt)
         {
-            if (_brain.NoTarget)
+            if (_enemyBrain.NoTarget)
             {
                 _movement.SetMovement(Vector2.zero);
                 return;
             }
 
-            var targetPos = _brain.Target.position;
+            var targetPos = getTargetPosition();
             var selfPos = transform.position;
             if (UseMinimumXDistance)
             {
