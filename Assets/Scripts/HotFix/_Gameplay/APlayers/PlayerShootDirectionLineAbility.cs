@@ -77,7 +77,8 @@ namespace MoreMountains
 
         public override void OnUpdate(float dt)
         {
-            base.OnUpdate(dt);
+            if (dt.isZero())
+                return;
 
             reticleTransform.localPosition = transform.InverseTransformPoint(mouseWorldPos);
             

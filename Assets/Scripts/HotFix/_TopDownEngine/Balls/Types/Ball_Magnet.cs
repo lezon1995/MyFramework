@@ -7,11 +7,6 @@
         public float range = 1;
         float _autoPickupTimer;
 
-        public override void onAcquire()
-        {
-            base.onAcquire();
-        }
-
         public override void OnFixedUpdate(float dt)
         {
             base.OnFixedUpdate(dt);

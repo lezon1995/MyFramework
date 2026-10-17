@@ -10,7 +10,7 @@
         {
             base.onEvent(e);
             
-            effectManager.addLogic<LaserBeamEffect>().with(path, this, e.brick, 90F);
+            effectManager.addLogic<LaserBeamEffect>().with(path, this, 90F);
         }
     }
 }

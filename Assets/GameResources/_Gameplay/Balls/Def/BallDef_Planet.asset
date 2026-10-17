@@ -16,11 +16,12 @@ MonoBehaviour:
   TagInfo:
     MechanicTags: 
     StatusTags: 
-  BasePrice: 2
+  BasePrice: 200
   maxLevel: 4
   UpgradeCombineCount: 2
   UpgradeGoldCost: 0
   Icon: {fileID: 21300000, guid: 023ee00462c31f34ebd300e63fe6e4c9, type: 3}
+  Radius: 0
   LevelColor: {r: 1, g: 1, b: 1, a: 1}
   Rarity: 0
   StatsTemplate: {fileID: 11400000, guid: eec4031d32ddc774fbb984526f29b71c, type: 2}

@@ -12,7 +12,7 @@ public class SideBorderPortal : ARelic
     {
     }
 
-    public override void onShootBall(Ball ball)
+    public override void onShootBall(APlayer p, Ball ball)
     {
         ball.setHorizontalBorderTeleportable(true);
     }

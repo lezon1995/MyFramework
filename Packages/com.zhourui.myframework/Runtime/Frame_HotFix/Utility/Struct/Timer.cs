@@ -30,6 +30,14 @@ public struct Timer
         return false;
     }
 
+    public void extend(float d)
+    {
+        if (finished)
+            return;
+
+        duration += d;
+    }
+
     public void kill()
     {
         duration = 0F;
@@ -41,6 +49,14 @@ public struct Timer
     {
         elapsed = 0F;
         finished = false;
+    }
+
+    public void finish()
+    {
+        if (finished)
+            return;
+
+        elapsed = duration - 0.001F;
     }
 
     public static implicit operator bool(Timer timer)

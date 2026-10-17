@@ -63,8 +63,8 @@ namespace MoreMountains
             source.BeginFollowMouse(iconSource);
             int sellPrice = source switch
             {
-                BallInventoryItem item => item.Slot.Item.SellPrice,
-                BallSlotItem slot => slot.Slot.Item.SellPrice,
+                BallInventoryItem item => item.Slot.Item.GetSellPrice(),
+                BallSlotItem slot => slot.Slot.Item.GetSellPrice(),
                 _ => 0
             };
 

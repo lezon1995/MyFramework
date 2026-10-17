@@ -84,16 +84,13 @@ namespace MoreMountains
                 return "default";
 
             // 优先使用EnemyType判断
-            switch (monster.type)
+            return monster.type switch
             {
-                case EnemyType.ELITE:
-                    return "elite";
-                case EnemyType.BOSS:
-                    return "boss";
-                case EnemyType.NORMAL:
-                default:
-                    return string.IsNullOrEmpty(monster.id) ? "normal" : monster.id;
-            }
+                EnemyType.ELITE => "elite",
+                EnemyType.BOSS => "boss",
+                EnemyType.NORMAL => string.IsNullOrEmpty(monster.id) ? "normal" : monster.id,
+                _ => string.IsNullOrEmpty(monster.id) ? "normal" : monster.id
+            };
         }
     }
 }

@@ -141,6 +141,25 @@ namespace UniStats
 
             return low;
         }
+        
+        public bool RemoveMod(IMod<T> mod, bool release = true)
+        {
+            if (mod == null)
+                return false;
+
+            bool success = false;
+            for (var i = _mods.Count - 1; i >= 0; i--)
+            {
+                var m = _mods[i];
+                if (m == mod)
+                {
+                    InternalRemove(m, i, release);
+                    success = true;
+                }
+            }
+
+            return success;
+        }
 
         public bool RemoveMod(string key, bool release = true)
         {

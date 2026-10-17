@@ -57,15 +57,6 @@ namespace MoreMountains
         [Tooltip("调试文字颜色")]
         public Color GizmosColor = new(0, 1, 0, 0.3f);
 
-        // 运行时数据
-        Vector3 curPosition;
-
-        public Vector3 CurPosition
-        {
-            get => curPosition;
-            set => curPosition = value;
-        }
-
         [NonSerialized]
         public Vector3 ExternalForce;
 
@@ -263,8 +254,6 @@ namespace MoreMountains
 
         protected override void FixedUpdate()
         {
-            base.FixedUpdate();
-
             var dt = Time.fixedDeltaTime;
             DecayKnockback(dt);
             var velocityMovement = ComputeVelocity(dt);
@@ -286,10 +275,12 @@ namespace MoreMountains
                 {
                     // CurPosition = _rigidBody.position + movement;
                     // _rigidBody.MovePosition(CurPosition);
-                    
+
                     CurPosition += movement;
                 }
             }
+
+            CheckDeltaMovement();
 
             LastPosition = CurPosition;
         }

@@ -6,16 +6,18 @@ using UnityEngine;
 
 namespace MoreMountains
 {
-    public partial class APlayer
+    public partial class APlayer : IHittable
     {
         public bool isReturnBall;
         public int ballMaxCount = 1;
         public int ballCount = 1;
+        public global::Stat ballDurationElapsedSpeed = 1F;
 
         public Vector3 originalShootPosition, shootPosition;
         public bool isFirstBallReturn;
         public int toClaimRewardCount;
-
+        protected BoxCollider2D boxCollider;
+        protected Vector2 colliderOffset, colliderSize;
         protected List<BuffObject> buffs = new();
         protected List<Type> ballBuffs = new();
         protected BallManagementSystem ballManagement;
@@ -23,6 +25,8 @@ namespace MoreMountains
         protected ShopSystem shop;
         protected RewardSystem rewardSystem;
         protected PlayerWallet wallet;
+        
+        public BoxCollider2D BoxCollider2D => boxCollider;
 
         public BallManagementSystem BallManagement => ballManagement;
         public InventorySystem Inventory => inventory;
@@ -42,6 +46,10 @@ namespace MoreMountains
 
             Exp.ResetLevel();
             // Exp.SetOnLevelUp(onLevelUp);
+            
+            boxCollider = _controller2D.boxCollider;
+            colliderOffset = boxCollider.offset;
+            colliderSize = boxCollider.size;
 
             FindAbility(out playerRecollectBall);
 

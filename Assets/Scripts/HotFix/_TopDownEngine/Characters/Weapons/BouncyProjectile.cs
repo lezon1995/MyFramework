@@ -168,7 +168,7 @@ namespace MoreMountains
         /// <param name="hit"></param>
         public virtual void PreventedCollision2D(RaycastHit2D hit)
         {
-            if (_health.CurrentHealth <= 0)
+            if (_health.IsDead())
                 return;
 
             if (hit)

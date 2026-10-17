@@ -1055,6 +1055,18 @@ MonoBehaviour:
     m_Key: Wormhole
     m_Metadata:
       m_Items: []
+  - m_Id: 20697880102195200
+    m_Key: FootballBoots
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20737820756299776
+    m_Key: LaserGuidance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21118350341459968
+    m_Key: StoreOwner
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

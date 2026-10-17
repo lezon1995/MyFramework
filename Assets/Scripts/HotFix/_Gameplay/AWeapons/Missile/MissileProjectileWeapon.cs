@@ -34,13 +34,13 @@ namespace MoreMountains
         {
         }
 
-        public override GameObject SpawnProjectile(Vector3 spawnPosition, int projectileIndex, int totalProjectiles, bool triggerObjectActivation = true)
+        public override GameObject SpawnProjectile(SpawnState state)
         {
             if (Definition == null || Owner == null)
                 return null;
 
             // 让基类负责对象池/位置/方向/owner/target/damage 的初始化
-            var go = base.SpawnProjectile(spawnPosition, projectileIndex, totalProjectiles, triggerObjectActivation);
+            var go = base.SpawnProjectile(state);
             if (!go.TryGetComponent<MissileProjectile>(out var missile))
                 return go;
 
@@ -49,9 +49,9 @@ namespace MoreMountains
             // arcHeightOffset = jitter + interleave
             var jitter = Random.Range(-Definition.ArcHeightJitter, Definition.ArcHeightJitter);
             float interleave = 0f;
-            if (totalProjectiles > 1)
+            if (state.TotalProjectiles > 1)
             {
-                var t = (float)projectileIndex / (totalProjectiles - 1);
+                var t = (float)state.ProjectileIndex / (state.TotalProjectiles - 1);
                 interleave = Mathf.Lerp(-1f, 1f, t) * Definition.ArcInterleaveAmplitude;
             }
             var arcHeightOffset = jitter + interleave;

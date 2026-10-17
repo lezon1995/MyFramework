@@ -96,42 +96,42 @@ namespace UniStats
             return accum;
         }
 #else
-        public static string AddFlat<T>(this IAttr<T> attr, T delta, string name = null, int order = 0) where T : struct
+        public static NumMod<T> AddFlat<T>(this IAttr<T> attr, T delta, string name = null, int order = 0) where T : struct
         {
             var mod = Mod.Add(delta, name);
             attr.AddMod(mod, order: order);
-            return name;
+            return mod;
         }
 
-        public static string AddFlat<T>(this IAttr<T> attr, IVar<T> v, string name = null, int order = 0) where T : struct
+        public static NumMod<T> AddFlat<T>(this IAttr<T> attr, IVar<T> v, string name = null, int order = 0) where T : struct
         {
             var mod = Mod.Add(v, name);
             attr.AddMod(mod, order: order);
-            return name;
+            return mod;
         }
 
-        public static string AddPct<T>(this IAttr<T> attr, T delta, string name = null, int order = 0) where T : struct
+        public static NumMod<T> AddPct<T>(this IAttr<T> attr, T delta, string name = null, int order = 0) where T : struct
         {
             var op = Mod.GetOperator<T>();
             var one = op.One;
             var sum = op.Add(one, delta);
             var mod = Mod.Mul(sum, name);
             attr.AddMod(mod, order: order);
-            return name;
+            return mod;
         }
 
-        public static string AddFunc<T>(this IAttr<T> attr, Func<T, T> func, string name = null, int order = 0) where T : struct
+        public static FuncMod<T> AddFunc<T>(this IAttr<T> attr, Func<T, T> func, string name = null, int order = 0) where T : struct
         {
             var mod = Mod.Func(func, name);
             attr.AddMod(mod, order: order);
-            return name;
+            return mod;
         }
 
-        public static string AddFunc<T>(this IAttr<T> attr, Func<T, T> func, out Action<T, T> onChange, string name = null, int order = 0) where T : struct
+        public static FuncMod<T> AddFunc<T>(this IAttr<T> attr, Func<T, T> func, out Action<T, T> onChange, string name = null, int order = 0) where T : struct
         {
             var mod = Mod.Func(func, out onChange, name);
             attr.AddMod(mod, order: order);
-            return name;
+            return mod;
         }
 
         // public static bool Remove<T>(this IModValue<T> modValue, string name) where T : struct

@@ -11,6 +11,8 @@ namespace MoreMountains
     [CreateAssetMenu(menuName = "MyFramework/Gameplay/RelicDef")]
     public sealed class RelicDef : ScriptableObject, IRarityObject
     {
+        public static BuyRelicDefPriceModifier buyPriceModifier { get; set; }
+        
         public RelicType Type;
         public TagInfo TagInfo;
         public int RelicDefId => (int)Type;
@@ -33,6 +35,17 @@ namespace MoreMountains
         public ItemRarity rarity => Rarity;
 
         public bool isSeen { get; set; }
+        
+        public int GetBuyPrice(out int rawPrice)
+        {
+            var rate = Mathf.Clamp(100F, 0F, 100F);
+            var ratio = rate / 100F;
+            var buyPrice = BasePrice;
+            rawPrice = buyPrice;
+            buyPriceModifier?.Invoke(this, ref buyPrice, ref ratio);
+            var realPrice = buyPrice * ratio;
+            return (int)Mathf.Max(1, realPrice);
+        }
 
         public static void BuildDescription(MyStringBuilder sb, RelicDef def)
         {

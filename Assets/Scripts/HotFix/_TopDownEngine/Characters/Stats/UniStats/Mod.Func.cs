@@ -86,12 +86,12 @@ namespace UniStats
 
     public static partial class Mod
     {
-        public static IMod<T> Func<T>(Func<T, T> func, out Action<T, T> onChange, string name = null) where T : struct
+        public static FuncMod<T> Func<T>(Func<T, T> func, out Action<T, T> onChange, string name = null) where T : struct
         {
             return FuncMod<T>.Get(func, out onChange, name);
         }
 
-        public static IMod<T> Func<T>(Func<T, T> func, string name = null) where T : struct
+        public static FuncMod<T> Func<T>(Func<T, T> func, string name = null) where T : struct
         {
             return FuncMod<T>.Get(func, name);
         }

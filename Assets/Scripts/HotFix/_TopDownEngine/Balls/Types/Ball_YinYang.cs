@@ -62,9 +62,9 @@ namespace MoreMountains
             return base.onImpactHitEnter(brick, normal, out triggerRegularHit);
         }
 
-        public override int getHitDamage()
+        public override int getImpactDamage()
         {
-            float hitDamage = base.getHitDamage();
+            float hitDamage = base.getImpactDamage();
 
             if (Player.GetStat(Character.Stat.AR, out var characterAR))
             {
@@ -81,9 +81,9 @@ namespace MoreMountains
             return (int)hitDamage;
         }
 
-        public override Dmg getHitDmg(Brick brick, Vector2 normal)
+        public override Dmg getImpactDmg(Brick brick, Vector2 normal)
         {
-            var d = getHitDamage();
+            var d = getImpactDamage();
             var dmg = Dmg.AD(d);
 
             var bonusDamage = bonusARDamage + bonusMRDamage;

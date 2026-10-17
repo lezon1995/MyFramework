@@ -23,24 +23,19 @@
             maxShields.tryGet(levelIndex, out maxShield);
         }
 
-        public override void OnFixedUpdate(float dt)
-        {
-            base.OnFixedUpdate(dt);
-        }
-
         public override void onEvent(DoHitEffect e)
         {
             base.onEvent(e);
 
             var currentShield = _player.Health.Shield.CurrentShield;
-            var currentRatio = currentShield / (float)_player.Health.maximumHealth;
+            var currentRatio = currentShield / (float)_player.Health.MaxHealth;
             if (currentRatio > 0.25F)
                 return;
 
             var shield = baseShield + gainShieldRate * _player.ap;
             var value = shield.toInt();
             var targetShield = currentShield + value;
-            var targetRatio = targetShield / (float)_player.Health.maximumHealth;
+            var targetRatio = targetShield / (float)_player.Health.MaxHealth;
             if (targetRatio < 0.25F)
             {
                 if (value > 0)
@@ -50,7 +45,7 @@
             }
             else
             {
-                var maxShield = (0.25F * _player.Health.maximumHealth).toInt();
+                var maxShield = (0.25F * _player.Health.MaxHealth).toInt();
                 var deltaShield = maxShield - currentShield;
                 if (deltaShield > 0)
                 {

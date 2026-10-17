@@ -13,7 +13,7 @@ public class RoundBattery : ARelic
     {
     }
 
-    public override void onShootBall(Ball ball)
+    public override void onShootBall(APlayer p, Ball ball)
     {
         ball.addPower<BallHitCountTriggerElectricChainPower>().with(4);
     }

@@ -27,7 +27,7 @@ namespace MoreMountains
         {
             if (randomHit(chance))
             {
-                effectManager.addLogic<ElectricChainEffect>().with(owner, brick, 2);
+                effectManager.addLogic<ElectricChainEffect>().with(_ball, brick, 2);
             }
         }
 
@@ -37,7 +37,7 @@ namespace MoreMountains
             {
                 if (brickManager.getRandomActiveBrick(out var brick))
                 {
-                    effectManager.addLogic<ElectricChainEffect>().with(owner, brick, 2);
+                    effectManager.addLogic<ElectricChainEffect>().with(_ball, brick, 2);
                 }
             }
         }

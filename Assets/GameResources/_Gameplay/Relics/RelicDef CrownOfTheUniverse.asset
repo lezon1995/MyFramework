@@ -13,6 +13,9 @@ MonoBehaviour:
   m_Name: RelicDef CrownOfTheUniverse
   m_EditorClassIdentifier: HotFix::MoreMountains.RelicDef
   Type: 30217
+  TagInfo:
+    MechanicTags: 
+    StatusTags: 
   BasePrice: 200
   SellRefund: 100
   CarryLimit: 0
@@ -20,15 +23,19 @@ MonoBehaviour:
   - stat: 10
     BonusFlat: 15
     BonusPct: 0
+    BonusRatio: 0
   - stat: 27
     BonusFlat: 19
     BonusPct: 0
+    BonusRatio: 0
   - stat: 7
     BonusFlat: 10
     BonusPct: 0
+    BonusRatio: 0
   - stat: 18
     BonusFlat: 0.04
     BonusPct: 0
+    BonusRatio: 0
   Icon: {fileID: 21300000, guid: ee05c2a6578e1744b9fa174537e831ec, type: 3}
   Rarity: 3
   DisplayName:
@@ -49,6 +56,10 @@ MonoBehaviour:
     m_FallbackState: 0
     m_WaitForCompletion: 0
     m_LocalVariables: []
+  MetaHandleWeapon: {fileID: 0}
+  Args:
+  - 0.2
+  - 0.5
   references:
     version: 2
     RefIds: []

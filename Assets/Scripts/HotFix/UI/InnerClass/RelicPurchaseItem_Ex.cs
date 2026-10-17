@@ -9,7 +9,8 @@ public partial class RelicPurchaseItem
     public void Refresh(RelicDef def)
     {
         SetName(def.DisplayName.GetLocalizedString());
-        SetPrice(def.BasePrice);
+        int realPrice = def.GetBuyPrice(out var rawPrice);
+        SetPrice(realPrice, rawPrice);
         if (def)
             SetDesc(def);
         if (def.Icon)
@@ -34,8 +35,28 @@ public partial class RelicPurchaseItem
     public void SetNewTag(bool on) => newTag.setActive(on);
     public void SetIcon(Sprite s) => itemIcon?.setSpriteOnly(s);
     public void SetName(string s) => itemName.setText(s ?? string.Empty);
-    public void SetPrice(int price) => itemPrice.setText(price.IToS());
-
+    public void SetPrice(int realPrice, int rawPrice)
+    {
+        if (realPrice < rawPrice)
+        {
+            using var _ = new MyStringBuilderScope(out var sb);
+            sb.add(realPrice).add(" ").add("(").add(rawPrice).add(" - ").add(rawPrice - realPrice).add(")");
+            var enhanced = gameDesign.universalColor.enhanced;
+            itemPrice.setText(sb.ToString().color(enhanced));
+        }
+        else if (realPrice > rawPrice)
+        {
+            using var _ = new MyStringBuilderScope(out var sb);
+            sb.add(realPrice).add(" ").add("(").add(rawPrice).add(" + ").add(realPrice - rawPrice).add(")");
+            var reduced = gameDesign.universalColor.reduced;
+            itemPrice.setText(sb.ToString().color(reduced));
+        }
+        else
+        {
+            itemPrice.setText(realPrice.IToS());
+        }
+    }
+    
     public void SetSold(bool sold)
     {
         hovered.setActive(!sold);

@@ -93,7 +93,7 @@ namespace MoreMountains
         [Tooltip("the current health of the character")]
         public int CurrentHealth { get; set; }
 
-        public float HealthPct => (float)CurrentHealth / maximumHealth;
+        public float HealthPct => (float)CurrentHealth / MaxHealth;
 
         [ShowInInspector, ReadOnly]
         [Tooltip("If this is true, this object can't take damage at this time")]
@@ -110,17 +110,19 @@ namespace MoreMountains
 
         public int MaximumHealth = 10;
 
-        public ValueModifier MaximumHealthModifier { get; set; }
+        public ValueModifier MaxHealthModifier { get; set; }
+        public float LimitedMaxHealthPct { get; set; } = 1F;
+        public int LimitedMaxHealth { get; set; }
 
-        public int maximumHealth
+        public int MaxHealth
         {
             get
             {
-                if (MaximumHealthModifier == null)
+                if (MaxHealthModifier == null)
                     return MaximumHealth;
 
                 var maxHealth = (float)MaximumHealth;
-                return (int)MaximumHealthModifier.SafeInvoke(ref maxHealth);
+                return (int)MaxHealthModifier.SafeInvoke(ref maxHealth);
             }
         }
 
@@ -323,9 +325,7 @@ namespace MoreMountains
             BindStats();
         }
 
-        protected virtual void Update()
-        {
-        }
+        protected virtual void Update() { }
 
         protected virtual void FixedUpdate()
         {
@@ -506,8 +506,8 @@ namespace MoreMountains
             if (Character && Character.Stats)
             {
                 var hp = Character.GetStat(Character.Stat.HealthMax);
-                hp.Event.Add((pre, now) => RefreshHealthBar(true));
-                MaximumHealthModifier = (ref float raw) => { raw = hp.Value; };
+                hp.Event.Add((pre, now) => RefreshHealth());
+                MaxHealthModifier = (ref float raw) => { raw = hp.Value; };
 
                 var hpRegen = Character.GetStat(Character.Stat.HealthRegen);
                 HealthRegenModifier = (ref float raw) => { raw = hpRegen.Value; };
@@ -549,7 +549,7 @@ namespace MoreMountains
         /// </summary>
         public virtual void InitializeCurrentHealth(RefreshHealthBarType type)
         {
-            var initialHealth = InitialHealthDrivenByMaximumHealth ? maximumHealth : InitialHealth;
+            var initialHealth = InitialHealthDrivenByMaximumHealth ? MaxHealth : InitialHealth;
             SetHealth((int)initialHealth, type);
         }
 
@@ -610,7 +610,7 @@ namespace MoreMountains
             }
 
             // if we're already below zero, we do nothing and exit
-            if (CurrentHealth <= 0 && InitialHealth != 0)
+            if (IsDead() && InitialHealth != 0)
             {
                 type = ResistDamageType.Dead;
                 return false;
@@ -744,7 +744,7 @@ namespace MoreMountains
                 dmg.SetDirection(direction);
 
                 // if (dmg.DamageDealt > 0)
-                    // new DmgTextEvent(dmg, transform).trigger();
+                // new DmgTextEvent(dmg, transform).trigger();
             }
 
             //触发本次伤害所造成的攻击特效/技能特效
@@ -777,7 +777,7 @@ namespace MoreMountains
                 {
                     // 有护盾时，伤害先被护盾吸收
                     actualHealthDamage = Shield.AbsorbDamage(rawDamage, out var shieldedDamage);
-                    
+
                     if (shieldedDamage > 0)
                     {
                         var shieldedDmg = dmg with
@@ -808,7 +808,7 @@ namespace MoreMountains
                 {
                     dmg.SetDamageDealt(actualHealthDamage);
                     new DmgTextEvent(dmg, transform).trigger();
-                    
+
                     float preHealth = CurrentHealth;
                     SetHealth(CurrentHealth - actualHealthDamage, RefreshHealthBarType.ReceiveDamage);
                     LastDamage = actualHealthDamage;
@@ -905,7 +905,7 @@ namespace MoreMountains
             float damage = dmg.Value;
             float totalDamage = damage;
 
-            float rawBaseDamage = calculator.computeDamageAlgo(dmg.Algo, totalDamage, CurrentHealth, maximumHealth);
+            float rawBaseDamage = calculator.computeDamageAlgo(dmg.Algo, totalDamage, CurrentHealth, MaxHealth);
             float rawCritDamage = calculator.computeDamageCrit(dmg, rawBaseDamage);
             float rawFinalDamage = calculator.computeDamageRate(dmg, rawCritDamage);
 
@@ -956,8 +956,8 @@ namespace MoreMountains
             {
                 Heal.Algos.Fixed => (int)value,
                 Heal.Algos.CurPct => (int)(CurrentHealth * value),
-                Heal.Algos.LostPct => (int)((maximumHealth - CurrentHealth) * value),
-                Heal.Algos.AllPct => (int)(maximumHealth * value),
+                Heal.Algos.LostPct => (int)((MaxHealth - CurrentHealth) * value),
+                Heal.Algos.AllPct => (int)(MaxHealth * value),
                 _ => (int)value
             };
         }
@@ -980,9 +980,7 @@ namespace MoreMountains
         /// </summary>
         /// <param name="knockbackForce"></param>
         /// <returns></returns>
-        public virtual void ComputeKnockbackForce(ref Vector3 knockbackForce)
-        {
-        }
+        public virtual void ComputeKnockbackForce(ref Vector3 knockbackForce) { }
 
         /// <summary>
         /// Returns true if this Health can get knockbacked, false otherwise
@@ -1144,12 +1142,18 @@ namespace MoreMountains
 
         #region HealthManipulationAPIs
 
+        public void RefreshHealth()
+        {
+            SetHealth(CurrentHealth, MaxHealth);
+        }
+        
         /// <summary>
         /// Sets the current health to the specified new value, and updates the health bar
         /// </summary>
         public virtual void SetHealth(int curHealth, RefreshHealthBarType type = RefreshHealthBarType.Immediately)
         {
-            CurrentHealth = Mathf.Clamp(curHealth, 0, maximumHealth);
+            var maxHealth = GetLimitedMaxHealth();
+            CurrentHealth = Mathf.Clamp(curHealth, 0, maxHealth);
             switch (type)
             {
                 case RefreshHealthBarType.Immediately:
@@ -1172,13 +1176,23 @@ namespace MoreMountains
                     break;
             }
 
-            onHealthChanged?.Invoke(CurrentHealth, maximumHealth);
+            onHealthChanged?.Invoke(CurrentHealth, MaxHealth);
         }
 
-        public virtual void SetHealth(int curHealth, int maxHealth, RefreshHealthBarType type = RefreshHealthBarType.Immediately)
+        protected int GetLimitedMaxHealth()
         {
-            MaximumHealth = maxHealth;
-            CurrentHealth = Mathf.Clamp(curHealth, 0, maximumHealth);
+            float pct = LimitedMaxHealthPct;
+            var maxHealth1 = pct > 0 ? Mathf.RoundToInt(pct * MaxHealth) : MaxHealth;
+            var maxHealth2 = LimitedMaxHealth > 0 ? LimitedMaxHealth : MaxHealth;
+            var maxHealth = Mathf.Min(maxHealth1, maxHealth2);
+            return maxHealth;
+        }
+
+        public virtual void SetHealth(int curHealth, int maximumHealth, RefreshHealthBarType type = RefreshHealthBarType.Immediately)
+        {
+            MaximumHealth = maximumHealth;
+            var maxHealth = GetLimitedMaxHealth();
+            CurrentHealth = Mathf.Clamp(curHealth, 0, maxHealth);
             switch (type)
             {
                 case RefreshHealthBarType.Immediately:
@@ -1200,19 +1214,18 @@ namespace MoreMountains
                     throw new ArgumentOutOfRangeException(nameof(type), type, null);
             }
 
-            onHealthChanged?.Invoke(CurrentHealth, maximumHealth);
+            onHealthChanged?.Invoke(CurrentHealth, MaxHealth);
         }
 
         /// <summary>
         /// Called when the character gets health (from a stimpack for example)
         /// </summary>
         /// <param name="heal">The health the character gets.</param>
-        /// <param name="source"></param>
         /// <param name="instigator">The thing that gives the character health.</param>
-        public virtual void ReceiveHealth(Heal heal, GameObject instigator = null, Character source = null)
+        public virtual void ReceiveHealth(Heal heal, Character source = null, GameObject instigator = null)
         {
             //阵亡后无法再回血
-            if (CurrentHealth <= 0F)
+            if (IsDead())
                 return;
 
             var healing = ComputeHealAlgo(heal.Algo, heal.Value);
@@ -1222,7 +1235,7 @@ namespace MoreMountains
 
             int newHealth;
             int actualHealing;
-            int maxHealth = maximumHealth;
+            int maxHealth = GetLimitedMaxHealth();
 
             if (CurrentHealth + healing <= maxHealth)
             {
@@ -1257,20 +1270,14 @@ namespace MoreMountains
         /// </summary>
         public virtual void ResetHealthToMaxHealth()
         {
-            SetHealth(maximumHealth, RefreshHealthBarType.Resurrect);
+            SetHealth(MaxHealth, RefreshHealthBarType.Resurrect);
         }
 
-        public virtual void RefreshHealthBar(bool show)
-        {
-        }
+        public virtual void RefreshHealthBar(bool show) { }
 
-        public virtual void RefreshHealthBarByDamage()
-        {
-        }
+        public virtual void RefreshHealthBarByDamage() { }
 
-        public virtual void RefreshHealthBarByHeal()
-        {
-        }
+        public virtual void RefreshHealthBarByHeal() { }
 
         #endregion
 

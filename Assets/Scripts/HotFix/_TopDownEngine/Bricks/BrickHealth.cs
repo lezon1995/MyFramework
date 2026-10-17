@@ -6,6 +6,7 @@ namespace MoreMountains
 {
     public class BrickHealth : Health
     {
+        APlayer _lastestKillerPlayer;
         Brick brick;
 
         public override void Initialization()
@@ -23,7 +24,7 @@ namespace MoreMountains
                 {
                     if (cur < prev)
                     {
-                        var curProgress = (CurrentHealth + Shield.CurrentShield) / (float)maximumHealth;
+                        var curProgress = (CurrentHealth + Shield.CurrentShield) / (float)MaxHealth;
                         RefreshShieldBarByDamage(curProgress);
                     }
                     else
@@ -39,6 +40,7 @@ namespace MoreMountains
 
         protected override void OnEnable()
         {
+            _lastestKillerPlayer = null;
             if (ResetHealthOnEnable)
             {
                 InitializeCurrentHealth(RefreshHealthBarType.Resurrect);
@@ -151,17 +153,17 @@ namespace MoreMountains
 
         public override void ResetHealthToMaxHealth()
         {
-            SetHealth(maximumHealth, RefreshHealthBarType.Resurrect);
+            SetHealth(MaxHealth, RefreshHealthBarType.Resurrect);
         }
 
         public override void RefreshHealthBar(bool show)
         {
-            brick.brickRenderer.refreshHealthByBorn((int)CurrentHealth, (int)maximumHealth);
+            brick.brickRenderer.refreshHealthByBorn((int)CurrentHealth, (int)MaxHealth);
         }
 
         public override void RefreshHealthBarByDamage()
         {
-            brick.brickRenderer.refreshHealthByDamage((int)CurrentHealth, (int)maximumHealth);
+            brick.brickRenderer.refreshHealthByDamage((int)CurrentHealth, (int)MaxHealth);
         }
 
         public void RefreshShieldBarByDamage(float curProgress)
@@ -171,7 +173,7 @@ namespace MoreMountains
 
         public override void RefreshHealthBarByHeal()
         {
-            brick.brickRenderer.refreshHealthByHealing((int)CurrentHealth, (int)maximumHealth);
+            brick.brickRenderer.refreshHealthByHealing((int)CurrentHealth, (int)MaxHealth);
         }
 
         public override void Resurrect()
@@ -253,13 +255,17 @@ namespace MoreMountains
             if (dmg.hasAttackEffect())
             {
                 foreach (var p in ball.powers)
-                    p.onBeforeHandleHitDamage(ball, brick, ref dmg);
+                    p.onBeforeHandleImpactDamage(ball, brick, ref dmg);
+
+                source.onBeforeHandleImpactDamage(ball, brick, ref dmg);
             }
 
             if (dmg.hasSkillEffect())
             {
                 foreach (var p in ball.powers)
                     p.onBeforeHandleSkillDamage(ball, brick, ref dmg);
+                
+                source.onBeforeHandleSkillDamage(ball, brick, ref dmg);
             }
 
             ComputeDamageOutput(ref dmg, source, calculator);
@@ -294,7 +300,7 @@ namespace MoreMountains
             if (dmg.IsCrit)
             {
                 if (dmg.hasAttackEffect())
-                    ball.onImpactCrit(brick);
+                    ball.onImpactCrit(brick, in dmg);
 
                 if (dmg.hasSkillEffect())
                     ball.onSkillCrit(brick);
@@ -361,9 +367,10 @@ namespace MoreMountains
                             if (source.Stats && b1 && b2)
                             {
                                 var lifeSteal = lifeSteal1.Value + lifeSteal2.Value;
-                                if (lifeSteal > 0 && randomHit(lifeSteal))
+                                if (lifeSteal > 0)
                                 {
-                                    source.Health.ReceiveHealth(Heal.Fixed(1), source: source);
+                                    var healing = lifeSteal * dmg.DamageDealt;
+                                    source.Health.ReceiveHealth(Heal.Fixed(healing), source);
                                 }
                             }
                         }
@@ -400,6 +407,7 @@ namespace MoreMountains
                                 }
                                 
                                 source?.onKillBrick(brick);
+                                _lastestKillerPlayer = source;
                             }
                         }
 
@@ -650,6 +658,7 @@ namespace MoreMountains
                                 // }
                                 
                                 source?.onKillBrick(brick);
+                                _lastestKillerPlayer = source;
                             }
                         }
 
@@ -695,10 +704,10 @@ namespace MoreMountains
         }
 
 
-        public override void ReceiveHealth(Heal heal, GameObject instigator = null, Character source = null)
+        public override void ReceiveHealth(Heal heal, Character source = null, GameObject instigator = null)
         {
             //阵亡后无法再回血
-            if (CurrentHealth <= 0F)
+            if (IsDead())
                 return;
 
             var healing = ComputeHealAlgo(heal.Algo, heal.Value);
@@ -711,7 +720,7 @@ namespace MoreMountains
 
             int newHealth;
             int actualHealing;
-            int maxHealth = maximumHealth;
+            int maxHealth = GetLimitedMaxHealth();
 
             if (CurrentHealth + healing <= maxHealth)
             {
@@ -819,6 +828,12 @@ namespace MoreMountains
 
             var e = new OnBrickDeathTotally(brick);
             e.trigger(brick);
+            
+            if (_lastestKillerPlayer)
+            {
+                _lastestKillerPlayer.onKillBrickTotally(brick);
+                _lastestKillerPlayer = null;
+            }
 
             base.DestroyObject();
         }

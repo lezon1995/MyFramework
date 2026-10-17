@@ -1,3 +1,7 @@
+using MoreMountains.Tools;
+using UniStats;
+using UnityEngine;
+
 namespace MoreMountains;
 
 /// <summary>
@@ -110,9 +114,7 @@ public class BeastMode : ARelic
 }
 
 /// <summary>
-/// RisingPower - 上升之力
-/// 战斗越久伤害越高
-/// [设计文案] 持久战的强者
+/// 球碰到玩家则会重置持续时间。
 /// </summary>
 public class RisingPower : ARelic
 {
@@ -120,26 +122,15 @@ public class RisingPower : ARelic
 
     public RisingPower() : base(ID, "RisingPower.png", RelicTier.RARE, LandingSound.SOLID) { }
 
-    // TODO: 需要实现战斗时间累积伤害
-    // private float battleTime = 0f;
-    //
-    // public override void onPlayerTurnUpdate(APlayer p, float dt)
-    // {
-    //     battleTime += dt;
-    //     var bonus = battleTime * 0.001f; // 每秒+0.1%
-    //     foreach (var ball in p.Balls)
-    //     {
-    //         ball.GetStat(Ball.Stat.HitDamageRate, out var stat);
-    //         stat.AddPct(bonus);
-    //     }
-    // }
-    //
-    // public override void atBattleStart()
-    // {
-    //     battleTime = 0f;
-    // }
+    public override void onShootBall(APlayer p, Ball ball)
+    {
+        ball.BounceLayers |= LayerManager.Player_Mask;
+    }
 
-    public override ARelic makeCopy() => new RisingPower();
+    public override void onBallEnterPlayer(APlayer p, Ball ball, APlayer p2, ref Vector2 normal, ref bool needReflect)
+    {
+        effectManager.addLogic<RefreshBallDurationEffect>().with(ball);
+    }
 }
 
 /// <summary>
@@ -223,7 +214,7 @@ public class BattleRage : ARelic
 
     public BattleRage() : base(ID, "BattleRage.png", RelicTier.RARE, LandingSound.HEAVY) { }
 
-    public override void onBallImpactCrit(APlayer p, Ball ball, Brick brick)
+    public override void onBallImpactCrit(APlayer p, Ball ball, Brick brick, in Dmg dmg)
     {
         effectManager.addLogic<CritImpactExplodeEffect>().with(ball, brick);
     }
@@ -232,9 +223,7 @@ public class BattleRage : ARelic
 }
 
 /// <summary>
-/// BloodPact - 血之契约
-/// 消耗生命换取力量
-/// [设计文案] 鲜血的代价
+/// 每损失1%的最大生命值，球速+2%
 /// </summary>
 public class BloodPact : ARelic
 {
@@ -242,12 +231,77 @@ public class BloodPact : ARelic
 
     public BloodPact() : base(ID, "BloodPact.png", RelicTier.SPECIAL, LandingSound.HEAVY) { }
 
-    // TODO: 需要实现消耗生命获得力量
-    // public override void onPlayerTurnUpdate(APlayer p, float dt)
-    // {
-    //     p.TakeDamage(1f * dt); // 每秒消耗1点生命
-    //     p.BuffDamage(0.01f * dt); // 获得等效伤害增益
-    // }
+    float hpPerLost;
+    float speedPerHpLost;
+    NumMod<float> modMS;
 
-    public override ARelic makeCopy() => new BloodPact();
+    protected override void onRelicDefSet(RelicDef d)
+    {
+        hpPerLost = d.Args[0];
+        speedPerHpLost = d.Args[1];
+    }
+
+    public override void onEquip(APlayer p)
+    {
+        base.onEquip(p);
+        p.GetStat(Character.Stat.BallisticSpeed, out var ms);
+        var lostHealthPct = (1F - p.currentHealthPct).clamp01();
+        var share = (lostHealthPct / hpPerLost).round();
+        modMS = ms.BonusFlat.AddFlat(speedPerHpLost * share);
+    }
+
+    public override void onPlayerHealthChanged(APlayer p, int curHealth)
+    {
+        var lostHealthPct = (1F - p.currentHealthPct).clamp01();
+        var share = (lostHealthPct / hpPerLost).round();
+        modMS.Value = speedPerHpLost * share;
+    }
+
+    public override void onUnequip(APlayer p)
+    {
+        base.onUnequip(p);
+        p.GetStat(Character.Stat.BallisticSpeed, out var ms);
+        ms.BonusFlat.RemoveMod(modMS);
+        modMS = null;
+    }
+}
+
+/// <summary>
+/// 每损失1%的最大生命值，球存活时间的流逝速度-1%
+/// </summary>
+public class BloodLife : ARelic
+{
+    public static string ID = "BloodLife";
+
+    public BloodLife() : base(ID, "BloodLife.png", RelicTier.SPECIAL, LandingSound.HEAVY) { }
+
+    float hpPerLost;
+    float speedPerHpLost;
+
+    protected override void onRelicDefSet(RelicDef d)
+    {
+        hpPerLost = d.Args[0];
+        speedPerHpLost = d.Args[1];
+    }
+
+    public override void onEquip(APlayer p)
+    {
+        base.onEquip(p);
+        var lostHealthPct = (1F - p.currentHealthPct).clamp01();
+        var share = (lostHealthPct / hpPerLost).round();
+        p.ballDurationElapsedSpeed.setExtra(-speedPerHpLost * share);
+    }
+
+    public override void onPlayerHealthChanged(APlayer p, int curHealth)
+    {
+        var lostHealthPct = (1F - p.currentHealthPct).clamp01();
+        var share = (lostHealthPct / hpPerLost).round();
+        p.ballDurationElapsedSpeed.setExtra(-speedPerHpLost * share);
+    }
+
+    public override void onUnequip(APlayer p)
+    {
+        base.onUnequip(p);
+        p.ballDurationElapsedSpeed.setExtra(0);
+    }
 }

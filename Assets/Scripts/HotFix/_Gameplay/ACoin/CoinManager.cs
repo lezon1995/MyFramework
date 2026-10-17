@@ -243,10 +243,9 @@ namespace MoreMountains
 
             for (int i = 0; i < coinCount; i++)
             {
-                float angle = UnityEngine.Random.Range(-spread, spread);
-                Quaternion rotation = Quaternion.AngleAxis(angle, Vector3.forward);
-                Vector2 scatteredDir = rotation * baseDir;
-
+                var angle = UnityEngine.Random.Range(-spread, spread);
+                var rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+                var scatteredDir = rotation * baseDir;
                 DropCoin(monsterPos, scatteredDir, config.coinValue, dropCfg, p);
             }
         }

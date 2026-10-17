@@ -23,7 +23,7 @@ namespace MoreMountains
                 {
                     if (cur < prev)
                     {
-                        var curProgress = (CurrentHealth + Shield.CurrentShield) / (float)maximumHealth;
+                        var curProgress = (CurrentHealth + Shield.CurrentShield) / (float)MaxHealth;
                         RefreshShieldBarByDamage(curProgress);
                     }
                     else
@@ -40,12 +40,12 @@ namespace MoreMountains
 
         public override void RefreshHealthBar(bool show)
         {
-            _player.playerRenderer.refreshHealthByBorn((int)CurrentHealth, (int)maximumHealth);
+            _player.playerRenderer.refreshHealthByBorn((int)CurrentHealth, (int)MaxHealth);
         }
 
         public override void RefreshHealthBarByDamage()
         {
-            _player.playerRenderer.refreshHealthByDamage((int)CurrentHealth, (int)maximumHealth);
+            _player.playerRenderer.refreshHealthByDamage((int)CurrentHealth, (int)MaxHealth);
         }
 
         public void RefreshShieldBarByDamage(float curProgress)
@@ -55,7 +55,7 @@ namespace MoreMountains
 
         public override void RefreshHealthBarByHeal()
         {
-            _player.playerRenderer.refreshHealthByHealing((int)CurrentHealth, (int)maximumHealth);
+            _player.playerRenderer.refreshHealthByHealing((int)CurrentHealth, (int)MaxHealth);
         }
 
         float healthPerSecondAccumulated;
@@ -186,10 +186,26 @@ namespace MoreMountains
             }
         }
 
+        public override void SetHealth(int curHealth, RefreshHealthBarType type = RefreshHealthBarType.Immediately)
+        {
+            var changed = CurrentHealth != curHealth;
+            base.SetHealth(curHealth, type);
+
+            if (changed)
+            {
+                _player.onHealthChanged(curHealth);
+            }
+        }
+
         public override void Damage(ref Dmg dmg, GameObject instigator, Character source = null, float invincibleTime = 0F, Vector3 direction = default, IDmgCalculator calculator = null)
         {
-            if (!CanTakeDamageThisFrame(out _))
-                return;
+            if (!CanTakeDamageThisFrame(out var resistDamageType))
+            {
+                if (resistDamageType == ResistDamageType.Invincible && !dmg.IgnoreInvincible)
+                {
+                    return;
+                }
+            }
 
             if (CanDodgeDamageThisFrame(out var dodgeType))
             {
@@ -301,6 +317,11 @@ namespace MoreMountains
                     if (Character && !dmg.Self)
                         Event.trigger(new OnDmg(source, dmg));
 
+                    if (CurrentHealth <= MaxHealth / 2.0F && !_player.isBloodied)
+                    {
+                        _player.onEnterBloodied();
+                    }
+
                     //检测是否死亡
                     if (IsDead())
                     {
@@ -346,7 +367,7 @@ namespace MoreMountains
             }
         }
 
-        public override void ReceiveHealth(Heal heal, GameObject instigator = null, Character source = null)
+        public override void ReceiveHealth(Heal heal, Character source = null, GameObject instigator = null)
         {
             //阵亡后无法再回血
             if (IsDead())
@@ -365,7 +386,7 @@ namespace MoreMountains
 
             int newHealth;
             int actualHealAmount;
-            int maxHealth = maximumHealth;
+            int maxHealth = GetLimitedMaxHealth();
 
             if (CurrentHealth + healing <= maxHealth)
             {
@@ -379,7 +400,7 @@ namespace MoreMountains
             }
 
             heal.SetActualHealAmount(actualHealAmount);
-            if (Mathf.FloorToInt(actualHealAmount) > 0 /* && actualHealAmount / maxHealth > 0.01F*/)
+            if (actualHealAmount > 0 /* && actualHealAmount / maxHealth > 0.01F*/)
             {
                 new HealTextEvent(heal, transform).trigger();
             }
@@ -388,9 +409,7 @@ namespace MoreMountains
 
             if (CurrentHealth > maxHealth / 2F && _player.isBloodied)
             {
-                _player.isBloodied = false;
-                foreach (var relic in _player.relics)
-                    relic.onExitBloodied();
+                _player.onExitBloodied();
             }
 
             if (heal.IsValid())
@@ -400,9 +419,9 @@ namespace MoreMountains
 
                 Event.trigger(new OnHeal(source, heal));
             }
-            
+
             foreach (var r in _player.relics)
-                r.onAfterHeal(heal);
+                r.onAfterHeal(_player, heal);
         }
 
         public override bool Kill(Character killBySource = null)

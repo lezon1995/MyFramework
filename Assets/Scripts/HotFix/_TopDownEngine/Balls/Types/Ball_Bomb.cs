@@ -6,11 +6,6 @@
         
         Countdown countdown;
 
-        public override void onAcquire()
-        {
-            base.onAcquire();
-        }
-
         public override void onEvent(DoHitEffect e)
         {
             base.onEvent(e);

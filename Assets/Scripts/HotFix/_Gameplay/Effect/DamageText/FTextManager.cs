@@ -258,12 +258,13 @@ public class FTextManager : FrameSystem
         var damage = mix.DamageDealtAD;
         if (damage > 0)
         {
-            new FText.Data(damage.IToS(), type)
-                .setSetting(type)
+            var physicType = dmg.IsCrit ? TextType.DamageCrit_Physic: TextType.Damage_Physic;
+            new FText.Data(damage.IToS(), physicType)
+                .setSetting(physicType)
                 .setValue(damage)
                 .setDirection(dmg.Direction)
                 .setTarget(target)
-                .setOffset(Random.insideUnitCircle * setting.OffsetDistance)
+                .setOffset(Random.insideUnitCircle * getSetting(physicType).OffsetDistance)
                 .setExtraContentSize(Mathf.InverseLerp(50, 1000, dmg.DamageDealt) * 0.25F) //this should be based on the amount of damage
                 .setType((int)Dmg.Types.AD)
                 .setMetaType(dmg.MetaType)
@@ -273,12 +274,13 @@ public class FTextManager : FrameSystem
         damage = mix.DamageDealtAP;
         if (damage > 0)
         {
-            new FText.Data(damage.IToS(), type)
-                .setSetting(type)
+            var magicType = dmg.IsCrit ? TextType.DamageCrit_Magic: TextType.Damage_Magic;
+            new FText.Data(damage.IToS(), magicType)
+                .setSetting(magicType)
                 .setValue(damage)
                 .setDirection(dmg.Direction)
                 .setTarget(target)
-                .setOffset(Random.insideUnitCircle * setting.OffsetDistance)
+                .setOffset(Random.insideUnitCircle * getSetting(type).OffsetDistance)
                 .setExtraContentSize(Mathf.InverseLerp(50, 1000, dmg.DamageDealt) * 0.25F) //this should be based on the amount of damage
                 .setType((int)Dmg.Types.AP)
                 .setMetaType(dmg.MetaType)
@@ -288,12 +290,13 @@ public class FTextManager : FrameSystem
         damage = mix.DamageDealtTrue;
         if (damage > 0)
         {
-            new FText.Data(damage.IToS(), type)
-                .setSetting(type)
+            var trueType = dmg.IsCrit ? TextType.DamageCrit_True: TextType.Damage_True;
+            new FText.Data(damage.IToS(), trueType)
+                .setSetting(trueType)
                 .setValue(damage)
                 .setDirection(dmg.Direction)
                 .setTarget(target)
-                .setOffset(Random.insideUnitCircle * setting.OffsetDistance)
+                .setOffset(Random.insideUnitCircle * getSetting(trueType).OffsetDistance)
                 .setExtraContentSize(Mathf.InverseLerp(50, 1000, dmg.DamageDealt) * 0.25F) //this should be based on the amount of damage
                 .setType((int)Dmg.Types.True)
                 .setMetaType(dmg.MetaType)

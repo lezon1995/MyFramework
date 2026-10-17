@@ -171,6 +171,16 @@ namespace MoreMountains
                         stat.DisplayIcon = statDef.Icon;
                     }
 
+                    if (_statsTemplate.TryGetMinValue(statName, out float minValue))
+                    {
+                        stat.MinValue = minValue;
+                    }
+
+                    if (_statsTemplate.TryGetMaxValue(statName, out float maxValue))
+                    {
+                        stat.MaxValue = maxValue;
+                    }
+
                     switch (statName)
                     {
                         case AD:

@@ -15,6 +15,7 @@ namespace MoreMountains
             set => wallet.SetBalance(value);
         }
 
+        public bool isBallReflectable { get; set; }
         public bool isEndingTurn { get; set; }
         public bool viewingRelics;
         public int damagedThisCombat;
@@ -23,7 +24,6 @@ namespace MoreMountains
         bool isHoveringCard;
         public ACard cardInUse { get; set; }
         public bool endTurnQueued { get; set; }
-
         public static List<string> customMods;
         public new List<PlayerPower> powers = new();
         public PlayerRenderer playerRenderer;
@@ -71,6 +71,12 @@ namespace MoreMountains
             UpdateInputManagersInAbilities();
         }
 
+        public Rect getRect()
+        {
+            Vector2 pos = transform.position;
+            return new(pos + colliderOffset - colliderSize * 0.5F, colliderSize);
+        }
+        
         public virtual List<string> getStartingDeck()
         {
             return new List<string>();
@@ -184,9 +190,7 @@ namespace MoreMountains
                 power.updateParticles();
         }
 
-        public void combatFixedUpdate(float dt)
-        {
-        }
+        public void combatFixedUpdate(float dt) { }
 
         public override void OnUpdate(float dt)
         {
@@ -200,6 +204,7 @@ namespace MoreMountains
         {
             base.OnFixedUpdate(dt);
 
+            // fixedUpdatePowers(dt);
             fixedUpdateRelics(dt);
         }
 
@@ -245,7 +250,7 @@ namespace MoreMountains
         public void pickupGold(int amount)
         {
             gainGold(amount);
-            
+
             if (amount > 0)
             {
                 foreach (var relic in relics)
@@ -388,7 +393,7 @@ namespace MoreMountains
                 {
                     isBloodied = true;
                     foreach (var relic in relics)
-                        relic.onEnterBloodied();
+                        relic.onEnterBloodied(this);
                 }
 
                 if (currentHealth < 1)
@@ -536,9 +541,7 @@ namespace MoreMountains
             WATCHER
         }
 
-        public void resetControllerValues()
-        {
-        }
+        public void resetControllerValues() { }
 
         public override void applyEndOfTurnTriggers()
         {
@@ -569,6 +572,8 @@ namespace MoreMountains
             foreach (var relic in relics)
                 relic.onFightingPhaseEnd(this);
         }
+
+        #region OverlappingBricks
 
         public void onBallBeginOverlappingBrickAll(Ball ball, Brick brick)
         {
@@ -604,6 +609,46 @@ namespace MoreMountains
             //log($"重叠One结束 end with {brick.getName()}");
         }
 
+        #endregion
+
+        #region OverlappingPlayers
+
+        public void onBallBeginOverlappingPlayerAll(Ball ball, APlayer p)
+        {
+            foreach (var relic in relics)
+                relic.onBallBeginOverlappingPlayerAll(this, ball, p);
+
+            //log($"重叠All开始 start with {brick.getName()}");
+        }
+
+        public void onBallEndOverlappingPlayerAll(Ball ball, APlayer p, bool prematurely)
+        {
+            foreach (var relic in relics)
+                relic.onBallEndOverlappingPlayerAll(this, ball, p, prematurely);
+
+            //log($"重叠All结束 end with {brick.getName()}");
+        }
+
+        public void onBallBeginOverlappingPlayerOne(Ball ball, APlayer p)
+        {
+            foreach (var relic in relics)
+                relic.onBallBeginOverlappingPlayerOne(this, ball, p);
+
+            //log($"重叠One开始 start with {brick.getName()}");
+        }
+
+        public void onBallEndOverlappingPlayerOne(Ball ball, APlayer p, bool prematurely)
+        {
+            ball.counters.penetrateBrick.count();
+
+            foreach (var relic in relics)
+                relic.onBallEndOverlappingPlayerOne(this, ball, p, prematurely);
+
+            //log($"重叠One结束 end with {brick.getName()}");
+        }
+
+        #endregion
+
         public void onBallHitBorder(Ball ball, Border border, ref Vector2 normal)
         {
             switch (border)
@@ -622,6 +667,9 @@ namespace MoreMountains
                     onBallHitBorderRight(ball, right, ref normal);
                     break;
             }
+
+            foreach (var relic in relics)
+                relic.onBallHitBorder(this, ball, border);
         }
 
 
@@ -655,10 +703,16 @@ namespace MoreMountains
                 relic.onBallImpactHitBrick(this, ball, brick, normal, ref triggerRegularHit);
         }
 
-        public void onBallImpactCrit(Ball ball, Brick brick)
+        public void onBallImpactHitPlayer(Ball ball, APlayer p, Vector2 normal)
         {
             foreach (var relic in relics)
-                relic.onBallImpactCrit(this, ball, brick);
+                relic.onBallImpactHitPlayer(this, ball, p, normal);
+        }
+
+        public void onBallImpactCrit(Ball ball, Brick brick, in Dmg dmg)
+        {
+            foreach (var relic in relics)
+                relic.onBallImpactCrit(this, ball, brick, in dmg);
         }
 
         public void onBallSkillHitBrick(Ball ball, Brick brick)
@@ -673,16 +727,28 @@ namespace MoreMountains
                 relic.onBallSkillCrit(this, ball, brick);
         }
 
-        public void onBallCauseHitDamage(Ball ball, Brick brick, in Dmg dmg)
+        public void onBallCauseImpactDamage(Ball ball, Brick brick, in Dmg dmg)
         {
             foreach (var relic in relics)
-                relic.onBallCauseHitDamage(this, ball, brick, in dmg);
+                relic.onBallCauseImpactDamage(this, ball, brick, in dmg);
+        }
+
+        public void onBallCauseSkillDamage(Ball ball, Brick brick, in Dmg dmg)
+        {
+            foreach (var relic in relics)
+                relic.onBallCauseSkillDamage(this, ball, brick, in dmg);
         }
 
         public void onBallHitObstacle(Ball ball, Obstacle obstacle, ref Vector2 normal)
         {
             foreach (var relic in relics)
                 relic.onBallHitObstacle(this, ball, obstacle, ref normal);
+        }
+
+        public void onBallEnterPlayer(Ball ball, APlayer p, ref Vector2 normal, ref bool needReflect)
+        {
+            foreach (var relic in relics)
+                relic.onBallEnterPlayer(this, ball, p, ref normal, ref needReflect);
         }
 
         public void onBallReflect(Ball ball, Vector2 normal, bool fromBrick, ref Vector2 reflectDir)
@@ -702,7 +768,13 @@ namespace MoreMountains
             foreach (var relic in relics)
                 relic.onKillBrick(this, brick);
         }
-        
+
+        public void onKillBrickTotally(Brick brick)
+        {
+            foreach (var relic in relics)
+                relic.onKillBrickTotally(this, brick);
+        }
+
         public void onDropCoin(Coin coin)
         {
             foreach (var relic in relics)
@@ -714,7 +786,7 @@ namespace MoreMountains
             foreach (var relic in relics)
                 relic.onCauseDotDamage(this, target as Brick, in dmg);
         }
-        
+
         public void onPlayerStartDash(Vector3 start, Vector3 end)
         {
             foreach (var relic in relics)
@@ -732,11 +804,11 @@ namespace MoreMountains
             foreach (var relic in relics)
                 relic.onPlayerDashing(this, p);
         }
-        
+
         public override void onEvent(OnShield e)
         {
             base.onEvent(e);
-            
+
             foreach (var relic in relics)
                 relic.onShield(this, e.ShieldAmount);
         }
@@ -750,6 +822,68 @@ namespace MoreMountains
         {
             foreach (var relic in relics)
                 relic.onBallDoHitEffect(this, ball, e, delay);
+        }
+
+        public void onEnterBloodied()
+        {
+            isBloodied = true;
+            foreach (var relic in relics)
+                relic.onEnterBloodied(this);
+        }
+
+        public void onExitBloodied()
+        {
+            isBloodied = false;
+            foreach (var relic in relics)
+                relic.onExitBloodied(this);
+        }
+
+        public void onDashHitBall(Ball ball, Vector3 pos, Vector3 dir)
+        {
+            foreach (var relic in relics)
+                relic.onPlayerDashHitBall(this, ball, pos, dir);
+        }
+
+        public void onHealthChanged(int curHealth)
+        {
+            foreach (var relic in relics)
+                relic.onPlayerHealthChanged(this, curHealth);
+        }
+
+        public virtual void onBeforeHandleImpactDamage(Ball ball, Brick brick, ref Dmg dmg)
+        {
+            foreach (var relic in relics)
+                relic.onPlayerBeforeHandleImpactDamage(this, ball, brick, ref dmg);
+        }
+
+        public virtual void onBeforeHandleSkillDamage(Ball ball, Brick brick, ref Dmg dmg)
+        {
+            foreach (var relic in relics)
+                relic.onPlayerBeforeHandleSkillDamage(this, ball, brick, ref dmg);
+        }
+
+        public void onBallDeath(Ball b)
+        {
+            foreach (var relic in relics)
+                relic.onBallDeath(this, b);
+        }
+
+        public void onTakeDamage(in Dmg b)
+        {
+            foreach (var relic in relics)
+                relic.onTakeDamage(this, in b);
+        }
+
+        public void onBallGetImpactDmg(Ball b, ref Dmg dmg)
+        {
+            foreach (var relic in relics)
+                relic.onBallGetImpactDmg(this, b, ref dmg);
+        }
+
+        public void onBallGetSkillDmg(Ball b, ref Dmg dmg)
+        {
+            foreach (var relic in relics)
+                relic.onBallGetSkillDmg(this, b, ref dmg);
         }
     }
 }

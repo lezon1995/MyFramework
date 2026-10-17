@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using MoreMountains.Feedbacks;
 using MoreMountains.Tools;
 using Sirenix.OdinInspector;
@@ -7,13 +8,41 @@ using Random = UnityEngine.Random;
 
 namespace MoreMountains
 {
+    public struct SpawnState
+    {
+        public Vector3 Position;
+        public Vector3 Direction;
+
+        public int ProjectileIndex = 0;
+        public int TotalProjectiles = 1;
+        public bool TriggerObjectActivation = true;
+
+        public SpawnState()
+        {
+            Position = default;
+            Direction = default;
+            ProjectileIndex = 0;
+            TotalProjectiles = 1;
+            TriggerObjectActivation = true;
+        }
+
+        public SpawnState(Vector3 position) : this() => Position = position;
+
+        public SpawnState(Vector3 position, Vector3 direction) : this()
+        {
+            Position = position;
+            Direction = direction;
+        }
+    }
+
     /// <summary>
     /// A weapon class aimed specifically at allowing the creation of various projectile weapons, from shotgun to machine gun, via plasma gun or rocket launcher
     /// </summary>
     [AddComponentMenu("TopDown Engine/Weapons/ProjectileWeapon")]
     public class ProjectileWeapon : Weapon, IEvent<TopDownEngineEvent>
     {
-        [MMInspectorGroup("Projectiles")] [Tooltip("the offset position at which the projectile will spawn")]
+        [MMInspectorGroup("Projectiles")]
+        [Tooltip("the offset position at which the projectile will spawn")]
         public Vector3 ProjectileSpawnOffset;
 
         [Tooltip("in the absence of a character owner, the default direction of the projectiles")]
@@ -22,7 +51,8 @@ namespace MoreMountains
         [Tooltip("the number of projectiles to spawn per shot")]
         public int ProjectilesPerShot = 1;
 
-        [Header("Spawn Transforms")] [Tooltip("a list of transforms that can be used a spawn points, instead of the ProjectileSpawnOffset. Will be ignored if left emtpy")]
+        [Header("Spawn Transforms")]
+        [Tooltip("a list of transforms that can be used a spawn points, instead of the ProjectileSpawnOffset. Will be ignored if left emtpy")]
         public List<Transform> SpawnTransforms = new();
 
         /// a list of modes the spawn transforms can operate on
@@ -35,7 +65,8 @@ namespace MoreMountains
         [Tooltip("the selected mode for spawn transforms. Sequential will go through the list sequentially, while Random will pick a random one every shot")]
         public SpawnTransformsModes SpawnTransformsMode = SpawnTransformsModes.Sequential;
 
-        [Header("Spread")] [Tooltip("the spread (in degrees) to apply randomly (or not) on each angle when spawning a projectile")]
+        [Header("Spread")]
+        [Tooltip("the spread (in degrees) to apply randomly (or not) on each angle when spawning a projectile")]
         public Vector3 Spread;
 
         [Tooltip("whether or not the weapon should rotate to align with the spread angle")]
@@ -46,12 +77,15 @@ namespace MoreMountains
 
         [ShowInInspector, ReadOnly]
         [Tooltip("the projectile's spawn position")]
-        public Vector3 SpawnPosition { get; set; }
+        public SpawnState SpawnState;
+
+        public Func<SpawnState, Vector3, int, int, SpawnState> SpawnStateGetter { get; set; }
 
         [Tooltip("the object pooler used to spawn projectiles, if left empty, this component will try to find one on its game object")]
         public MMObjectPooler ObjectPooler;
 
-        [Header("Spawn Feedbacks")] public List<MMFeedbacks> SpawnFeedbacks = new();
+        [Header("Spawn Feedbacks")]
+        public List<MMFeedbacks> SpawnFeedbacks = new();
 
         protected Vector3 _flippedProjectileSpawnOffset;
         protected Vector3 _randomSpreadDirection;
@@ -59,7 +93,8 @@ namespace MoreMountains
         protected Transform _projectileSpawnTransform;
         protected int _spawnArrayIndex;
 
-        [MMInspectorButton("TestShoot")] public bool TestShootButton;
+        [MMInspectorButton("TestShoot")]
+        public bool TestShootButton;
 
         protected virtual void TestShoot()
         {
@@ -102,6 +137,12 @@ namespace MoreMountains
             }
         }
 
+        public override void OnInstantiateFromHandleWeapon(CharacterHandleWeapon handleWeapon)
+        {
+            ProjectilesPerShot = handleWeapon.ProjectilesPerShot;
+            SpawnStateGetter = handleWeapon.SpawnStateGetter;
+        }
+
         /// <summary>
         /// Called everytime the weapon is used
         /// </summary>
@@ -109,11 +150,18 @@ namespace MoreMountains
         {
             base.OnWeaponUse();
 
-            DetermineSpawnPosition();
+            DetermineSpawnState();
+            OnWeaponUseSpawnProjectile();
+        }
 
+        protected virtual void OnWeaponUseSpawnProjectile()
+        {
             for (int i = 0; i < ProjectilesPerShot; i++)
             {
-                SpawnProjectile(SpawnPosition, i, ProjectilesPerShot);
+                var state = SpawnState;
+                state.ProjectileIndex = i;
+                state.TotalProjectiles = ProjectilesPerShot;
+                SpawnProjectile(state);
                 PlaySpawnFeedbacks();
             }
         }
@@ -121,7 +169,7 @@ namespace MoreMountains
         /// <summary>
         /// Spawns a new object and positions/resizes it
         /// </summary>
-        public virtual GameObject SpawnProjectile(Vector3 spawnPosition, int projectileIndex, int totalProjectiles, bool triggerObjectActivation = true)
+        public virtual GameObject SpawnProjectile(SpawnState state)
         {
             // we get the next object in the pool and make sure it's not null
             var nextGameObject = ObjectPooler.GetPooledGameObject();
@@ -131,7 +179,7 @@ namespace MoreMountains
                 return null;
 
             // we position the object
-            nextGameObject.transform.position = spawnPosition;
+            nextGameObject.transform.position = state.Position;
             if (_projectileSpawnTransform)
             {
                 nextGameObject.transform.position = _projectileSpawnTransform.position;
@@ -164,9 +212,9 @@ namespace MoreMountains
                 }
                 else
                 {
-                    if (totalProjectiles > 1)
+                    if (state.TotalProjectiles > 1)
                     {
-                        var dir = MMMaths.Remap(projectileIndex, 0, totalProjectiles - 1, -Spread, Spread);
+                        var dir = MMMaths.Remap(state.ProjectileIndex, 0, state.TotalProjectiles - 1, -Spread, Spread);
                         _randomSpreadDirection = dir;
                     }
                     else
@@ -179,7 +227,8 @@ namespace MoreMountains
                 var rotation = transform.rotation;
                 if (Owner == null)
                 {
-                    projectile.SetDirection(spread * rotation * DefaultProjectileDirection, rotation);
+                    Vector3 newDirection = spread * rotation * DefaultProjectileDirection;
+                    projectile.SetDirection(newDirection, rotation);
                 }
                 else
                 {
@@ -232,7 +281,7 @@ namespace MoreMountains
         /// <summary>
         /// Determines the spawn position based on the spawn offset and whether the weapon is flipped
         /// </summary>
-        public virtual void DetermineSpawnPosition()
+        public virtual SpawnState DetermineSpawnState()
         {
             var pos = transform.position;
             var rot = transform.rotation;
@@ -264,7 +313,8 @@ namespace MoreMountains
                 }
             }
 
-            SpawnPosition = position;
+            SpawnState.Position = position;
+            return SpawnState;
         }
 
         /// <summary>
@@ -272,10 +322,10 @@ namespace MoreMountains
         /// </summary>
         protected virtual void OnDrawGizmosSelected()
         {
-            DetermineSpawnPosition();
+            DetermineSpawnState();
 
             Gizmos.color = Color.white;
-            Gizmos.DrawWireSphere(SpawnPosition, 0.2f);
+            Gizmos.DrawWireSphere(SpawnState.Position, 0.2f);
         }
 
         public void onEvent(TopDownEngineEvent e)

@@ -13,6 +13,9 @@ MonoBehaviour:
   m_Name: RelicDef CounterStrike
   m_EditorClassIdentifier: HotFix::MoreMountains.RelicDef
   Type: 30184
+  TagInfo:
+    MechanicTags: 
+    StatusTags: 
   BasePrice: 70
   SellRefund: 35
   CarryLimit: 0
@@ -20,15 +23,19 @@ MonoBehaviour:
   - stat: 13
     BonusFlat: 0.2
     BonusPct: 0
+    BonusRatio: 0
   - stat: 17
     BonusFlat: 0.1
     BonusPct: 0
+    BonusRatio: 0
   - stat: 20
     BonusFlat: 0.06
     BonusPct: 0
+    BonusRatio: 0
   - stat: 9
     BonusFlat: 12
     BonusPct: 0
+    BonusRatio: 0
   Icon: {fileID: 21300000, guid: a7d78781325fe4c49af3bb8bc08e7938, type: 3}
   Rarity: 2
   DisplayName:
@@ -49,6 +56,9 @@ MonoBehaviour:
     m_FallbackState: 0
     m_WaitForCompletion: 0
     m_LocalVariables: []
+  MetaHandleWeapon: {fileID: 0}
+  Args:
+  - 0.5
   references:
     version: 2
     RefIds: []

@@ -57,6 +57,15 @@ namespace MoreMountains
         // public virtual bool OnMovingPlatform { get; set; }
         public virtual Vector3 MovingPlatformSpeed { get; set; }
 
+        // 运行时数据
+        Vector3 curPosition;
+
+        public Vector3 CurPosition
+        {
+            get => curPosition;
+            set => curPosition = value;
+        }
+
         protected Vector3 LastPosition { get; set; }
         protected bool _groundedLastFrame;
         protected Vector3 _impact;
@@ -68,13 +77,9 @@ namespace MoreMountains
             LastPosition = transform.position;
         }
 
-        protected virtual void OnEnable()
-        {
-        }
+        protected virtual void OnEnable() { }
 
-        protected virtual void OnDisable()
-        {
-        }
+        protected virtual void OnDisable() { }
 
         /// <summary>
         /// On update, we check if we're grounded, and determine the direction
@@ -89,7 +94,7 @@ namespace MoreMountains
 
         protected void CheckDeltaMovement()
         {
-            var movement = transform.position - LastPosition;
+            var movement = CurPosition - LastPosition;
             if (movement == Vector3.zero)
                 return;
 
@@ -110,9 +115,7 @@ namespace MoreMountains
         /// <summary>
         /// On LateUpdate, computes the speed of the agent
         /// </summary>
-        protected virtual void LateUpdate()
-        {
-        }
+        protected virtual void LateUpdate() { }
 
         /// <summary>
         /// Checks if the character is grounded
@@ -127,14 +130,13 @@ namespace MoreMountains
         /// Use this to apply an impact to a controller, moving it in the specified direction at the specified force
         /// </summary>
         public abstract void AddImpact(Vector3 direction, float force);
+
         public abstract void AddImpact(Vector3 force);
 
         /// <summary>
         /// Sets gravity active or inactive
         /// </summary>
-        public virtual void SetGravityActive(bool status)
-        {
-        }
+        public virtual void SetGravityActive(bool status) { }
 
         /// <summary>
         /// Adds the specified force to the controller
@@ -150,6 +152,7 @@ namespace MoreMountains
         /// Moves the controller to the specified position (in world space)
         /// </summary>
         public abstract void MovePositionTo(Vector3 newPosition);
+
         public abstract void MovePositionBy(Vector3 deltaPosition);
 
         /// <summary>

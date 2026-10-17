@@ -13,6 +13,9 @@ MonoBehaviour:
   m_Name: RelicDef BerserkerSoul
   m_EditorClassIdentifier: HotFix::MoreMountains.RelicDef
   Type: 30041
+  TagInfo:
+    MechanicTags: 
+    StatusTags: 
   BasePrice: 65
   SellRefund: 32
   CarryLimit: 0
@@ -20,15 +23,19 @@ MonoBehaviour:
   - stat: 22
     BonusFlat: -0.02
     BonusPct: 0
+    BonusRatio: 0
   - stat: 11
     BonusFlat: 4
     BonusPct: 0
+    BonusRatio: 0
   - stat: 15
     BonusFlat: 0
     BonusPct: 0.35
+    BonusRatio: 0
   - stat: 6
     BonusFlat: 14
     BonusPct: 0
+    BonusRatio: 0
   Icon: {fileID: 21300000, guid: 131895f2162493742bd4702c88f75b6e, type: 3}
   Rarity: 2
   DisplayName:
@@ -49,6 +56,9 @@ MonoBehaviour:
     m_FallbackState: 0
     m_WaitForCompletion: 0
     m_LocalVariables: []
+  MetaHandleWeapon: {fileID: 0}
+  Args:
+  - 0.2
   references:
     version: 2
     RefIds: []

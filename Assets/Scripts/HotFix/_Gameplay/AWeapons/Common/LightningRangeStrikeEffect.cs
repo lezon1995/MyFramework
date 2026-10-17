@@ -10,7 +10,7 @@ namespace MoreMountains;
 public class LightningRangeStrikeEffect : ALogicEffect, IArgs<APlayer, Vector3, float, int>
 {
     protected const string fx_path1 = $"{GAMEPLAY_PATH}/Effects/Fx_Ring_Flash.prefab";
-    protected const string fx_path2 = $"{GAMEPLAY_PATH}/Effects/Fx_LightningStrike 5.prefab";
+    protected const string fx_path2 = $"{GAMEPLAY_PATH}/Effects/Fx_LightningStrike_Yellow.prefab";
 
     protected Vector3 pos;
     protected APlayer _player;

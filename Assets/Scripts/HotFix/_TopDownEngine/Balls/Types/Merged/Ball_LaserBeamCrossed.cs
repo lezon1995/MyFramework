@@ -9,7 +9,7 @@
         public override void onEvent(DoHitEffect e)
         {
             base.onEvent(e);
-            effectManager.addLogic<CrossedLaserBeamEffect>().with(path, this, e.brick);
+            effectManager.addLogic<CrossedLaserBeamEffect>().with(path, this);
         }
     }
 }

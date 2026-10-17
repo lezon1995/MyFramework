@@ -55,7 +55,7 @@ namespace MoreMountains
 
             holder.TryRemoveByItem(ball);
 
-            int refund = ball.SellPrice > 0 ? ball.SellPrice : 1;
+            int refund = ball.GetSellPrice() > 0 ? ball.GetSellPrice() : 1;
             _owner.Player.gainGold(refund, EarnType.SELL_BALL);
 
             BallEvents.RaiseDestroyed(ball);

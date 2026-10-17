@@ -61,7 +61,7 @@ public class ElectricityStrikeChainEffect : ALogicEffect, IArgs<APlayer, Brick, 
         if (duration.unstarted && !lastOne)
         {
             var excludePos = history[counter].getWorldPosition();
-            if (brickManager.getNearestActiveBrick(excludePos, out var b, history))
+            if (brickManager.getTheNearestActiveBrick(excludePos, out var b, history))
             {
                 if (brick)
                 {

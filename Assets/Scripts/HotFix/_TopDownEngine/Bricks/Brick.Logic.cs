@@ -85,7 +85,7 @@ namespace MoreMountains
 
         public void heal(Heal heal)
         {
-            Health.ReceiveHealth(heal, null, this);
+            Health.ReceiveHealth(heal, this);
         }
 
         public virtual bool kill(Character killBySource = null) => Health.Kill(killBySource);

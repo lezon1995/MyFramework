@@ -139,9 +139,27 @@ namespace MoreMountains
             OnStatsSet();
         }
 
-        protected virtual void OnStatsSet()
+        public override void onAcquire()
         {
+            base.onAcquire();
+            willPassingThroughHit = default;
+            willPassingThroughThisFrame = false;
         }
+
+        public override void onRelease()
+        {
+            reset();
+            base.onRelease();
+        }
+
+        public override void reset()
+        {
+            base.reset();
+            willPassingThroughHit = default;
+            willPassingThroughThisFrame = false;
+        }
+
+        protected virtual void OnStatsSet() { }
 
         /// <summary>
         /// Handles the projectile's initial invincibility
@@ -198,9 +216,7 @@ namespace MoreMountains
             }
         }
 
-        public override void OnUpdate(float dt)
-        {
-        }
+        public override void OnUpdate(float dt) { }
 
         /// <summary>
         /// On FixedUpdate(), we move the object based on the level's speed and the object's speed, and apply acceleration
@@ -227,9 +243,7 @@ namespace MoreMountains
             }
         }
 
-        protected virtual void CollidingManually(GameObject hitObject, Vector2 hitNormal, Vector2 hitPoint)
-        {
-        }
+        protected virtual void CollidingManually(GameObject hitObject, Vector2 hitNormal, Vector2 hitPoint) { }
 
         /// <summary>
         /// Handles the projectile's movement, every frame
@@ -326,9 +340,7 @@ namespace MoreMountains
         public virtual void SetWeapon(Weapon newWeapon)
         {
             _weapon = newWeapon;
-            if (_weapon && _weapon.Stats)
-            {
-            }
+            if (_weapon && _weapon.Stats) { }
         }
 
         /// <summary>

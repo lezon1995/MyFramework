@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using MoreMountains.Tools;
 using UniStats;
@@ -6,27 +7,34 @@ using UnityEngine;
 namespace MoreMountains;
 
 /// <summary>
-/// Executioner - 处刑者
-/// 血量低于20%的敌人受到额外50%伤害
-/// [设计文案] 杀手本能，对弱小的敌人毫不留情
+/// 结算撞击伤害后，如果生命值低于10%则处决敌人，并额外获得2金币
 /// </summary>
 public class Executioner : ARelic
 {
     public static string ID = "Executioner";
 
-    public Executioner() : base(ID, "Executioner.png", RelicTier.RARE, LandingSound.HEAVY)
+    public Executioner() : base(ID, "Executioner.png", RelicTier.RARE, LandingSound.HEAVY) { }
+
+    float executionPct;
+    int bonusCoin;
+
+    protected override void onRelicDefSet(RelicDef d)
     {
+        executionPct = d.Args[0];
+        bonusCoin = (int)d.Args[1];
     }
 
-    // TODO: 需要实现对低血量敌人增伤
-    // public override void onBallHitBrick(APlayer p, Ball ball, Brick brick, Vector2 normal, ref bool triggerRegularHit)
-    // {
-    //     if (brick.CurrentHealth / brick.MaxHealth < 0.2f)
-    //     {
-    //         ball.GetStat(Ball.Stat.HitDamageRate, out var stat);
-    //         stat.AddPct(0.5f);
-    //     }
-    // }
+    public override void onBallCauseImpactDamage(APlayer p, Ball ball, Brick brick, in Dmg dmg)
+    {
+        if (!dmg.IsLethal && brick.currentHealthPct <= executionPct)
+        {
+            brick.kill(p);
+            p.gainGold(bonusCoin);
+            var executeDmg = Dmg.True(999);
+            new DmgTextEvent(executeDmg, brick.getTransform()).trigger();
+            new GainCoinTextEvent(bonusCoin, brick.getTransform()).trigger();
+        }
+    }
 
     public override ARelic makeCopy() => new Executioner();
 }
@@ -40,9 +48,7 @@ public class FirstBlood : ARelic
 {
     public static string ID = "FirstBlood";
 
-    public FirstBlood() : base(ID, "FirstBlood.png", RelicTier.UNCOMMON, LandingSound.SOLID)
-    {
-    }
+    public FirstBlood() : base(ID, "FirstBlood.png", RelicTier.UNCOMMON, LandingSound.SOLID) { }
 
     // TODO: 需要实现首杀奖励翻倍
     // private bool firstKillThisWave = true;
@@ -65,16 +71,105 @@ public class FirstBlood : ARelic
 }
 
 /// <summary>
-/// ComboMaster - 连击大师
-/// 连击数达到10时伤害+20%
-/// [设计文案] 连击的艺术家，积累连击释放力量
+/// 发球时会额外发射一个球，但是球的伤害率-30%
 /// </summary>
 public class ComboMaster : ARelic
 {
     public static string ID = "ComboMaster";
+    Func<SpawnState, Vector3, int, int, SpawnState> getter;
 
     public ComboMaster() : base(ID, "ComboMaster.png", RelicTier.RARE, LandingSound.SOLID)
     {
+        getter = SpawnStateGetter;
+    }
+
+    float dmgRateDecrement;
+
+    protected override void onRelicDefSet(RelicDef d)
+    {
+        dmgRateDecrement = d.Args[0];
+    }
+
+    public override void onEquip(APlayer p)
+    {
+        base.onEquip(p);
+        foreach (var handleWeapon in p.mainHandleWeapons)
+        {
+            handleWeapon.ProjectilesPerShot = (handleWeapon.ProjectilesPerShot + 1).clamp(1, 3);
+            handleWeapon.SpawnStateGetter = getter;
+
+            if (handleWeapon.CurrentWeapon is ProjectileWeapon weapon)
+            {
+                weapon.ProjectilesPerShot = (weapon.ProjectilesPerShot + 1).clamp(1, 3);
+                weapon.SpawnStateGetter = getter;
+            }
+        }
+    }
+
+    public override void onBallGetImpactDmg(APlayer p, Ball ball, ref Dmg dmg)
+    {
+        dmg.subDmgRate(dmgRateDecrement);
+    }
+
+    public override void onBallGetSkillDmg(APlayer p, Ball ball, ref Dmg dmg)
+    {
+        dmg.subDmgRate(dmgRateDecrement);
+    }
+
+    SpawnState SpawnStateGetter(SpawnState state, Vector3 direction, int index, int totalCount)
+    {
+        var originPos = state.Position;
+        var left = direction.rotate(Quaternion.AngleAxis(90, Vector3.forward));
+        var right = direction.rotate(Quaternion.AngleAxis(-90, Vector3.forward));
+        var leftPos = originPos + left * 0.675F / 2F;
+        var rightPos = originPos + right * 0.675F / 2F;
+        switch (totalCount)
+        {
+            case 1:
+                return new(originPos, direction);
+            case 2:
+                switch (index)
+                {
+                    case 0: return new(leftPos, direction);
+                    case 1: return new(rightPos, direction);
+                }
+
+                break;
+            case 3:
+                switch (index)
+                {
+                    case 0: return new(leftPos, direction);
+                    case 1: return new(originPos, direction);
+                    case 2: return new(rightPos, direction);
+                }
+
+                break;
+        }
+
+        return new(originPos, direction);
+    }
+
+    public override void onUnequip(APlayer p)
+    {
+        base.onUnequip(p);
+
+        foreach (var handleWeapon in p.mainHandleWeapons)
+        {
+            handleWeapon.ProjectilesPerShot = (handleWeapon.ProjectilesPerShot - 1).clamp(1, 3);
+            if (handleWeapon.ProjectilesPerShot == 1)
+            {
+                handleWeapon.SpawnStateGetter = null;
+            }
+
+            if (handleWeapon.CurrentWeapon is ProjectileWeapon weapon)
+            {
+                weapon.ProjectilesPerShot = (weapon.ProjectilesPerShot - 1).clamp(1, 3);
+                if (weapon.ProjectilesPerShot == 1)
+                {
+                    weapon.SpawnStateGetter = null;
+                }
+            }
+        }
     }
 
     // TODO: 需要实现连击计数和增伤
@@ -107,9 +202,7 @@ public class Massacre : ARelic
 {
     public static string ID = "Massacre";
 
-    public Massacre() : base(ID, "Massacre.png", RelicTier.RARE, LandingSound.HEAVY)
-    {
-    }
+    public Massacre() : base(ID, "Massacre.png", RelicTier.RARE, LandingSound.HEAVY) { }
 
     // TODO: 需要实现快速击杀后无敌
     // private int killCount = 0;
@@ -149,9 +242,7 @@ public class LethalPrecision : ARelic
 {
     public static string ID = "LethalPrecision";
 
-    public LethalPrecision() : base(ID, "LethalPrecision.png", RelicTier.RARE, LandingSound.SOLID)
-    {
-    }
+    public LethalPrecision() : base(ID, "LethalPrecision.png", RelicTier.RARE, LandingSound.SOLID) { }
 
     // TODO: 需要实现暴击必杀机制
     // public override void onBallHitBrick(APlayer p, Ball ball, Brick brick, Vector2 normal, ref bool triggerRegularHit)
@@ -174,9 +265,7 @@ public class Slayer : ARelic
 {
     public static string ID = "Slayer";
 
-    public Slayer() : base(ID, "Slayer.png", RelicTier.RARE, LandingSound.HEAVY)
-    {
-    }
+    public Slayer() : base(ID, "Slayer.png", RelicTier.RARE, LandingSound.HEAVY) { }
 
     // TODO: 需要实现精英击杀增伤
     // public override void onBallKillBrick(APlayer p, Ball ball, Brick brick)
@@ -205,9 +294,7 @@ public class Destroyer : ARelic
 {
     public static string ID = "Destroyer";
 
-    public Destroyer() : base(ID, "Destroyer.png", RelicTier.UNCOMMON, LandingSound.HEAVY)
-    {
-    }
+    public Destroyer() : base(ID, "Destroyer.png", RelicTier.UNCOMMON, LandingSound.HEAVY) { }
 
     // TODO: 需要实现击杀爆炸
     // public override void onBallKillBrick(APlayer p, Ball ball, Brick brick)
@@ -228,9 +315,7 @@ public class Reaper : ARelic
 {
     public static string ID = "Reaper";
 
-    public Reaper() : base(ID, "Reaper.png", RelicTier.RARE, LandingSound.SOLID)
-    {
-    }
+    public Reaper() : base(ID, "Reaper.png", RelicTier.RARE, LandingSound.SOLID) { }
 
     // TODO: 需要实现击杀回血
     // private int killCount = 0;
@@ -257,9 +342,7 @@ public class Hunter : ARelic
 {
     public static string ID = "Hunter";
 
-    public Hunter() : base(ID, "Hunter.png", RelicTier.UNCOMMON, LandingSound.SOLID)
-    {
-    }
+    public Hunter() : base(ID, "Hunter.png", RelicTier.UNCOMMON, LandingSound.SOLID) { }
 
     // TODO: 需要实现对特定敌人类型的增伤
     // public override void onBallHitBrick(APlayer p, Ball ball, Brick brick, Vector2 normal, ref bool triggerRegularHit)
@@ -278,13 +361,11 @@ public class Hunter : ARelic
 /// 每次造成撞击伤害时会提供1点AP
 /// 每次造成魔法伤害时会提供1点AD
 /// </summary>
-public class Annihilator : ARelic, IEvent<OnBallExpired>
+public class Annihilator : ARelic, IEvent<OnBallDeath>
 {
     public static string ID = "Annihilator";
 
-    public Annihilator() : base(ID, "Annihilator.png", RelicTier.SPECIAL, LandingSound.HEAVY)
-    {
-    }
+    public Annihilator() : base(ID, "Annihilator.png", RelicTier.SPECIAL, LandingSound.HEAVY) { }
 
     int deltaAD, deltaAP;
     Dictionary<Ball, int> ballAdDict = new();
@@ -315,7 +396,7 @@ public class Annihilator : ARelic, IEvent<OnBallExpired>
             }
             else
             {
-                ball.Event.addListener<OnBallExpired>(this);
+                ball.Event.addListener<OnBallDeath>(this);
             }
         }
     }
@@ -339,15 +420,15 @@ public class Annihilator : ARelic, IEvent<OnBallExpired>
             }
             else
             {
-                ball.Event.addListener<OnBallExpired>(this);
+                ball.Event.addListener<OnBallDeath>(this);
             }
         }
     }
 
-    public void onEvent(OnBallExpired e)
+    public void onEvent(OnBallDeath e)
     {
         var ball = e.ball;
-        ball.Event.removeListener<OnBallExpired>(this);
+        ball.Event.removeListener<OnBallDeath>(this);
 
         ballApDict.Remove(ball, out var ballAp);
         ballAdDict.Remove(ball, out var ballAd);

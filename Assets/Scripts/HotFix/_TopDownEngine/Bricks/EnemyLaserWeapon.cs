@@ -190,12 +190,12 @@ namespace MoreMountains
             }
         }
 
-        public override GameObject SpawnProjectile(Vector3 spawnPosition, int projectileIndex, int totalProjectiles, bool triggerObjectActivation = true)
+        public override GameObject SpawnProjectile(SpawnState state)
         {
             // we get the next object in the pool and make sure it's not null
             var nextGameObject = ObjectPooler.GetPooledGameObject();
             // we position the object
-            nextGameObject.transform.position = spawnPosition;
+            nextGameObject.transform.position = state.Position;
             // we activate the object
             nextGameObject.SetActive(true);
 
@@ -214,9 +214,9 @@ namespace MoreMountains
 
             if (success)
             {
-                if (totalProjectiles > 1)
+                if (state.TotalProjectiles > 1)
                 {
-                    var dir = MMMaths.Remap(projectileIndex, 0, totalProjectiles - 1, -Spread, Spread);
+                    var dir = MMMaths.Remap(state.ProjectileIndex, 0, state.TotalProjectiles - 1, -Spread, Spread);
                     _randomSpreadDirection = dir;
                 }
                 else

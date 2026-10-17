@@ -1,3 +1,5 @@
+using UnityEngine;
+
 namespace MoreMountains
 {
     /// <summary>
@@ -11,13 +13,26 @@ namespace MoreMountains
     /// </summary>
     public class RelicItem : ClassObject, IInventoryItem
     {
+        public static SellRelicItemPriceModifier sellPriceModifier { get; set; }
+        
         public int ItemId => Def.RelicDefId;
         public RelicType Type => Def.Type;
         public ItemKind Kind => ItemKind.Relic;
         public RelicDef Def;
 
         public string DisplayName => Def ? $"{Def.DisplayName.GetLocalizedString()}" : $"Relic#{Type}";
-        public int SellPrice => Def.BasePrice;
+
+        public int GetSellPrice()
+        {
+            if (Def == null)
+                return 0;
+
+            var rate = Mathf.Clamp(50F, 0F, 100F);
+            var ratio = rate / 100F;
+            var buyPrice = Def.GetBuyPrice(out _);
+            sellPriceModifier?.Invoke(this, ref buyPrice, ref ratio);
+            return (int)Mathf.Max(1, buyPrice * ratio);
+        }
 
         /// <summary>关联的 ARelic 实例（或其子类）；由 RelicService 解析回传。</summary>
         public ARelic UnderlyingRelic;

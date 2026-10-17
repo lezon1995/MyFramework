@@ -13,6 +13,9 @@ MonoBehaviour:
   m_Name: RelicDef IceElemental
   m_EditorClassIdentifier: HotFix::MoreMountains.RelicDef
   Type: 30232
+  TagInfo:
+    MechanicTags: 
+    StatusTags: 
   BasePrice: 70
   SellRefund: 35
   CarryLimit: 0
@@ -20,15 +23,19 @@ MonoBehaviour:
   - stat: 6
     BonusFlat: -5
     BonusPct: 0
+    BonusRatio: 0
   - stat: 7
     BonusFlat: 1
     BonusPct: 0
+    BonusRatio: 0
   - stat: 15
     BonusFlat: 0
     BonusPct: 0.2
+    BonusRatio: 0
   - stat: 29
     BonusFlat: 15
     BonusPct: 0
+    BonusRatio: 0
   Icon: {fileID: 21300000, guid: b347db4776d6e16408a61d509c185b24, type: 3}
   Rarity: 2
   DisplayName:
@@ -49,6 +56,9 @@ MonoBehaviour:
     m_FallbackState: 0
     m_WaitForCompletion: 0
     m_LocalVariables: []
+  MetaHandleWeapon: {fileID: 0}
+  Args:
+  - 0.2
   references:
     version: 2
     RefIds: []

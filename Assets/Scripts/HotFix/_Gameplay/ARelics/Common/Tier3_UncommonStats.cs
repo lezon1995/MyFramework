@@ -1,35 +1,39 @@
 using UniStats;
-using UnityEngine;
 
 namespace MoreMountains;
 
 /// <summary>
-/// BerserkerSoul - 狂战士之魂
-/// 血量越低伤害越高（低于50%时+20%伤害）
+/// 生命值低于50%时，伤害率提高20%
 /// </summary>
 public class BerserkerSoul : ARelic
 {
     public static string ID = "BerserkerSoul";
 
-    public BerserkerSoul() : base(ID, "BerserkerSoul.png", RelicTier.RARE, LandingSound.HEAVY)
+    public BerserkerSoul() : base(ID, "BerserkerSoul.png", RelicTier.RARE, LandingSound.HEAVY) { }
+
+    float healthPct, dmgRate;
+
+    protected override void onRelicDefSet(RelicDef d)
     {
+        dmgRate = d.Args[0];
+        healthPct = d.Args[1];
     }
 
-    public override void onEquip(APlayer p)
+    public override void onEnterBloodied(APlayer p)
     {
-        base.onEquip(p);
+        if (p.GetStat(Character.Stat.DmgRate, out var stat))
+        {
+            stat.BonusFlat.AddFlat(dmgRate, ID);
+        }
     }
 
-    // TODO: 需要根据玩家当前血量百分比来调整伤害
-    // public override void onBallHitBrick(APlayer p, Ball ball, Brick brick, Vector2 normal, ref bool triggerRegularHit)
-    // {
-    //     var healthPercent = p.CurrentHealth / p.MaxHealth;
-    //     if (healthPercent < 0.5f)
-    //     {
-    //         ball.GetStat(Ball.Stat.HitDamageRate, out var stat);
-    //         stat.AddPct(0.2f);
-    //     }
-    // }
+    public override void onExitBloodied(APlayer p)
+    {
+        if (p.GetStat(Character.Stat.DmgRate, out var stat))
+        {
+            stat.BonusFlat.RemoveMod(ID);
+        }
+    }
 
     public override ARelic makeCopy() => new BerserkerSoul();
 }
@@ -43,9 +47,7 @@ public class MirrorImage : ARelic
 {
     public static string ID = "MirrorImage";
 
-    public MirrorImage() : base(ID, "MirrorImage.png", RelicTier.RARE, LandingSound.MAGICAL)
-    {
-    }
+    public MirrorImage() : base(ID, "MirrorImage.png", RelicTier.RARE, LandingSound.MAGICAL) { }
 
     // TODO: 需要在发射逻辑中添加15%概率产生复制球的机制
     // public override void onShootBall(Ball ball)
@@ -71,9 +73,7 @@ public class LightningCore : ARelic
 {
     public static string ID = "LightningCore";
 
-    public LightningCore() : base(ID, "LightningCore.png", RelicTier.RARE, LandingSound.MAGICAL)
-    {
-    }
+    public LightningCore() : base(ID, "LightningCore.png", RelicTier.RARE, LandingSound.MAGICAL) { }
 
     // TODO: 需要实现闪电链效果
     // public override void onBallHitBrick(APlayer p, Ball ball, Brick brick, Vector2 normal, ref bool triggerRegularHit)
@@ -97,9 +97,7 @@ public class TimeWarp : ARelic
     public static string ID = "TimeWarp";
     private int killCount = 0;
 
-    public TimeWarp() : base(ID, "TimeWarp.png", RelicTier.RARE, LandingSound.MAGICAL)
-    {
-    }
+    public TimeWarp() : base(ID, "TimeWarp.png", RelicTier.RARE, LandingSound.MAGICAL) { }
 
     public override void onBallKillBrick(APlayer p, Ball ball, Brick brick)
     {
@@ -117,16 +115,16 @@ public class TimeWarp : ARelic
 
 /// <summary>
 /// DragonHeart - 龙心
-/// 生命上限+25，生命回复+2
+/// 生命上限+150，生命回复+5
 /// </summary>
 public class DragonHeart : ARelic
 {
     public static string ID = "DragonHeart";
 
-    public DragonHeart() : base(ID, "DragonHeart.png", RelicTier.RARE, LandingSound.HEAVY)
-    {
-    }
+    public DragonHeart() : base(ID, "DragonHeart.png", RelicTier.RARE, LandingSound.HEAVY) { }
 
+    
+    
     public override ARelic makeCopy() => new DragonHeart();
 }
 
@@ -138,9 +136,7 @@ public class ShadowCloak : ARelic
 {
     public static string ID = "ShadowCloak";
 
-    public ShadowCloak() : base(ID, "ShadowCloak.png", RelicTier.RARE, LandingSound.SOLID)
-    {
-    }
+    public ShadowCloak() : base(ID, "ShadowCloak.png", RelicTier.RARE, LandingSound.SOLID) { }
 
     public override ARelic makeCopy() => new ShadowCloak();
 }
@@ -153,9 +149,7 @@ public class ThunderHammer : ARelic
 {
     public static string ID = "ThunderHammer";
 
-    public ThunderHammer() : base(ID, "ThunderHammer.png", RelicTier.RARE, LandingSound.HEAVY)
-    {
-    }
+    public ThunderHammer() : base(ID, "ThunderHammer.png", RelicTier.RARE, LandingSound.HEAVY) { }
 
     public override ARelic makeCopy() => new ThunderHammer();
 }
@@ -169,9 +163,7 @@ public class GravityWell : ARelic
 {
     public static string ID = "GravityWell";
 
-    public GravityWell() : base(ID, "GravityWell.png", RelicTier.RARE, LandingSound.MAGICAL)
-    {
-    }
+    public GravityWell() : base(ID, "GravityWell.png", RelicTier.RARE, LandingSound.MAGICAL) { }
 
     // TODO: 需要修改球碰到边界时的行为
     // public override void onBallHitBorderBot(APlayer p, Ball ball, BorderBot border, Vector2 normal, ref bool forceReturn)
@@ -191,9 +183,7 @@ public class MysticOrb : ARelic
 {
     public static string ID = "MysticOrb";
 
-    public MysticOrb() : base(ID, "MysticOrb.png", RelicTier.RARE, LandingSound.MAGICAL)
-    {
-    }
+    public MysticOrb() : base(ID, "MysticOrb.png", RelicTier.RARE, LandingSound.MAGICAL) { }
 
     public override ARelic makeCopy() => new MysticOrb();
 }
@@ -207,9 +197,7 @@ public class DiamondCore : ARelic
 {
     public static string ID = "DiamondCore";
 
-    public DiamondCore() : base(ID, "DiamondCore.png", RelicTier.RARE, LandingSound.SOLID)
-    {
-    }
+    public DiamondCore() : base(ID, "DiamondCore.png", RelicTier.RARE, LandingSound.SOLID) { }
 
     public override ARelic makeCopy() => new DiamondCore();
 }

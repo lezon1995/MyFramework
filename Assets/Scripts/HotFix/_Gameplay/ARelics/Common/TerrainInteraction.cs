@@ -9,9 +9,7 @@ public class WallCrawler : ARelic
 {
     public static string ID = "WallCrawler";
 
-    public WallCrawler() : base(ID, "WallCrawler.png", RelicTier.UNCOMMON, LandingSound.SOLID)
-    {
-    }
+    public WallCrawler() : base(ID, "WallCrawler.png", RelicTier.UNCOMMON, LandingSound.SOLID) { }
 
     // TODO: 需要实现攀爬边界
     // public override void onBallHitBorderLeft(APlayer p, Ball ball, BorderLeft border, ref Vector2 normal)
@@ -24,27 +22,74 @@ public class WallCrawler : ARelic
 }
 
 /// <summary>
-/// BouncePad - 弹跳垫
-/// 特定区域弹速增加
-/// [设计文案] 弹跳加速区域
+/// 最大生命值减少30%，造成撞击伤害时附加其15%的真实伤害
 /// </summary>
 public class BouncePad : ARelic
 {
     public static string ID = "BouncePad";
 
-    public BouncePad() : base(ID, "BouncePad.png", RelicTier.UNCOMMON, LandingSound.SOLID)
+    public BouncePad() : base(ID, "BouncePad.png", RelicTier.UNCOMMON, LandingSound.SOLID) { }
+
+    float decreasedMaxHealthPct;
+    float extraTrueDamageRate;
+
+    protected override void onRelicDefSet(RelicDef d)
     {
+        decreasedMaxHealthPct = d.Args[0];
+        extraTrueDamageRate = d.Args[1];
     }
 
-    // TODO: 需要实现特定区域加速
-    // public override void onBallEnterZone(APlayer p, Ball ball, Zone zone)
-    // {
-    //     if (zone.Type == ZoneType.BouncePad)
-    //     {
-    //         ball.GetStat(Ball.Stat.BallisticSpeed, out var stat);
-    //         stat.AddPct(0.5f);
-    //     }
-    // }
+    public override void onEquip(APlayer p)
+    {
+        base.onEquip(p);
+        p.Health.LimitedMaxHealthPct -= decreasedMaxHealthPct;
+        p.Health.RefreshHealth();
+    }
+
+    public override void onUnequip(APlayer p)
+    {
+        base.onUnequip(p);
+        p.Health.LimitedMaxHealthPct += decreasedMaxHealthPct;
+        p.Health.RefreshHealth();
+    }
+
+    public override void onBallCauseImpactDamage(APlayer p, Ball ball, Brick brick, in Dmg dmg)
+    {
+        if (brick.IsDead())
+            return;
+
+        var value = (int)(dmg.DamageDealt * extraTrueDamageRate);
+        if (value > 0)
+        {
+            var d = Dmg.True(value);
+            d.SetEffect(Dmg.Effects.None);
+            if (dmg.IsCrit)
+            {
+                d.Crit(dmg.CritDamage);
+            }
+
+            brick.Health.Damage(ref d, ball.gameObject, p, direction: dmg.Direction);
+        }
+    }
+
+    public override void onBallCauseSkillDamage(APlayer p, Ball ball, Brick brick, in Dmg dmg)
+    {
+        if (brick.IsDead())
+            return;
+
+        var value = (int)(dmg.DamageDealt * extraTrueDamageRate);
+        if (value > 0)
+        {
+            var d = Dmg.True(value);
+            d.SetEffect(Dmg.Effects.None);
+            if (dmg.IsCrit)
+            {
+                d.Crit(dmg.CritDamage);
+            }
+
+            brick.Health.Damage(ref d, ball.gameObject, p, direction: dmg.Direction);
+        }
+    }
 
     public override ARelic makeCopy() => new BouncePad();
 }
@@ -58,9 +103,7 @@ public class PortalWand : ARelic
 {
     public static string ID = "PortalWand";
 
-    public PortalWand() : base(ID, "PortalWand.png", RelicTier.RARE, LandingSound.MAGICAL)
-    {
-    }
+    public PortalWand() : base(ID, "PortalWand.png", RelicTier.RARE, LandingSound.MAGICAL) { }
 
     // TODO: 需要实现传送功能
     // public override void onBallHitBrick(APlayer p, Ball ball, Brick brick, Vector2 normal, ref bool triggerRegularHit)
@@ -83,9 +126,7 @@ public class MagnetBall : ARelic
 {
     public static string ID = "MagnetBall";
 
-    public MagnetBall() : base(ID, "MagnetBall.png", RelicTier.UNCOMMON, LandingSound.SOLID)
-    {
-    }
+    public MagnetBall() : base(ID, "MagnetBall.png", RelicTier.UNCOMMON, LandingSound.SOLID) { }
 
     // TODO: 需要实现吸引敌人
     // public override void onShootBall(Ball ball)
@@ -106,9 +147,7 @@ public class GravityBoots : ARelic
 {
     public static string ID = "GravityBoots";
 
-    public GravityBoots() : base(ID, "GravityBoots.png", RelicTier.RARE, LandingSound.SOLID)
-    {
-    }
+    public GravityBoots() : base(ID, "GravityBoots.png", RelicTier.RARE, LandingSound.SOLID) { }
 
     // TODO: 需要实现重力方向改变
     // public override void onPlayerTurnUpdate(APlayer p, float dt)
@@ -131,9 +170,7 @@ public class TeleportBeacon : ARelic
 {
     public static string ID = "TeleportBeacon";
 
-    public TeleportBeacon() : base(ID, "TeleportBeacon.png", RelicTier.RARE, LandingSound.MAGICAL)
-    {
-    }
+    public TeleportBeacon() : base(ID, "TeleportBeacon.png", RelicTier.RARE, LandingSound.MAGICAL) { }
 
     // TODO: 需要实现瞬移功能
     // public override void onBallHitBrick(APlayer p, Ball ball, Brick brick, Vector2 normal, ref bool triggerRegularHit)
@@ -156,9 +193,7 @@ public class Wormhole : ARelic
 {
     public static string ID = "Wormhole";
 
-    public Wormhole() : base(ID, "Wormhole.png", RelicTier.RARE, LandingSound.MAGICAL)
-    {
-    }
+    public Wormhole() : base(ID, "Wormhole.png", RelicTier.RARE, LandingSound.MAGICAL) { }
 
     // TODO: 需要实现虫洞传送
     // public override void onBallReflect(APlayer p, Ball ball, Vector2 normal, bool fromBrick, ref Vector2 reflectDir)
@@ -181,9 +216,7 @@ public class BouncyCastle : ARelic
 {
     public static string ID = "BouncyCastle";
 
-    public BouncyCastle() : base(ID, "BouncyCastle.png", RelicTier.RARE, LandingSound.SOLID)
-    {
-    }
+    public BouncyCastle() : base(ID, "BouncyCastle.png", RelicTier.RARE, LandingSound.SOLID) { }
 
     // TODO: 需要实现反弹伤害翻倍
     // public override void onBallReflect(APlayer p, Ball ball, Vector2 normal, bool fromBrick, ref Vector2 reflectDir)
@@ -204,9 +237,7 @@ public class TrampolinePark : ARelic
 {
     public static string ID = "TrampolinePark";
 
-    public TrampolinePark() : base(ID, "TrampolinePark.png", RelicTier.SPECIAL, LandingSound.SOLID)
-    {
-    }
+    public TrampolinePark() : base(ID, "TrampolinePark.png", RelicTier.SPECIAL, LandingSound.SOLID) { }
 
     // TODO: 需要实现反弹次数增加
     // public override void onEquip(APlayer p)
@@ -229,9 +260,7 @@ public class WallJumpMaster : ARelic
 {
     public static string ID = "WallJumpMaster";
 
-    public WallJumpMaster() : base(ID, "WallJumpMaster.png", RelicTier.RARE, LandingSound.SOLID)
-    {
-    }
+    public WallJumpMaster() : base(ID, "WallJumpMaster.png", RelicTier.RARE, LandingSound.SOLID) { }
 
     // TODO: 需要实现反弹伤害递增
     // private int bounceCount = 0;

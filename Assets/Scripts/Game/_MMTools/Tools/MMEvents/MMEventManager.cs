@@ -33,14 +33,14 @@ namespace MoreMountains.Tools
     public interface IEventRouter
     {
         IEventRouter Event { get; }
-        void trigger<T>(T e) => EventRouter.get(this).trigger(e);
-        void addAllListeners(IEvent o) => EventRouter.get(this).addAllListeners(o);
-        void addListener<T>(IEvent<T> listener) where T : struct => EventRouter.get(this).addListener(listener);
-        void removeAllListeners(IEvent o) => EventRouter.get(this).removeAllListeners(o);
-        void removeListener<T>(IEvent<T> listener) where T : struct => EventRouter.get(this).removeListener(listener);
+        void trigger<T>(T e) => EventRouter.get(Event).trigger(e);
+        void addAllListeners(IEvent o) => EventRouter.get(Event).addAllListeners(o);
+        void addListener<T>(IEvent<T> listener) where T : struct => EventRouter.get(Event).addListener(listener);
+        void removeAllListeners(IEvent o) => EventRouter.get(Event).removeAllListeners(o);
+        void removeListener<T>(IEvent<T> listener) where T : struct => EventRouter.get(Event).removeListener(listener);
 
-        void addAction<T>(Action<T> listener) where T : struct => EventRouter.get(this).addListener(listener);
-        void removeAction<T>(Action<T> listener) where T : struct => EventRouter.get(this).removeListener(listener);
+        void addAction<T>(Action<T> listener) where T : struct => EventRouter.get(Event).addListener(listener);
+        void removeAction<T>(Action<T> listener) where T : struct => EventRouter.get(Event).removeListener(listener);
     }
 
     public class ActionListener<T> : IEvent<T>

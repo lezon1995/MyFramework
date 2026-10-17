@@ -195,7 +195,7 @@ namespace MoreMountains
             if (ascensionLevel >= 5)
             {
                 var healAmount = ((p.maxHealth - p.currentHealth) * 0.75F).round();
-                p.Health.ReceiveHealth(new(healAmount), null, p);
+                p.Health.ReceiveHealth(new(healAmount), p);
             }
 
             // if (floorNum > 1)

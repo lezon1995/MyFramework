@@ -57,7 +57,6 @@ namespace MoreMountains
         public override void SetColliderEnabled(bool enable)
         {
             base.SetColliderEnabled(enable);
-            new OnBrickColliderChanged().trigger();
         }
 
         protected override void UpdateAnimators() { }

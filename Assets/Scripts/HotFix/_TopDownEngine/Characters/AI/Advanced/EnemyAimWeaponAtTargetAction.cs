@@ -109,8 +109,8 @@ namespace MoreMountains
                     var target = _brain.Target;
                     if (AimOrigin == AimOrigins.SpawnPoint && _projectileWeapon)
                     {
-                        _projectileWeapon.DetermineSpawnPosition();
-                        _weaponAimDirection = target.position - _projectileWeapon.SpawnPosition;
+                        _projectileWeapon.DetermineSpawnState();
+                        _weaponAimDirection = target.position - _projectileWeapon.SpawnState.Position;
                     }
                     else
                     {

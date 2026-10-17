@@ -13,6 +13,9 @@ MonoBehaviour:
   m_Name: RelicDef BootsOfHermes
   m_EditorClassIdentifier: HotFix::MoreMountains.RelicDef
   Type: 30203
+  TagInfo:
+    MechanicTags: 
+    StatusTags: 
   BasePrice: 105
   SellRefund: 52
   CarryLimit: 0
@@ -20,15 +23,19 @@ MonoBehaviour:
   - stat: 15
     BonusFlat: 0
     BonusPct: -0.1
+    BonusRatio: 0
   - stat: 5
     BonusFlat: 17
     BonusPct: 0
+    BonusRatio: 0
   - stat: 21
     BonusFlat: 11
     BonusPct: 0
+    BonusRatio: 0
   - stat: 22
     BonusFlat: -0.02
     BonusPct: 0
+    BonusRatio: 0
   Icon: {fileID: 21300000, guid: ad051d7a13682a943a948dd3c34efb21, type: 3}
   Rarity: 3
   DisplayName:
@@ -49,6 +56,9 @@ MonoBehaviour:
     m_FallbackState: 0
     m_WaitForCompletion: 0
     m_LocalVariables: []
+  MetaHandleWeapon: {fileID: 0}
+  Args:
+  - 3
   references:
     version: 2
     RefIds: []

@@ -12,15 +12,40 @@ public class HealingBulletEffect : ALogicEffect, IArgs<Transform, Transform, Hea
     GameEffect effect;
     Vector3 startPos;
 
-    public void onCreate(Transform p1, Transform p2, Heal p3)
+    BezierMover mover;
+
+    public void onCreate(Transform _start, Transform _end, Heal _heal)
     {
-        start = p1;
-        end = p2;
-        heal = p3;
-        duration = randomFloat(0.3F, 0.6F);
+        start = _start;
+        end = _end;
+        heal = _heal;
+        var flyDuration = randomFloat(0.8F, 1.6F);
+        duration = flyDuration;
         startPos = start.position;
         effect = mEffectManager.createEffect(fx_path);
         effect.setWorldPosition(startPos);
+        effect.clearTrail();
+
+        CLASS(out mover);
+
+        var p0 = (Vector2)start.position;
+        var p2 = (Vector2)end.position;
+        var p1 = MissileProjectile.ComputeOutgoingControlPoint(
+            casterPos: p0,
+            targetPos: p2,
+            outgoingDistance: 4F,
+            outgoingYawSpreadMax: 45F,
+            outgoingYawSpreadMin: 30F,
+            outgoingVerticalLift: 4F);
+
+        BezierSegments segments = BezierSegments.One;
+        if (randomHit(0.5F))
+        {
+            segments = BezierSegments.Two;
+        }
+
+        // === 4. Launch ===
+        mover.launch(effect.transform, end, p0, p1, flyDuration, segments);
     }
 
     public override bool fixedUpdate(float dt)
@@ -33,7 +58,7 @@ public class HealingBulletEffect : ALogicEffect, IArgs<Transform, Transform, Hea
         var f = MMTween.Evaluate(duration.pct, MMTween.MMTweenCurve.EaseOutCubic);
         var curPos = Vector3.Lerp(startPos, end.position, f);
         effect.setWorldPosition(curPos);
-
+        mover.movement(dt);
         return base.update(dt);
     }
 
@@ -44,7 +69,7 @@ public class HealingBulletEffect : ALogicEffect, IArgs<Transform, Transform, Hea
             health.ReceiveHealth(heal, source: health.Character);
             sound.play(SoundDefine.HEAL_EFFECT);
         }
-        
+
         base.onFinished();
     }
 
@@ -55,6 +80,15 @@ public class HealingBulletEffect : ALogicEffect, IArgs<Transform, Transform, Hea
         end = null;
         heal = default;
         startPos = default;
-        mEffectManager.destroyEffect(ref effect);
+        if (effect)
+        {
+            effect.clearTrail();
+            mEffectManager.destroyEffect(ref effect);
+        }
+
+        if (mover)
+        {
+            UN_CLASS(ref mover);
+        }
     }
 }

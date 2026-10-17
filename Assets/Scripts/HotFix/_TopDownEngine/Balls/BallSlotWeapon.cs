@@ -4,22 +4,8 @@ using Random = UnityEngine.Random;
 
 namespace MoreMountains
 {
-    public class BallSlotWeapon : ProjectileWeapon, IStatsGetter<Ball.Stat>
+    public class BallSlotWeapon : BallWeapon, IStatsGetter<Ball.Stat>
     {
-        APlayer _player;
-
-        [MMInspectorGroup("ID")]
-        public BallDef BallDef;
-
-        public int BallLevel;
-        public BallInventorySlot BallSlot;
-        public BallItem BallItem;
-
-        [MMInspectorGroup("ID")]
-        public SpriteRenderer BallWeaponSpriteRenderer;
-
-        public bool HideWeaponRenderer = true;
-
         public override void Initialization()
         {
             base.Initialization();
@@ -61,17 +47,7 @@ namespace MoreMountains
             };
         }
 
-        public void SetBallSlot(BallInventorySlot slot)
-        {
-            BallSlot = slot;
-        }
-
-        public void SetBallItem(BallItem item)
-        {
-            BallItem = item;
-        }
-
-        public void SetBallDef(BallDef def)
+        public override void SetBallDef(BallDef def)
         {
             BallDef = def;
 
@@ -101,10 +77,7 @@ namespace MoreMountains
             }
         }
 
-        static readonly int PixelOutlineColor = Shader.PropertyToID("_PixelOutlineColor");
-        static readonly int PixelOutlineFade = Shader.PropertyToID("_PixelOutlineFade");
-
-        public void SetBallLevel(int level)
+        public override void SetBallLevel(int level)
         {
             var material = BallWeaponSpriteRenderer.material;
             if (level > 1)
@@ -129,6 +102,14 @@ namespace MoreMountains
             }
         }
 
+        public override void onBallRecollected(Ball ball)
+        {
+            if (_player.Inventory.BallBag.TryGetAlreadyShootSlotByBallInstance(ball, out var slot))
+            {
+                slot.TryReload(_player, ball);
+            }
+        }
+
         public override void SetOwner(Character owner, CharacterHandleWeapon handleWeapon = null)
         {
             base.SetOwner(owner, handleWeapon);
@@ -147,18 +128,35 @@ namespace MoreMountains
             }
         }
 
-        public override GameObject SpawnProjectile(Vector3 spawnPosition, int projectileIndex, int totalProjectiles, bool triggerObjectActivation = true)
+        protected override void OnWeaponUseSpawnProjectile()
+        {
+            var perShot = ProjectilesPerShot;
+            var newDirection = transform.right * (Flipped ? -1 : 1);
+            for (int i = 0; i < perShot; i++)
+            {
+                var state = SpawnState;
+                if (SpawnStateGetter != null)
+                    state = SpawnStateGetter(state, newDirection, i, perShot);
+
+                state.ProjectileIndex = i;
+                state.TotalProjectiles = perShot;
+                SpawnProjectile(state);
+                PlaySpawnFeedbacks();
+            }
+        }
+
+        public override GameObject SpawnProjectile(SpawnState state)
         {
             Ball ball = null;
             var success = _player.Inventory.BallBag.TryGetSlot(BallItem, out var slot);
             if (success)
-                success &= slot.TryShoot(_player, spawnPosition, out ball);
+                success &= slot.TryShoot(_player, state.Position, out ball);
 
             // mandatory checks
             if (!success)
                 return null;
 
-            ball.setTeleportPosition(spawnPosition);
+            ball.setTeleportPosition(state.Position);
             if (_projectileSpawnTransform)
             {
                 ball.setTeleportPosition(_projectileSpawnTransform.position);
@@ -175,62 +173,31 @@ namespace MoreMountains
                 ball.SetDamage(Dmg);
             }
 
+            ball.SetBallSlot(BallSlot);
             ball.SetTarget(_aimTarget);
 
-            if (RandomSpread)
+            Vector3 newDirection = transform.right * (Flipped ? -1 : 1);
+            if (!state.Direction.isZero())
             {
-                var x = Random.Range(-Spread.x, Spread.x);
-                var y = Random.Range(-Spread.y, Spread.y);
-                var z = Random.Range(-Spread.z, Spread.z);
-                _randomSpreadDirection = new(x, y, z);
+                newDirection = state.Direction;
+            }
+
+            if (Owner.Orientation2D)
+            {
+                ball.setShootDirection(newDirection);
+                ball.SetDirection(newDirection, transform.rotation, Owner.Orientation2D.IsFacingRight);
             }
             else
             {
-                if (totalProjectiles > 1)
-                {
-                    var dir = MMMaths.Remap(projectileIndex, 0, totalProjectiles - 1, -Spread, Spread);
-                    _randomSpreadDirection = dir;
-                }
-                else
-                {
-                    _randomSpreadDirection = Vector3.zero;
-                }
+                ball.setShootDirection(newDirection);
+                ball.SetDirection(newDirection, transform.rotation);
             }
-
-            var spread = Quaternion.Euler(_randomSpreadDirection);
-            if (Owner == null)
-            {
-                var direction = spread * transform.rotation * DefaultProjectileDirection;
-                ball.setShootDirection(direction);
-                ball.SetDirection(direction, transform.rotation);
-            }
-            else
-            {
-                Vector3 newDirection = spread * transform.right * (Flipped ? -1 : 1);
-                if (Owner.Orientation2D)
-                {
-                    ball.setShootDirection(newDirection);
-                    ball.SetDirection(newDirection, spread * transform.rotation, Owner.Orientation2D.IsFacingRight);
-                }
-                else
-                {
-                    ball.setShootDirection(newDirection);
-                    ball.SetDirection(newDirection, spread * transform.rotation);
-                }
-            }
-
-            if (RotateWeaponOnSpread)
-            {
-                transform.rotation *= spread;
-            }
-
-            // if (triggerObjectActivation)
-            // {
-            //     poolableObject.TriggerOnSpawnComplete();
-            // }
 
             ball.onPreparedToShoot();
             ball.setInfiniteDuration();
+
+            _player.onShootBall(ball);
+
             return ball.getGameObject();
         }
 

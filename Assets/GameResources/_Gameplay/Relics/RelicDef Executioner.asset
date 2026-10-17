@@ -13,6 +13,9 @@ MonoBehaviour:
   m_Name: RelicDef Executioner
   m_EditorClassIdentifier: HotFix::MoreMountains.RelicDef
   Type: 30081
+  TagInfo:
+    MechanicTags: 
+    StatusTags: 
   BasePrice: 65
   SellRefund: 32
   CarryLimit: 0
@@ -20,15 +23,19 @@ MonoBehaviour:
   - stat: 2
     BonusFlat: 12
     BonusPct: 0
+    BonusRatio: 0
   - stat: 25
     BonusFlat: 2
     BonusPct: 0
+    BonusRatio: 0
   - stat: 18
     BonusFlat: 0.06
     BonusPct: 0
+    BonusRatio: 0
   - stat: 6
     BonusFlat: 10
     BonusPct: 0
+    BonusRatio: 0
   Icon: {fileID: 21300000, guid: 1cab00cb390d4c742888305f875a5d42, type: 3}
   Rarity: 2
   DisplayName:
@@ -49,6 +56,10 @@ MonoBehaviour:
     m_FallbackState: 0
     m_WaitForCompletion: 0
     m_LocalVariables: []
+  MetaHandleWeapon: {fileID: 0}
+  Args:
+  - 0.1
+  - 2
   references:
     version: 2
     RefIds: []

@@ -53,8 +53,8 @@ namespace MoreMountains
                 return;
 
             _player.Inventory.RemoveRelic(_item);
-            _player.gainGold(_item.SellPrice, EarnType.SELL_RELIC);
-            ShopEvents.RaiseGoldEarned(_item.SellPrice, "relic_sell");
+            _player.gainGold(_item.GetSellPrice(), EarnType.SELL_RELIC);
+            ShopEvents.RaiseGoldEarned(_item.GetSellPrice(), "relic_sell");
             ShopEvents.RaiseSoldFromBag();
         }
     }

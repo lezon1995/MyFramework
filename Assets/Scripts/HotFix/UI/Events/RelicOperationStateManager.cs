@@ -69,7 +69,7 @@ namespace MoreMountains
             int sellPrice = 0;
             if (source is RelicInventoryItem item)
             {
-                sellPrice = item.Slot.Item.SellPrice;
+                sellPrice = item.Slot.Item.GetSellPrice();
             }
 
             SellZoneVisibilityChanged?.Invoke(true, sellPrice);

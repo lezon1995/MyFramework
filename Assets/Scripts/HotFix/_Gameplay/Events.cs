@@ -10,6 +10,18 @@ public struct DoHitEffect
     public Dmg dmg;
     public Vector2 hitDir => dmg.Direction;
 
+    public DoHitEffect()
+    {
+        ball = null;
+        brick = null;
+        dmg = default;
+    }
+
+    public DoHitEffect(Ball b) : this()
+    {
+        ball = b;
+    }
+
     public DoHitEffect(Ball b1, Brick b2, in Dmg d)
     {
         ball = b1;
@@ -38,12 +50,6 @@ public struct OnBallDeath
     {
         ball = b;
     }
-}
-
-public struct OnBallDeathTotally
-{
-    public Ball ball;
-    public OnBallDeathTotally(Ball b) => ball = b;
 }
 
 public struct OnBallExpired
@@ -166,10 +172,6 @@ public struct DoKillBall
         ball = b;
         instigator = i;
     }
-}
-
-public struct OnBrickColliderChanged
-{
 }
 
 public struct Turn

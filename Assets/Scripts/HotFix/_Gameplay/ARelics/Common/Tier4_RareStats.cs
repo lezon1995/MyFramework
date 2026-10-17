@@ -1,38 +1,20 @@
-using System.Collections.Generic;
-using UniStats;
 using UnityEngine;
 
 namespace MoreMountains;
 
 /// <summary>
-/// CosmicCube - 宇宙魔方
-/// 每场战斗随机获得一个属性增益
-/// [设计文案] 蕴含宇宙力量的魔方，每场战斗赐予随机祝福
+/// 当球消失时，重置发射冷却。
 /// </summary>
 public class CosmicCube : ARelic
 {
     public static string ID = "CosmicCube";
 
-    public CosmicCube() : base(ID, "CosmicCube.png", RelicTier.SPECIAL, LandingSound.MAGICAL)
-    {
-    }
+    public CosmicCube() : base(ID, "CosmicCube.png", RelicTier.SPECIAL, LandingSound.MAGICAL) { }
 
-    // TODO: 需要实现每场战斗随机属性增益
-    // private enum BuffType { Damage, Speed, Crit, Health, Armor }
-    // private BuffType currentBuff;
-    //
-    // public override void atBattleStart()
-    // {
-    //     currentBuff = (BuffType)Random.Range(0, 5);
-    //     switch (currentBuff)
-    //     {
-    //         case BuffType.Damage: /* +20% Damage */ break;
-    //         case BuffType.Speed: /* +20% Speed */ break;
-    //         case BuffType.Crit: /* +20% Crit */ break;
-    //         case BuffType.Health: /* +20 MaxHealth */ break;
-    //         case BuffType.Armor: /* +5 Armor */ break;
-    //     }
-    // }
+    public override void onBallDeath(APlayer p, Ball ball)
+    {
+        ball.SourceWeapon.ResetDelayBetweenUsesTimer();
+    }
 
     public override ARelic makeCopy() => new CosmicCube();
 }
@@ -46,9 +28,7 @@ public class PhoenixFeather : ARelic
 {
     public static string ID = "PhoenixFeather";
 
-    public PhoenixFeather() : base(ID, "PhoenixFeather.png", RelicTier.SPECIAL, LandingSound.MAGICAL)
-    {
-    }
+    public PhoenixFeather() : base(ID, "PhoenixFeather.png", RelicTier.SPECIAL, LandingSound.MAGICAL) { }
 
     // TODO: 需要实现复活机制
     // private bool hasRevived = false;
@@ -85,9 +65,7 @@ public class VoidEssence : ARelic
 {
     public static string ID = "VoidEssence";
 
-    public VoidEssence() : base(ID, "VoidEssence.png", RelicTier.SPECIAL, LandingSound.MAGICAL)
-    {
-    }
+    public VoidEssence() : base(ID, "VoidEssence.png", RelicTier.SPECIAL, LandingSound.MAGICAL) { }
 
     // TODO: 需要实现召唤友方球的机制
     // public override void onBallKillBrick(APlayer p, Ball ball, Brick brick)
@@ -102,52 +80,49 @@ public class VoidEssence : ARelic
 }
 
 /// <summary>
-/// ChronoGear - 时间齿轮
-/// 波次开始时重置所有球的属性加成
-/// [设计文案] 操控时间的齿轮，让球恢复初始状态
+/// 将撞击伤害的50%变为魔法伤害
 /// </summary>
 public class ChronoGear : ARelic
 {
     public static string ID = "ChronoGear";
 
-    public ChronoGear() : base(ID, "ChronoGear.png", RelicTier.SPECIAL, LandingSound.MAGICAL)
+    public ChronoGear() : base(ID, "ChronoGear.png", RelicTier.SPECIAL, LandingSound.MAGICAL) { }
+
+    float apDamageRatio;
+
+    protected override void onRelicDefSet(RelicDef d)
     {
+        apDamageRatio = d.Args[0];
     }
 
-    // TODO: 需要实现重置球属性的机制
-    // public override void atBattleStart()
-    // {
-    //     foreach (var ball in owner.Balls)
-    //     {
-    //         ball.ResetToBaseStats();
-    //     }
-    // }
+    public override void onPlayerBeforeHandleImpactDamage(APlayer p, Ball ball, Brick brick, ref Dmg dmg)
+    {
+        dmg.setMixed(1F - apDamageRatio, apDamageRatio);
+    }
 
     public override ARelic makeCopy() => new ChronoGear();
 }
 
 /// <summary>
-/// OmegaParticle - 欧米茄粒子
-/// 伤害+30%，但球会逐渐变慢
-/// [设计文案] 强大的粒子能量，但有时间限制
+/// 将技能伤害的25%变为真实伤害
 /// </summary>
 public class OmegaParticle : ARelic
 {
     public static string ID = "OmegaParticle";
 
-    public OmegaParticle() : base(ID, "OmegaParticle.png", RelicTier.SPECIAL, LandingSound.HEAVY)
+    public OmegaParticle() : base(ID, "OmegaParticle.png", RelicTier.SPECIAL, LandingSound.HEAVY) { }
+
+    float trueDamageRatio;
+
+    protected override void onRelicDefSet(RelicDef d)
     {
+        trueDamageRatio = d.Args[0];
     }
 
-    // TODO: 需要实现逐渐减速的效果
-    // public override void onPlayerTurnUpdate(APlayer p, float dt)
-    // {
-    //     foreach (var ball in p.Balls)
-    //     {
-    //         ball.GetStat(Ball.Stat.BallisticSpeed, out var stat);
-    //         stat.AddPct(-0.01f * dt);
-    //     }
-    // }
+    public override void onPlayerBeforeHandleSkillDamage(APlayer p, Ball ball, Brick brick, ref Dmg dmg)
+    {
+        dmg.setMixed(0F, 1F - trueDamageRatio, trueDamageRatio);
+    }
 
     public override ARelic makeCopy() => new OmegaParticle();
 }
@@ -160,9 +135,7 @@ public class SingularityCore : ARelic
 {
     public static string ID = "SingularityCore";
 
-    public SingularityCore() : base(ID, "SingularityCore.png", RelicTier.SPECIAL, LandingSound.MAGICAL)
-    {
-    }
+    public SingularityCore() : base(ID, "SingularityCore.png", RelicTier.SPECIAL, LandingSound.MAGICAL) { }
 
     public override ARelic makeCopy() => new SingularityCore();
 }
@@ -177,9 +150,7 @@ public class DivineBlessing : ARelic
     public static string ID = "DivineBlessing";
     private float timer = 0f;
 
-    public DivineBlessing() : base(ID, "DivineBlessing.png", RelicTier.SPECIAL, LandingSound.MAGICAL)
-    {
-    }
+    public DivineBlessing() : base(ID, "DivineBlessing.png", RelicTier.SPECIAL, LandingSound.MAGICAL) { }
 
     // TODO: 需要实现自动护盾生成
     // public override void onPlayerTurnUpdate(APlayer p, float dt)
@@ -204,9 +175,7 @@ public class InfernalContract : ARelic
 {
     public static string ID = "InfernalContract";
 
-    public InfernalContract() : base(ID, "InfernalContract.png", RelicTier.SPECIAL, LandingSound.HEAVY)
-    {
-    }
+    public InfernalContract() : base(ID, "InfernalContract.png", RelicTier.SPECIAL, LandingSound.HEAVY) { }
 
     public override ARelic makeCopy() => new InfernalContract();
 }
@@ -218,9 +187,7 @@ public class AngelicProtection : ARelic
 {
     public static string ID = "AngelicProtection";
 
-    public AngelicProtection() : base(ID, "AngelicProtection.png", RelicTier.SPECIAL, LandingSound.MAGICAL)
-    {
-    }
+    public AngelicProtection() : base(ID, "AngelicProtection.png", RelicTier.SPECIAL, LandingSound.MAGICAL) { }
 
     int minCount, maxCount, gap;
 
@@ -235,6 +202,7 @@ public class AngelicProtection : ARelic
     {
         public Brick brick;
         public int fixedUpdateCounter;
+
         public override void resetProperty()
         {
             base.resetProperty();
@@ -250,7 +218,7 @@ public class AngelicProtection : ARelic
         foreach (var pair in list)
         {
             bool needRemove = false;
-            if (pair.fixedUpdateCounter>0)
+            if (pair.fixedUpdateCounter > 0)
             {
                 pair.fixedUpdateCounter--;
             }
@@ -282,7 +250,7 @@ public class AngelicProtection : ARelic
         for (int i = 0; i < count; i++)
         {
             var pair = CLASS<Pair>();
-            pair.brick =  brick;
+            pair.brick = brick;
             pair.fixedUpdateCounter = i * gap;
             list.add(pair);
         }
@@ -300,9 +268,7 @@ public class RealityFragment : ARelic
 {
     public static string ID = "RealityFragment";
 
-    public RealityFragment() : base(ID, "RealityFragment.png", RelicTier.SPECIAL, LandingSound.MAGICAL)
-    {
-    }
+    public RealityFragment() : base(ID, "RealityFragment.png", RelicTier.SPECIAL, LandingSound.MAGICAL) { }
 
     // TODO: 需要实现随机改变轨迹的机制
     // public override void onBallReflect(APlayer p, Ball ball, Vector2 normal, bool fromBrick, ref Vector2 reflectDir)

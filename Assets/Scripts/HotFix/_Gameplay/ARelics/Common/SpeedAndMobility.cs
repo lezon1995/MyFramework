@@ -188,7 +188,7 @@ public class Afterburner : ARelic
         maxCoinValue = (int)d.Args[2];
     }
 
-    public override void onBallCauseHitDamage(APlayer p, Ball ball, Brick brick, in Dmg dmg)
+    public override void onBallCauseImpactDamage(APlayer p, Ball ball, Brick brick, in Dmg dmg)
     {
         if (randomHit(dropChance))
         {

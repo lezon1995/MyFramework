@@ -10,7 +10,8 @@ public partial class BallTooltipItem
     {
         var def = item.Def;
         SetName(def.DisplayName.GetLocalizedString());
-        SetPrice(item.SellPrice);
+        var sellPrice = item.GetSellPrice(out var rawSellPrice);
+        SetPrice(sellPrice, rawSellPrice);
         if (def)
             SetDesc(item);
         if (def.Icon)
@@ -34,7 +35,28 @@ public partial class BallTooltipItem
 
     public void SetIcon(Sprite s) => itemIcon?.setSpriteOnly(s);
     public void SetName(string s) => itemName.setText(s ?? string.Empty);
-    public void SetPrice(int price) => itemPrice.setText(price.IToS());
+
+    public void SetPrice(int sellPrice, int rawSellPrice)
+    {
+        if (sellPrice < rawSellPrice)
+        {
+            using var _ = new MyStringBuilderScope(out var sb);
+            sb.add(sellPrice).add(" ").add("(").add(rawSellPrice).add(" - ").add(rawSellPrice - sellPrice).add(")");
+            var reduced = gameDesign.universalColor.reduced;
+            itemPrice.setText(sb.ToString().color(reduced));
+        }
+        else if (sellPrice > rawSellPrice)
+        {
+            using var _ = new MyStringBuilderScope(out var sb);
+            sb.add(sellPrice).add(" ").add("(").add(rawSellPrice).add(" + ").add(sellPrice - rawSellPrice).add(")");
+            var enhanced = gameDesign.universalColor.enhanced;
+            itemPrice.setText(sb.ToString().color(enhanced));
+        }
+        else
+        {
+            itemPrice.setText(sellPrice.IToS());
+        }
+    }
 
     public void SetDesc(BallItem item)
     {

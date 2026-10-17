@@ -28,7 +28,7 @@ namespace MoreMountains
         string DisplayName { get; }
 
         /// <summary>售出时的回收价（半价，已由实现自行计算）</summary>
-        int SellPrice { get; }
+        int GetSellPrice();
 
         /// <summary>球 or 遗物</summary>
         ItemKind Kind { get; }

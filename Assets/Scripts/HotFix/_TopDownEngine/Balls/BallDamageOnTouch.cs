@@ -75,6 +75,19 @@ namespace MoreMountains
                     }
 
                     break;
+                case LayerManager.Player:
+                    if (c.TryGetComponent(out APlayer p))
+                    {
+                        var dir = ball.getWorldPosition() - p.getWorldPosition();
+                        if (dir.x.abs() > dir.y.abs())
+                            normal = dir.x.sign() > 0 ? Vector2.right : Vector2.left;
+                        else
+                            normal = dir.y.sign() > 0 ? Vector2.up : Vector2.down;
+
+                        ball.CollidingWithPlayer(p, normal);
+                    }
+
+                    break;
             }
         }
 
@@ -172,6 +185,15 @@ namespace MoreMountains
             if (DamageTakenHealth)
             {
                 DamageTakenHealth.Damage(ref dmg, instigator, brick, DamageTakenInvincibilityDuration, -_damageDirection);
+            }
+        }
+
+
+        protected void SelfDamage(Dmg dmg, GameObject instigator, APlayer p)
+        {
+            if (DamageTakenHealth)
+            {
+                DamageTakenHealth.Damage(ref dmg, instigator, p, DamageTakenInvincibilityDuration, -_damageDirection);
             }
         }
 
@@ -310,6 +332,7 @@ namespace MoreMountains
             ball.lastHittable = obstacle;
             foreach (var p in ball.powers)
                 p.onHitObstacle(obstacle);
+            ball.collidingObstacle = obstacle;
 
             ball.counters.hit.count();
             ball.hasBeenCollided = true;
@@ -325,6 +348,52 @@ namespace MoreMountains
 
             return true;
         }
+
+        public bool Colliding(APlayer target, Vector3 normal)
+        {
+            var o = target.gameObject;
+            // if (!EvaluateAvailability(o))
+            // return false;
+
+            // cache reset 
+            _colliderController = null;
+
+            // if what we're colliding with is damageable
+            _colliderHealth = null;
+            var b = OnCollideWithPlayer(target, normal);
+
+            if (target.isBallReflectable)
+            {
+                OnAnyCollision(o);
+                HitAnythingEvent?.Invoke(o);
+                HitAnythingFeedback.Play(transform.position);
+            }
+
+            return b;
+        }
+
+        protected bool OnCollideWithPlayer(APlayer p, Vector2 normal)
+        {
+            ball.lastHittable = p;
+            ball.collidingPlayer = p;
+
+            if (p.isBallReflectable)
+            {
+                ball.onImpactHitEnter(p, normal);
+
+                ball.counters.hit.count();
+                ball.hasBeenCollided = true;
+
+                if (ball.getSelfDamage(p, out var selfDamage))
+                {
+                    var selfDmg = Dmg.True(selfDamage).SetSelf();
+                    SelfDamage(selfDmg, ball.gameObject, p);
+                }
+            }
+
+            return true;
+        }
+
 
         protected void SelfDamage(Dmg dmg, GameObject instigator, Obstacle obstacle)
         {

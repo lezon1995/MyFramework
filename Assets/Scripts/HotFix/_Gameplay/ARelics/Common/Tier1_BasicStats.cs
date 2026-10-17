@@ -78,8 +78,7 @@ public class SpeedPotion : ARelic
 }
 
 /// <summary>
-/// CottonPadded - 棉垫
-/// 闪避+2%
+/// 球的持续时间-25%，球速+50%
 /// </summary>
 public class CottonPadded : ARelic
 {

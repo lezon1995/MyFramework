@@ -26,9 +26,13 @@ namespace MoreMountains
         Dictionary<string, float> configs { get; }
         Dictionary<string, Func<float>> configExpressions { get; }
         Dictionary<string, float> ratios { get; }
+        Dictionary<string, float> minValues { get; }
+        Dictionary<string, float> maxValues { get; }
         bool TryGetDisplayConfig(string statName, out DisplayConfig c);
         bool TryGetStatDef(string statKey, out StatDef def);
         bool TryGetInitialValues(string statName, out float[] initialValues);
+        bool TryGetMinValue(string statName, out float minValue);
+        bool TryGetMaxValue(string statName, out float maxValue);
     }
 
     public abstract class StatsTemplate : SerializedScriptableObject, IStatsTemplate
@@ -38,12 +42,20 @@ namespace MoreMountains
         public Dictionary<string, float> configs => Configs;
         public Dictionary<string, Func<float>> configExpressions => null;
         public Dictionary<string, float> ratios => Ratios;
+        public Dictionary<string, float> minValues => MinValues;
+        public Dictionary<string, float> maxValues => MaxValues;
 
         [DictionaryDrawerSettings(KeyLabel = "Stat", ValueLabel = "Initial")]
         public Dictionary<string, float> Configs = new();
 
         [DictionaryDrawerSettings(KeyLabel = "Stat", ValueLabel = "Ratio")]
         public Dictionary<string, float> Ratios = new();
+
+        [DictionaryDrawerSettings(KeyLabel = "Stat", ValueLabel = "Min Value")]
+        public Dictionary<string, float> MinValues = new();
+
+        [DictionaryDrawerSettings(KeyLabel = "Stat", ValueLabel = "Max Value")]
+        public Dictionary<string, float> MaxValues = new();
 
         protected List<string> names = new();
 
@@ -92,9 +104,7 @@ namespace MoreMountains
             }
         }
 
-        protected virtual void FillLevelInitialValues()
-        {
-        }
+        protected virtual void FillLevelInitialValues() { }
 
         protected abstract IEnumerable<string> GetNames();
 
@@ -129,6 +139,16 @@ namespace MoreMountains
         public bool TryGetInitialValues(string statName, out float[] initialValues)
         {
             return LevelInitialValues.TryGetValue(statName, out initialValues);
+        }
+
+        public bool TryGetMinValue(string statName, out float minValue)
+        {
+            return MinValues.TryGetValue(statName, out minValue);
+        }
+
+        public bool TryGetMaxValue(string statName, out float maxValue)
+        {
+            return MaxValues.TryGetValue(statName, out maxValue);
         }
     }
 

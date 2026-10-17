@@ -14,12 +14,21 @@ namespace MoreMountains
             fx.play(FxDefine.BALL_HIT_BRICK, curPos);
         }
 
+        protected virtual void playHitPlayerVfx(APlayer p, Vector2 normal)
+        {
+            fx.play(FxDefine.BALL_HIT_BRICK, curPos);
+        }
+
         public virtual void playHitBorderSfx()
         {
             // sound.play(SoundDefine.BALL_HIT_BRICK_COMMON);
         }
 
         public virtual void playHitObstacleSfx()
+        {
+            // sound.play(SoundDefine.BALL_HIT_BRICK_COMMON);
+        }
+        public virtual void playHitPlayerSfx(APlayer p = null)
         {
             // sound.play(SoundDefine.BALL_HIT_BRICK_COMMON);
         }

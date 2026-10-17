@@ -116,7 +116,7 @@ namespace MoreMountains
 
         // 当前整数值（由 SetHealth 提供）
         int _currentHp => health.CurrentHealth;
-        int _maxHp => health.maximumHealth;
+        int _maxHp => health.MaxHealth;
         int _shield => health.Shield.CurrentShield;
         float shieldProgressStart => _foregroundProgress;
         float shieldProgressEnd => _foregroundProgress + _shieldLength;

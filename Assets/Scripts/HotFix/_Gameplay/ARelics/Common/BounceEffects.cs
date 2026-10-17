@@ -11,9 +11,7 @@ public class ElasticRacket : ARelic
 {
     public static string ID = "ElasticRacket";
 
-    public ElasticRacket() : base(ID, "ElasticRacket.png", RelicTier.COMMON, LandingSound.SOLID)
-    {
-    }
+    public ElasticRacket() : base(ID, "ElasticRacket.png", RelicTier.COMMON, LandingSound.SOLID) { }
 
     public override void onBallReflect(APlayer p, Ball ball, Vector2 normal, bool fromBrick, ref Vector2 reflectDir)
     {
@@ -33,9 +31,7 @@ public class Trampoline : ARelic
 {
     public static string ID = "Trampoline";
 
-    public Trampoline() : base(ID, "Trampoline.png", RelicTier.UNCOMMON, LandingSound.SOLID)
-    {
-    }
+    public Trampoline() : base(ID, "Trampoline.png", RelicTier.UNCOMMON, LandingSound.SOLID) { }
 
     // TODO: 需要实现底部反弹伤害翻倍
     // public override void onBallHitBorderBot(APlayer p, Ball ball, BorderBot border, Vector2 normal, ref bool forceReturn)
@@ -55,9 +51,7 @@ public class BouncyWall : ARelic
 {
     public static string ID = "BouncyWall";
 
-    public BouncyWall() : base(ID, "BouncyWall.png", RelicTier.COMMON, LandingSound.SOLID)
-    {
-    }
+    public BouncyWall() : base(ID, "BouncyWall.png", RelicTier.COMMON, LandingSound.SOLID) { }
 
     public override void onBallReflect(APlayer p, Ball ball, Vector2 normal, bool fromBrick, ref Vector2 reflectDir)
     {
@@ -77,9 +71,7 @@ public class PinballWizard : ARelic
 {
     public static string ID = "PinballWizard";
 
-    public PinballWizard() : base(ID, "PinballWizard.png", RelicTier.RARE, LandingSound.SOLID)
-    {
-    }
+    public PinballWizard() : base(ID, "PinballWizard.png", RelicTier.RARE, LandingSound.SOLID) { }
 
     // TODO: 需要实现连续反弹计数和暴击触发
     // private int consecutiveBounces = 0;
@@ -111,9 +103,7 @@ public class FlipperMaster : ARelic
 {
     public static string ID = "FlipperMaster";
 
-    public FlipperMaster() : base(ID, "FlipperMaster.png", RelicTier.UNCOMMON, LandingSound.SOLID)
-    {
-    }
+    public FlipperMaster() : base(ID, "FlipperMaster.png", RelicTier.UNCOMMON, LandingSound.SOLID) { }
 
     // TODO: 需要实现优化反弹角度的机制
     // public override void onBallReflect(APlayer p, Ball ball, Vector2 normal, bool fromBrick, ref Vector2 reflectDir)
@@ -127,24 +117,55 @@ public class FlipperMaster : ARelic
 }
 
 /// <summary>
-/// ChaosMirror - 混乱之镜
-/// 球反弹方向随机化
-/// [设计文案] 混乱的镜子，打破常规的反弹规律
+/// 累计获得治疗或护盾达到50点时会触发1道冲击波对所有敌人造成伤害
 /// </summary>
 public class ChaosMirror : ARelic
 {
     public static string ID = "ChaosMirror";
 
-    public ChaosMirror() : base(ID, "ChaosMirror.png", RelicTier.RARE, LandingSound.MAGICAL)
+    public ChaosMirror() : base(ID, "ChaosMirror.png", RelicTier.RARE, LandingSound.MAGICAL) { }
+
+    Countdown standard;
+    float maxHealthPct;
+    int baseDamage;
+    float apRate;
+
+    protected override void onRelicDefSet(RelicDef d)
     {
+        maxHealthPct = d.Args[0];
+        baseDamage = (int)d.Args[1];
+        apRate = d.Args[2];
     }
 
-    // TODO: 需要实现随机化反弹方向
-    // public override void onBallReflect(APlayer p, Ball ball, Vector2 normal, bool fromBrick, ref Vector2 reflectDir)
-    // {
-    //     float randomAngle = Random.Range(-45f, 45f);
-    //     reflectDir = reflectDir.Rotate(randomAngle);
-    // }
+    public override void onEquip(APlayer p)
+    {
+        base.onEquip(p);
+
+        standard = (int)(p.maxHealth * maxHealthPct);
+    }
+
+    public override void onAfterHeal(APlayer p, Heal heal)
+    {
+        if (standard.update(heal.ActualHealAmount))
+        {
+            TriggerEffect(p);
+        }
+    }
+
+    public override void onShield(APlayer p, int amount)
+    {
+        if (standard.update(amount))
+        {
+            TriggerEffect(p);
+        }
+    }
+
+    void TriggerEffect(APlayer p)
+    {
+        standard = (int)(p.maxHealth * maxHealthPct);
+        int damage = (int)(baseDamage + apRate * p.ap);
+        effectManager.addLogic<ShockWaveEffect>().with(p, p.getWorldPosition(), damage);
+    }
 
     public override ARelic makeCopy() => new ChaosMirror();
 }
@@ -158,9 +179,7 @@ public class PrecisionAngle : ARelic
 {
     public static string ID = "PrecisionAngle";
 
-    public PrecisionAngle() : base(ID, "PrecisionAngle.png", RelicTier.UNCOMMON, LandingSound.SOLID)
-    {
-    }
+    public PrecisionAngle() : base(ID, "PrecisionAngle.png", RelicTier.UNCOMMON, LandingSound.SOLID) { }
 
     // TODO: 需要实现优化反弹方向
     // public override void onBallReflect(APlayer p, Ball ball, Vector2 normal, bool fromBrick, ref Vector2 reflectDir)
@@ -186,9 +205,7 @@ public class WallRunner : ARelic
 {
     public static string ID = "WallRunner";
 
-    public WallRunner() : base(ID, "WallRunner.png", RelicTier.UNCOMMON, LandingSound.SOLID)
-    {
-    }
+    public WallRunner() : base(ID, "WallRunner.png", RelicTier.UNCOMMON, LandingSound.SOLID) { }
 
     // TODO: 需要实现沿墙速度不减的机制
     // public override void onBallHitBorderLeft(APlayer p, Ball ball, BorderLeft border, ref Vector2 normal)
@@ -200,24 +217,42 @@ public class WallRunner : ARelic
 }
 
 /// <summary>
-/// ReflectionMaster - 反射大师
-/// 反弹伤害+10%
+/// 玩家自身现在可以反弹球
 /// </summary>
 public class ReflectionMaster : ARelic
 {
     public static string ID = "ReflectionMaster";
 
-    public ReflectionMaster() : base(ID, "ReflectionMaster.png", RelicTier.RARE, LandingSound.SOLID)
+    public ReflectionMaster() : base(ID, "ReflectionMaster.png", RelicTier.RARE, LandingSound.SOLID) { }
+
+    public override void onShootBall(APlayer p, Ball ball)
     {
+        ball.BounceLayers |= LayerManager.Player_Mask;
     }
 
-    public override void onBallReflect(APlayer p, Ball ball, Vector2 normal, bool fromBrick, ref Vector2 reflectDir)
+    public override void onBallEnterPlayer(APlayer p, Ball ball, APlayer p2, ref Vector2 normal, ref bool needReflect)
     {
-        ball.GetStat(Ball.Stat.HitDamageRate, out var stat);
-        stat.AddPct(0.10f);
+        // if (ball.IsPenetrable)
+        // {
+        //     needReflect = false;
+        // }
+        // else
+        {
+            needReflect = true;
+        }
     }
 
-    public override ARelic makeCopy() => new ReflectionMaster();
+    public override void onEquip(APlayer p)
+    {
+        base.onEquip(p);
+        p.isBallReflectable = true;
+    }
+
+    public override void onUnequip(APlayer p)
+    {
+        base.onUnequip(p);
+        p.isBallReflectable = false;
+    }
 }
 
 /// <summary>
@@ -229,9 +264,7 @@ public class RubberBand : ARelic
 {
     public static string ID = "RubberBand";
 
-    public RubberBand() : base(ID, "RubberBand.png", RelicTier.RARE, LandingSound.SOLID)
-    {
-    }
+    public RubberBand() : base(ID, "RubberBand.png", RelicTier.RARE, LandingSound.SOLID) { }
 
     // TODO: 需要实现反弹时增加穿透
     // public override void onBallReflect(APlayer p, Ball ball, Vector2 normal, bool fromBrick, ref Vector2 reflectDir)

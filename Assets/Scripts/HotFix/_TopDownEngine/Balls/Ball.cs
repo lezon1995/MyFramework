@@ -1,4 +1,5 @@
-﻿using MoreMountains.Feedbacks;
+﻿using System;
+using MoreMountains.Feedbacks;
 using MoreMountains.Tools;
 using UnityEngine;
 
@@ -33,6 +34,8 @@ namespace MoreMountains
         }
 
         public BallInventorySlot Slot { get; set; }
+        public BallWeapon Weapon => _ballWeapon;
+        BallWeapon _ballWeapon;
 
         public CircleCollider2D circleCollider
         {
@@ -67,6 +70,8 @@ namespace MoreMountains
         protected new BallDamageOnTouch DamageOnTouch => (BallDamageOnTouch)_damageOnTouch;
         public new BallStats Stats => _stats as BallStats;
 
+        protected LayerMask _originalBounceLayers;
+
         protected override void OnAwake()
         {
             base.OnAwake();
@@ -74,9 +79,7 @@ namespace MoreMountains
             TryGetComponent(out ballRenderer);
             instanceID = GetInstanceID();
             curPos = getWorldPosition();
-
-            _smallestBoundsWidth = Radius * 2F;
-            _squaredBoundsWidth = _smallestBoundsWidth * _smallestBoundsWidth;
+            _originalBounceLayers = BounceLayers;
 
             _stats.LevelGetter = () => level;
 
@@ -89,20 +92,38 @@ namespace MoreMountains
             base.OnDestroy();
         }
 
+        public override void onAcquire()
+        {
+            base.onAcquire();
+            insidePlayer = _player.BoxCollider2D.OverlapPoint(curPos);
+        }
+
         public override void reset()
         {
             base.reset();
             collidingBrick = null;
+            collidingPlayer = null;
+            collidingObstacle = null;
             overlappingBrick = null;
+            overlappingPlayer = null;
             hasCorrectPosThisFixedUpdate = false;
             movementDelta = 0;
             lastRadius = 0;
             enabled = false;
             hasBeenCollided = false;
             delayCounter = 0;
+            safePassCounter = 2;
             lastHittable = null;
             isOverlappingBrick = false;
+            isOverlappingPlayer = false;
             IsRecollecting = false;
+
+            // 恢复原始碰撞层
+            if (_originalBounceLayers.value != 0)
+            {
+                BounceLayers = _originalBounceLayers;
+            }
+
             ResetIgnoredToHitBricks();
         }
 
@@ -113,6 +134,12 @@ namespace MoreMountains
             {
                 Player = p;
             }
+        }
+
+        public override void SetWeapon(Weapon newWeapon)
+        {
+            base.SetWeapon(newWeapon);
+            _ballWeapon = newWeapon as BallWeapon;
         }
 
         public void SetColliderEnabled(bool v)
@@ -167,7 +194,7 @@ namespace MoreMountains
 
             return Stats.GetStat(key.Key(), out stat);
         }
-        
+
         public UniStats.Stat GetStat(string key)
         {
             return _hasStats ? Stats.GetStat(key) : null;
@@ -213,12 +240,6 @@ namespace MoreMountains
             }
         }
 
-        public bool RepositionRigidbodyIfHitTrigger = true;
-        public bool RepositionRigidbodyIfHitNonTrigger = true;
-
-        protected float _smallestBoundsWidth;
-        protected float _squaredBoundsWidth;
-
         protected override bool CheckWillPassingThrough(float dt, LayerMask targetLayer, out Vector3 hitPos, out RaycastHit2D hitInfo)
         {
             RaycastHit2D hit = default;
@@ -241,12 +262,7 @@ namespace MoreMountains
                     hit = Physics2D.CircleCast(curPos, Radius, Direction, distance, targetLayer);
                     if (hit)
                     {
-                        if (Vector2.Dot(hit.normal, Direction) < 0)
-                        {
-                            willPassingThrough = true;
-                            hitPos = hit.point + hit.normal * Radius;
-                            hitInfo = hit;
-                        }
+                        willPassingThrough = TrySetHitInfo(out hitPos, out hitInfo);
                     }
                 }
                 else
@@ -292,17 +308,45 @@ namespace MoreMountains
 
                     if (hit)
                     {
-                        if (Vector2.Dot(hit.normal, Direction) < 0)
-                        {
-                            willPassingThrough = true;
-                            hitPos = hit.point + hit.normal * Radius;
-                            hitInfo = hit;
-                        }
+                        willPassingThrough = TrySetHitInfo(out hitPos, out hitInfo);
                     }
                 }
             }
 
             return willPassingThrough;
+
+            bool TrySetHitInfo(out Vector3 hitPos, out RaycastHit2D hitInfo)
+            {
+                hitPos = default;
+                hitInfo = default;
+                if (hit.collider.gameObject.layer == LayerManager.Player)
+                {
+                    if (hit.collider.TryGetComponent(out APlayer p))
+                    {
+                        if (Vector2.Dot(hit.normal, Direction) < 0)
+                        {
+                            willPassingThrough = insidePlayer ? false : true;
+                            if (p.isBallReflectable)
+                                hitPos = insidePlayer ? nextPos : hit.point + hit.normal * Radius;
+                            else
+                                hitPos = nextPos;
+
+                            hitInfo = hit;
+                        }
+                    }
+                }
+                else
+                {
+                    if (Vector2.Dot(hit.normal, Direction) < 0)
+                    {
+                        willPassingThrough = true;
+                        hitPos = hit.point + hit.normal * Radius;
+                        hitInfo = hit;
+                    }
+                }
+
+                return willPassingThrough;
+            }
         }
 
         protected override void Colliding(Collider2D c)
@@ -385,6 +429,17 @@ namespace MoreMountains
                     }
 
                     break;
+                case LayerManager.Player:
+                    if (hitObject.TryGetComponent(out APlayer p))
+                    {
+                        needReflect = false;
+                        if (!CollidingWithPlayer(p, normal))
+                            return;
+
+                        p.onBallEnterPlayer(ball, p, ref normal, ref needReflect);
+                    }
+
+                    break;
             }
 
             if (needReflect)
@@ -406,6 +461,11 @@ namespace MoreMountains
         public virtual bool CollidingWithBorder(Border obstacle, Vector2 normal)
         {
             return DamageOnTouch.Colliding(obstacle, normal);
+        }
+
+        public virtual bool CollidingWithPlayer(APlayer p, Vector2 normal)
+        {
+            return DamageOnTouch.Colliding(p, normal);
         }
 
         /// <summary>
@@ -435,7 +495,7 @@ namespace MoreMountains
 
         public override void PreventedCollision2D(RaycastHit2D hit)
         {
-            if (_health.CurrentHealth <= 0)
+            if (_health.IsDead())
                 return;
 
             var raycastDir = (curPos - prePos).normalized;
@@ -473,6 +533,23 @@ namespace MoreMountains
             _bouncesLeft--;
 
             onBounceFinished();
+        }
+
+        void OnTriggerExit2D(Collider2D other)
+        {
+            if (insidePlayer)
+            {
+                if (other.gameObject.layer == LayerManager.Player)
+                {
+                    if (other.TryGetComponent(out APlayer p))
+                    {
+                        if (p == _player)
+                        {
+                            insidePlayer = false;
+                        }
+                    }
+                }
+            }
         }
     }
 }

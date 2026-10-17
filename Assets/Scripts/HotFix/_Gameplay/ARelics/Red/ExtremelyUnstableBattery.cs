@@ -13,7 +13,7 @@ public class ExtremelyUnstableBattery : ARelic
     {
     }
 
-    public override void onShootBall(Ball ball)
+    public override void onShootBall(APlayer p, Ball ball)
     {
         ball.addPower<BallHitChanceTriggerElectricChainPower>().with(0.2F, false);
     }

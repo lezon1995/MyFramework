@@ -51,6 +51,7 @@ namespace MoreMountains
 
         public override void OnFixedUpdate(float dt)
         {
+            FixedUpdatePowers(dt);
             CheckBrickHitTimerExpiration(dt);
             
             if (_shouldMove)

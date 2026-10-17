@@ -8,9 +8,7 @@ public class MoneyBag : ARelic
 {
     public static string ID = "MoneyBag";
 
-    public MoneyBag() : base(ID, "MoneyBag.png", RelicTier.UNCOMMON, LandingSound.SOLID)
-    {
-    }
+    public MoneyBag() : base(ID, "MoneyBag.png", RelicTier.UNCOMMON, LandingSound.SOLID) { }
 
     // TODO: 需要实现金币增益
     // public override void onEquip(APlayer p)
@@ -29,9 +27,7 @@ public class DiscountCoupon : ARelic
 {
     public static string ID = "DiscountCoupon";
 
-    public DiscountCoupon() : base(ID, "DiscountCoupon.png", RelicTier.UNCOMMON, LandingSound.SOLID)
-    {
-    }
+    public DiscountCoupon() : base(ID, "DiscountCoupon.png", RelicTier.UNCOMMON, LandingSound.SOLID) { }
 
     // TODO: 需要实现商店折扣
     // public override void onEquip(APlayer p)
@@ -50,9 +46,7 @@ public class TreasureHunter : ARelic
 {
     public static string ID = "TreasureHunter";
 
-    public TreasureHunter() : base(ID, "TreasureHunter.png", RelicTier.RARE, LandingSound.SOLID)
-    {
-    }
+    public TreasureHunter() : base(ID, "TreasureHunter.png", RelicTier.RARE, LandingSound.SOLID) { }
 
     // TODO: 需要实现稀有物品概率
     // public override void onEquip(APlayer p)
@@ -72,9 +66,7 @@ public class GoldenTouch : ARelic
 {
     public static string ID = "GoldenTouch";
 
-    public GoldenTouch() : base(ID, "GoldenTouch.png", RelicTier.UNCOMMON, LandingSound.SOLID)
-    {
-    }
+    public GoldenTouch() : base(ID, "GoldenTouch.png", RelicTier.UNCOMMON, LandingSound.SOLID) { }
 
     // TODO: 需要实现击杀金币
     // public override void onBallKillBrick(APlayer p, Ball ball, Brick brick)
@@ -94,9 +86,7 @@ public class TaxCollector : ARelic
 {
     public static string ID = "TaxCollector";
 
-    public TaxCollector() : base(ID, "TaxCollector.png", RelicTier.UNCOMMON, LandingSound.SOLID)
-    {
-    }
+    public TaxCollector() : base(ID, "TaxCollector.png", RelicTier.UNCOMMON, LandingSound.SOLID) { }
 
     // TODO: 需要实现波次金币
     // public override void onFightingPhaseEnd(APlayer p)
@@ -115,9 +105,7 @@ public class MerchantSoul : ARelic
 {
     public static string ID = "MerchantSoul";
 
-    public MerchantSoul() : base(ID, "MerchantSoul.png", RelicTier.RARE, LandingSound.SOLID)
-    {
-    }
+    public MerchantSoul() : base(ID, "MerchantSoul.png", RelicTier.RARE, LandingSound.SOLID) { }
 
     // TODO: 需要实现商店折扣
     // public override void onEquip(APlayer p)
@@ -136,9 +124,7 @@ public class LuckyCoin : ARelic
 {
     public static string ID = "LuckyCoin";
 
-    public LuckyCoin() : base(ID, "LuckyCoin.png", RelicTier.UNCOMMON, LandingSound.SOLID)
-    {
-    }
+    public LuckyCoin() : base(ID, "LuckyCoin.png", RelicTier.UNCOMMON, LandingSound.SOLID) { }
 
     public override ARelic makeCopy() => new LuckyCoin();
 }
@@ -150,12 +136,10 @@ public class BankAccount : ARelic
 {
     public static string ID = "BankAccount";
 
-    public BankAccount() : base(ID, "BankAccount.png", RelicTier.UNCOMMON, LandingSound.SOLID)
-    {
-    }
+    public BankAccount() : base(ID, "BankAccount.png", RelicTier.UNCOMMON, LandingSound.SOLID) { }
 
     float value;
-    
+
     protected override void onRelicDefSet(RelicDef d)
     {
         value = d.Args[0];
@@ -180,9 +164,7 @@ public class Investment : ARelic
     public static string ID = "Investment";
     private float timer = 0f;
 
-    public Investment() : base(ID, "Investment.png", RelicTier.RARE, LandingSound.SOLID)
-    {
-    }
+    public Investment() : base(ID, "Investment.png", RelicTier.RARE, LandingSound.SOLID) { }
 
     // TODO: 需要实现定时金币
     // public override void onPlayerTurnUpdate(APlayer p, float dt)
@@ -199,24 +181,84 @@ public class Investment : ARelic
 }
 
 /// <summary>
-/// BlackMarket - 黑市
-/// 可以用金币刷新商店
-/// [设计文案] 有钱就能刷新
+/// 出售遗物或球时，降低15%的售价折损
 /// </summary>
 public class BlackMarket : ARelic
 {
     public static string ID = "BlackMarket";
 
-    public BlackMarket() : base(ID, "BlackMarket.png", RelicTier.RARE, LandingSound.SOLID)
+    public BlackMarket() : base(ID, "BlackMarket.png", RelicTier.RARE, LandingSound.SOLID) { }
+
+    float value;
+
+    protected override void onRelicDefSet(RelicDef d)
     {
+        value = d.Args[0];
     }
 
-    // TODO: 需要实现商店刷新
-    // public override void onEquip(APlayer p)
-    // {
-    //     p.CanRerollShop = true;
-    //     p.ShopRerollCost = 10; // 重刷新需要10金币
-    // }
+    public override void onEquip(APlayer p)
+    {
+        base.onEquip(p);
 
-    public override ARelic makeCopy() => new BlackMarket();
+        BallItem.sellPriceModifier += SellPriceModifier;
+        RelicItem.sellPriceModifier += SellPriceModifier;
+    }
+
+    public override void onUnequip(APlayer p)
+    {
+        base.onUnequip(p);
+        BallItem.sellPriceModifier -= SellPriceModifier;
+        RelicItem.sellPriceModifier -= SellPriceModifier;
+    }
+
+    void SellPriceModifier(BallItem ballItem, ref int buyPrice, ref float ratio)
+    {
+        ratio = (ratio + value).clamp(0F, 1F);
+    }
+
+    void SellPriceModifier(RelicItem ballItem, ref int buyPrice, ref float ratio)
+    {
+        ratio = (ratio + value).clamp(0F, 1F);
+    }
+}
+/// <summary>
+/// 商店里的遗物和球获得15%的折扣
+/// </summary>
+public class StoreOwner : ARelic
+{
+    public static string ID = "StoreOwner";
+
+    public StoreOwner() : base(ID, "StoreOwner.png", RelicTier.RARE, LandingSound.SOLID) { }
+
+    float value;
+
+    protected override void onRelicDefSet(RelicDef d)
+    {
+        value = d.Args[0];
+    }
+
+    public override void onEquip(APlayer p)
+    {
+        base.onEquip(p);
+
+        BallDef.buyPriceModifier += BuyPriceModifier;
+        RelicDef.buyPriceModifier += BuyPriceModifier;
+    }
+
+    public override void onUnequip(APlayer p)
+    {
+        base.onUnequip(p);
+        BallDef.buyPriceModifier -= BuyPriceModifier;
+        RelicDef.buyPriceModifier -= BuyPriceModifier;
+    }
+
+    void BuyPriceModifier(BallDef def, ref int buyPrice, ref float ratio)
+    {
+        ratio = (ratio - value).clamp(0F, 1F);
+    }
+
+    void BuyPriceModifier(RelicDef def, ref int buyPrice, ref float ratio)
+    {
+        ratio = (ratio - value).clamp(0F, 1F);
+    }
 }

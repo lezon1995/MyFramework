@@ -9,11 +9,6 @@
         float curBallDuration => duplicatedBallDuration * _player.durationPct;
         float curDuplicateChance => duplicateChance + _player.triggerChance;
 
-        public override void onAcquire()
-        {
-            base.onAcquire();
-        }
-
         public override void onEvent(DoHitEffect e)
         {
             base.onEvent(e);

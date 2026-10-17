@@ -605,7 +605,8 @@ MonoBehaviour:
     m_RotationOrder: 4
   Cooldown:
     Unlimited: 0
-    ConsumptionDuration: 4
+    ConsumptionDuration: 0
+    CooldownPct: 1
     PauseOnEmptyDuration: 0
     RefillDuration: 0
     CanInterruptRefill: 1

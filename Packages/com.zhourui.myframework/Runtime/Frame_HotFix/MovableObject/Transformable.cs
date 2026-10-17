@@ -367,6 +367,24 @@ public class Transformable : ComponentOwner, ITransformable
 			item?.Invoke();
 		}
 	}
+	public void setForwardDirection(Vector3 dir)
+	{
+		if (mTransform == null)
+			return;
+		mTransform.forward = dir;
+	}
+	public void setUpDirection(Vector3 dir)
+	{
+		if (mTransform == null)
+			return;
+		mTransform.up = dir;
+	}
+	public void setRightDirection(Vector3 dir)
+	{
+		if (mTransform == null)
+			return;
+		mTransform.right = dir;
+	}
 	public void setWorldPosition(Vector3 pos)
 	{
 		if (mTransform == null)

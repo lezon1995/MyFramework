@@ -12,7 +12,7 @@ namespace MoreMountains
         {
             inventory.AddRelic(def);
         }
-        
+
         public void applyStartOfTurnRelics()
         {
             foreach (var relic in relics)
@@ -28,10 +28,10 @@ namespace MoreMountains
                 relic.atTurnStartPostDraw();
         }
 
-        public void applyOnShootBallRelics(Ball ball)
+        public void onShootBall(Ball ball)
         {
             foreach (var relic in relics)
-                relic.onShootBall(ball);
+                relic.onShootBall(this, ball);
         }
 
         public bool hasRelic(string relicId)
@@ -71,6 +71,37 @@ namespace MoreMountains
             return null;
         }
 
+        public int getRelicCount<T>() where T : ARelic
+        {
+            int count = 0;
+            foreach (var r in relics)
+            {
+                if (r is T)
+                    count++;
+            }
+
+            return count;
+        }
+
+        public void getRelicNumber<T>(T relic, out int number, out int maxNumber) where T : ARelic
+        {
+            number = 0;
+            int count = 0;
+            foreach (var r in relics)
+            {
+                if (r is T)
+                {
+                    count++;
+                    if (r == relic)
+                    {
+                        number = count;
+                    }
+                }
+            }
+
+            maxNumber = count;
+        }
+
         public void fixedUpdateRelics(float dt)
         {
             for (int i = 0; i < relics.Count; i++)
@@ -90,6 +121,5 @@ namespace MoreMountains
                 arr.Add(relic.relicId);
             return arr;
         }
-
     }
 }

@@ -16,11 +16,12 @@ MonoBehaviour:
   TagInfo:
     MechanicTags: 
     StatusTags: 
-  BasePrice: 10
+  BasePrice: 500
   maxLevel: 4
   UpgradeCombineCount: 2
   UpgradeGoldCost: 0
   Icon: {fileID: 21300000, guid: eaff300a71626fb4fa64bbff9ae78a27, type: 3}
+  Radius: 0
   LevelColor: {r: 1, g: 1, b: 1, a: 1}
   Rarity: 0
   StatsTemplate: {fileID: 11400000, guid: 6dece2180cccd584d8b666edd5cee921, type: 2}
@@ -42,7 +43,11 @@ MonoBehaviour:
     m_FallbackState: 0
     m_WaitForCompletion: 0
     m_LocalVariables: []
+  InitialWeapon: {fileID: 0}
   MetaHandleWeapon: {fileID: 0}
+  RequireTargetToShoot: 0
+  RotateWithWeaponAttachment: 1
+  PlaceIconAtWeaponAttachment: 0
   BuildTypes: 7627000077270000
   references:
     version: 2

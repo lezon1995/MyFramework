@@ -141,6 +141,77 @@ public class SpeedBoots : ARelic
 }
 
 /// <summary>
+/// 若装备足球时，冲刺时会向前方发射一个足球
+/// </summary>
+public class FootballBoots : ARelic
+{
+    public static string ID = "FootballBoots";
+
+    public FootballBoots() : base(ID, "FootballBoots.png", RelicTier.UNCOMMON, LandingSound.SOLID) { }
+
+    public override void onPlayerStartDash(APlayer p, Vector3 start, Vector3 end)
+    {
+        p.getRelicNumber(this, out var num, out var maxNum);
+        foreach (var h in p.mainHandleWeapons)
+        {
+            if (h.CurrentWeapon is BallWeapon weapon)
+            {
+                if (weapon.BallDef.Type is BallType.Football)
+                {
+                    var state = weapon.DetermineSpawnState();
+                    var originPos = state.Position;
+                    var dir = end - start;
+                    state.Direction = dir;
+                    var left = dir.rotate(Quaternion.AngleAxis(90, Vector3.forward));
+                    var right = dir.rotate(Quaternion.AngleAxis(-90, Vector3.forward));
+                    var leftPos = originPos + left * (0.28F + weapon.BallDef.Radius);
+                    var rightPos = originPos + right * (0.28F + weapon.BallDef.Radius);
+
+                    switch (maxNum)
+                    {
+                        case 1:
+                            state.Position = originPos;
+                            break;
+                        case 2:
+                            switch (num)
+                            {
+                                case 1:
+                                    state.Position = leftPos;
+                                    break;
+                                case 2:
+                                    state.Position = rightPos;
+                                    break;
+                            }
+
+                            break;
+                        case 3:
+                            switch (num)
+                            {
+                                case 1:
+                                    state.Position = leftPos;
+                                    break;
+                                case 2:
+                                    state.Position = originPos;
+                                    break;
+                                case 3:
+                                    state.Position = rightPos;
+                                    break;
+                            }
+
+                            break;
+                    }
+
+                    weapon.SpawnProjectile(state);
+                    break;
+                }
+            }
+        }
+    }
+
+    public override void onPlayerStopDash(APlayer p) { }
+}
+
+/// <summary>
 /// VampiricTouch - 吸血
 /// 生命偷取+3%
 /// </summary>

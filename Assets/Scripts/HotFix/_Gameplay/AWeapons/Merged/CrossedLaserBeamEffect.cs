@@ -8,11 +8,11 @@ namespace MoreMountains;
 /// 多个目标顺序受到伤害
 /// 伤害递增
 /// </summary>
-public class CrossedLaserBeamEffect : ALogicEffect, IArgs<string, Ball, Brick>
+public class CrossedLaserBeamEffect : ALogicEffect, IArgs<string, Ball>
 {
     protected Ball ball;
 
-    public void onCreate(string path, Ball b1, Brick b2)
+    public void onCreate(string path, Ball b1)
     {
         duration = 0.5F;
         ball = b1;

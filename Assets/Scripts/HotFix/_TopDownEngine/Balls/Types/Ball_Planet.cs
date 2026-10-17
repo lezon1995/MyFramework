@@ -59,9 +59,6 @@ namespace MoreMountains
         // 弧线初始速度方向
         protected Vector3 _arcInitialDirection;
 
-        // 记录弧线飞入前的碰撞层设置
-        protected LayerMask _originalBounceLayers;
-
         public override void reset()
         {
             base.reset();
@@ -74,11 +71,6 @@ namespace MoreMountains
             _arcDuration = 0f;
             _arcInitialDirection = Vector3.zero;
 
-            // 恢复原始碰撞层
-            if (_originalBounceLayers.value != 0)
-            {
-                BounceLayers = _originalBounceLayers;
-            }
         }
 
         public override void onPreparedToShoot()
@@ -109,9 +101,6 @@ namespace MoreMountains
             _isArcFlying = true;
             _brickCollisionEnabled = false;
 
-            // 保存原始碰撞层设置
-            _originalBounceLayers = BounceLayers;
-
             // 暂时移除砖块层，只与障碍物和边界碰撞
             BounceLayers = LayerManager.Obstacles_Mask | LayerManager.Border_Mask;
 
@@ -131,6 +120,7 @@ namespace MoreMountains
 
         public override void OnFixedUpdate(float dt)
         {
+            FixedUpdatePowers(dt);
             CheckBrickHitTimerExpiration(dt);
             
             if (!_shouldMove)

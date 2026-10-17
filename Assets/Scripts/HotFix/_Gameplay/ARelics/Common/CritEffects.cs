@@ -1,14 +1,32 @@
+using UniStats;
+
 namespace MoreMountains;
 
 /// <summary>
-/// CriticalEye - 暴击之眼
-/// 暴击率+10%
+/// 暴击时，球的存活时间延长1秒
 /// </summary>
 public class CriticalEye : ARelic
 {
     public static string ID = "CriticalEye";
 
     public CriticalEye() : base(ID, "CriticalEye.png", RelicTier.COMMON, LandingSound.SOLID) { }
+
+    float deltaDuration;
+
+    protected override void onRelicDefSet(RelicDef d)
+    {
+        deltaDuration = d.Args[0];
+    }
+
+    public override void onBallImpactCrit(APlayer p, Ball ball, Brick brick, in Dmg dmg)
+    {
+        ball.extendDuration(deltaDuration);
+    }
+
+    public override void onBallSkillCrit(APlayer p, Ball ball, Brick brick)
+    {
+        ball.extendDuration(deltaDuration);
+    }
 
     public override ARelic makeCopy() => new CriticalEye();
 }
@@ -166,14 +184,10 @@ public class CrimsonEdge : ARelic
 
     public CrimsonEdge() : base(ID, "CrimsonEdge.png", RelicTier.RARE, LandingSound.SOLID) { }
 
-    // TODO: 需要实现暴击流血
-    // public override void onBallHitBrick(APlayer p, Ball ball, Brick brick, Vector2 normal, ref bool triggerRegularHit)
-    // {
-    //     if (ball.IsCriticalHit)
-    //     {
-    //         brick.AddStatusEffect(StatusEffect.Bleeding, 3f, 5f);
-    //     }
-    // }
+    public override void onKillBrick(APlayer p, Brick brick)
+    {
+        
+    }
 
     public override ARelic makeCopy() => new CrimsonEdge();
 }
@@ -193,9 +207,7 @@ public class PrecisionStrike : ARelic
 }
 
 /// <summary>
-/// Bloodlust - 嗜血
-/// 暴击时伤害增益可叠加
-/// [设计文案] 杀戮的渴望，暴击积累力量
+/// 生命值低于50%时，球速+50%
 /// </summary>
 public class Bloodlust : ARelic
 {
@@ -203,23 +215,29 @@ public class Bloodlust : ARelic
 
     public Bloodlust() : base(ID, "Bloodlust.png", RelicTier.RARE, LandingSound.HEAVY) { }
 
-    // TODO: 需要实现暴击伤害叠加
-    // private float damageBonus = 0f;
-    //
-    // public override void onBallHitBrick(APlayer p, Ball ball, Brick brick, Vector2 normal, ref bool triggerRegularHit)
-    // {
-    //     if (ball.IsCriticalHit)
-    //     {
-    //         damageBonus += 0.02f;
-    //         ball.GetStat(Ball.Stat.HitDamageRate, out var stat);
-    //         stat.AddPct(damageBonus);
-    //     }
-    // }
-    //
-    // public override void onFightingPhaseEnd(APlayer p)
-    // {
-    //     damageBonus = 0f;
-    // }
+    float healthPct, ballSpeedRate;
+
+    protected override void onRelicDefSet(RelicDef d)
+    {
+        ballSpeedRate = d.Args[0];
+        healthPct = d.Args[1];
+    }
+
+    public override void onEnterBloodied(APlayer p)
+    {
+        if (p.GetStat(Character.Stat.BallisticSpeed, out var stat))
+        {
+            stat.BonusPct.AddFlat(ballSpeedRate, ID);
+        }
+    }
+
+    public override void onExitBloodied(APlayer p)
+    {
+        if (p.GetStat(Character.Stat.BallisticSpeed, out var stat))
+        {
+            stat.BonusPct.RemoveMod(ID);
+        }
+    }
 
     public override ARelic makeCopy() => new Bloodlust();
 }

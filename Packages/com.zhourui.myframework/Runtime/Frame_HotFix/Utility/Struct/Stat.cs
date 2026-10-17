@@ -16,15 +16,12 @@ public struct Stat
         extraMultiplier = 0;
     }
 
-    public void increase(float delta)
-    {
-        extra += delta;
-    }
-
-    public void increasePct(float delta)
-    {
-        extraMultiplier += delta;
-    }
+    public void increase(float delta) => extra += delta;
+    public void decrease(float delta) => extra -= delta;
+    public void setExtra(float e) => extra = e;
+    public void increasePct(float delta) => extraMultiplier += delta;
+    public void decreasePct(float delta) => extraMultiplier -= delta;
+    public void setExtraPct(float pct) => extraMultiplier = pct;
 
     public void reset()
     {

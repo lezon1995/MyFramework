@@ -362,4 +362,9 @@ public enum RelicType
     RainbowTrail,          // 彩虹尾迹 - 球带有彩虹
     SparkleEffect,         // 闪亮特效 - 华丽的粒子效果
     FireworkBall,          // 烟花球 - 爆炸时产生烟花
+
+    FootballBoots,
+    LaserGuidance,
+    StoreOwner,
+    BloodLife,
 }

@@ -4,7 +4,6 @@ using UnityEngine;
 namespace MoreMountains
 {
     public partial class Ball : IEventRouter
-        , IEvent<OnBrickColliderChanged>
         , IEvent<DoHitEffect>
         , IEvent<DoSkillEffect>
         , IEvent<DoAttackKillEffect>
@@ -16,7 +15,7 @@ namespace MoreMountains
 
         public virtual bool onImpactHitEnter(Brick brick, Vector2 normal, out bool triggerRegularHit)
         {
-            var dmg = getHitDmg(brick, normal);
+            var dmg = getImpactDmg(brick, normal);
             brick.onHitEnter(this, normal);
 
             playHitBrickSfx(brick);
@@ -30,7 +29,7 @@ namespace MoreMountains
             brick.Health.Damage(ref dmg, gameObject, _player, DamageOnTouch.InvincibilityDuration, DamageOnTouch.DamageDirection);
             DamageOnTouch.ApplyKnockback(brick.Health, brick.Controller2D, dmg);
 
-            onCauseHitDamage(brick, in dmg);
+            onCauseImpactDamage(brick, in dmg);
 
             return true;
         }
@@ -54,19 +53,54 @@ namespace MoreMountains
                 b.Health.ApplyKnockback(knockback, dmg);
             }
 
+            onCauseSkillDamage(b, in dmg);
+
             return true;
         }
 
-        public virtual bool onCauseHitDamage(Brick brick, in Dmg dmg)
+        public virtual bool onImpactHitEnter(APlayer p, Vector2 normal)
         {
-            _player.onBallCauseHitDamage(this, brick, in dmg);
+            if (p.isBallReflectable)
+            {
+                // var dmg = getImpactDmg(p, normal);
+                // p.onHitEnter(this, normal);
+
+                foreach (var power in powers)
+                    power.onHitPlayer(p);
+
+                playHitPlayerSfx(p);
+                playHitPlayerVfx(p, normal);
+                // triggerRegularHit = true;
+                // foreach (var power in powers)
+                // power.onImpactHitPlayer(p, normal);
+
+                _player.onBallImpactHitPlayer(this, p, normal);
+
+                // p.Health.Damage(ref dmg, gameObject, _player, DamageOnTouch.InvincibilityDuration, DamageOnTouch.DamageDirection);
+                // DamageOnTouch.ApplyKnockback(p.Health, p.Controller2D, dmg);
+
+                // onCauseImpactDamage(p, in dmg);
+            }
+
             return true;
         }
 
-        public virtual bool onImpactCrit(Brick brick)
+        public virtual bool onCauseImpactDamage(Brick brick, in Dmg dmg)
+        {
+            _player.onBallCauseImpactDamage(this, brick, in dmg);
+            return true;
+        }
+
+        public virtual bool onCauseSkillDamage(Brick brick, in Dmg dmg)
+        {
+            _player.onBallCauseSkillDamage(this, brick, in dmg);
+            return true;
+        }
+
+        public virtual bool onImpactCrit(Brick brick, in Dmg dmg)
         {
             counters.critHit.count();
-            _player.onBallImpactCrit(this, brick);
+            _player.onBallImpactCrit(this, brick, in dmg);
             return true;
         }
 
@@ -95,11 +129,6 @@ namespace MoreMountains
             onKill(brick);
             counters.skillKill.count();
             return true;
-        }
-
-        public void onEvent(OnBrickColliderChanged e)
-        {
-            refreshHitInfo();
         }
 
         public virtual void onEvent(DoHitEffect e)
@@ -139,22 +168,17 @@ namespace MoreMountains
             }
         }
 
-        protected virtual void onBounceFinished()
-        {
-        }
+        protected virtual void onBounceFinished() { }
 
-        public virtual void onRecollected()
-        {
-        }
+        public virtual void onRecollected() { }
 
-        protected virtual void onLevelSetup(int lv)
-        {
-        }
+        protected virtual void onLevelSetup(int lv) { }
 
         public virtual bool onPlayerDashHit(Vector3 position, Vector3 direction)
         {
             isDashHitDisable = true;
             dashHitTimer = 0.2F;
+            _player.onDashHitBall(this, position, direction);
             return false;
         }
     }

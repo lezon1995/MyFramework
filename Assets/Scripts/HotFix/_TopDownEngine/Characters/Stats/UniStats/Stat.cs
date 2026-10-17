@@ -9,13 +9,9 @@ namespace UniStats
 {
     public class Stat : Stat<float>
     {
-        public Stat(float initial, float bonusRatio = 1F) : base(initial, bonusRatio)
-        {
-        }
+        public Stat(float initial, float bonusRatio = 1F) : base(initial, bonusRatio) { }
 
-        public Stat(Func<float> initialGetter, float bonusRatio = 1F) : base(initialGetter, bonusRatio)
-        {
-        }
+        public Stat(Func<float> initialGetter, float bonusRatio = 1F) : base(initialGetter, bonusRatio) { }
     }
 
     /// <summary>
@@ -43,6 +39,9 @@ namespace UniStats
         public Attr<T> BonusPct { get; }
         public Attr<T> BonusRatio { get; }
 
+        public T MinValue { get; set; }
+        public T MaxValue { get; set; }
+
         public Stat(Func<T> initialGetter, T bonusRatio) : this(initialGetter(), bonusRatio)
         {
             InitialGetter = initialGetter;
@@ -56,6 +55,9 @@ namespace UniStats
             BonusFlat = new();
             BonusPct = new();
             BonusRatio = new(bonusRatio);
+            
+            MinValue = op.MinValue;
+            MaxValue = op.MaxValue;
 
             Event = new();
             OnChanged = (_, _) => SetDirty();
@@ -131,6 +133,7 @@ namespace UniStats
             var realBonus = op.Add(bonusFlat, op.Mul(initial, bonusPct));
             realBonus = op.Mul(realBonus, bonusRatio);
             var v = op.Add(initial, realBonus);
+            v = op.Clamp(v, MinValue, MaxValue);
             _cache = v;
             _cacheBonus = realBonus;
             Dirty = false;
@@ -197,12 +200,8 @@ namespace UniStats
             return $"{Value} = {Initial} + ({BonusFlat.Value} + {Initial} * {BonusPct.Value}) * {BonusRatio.Value}";
         }
 
-        public void Release()
-        {
-        }
+        public void Release() { }
 
-        public void OnRelease()
-        {
-        }
+        public void OnRelease() { }
     }
 }

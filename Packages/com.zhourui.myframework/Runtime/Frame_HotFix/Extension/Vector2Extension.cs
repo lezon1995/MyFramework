@@ -62,5 +62,7 @@ public static class Vector2Extension
 	{
 		return new Vector3(vec.x, 0.0f, vec.y).getAngle(radian);
 	}
+	public static float angle(this Vector2 vec) => new Vector3(vec.x, 0.0f, vec.y).getAngle(ANGLE.DEGREE);
+	public static float radian(this Vector2 vec) => new Vector3(vec.x, 0.0f, vec.y).getAngle(ANGLE.RADIAN);
 	public static float dot(this Vector2 v0, Vector2 v1) { return v0.x * v1.x + v0.y * v1.y; }
 }

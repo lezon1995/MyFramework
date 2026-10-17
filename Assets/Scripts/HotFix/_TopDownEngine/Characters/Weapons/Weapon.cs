@@ -491,6 +491,10 @@ namespace MoreMountains
                 _comboWeapon.Initialization();
             }
         }
+        
+        public virtual void OnInstantiateFromHandleWeapon(CharacterHandleWeapon handleWeapon)
+        {
+        }
 
         /// <summary>
         /// Sets the weapon's owner
@@ -832,6 +836,12 @@ namespace MoreMountains
                 RestartOrTurnOff();
 
             return true;
+        }
+
+        public void ResetDelayBetweenUsesTimer()
+        {
+            _lastShootRequestAt = -float.MaxValue;
+            _delayBetweenUsesTimer.finish();
         }
 
         void RestartOrTurnOff()

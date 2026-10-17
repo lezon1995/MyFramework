@@ -109,18 +109,18 @@ namespace MoreMountains
             {
                 if (p.GetStat(mod.stat, out var stat))
                 {
-                    string modKey = null;
+                    var modKey = Guid.NewGuid().ToString();
                     if (!mod.BonusFlat.isZero())
                     {
-                        modKey = stat.BonusFlat.AddFlat(mod.BonusFlat, name: Guid.NewGuid().ToString());
+                        stat.BonusFlat.AddFlat(mod.BonusFlat, modKey);
                     }
                     else if (!mod.BonusPct.isZero())
                     {
-                        modKey = stat.BonusPct.AddFlat(mod.BonusPct, name: Guid.NewGuid().ToString());
+                        stat.BonusPct.AddFlat(mod.BonusPct, modKey);
                     }
                     else if (!mod.BonusRatio.isZero())
                     {
-                        modKey = stat.BonusRatio.AddFlat(mod.BonusRatio, name: Guid.NewGuid().ToString());
+                        stat.BonusRatio.AddFlat(mod.BonusRatio, modKey);
                     }
 
                     modKeys ??= DictionaryPool<Character.Stat, string>.Get();
@@ -179,11 +179,9 @@ namespace MoreMountains
 
         public void onPlayerEndTurn() { }
 
-        public virtual void onShootBall(Ball ball) { }
-
-        public virtual void onEnterBloodied() { }
-
-        public virtual void onExitBloodied() { }
+        public virtual void onShootBall(APlayer p, Ball ball) { }
+        public virtual void onEnterBloodied(APlayer p) { }
+        public virtual void onExitBloodied(APlayer p) { }
 
         public void onManualDiscard() { }
 
@@ -196,7 +194,7 @@ namespace MoreMountains
         public void onPlayerGainBlock(ref int blockAmount) { }
 
         public virtual void onBeforeHeal(ref int healAmount) { }
-        public virtual void onAfterHeal(Heal heal) { }
+        public virtual void onAfterHeal(APlayer p, Heal heal) { }
 
         public void onMeditate() { }
 
@@ -306,25 +304,23 @@ namespace MoreMountains
         // }
 
         public void onLoseHp(int damageAmount) { }
-
         public void onLoseHpLast(ref int damageAmount) { }
-
         public void wasHPLost(int damageAmount) { }
 
         public virtual void onPlayerTurnUpdate(APlayer p, float dt) { }
 
         public virtual void onBallBeginOverlappingBrickAll(APlayer p, Ball ball, Brick brick) { }
-
         public virtual void onBallEndOverlappingBrickAll(APlayer p, Ball ball, Brick brick, bool prematurely) { }
-
         public virtual void onBallBeginOverlappingBrickOne(APlayer p, Ball ball, Brick brick) { }
-
         public virtual void onBallEndOverlappingBrickOne(APlayer p, Ball ball, Brick brick, bool prematurely) { }
 
+        public virtual void onBallBeginOverlappingPlayerAll(APlayer p, Ball ball, APlayer p2) { }
+        public virtual void onBallEndOverlappingPlayerAll(APlayer p, Ball ball, APlayer p2, bool prematurely) { }
+        public virtual void onBallBeginOverlappingPlayerOne(APlayer p, Ball ball, APlayer p2) { }
+        public virtual void onBallEndOverlappingPlayerOne(APlayer p, Ball ball, APlayer p2, bool prematurely) { }
+
         public virtual void onPlayerTurnBegin(APlayer p) { }
-
         public virtual void onPlayerTurnEnd(APlayer p) { }
-
         public virtual void onFightingPhaseEnd(APlayer p) { }
 
         public virtual ARelic makeCopy()
@@ -333,19 +329,24 @@ namespace MoreMountains
             return (ARelic)instance;
         }
 
+        public virtual void onBallHitBorder(APlayer p, Ball ball, Border border) { }
         public virtual void onBallHitBorderBot(APlayer p, Ball ball, BorderBot border, Vector2 normal, ref bool forceReturn) { }
         public virtual void onBallHitBorderTop(APlayer p, Ball ball, BorderTop border, ref Vector2 normal) { }
         public virtual void onBallHitBorderLeft(APlayer p, Ball ball, BorderLeft border, ref Vector2 normal) { }
         public virtual void onBallHitBorderRight(APlayer p, Ball ball, BorderRight border, ref Vector2 normal) { }
         public virtual void onBallImpactHitBrick(APlayer p, Ball ball, Brick brick, Vector2 normal, ref bool triggerRegularHit) { }
+        public virtual void onBallImpactHitPlayer(APlayer p, Ball ball, APlayer p2, Vector2 normal) { }
         public virtual void onBallSkillHitBrick(APlayer p, Ball ball, Brick brick) { }
-        public virtual void onBallImpactCrit(APlayer p, Ball ball, Brick brick) { }
+        public virtual void onBallImpactCrit(APlayer p, Ball ball, Brick brick, in Dmg dmg) { }
         public virtual void onBallSkillCrit(APlayer p, Ball ball, Brick brick) { }
         public virtual void onBallHitObstacle(APlayer p, Ball ball, Obstacle obstacle, ref Vector2 normal) { }
+        public virtual void onBallEnterPlayer(APlayer p, Ball ball, APlayer p2, ref Vector2 normal, ref bool needReflect) { }
         public virtual void onBallReflect(APlayer p, Ball ball, Vector2 normal, bool fromBrick, ref Vector2 reflectDir) { }
         public virtual void onBallKillBrick(APlayer p, Ball ball, Brick brick) { }
         public virtual void onKillBrick(APlayer p, Brick brick) { }
-        public virtual void onBallCauseHitDamage(APlayer p, Ball ball, Brick brick, in Dmg dmg) { }
+        public virtual void onKillBrickTotally(APlayer p, Brick brick) { }
+        public virtual void onBallCauseImpactDamage(APlayer p, Ball ball, Brick brick, in Dmg dmg) { }
+        public virtual void onBallCauseSkillDamage(APlayer p, Ball ball, Brick brick, in Dmg dmg) { }
         public virtual void onDropCoin(APlayer p, Coin coin) { }
         public virtual void onCauseDotDamage(APlayer p, Brick brick, in Dmg dmg) { }
         public virtual void onPlayerStartDash(APlayer p, Vector3 start, Vector3 end) { }
@@ -353,5 +354,13 @@ namespace MoreMountains
         public virtual void onPlayerDashing(APlayer p, Vector3 pos) { }
         public virtual void onShield(APlayer p, int amount) { }
         public virtual void onBallDoHitEffect(APlayer p, Ball ball, DoHitEffect e, float delay) { }
+        public virtual void onPlayerDashHitBall(APlayer p, Ball ball, Vector3 pos, Vector3 dir) { }
+        public virtual void onPlayerHealthChanged(APlayer p, int curHealth) { }
+        public virtual void onPlayerBeforeHandleImpactDamage(APlayer p, Ball ball, Brick brick, ref Dmg dmg) { }
+        public virtual void onPlayerBeforeHandleSkillDamage(APlayer p, Ball ball, Brick brick, ref Dmg dmg) { }
+        public virtual void onBallDeath(APlayer p, Ball ball) { }
+        public virtual void onTakeDamage(APlayer p, in Dmg dmg) { }
+        public virtual void onBallGetImpactDmg(APlayer p, Ball ball, ref Dmg dmg) { }
+        public virtual void onBallGetSkillDmg(APlayer p, Ball ball, ref Dmg dmg) { }
     }
 }

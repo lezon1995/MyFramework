@@ -24,9 +24,7 @@ public class FireElemental : ARelic
 }
 
 /// <summary>
-/// IceElemental - 冰元素
-/// 冻结时间+1秒
-/// [设计文案] 冰冻的力量
+/// 对移动受损的敌人造成的伤害提高20%
 /// </summary>
 public class IceElemental : ARelic
 {
@@ -34,11 +32,30 @@ public class IceElemental : ARelic
 
     public IceElemental() : base(ID, "IceElemental.png", RelicTier.RARE, LandingSound.SOLID) { }
 
-    // TODO: 需要实现冻结时间增加
-    // public override void onEquip(APlayer p)
-    // {
-    //     p.FreezeDurationBonus += 1f;
-    // }
+    float damage;
+
+    protected override void onRelicDefSet(RelicDef d)
+    {
+        damage = d.Args[0];
+    }
+
+    public override void onPlayerBeforeHandleImpactDamage(APlayer p, Ball ball, Brick brick, ref Dmg dmg)
+    {
+        brick.GetStat(Character.Stat.MS, out var stat);
+        if (stat.BonusValue < 0 || brick.conditionState.Is(Character.Conditions.Frozen, Character.Conditions.Stunned))
+        {
+            dmg.addDmgRate(damage);
+        }
+    }
+
+    public override void onPlayerBeforeHandleSkillDamage(APlayer p, Ball ball, Brick brick, ref Dmg dmg)
+    {
+        brick.GetStat(Character.Stat.MS, out var stat);
+        if (stat.BonusValue < 0 || brick.conditionState.Is(Character.Conditions.Frozen, Character.Conditions.Stunned))
+        {
+            dmg.addDmgRate(damage);
+        }
+    }
 
     public override ARelic makeCopy() => new IceElemental();
 }
@@ -300,7 +317,7 @@ public class LightElemental : ARelic
 
 /// <summary>
 /// DarkElemental - 暗元素
-/// 生命偷取+20%
+/// 治疗效果+20%
 /// </summary>
 public class DarkElemental : ARelic
 {
@@ -312,9 +329,7 @@ public class DarkElemental : ARelic
 }
 
 /// <summary>
-/// ChaosElemental - 混沌元素
-/// 所有元素伤害+15%
-/// [设计文案] 混乱的元素力量
+/// 球暴击时施加1次额外的撞击特效，暴击率+5%
 /// </summary>
 public class ChaosElemental : ARelic
 {
@@ -322,11 +337,11 @@ public class ChaosElemental : ARelic
 
     public ChaosElemental() : base(ID, "ChaosElemental.png", RelicTier.SPECIAL, LandingSound.MAGICAL) { }
 
-    // TODO: 需要实现所有元素增伤
-    // public override void onEquip(APlayer p)
-    // {
-    //     p.AllElementalDamageMultiplier *= 1.15f;
-    // }
+    public override void onBallImpactCrit(APlayer p, Ball ball, Brick brick, in Dmg dmg)
+    {
+        var e = new DoHitEffect(ball, brick, in dmg);
+        effectManager.addLogic<BallDoHitEffect>().with(ball, e, 0.1F);
+    }
 
     public override ARelic makeCopy() => new ChaosElemental();
 }

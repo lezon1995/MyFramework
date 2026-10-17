@@ -21,11 +21,6 @@ namespace MoreMountains
             base.onRelease();
         }
 
-        public override void OnFixedUpdate(float dt)
-        {
-            base.OnFixedUpdate(dt);
-        }
-
         public override bool CollidingWithBrick(Brick brick, Vector2 normal)
         {
             if (brickManager.brickDamageTimers.tryGetValue(brick, out var damageTimer))

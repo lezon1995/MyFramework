@@ -5,6 +5,7 @@ namespace MoreMountains
     public partial class APlayer : IEvent<DoHitEffect>
         , IEvent<DoSkillEffect>
         , IEvent<DoAttackKillEffect>
+        , IEvent<OnBallDeath>
     {
         protected void addListeners() => Event.addAllListeners(this);
         protected void removeListeners() => Event.removeAllListeners(this);
@@ -66,6 +67,18 @@ namespace MoreMountains
             base.onEvent(e);
 
             onPlayerStopDash();
+        }
+        
+        public override void onEvent(OnDmg e)
+        {
+            base.onEvent(e);
+
+            onTakeDamage(in e.Dmg);
+        }
+
+        public void onEvent(OnBallDeath e)
+        {
+            onBallDeath(e.ball);
         }
     }
 }

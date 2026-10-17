@@ -8,9 +8,7 @@ public class HeartOfGold : ARelic
 {
     public static string ID = "HeartOfGold";
 
-    public HeartOfGold() : base(ID, "HeartOfGold.png", RelicTier.UNCOMMON, LandingSound.HEAVY)
-    {
-    }
+    public HeartOfGold() : base(ID, "HeartOfGold.png", RelicTier.UNCOMMON, LandingSound.HEAVY) { }
 
     public override ARelic makeCopy() => new HeartOfGold();
 }
@@ -24,9 +22,7 @@ public class RegenerationRing : ARelic
 {
     public static string ID = "RegenerationRing";
 
-    public RegenerationRing() : base(ID, "RegenerationRing.png", RelicTier.UNCOMMON, LandingSound.SOLID)
-    {
-    }
+    public RegenerationRing() : base(ID, "RegenerationRing.png", RelicTier.UNCOMMON, LandingSound.SOLID) { }
 
     // TODO: 需要实现持续回血
     // public override void onPlayerTurnUpdate(APlayer p, float dt)
@@ -45,9 +41,7 @@ public class StoneSkin : ARelic
 {
     public static string ID = "StoneSkin";
 
-    public StoneSkin() : base(ID, "StoneSkin.png", RelicTier.UNCOMMON, LandingSound.HEAVY)
-    {
-    }
+    public StoneSkin() : base(ID, "StoneSkin.png", RelicTier.UNCOMMON, LandingSound.HEAVY) { }
 
     public override ARelic makeCopy() => new StoneSkin();
 }
@@ -59,9 +53,7 @@ public class BarrierWard : ARelic
 {
     public static string ID = "BarrierWard";
 
-    public BarrierWard() : base(ID, "BarrierWard.png", RelicTier.UNCOMMON, LandingSound.MAGICAL)
-    {
-    }
+    public BarrierWard() : base(ID, "BarrierWard.png", RelicTier.UNCOMMON, LandingSound.MAGICAL) { }
 
     float rate;
     float duration;
@@ -71,7 +63,7 @@ public class BarrierWard : ARelic
         rate = d.Args[0];
         duration = d.Args[1];
     }
-    
+
     public override void onShield(APlayer p, int amount)
     {
         if (brickManager.getRandomActiveBrick(out var brick))
@@ -97,9 +89,7 @@ public class LifeDrain : ARelic
 {
     public static string ID = "LifeDrain";
 
-    public LifeDrain() : base(ID, "LifeDrain.png", RelicTier.RARE, LandingSound.SOLID)
-    {
-    }
+    public LifeDrain() : base(ID, "LifeDrain.png", RelicTier.RARE, LandingSound.SOLID) { }
 
     // TODO: 需要实现伤害转化为治疗
     // public override void onBallHitBrick(APlayer p, Ball ball, Brick brick, Vector2 normal, ref bool triggerRegularHit)
@@ -120,9 +110,7 @@ public class ImmortalSoul : ARelic
 {
     public static string ID = "ImmortalSoul";
 
-    public ImmortalSoul() : base(ID, "ImmortalSoul.png", RelicTier.SPECIAL, LandingSound.MAGICAL)
-    {
-    }
+    public ImmortalSoul() : base(ID, "ImmortalSoul.png", RelicTier.SPECIAL, LandingSound.MAGICAL) { }
 
     // TODO: 需要实现免疫致命伤害
     // private bool hasProtection = true;
@@ -153,9 +141,7 @@ public class VampireFang : ARelic
 {
     public static string ID = "VampireFang";
 
-    public VampireFang() : base(ID, "VampireFang.png", RelicTier.RARE, LandingSound.SOLID)
-    {
-    }
+    public VampireFang() : base(ID, "VampireFang.png", RelicTier.RARE, LandingSound.SOLID) { }
 
     public override ARelic makeCopy() => new VampireFang();
 }
@@ -169,9 +155,7 @@ public class ThornsArmor : ARelic
 {
     public static string ID = "ThornsArmor";
 
-    public ThornsArmor() : base(ID, "ThornsArmor.png", RelicTier.RARE, LandingSound.HEAVY)
-    {
-    }
+    public ThornsArmor() : base(ID, "ThornsArmor.png", RelicTier.RARE, LandingSound.HEAVY) { }
 
     // TODO: 需要实现伤害反弹
     // public override int onAttacked(DamageInfo info, int damageAmount)
@@ -186,22 +170,27 @@ public class ThornsArmor : ARelic
 
 /// <summary>
 /// HealingLight - 治疗之光
-/// 击杀敌人时恢复生命
+/// 击杀敌人时恢复已损失生命值的2%
 /// [设计文案] 神圣的治愈力量
 /// </summary>
 public class HealingLight : ARelic
 {
     public static string ID = "HealingLight";
 
-    public HealingLight() : base(ID, "HealingLight.png", RelicTier.RARE, LandingSound.MAGICAL)
+    public HealingLight() : base(ID, "HealingLight.png", RelicTier.RARE, LandingSound.MAGICAL) { }
+
+    float rate;
+
+    protected override void onRelicDefSet(RelicDef d)
     {
+        rate = d.Args[0];
     }
 
-    // TODO: 需要实现击杀回血
-    // public override void onBallKillBrick(APlayer p, Ball ball, Brick brick)
-    // {
-    //     p.Heal(2);
-    // }
+    public override void onKillBrickTotally(APlayer p, Brick brick)
+    {
+        var heal = new Heal(rate, Heal.Algos.LostPct);
+        effectManager.addLogic<HealingBulletEffect>().with(brick.transform, p.transform, heal);
+    }
 
     public override ARelic makeCopy() => new HealingLight();
 }
@@ -216,9 +205,7 @@ public class ShieldGenerator : ARelic
     public static string ID = "ShieldGenerator";
     private float timer = 0f;
 
-    public ShieldGenerator() : base(ID, "ShieldGenerator.png", RelicTier.RARE, LandingSound.SOLID)
-    {
-    }
+    public ShieldGenerator() : base(ID, "ShieldGenerator.png", RelicTier.RARE, LandingSound.SOLID) { }
 
     // TODO: 需要实现定时生成护盾
     // public override void onPlayerTurnUpdate(APlayer p, float dt)

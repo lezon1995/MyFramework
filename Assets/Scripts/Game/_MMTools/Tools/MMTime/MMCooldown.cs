@@ -24,6 +24,7 @@ namespace MoreMountains.Tools
 
         /// the time it takes, in seconds, to consume the object
         public float ConsumptionDuration;
+        public float CooldownPct = 1F;
 
         /// the pause to apply before refilling once the object's been depleted
         public float PauseOnEmptyDuration;
@@ -50,7 +51,7 @@ namespace MoreMountains.Tools
         /// </summary>
         public virtual void Initialization()
         {
-            DurationLeft = ConsumptionDuration;
+            DurationLeft = ConsumptionDuration * CooldownPct;
             StopElapsed = 0F;
             ChangeState(States.Idle);
         }
@@ -149,7 +150,7 @@ namespace MoreMountains.Tools
                     DurationLeft += dt;
                     if (DurationLeft >= RefillDuration)
                     {
-                        DurationLeft = ConsumptionDuration;
+                        DurationLeft = ConsumptionDuration * CooldownPct;
                         ChangeState(States.Idle);
                     }
 

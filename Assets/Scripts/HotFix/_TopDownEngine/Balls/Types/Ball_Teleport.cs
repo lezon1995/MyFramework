@@ -8,11 +8,6 @@ namespace MoreMountains
         const string mod_key = nameof(Ball_Teleport);
         public float speedPctPerBounce = 0.1F;
 
-        public override void onAcquire()
-        {
-            base.onAcquire();
-        }
-
         protected override void onBounceFinished()
         {
             fx.play(FxDefine.STAR_FLASH_Blue, getWorldPosition());

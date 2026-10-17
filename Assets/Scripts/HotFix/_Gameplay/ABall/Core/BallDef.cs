@@ -11,6 +11,8 @@ namespace MoreMountains
     [CreateAssetMenu(menuName = "MyFramework/Gameplay/BallDef")]
     public class BallDef : ScriptableObject, IRarityObject
     {
+        public static BuyBallDefPriceModifier buyPriceModifier { get; set; }
+
         public int BallDefId => (int)Type;
         public BallType Type;
         public TagInfo TagInfo;
@@ -27,6 +29,7 @@ namespace MoreMountains
 
         [Header("Visual")]
         public Sprite Icon;
+        public float Radius;
 
         public Color LevelColor = Color.white;
         public ItemRarity Rarity;
@@ -42,6 +45,17 @@ namespace MoreMountains
         public bool RotateWithWeaponAttachment = true;
         public bool PlaceIconAtWeaponAttachment;
 
+        public int GetBuyPrice(out int rawPrice)
+        {
+            var rate = Mathf.Clamp(100F, 0F, 100F);
+            var ratio = rate / 100F;
+            var buyPrice = BasePrice;
+            rawPrice = buyPrice;
+            buyPriceModifier?.Invoke(this, ref buyPrice, ref ratio);
+            var realPrice = buyPrice * ratio;
+            return (int)Mathf.Max(1, realPrice);
+        }
+        
         public static void BuildDescription(MyStringBuilder sb, BallItem item, APlayer p = null)
         {
             var def = item.Def;

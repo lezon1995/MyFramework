@@ -1,25 +1,11 @@
-﻿using MoreMountains.Tools;
-using UnityEngine;
-using Random = UnityEngine.Random;
+﻿using UnityEngine;
 
 namespace MoreMountains
 {
-    public class BallGunWeapon : ProjectileWeapon, IStatsGetter<Ball.Stat>
+    public class BallGunWeapon : BallWeapon, IStatsGetter<Ball.Stat>
     {
-        APlayer _player;
-
-        [MMInspectorGroup("ID")]
-        public BallDef BallDef;
-        public BallItem BallItem { get; set; }
-        public BallInventorySlot BallSlot { get; set; }
-        public int BallLevel;
-
-        [MMInspectorGroup("ID")]
-        public SpriteRenderer BallWeaponSpriteRenderer;
-
         protected SpriteRenderer BallWeaponAttachmentSpriteRenderer;
 
-        public bool HideWeaponRenderer = true;
         public int ShootFixedUpdateInterval = 5;
 
         public override bool requireTargetToShoot
@@ -81,10 +67,7 @@ namespace MoreMountains
             BallWeaponAttachmentSpriteRenderer = spriteRenderer;
         }
 
-        public void SetBallSlot(BallInventorySlot slot) => BallSlot = slot;
-        public void SetBallItem(BallItem item) => BallItem = item;
-
-        public void SetBallDef(BallDef def)
+        public override void SetBallDef(BallDef def)
         {
             BallDef = def;
 
@@ -119,12 +102,15 @@ namespace MoreMountains
                 BallWeaponSpriteRenderer.gameObject.SetActive(false);
                 BallWeaponAttachmentSpriteRenderer.enabled = false;
             }
+
+            if (BallWeaponSpriteRenderer)
+                BallWeaponSpriteRenderer.enabled = false;
+
+            if (BallWeaponAttachmentSpriteRenderer)
+                BallWeaponAttachmentSpriteRenderer.enabled = false;
         }
 
-        static readonly int PixelOutlineColor = Shader.PropertyToID("_PixelOutlineColor");
-        static readonly int PixelOutlineFade = Shader.PropertyToID("_PixelOutlineFade");
-
-        public void SetBallLevel(int level)
+        public override void SetBallLevel(int level)
         {
             Material material;
             if (BallDef && BallDef.PlaceIconAtWeaponAttachment)
@@ -154,15 +140,18 @@ namespace MoreMountains
             }
         }
 
+        public override void onBallRecollected(Ball ball)
+        {
+            
+        }
+
         public override void SetOwner(Character owner, CharacterHandleWeapon handleWeapon = null)
         {
             base.SetOwner(owner, handleWeapon);
             _player = owner as APlayer;
         }
 
-        protected override void OnOwnerStatsSet()
-        {
-        }
+        protected override void OnOwnerStatsSet() { }
 
         void InitializeStats()
         {
@@ -237,10 +226,27 @@ namespace MoreMountains
             }
         }
 
-        public override GameObject SpawnProjectile(Vector3 spawnPosition, int projectileIndex, int totalProjectiles, bool triggerObjectActivation = true)
+        protected override void OnWeaponUseSpawnProjectile()
         {
-            var ball = _player.BallManagement.Instance.acquireBall(BallDef.Type, spawnPosition, BallLevel, 0F);
-            ball.setTeleportPosition(spawnPosition);
+            var perShot = ProjectilesPerShot;
+            var newDirection = transform.right * (Flipped ? -1 : 1);
+            for (int i = 0; i < perShot; i++)
+            {
+                var state = SpawnState;
+                if (SpawnStateGetter != null)
+                    state = SpawnStateGetter(state, newDirection, i, perShot);
+
+                state.ProjectileIndex = i;
+                state.TotalProjectiles = perShot;
+                SpawnProjectile(state);
+                PlaySpawnFeedbacks();
+            }
+        }
+
+        public override GameObject SpawnProjectile(SpawnState state)
+        {
+            var ball = _player.BallManagement.Instance.acquireBall(BallDef.Type, state.Position, BallLevel, 0F);
+            ball.setTeleportPosition(state.Position);
             if (_projectileSpawnTransform)
             {
                 ball.setTeleportPosition(_projectileSpawnTransform.position);
@@ -260,42 +266,21 @@ namespace MoreMountains
             ball.SetBallSlot(BallSlot);
             ball.SetTarget(_aimTarget);
 
-            if (RandomSpread)
+            Vector3 newDirection = transform.right * (Flipped ? -1 : 1);
+            if (!state.Direction.isZero())
             {
-                var x = Random.Range(-Spread.x, Spread.x);
-                var y = Random.Range(-Spread.y, Spread.y);
-                var z = Random.Range(-Spread.z, Spread.z);
-                _randomSpreadDirection = new(x, y, z);
-            }
-            else
-            {
-                if (totalProjectiles > 1)
-                {
-                    var dir = MMMaths.Remap(projectileIndex, 0, totalProjectiles - 1, -Spread, Spread);
-                    _randomSpreadDirection = dir;
-                }
-                else
-                {
-                    _randomSpreadDirection = Vector3.zero;
-                }
+                newDirection = state.Direction;
             }
 
-            var spread = Quaternion.Euler(_randomSpreadDirection);
-            var newDirection = spread * transform.right * (Flipped ? -1 : 1);
             if (Owner.Orientation2D)
             {
                 ball.setShootDirection(newDirection);
-                ball.SetDirection(newDirection, spread * transform.rotation, Owner.Orientation2D.IsFacingRight);
+                ball.SetDirection(newDirection, transform.rotation, Owner.Orientation2D.IsFacingRight);
             }
             else
             {
                 ball.setShootDirection(newDirection);
-                ball.SetDirection(newDirection, spread * transform.rotation);
-            }
-
-            if (RotateWeaponOnSpread)
-            {
-                transform.rotation *= spread;
+                ball.SetDirection(newDirection, transform.rotation);
             }
 
             // if (triggerObjectActivation)
@@ -304,6 +289,9 @@ namespace MoreMountains
             // }
 
             ball.onPreparedToShoot();
+
+            _player.onShootBall(ball);
+
             return ball.getGameObject();
         }
 

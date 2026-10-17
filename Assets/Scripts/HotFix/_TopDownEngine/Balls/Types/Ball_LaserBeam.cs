@@ -10,7 +10,16 @@
         {
             base.onEvent(e);
 
-            effectManager.addLogic<LaserBeamEffect>().with(path, this, e.brick, randomFloat(0F, 360F));
+            var angle = randomFloat(0F, 360F);
+            foreach (var p in powers)
+            {
+                if (p is ILaserBeamEffectAngleModifier m)
+                {
+                    m.modifyAngle(getWorldPosition(), ref angle);
+                }
+            }
+
+            effectManager.addLogic<LaserBeamEffect>().with(path, this, angle);
         }
     }
 }

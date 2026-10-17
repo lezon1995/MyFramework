@@ -13,6 +13,7 @@ namespace MoreMountains
     [Serializable]
     public class BallItem : ClassObject, IInventoryItem
     {
+        public static SellBallItemPriceModifier sellPriceModifier { get; set; }
         public int ItemId => Def.BallDefId;
         public BallType Type => Def.Type;
         public ItemKind Kind => ItemKind.Ball;
@@ -26,18 +27,42 @@ namespace MoreMountains
 
         public string DisplayName => Def ? $"{Def.DisplayName.GetLocalizedString()} Lv.{Level}" : $"Ball#{Type} Lv.{Level}";
 
-        public int BuyPrice => Def.BasePrice * Level;
+        public int RawBuyPrice => Def.BasePrice * Level;
+        public int BuyPrice => Def.GetBuyPrice(out _) * Level;
 
-        public int SellPrice
+        public int GetBuyPrice(out int rawPrice)
         {
-            get
-            {
-                if (Def == null)
-                    return 0;
+            var realBuyPrice = Def.GetBuyPrice(out var raw) * Level;
+            rawPrice = raw * Level;
+            return realBuyPrice;
+        }
 
-                var rate = Mathf.Clamp(50, 0, 100);
-                return Math.Max(1, BuyPrice * rate / 100);
-            }
+        public int GetSellPrice()
+        {
+            if (Def == null)
+                return 0;
+
+            var rate = Mathf.Clamp(50F, 0F, 100F);
+            var ratio = rate / 100F;
+            var buyPrice = BuyPrice;
+            sellPriceModifier?.Invoke(this, ref buyPrice, ref ratio);
+            var realPrice = buyPrice * ratio;
+            return (int)Mathf.Max(1, realPrice);
+        }
+
+        public int GetSellPrice(out int rawSellPrice)
+        {
+            rawSellPrice = 0;
+            if (Def == null)
+                return 0;
+
+            var rate = Mathf.Clamp(50F, 0F, 100F);
+            var ratio = rate / 100F;
+            var buyPrice = BuyPrice;
+            rawSellPrice = (int)(buyPrice * ratio);
+            sellPriceModifier?.Invoke(this, ref buyPrice, ref ratio);
+            var realPrice = buyPrice * ratio;
+            return (int)Mathf.Max(1, realPrice);
         }
 
         float shootCooldownRemainProgress;

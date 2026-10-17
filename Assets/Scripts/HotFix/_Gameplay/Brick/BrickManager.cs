@@ -30,7 +30,8 @@ namespace MoreMountains
         Action<Brick> onBrickBornCompleted;
         public SafeDictionary<Brick, (Ball, MTimer)> brickDamageTimers = new();
 
-        static Comparison<Brick> nearestComparison = Comparison;
+        static Comparison<Brick> comparison_TheNearest = Comparison_TheNearest;
+        static Comparison<Brick> comparison_TheToppestMaxHealth = Comparison_TheToppestMaxHealth;
 
         public BrickManager()
         {
@@ -165,7 +166,7 @@ namespace MoreMountains
 
         static Vector3 playerPos;
 
-        public bool getNearestActiveBrick(Vector3 pos, out Brick nearestBrick, List<Brick> excepts = null)
+        public bool getTheNearestActiveBrick(Vector3 pos, out Brick nearestBrick, List<Brick> excepts = null)
         {
             playerPos = pos;
             using var _ = new ListScope<Brick>(out var list);
@@ -176,16 +177,30 @@ namespace MoreMountains
                     list.Remove(except);
             }
             
-            list.Sort(nearestComparison);
+            list.Sort(comparison_TheNearest);
             nearestBrick = list.get(0);
             return nearestBrick != null;
         }
+        
+        public bool getTheToppestHealthActiveBrick(out Brick result)
+        {
+            using var _ = new ListScope<Brick>(out var list);
+            list.addRange(activeBricks.Values);
+            list.Sort(comparison_TheToppestMaxHealth);
+            result = list.get(0);
+            return result != null;
+        }
 
-        static int Comparison(Brick b1, Brick b2)
+        static int Comparison_TheNearest(Brick b1, Brick b2)
         {
             var d1 = (b1.getWorldPosition() - playerPos).sqrMagnitude;
             var d2 = (b2.getWorldPosition() - playerPos).sqrMagnitude;
             return d1.CompareTo(d2);
+        }
+
+        static int Comparison_TheToppestMaxHealth(Brick b1, Brick b2)
+        {
+            return b2.maxHealth.CompareTo(b1.maxHealth);
         }
 
         public Dictionary<int, Brick> getActiveBricks()

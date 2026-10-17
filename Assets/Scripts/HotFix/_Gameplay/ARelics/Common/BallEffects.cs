@@ -1,3 +1,5 @@
+using UnityEngine;
+
 namespace MoreMountains;
 
 /// <summary>
@@ -18,15 +20,15 @@ public class BallOfFlames : ARelic
         duration = d.Args[1];
     }
 
-    public override void onAfterHeal(Heal heal)
+    public override void onAfterHeal(APlayer p, Heal heal)
     {
-        if (brickManager.getNearestActiveBrick(_player.getWorldPosition(), out var brick))
+        if (brickManager.getTheNearestActiveBrick(_player.getWorldPosition(), out var brick))
         {
-            var f = rate + _player.ap / 100F;
+            var f = rate + p.ap / 100F;
             var value = (int)(heal.ActualHealAmount * f);
             if (value > 0)
             {
-                effectManager.addLogic<LaserLineEffect>().with(_player, brick, value, duration);
+                effectManager.addLogic<LaserLineEffect>().with(p, brick, value, duration);
             }
         }
     }
@@ -116,9 +118,7 @@ public class LightningBall : ARelic
 }
 
 /// <summary>
-/// LaserBall - 激光球
-/// 球变为穿透型
-/// [设计文案] 激光球可以穿透多个敌人
+/// 你的激光类的球在撞击障碍和墙壁时也能触发撞击特效
 /// </summary>
 public class LaserBall : ARelic
 {
@@ -126,13 +126,56 @@ public class LaserBall : ARelic
 
     public LaserBall() : base(ID, "LaserBall.png", RelicTier.RARE, LandingSound.SOLID) { }
 
-    // TODO: 需要实现穿透效果
-    // public override void onShootBall(Ball ball)
-    // {
-    //     ball.setPenetrable(true);
-    // }
+    static bool isLaserType(Ball ball)
+    {
+        return ball.BallType
+            is BallType.LaserBeam
+            or BallType.LaserBeam_Crossed
+            or BallType.LaserBeam_V
+            or BallType.LaserBeam_H;
+    }
 
-    public override ARelic makeCopy() => new LaserBall();
+    public override void onBallHitObstacle(APlayer p, Ball ball, Obstacle obstacle, ref Vector2 normal)
+    {
+        tryTrigger(ball);
+    }
+
+    public override void onBallHitBorder(APlayer p, Ball ball, Border border)
+    {
+        tryTrigger(ball);
+    }
+
+    static void tryTrigger(Ball ball)
+    {
+        if (isLaserType(ball))
+        {
+            var e = new DoHitEffect(ball);
+            ball.Event.trigger(e);
+        }
+    }
+}
+
+/// <summary>
+/// 你的随机激光会优先打击生命值最高的单位
+/// </summary>
+public class LaserGuidance : ARelic
+{
+    public static string ID = "LaserGuidance";
+
+    public LaserGuidance() : base(ID, "LaserGuidance.png", RelicTier.RARE, LandingSound.SOLID) { }
+
+    static bool isLaserType(Ball ball)
+    {
+        return ball.BallType is BallType.LaserBeam;
+    }
+
+    public override void onShootBall(APlayer p, Ball ball)
+    {
+        if (isLaserType(ball))
+        {
+            ball.addPower<BallRandomLaserGuidancePower>();
+        }
+    }
 }
 
 /// <summary>

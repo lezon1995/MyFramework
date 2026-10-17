@@ -19,6 +19,9 @@ namespace UniStats
         X Min(X a, X b);
         X Zero { get; }
         X One { get; }
+        X MinValue { get; }
+        X MaxValue { get; }
+        X Clamp(X v, X min, X max);
     }
 
     public static partial class Mod
@@ -34,6 +37,9 @@ namespace UniStats
             public float Min(float a, float b) => Math.Min(a, b);
             public float Zero => 0f;
             public float One => 1f;
+            public float MinValue => float.MinValue;
+            public float MaxValue => float.MaxValue;
+            public float Clamp(float v, float min, float max) => Math.Clamp(v, MinValue, MaxValue);
         }
 
         internal class OpDouble : IOperator<double>
@@ -47,6 +53,9 @@ namespace UniStats
             public double Min(double a, double b) => Math.Min(a, b);
             public double Zero => 0.0;
             public double One => 1.0;
+            public double MinValue => double.MinValue;
+            public double MaxValue => double.MaxValue;
+            public double Clamp(double v, double min, double max) => Math.Clamp(v, MinValue, MaxValue);
         }
 
         internal class OpInt : IOperator<int>
@@ -60,6 +69,9 @@ namespace UniStats
             public int Min(int a, int b) => Math.Min(a, b);
             public int Zero => 0;
             public int One => 1;
+            public int MinValue => int.MinValue;
+            public int MaxValue => int.MaxValue;
+            public int Clamp(int v, int min, int max) => Math.Clamp(v, MinValue, MaxValue);
         }
 
 #if UNITY_5_3_OR_NEWER
@@ -81,6 +93,13 @@ namespace UniStats
             public Vector3 Min(Vector3 a, Vector3 b) => Vector3.Min(a, b);
             public Vector3 Zero => Vector3.zero;
             public Vector3 One => Vector3.one;
+            public Vector3 MinValue => Vector3.one * float.MinValue;
+            public Vector3 MaxValue => Vector3.one * float.MaxValue;
+
+            public Vector3 Clamp(Vector3 v, Vector3 min, Vector3 max) => new(
+                Math.Clamp(v.x, float.MinValue, float.MaxValue),
+                Math.Clamp(v.y, float.MinValue, float.MaxValue),
+                Math.Clamp(v.z, float.MinValue, float.MaxValue));
         }
 #endif
 

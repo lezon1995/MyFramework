@@ -74,9 +74,7 @@ public class MagicMirror : ARelic
 }
 
 /// <summary>
-/// CounterStrike - 反击
-/// 闪避后立即攻击
-/// [设计文案] 敏捷的反击
+/// 球在撞击时有25%几率立即消失。
 /// </summary>
 public class CounterStrike : ARelic
 {
@@ -86,15 +84,20 @@ public class CounterStrike : ARelic
     {
     }
 
-    // TODO: 需要实现闪避反击
-    // public override void onDodge(APlayer p)
-    // {
-    //     var nearest = FindNearestEnemy();
-    //     if (nearest != null)
-    //     {
-    //         p.Attack(nearest, p.AttackDamage * 0.5f);
-    //     }
-    // }
+    float chance;
+    
+    protected override void onRelicDefSet(RelicDef d)
+    {
+        chance = d.Args[0];
+    }
+
+    public override void onBallImpactHitBrick(APlayer p, Ball ball, Brick brick, Vector2 normal, ref bool triggerRegularHit)
+    {
+        if (randomHit(chance + p.triggerChance))
+        {
+            ball.isExpired = true;
+        }
+    }
 
     public override ARelic makeCopy() => new CounterStrike();
 }

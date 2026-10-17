@@ -25,7 +25,7 @@ public class BallHitCountTriggerElectricChainPower : BallPower, IArgs<int>
         if (countdown.update())
         {
             countdown.reset();
-            effectManager.addLogic<ElectricChainEffect>().with(owner, brick, 2);
+            effectManager.addLogic<ElectricChainEffect>().with(_ball, brick, 2);
         }
     }
 }

@@ -24,9 +24,7 @@ public class PrismSphere : ARelic
 }
 
 /// <summary>
-/// CrystalBall - 水晶球
-/// 显示未来事件
-/// [设计文案] 预知未来
+/// 发射球时，球具有一次性的穿透能力
 /// </summary>
 public class CrystalBall : ARelic
 {
@@ -34,13 +32,9 @@ public class CrystalBall : ARelic
 
     public CrystalBall() : base(ID, "CrystalBall.png", RelicTier.UNCOMMON, LandingSound.MAGICAL) { }
 
-    // TODO: 需要实现预测功能
-    // public override void onEquip(APlayer p)
-    // {
-    //     p.ShowDangerousBricks = true;
-    // }
-
-    public override ARelic makeCopy() => new CrystalBall();
+    public override void onShootBall(APlayer p, Ball ball)
+    {
+    }
 }
 
 /// <summary>
@@ -150,7 +144,7 @@ public class AuroraSphere : ARelic
         }
     }
 
-    public override void onShootBall(Ball ball)
+    public override void onShootBall(APlayer p, Ball ball)
     {
         if (_player.GetStat(Character.Stat.MS, out var globalMS))
         {

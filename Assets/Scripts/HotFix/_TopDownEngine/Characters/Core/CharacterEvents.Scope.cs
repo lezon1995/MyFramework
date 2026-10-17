@@ -56,26 +56,24 @@ namespace MoreMountains
     {
         public Vector3 StartPosition;
         public Vector3 EndPosition;
+
         public DoDashStart(Vector3 start, Vector3 end)
         {
             StartPosition = start;
             EndPosition = end;
         }
     }
+
     public struct DoDashEnd
     {
         public DoDashEnd() { }
     }
 
-    public struct DoDashDodge
-    {
-    }
-    
+    public struct DoDashDodge { }
+
     public struct DoChanceDodge
     {
-        public DoChanceDodge()
-        {
-        }
+        public DoChanceDodge() { }
     }
 
     public struct OnCombat
@@ -147,23 +145,17 @@ namespace MoreMountains
 
     public struct OnHit
     {
-        public OnHit()
-        {
-        }
+        public OnHit() { }
     }
 
     public struct OnRevive
     {
-        public OnRevive()
-        {
-        }
+        public OnRevive() { }
     }
 
     public struct OnDeath
     {
-        public OnDeath()
-        {
-        }
+        public OnDeath() { }
     }
 
     /// <summary>
@@ -171,9 +163,7 @@ namespace MoreMountains
     /// </summary>
     public struct OnShieldDepleted
     {
-        public OnShieldDepleted()
-        {
-        }
+        public OnShieldDepleted() { }
     }
 
     /// <summary>
@@ -208,7 +198,7 @@ namespace MoreMountains
         public Character Source;
         public Dmg Dmg;
 
-        public OnDmg(Character source, Dmg dmg)
+        public OnDmg(Character source, in Dmg dmg)
         {
             Source = source;
             Dmg = dmg;
@@ -244,9 +234,7 @@ namespace MoreMountains
         public static OnWindup Cancel(Weapon weapon) => new(weapon, States.Cancel);
     }
 
-    public struct DoShoot
-    {
-    }
+    public struct DoShoot { }
 
     #endregion
 }

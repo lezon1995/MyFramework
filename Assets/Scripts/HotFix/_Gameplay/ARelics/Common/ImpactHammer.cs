@@ -12,7 +12,7 @@ public class ImpactHammer : ARelic
     {
     }
 
-    public override void onShootBall(Ball ball)
+    public override void onShootBall(APlayer p, Ball ball)
     {
         ball.addPower<BallSpeedDmgPower>().with(0.01F, 0.02F);
     }

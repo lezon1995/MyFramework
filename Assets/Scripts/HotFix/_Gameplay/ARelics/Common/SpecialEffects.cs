@@ -183,9 +183,7 @@ public class Earthquake : ARelic
 }
 
 /// <summary>
-/// Blizzard - 暴风雪
-/// 减速所有敌人
-/// [设计文案] 冰霜的领域
+/// 闪避冷却时间-50%
 /// </summary>
 public class Blizzard : ARelic
 {
@@ -195,14 +193,29 @@ public class Blizzard : ARelic
     {
     }
 
-    // TODO: 需要实现减速效果
-    // public override void onPlayerTurnUpdate(APlayer p, float dt)
-    // {
-    //     foreach (var brick in GetAllBricks())
-    //     {
-    //         brick.AddStatusEffect(StatusEffect.Slow, 0.5f, 1f);
-    //     }
-    // }
+    float deltaCooldown;
+
+    protected override void onRelicDefSet(RelicDef d)
+    {
+        deltaCooldown = d.Args[0];
+    }
+
+    public override void onEquip(APlayer p)
+    {
+        base.onEquip(p);
+        if (p.FindAbility(out PlayerDash2D dash))
+        {
+            dash.Cooldown.CooldownPct = (1 + deltaCooldown).clamp01();
+        }
+    }
+    public override void onUnequip(APlayer p)
+    {
+        base.onUnequip(p);
+        if (p.FindAbility(out PlayerDash2D dash))
+        {
+            dash.Cooldown.CooldownPct = 1F;
+        }
+    }
 
     public override ARelic makeCopy() => new Blizzard();
 }

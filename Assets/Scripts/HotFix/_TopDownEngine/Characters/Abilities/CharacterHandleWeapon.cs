@@ -86,6 +86,9 @@ namespace MoreMountains
         /// a delegate you can hook to, to be notified of weapon changes
         public event Action OnWeaponChange;
 
+        public int ProjectilesPerShot { get; set; } = 1;
+        public Func<SpawnState, Vector3, int, int, SpawnState> SpawnStateGetter { get; set; }
+
         protected WeaponAim _weaponAim;
         protected WeaponIK _weaponIK;
         protected float _bufferEndsAt;
@@ -425,6 +428,7 @@ namespace MoreMountains
                 currentWeapon.WeaponID = weaponID;
                 currentWeapon.FlipWeapon();
                 currentWeapon.TryGetComponent(out _weaponAim);
+                currentWeapon.OnInstantiateFromHandleWeapon(this);
 
                 HandleWeaponAim();
 
@@ -528,9 +532,7 @@ namespace MoreMountains
         /// <summary>
         /// Flips the current weapon if needed
         /// </summary>
-        public override void Flip()
-        {
-        }
+        public override void Flip() { }
 
         /// <summary>
         /// Adds required animator parameters to the animator parameters list if they exist

@@ -203,7 +203,7 @@ namespace MoreMountains
             {
                 if (Source && Source.GetStat(Character.Stat.AD, out var stat))
                 {
-                    return Dmg.AD((int)stat.Value);
+                    return Dmg.AD(stat.Value);
                 }
 
                 return Dmg;
@@ -658,7 +658,7 @@ namespace MoreMountains
     public struct Dmg
     {
         public Effects Effect;
-        public int Value;
+        public float Value;
         public Types Type;
         public Types ActualType;
         public Algos Algo;
@@ -673,26 +673,27 @@ namespace MoreMountains
         public bool TriggerEffect;
         public bool IsLethal;
         public bool IsDOT;
+        public bool IgnoreInvincible;
         public Vector2 HitNormal;
         public Mixed Mix;
         public int Hash => hash;
         int hash;
 
-        public static Dmg AD(int value) => new(value, Types.AD, false);
-        public static Dmg AP(int value) => new(value, Types.AP, false);
-        public static Dmg True(int value) => new(value, Types.True, false);
-        public static Dmg Adaptive(int value) => new(value, Types.Adaptive, false);
+        public static Dmg AD(float value) => new(value, Types.AD, false);
+        public static Dmg AP(float value) => new(value, Types.AP, false);
+        public static Dmg True(float value) => new(value, Types.True, false);
+        public static Dmg Adaptive(float value) => new(value, Types.Adaptive, false);
 
-        public Dmg(int value, Types type, bool isCrit, float critDamage = 2F)
+        public Dmg()
         {
             Effect = Effects.Attack;
-            Value = value;
-            Type = type;
-            ActualType = type;
+            Value = 0F;
+            Type = Types.AD;
+            ActualType = Types.AD;
             Algo = Algos.Fixed;
             MetaType = 0;
-            IsCrit = isCrit;
-            CritDamage = critDamage;
+            IsCrit = false;
+            CritDamage = 0F;
             DmgRate = 1F;
             DamageRaw = 0;
             DamageDealt = 0;
@@ -703,30 +704,24 @@ namespace MoreMountains
             HitNormal = Vector2.up;
             IsLethal = false;
             IsDOT = false;
+            IgnoreInvincible = false;
             hash = 0;
         }
 
-        public Dmg(int value, Types type, Algos algo)
+        public Dmg(float value, Types type, bool isCrit, float critDamage = 2F) : this(value, type, Algos.Fixed)
         {
-            Effect = Effects.Attack;
+            IsCrit = isCrit;
+            CritDamage = critDamage;
+            DamageRaw = (int)value;
+            DamageDealt = (int)value;
+        }
+
+        public Dmg(float value, Types type, Algos algo) : this()
+        {
             Value = value;
             Type = type;
             ActualType = type;
             Algo = algo;
-            MetaType = 0;
-            IsCrit = false;
-            CritDamage = 2F;
-            DmgRate = 1F;
-            DamageRaw = 0;
-            DamageDealt = 0;
-            Direction = Vector3.up;
-            Self = false;
-            Mix = default;
-            TriggerEffect = true;
-            HitNormal = Vector2.up;
-            IsLethal = false;
-            IsDOT = false;
-            hash = 0;
         }
 
         public bool IsAdaptive() => Type == Types.Adaptive;
@@ -769,7 +764,7 @@ namespace MoreMountains
             return this;
         }
 
-        public Dmg SetValue(int value)
+        public Dmg SetValue(float value)
         {
             Value = value;
             return this;
@@ -778,6 +773,12 @@ namespace MoreMountains
         public Dmg SetEffect(Effects effect)
         {
             Effect = effect;
+            return this;
+        }
+
+        public Dmg SetIgnoreInvincible(bool b)
+        {
+            IgnoreInvincible = b;
             return this;
         }
 
@@ -881,6 +882,12 @@ namespace MoreMountains
             return this;
         }
 
+        public Dmg subDmgRate(float delta)
+        {
+            DmgRate.increase(-delta);
+            return this;
+        }
+
         public void SetMetaType(int type)
         {
             MetaType = type;
@@ -935,8 +942,9 @@ namespace MoreMountains
         [Flags]
         public enum Effects
         {
-            Attack = 1 << 0,
-            Skill = 1 << 1,
+            None = 0,
+            Attack = 1 << 1,
+            Skill = 1 << 2,
         }
 
         [Serializable]

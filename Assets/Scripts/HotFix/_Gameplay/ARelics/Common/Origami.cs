@@ -25,7 +25,7 @@ public class Origami : ARelic
         base.onUnequip(p);
     }
 
-    public override void onShootBall(Ball ball)
+    public override void onShootBall(APlayer p, Ball ball)
     {
         ball.setPenetrable(true);
         effectingBalls.add(ball);

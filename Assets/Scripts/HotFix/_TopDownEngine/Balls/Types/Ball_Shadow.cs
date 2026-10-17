@@ -81,7 +81,7 @@ namespace MoreMountains
             for (int i = _enteredBricks.Count - 1; i >= 0; i--)
             {
                 var brick = _enteredBricks[i];
-                if (brick == null || brick.Health.CurrentHealth <= 0)
+                if (brick == null || brick.IsDead())
                 {
                     brick.Event.removeListener<OnBrickDeath>(this);
                     _enteredBricks.RemoveAt(i);

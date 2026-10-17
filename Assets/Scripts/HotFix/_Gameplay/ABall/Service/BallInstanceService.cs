@@ -10,8 +10,6 @@ namespace MoreMountains
     /// </summary>
     public sealed class BallInstanceService :
         IEvent<OnBallDeath>
-        , IEvent<OnBallDeathTotally>
-        , IEvent<OnBallExpired>
     {
         BallManagementSystem _owner;
 
@@ -56,15 +54,19 @@ namespace MoreMountains
             }
 
             var ball = pool.Get();
+            ball.Event.addListener<OnBallDeath>(this);
+            activeBalls.Add(ball);
+            inactiveBalls.Remove(ball);
+
             prepareToShoot(ball, pos, direction, level, duration);
             return ball;
         }
 
-        void prepareToShoot(Ball ball, Vector2 pos, Vector2 direction, int level, float duration)
+        public void prepareToShoot(Ball ball, Vector2 pos, Vector2 direction, int level, float duration)
         {
             ball.setActive(true);
             ball.setEnabled(true);
-            ball.setTeleportPosition(pos, BORDER_BOT_LAYER_MASK);
+            ball.setTeleportPosition(pos);
             ball.setShootDirection(direction);
             ball.refreshInitialHealth();
             ball.setRendererActive(true);
@@ -76,15 +78,6 @@ namespace MoreMountains
 
             ball.setLevel(level);
             ball.onAcquire();
-
-            ball.Event.addListener<OnBallDeath>(this);
-            ball.Event.addListener<OnBallDeathTotally>(this);
-            ball.Event.addListener<OnBallExpired>(this);
-
-            activeBalls.Add(ball);
-            inactiveBalls.Remove(ball);
-
-            _owner.Player.applyOnShootBallRelics(ball);
         }
 
         Ball createBall(BallType type)
@@ -192,8 +185,6 @@ namespace MoreMountains
             ballGUIDList.Remove(guid);
 
             ball.Event.removeListener<OnBallDeath>(this);
-            ball.Event.removeListener<OnBallDeathTotally>(this);
-            ball.Event.removeListener<OnBallExpired>(this);
         }
 
         public void destroyBallList<T>(List<T> characterList) where T : Ball
@@ -251,15 +242,6 @@ namespace MoreMountains
         public void onEvent(OnBallDeath e)
         {
             activeBalls.Remove(e.ball);
-        }
-
-        public void onEvent(OnBallDeathTotally e)
-        {
-            releaseBall(e.ball);
-        }
-
-        public void onEvent(OnBallExpired e)
-        {
             releaseBall(e.ball);
         }
     }

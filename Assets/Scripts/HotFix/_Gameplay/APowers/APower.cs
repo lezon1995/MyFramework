@@ -97,6 +97,7 @@ public abstract class APower : ClassObject, IComparable<APower>
     }
 
     protected virtual void onUpdate(float dt) { }
+    public virtual void onFixedUpdate(float dt) { }
 
     void updateFlash(float dt)
     {

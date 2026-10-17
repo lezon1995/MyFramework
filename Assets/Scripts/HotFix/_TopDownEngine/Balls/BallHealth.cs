@@ -66,13 +66,13 @@ namespace MoreMountains
 
         public override void SetHealth(int curHealth, RefreshHealthBarType type = RefreshHealthBarType.Immediately)
         {
-            CurrentHealth = Mathf.Clamp(curHealth, 0, maximumHealth);
+            CurrentHealth = Mathf.Clamp(curHealth, 0, MaxHealth);
         }
 
         public override void SetHealth(int curHealth, int maxHealth, RefreshHealthBarType type = RefreshHealthBarType.Immediately)
         {
             MaximumHealth = maxHealth;
-            CurrentHealth = Mathf.Clamp(curHealth, 0, maximumHealth);
+            CurrentHealth = Mathf.Clamp(curHealth, 0, MaxHealth);
         }
 
         public override bool CanTakeDamageThisFrame(out ResistDamageType type)
@@ -132,6 +132,7 @@ namespace MoreMountains
 
             var e = new OnBallDeath(ball);
             e.trigger(ball);
+            e.trigger(ball.getPlayer());
             e.trigger();
 
             ball.ballRenderer.playFxDead();
@@ -158,9 +159,6 @@ namespace MoreMountains
 
         protected override void DestroyObject()
         {
-            var e = new OnBallDeathTotally(ball);
-            e.trigger(ball);
-
             base.DestroyObject();
         }
     }

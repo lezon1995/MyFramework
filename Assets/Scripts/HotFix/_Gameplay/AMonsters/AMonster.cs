@@ -89,11 +89,6 @@ namespace MoreMountains
             base.Initialization();
         }
 
-        public override void onAcquire()
-        {
-            base.onAcquire();
-        }
-
         public override void onRelease()
         {
             base.onRelease();

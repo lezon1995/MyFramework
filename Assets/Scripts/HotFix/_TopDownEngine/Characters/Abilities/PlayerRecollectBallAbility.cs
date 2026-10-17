@@ -50,11 +50,8 @@ namespace MoreMountains
         {
             var player = _player;
             var activeBalls = player.BallManagement.Instance.getActiveBalls();
-            if (activeBalls == null)
-                return;
-
-            Vector3 planetPos = _character.getWorldPosition();
-            float radiusSqr = collectRadius * collectRadius;
+            var planetPos = _character.getWorldPosition();
+            var radiusSqr = collectRadius * collectRadius;
 
             using var _ = new HashSetScope<Ball>(out var inRangeThisFrame);
             foreach (var ball in activeBalls)
@@ -77,7 +74,7 @@ namespace MoreMountains
                 if (!ball.inUse)
                     continue;
 
-                float distSqr = (ball.getWorldPosition() - planetPos).sqrMagnitude;
+                float distSqr = (ball.curPos - planetPos).sqrMagnitude;
                 if (distSqr <= radiusSqr)
                     inRangeThisFrame.Add(ball);
             }
@@ -246,11 +243,7 @@ namespace MoreMountains
         {
             ball.setWorldPosition(_player.getWorldPosition());
             ball.onRecollected();
-
-            if (_player.Inventory.BallBag.TryGetAlreadyShootSlotByBallInstance(ball, out var slot))
-            {
-                slot.TryReload(_player, ball);
-            }
+            ball.Weapon.onBallRecollected(ball);
         }
     }
 }

@@ -1,3 +1,7 @@
+using System.Collections.Generic;
+using MoreMountains.Tools;
+using UnityEngine;
+
 namespace MoreMountains;
 
 /// <summary>
@@ -9,9 +13,7 @@ public class CrownOfThorns : ARelic
 {
     public static string ID = "CrownOfThorns";
 
-    public CrownOfThorns() : base(ID, "CrownOfThorns.png", RelicTier.SPECIAL, LandingSound.HEAVY)
-    {
-    }
+    public CrownOfThorns() : base(ID, "CrownOfThorns.png", RelicTier.SPECIAL, LandingSound.HEAVY) { }
 
     // TODO: 需要实现受伤范围伤害
     // public override void onLoseHp(int damageAmount)
@@ -35,9 +37,7 @@ public class RingOfFire : ARelic
 {
     public static string ID = "RingOfFire";
 
-    public RingOfFire() : base(ID, "RingOfFire.png", RelicTier.SPECIAL, LandingSound.HEAVY)
-    {
-    }
+    public RingOfFire() : base(ID, "RingOfFire.png", RelicTier.SPECIAL, LandingSound.HEAVY) { }
 
     // TODO: 需要实现周围持续伤害
     // public override void onPlayerTurnUpdate(APlayer p, float dt)
@@ -53,23 +53,46 @@ public class RingOfFire : ARelic
 }
 
 /// <summary>
-/// BootsOfHermes - 赫尔墨斯之靴
-/// 无敌帧+30%
-/// [设计文案] 神的祝福
+/// 踢足球后的3秒内撞击造成爆炸伤害
 /// </summary>
-public class BootsOfHermes : ARelic
+public class BootsOfHermes : ARelic, IEvent<OnBallDeath>
 {
     public static string ID = "BootsOfHermes";
 
-    public BootsOfHermes() : base(ID, "BootsOfHermes.png", RelicTier.SPECIAL, LandingSound.SOLID)
+    public BootsOfHermes() : base(ID, "BootsOfHermes.png", RelicTier.SPECIAL, LandingSound.SOLID) { }
+
+    Dictionary<Ball, BallImpactExplodePower> ballPowers = new();
+    float duration;
+
+    protected override void onRelicDefSet(RelicDef d)
     {
+        duration = d.Args[0];
     }
 
-    // TODO: 需要实现无敌帧增加
-    // public override void onEquip(APlayer p)
-    // {
-    //     p.InvincibilityFramesMultiplier *= 1.3f;
-    // }
+    public override void onPlayerDashHitBall(APlayer p, Ball ball, Vector3 pos, Vector3 dir)
+    {
+        if (ball is not Ball_Football)
+            return;
+
+        if (ballPowers.TryGetValue(ball, out var power))
+        {
+            power.with(duration);
+            return;
+        }
+
+        ball.Event.addListener<OnBallDeath>(this);
+        power = ball.addPower<BallImpactExplodePower>();
+        power.with(duration);
+
+        ballPowers[ball] = power;
+    }
+
+    public void onEvent(OnBallDeath e)
+    {
+        var b = e.ball;
+        b.Event.removeListener<OnBallDeath>(this);
+        ballPowers.Remove(b);
+    }
 
     public override ARelic makeCopy() => new BootsOfHermes();
 }
@@ -83,9 +106,7 @@ public class ShieldOfJustice : ARelic
 {
     public static string ID = "ShieldOfJustice";
 
-    public ShieldOfJustice() : base(ID, "ShieldOfJustice.png", RelicTier.SPECIAL, LandingSound.HEAVY)
-    {
-    }
+    public ShieldOfJustice() : base(ID, "ShieldOfJustice.png", RelicTier.SPECIAL, LandingSound.HEAVY) { }
 
     // TODO: 需要实现完美格挡反击
     // public override void onPerfectBlock(APlayer p)
@@ -109,9 +130,7 @@ public class SwordOfDamocles : ARelic
 {
     public static string ID = "SwordOfDamocles";
 
-    public SwordOfDamocles() : base(ID, "SwordOfDamocles.png", RelicTier.SPECIAL, LandingSound.HEAVY)
-    {
-    }
+    public SwordOfDamocles() : base(ID, "SwordOfDamocles.png", RelicTier.SPECIAL, LandingSound.HEAVY) { }
 
     // TODO: 需要实现高风险高回报
     // public override void onEquip(APlayer p)
@@ -130,9 +149,7 @@ public class AmuletOfLife : ARelic
 {
     public static string ID = "AmuletOfLife";
 
-    public AmuletOfLife() : base(ID, "AmuletOfLife.png", RelicTier.SPECIAL, LandingSound.MAGICAL)
-    {
-    }
+    public AmuletOfLife() : base(ID, "AmuletOfLife.png", RelicTier.SPECIAL, LandingSound.MAGICAL) { }
 
     int minDropCount, maxDropCount;
     int minDropValue, maxDropValue;
@@ -164,9 +181,7 @@ public class OrbOfProtection : ARelic
 {
     public static string ID = "OrbOfProtection";
 
-    public OrbOfProtection() : base(ID, "OrbOfProtection.png", RelicTier.SPECIAL, LandingSound.MAGICAL)
-    {
-    }
+    public OrbOfProtection() : base(ID, "OrbOfProtection.png", RelicTier.SPECIAL, LandingSound.MAGICAL) { }
 
     // TODO: 需要实现敌人攻击减半
     // public override void onPlayerTurnUpdate(APlayer p, float dt)
@@ -190,9 +205,7 @@ public class CloakOfShadows : ARelic
 {
     public static string ID = "CloakOfShadows";
 
-    public CloakOfShadows() : base(ID, "CloakOfShadows.png", RelicTier.SPECIAL, LandingSound.MAGICAL)
-    {
-    }
+    public CloakOfShadows() : base(ID, "CloakOfShadows.png", RelicTier.SPECIAL, LandingSound.MAGICAL) { }
 
     // TODO: 需要实现隐身增伤
     // public override void onPlayerTurnUpdate(APlayer p, float dt)
@@ -218,9 +231,7 @@ public class GauntletOfStrength : ARelic
 {
     public static string ID = "GauntletOfStrength";
 
-    public GauntletOfStrength() : base(ID, "GauntletOfStrength.png", RelicTier.SPECIAL, LandingSound.HEAVY)
-    {
-    }
+    public GauntletOfStrength() : base(ID, "GauntletOfStrength.png", RelicTier.SPECIAL, LandingSound.HEAVY) { }
 
     public override ARelic makeCopy() => new GauntletOfStrength();
 }
@@ -234,9 +245,7 @@ public class HeartOfTheMountain : ARelic
 {
     public static string ID = "HeartOfTheMountain";
 
-    public HeartOfTheMountain() : base(ID, "HeartOfTheMountain.png", RelicTier.SPECIAL, LandingSound.HEAVY)
-    {
-    }
+    public HeartOfTheMountain() : base(ID, "HeartOfTheMountain.png", RelicTier.SPECIAL, LandingSound.HEAVY) { }
 
     // TODO: 需要实现持续回血
     // public override void onPlayerTurnUpdate(APlayer p, float dt)

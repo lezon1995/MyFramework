@@ -87,12 +87,12 @@ namespace MoreMountains
         {
         }
 
-        public override GameObject SpawnProjectile(Vector3 spawnPosition, int projectileIndex, int totalProjectiles, bool triggerObjectActivation = true)
+        public override GameObject SpawnProjectile(SpawnState state)
         {
             // we get the next object in the pool and make sure it's not null
             var nextGameObject = ObjectPooler.GetPooledGameObject();
             // we position the object
-            nextGameObject.transform.position = spawnPosition;
+            nextGameObject.transform.position = state.Position;
             // we activate the object
             nextGameObject.SetActive(true);
 
@@ -112,7 +112,7 @@ namespace MoreMountains
                 projectile.SetTarget(_aimTarget);
 
                 var aimPosition = Owner.CharacterBrain.Target.position;
-                projectile.Initialize(spawnPosition, aimPosition, ArcRegionRadius);
+                projectile.Initialize(state.Position, aimPosition, ArcRegionRadius);
             }
 
             return nextGameObject;

@@ -3,6 +3,12 @@ using System.Collections.Generic;
 
 namespace MoreMountains
 {
+    public delegate void BuyBallDefPriceModifier(BallDef def, ref int buyPrice, ref float ratio);
+    public delegate void BuyRelicDefPriceModifier(RelicDef def, ref int buyPrice, ref float ratio);
+
+    public delegate void SellBallItemPriceModifier(BallItem item, ref int buyPrice, ref float ratio);
+    public delegate void SellRelicItemPriceModifier(RelicItem item, ref int buyPrice, ref float ratio);
+
     /// <summary>
     /// 商店主控制器 —— 状态机 Idle → ShowingBallBoard → ShowingRelicBoard → Done。
     /// 由 WaveSystem 在阶段 = Shopping 时调用 EnterShop()；
@@ -205,7 +211,7 @@ namespace MoreMountains
             int gold = p.BallManagement.Shop.SellToShop(item);
             if (gold > 0)
                 ShopEvents.RaiseSoldFromBag();
-            
+
             return gold;
         }
 
@@ -214,7 +220,7 @@ namespace MoreMountains
             if (item == null)
                 return 0;
 
-            int gold = item.SellPrice;
+            int gold = item.GetSellPrice();
 
             shopSystem.Player.Inventory.RemoveRelic(item);
             shopSystem.Player.gainGold(gold, EarnType.SELL_RELIC);
