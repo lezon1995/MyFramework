@@ -1070,6 +1070,22 @@ MonoBehaviour:
     m_Localized: Store Owner
     m_Metadata:
       m_Items: []
+  - m_Id: 21486223949844480
+    m_Localized: Blood Life
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22555117573656576
+    m_Localized: Library Badge
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22627362002194432
+    m_Localized: Chainsaw Battery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22872659483709440
+    m_Localized: Critical Core
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

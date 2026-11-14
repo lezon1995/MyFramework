@@ -25,6 +25,17 @@ namespace MoreMountains
             colliderHealth.ApplyKnockback(knockbackForce, damage);
         }
 
+        public override void OnTriggerStay2D(Collider2D c)
+        {
+            if (ball.ManuallyColliding)
+                return;
+
+            if (0 == (TriggerFilter & TriggerMask.OnTriggerStay2D))
+                return;
+
+            Colliding(c.gameObject);
+        }
+
         public override void OnTriggerEnter2D(Collider2D c)
         {
             if (ball.ManuallyColliding)
@@ -58,7 +69,7 @@ namespace MoreMountains
                         else
                             normal = dir.y.sign() > 0 ? Vector2.up : Vector2.down;
 
-                        ball.CollidingWithObstacle(obstacle, normal);
+                        ball.CollidingWithObstacle(obstacle, ref normal);
                     }
 
                     break;
@@ -71,7 +82,7 @@ namespace MoreMountains
                         else
                             normal = dir.y.sign() > 0 ? Vector2.up : Vector2.down;
 
-                        ball.CollidingWithBorder(border, normal);
+                        ball.CollidingWithBorder(border, ref normal);
                     }
 
                     break;
@@ -128,6 +139,7 @@ namespace MoreMountains
             bool triggerCollide = true;
             if (brick.Health.CanTakeDamageThisFrame(out var resistDamageType))
             {
+                DetermineDamageDirection();
                 if (ball.IsTheBrickBeingIgnoredToHit(brick))
                 {
                     triggerCollide = false;
@@ -135,7 +147,6 @@ namespace MoreMountains
                 else
                 {
                     ball.lastHittable = brick;
-
                     ball.onImpactHitEnter(brick, normal, out var triggerRegularHit);
                     ball.collidingBrick = brick;
 
@@ -154,8 +165,6 @@ namespace MoreMountains
 
                     HitDamageableFeedback.Play(transform.position);
                     HitDamageableEvent?.Invoke(_colliderHealth);
-
-                    DetermineDamageDirection();
                 }
             }
             else
@@ -198,7 +207,7 @@ namespace MoreMountains
         }
 
 
-        public bool Colliding(Border target, Vector3 normal)
+        public bool Colliding(Border target, ref Vector2 normal)
         {
             var o = target.gameObject;
             // cache reset 
@@ -206,7 +215,7 @@ namespace MoreMountains
 
             // if what we're colliding with is damageable
             _colliderHealth = null;
-            var b = OnCollideWithBorder(target, normal);
+            var b = OnCollideWithBorder(target, ref normal);
             OnAnyCollision(o);
             HitAnythingEvent?.Invoke(o);
             HitAnythingFeedback.Play(transform.position);
@@ -214,7 +223,7 @@ namespace MoreMountains
         }
 
 
-        protected bool OnCollideWithBorder(Border border, Vector2 normal)
+        protected bool OnCollideWithBorder(Border border, ref Vector2 normal)
         {
             /*if (border.Health.CanTakeDamageThisFrame(out var resistDamageType))
             {
@@ -276,7 +285,7 @@ namespace MoreMountains
             }
         }
 
-        public bool Colliding(Obstacle target, Vector3 normal)
+        public bool Colliding(Obstacle target, ref Vector2 normal)
         {
             var o = target.gameObject;
             if (!EvaluateAvailability(o))
@@ -287,7 +296,7 @@ namespace MoreMountains
 
             // if what we're colliding with is damageable
             _colliderHealth = null;
-            var b = OnCollideWithObstacle(target, normal);
+            var b = OnCollideWithObstacle(target, ref normal);
 
             OnAnyCollision(o);
             HitAnythingEvent?.Invoke(o);
@@ -295,7 +304,7 @@ namespace MoreMountains
             return b;
         }
 
-        protected bool OnCollideWithObstacle(Obstacle obstacle, Vector2 normal)
+        protected bool OnCollideWithObstacle(Obstacle obstacle, ref Vector2 normal)
         {
             /*if (obstacle.Health.CanTakeDamageThisFrame(out var resistDamageType))
             {

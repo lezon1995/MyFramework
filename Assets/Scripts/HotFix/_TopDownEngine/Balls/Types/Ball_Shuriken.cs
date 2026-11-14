@@ -16,12 +16,13 @@ namespace MoreMountains
             distanceSorter = DistanceSorter;
         }
 
-        Countdown countdown;
+        float maxDistance => getDuration() * moveSpeed;
+        int counter;
 
         public override void onAcquire()
         {
             base.onAcquire();
-            countdown = 3;
+            counter = 0;
             lastTarget = null;
         }
 
@@ -34,7 +35,12 @@ namespace MoreMountains
                 _damageOnTouch.TriggerFilter = MoreMountains.DamageOnTouch.TriggerMask.IgnoreAll;
             }
         }
-        
+
+        public override void onPreparedToShoot()
+        {
+            base.onPreparedToShoot();
+        }
+
         protected override void playHitBrickSfx(Brick brick)
         {
             sound.play(SoundDefine.SHURIKEN_HIT);
@@ -53,7 +59,7 @@ namespace MoreMountains
         {
             FixedUpdatePowers(dt);
             CheckBrickHitTimerExpiration(dt);
-            
+
             if (_shouldMove)
             {
                 Movement(dt);
@@ -63,7 +69,7 @@ namespace MoreMountains
                     FaceMovementDirection(Direction);
                 }
             }
-            
+
             CheckBallExpiration(dt);
             CheckDashHitExpiration(dt);
         }
@@ -80,9 +86,15 @@ namespace MoreMountains
             if (!_hasTarget)
                 return;
 
+            if (!_target.gameObject.isBrick())
+                return;
+
+            if (!_target.TryGetComponent(out Brick b))
+                return;
+
             prePos = curPos;
             movementDelta = moveSpeed * dt;
-            targetPos = _target.position;
+            targetPos = b.getCenterPosition();
             curPos = Vector3.MoveTowards(curPos, targetPos, movementDelta);
 
             var dir = targetPos - curPos;
@@ -97,7 +109,8 @@ namespace MoreMountains
 
         protected override void EvaluateHit2D(GameObject hitObject, Vector2 hitNormal, Vector2 hitPoint)
         {
-            if (countdown.update())
+            counter += 4;
+            if (counter > maxDistance)
             {
                 SetTarget(null);
                 _health.Kill();

@@ -6,6 +6,7 @@ namespace MoreMountains
         , IEvent<DoSkillEffect>
         , IEvent<DoAttackKillEffect>
         , IEvent<OnBallDeath>
+        , IEvent<OnShootLineTargetChanged>
     {
         protected void addListeners() => Event.addAllListeners(this);
         protected void removeListeners() => Event.removeAllListeners(this);
@@ -79,6 +80,17 @@ namespace MoreMountains
         public void onEvent(OnBallDeath e)
         {
             onBallDeath(e.ball);
+        }
+
+        public void onEvent(OnShootLineTargetChanged e)
+        {
+            foreach (var h in mainHandleWeapons)
+            {
+                if (h.CurrentWeapon)
+                {
+                    h.CurrentWeapon.SetAimTarget(e.CurTarget.isBrick() ? e.CurTarget.transform : null);
+                }
+            }
         }
     }
 }

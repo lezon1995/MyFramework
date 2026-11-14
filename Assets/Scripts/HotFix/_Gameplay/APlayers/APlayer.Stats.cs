@@ -8,6 +8,7 @@
         public float magicResist => GetStat(Stat.MR).Value;
         public float attackSpeed => GetStat(Stat.AS).Value;
         public float cooldownHaste => GetStat(Stat.CD).Value;
+        public float luck => GetStat(Stat.Luck).Value;
 
         //已经削减冷却百分比
         public float cooldownPctReduced
@@ -31,8 +32,19 @@
             }
         }
 
+        public float luckPct
+        {
+            get
+            {
+                var v = luck;
+                var pct = v / 100F;
+                return pct;
+            }
+        }
+
         public float moveSpeed => GetStat(Stat.MS).Value;
         public float triggerChance => GetStat(Stat.TriggerChance).Value;
+        public float critChance => GetStat(Stat.CritChance).Value;
         public float durationPct
         {
             get

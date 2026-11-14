@@ -329,8 +329,8 @@ namespace MoreMountains
             return (ARelic)instance;
         }
 
-        public virtual void onBallHitBorder(APlayer p, Ball ball, Border border) { }
-        public virtual void onBallHitBorderBot(APlayer p, Ball ball, BorderBot border, Vector2 normal, ref bool forceReturn) { }
+        public virtual void onBallHitBorder(APlayer p, Ball ball, Border border, ref Vector2 normal) { }
+        public virtual void onBallHitBorderBot(APlayer p, Ball ball, BorderBot border, ref Vector2 normal) { }
         public virtual void onBallHitBorderTop(APlayer p, Ball ball, BorderTop border, ref Vector2 normal) { }
         public virtual void onBallHitBorderLeft(APlayer p, Ball ball, BorderLeft border, ref Vector2 normal) { }
         public virtual void onBallHitBorderRight(APlayer p, Ball ball, BorderRight border, ref Vector2 normal) { }
@@ -356,6 +356,7 @@ namespace MoreMountains
         public virtual void onBallDoHitEffect(APlayer p, Ball ball, DoHitEffect e, float delay) { }
         public virtual void onPlayerDashHitBall(APlayer p, Ball ball, Vector3 pos, Vector3 dir) { }
         public virtual void onPlayerHealthChanged(APlayer p, int curHealth) { }
+        public virtual void onPlayerBeforeHandleDamage(APlayer p, Brick brick, ref Dmg dmg) { }
         public virtual void onPlayerBeforeHandleImpactDamage(APlayer p, Ball ball, Brick brick, ref Dmg dmg) { }
         public virtual void onPlayerBeforeHandleSkillDamage(APlayer p, Ball ball, Brick brick, ref Dmg dmg) { }
         public virtual void onBallDeath(APlayer p, Ball ball) { }

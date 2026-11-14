@@ -19,4 +19,12 @@ public class CreaturePower : APower, IArgs<ACreature>
     {
         return blockAmount;
     }
+    
+    public virtual void onGainPower(ACreature c)
+    {
+    }
+    
+    public virtual void onLosePower(ACreature c)
+    {
+    }
 }

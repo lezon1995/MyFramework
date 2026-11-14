@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: HotFix::MoreMountains.BrickDef
   BrickType: 100004
   Type: 2
-  Size: {x: 6, y: 6}
+  Size: {x: 3, y: 3}
   UnitIcon: {fileID: 21300000, guid: c0c7307a83b7d204b93171ec61d49cb6, type: 3}
   BlockIcon: {fileID: 1065887655, guid: 5a94d7a0485f5624f941cc40eac4bb03, type: 3}
   StatsTemplate: {fileID: 11400000, guid: 3587c70b0f46f6c4cb4c800d3ec250af, type: 2}

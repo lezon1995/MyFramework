@@ -14,8 +14,11 @@ namespace MoreMountains
         public string monsterTypeId; // 怪物类型标识（"normal", "elite", "boss", 或者具体怪物ID）
         public int minCoinCount = 1; // 最小掉落金币数量
         public int maxCoinCount = 3; // 最大掉落金币数量
-        public int coinValue = 1; // 每枚金币的价值
-        [Range(0f, 1f)] public float dropChance = 1f; // 掉落概率（0-1）
+        public int minCoinValue = 1; // 每枚金币的最小价值
+        public int maxCoinValue = 1; // 每枚金币的最大价值
+
+        [Range(0f, 1f)]
+        public float dropChance = 1f; // 掉落概率（0-1）
 
         /// <summary>
         /// 掉落时的方向（相对于玩家）
@@ -33,12 +36,13 @@ namespace MoreMountains
         /// <summary>
         /// 计算本次击杀应该掉落的金币数（基于概率）
         /// </summary>
-        public int RollCoinCount()
+        public int RollCoinCount(CoinManager m, APlayer p)
         {
             if (Random.value > dropChance)
                 return 0;
 
-            return Random.Range(minCoinCount, maxCoinCount + 1);
+            var f = randomFloat(0F, 1F);
+            return m.GetGold(minCoinCount, maxCoinCount + 1, f, p != null ? p.luckPct : 0F);
         }
 
         /// <summary>
@@ -91,7 +95,8 @@ namespace MoreMountains
             monsterTypeId = "default",
             minCoinCount = 1,
             maxCoinCount = 2,
-            coinValue = 1,
+            minCoinValue = 1,
+            maxCoinValue = 10,
             dropChance = 1f,
             dropDirection = DropDirectionType.Custom
         };
@@ -151,7 +156,8 @@ namespace MoreMountains
                 monsterTypeId = "normal",
                 minCoinCount = 1,
                 maxCoinCount = 2,
-                coinValue = 1,
+                minCoinValue = 1,
+                maxCoinValue = 10,
                 dropChance = 1f,
                 dropDirection = DropDirectionType.AwayFromPlayer
             });
@@ -162,7 +168,8 @@ namespace MoreMountains
                 monsterTypeId = "elite",
                 minCoinCount = 3,
                 maxCoinCount = 6,
-                coinValue = 5,
+                minCoinValue = 5,
+                maxCoinValue = 50,
                 dropChance = 1f,
                 dropDirection = DropDirectionType.AwayFromPlayer
             });
@@ -172,8 +179,9 @@ namespace MoreMountains
             {
                 monsterTypeId = "boss",
                 minCoinCount = 10,
-                maxCoinCount = 15,
-                coinValue = 10,
+                maxCoinCount = 20,
+                minCoinValue = 20,
+                maxCoinValue = 50,
                 dropChance = 1f,
                 dropDirection = DropDirectionType.Random,
                 dropConfigOverride = CoinDropConfig.FancyDrop
@@ -226,15 +234,16 @@ namespace MoreMountains
             if (table == null)
                 return;
 
+            var manager = CoinManager.Instance;
+            if (manager == null)
+                return;
+
             var config = table.GetConfig(monsterTypeId);
-            int coinCount = config.RollCoinCount();
+            int coinCount = config.RollCoinCount(manager, p);
             if (coinCount <= 0)
                 return;
 
             Vector2 direction = config.GetDropDirection(monsterPos, playerPos);
-            var manager = CoinManager.Instance;
-            if (manager == null)
-                return;
 
             float spread = (config.dropConfigOverride?.DirectionSpreadAngle) ?? 30f;
             var dropCfg = config.dropConfigOverride ?? manager.DropConfig;
@@ -247,8 +256,11 @@ namespace MoreMountains
                 float angle = Random.Range(-spread, spread);
                 Quaternion rotation = Quaternion.AngleAxis(angle, Vector3.forward);
                 Vector2 scatteredDir = rotation * baseDir;
-
-                manager.DropCoin(monsterPos, scatteredDir, config.coinValue, dropCfg, p);
+                var min = config.minCoinValue;
+                var max = config.maxCoinValue;
+                var f = randomFloat(0F, 1F);
+                var coinValue = manager.GetGold(min, max, f, p.luckPct);
+                manager.DropCoin(monsterPos, scatteredDir, coinValue, dropCfg, p);
             }
         }
     }

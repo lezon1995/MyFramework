@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d1246f0e41bd4c84bb103e05ca8162ab, type: 3}
   m_Name: RelicDef BloodLife
   m_EditorClassIdentifier: HotFix::MoreMountains.RelicDef
-  Type: 30200
+  Type: 30264
   TagInfo:
     MechanicTags: 
     StatusTags: 
@@ -20,18 +20,6 @@ MonoBehaviour:
   SellRefund: 45
   CarryLimit: 0
   PlayerStatMods:
-  - stat: 11
-    BonusFlat: 3
-    BonusPct: 0
-    BonusRatio: 0
-  - stat: 27
-    BonusFlat: 24
-    BonusPct: 0
-    BonusRatio: 0
-  - stat: 25
-    BonusFlat: -2
-    BonusPct: 0
-    BonusRatio: 0
   - stat: 2
     BonusFlat: 19
     BonusPct: 0
@@ -42,7 +30,7 @@ MonoBehaviour:
     m_TableReference:
       m_TableCollectionName: GUID:a436aa6fdedfa73449e32b18692a6598
     m_TableEntryReference:
-      m_KeyId: 17956860383265
+      m_KeyId: 21486223949844480
       m_Key: 
     m_FallbackState: 0
     m_WaitForCompletion: 0
@@ -51,7 +39,7 @@ MonoBehaviour:
     m_TableReference:
       m_TableCollectionName: GUID:9108911108411504299c1e8526a20655
     m_TableEntryReference:
-      m_KeyId: 17956860383265
+      m_KeyId: 21486480095989760
       m_Key: 
     m_FallbackState: 0
     m_WaitForCompletion: 0
@@ -59,7 +47,7 @@ MonoBehaviour:
   MetaHandleWeapon: {fileID: 0}
   Args:
   - 0.01
-  - 0.02
+  - 0.01
   references:
     version: 2
     RefIds: []

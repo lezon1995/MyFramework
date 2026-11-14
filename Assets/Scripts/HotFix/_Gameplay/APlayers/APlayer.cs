@@ -25,7 +25,6 @@ namespace MoreMountains
         public ACard cardInUse { get; set; }
         public bool endTurnQueued { get; set; }
         public static List<string> customMods;
-        public new List<PlayerPower> powers = new();
         public PlayerRenderer playerRenderer;
         public PlayerRecollectBallAbility playerRecollectBall;
         public new PlayerStats Stats => stats as PlayerStats;
@@ -183,13 +182,6 @@ namespace MoreMountains
             ADungeon.relicsToRemoveOnStart.AddRange(relics);
         }
 
-
-        public void combatUpdate(float dt)
-        {
-            foreach (var power in powers)
-                power.updateParticles();
-        }
-
         public void combatFixedUpdate(float dt) { }
 
         public override void OnUpdate(float dt)
@@ -204,7 +196,7 @@ namespace MoreMountains
         {
             base.OnFixedUpdate(dt);
 
-            // fixedUpdatePowers(dt);
+            fixedUpdatePowers(dt);
             fixedUpdateRelics(dt);
         }
 
@@ -657,8 +649,7 @@ namespace MoreMountains
                     onBallHitBorderTop(ball, top, ref normal);
                     break;
                 case BorderBot bot:
-                    bool forceReturn = false;
-                    onBallHitBorderBot(ball, bot, ref normal, ref forceReturn);
+                    onBallHitBorderBot(ball, bot, ref normal);
                     break;
                 case BorderLeft left:
                     onBallHitBorderLeft(ball, left, ref normal);
@@ -669,14 +660,14 @@ namespace MoreMountains
             }
 
             foreach (var relic in relics)
-                relic.onBallHitBorder(this, ball, border);
+                relic.onBallHitBorder(this, ball, border, ref normal);
         }
 
 
-        public void onBallHitBorderBot(Ball ball, BorderBot border, ref Vector2 normal, ref bool forceReturn)
+        public void onBallHitBorderBot(Ball ball, BorderBot border, ref Vector2 normal)
         {
             foreach (var relic in relics)
-                relic.onBallHitBorderBot(this, ball, border, normal, ref forceReturn);
+                relic.onBallHitBorderBot(this, ball, border, ref normal);
         }
 
         public void onBallHitBorderTop(Ball ball, BorderTop border, ref Vector2 normal)
@@ -848,6 +839,12 @@ namespace MoreMountains
         {
             foreach (var relic in relics)
                 relic.onPlayerHealthChanged(this, curHealth);
+        }
+        
+        public virtual void onBeforeHandleDamage(Brick brick, ref Dmg dmg)
+        {
+            foreach (var relic in relics)
+                relic.onPlayerBeforeHandleDamage(this, brick, ref dmg);
         }
 
         public virtual void onBeforeHandleImpactDamage(Ball ball, Brick brick, ref Dmg dmg)

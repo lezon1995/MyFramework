@@ -241,13 +241,49 @@ MonoBehaviour:
     - Name: 
       Entry: 8
       Data: 
-    - Name: LevelInitialValues
+    - Name: MinValues
       Entry: 7
-      Data: 4|System.Collections.Generic.Dictionary`2[[System.String, mscorlib],[System.Single[],
+      Data: 4|System.Collections.Generic.Dictionary`2[[System.String, mscorlib],[System.Single,
         mscorlib]], mscorlib
     - Name: comparer
       Entry: 7
       Data: 5|System.Collections.Generic.GenericEqualityComparer`1[[System.String,
+        mscorlib]], mscorlib
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: MaxValues
+      Entry: 7
+      Data: 6|System.Collections.Generic.Dictionary`2[[System.String, mscorlib],[System.Single,
+        mscorlib]], mscorlib
+    - Name: comparer
+      Entry: 9
+      Data: 5
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: LevelInitialValues
+      Entry: 7
+      Data: 7|System.Collections.Generic.Dictionary`2[[System.String, mscorlib],[System.Single[],
+        mscorlib]], mscorlib
+    - Name: comparer
+      Entry: 7
+      Data: 8|System.Collections.Generic.GenericEqualityComparer`1[[System.String,
         mscorlib]], mscorlib
     - Name: 
       Entry: 8
@@ -263,7 +299,7 @@ MonoBehaviour:
       Data: HitDamage
     - Name: $v
       Entry: 7
-      Data: 6|System.Single[], mscorlib
+      Data: 9|System.Single[], mscorlib
     - Name: 
       Entry: 14
       Data: 4
@@ -296,7 +332,7 @@ MonoBehaviour:
       Data: EffectDamage
     - Name: $v
       Entry: 7
-      Data: 7|System.Single[], mscorlib
+      Data: 10|System.Single[], mscorlib
     - Name: 
       Entry: 14
       Data: 4
@@ -329,7 +365,7 @@ MonoBehaviour:
       Data: AS
     - Name: $v
       Entry: 7
-      Data: 8|System.Single[], mscorlib
+      Data: 11|System.Single[], mscorlib
     - Name: 
       Entry: 14
       Data: 4
@@ -362,22 +398,22 @@ MonoBehaviour:
       Data: BallisticSpeed
     - Name: $v
       Entry: 7
-      Data: 9|System.Single[], mscorlib
+      Data: 12|System.Single[], mscorlib
     - Name: 
       Entry: 14
       Data: 4
     - Name: 
       Entry: 4
-      Data: 6
+      Data: 4
     - Name: 
       Entry: 4
-      Data: 6
+      Data: 4
     - Name: 
       Entry: 4
-      Data: 6
+      Data: 4
     - Name: 
       Entry: 4
-      Data: 6
+      Data: 4
     - Name: 
       Entry: 13
       Data: 
@@ -395,7 +431,7 @@ MonoBehaviour:
       Data: Duration
     - Name: $v
       Entry: 7
-      Data: 10|System.Single[], mscorlib
+      Data: 13|System.Single[], mscorlib
     - Name: 
       Entry: 14
       Data: 4
@@ -428,7 +464,7 @@ MonoBehaviour:
       Data: CritChance
     - Name: $v
       Entry: 7
-      Data: 11|System.Single[], mscorlib
+      Data: 14|System.Single[], mscorlib
     - Name: 
       Entry: 14
       Data: 4
@@ -461,7 +497,7 @@ MonoBehaviour:
       Data: CritDamage
     - Name: $v
       Entry: 7
-      Data: 12|System.Single[], mscorlib
+      Data: 15|System.Single[], mscorlib
     - Name: 
       Entry: 14
       Data: 4
@@ -494,7 +530,7 @@ MonoBehaviour:
       Data: Knockback
     - Name: $v
       Entry: 7
-      Data: 13|System.Single[], mscorlib
+      Data: 16|System.Single[], mscorlib
     - Name: 
       Entry: 14
       Data: 4
@@ -527,7 +563,7 @@ MonoBehaviour:
       Data: Range
     - Name: $v
       Entry: 7
-      Data: 14|System.Single[], mscorlib
+      Data: 17|System.Single[], mscorlib
     - Name: 
       Entry: 14
       Data: 4
@@ -560,7 +596,7 @@ MonoBehaviour:
       Data: HitDamageRate
     - Name: $v
       Entry: 7
-      Data: 15|System.Single[], mscorlib
+      Data: 18|System.Single[], mscorlib
     - Name: 
       Entry: 14
       Data: 4
@@ -593,7 +629,7 @@ MonoBehaviour:
       Data: EffectDamageRate
     - Name: $v
       Entry: 7
-      Data: 16|System.Single[], mscorlib
+      Data: 19|System.Single[], mscorlib
     - Name: 
       Entry: 14
       Data: 4

@@ -24,12 +24,15 @@ public class BrickPower : CreaturePower, IArgs<Brick>
     public virtual void onKnockbackReceived(Brick brick, Vector2 direction, float force)
     {
     }
-    
-    public virtual void onGainPower(Brick brick)
+
+    public override void onGainPower(ACreature c) => onGainPower(c as Brick);
+    public override void onLosePower(ACreature c) => onLosePower(c as  Brick);
+
+    protected virtual void onGainPower(Brick brick)
     {
     }
 
-    public virtual void onLosePower(Brick brick)
+    protected virtual void onLosePower(Brick brick)
     {
     }
 }

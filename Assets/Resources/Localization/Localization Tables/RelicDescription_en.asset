@@ -167,7 +167,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17956860383270
-    m_Localized: Experience +10%, Luck +5
+    m_Localized: "\u4F60\u7684\u590D\u5236\u6548\u679C\u4F1A\u989D\u5916\u590D\u52361\u4E2A"
     m_Metadata:
       m_Items: []
   - m_Id: 17956860383271
@@ -311,7 +311,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17956860383306
-    m_Localized: Extra skill every 3 levels
+    m_Localized: "\u649E\u51FB\u65F6\u9644\u5E268%*AP\u7684\u9B54\u6CD5\u4F24\u5BB3"
     m_Metadata:
       m_Items: []
   - m_Id: 17956860383307
@@ -499,7 +499,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17956860383353
-    m_Localized: Experience +20%
+    m_Localized: "\u4F60\u7684\u5206\u88C2\u6548\u679C\u4F1A\u989D\u5916\u5206\u88C22\u4E2A"
     m_Metadata:
       m_Items: []
   - m_Id: 17956860383354
@@ -788,7 +788,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17956860383425
-    m_Localized: Balls stay longer on walls
+    m_Localized: "\u7403\u649E\u51FB\u5899\u58C1\u6216\u969C\u788D\u540E\u4F1A\u671D\u6700\u8FD1\u7684\u654C\u4EBA\u53CD\u5F39"
     m_Metadata:
       m_Items: []
   - m_Id: 17956860383426
@@ -1069,6 +1069,18 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 21118350341459968
     m_Localized: "\u5546\u5E97\u91CC\u7684\u9057\u7269\u548C\u7403\u83B7\u5F9715%\u7684\u6298\u6263"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21486480095989760
+    m_Localized: "\u6BCF\u635F\u59311%\u7684\u6700\u5927\u751F\u547D\u503C\uFF0C\u7403\u5B58\u6D3B\u65F6\u95F4\u7684\u6D41\u901D\u901F\u5EA6-1%"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22555325585969152
+    m_Localized: "\u4F60\u7684\u88C2\u53D8\u5B50\u7403\u649E\u51FB\u65F6\u670920%\u51E0\u7387\u590D\u5236\u81EA\u5DF1"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22627561076445184
+    m_Localized: "\u7535\u952F\u7684\u653B\u51FB\u95F4\u9694-20%"
     m_Metadata:
       m_Items: []
   references:

@@ -92,11 +92,15 @@ namespace MoreMountains
         {
             base.OnUpdate(dt);
             // DebugDrawRect();
+
+            updatePowers(dt);
         }
 
         public override void OnFixedUpdate(float dt)
         {
             base.OnFixedUpdate(dt);
+
+            fixedUpdatePowers(dt);
         }
 
         public override void Freeze()

@@ -380,7 +380,7 @@ namespace MoreMountains
 
         public SafeDictionary<Brick, MTimer> brickHitTimers = new();
 
-        public bool IsTheBrickBeingIgnoredToHit(Brick brick)
+        public virtual bool IsTheBrickBeingIgnoredToHit(Brick brick)
         {
             return brickHitTimers.containsKey(brick);
         }
@@ -416,7 +416,7 @@ namespace MoreMountains
                 case LayerManager.Obstacles:
                     if (hitObject.TryGetComponent(out Obstacle obstacle))
                     {
-                        if (!CollidingWithObstacle(obstacle, normal))
+                        if (!CollidingWithObstacle(obstacle, ref normal))
                             return;
                     }
 
@@ -424,7 +424,7 @@ namespace MoreMountains
                 case LayerManager.Border:
                     if (hitObject.TryGetComponent(out Border border))
                     {
-                        if (!CollidingWithBorder(border, normal))
+                        if (!CollidingWithBorder(border, ref normal))
                             return;
                     }
 
@@ -444,7 +444,7 @@ namespace MoreMountains
 
             if (needReflect)
             {
-                EvaluateHit2D(hitObject, hitNormal, hitPoint);
+                EvaluateHit2D(hitObject, normal, hitPoint);
             }
         }
 
@@ -453,14 +453,14 @@ namespace MoreMountains
             return DamageOnTouch.Colliding(brick, normal);
         }
 
-        public virtual bool CollidingWithObstacle(Obstacle obstacle, Vector2 normal)
+        public virtual bool CollidingWithObstacle(Obstacle obstacle, ref Vector2 normal)
         {
-            return DamageOnTouch.Colliding(obstacle, normal);
+            return DamageOnTouch.Colliding(obstacle, ref normal);
         }
 
-        public virtual bool CollidingWithBorder(Border obstacle, Vector2 normal)
+        public virtual bool CollidingWithBorder(Border obstacle, ref Vector2 normal)
         {
-            return DamageOnTouch.Colliding(obstacle, normal);
+            return DamageOnTouch.Colliding(obstacle, ref normal);
         }
 
         public virtual bool CollidingWithPlayer(APlayer p, Vector2 normal)

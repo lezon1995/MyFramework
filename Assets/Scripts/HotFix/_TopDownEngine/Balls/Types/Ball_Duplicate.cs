@@ -4,10 +4,7 @@
     {
         public override BallType BallType => BallType.Duplicate;
 
-        public float duplicatedBallDuration = 3F;
-        public float duplicateChance = 0.20F;
-        float curBallDuration => duplicatedBallDuration * _player.durationPct;
-        float curDuplicateChance => duplicateChance + _player.triggerChance;
+        Countdown counter = 2;
 
         public override void onEvent(DoHitEffect e)
         {
@@ -17,30 +14,17 @@
             if (isTemp)
                 return;
 
-            if (randomHit(curDuplicateChance))
+            if (counter.update())
             {
-                var direction = -Direction;
-                var ball = Player.BallManagement.Instance.acquireBall(BallType, curPos, direction, level, duration: curBallDuration);
-                ball.setTeleportPosition(curPos);
-                ball.setTemp(true);
+                counter.reset();
 
-                // we activate the object
-                ball.setActive(true);
-
-                ball.SetWeapon(_weapon);
-                if (Owner)
-                {
-                    ball.SetOwner(Owner);
-                    ball.SetPlayer(Player);
-                    var dmg = _weapon.Dmg;
-                    // dmg.SetDmgRate(0.5F);
-                    ball.SetDamage(dmg);
-                }
-
-                ball.setShootDirection(direction);
-                ball.SetDirection(direction, transform.rotation);
-
-                fx.play(FxDefine.BALL_DUPLICATE, curPos);
+                var arg = new BallDuplicateArg();
+                arg.Type = BallType;
+                arg.Pos = curPos;
+                arg.Normal = e.dmg.HitNormal;
+                arg.Level = level;
+                arg.Duration = getDuration();
+                effectManager.addLogic<BallDuplicateEffect>().with(_player, _weapon, arg);
             }
         }
     }

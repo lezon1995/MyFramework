@@ -1,4 +1,5 @@
-﻿using MoreMountains.Tools;
+﻿using System;
+using MoreMountains.Tools;
 using UnityEngine;
 
 namespace MoreMountains
@@ -20,6 +21,11 @@ namespace MoreMountains
         public BallItem BallItem;
 
         public BallInventorySlot BallSlot { get; set; }
+
+        public override void SetOwner(Character owner, CharacterHandleWeapon handleWeapon = null)
+        {
+            base.SetOwner(owner, handleWeapon);
+        }
 
         public void SetBallSlot(BallInventorySlot slot) => BallSlot = slot;
         public void SetBallItem(BallItem item) => BallItem = item;

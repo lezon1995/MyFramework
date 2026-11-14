@@ -1,4 +1,6 @@
-﻿namespace MoreMountains
+﻿using UnityEngine;
+
+namespace MoreMountains
 {
     /// <summary>
     /// A simple static class that keeps track of layer names, holds ready to use layermasks for most common layers and layermasks combinations
@@ -21,5 +23,21 @@
         public const int Brick_Mask = 1 << Brick;
         public const int MovingPlatform_Mask = 1 << MovingPlatform;
         public const int Ball_Mask = 1 << Ball;
+
+        public static bool isBorder(this GameObject o)
+        {
+            if (o == null)
+                return false;
+
+            return (ALL_BORDER_LAYER_MASK & (1 << o.layer)) != 0;
+        }
+
+        public static bool isBrick(this GameObject o)
+        {
+            if (o == null)
+                return false;
+
+            return (BRICK_LAYER_MASK & (1 << o.layer)) != 0;
+        }
     }
 }

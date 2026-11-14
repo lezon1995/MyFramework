@@ -57,9 +57,7 @@ namespace MoreMountains
 
         #region Damage & Heal
 
-        public virtual void damage(DamageInfo info)
-        {
-        }
+        public virtual void damage(DamageInfo info) { }
 
         #endregion
 
@@ -71,6 +69,8 @@ namespace MoreMountains
         public override void onRelease()
         {
             base.onRelease();
+
+            removeAllPowers();
         }
 
         #region Events
@@ -93,24 +93,32 @@ namespace MoreMountains
                 p.atStartOfTurnPostDraw();
         }
 
-        public virtual void applyEndOfTurnTriggers()
-        {
-        }
+        public virtual void applyEndOfTurnTriggers() { }
 
         #endregion
 
         #region Powers
 
+        protected void fixedUpdatePowers(float dt)
+        {
+            foreach (var p in powers)
+                p.fixedUpdate(dt);
+        }
+        
         public void updatePowers(float dt)
         {
-            for (int i = 0; i < powers.Count; i++)
-                powers[i].update(dt);
+            foreach (var p in powers)
+                p.update(dt);
         }
 
-        public void addPower(CreaturePower power)
+        public virtual T addPower<T>() where T : CreaturePower
         {
+            var power = CLASS<CreaturePower>(typeof(T));
+            power.with(this);
+            power.onGainPower(this);
+
             bool hasBuffAlready = false;
-            foreach (var p in powers)
+            /*foreach (var p in powers)
             {
                 if (p.ID == power.ID)
                 {
@@ -118,24 +126,72 @@ namespace MoreMountains
                     p.updateDescription();
                     hasBuffAlready = true;
                 }
-            }
+            }*/
 
             if (!hasBuffAlready)
             {
                 powers.Add(power);
-                if (isPlayer)
-                {
-                    int buffCount = 0;
-                    foreach (var p in powers)
-                    {
-                        if (p.type == PowerType.BUFF)
-                            buffCount++;
-                    }
+            }
 
-                    if (buffCount >= 10)
-                        UnlockTracker.unlockAchievement("POWERFUL");
+            return power as T;
+        }
+
+        public void removeAllPowers()
+        {
+            for (var i = powers.Count - 1; i >= 0; i--)
+            {
+                var power = powers[i];
+                power.onLosePower(this);
+                powers.removeAt(i);
+                UN_CLASS(power);
+            }
+        }
+
+        public bool removePower<T>() where T : CreaturePower
+        {
+            for (var i = powers.Count - 1; i >= 0; i--)
+            {
+                if (powers[i] is T power)
+                {
+                    power.onLosePower(this);
+                    powers.removeAt(i);
+                    UN_CLASS(power);
+                    return true;
                 }
             }
+
+            return false;
+        }
+
+        public bool removePower<T>(T p) where T : CreaturePower
+        {
+            for (var i = powers.Count - 1; i >= 0; i--)
+            {
+                if (powers[i] is T power && power == p)
+                {
+                    power.onLosePower(this);
+                    powers.removeAt(i);
+                    UN_CLASS(power);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+        
+        public bool tryGetPower<T>(out T power) where T : CreaturePower
+        {
+            for (var i = powers.Count - 1; i >= 0; i--)
+            {
+                if (powers[i] is T t)
+                {
+                    power = t;
+                    return true;
+                }
+            }
+
+            power = null;
+            return false;
         }
 
         public CreaturePower getPower(string targetID)

@@ -85,7 +85,7 @@ TrailRenderer:
   m_PreviewTimeScale: 1
   m_Parameters:
     serializedVersion: 3
-    widthMultiplier: 0.3
+    widthMultiplier: 0.5
     widthCurve:
       serializedVersion: 2
       m_Curve:
@@ -444,7 +444,7 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0.25
+      scalar: 0.35
       minScalar: 1
       maxCurve:
         serializedVersion: 2
@@ -497,7 +497,7 @@ ParticleSystem:
     startSizeY:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0.15
+      scalar: 0.3
       minScalar: 1
       maxCurve:
         serializedVersion: 2
@@ -5037,7 +5037,7 @@ CircleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Radius: 0.1
+  m_Radius: 0.2
 --- !u!50 &6463961785006920964
 Rigidbody2D:
   serializedVersion: 5
@@ -5084,7 +5084,7 @@ MonoBehaviour:
   ManuallyColliding: 0
   movementVector: 1
   Speed:
-    _meter: 20
+    _meter: 14
   Acceleration: 0
   Direction: {x: 0, y: 0, z: 0}
   FlipValue: {x: -1, y: 1, z: 1}
@@ -5098,10 +5098,10 @@ MonoBehaviour:
   IsPenetrable: 1
   BounceLayers:
     serializedVersion: 2
-    m_Bits: 16384
+    m_Bits: 0
   PenetrableLayers:
     serializedVersion: 2
-    m_Bits: 128
+    m_Bits: 16512
   BounceFeedback: {fileID: 0}
   AmountOfBounces: {x: 1, y: 1}
 --- !u!114 &897927845639465654
@@ -5117,6 +5117,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: HotFix::MoreMountains.DamageOnTouch
   ManuallyColliding: 0
+  AutoBindStats: 1
   TargetLayerMask:
     serializedVersion: 2
     m_Bits: 49280
@@ -5127,8 +5128,9 @@ MonoBehaviour:
     Type: 0
     ActualType: 0
     Algo: 0
+    MetaType: 0
     IsCrit: 0
-    CritRate: 0
+    CritDamage: 0
     DmgRate:
       initial: 0
       extra: 0
@@ -5140,6 +5142,8 @@ MonoBehaviour:
     Direction: {x: 0, y: 0, z: 0}
     TriggerEffect: 0
     IsLethal: 0
+    IsDOT: 0
+    IgnoreInvincible: 0
     HitNormal: {x: 0, y: 0}
     Mix:
       On: 0
@@ -5194,6 +5198,7 @@ MonoBehaviour:
   BaseMR: 0
   BaseDodgeChance: 0
   ImmuneToDamage: 0
+  DamageCheckInterval: 0
   DamageMMFeedbacks: {fileID: 0}
   FeedbackIsProportionalToDamage: 0
   PreventTakeSelfDamage: 0
@@ -5217,3 +5222,8 @@ MonoBehaviour:
   TargetAnimator: {fileID: 0}
   DisableAnimatorLogs: 1
   Character: {fileID: 0}
+  Shield:
+    CurrentShield: 0
+    BaseShieldRegen: 0
+    DamageReductionRatio: 0
+    ShieldPenetrationRatio: 0

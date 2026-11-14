@@ -32,6 +32,15 @@ public class CriticalEye : ARelic
 }
 
 /// <summary>
+/// 暴击率+20%
+/// </summary>
+public class CriticalCore : ARelic
+{
+    public static string ID = "CriticalCore";
+    public CriticalCore() : base(ID, "CriticalCore.png", RelicTier.COMMON, LandingSound.SOLID) { }
+}
+
+/// <summary>
 /// SharpClaws - 锋利爪子
 /// 暴击伤害+20%
 /// </summary>
@@ -91,9 +100,7 @@ public class LightningStrike : ARelic
 }
 
 /// <summary>
-/// CriticalMass - 暴击质变
-/// 暴击率超过50%时额外+15%
-/// [设计文案] 临界点的突破，高暴击带来额外收益
+/// 你的DOT伤害可以暴击
 /// </summary>
 public class CriticalMass : ARelic
 {
@@ -101,22 +108,32 @@ public class CriticalMass : ARelic
 
     public CriticalMass() : base(ID, "CriticalMass.png", RelicTier.RARE, LandingSound.SOLID) { }
 
-    // TODO: 需要实现高暴击率时的额外暴击率
-    // public override void onEquip(APlayer p)
-    // {
-    //     CheckCritBonus(p);
-    // }
-    //
-    // private void CheckCritBonus(APlayer p)
-    // {
-    //     var critChance = p.GetStat(Stats.CritChance);
-    //     if (critChance >= 0.5f)
-    //     {
-    //         p.AddStatBonus(Stats.CritChance, 0.15f);
-    //     }
-    // }
+    public override void onPlayerBeforeHandleDamage(APlayer p, Brick brick, ref Dmg dmg)
+    {
+        if (!dmg.IsDOT)
+            return;
 
-    public override ARelic makeCopy() => new CriticalMass();
+        if (randomHit(_player.critChance))
+            dmg.Crit();
+    }
+}
+
+/// <summary>
+/// 电锯的攻击间隔-33%
+/// </summary>
+public class ChainSawBattery : ARelic
+{
+    public static string ID = "ChainSawBattery";
+
+    public ChainSawBattery() : base(ID, "ChainSawBattery.png", RelicTier.RARE, LandingSound.SOLID) { }
+
+    public override void onShootBall(APlayer p, Ball ball)
+    {
+        if (ball is Ball_ChainSaw chainSaw)
+        {
+            chainSaw.dmgGap -= 1;
+        }
+    }
 }
 
 /// <summary>
@@ -184,10 +201,7 @@ public class CrimsonEdge : ARelic
 
     public CrimsonEdge() : base(ID, "CrimsonEdge.png", RelicTier.RARE, LandingSound.SOLID) { }
 
-    public override void onKillBrick(APlayer p, Brick brick)
-    {
-        
-    }
+    public override void onKillBrick(APlayer p, Brick brick) { }
 
     public override ARelic makeCopy() => new CrimsonEdge();
 }

@@ -60,7 +60,7 @@ namespace MoreMountains
 
         public APlayer collidingPlayer { get; set; }
         protected APlayer overlappingPlayer;
-        
+
         public Obstacle collidingObstacle { get; set; }
         protected Obstacle overlappingObstacle;
 
@@ -167,26 +167,26 @@ namespace MoreMountains
 
             if (IsPenetrable)
             {
-                TryMoveWithCollidingObject(dt, collidingBrick != null || collidingPlayer != null, isOverlappingBrick || isOverlappingPlayer);
-                
+                TryMoveWithCollidingObject(dt, collidingBrick != null || collidingPlayer != null, isOverlappingBrick || isOverlappingPlayer, true);
+
                 if (ManuallyColliding)
                 {
                     if (!TryCollideWithCollidingObject(collidingBrick != null || collidingPlayer != null))
                         return;
                 }
-                
+
                 CheckOverlappingBrick(dt);
             }
             else
             {
-                TryMoveWithCollidingObject(dt, collidingPlayer != null, isOverlappingPlayer);
-                
+                TryMoveWithCollidingObject(dt, collidingPlayer != null, isOverlappingPlayer, false);
+
                 if (ManuallyColliding)
                 {
                     if (!TryCollideWithCollidingObject(collidingPlayer != null))
                         return;
                 }
-                
+
                 CheckOverlappingPlayer(dt);
             }
 
@@ -203,12 +203,13 @@ namespace MoreMountains
             {
                 return true;
             }
-            
+
             if (isColliding)
             {
                 if (willPassingThroughThisFrame)
                 {
                     CollidingManually(willPassingThroughHit.collider.gameObject, willPassingThroughHit.normal, willPassingThroughHit.point);
+                    forceCollide = false;
                     willPassingThroughThisFrame = false;
                     correctPos = Vector3.zero;
                     willPassingThroughHit = default;
@@ -216,9 +217,10 @@ namespace MoreMountains
             }
             else
             {
-                if (willPassingThroughThisFrame && curPos == correctPos)
+                if (willPassingThroughThisFrame && (curPos == correctPos || forceCollide))
                 {
                     CollidingManually(willPassingThroughHit.collider.gameObject, willPassingThroughHit.normal, willPassingThroughHit.point);
+                    forceCollide = false;
                     willPassingThroughThisFrame = false;
                     correctPos = Vector3.zero;
                     willPassingThroughHit = default;
@@ -229,7 +231,7 @@ namespace MoreMountains
             return true;
         }
 
-        void TryMoveWithCollidingObject(float dt, bool isColliding, bool isOverlapping)
+        void TryMoveWithCollidingObject(float dt, bool isColliding, bool isOverlapping, bool isPenetrable)
         {
             if (isColliding)
             {
@@ -249,7 +251,30 @@ namespace MoreMountains
                 willPassingThroughThisFrame = CheckWillPassingThrough(dt, BounceLayers, out correctPos, out willPassingThroughHit);
                 if (willPassingThroughThisFrame)
                 {
-                    MovementTo(correctPos);
+                    var layer = willPassingThroughHit.collider.gameObject.layer;
+                    if (layer == LayerManager.Brick && isPenetrable)
+                    {
+                        forceCollide = true;
+                        Movement(dt);
+                    }
+                    else if (layer == LayerManager.Obstacles && isPenetrable)
+                    {
+                        forceCollide = true;
+                        Movement(dt);
+                    }
+                    else if (layer == LayerManager.Border)
+                    {
+                        MovementTo(correctPos);
+                    }
+                    else if (layer == LayerManager.Player && isPenetrable)
+                    {
+                        forceCollide = true;
+                        Movement(dt);
+                    }
+                    else
+                    {
+                        MovementTo(correctPos);
+                    }
                 }
                 else
                 {
@@ -329,7 +354,7 @@ namespace MoreMountains
                             overlappingPlayer = null;
                             return;
                         }
-                        
+
                         var noOverlappingBefore = overlappingPlayer == null;
                         overlappingPlayer = collidingPlayer;
                         if (noOverlappingBefore)
@@ -360,7 +385,7 @@ namespace MoreMountains
         protected void FixedUpdatePowers(float dt)
         {
             foreach (var p in powers)
-                p.onFixedUpdate(dt);
+                p.fixedUpdate(dt);
         }
 
         protected virtual void OnFixedUpdateOverlappingBrick(Brick brick, float dt) { }
@@ -582,6 +607,7 @@ namespace MoreMountains
             GetStat(Stat.CritDamage, out var ballCritDamage);
             var critDamage = playerCritDamage.Value * ballCritDamage.Value;
             dmg.SetCritDamage(critDamage);
+            dmg.SetDirection(Direction);
 
             _player.onBallGetImpactDmg(this, ref dmg);
             return dmg;
@@ -628,14 +654,12 @@ namespace MoreMountains
         public void extendDuration(float delta)
         {
             lifeDuration.extend(delta);
-            var d = lifeDuration.duration;
+            var d = getDuration();
             isExpired = d <= 0 || d.isZero();
         }
 
-        public float getDurationRemain()
-        {
-            return lifeDuration.remain;
-        }
+        public float getDurationRemain() => lifeDuration.remain;
+        public float getDuration() => lifeDuration.duration;
 
         public virtual void onPreparedToShoot() { }
 

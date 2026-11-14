@@ -2,11 +2,6 @@
 
 namespace MoreMountains;
 
-public interface ILaserBeamEffectAngleModifier
-{
-    void modifyAngle(Vector3 pos, ref float angle);
-}
-
 /// <summary>
 /// 随机激光球的引导能力
 /// </summary>

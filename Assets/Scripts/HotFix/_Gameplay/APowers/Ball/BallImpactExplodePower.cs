@@ -20,7 +20,7 @@ public class BallImpactExplodePower : BallPower, IArgs<float>
         timer = p1;
     }
 
-    public override void onFixedUpdate(float dt)
+    protected override void onFixedUpdate(float dt)
     {
         timer.update(dt);
     }

@@ -1067,6 +1067,22 @@ MonoBehaviour:
     m_Key: StoreOwner
     m_Metadata:
       m_Items: []
+  - m_Id: 21486480095989760
+    m_Key: BloodLife
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22555325585969152
+    m_Key: LibraryBadge
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22627561076445184
+    m_Key: ChainSawBattery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22872858956419072
+    m_Key: CriticalCore
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

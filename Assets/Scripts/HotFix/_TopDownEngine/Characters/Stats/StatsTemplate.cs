@@ -7,10 +7,19 @@ using UnityEngine;
 namespace MoreMountains
 {
     public delegate void ValueModifier(ref float raw);
+    public delegate void IntValueModifier(ref int raw);
 
     public static class ValueModifierExtensions
     {
         public static float SafeInvoke(this ValueModifier modifier, ref float value)
+        {
+            if (modifier == null)
+                return value;
+
+            modifier(ref value);
+            return value;
+        }
+        public static int SafeInvoke(this IntValueModifier modifier, ref int value)
         {
             if (modifier == null)
                 return value;

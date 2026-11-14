@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace MoreMountains;
 
@@ -18,7 +17,6 @@ public abstract class APower : ClassObject, IComparable<APower>
 
     protected float fontScale = 1.0F;
 
-    List<AGameEffect> effect = new();
     public string name;
     public string description;
     public string ID;
@@ -35,7 +33,6 @@ public abstract class APower : ClassObject, IComparable<APower>
         base.resetProperty();
 
         fontScale = 0;
-        UN_CLASS_LIST(effect);
         name = null;
         description = null;
         ID = null;
@@ -86,47 +83,18 @@ public abstract class APower : ClassObject, IComparable<APower>
         }
     }
 
-    public void updateParticles() { }
-
     public void update(float dt)
     {
-        updateFlash(dt);
-        updateFontScale();
-        updateColor();
         onUpdate(dt);
     }
 
+    public void fixedUpdate(float dt)
+    {
+        onFixedUpdate(dt);
+    }
+
     protected virtual void onUpdate(float dt) { }
-    public virtual void onFixedUpdate(float dt) { }
-
-    void updateFlash(float dt)
-    {
-        for (var i = 0; i < effect.Count;)
-        {
-            var e = effect[i];
-            e.update(dt);
-            if (e.isDone)
-                effect.RemoveAt(i);
-            else
-                i++;
-        }
-    }
-
-    void updateColor()
-    {
-        // if (color.a != 1.0F)
-        // color.a = MathHelper.fadeLerpSnap(color.a, 1.0F);
-    }
-
-    void updateFontScale()
-    {
-        if (fontScale != 1.0F)
-        {
-            fontScale = lerp(fontScale, 1.0F, Time.deltaTime * FONT_LERP);
-            if (fontScale - 1.0F < FONT_SNAP_THRESHOLD)
-                fontScale = 1.0F;
-        }
-    }
+    protected virtual void onFixedUpdate(float dt) { }
 
     public virtual void updateDescription() { }
 

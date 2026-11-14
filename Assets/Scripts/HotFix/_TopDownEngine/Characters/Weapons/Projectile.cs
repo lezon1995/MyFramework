@@ -102,6 +102,7 @@ namespace MoreMountains
         protected RaycastHit2D willPassingThroughHit;
         protected bool willPassingThroughThisFrame;
         protected bool _shouldMove = true;
+        protected bool forceCollide;
         protected Health _health;
         protected Stats _stats;
         protected bool _hasStats;
@@ -144,6 +145,7 @@ namespace MoreMountains
             base.onAcquire();
             willPassingThroughHit = default;
             willPassingThroughThisFrame = false;
+            forceCollide = false;
         }
 
         public override void onRelease()
@@ -157,6 +159,7 @@ namespace MoreMountains
             base.reset();
             willPassingThroughHit = default;
             willPassingThroughThisFrame = false;
+            forceCollide = false;
         }
 
         protected virtual void OnStatsSet() { }

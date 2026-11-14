@@ -7,7 +7,6 @@
         public override void onEvent(DoHitEffect e)
         {
             base.onEvent(e);
-            
         }
     }
 }

@@ -14,9 +14,8 @@ public class BurlapBag : ARelic
     {
     }
 
-    public override void onBallHitBorderBot(APlayer p, Ball ball, BorderBot border, Vector2 normal, ref bool forceReturn)
+    public override void onBallHitBorderBot(APlayer p, Ball ball, BorderBot border, ref Vector2 normal)
     {
-        forceReturn = false;
     }
 
     public override ARelic makeCopy() => new BurlapBag();

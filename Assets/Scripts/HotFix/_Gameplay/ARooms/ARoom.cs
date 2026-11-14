@@ -271,9 +271,6 @@ namespace MoreMountains
                             // player.updateInput(dt);
                         }
 
-                        if (ADungeon.screen != CurrentScreen.HAND_SELECT)
-                            player.combatUpdate(dt);
-
                         if (player.isEndingTurn)
                             endPlayerTurn();
 

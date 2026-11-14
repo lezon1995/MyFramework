@@ -193,7 +193,7 @@ namespace MoreMountains
                 monsterTypeId = "goblin_king",  // 怪物ID
                 minCoinCount = 5,
                 maxCoinCount = 8,
-                coinValue = 5,
+                minCoinValue = 5,
                 dropChance = 1f,
                 dropDirection = DropDirectionType.Random,
                 dropConfigOverride = CoinDropConfig.FancyDrop  // 使用华丽掉落配置

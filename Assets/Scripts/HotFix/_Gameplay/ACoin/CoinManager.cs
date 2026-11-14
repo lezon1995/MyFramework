@@ -230,7 +230,7 @@ namespace MoreMountains
             if (config == null)
                 return;
 
-            int coinCount = config.RollCoinCount();
+            int coinCount = config.RollCoinCount(this, p);
             if (coinCount <= 0)
                 return;
 
@@ -246,8 +246,30 @@ namespace MoreMountains
                 var angle = UnityEngine.Random.Range(-spread, spread);
                 var rotation = Quaternion.AngleAxis(angle, Vector3.forward);
                 var scatteredDir = rotation * baseDir;
-                DropCoin(monsterPos, scatteredDir, config.coinValue, dropCfg, p);
+                var min = config.minCoinValue;
+                var max = config.maxCoinValue;
+                var f = randomFloat(0F, 1F);
+                var coinValue = GetGold(min, max, f, p.luckPct);
+                DropCoin(monsterPos, scatteredDir, coinValue, dropCfg, p);
             }
+        }
+
+        /// <summary>
+        /// luck [-1, 1] 映射为目标平均金币 [1, 10]。
+        /// luck = 0 时，1~10 均匀随机。
+        /// </summary>
+        public int GetGold(int minGold, int maxGold, float randomF, float luck)
+        {
+            luck = Mathf.Clamp(luck, -1f, 1f);
+
+            float exponent = Mathf.Pow(0.01f, luck);
+            float random = Mathf.Pow(randomF, exponent);
+
+            return Mathf.Clamp(
+                minGold + Mathf.FloorToInt(random * (maxGold - minGold + 1)),
+                minGold,
+                maxGold
+            );
         }
 
         #endregion

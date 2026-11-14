@@ -11,9 +11,7 @@ public class WisdomScroll : ARelic
 {
     public static string ID = "WisdomScroll";
 
-    public WisdomScroll() : base(ID, "WisdomScroll.png", RelicTier.UNCOMMON, LandingSound.SOLID)
-    {
-    }
+    public WisdomScroll() : base(ID, "WisdomScroll.png", RelicTier.UNCOMMON, LandingSound.SOLID) { }
 
     // TODO: 需要实现经验增益
     // public override void onEquip(APlayer p)
@@ -32,9 +30,7 @@ public class ScholarHat : ARelic
 {
     public static string ID = "ScholarHat";
 
-    public ScholarHat() : base(ID, "ScholarHat.png", RelicTier.UNCOMMON, LandingSound.SOLID)
-    {
-    }
+    public ScholarHat() : base(ID, "ScholarHat.png", RelicTier.UNCOMMON, LandingSound.SOLID) { }
 
     // TODO: 需要实现经验需求降低
     // public override void onEquip(APlayer p)
@@ -54,9 +50,7 @@ public class KnowledgeGem : ARelic
 {
     public static string ID = "KnowledgeGem";
 
-    public KnowledgeGem() : base(ID, "KnowledgeGem.png", RelicTier.RARE, LandingSound.MAGICAL)
-    {
-    }
+    public KnowledgeGem() : base(ID, "KnowledgeGem.png", RelicTier.RARE, LandingSound.MAGICAL) { }
 
     // TODO: 需要实现升级属性奖励
     // public override void onLevelUp(APlayer p, int newLevel)
@@ -74,9 +68,7 @@ public class AncientTome : ARelic
 {
     public static string ID = "AncientTome";
 
-    public AncientTome() : base(ID, "AncientTome.png", RelicTier.RARE, LandingSound.MAGICAL)
-    {
-    }
+    public AncientTome() : base(ID, "AncientTome.png", RelicTier.RARE, LandingSound.MAGICAL) { }
 
     int minAmount, maxAmount;
     float convertRate;
@@ -90,7 +82,7 @@ public class AncientTome : ARelic
 
     public override void onCauseDotDamage(APlayer p, Brick brick, in Dmg dmg)
     {
-        var amount = (int)Mathf.Clamp(dmg.DamageDealt * convertRate, minAmount, maxAmount) ;
+        var amount = (int)Mathf.Clamp(dmg.DamageDealt * convertRate, minAmount, maxAmount);
         p.gainGold(amount);
         new GainCoinTextEvent(amount, brick.getTransform()).trigger();
     }
@@ -106,9 +98,7 @@ public class StudyGlasses : ARelic
 {
     public static string ID = "StudyGlasses";
 
-    public StudyGlasses() : base(ID, "StudyGlasses.png", RelicTier.UNCOMMON, LandingSound.SOLID)
-    {
-    }
+    public StudyGlasses() : base(ID, "StudyGlasses.png", RelicTier.UNCOMMON, LandingSound.SOLID) { }
 
     // TODO: 需要实现经验增益
     // public override void onEquip(APlayer p)
@@ -128,9 +118,7 @@ public class MentorSpirit : ARelic
 {
     public static string ID = "MentorSpirit";
 
-    public MentorSpirit() : base(ID, "MentorSpirit.png", RelicTier.RARE, LandingSound.MAGICAL)
-    {
-    }
+    public MentorSpirit() : base(ID, "MentorSpirit.png", RelicTier.RARE, LandingSound.MAGICAL) { }
 
     // TODO: 需要实现升级双倍属性
     // public override void onLevelUp(APlayer p, int newLevel)
@@ -142,28 +130,34 @@ public class MentorSpirit : ARelic
 }
 
 /// <summary>
-/// Enlightenment - 启迪
-/// 每3级获得额外技能
-/// [设计文案] 智慧的火花
+/// 撞击时附带0.08*AP的魔法伤害
 /// </summary>
 public class Enlightenment : ARelic
 {
     public static string ID = "Enlightenment";
 
-    public Enlightenment() : base(ID, "Enlightenment.png", RelicTier.SPECIAL, LandingSound.MAGICAL)
+    public Enlightenment() : base(ID, "Enlightenment.png", RelicTier.SPECIAL, LandingSound.MAGICAL) { }
+
+    float rate;
+    
+    protected override void onRelicDefSet(RelicDef d)
     {
+        rate = d.Args[0];
     }
 
-    // TODO: 需要实现每3级技能
-    // public override void onLevelUp(APlayer p, int newLevel)
-    // {
-    //     if (newLevel % 3 == 0)
-    //     {
-    //         p.UnlockBonusSkill();
-    //     }
-    // }
+    public override void onBallCauseImpactDamage(APlayer p, Ball ball, Brick brick, in Dmg dmg)
+    {
+        if (brick.IsDead())
+            return;
 
-    public override ARelic makeCopy() => new Enlightenment();
+        var value = (int)(rate * p.ap);
+        if (value > 0)
+        {
+            var d = Dmg.AP(value);
+            d.SetEffect(Dmg.Effects.None);
+            brick.Health.Damage(ref d, ball.gameObject, p, direction: dmg.Direction);
+        }
+    }
 }
 
 /// <summary>
@@ -175,9 +169,7 @@ public class PhilosopherStone : ARelic
 {
     public static string ID = "PhilosopherStone";
 
-    public PhilosopherStone() : base(ID, "PhilosopherStone.png", RelicTier.SPECIAL, LandingSound.MAGICAL)
-    {
-    }
+    public PhilosopherStone() : base(ID, "PhilosopherStone.png", RelicTier.SPECIAL, LandingSound.MAGICAL) { }
 
     // TODO: 需要实现经验转生命
     // public override void onGainXP(APlayer p, int amount)
@@ -189,37 +181,83 @@ public class PhilosopherStone : ARelic
 }
 
 /// <summary>
-/// LibraryCard - 图书证
-/// 经验+20%
+/// 你的分裂效果会额外分裂2个
 /// </summary>
 public class LibraryCard : ARelic
 {
     public static string ID = "LibraryCard";
 
-    public LibraryCard() : base(ID, "LibraryCard.png", RelicTier.UNCOMMON, LandingSound.SOLID)
+    public LibraryCard() : base(ID, "LibraryCard.png", RelicTier.UNCOMMON, LandingSound.SOLID) { }
+
+    BallFissionExtraPower power;
+
+    public override void onEquip(APlayer p)
     {
+        base.onEquip(p);
+        power = p.addPower<BallFissionExtraPower>();
     }
 
-    // TODO: 需要实现经验增益
-    // public override void onEquip(APlayer p)
-    // {
-    //     p.XPMultiplier *= 1.2f;
-    // }
-
-    public override ARelic makeCopy() => new LibraryCard();
+    public override void onUnequip(APlayer p)
+    {
+        base.onUnequip(p);
+        p.removePower(power);
+    }
 }
 
 /// <summary>
-/// BrainFood - 补脑食品
-/// 经验+10%，幸运+5
+/// 你的裂变子球撞击时有20%几率复制自己
+/// </summary>
+public class LibraryBadge : ARelic
+{
+    public static string ID = "LibraryBadge";
+
+    public LibraryBadge() : base(ID, "LibraryBadge.png", RelicTier.UNCOMMON, LandingSound.SOLID) { }
+
+    float duplicateChance => chance + _player.triggerChance;
+    float chance;
+    
+    protected override void onRelicDefSet(RelicDef d)
+    {
+        chance = d.Args[0];
+    }
+
+    public override void onBallDoHitEffect(APlayer p, Ball ball, DoHitEffect e, float delay)
+    {
+        if (ball.BallType is BallType.FissionMini)
+        {
+            if (randomHit(duplicateChance))
+            {
+                var arg = new BallDuplicateArg();
+                arg.Type = ball.BallType;
+                arg.Pos =ball.curPos;
+                arg.Normal = e.dmg.HitNormal;
+                arg.Level =ball. level;
+                arg.Duration = ball.getDuration();
+                effectManager.addLogic<BallDuplicateEffect>().with(_player, ball.SourceWeapon, arg);
+            }
+        }
+    }
+}
+
+/// <summary>
+/// 你的复制效果会额外复制1个
 /// </summary>
 public class BrainFood : ARelic
 {
     public static string ID = "BrainFood";
 
-    public BrainFood() : base(ID, "BrainFood.png", RelicTier.UNCOMMON, LandingSound.SOLID)
+    public BrainFood() : base(ID, "BrainFood.png", RelicTier.UNCOMMON, LandingSound.SOLID) { }
+    BallDuplicateExtraPower power;
+
+    public override void onEquip(APlayer p)
     {
+        base.onEquip(p);
+        power = p.addPower<BallDuplicateExtraPower>();
     }
 
-    public override ARelic makeCopy() => new BrainFood();
+    public override void onUnequip(APlayer p)
+    {
+        base.onUnequip(p);
+        p.removePower(power);
+    }
 }

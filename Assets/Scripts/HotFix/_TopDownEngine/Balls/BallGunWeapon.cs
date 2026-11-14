@@ -140,10 +140,7 @@ namespace MoreMountains
             }
         }
 
-        public override void onBallRecollected(Ball ball)
-        {
-            
-        }
+        public override void onBallRecollected(Ball ball) { }
 
         public override void SetOwner(Character owner, CharacterHandleWeapon handleWeapon = null)
         {
@@ -215,6 +212,20 @@ namespace MoreMountains
             };
         }
 
+        public override void WeaponInputStart()
+        {
+            if (_reloading)
+                return;
+
+            if (requireTargetToShoot && _aimTarget == null)
+                return;
+
+            if (State.Is(States.Idle))
+            {
+                _triggerReleased = false;
+                TurnWeaponOn();
+            }
+        }
 
         public override void ShootRequest()
         {

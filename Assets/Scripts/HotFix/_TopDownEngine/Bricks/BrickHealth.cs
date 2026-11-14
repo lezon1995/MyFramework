@@ -232,13 +232,16 @@ namespace MoreMountains
             if (dmg.hasSkillEffect() || dmg.hasAttackEffect())
                 brick.brickRenderer.playFxHit(dmg.HitNormal);
 
+            var p = source as APlayer;
+            p.onBeforeHandleDamage(brick, ref dmg);
+            
             if (instigator.TryGetComponent(out Ball ball))
             {
-                DamageByBall(ref dmg, ball, source as APlayer, invincibleTime, direction, calculator);
+                DamageByBall(ref dmg, ball, p, invincibleTime, direction, calculator);
             }
             else
             {
-                DamageByOther(ref dmg, instigator, source as APlayer, invincibleTime, direction, calculator);
+                DamageByOther(ref dmg, instigator, p, invincibleTime, direction, calculator);
             }
         }
 
@@ -264,7 +267,7 @@ namespace MoreMountains
             {
                 foreach (var p in ball.powers)
                     p.onBeforeHandleSkillDamage(ball, brick, ref dmg);
-                
+
                 source.onBeforeHandleSkillDamage(ball, brick, ref dmg);
             }
 
@@ -295,7 +298,12 @@ namespace MoreMountains
             }
 
             foreach (var p in brick.powers)
-                p.onBeforeApplyDamage(brick, ball, ref dmg);
+            {
+                if (p is BrickPower power)
+                {
+                    power.onBeforeApplyDamage(brick, ball, ref dmg);
+                }
+            }
 
             if (dmg.IsCrit)
             {
@@ -405,7 +413,7 @@ namespace MoreMountains
                                     ball.getPlayer().Event.trigger(e);
                                     ball.onSkillKill(brick);
                                 }
-                                
+
                                 source?.onKillBrick(brick);
                                 _lastestKillerPlayer = source;
                             }
@@ -656,7 +664,7 @@ namespace MoreMountains
                                 //     ball.getPlayer().Event.trigger(e);
                                 //     ball.onSkillKill(brick);
                                 // }
-                                
+
                                 source?.onKillBrick(brick);
                                 _lastestKillerPlayer = source;
                             }
@@ -828,7 +836,7 @@ namespace MoreMountains
 
             var e = new OnBrickDeathTotally(brick);
             e.trigger(brick);
-            
+
             if (_lastestKillerPlayer)
             {
                 _lastestKillerPlayer.onKillBrickTotally(brick);

@@ -140,7 +140,7 @@ public class LaserBall : ARelic
         tryTrigger(ball);
     }
 
-    public override void onBallHitBorder(APlayer p, Ball ball, Border border)
+    public override void onBallHitBorder(APlayer p, Ball ball, Border border, ref Vector2 normal)
     {
         tryTrigger(ball);
     }

@@ -97,14 +97,9 @@ namespace MoreMountains
         public override void OnUpdate(float dt)
         {
             base.OnUpdate(dt);
-            foreach (var p in powers)
-                p.updateParticles();
-
             updateDeathAnimation(dt);
             // updateIntent(dt);
             // tint.update();
-            
-            
         }
 
         public override void OnFixedUpdate(float dt)

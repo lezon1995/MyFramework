@@ -11,20 +11,18 @@ public class RoughWall : ARelic
 {
     public static string ID = "RoughWall";
 
-    public RoughWall() : base(ID, "RoughWall.png", RelicTier.COMMON, LandingSound.SOLID)
-    {
-    }
+    public RoughWall() : base(ID, "RoughWall.png", RelicTier.COMMON, LandingSound.SOLID) { }
 
-    public override void onBallHitBorderLeft(APlayer p, Ball ball, BorderLeft border, ref Vector2 normal)
+    public override void onBallHitBorder(APlayer p, Ball ball, Border border, ref Vector2 normal)
     {
         onBallHitSideBorder(ball, ref normal);
     }
 
-    public override void onBallHitBorderRight(APlayer p, Ball ball, BorderRight border, ref Vector2 normal)
+    public override void onBallHitObstacle(APlayer p, Ball ball, Obstacle obstacle, ref Vector2 normal)
     {
         onBallHitSideBorder(ball, ref normal);
     }
-    
+
     static Vector2 computeNormal(Vector2 incident, Vector2 reflected)
     {
         Vector2 n = (incident - reflected).normalized;
@@ -38,6 +36,7 @@ public class RoughWall : ARelic
 
     static void onBallHitSideBorder(Ball ball, ref Vector2 normal)
     {
+        var originNormal = normal;
         var list = brickManager.getActiveBrickList();
         float minDistance = float.MaxValue;
         Brick minDistBrick = null;
@@ -45,14 +44,18 @@ public class RoughWall : ARelic
         var ballPos = ball.getWorldPosition();
         foreach (var brick in list)
         {
-            var brickPos = brick.getWorldPosition();
+            var brickPos = (Vector3)brick.getCenterPosition();
             var dir = brickPos - ballPos;
+            var dot = Vector2.Dot(originNormal, dir);
             var d = dir.sqrMagnitude;
-            if (d < minDistance)
+            if (d < minDistance && dot > 0)
             {
-                minDistance = d;
-                minDistBrick = brick;
-                minDisDirection = dir.normalized;
+                if (!Physics2D.CircleCast(ballPos, ball.Radius, dir.normalized, dir.magnitude, LayerManager.Obstacles_Mask))
+                {
+                    minDistance = d;
+                    minDistBrick = brick;
+                    minDisDirection = dir.normalized;
+                }
             }
         }
 

@@ -367,4 +367,7 @@ public enum RelicType
     LaserGuidance,
     StoreOwner,
     BloodLife,
+    LibraryBadge,
+    ChainSawBattery,
+    CriticalCore,
 }

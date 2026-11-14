@@ -104,7 +104,7 @@ namespace MoreMountains
             SqueezeTimer = 0;
         }
 
-        public override void onGainPower(Brick brick)
+        protected override void onGainPower(Brick brick)
         {
             VolumeBody = brick.EnsureVolumeBody();
             if (VolumeBody != null)
@@ -113,7 +113,7 @@ namespace MoreMountains
             }
         }
 
-        public override void onLosePower(Brick brick)
+        protected override void onLosePower(Brick brick)
         {
             if (VolumeBody != null && volumeManager != null)
             {

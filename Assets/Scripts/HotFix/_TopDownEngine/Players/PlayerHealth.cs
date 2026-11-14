@@ -253,7 +253,12 @@ namespace MoreMountains
             }
 
             foreach (var p in _player.powers)
-                p.onBeforeApplyDamage(brick, ref dmg);
+            {
+                if (p is PlayerPower power)
+                {
+                    power.onBeforeApplyDamage(brick, ref dmg);
+                }
+            }
 
             Event.trigger(new OnHit());
 

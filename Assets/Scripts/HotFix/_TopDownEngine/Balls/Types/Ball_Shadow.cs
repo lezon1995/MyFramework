@@ -67,11 +67,6 @@ namespace MoreMountains
             return false;
         }
 
-        protected override void OnFixedUpdateOverlappingBrick(Brick brick, float dt)
-        {
-            base.OnFixedUpdateOverlappingBrick(brick, dt);
-        }
-
         public override void OnFixedUpdate(float dt)
         {
             // 检测球进入/离开砖块的状态变化

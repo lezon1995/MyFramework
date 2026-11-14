@@ -2,6 +2,18 @@
 
 namespace MoreMountains
 {
+    public struct OnShootLineTargetChanged
+    {
+        public GameObject CurTarget;
+        public GameObject LastTarget;
+
+        public OnShootLineTargetChanged(GameObject curTarget, GameObject lastTarget)
+        {
+            CurTarget = curTarget;
+            LastTarget = lastTarget;
+        }
+    }
+    
     public class PlayerShootDirectionLineAbility : PlayerAbility
     {
         static int MainTex = Shader.PropertyToID("_MainTex");
@@ -18,9 +30,12 @@ namespace MoreMountains
         public float distance = 5f;
         bool isLine;
         bool isOff;
-        Vector3 shootPosition => _player.getWorldPosition();
+        Vector3 firePosition => _player.getWorldPosition();
         Vector3 rawShootDirection, shootDirection;
         Vector3 mouseWorldPos;
+
+        Weapon weapon;
+        GameObject firstHitGameObject;
 
         protected override void Initialization()
         {
@@ -28,7 +43,7 @@ namespace MoreMountains
             var obstacle = LayerManager.Obstacles_Mask;
             var brick = BRICK_LAYER_MASK;
             _mask0 = obstacle | brick;
-            
+
             var t = transform;
             t.find(out indicatorBall, "IndicatorBall");
             t.find(out linesGroup, "Group");
@@ -51,7 +66,7 @@ namespace MoreMountains
             lineMat0 = lines[0].sharedMaterial;
             lineMat1 = lines[1].sharedMaterial;
             lineMat2 = lines[2].sharedMaterial;
-            
+
             lineMat0.mainTextureScale = new(4, 1);
         }
 
@@ -63,7 +78,7 @@ namespace MoreMountains
 
         void updateShootDirection()
         {
-            var diff = mouseWorldPos - shootPosition;
+            var diff = mouseWorldPos - firePosition;
             diff.Normalize();
             var rotZ = Mathf.Atan2(diff.y, diff.x) * Mathf.Rad2Deg;
             var rotation = Quaternion.Euler(0f, 0f, rotZ - 90);
@@ -81,7 +96,7 @@ namespace MoreMountains
                 return;
 
             reticleTransform.localPosition = transform.InverseTransformPoint(mouseWorldPos);
-            
+
             if (isOff)
                 return;
 
@@ -96,7 +111,7 @@ namespace MoreMountains
 
         void refreshGuideLine()
         {
-            Vector2 origin = shootPosition;
+            Vector2 origin = firePosition;
             updateShootDirection();
             Vector2 up = shootDirection;
             Vector2 dir = origin - (up * -distance);
@@ -116,7 +131,13 @@ namespace MoreMountains
                 firstPosition += reflectFirstPos.normalized * resultRay;
 
                 var hitObj = hit.transform.gameObject;
-                if (isBorder(hitObj))
+                if (firstHitGameObject != hitObj)
+                {
+                    _player.Event.trigger(new OnShootLineTargetChanged(hitObj, firstHitGameObject));
+                    firstHitGameObject = hitObj;
+                }
+
+                if (hitObj.isBorder())
                 {
                     if (hit.point.x > 0)
                     {
@@ -129,7 +150,7 @@ namespace MoreMountains
                         _hit2Mask = _mask0;
                     }
                 }
-                else if (isBrick(hitObj))
+                else if (hitObj.isBrick())
                 {
                     _hit2Mask = _mask0;
                 }
@@ -162,16 +183,6 @@ namespace MoreMountains
             }
         }
 
-        static bool isBorder(GameObject o)
-        {
-            return (ALL_BORDER_LAYER_MASK & (1 << o.layer)) != 0;
-        }
-
-        static bool isBrick(GameObject o)
-        {
-            return (BRICK_LAYER_MASK & (1 << o.layer)) != 0;
-        }
-
         void lineMode0(Vector3 dir)
         {
             if (_modeCount != 0)
@@ -193,7 +204,7 @@ namespace MoreMountains
             if (dots[1].gameObject.activeSelf)
                 dots[1].gameObject.SetActive(false);
 
-            var position = shootPosition;
+            var position = firePosition;
             lines[0].SetPosition(0, position);
             lines[0].SetPosition(1, dir);
             lines[0].SetPosition(2, dir);
@@ -218,7 +229,7 @@ namespace MoreMountains
                 lines[3].positionCount = 0;
             }
 
-            lines[0].SetPosition(0, shootPosition);
+            lines[0].SetPosition(0, firePosition);
             lines[0].SetPosition(1, hit);
             lines[0].SetPosition(2, dir);
 
@@ -230,7 +241,7 @@ namespace MoreMountains
 
             dots[0].transform.position = hit;
 
-            lines[1].SetPosition(0, shootPosition);
+            lines[1].SetPosition(0, firePosition);
             lines[1].SetPosition(1, hit);
             lines[2].SetPosition(0, hit);
             lines[2].SetPosition(1, dir);
@@ -253,7 +264,7 @@ namespace MoreMountains
             if (!isLine)
                 lineColor(2);
 
-            lines[0].SetPosition(0, shootPosition);
+            lines[0].SetPosition(0, firePosition);
             lines[0].SetPosition(1, hit1);
             lines[0].SetPosition(2, hit2);
             lines[0].SetPosition(3, dir);
@@ -267,7 +278,7 @@ namespace MoreMountains
             dots[0].transform.position = hit1;
             dots[1].transform.position = hit2;
 
-            lines[1].SetPosition(0, shootPosition);
+            lines[1].SetPosition(0, firePosition);
             lines[1].SetPosition(1, hit1);
             lines[2].SetPosition(0, hit1);
             lines[2].SetPosition(1, hit2);
