@@ -81,6 +81,11 @@ public class FileUtility
 	{
 		openFileAsync(fileName, errorIfNull, (byte[] bytes) =>
 		{
+			if (bytes == null)
+			{
+				callback?.Invoke(null);
+				return;
+			}
 			int offset = 0;
 			if (bytes.Length >= BOM.Length &&
 				bytes[0] == BOM[0] &&
@@ -96,6 +101,11 @@ public class FileUtility
 	{
 		openFileAsync(fileName, errorIfNull, (byte[] bytes) =>
 		{
+			if (bytes == null)
+			{
+				callback?.Invoke(null);
+				return;
+			}
 			int offset = 0;
 			if (bytes.Length >= BOM.Length &&
 				bytes[0] == BOM[0] &&
@@ -155,6 +165,7 @@ public class FileUtility
 				}
 				return fileBuffer;
 			}
+#if UNITY_WEBGL
 			else if (isWebGL())
 			{
 				if (isByteDance())
@@ -165,11 +176,16 @@ public class FileUtility
 				{
 					return WeChatFileSystem.readBytes(fileName);
 				}
+				else if (isOppo() || isVivo())
+				{
+					return QuickGameFileSystem.readBytes(fileName);
+				}
 				else
 				{
-					logError("not supported openFileSync");
+					return File.ReadAllBytes(fileName);
 				}
 			}
+#endif
 		}
 		catch (Exception e)
 		{
@@ -247,6 +263,7 @@ public class FileUtility
 		{
 			AndroidAssetLoader.writeFile(fileName, buffer, size, false);
 		}
+#if UNITY_WEBGL
 		else if (isWebGL())
 		{
 			if (buffer.Length > size)
@@ -264,11 +281,28 @@ public class FileUtility
 			{
 				TTFileSystem.writeBytes(fileName, buffer);
 			}
+			else if (isOppo() || isVivo())
+			{
+				if (addBOM && size > 0)
+				{
+					byte[] bytes = new byte[BOM.Length + buffer.Length];
+					Buffer.BlockCopy(BOM, 0, bytes, 0, BOM.Length);
+					Buffer.BlockCopy(buffer, 0, bytes, BOM.Length, buffer.Length);
+					buffer = bytes;
+				}
+				QuickGameFileSystem.writeBytes(fileName, buffer);
+			}
 			else
 			{
-				logError("not supported writeFile");
+				using FileStream file = new(fileName, FileMode.Create, FileAccess.Write);
+				if (addBOM && size > 0)
+				{
+					file.Write(BOM, 0, BOM.Length);
+				}
+				file.Write(buffer, 0, size);
 			}
 		}
+#endif
 	}
 	// 写一个文本文件,fileName为绝对路径,content是写入的字符串
 	public static void writeTxtFile(string fileName, string content, bool addBOM = false)
@@ -287,6 +321,7 @@ public class FileUtility
 			createDir(getFilePath(fileName));
 			AndroidAssetLoader.writeTxtFile(fileName, content, false);
 		}
+#if UNITY_WEBGL
 		else if (isWebGL())
 		{
 			if (isWeiXin())
@@ -297,15 +332,28 @@ public class FileUtility
 			{
 				TTFileSystem.writeText(fileName, content);
 			}
+			else if (isOppo() || isVivo())
+			{
+				byte[] bytes = content.toBytes();
+				writeFile(fileName, bytes, bytes.Length, addBOM);
+			}
 			else
 			{
-				logError("not supported writeTxtFile");
+				byte[] bytes = content.toBytes();
+				writeFile(fileName, bytes, bytes.Length, addBOM);
 			}
 		}
+#endif
 	}
 	// 重命名文件,参数为绝对路径
 	public static bool renameFile(string fileName, string newName)
 	{
+#if UNITY_WEBGL
+		if (!isEditor() && isWebGL() && (isOppo() || isVivo()))
+		{
+			return QuickGameFileSystem.renameFile(fileName, newName);
+		}
+#endif
 		if (!isEditor() && (isAndroid() || isWebGL()))
 		{
 			logError("can not rename file on android or webgl!");
@@ -355,6 +403,7 @@ public class FileUtility
 				logWarning("删除目录失败:" + path);
 			}
 		}
+#if UNITY_WEBGL
 		else if (isWebGL())
 		{
 			if (isByteDance())
@@ -365,11 +414,16 @@ public class FileUtility
 			{
 				WeChatFileSystem.deleteDirectory(path);
 			}
+			else if (isOppo() || isVivo())
+			{
+				QuickGameFileSystem.deleteDirectory(path);
+			}
 			else
 			{
-				logError("not supported deleteFolder");
+				Directory.Delete(path);
 			}
 		}
+#endif
 	}
 	// 删除path中的所有空目录,参数为绝对路径,deleteSelfIfEmpty表示path本身为空时是否需要删除
 	public static bool deleteEmptyFolder(string path, bool deleteSelfIfEmpty = true)
@@ -397,6 +451,18 @@ public class FileUtility
 	// 移动文件,参数为绝对路径
 	public static bool moveFile(string source, string dest, bool overwrite = true)
 	{
+#if UNITY_WEBGL
+		if (!isEditor() && isWebGL() && (isOppo() || isVivo()))
+		{
+			if (!isFileExist(source) || !overwrite && isFileExist(dest))
+			{
+				return false;
+			}
+			QuickGameFileSystem.copyFile(source, dest, overwrite);
+			QuickGameFileSystem.deleteFile(source);
+			return true;
+		}
+#endif
 		if (!isEditor() && (isAndroid() || isWebGL()))
 		{
 			logError("can not move file on android or webgl!");
@@ -455,6 +521,7 @@ public class FileUtility
 			{
 				return AndroidAssetLoader.deleteFile(path);
 			}
+#if UNITY_WEBGL
 			else if (isWebGL())
 			{
 				if (isByteDance())
@@ -465,11 +532,16 @@ public class FileUtility
 				{
 					WeChatFileSystem.deleteFile(path);
 				}
+				else if (isOppo() || isVivo())
+				{
+					QuickGameFileSystem.deleteFile(path);
+				}
 				else
 				{
-					logError("not supported deleteFile");
+					File.Delete(path);
 				}
 			}
+#endif
 		}
 		catch (Exception e)
 		{
@@ -492,10 +564,20 @@ public class FileUtility
 			{
 				return AndroidAssetLoader.getFileSize(file);
 			}
+#if UNITY_WEBGL
 			else if (isWebGL())
 			{
+				if (isOppo() || isVivo())
+				{
+					return (int)QuickGameFileSystem.getFileSize(file);
+				}
+				if (!isByteDance() && !isWeiXin())
+				{
+					return (int)new FileInfo(file).Length;
+				}
 				logError("not supported getFileSize");
 			}
+#endif
 			return 0;
 		}
 		catch (Exception e)
@@ -532,6 +614,7 @@ public class FileUtility
 			logError("isDirExist invalid path : " + dir);
 			return false;
 		}
+#if UNITY_WEBGL
 		else if (isWebGL())
 		{
 			// 由于小游戏的接口本身无法访问StreamingAssets,所以只要是StreamingAssets中的就直接返回true
@@ -547,11 +630,16 @@ public class FileUtility
 			{
 				return WeChatFileSystem.isFileExist(dir);
 			}
+			else if (isOppo() || isVivo())
+			{
+				return QuickGameFileSystem.isDirectoryExist(dir);
+			}
 			else
 			{
-				logError("not supported isDirExist");
+				return Directory.Exists(dir);
 			}
 		}
+#endif
 		return false;
 	}
 	// 文件是否存在,fileName为绝对路径
@@ -581,6 +669,7 @@ public class FileUtility
 			logError("isFileExist invalid path : " + fileName);
 			return false;
 		}
+#if UNITY_WEBGL
 		else if (isWebGL())
 		{
 			// 由于小游戏的接口本身无法访问StreamingAssets,所以只要是StreamingAssets中的就直接返回true
@@ -596,11 +685,16 @@ public class FileUtility
 			{
 				return WeChatFileSystem.isFileExist(fileName);
 			}
+			else if (isOppo() || isVivo())
+			{
+				return QuickGameFileSystem.isFileExist(fileName);
+			}
 			else
 			{
-				logError("not supported isFileExist");
+				return File.Exists(fileName);
 			}
 		}
+#endif
 		return false;
 	}
 	// 创建文件夹,dir绝对路径
@@ -624,6 +718,7 @@ public class FileUtility
 		{
 			AndroidAssetLoader.createDirectoryRecursive(dir);
 		}
+#if UNITY_WEBGL
 		else if (isWebGL())
 		{
 			if (isByteDance())
@@ -634,11 +729,16 @@ public class FileUtility
 			{
 				WeChatFileSystem.createDirectory(dir);
 			}
+			else if (isOppo() || isVivo())
+			{
+				QuickGameFileSystem.createDirectory(dir);
+			}
 			else
 			{
-				logError("not supported createDir");
+				Directory.CreateDirectory(dir);
 			}
 		}
+#endif
 	}
 	// 查找指定目录下的所有文件,path为GameResources下的相对路径
 	public static List<string> findResourcesFilesNonAlloc(string path, string pattern, bool recursive = true, bool keepAbsolutePath = false)
@@ -714,7 +814,11 @@ public class FileUtility
 	// 查找指定目录下的所有文件,path为StreamingAssets下的相对路径,返回的路径列表为绝对路径
 	public static void findStreamingAssetsFiles(string path, List<string> fileList, List<string> patterns = null, bool recursive = true, bool keepAbsolutePath = false)
 	{
+#if UNITY_WEBGL
+		if (isEditor() || isIOS() || isWindows() || isWebGL() && (isOppo() || isVivo()))
+#else
 		if (isEditor() || isIOS() || isWindows())
+#endif
 		{
 			path = path.ensurePrefix(F_STREAMING_ASSETS_PATH);
 			findFilesInternal(path, fileList, patterns, null, recursive);
@@ -741,15 +845,21 @@ public class FileUtility
 				}
 			}
 		}
+#if UNITY_WEBGL
 		else if (isWebGL())
 		{
 			logError("not supported findStreamingAssetsFiles");
 		}
+#endif
 	}
 	// 查找指定目录下的所有目录,path为StreamingAssets下的相对路径,返回的路径列表为绝对路径
 	public static void findStreamingAssetsFolders(string path, List<string> folderList, bool recursive = true, bool keepAbsolutePath = false)
 	{
+#if UNITY_WEBGL
+		if (isEditor() || isIOS() || isWindows() || isWebGL() && (isOppo() || isVivo()))
+#else
 		if (isEditor() || isIOS() || isWindows())
+#endif
 		{
 			// 非安卓平台则查找普通的文件夹
 			path = path.ensurePrefix(F_STREAMING_ASSETS_PATH);
@@ -777,10 +887,12 @@ public class FileUtility
 				}
 			}
 		}
-		else if (isWebGL())
+#if UNITY_WEBGL
+		else if (isWebGL() && !isOppo() && !isVivo())
 		{
 			logError("not supported findStreamingAssetsFolders");
 		}
+#endif
 	}
 	// 查找指定目录下的所有文件,path为绝对路径
 	public static List<string> findFilesNonAlloc(string path, string pattern, bool recursive = true)
@@ -878,10 +990,19 @@ public class FileUtility
 			{
 				AndroidAssetLoader.findFiles(path, fileList, patterns, recursive);
 			}
+#if UNITY_WEBGL
 			else if (isWebGL())
 			{
-				logError("not supported findFilesInternal");
+				if (isOppo() || isVivo())
+				{
+					QuickGameFileSystem.findFiles(path, fileList, patterns, excludePatterns, recursive);
+				}
+				else
+				{
+					logError("not supported findFilesInternal");
+				}
 			}
+#endif
 		}
 		// 此处暂时不抛出异常信息
 		catch (Exception e)
@@ -922,10 +1043,19 @@ public class FileUtility
 			{
 				AndroidAssetLoader.findFolders(path, dirList, recursive);
 			}
+#if UNITY_WEBGL
 			else if (isWebGL())
 			{
-				logError("not supported findFolders");
+				if (isOppo() || isVivo())
+				{
+					QuickGameFileSystem.findFolders(path, dirList, excludeList, recursive);
+				}
+				else
+				{
+					logError("not supported findFolders");
+				}
 			}
+#endif
 		}
 		// 只捕获异常,暂时不抛出报错信息
 		catch (Exception e)

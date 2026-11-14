@@ -77,9 +77,13 @@ public class FileUtility
 				{
 					return WeChatFileSystem.readBytes(fileName);
 				}
+				else if (isOppo() || isVivo())
+				{
+					return QuickGameFileSystem.readBytes(fileName);
+				}
 				else
 				{
-					logErrorBase("not supported openFileSync");
+					return File.ReadAllBytes(fileName);
 				}
 			}
 		}
@@ -171,9 +175,14 @@ public class FileUtility
 			{
 				WeChatFileSystem.writeBytes(fileName, buffer);
 			}
+			else if (isOppo() || isVivo())
+			{
+				QuickGameFileSystem.writeBytes(fileName, buffer, appendData);
+			}
 			else
 			{
-				logErrorBase("not supported writeFile");
+				using FileStream file = new(fileName, appendData ? FileMode.Append : FileMode.Create, FileAccess.Write);
+				file.Write(buffer, 0, size);
 			}
 		}
 	}
@@ -196,6 +205,10 @@ public class FileUtility
 			}
 			if (isWebGL())
 			{
+				if (isOppo() || isVivo())
+				{
+					return QuickGameFileSystem.getFileSize(fileName);
+				}
 				byte[] bytes = openFileSync(fileName, false);
 				return bytes?.LongLength ?? -1;
 			}
@@ -351,9 +364,13 @@ public class FileUtility
 				{
 					WeChatFileSystem.deleteFile(path);
 				}
+				else if (isOppo() || isVivo())
+				{
+					QuickGameFileSystem.deleteFile(path);
+				}
 				else
 				{
-					logErrorBase("not supported deleteFile");
+					File.Delete(path);
 				}
 			}
 		}
@@ -424,9 +441,13 @@ public class FileUtility
 			{
 				return WeChatFileSystem.isDirectoryExist(dir);
 			}
+			else if (isOppo() || isVivo())
+			{
+				return QuickGameFileSystem.isDirectoryExist(dir);
+			}
 			else
 			{
-				logErrorBase("not supported isDirExist");
+				return Directory.Exists(dir);
 			}
 		}
 		return false;
@@ -473,9 +494,13 @@ public class FileUtility
 			{
 				return WeChatFileSystem.isFileExist(fileName);
 			}
+			else if (isOppo() || isVivo())
+			{
+				return QuickGameFileSystem.isFileExist(fileName);
+			}
 			else
 			{
-				logErrorBase("not supported isFileExist");
+				return File.Exists(fileName);
 			}
 		}
 		return false;
@@ -511,9 +536,13 @@ public class FileUtility
 			{
 				WeChatFileSystem.createDirectory(dir);
 			}
+			else if (isOppo() || isVivo())
+			{
+				QuickGameFileSystem.createDirectory(dir);
+			}
 			else
 			{
-				logErrorBase("not supported createDir");
+				Directory.CreateDirectory(dir);
 			}
 		}
 	}
@@ -522,7 +551,7 @@ public class FileUtility
 	{
 		try
 		{
-			if (isEditor() || isIOS() || isWindows())
+			if (isEditor() || isIOS() || isWindows() || (isWebGL() && !isByteDance() && !isWeiXin() && !isOppo() && !isVivo()))
 			{
 				validPath(ref path);
 				if (!isDirExist(path))
@@ -564,9 +593,16 @@ public class FileUtility
 			{
 				AndroidAssetLoader.findFiles(path, fileList, patterns, recursive);
 			}
-			else if (isWebGL())
+			else if (isWebGL() && (isByteDance() || isWeiXin() || isOppo() || isVivo()))
 			{
-				logErrorBase("not supported findFilesInternal");
+				if (isOppo() || isVivo())
+				{
+					QuickGameFileSystem.findFiles(path, fileList, patterns, null, recursive);
+				}
+				else
+				{
+					logErrorBase("not supported findFilesInternal");
+				}
 			}
 		}
 		// 此处暂时不抛出异常信息
@@ -659,7 +695,7 @@ public class FileUtility
 	// 查找指定目录下的所有文件,path为StreamingAssets下的相对路径,返回的路径列表为绝对路径
 	public static void findStreamingAssetsFiles(string path, List<string> fileList, List<string> patterns = null, bool recursive = true, bool keepAbsolutePath = false)
 	{
-		if (isEditor() || isIOS() || isWindows())
+		if (isEditor() || isIOS() || isWindows() || isWebGL() && (isOppo() || isVivo()))
 		{
 			path = path.ensurePrefix(F_STREAMING_ASSETS_PATH);
 			findFilesInternal(path, fileList, patterns, recursive);

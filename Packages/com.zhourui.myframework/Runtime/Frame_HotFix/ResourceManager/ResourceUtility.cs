@@ -107,13 +107,14 @@ public class ResourceUtility
 	public static IEnumerator loadAssetBundleWithURL(string url, AssetLoadCallback callback)
 	{
 		// 小游戏中读取PersistentDataPath中的文件需要使用小游戏提供的接口
-		if ((isByteDance() || isWeiXin()) && url.startWith(F_PERSISTENT_ASSETS_PATH))
+#if UNITY_WEBGL
+		if (url.startWith(F_PERSISTENT_ASSETS_PATH))
 		{
 			yield return openFileAsyncInternal(url, true, (byte[] bytes) =>
 			{
 				try
 				{
-					callback?.Invoke(AssetBundle.LoadFromMemory(bytes), null, null, url);
+					callback?.Invoke(bytes != null ? AssetBundle.LoadFromMemory(bytes) : null, null, null, url);
 				}
 				catch (Exception e)
 				{
@@ -122,6 +123,7 @@ public class ResourceUtility
 			});
 		}
 		else
+#endif
 		{
 			float timer = 0.0f;
 			ulong lastDownloaded = 0;
@@ -238,8 +240,9 @@ public class ResourceUtility
 	public static IEnumerator loadFileWithURL(string url, AssetLoadCallback callback, DownloadCallback downloadingCallback)
 	{
 		// 这里由于需要计算下载进度,就不再支持小游戏上读取本地文件了
-		if ((isByteDance() || isWeiXin()) &&
-			url.startWith(F_ASSET_BUNDLE_PATH) || url.startWith(F_PERSISTENT_ASSETS_PATH))
+#if UNITY_WEBGL
+		if ((isByteDance() || isWeiXin() || isOppo() || isVivo()) &&
+			(url.startWith(F_ASSET_BUNDLE_PATH) || url.startWith(F_PERSISTENT_ASSETS_PATH)))
 		{
 			logErrorBase("小游戏上不支持使用loadFileWithURL读取本地文件");
 			try
@@ -252,6 +255,7 @@ public class ResourceUtility
 			}
 			yield break;
 		}
+#endif
 		float timer = 0.0f;
 		ulong lastDownloaded = 0;
 		using var www = unityWebRequest(url);
@@ -290,15 +294,16 @@ public class ResourceUtility
 		}
 		try
 		{
-			if (www.error != null || www.downloadHandler?.data == null)
+			byte[] datas = www.downloadHandler?.data;
+			if (www.error != null || datas == null)
 			{
 				log("下载失败 : " + url + ", info : " + www.error);
 				callback?.Invoke(null, null, null, url);
 			}
 			else
 			{
-				log("下载成功:" + url + ", size:" + www.downloadHandler.data.Length);
-				callback?.Invoke(null, null, www.downloadHandler.data, url);
+				log("下载成功:" + url + ", size:" + datas.Length);
+				callback?.Invoke(null, null, datas, url);
 			}
 		}
 		catch (Exception e)

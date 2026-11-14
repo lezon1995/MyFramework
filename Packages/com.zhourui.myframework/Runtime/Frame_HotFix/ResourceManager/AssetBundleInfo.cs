@@ -6,6 +6,7 @@ using static FrameUtility;
 using static FrameBaseHotFix;
 using static FrameDefine;
 using static FrameBaseUtility;
+using static FrameBaseDefine;
 using static FileUtility;
 
 // AssetBundle的信息,存储了AssetBundle中相关的所有数据
@@ -196,8 +197,32 @@ public class AssetBundleInfo : ClassObject
 		{
 			item.Value?.loadAssetBundle();
 		}
-		byte[] bytes = openFileSync(availableReadPath(mBundleFileName), true);
-		mAssetBundle = bytes != null ? AssetBundle.LoadFromMemory(bytes) : null;
+#if UNITY_WEBGL
+		if (isWebGL())
+		{
+			if (isWeiXin() || isByteDance() || isOppo() || isVivo())
+			{
+				byte[] bytes = openFileSync(availableReadPath(mBundleFileName), true);
+				mAssetBundle = bytes != null ? AssetBundle.LoadFromMemory(bytes) : null;
+			}
+			else
+			{
+				string path = availableReadPath(mBundleFileName);
+				if (path != null && path.startWith(F_PERSISTENT_ASSETS_PATH))
+				{
+					mAssetBundle = AssetBundle.LoadFromFile(path);
+				}
+				else
+				{
+					logError("普通WebGL仅支持同步加载持久目录中的AssetBundle:" + mBundleFileName);
+				}
+			}
+		}
+		else
+#endif
+		{
+			mAssetBundle = AssetBundle.LoadFromFile(availableReadPath(mBundleFileName));
+		}
 		if (mAssetBundle == null)
 		{
 			logError("can not load asset bundle : " + mBundleFileName);
@@ -353,7 +378,19 @@ public class AssetBundleInfo : ClassObject
 	public void notifyAssetBundleAsyncLoaded(AssetBundle assetBundle)
 	{
 		mAssetBundle = assetBundle;
-		if (mLoadState != LOAD_STATE.NONE)
+		if (assetBundle == null)
+		{
+			mLoadState = LOAD_STATE.NONE;
+			using var failedAssets = new ListScope<AssetInfo>(out var assets);
+			assets.AddRange(mLoadAsyncList);
+			mLoadAsyncList.Clear();
+			foreach (AssetInfo item in assets)
+			{
+				item.setLoadState(LOAD_STATE.NONE);
+				item.callbackAll();
+			}
+		}
+		else if (mLoadState != LOAD_STATE.NONE)
 		{
 			mLoadState = LOAD_STATE.LOADED;
 			// 异步加载请求的资源

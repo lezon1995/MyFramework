@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 #if UNITY_WEIXINMINIGAME
 using WeChatWASM;
 #endif
@@ -56,6 +56,10 @@ public class FrameBaseDefine
 	public static string F_PERSISTENT_DATA_PATH = GetTTPersistantPath();
 #elif UNITY_WEIXINMINIGAME
 	public static string F_PERSISTENT_DATA_PATH = WXBase.env.USER_DATA_PATH + "/";
+#elif OPPO_MINI_GAME || VIVO_MINI_GAME
+	public static string F_PERSISTENT_DATA_PATH = GetQuickGamePersistentPath().TrimEnd('/') + "/";
+#else
+	public static string F_PERSISTENT_DATA_PATH = Application.persistentDataPath + "/";
 #endif
 #else
 	public static string F_PERSISTENT_DATA_PATH = Application.persistentDataPath + "/";
@@ -67,6 +71,8 @@ public class FrameBaseDefine
 	public const string UGUI_ROOT = "UGUIRoot";
 	public const string VERSION = "Version";
 	public const string FILE_LIST = "FileList";
+	public const string SQLITE_CACHE_DIRECTORY = "sqlite/";
+	public const string DYNAMIC_DOWNLOAD_LIST = "DynamicDownloadList.json";
 	public const string DYNAMIC_SECRET_FILE = "DynamicSecretKey.bytes";
 	public const string HOTFIX = "HotFix";                                              // 主要的热更程序集名字
 																						// 语言名

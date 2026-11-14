@@ -243,7 +243,7 @@ public static class WidgetUtility
 			child.setRectSize(gridSize);
 		}
 
-		foreach (myUGUIObject child in root.getChildList())
+		foreach (myUGUIObject child in root.getChildList().safe())
 		{
 			child.markSizeChanged();
 			child.markPostionChanged();
@@ -286,7 +286,7 @@ public static class WidgetUtility
 		}
 		root.getRectTransform().autoGrid(gridSize, intervalNoScreenScale, keepTopSide, horizontal);
 		root.markSizeChanged();
-		foreach (myUGUIObject child in root.getChildList())
+		foreach (myUGUIObject child in root.getChildList().safe())
 		{
 			child.markSizeChanged();
 			child.markPostionChanged();
@@ -319,7 +319,7 @@ public static class WidgetUtility
 		{
 			item.Key.position = item.Value;
 		}
-		foreach (myUGUIObject child in root.getChildList())
+		foreach (myUGUIObject child in root.getChildList().safe())
 		{
 			child.markPostionChanged();
 		}
@@ -347,7 +347,7 @@ public static class WidgetUtility
 		{
 			item.Key.position = item.Value;
 		}
-		foreach (myUGUIObject child in root.getChildList())
+		foreach (myUGUIObject child in root.getChildList().safe())
 		{
 			child.markPostionChanged();
 		}
@@ -383,7 +383,7 @@ public static class WidgetUtility
 			{
 				item.Key.position = item.Value;
 			}
-			foreach (myUGUIObject child in root.getChildList())
+			foreach (myUGUIObject child in root.getChildList().safe())
 			{
 				child.markPostionChanged();
 			}
@@ -414,7 +414,7 @@ public static class WidgetUtility
 		}
 
 		// 设置父节点的大小,位置,已经根据之前子节点到父节点顶部的距离,还原子节点的位置
-		float newHeight = maxY - minY;
+		float newHeight = childPositionList.Count > 0 ? maxY - minY : 0.0f;
 		float beforeRootHeight = root.getSize().y;
 		root.setHeight(newHeight);
 		if (keepTopSide)
@@ -425,7 +425,7 @@ public static class WidgetUtility
 		{
 			item.Key.setPositionY(newHeight * 0.5f + item.Key.localPosition.y - maxY);
 		}
-		foreach (myUGUIObject child in root.getChildList())
+		foreach (myUGUIObject child in root.getChildList().safe())
 		{
 			child.markPostionChanged();
 		}
@@ -455,7 +455,7 @@ public static class WidgetUtility
 		}
 		root.getRectTransform().autoGridVertical(intervalNoScreenScale, minHeight, extraTopHeight, extraBottomHeight, keepTopSide, fromTopToBottom);
 		root.markSizeChanged();
-		foreach (myUGUIObject child in root.getChildList())
+		foreach (myUGUIObject child in root.getChildList().safe())
 		{
 			child.markPostionChanged();
 		}
@@ -493,7 +493,7 @@ public static class WidgetUtility
 		}
 		root.getRectTransform().autoGridHorizontal(intervalNoScreenScale, changeRootPosSize, minWidth, extraLeftWidth, extraRightWidth, keepLeftSide);
 		root.markSizeChanged();
-		foreach (myUGUIObject child in root.getChildList())
+		foreach (myUGUIObject child in root.getChildList().safe())
 		{
 			child.markPostionChanged();
 		}
@@ -510,7 +510,7 @@ public static class WidgetUtility
 		}
 		root.getRectTransform().autoGridHorizontalCenter(intervalNoScreenScale);
 		root.markSizeChanged();
-		foreach (myUGUIObject child in root.getChildList())
+		foreach (myUGUIObject child in root.getChildList().safe())
 		{
 			child.markPostionChanged();
 		}

@@ -131,6 +131,22 @@ public class FrameBaseUtility
 		return false;
 #endif
 	}
+	public static bool isOppo()
+	{
+#if OPPO_MINI_GAME
+		return true;
+#else
+		return false;
+#endif
+	}
+	public static bool isVivo()
+	{
+#if VIVO_MINI_GAME
+		return true;
+#else
+		return false;
+#endif
+	}
 	public static bool isMacOS()
 	{
 #if UNITY_STANDALONE_OSX
@@ -169,8 +185,19 @@ public class FrameBaseUtility
 	}
 	public static bool isMobile()
 	{
+#if OPPO_MINI_GAME || VIVO_MINI_GAME
+		return true;
+#elif UNITY_WEBGL && !UNITY_EDITOR
+		return NativePlatform_IsMobile() != 0;
+#else
 		return isAndroid() || isIOS() || isWeiXin();
+#endif
 	}
+#if UNITY_WEBGL && !UNITY_EDITOR
+	//------------------------------------------------------------------------------------------------------------------------------
+	[System.Runtime.InteropServices.DllImport("__Internal")]
+	private static extern int NativePlatform_IsMobile();
+#endif
 	public static bool isRealMobile()
 	{
 		return !isEditor() && isMobile();
@@ -814,6 +841,14 @@ public class FrameBaseUtility
 		}
 	}
 #endif
+	public static string GetQuickGamePersistentPath()
+	{
+#if (OPPO_MINI_GAME || VIVO_MINI_GAME) && UNITY_WEBGL && !UNITY_EDITOR
+		return getQuickGamePersistentPath();
+#else
+		return Application.persistentDataPath;
+#endif
+	}
 	public static UnityWebRequest unityWebRequest(string url)
 	{
 		if (isWebGL() && url.StartsWith(F_PERSISTENT_ASSETS_PATH))
@@ -832,9 +867,24 @@ public class FrameBaseUtility
 		}
 		return str;
 	}
-	// 通过WWW加载本地资源时,需要确保路径的前缀正确
+	public static string getMiniGameFilePath(string filePath)
+	{
+#if !UNITY_ANDROID || UNITY_EDITOR
+		if (filePath.StartsWith(F_STREAMING_ASSETS_PATH))
+		{
+			return STREAMING_ASSETS + "/" + filePath.Substring(F_STREAMING_ASSETS_PATH.Length);
+		}
+#endif
+		return filePath;
+	}
+	// 通过UnityWebRequest加载本地资源时,需要确保路径前缀正确。
+	// Android只有APK内StreamingAssets使用jar:file://,persistentDataPath等普通文件系统路径必须使用file://。
 	public static void checkDownloadPath(ref string path)
 	{
+		if (string.IsNullOrEmpty(path) || path.Contains("://"))
+		{
+			return;
+		}
 		if (isEditor() || isWindows())
 		{
 			path = ensurePrefix(path, "file:///");
@@ -845,8 +895,9 @@ public class FrameBaseUtility
 		}
 		else if (isAndroid())
 		{
-			// android本地加载需要添加jar:file://前缀
-			path = ensurePrefix(path, "jar:file://");
+			// Application.streamingAssetsPath在Android上通常已经是jar:file:// URI,上面的Contains("://")会直接保留。
+			// 进入这里的绝对路径属于persistentDataPath等普通文件系统路径。
+			path = ensurePrefix(path, "file://");
 		}
 	}
 	// fileName为绝对路径
@@ -858,8 +909,9 @@ public class FrameBaseUtility
 			yield break;
 		}
 		DateTime start = DateTime.Now;
-		// 小游戏里面由于路径前缀不同,所以只能使用小游戏的sdk来读取persistPath
-		if (!isEditor() && isWebGL() && fileName.StartsWith(F_PERSISTENT_DATA_PATH))
+		// 小游戏的内置资源和持久资源都通过 SDK 读取。
+		if (!isEditor() && isWebGL() && (fileName.StartsWith(F_PERSISTENT_DATA_PATH) ||
+			(isByteDance() || isWeiXin() || isOppo() || isVivo()) && fileName.StartsWith(F_STREAMING_ASSETS_PATH)))
 		{
 			if (isByteDance())
 			{
@@ -885,10 +937,33 @@ public class FrameBaseUtility
 					callBytesCallback(callback, bytes);
 				});
 			}
+			else if (isOppo() || isVivo())
+			{
+				yield return QuickGameFileSystem.readBytesAsync(fileName, (byte[] bytes) =>
+				{
+					if (errorIfNull && bytes == null)
+					{
+						logErrorBase("open file failed:" + fileName);
+					}
+					logBase("打开文件耗时:" + (int)(DateTime.Now - start).TotalMilliseconds + "毫秒,file:" + fileName);
+					callBytesCallback(callback, bytes);
+				});
+			}
 			else
 			{
-				logErrorBase("not supported");
-				callBytesCallback(callback, null);
+				byte[] bytes = null;
+				try
+				{
+					bytes = System.IO.File.ReadAllBytes(fileName);
+				}
+				catch (Exception e)
+				{
+					if (errorIfNull)
+					{
+						logExceptionBase(e, "open file failed:" + fileName);
+					}
+				}
+				callBytesCallback(callback, bytes);
 			}
 		}
 		else
@@ -896,12 +971,13 @@ public class FrameBaseUtility
 			checkDownloadPath(ref fileName);
 			using var www = unityWebRequest(fileName);
 			yield return www.SendWebRequest();
-			if (errorIfNull && www.downloadHandler.data == null)
+			byte[] datas = www.downloadHandler.data;
+			if (errorIfNull && datas == null)
 			{
 				logErrorBase("open file failed:" + fileName + ", info:" + www.error + ", error:" + www.downloadHandler.error);
 			}
 			logBase("打开文件耗时:" + (int)(DateTime.Now - start).TotalMilliseconds + "毫秒,file:" + fileName);
-			callBytesCallback(callback, www.downloadHandler.data);
+			callBytesCallback(callback, datas);
 		}
 	}
 	//------------------------------------------------------------------------------------------------------------------------------
@@ -1006,4 +1082,8 @@ public class FrameBaseUtility
 		return "#0000FF";
 #endif
 	}
+#if (OPPO_MINI_GAME || VIVO_MINI_GAME) && UNITY_WEBGL && !UNITY_EDITOR
+	[System.Runtime.InteropServices.DllImport("__Internal", EntryPoint = "GetQuickGamePersistentPath")]
+	private static extern string getQuickGamePersistentPath();
+#endif
 }

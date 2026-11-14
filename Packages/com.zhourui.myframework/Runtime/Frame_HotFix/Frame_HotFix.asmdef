@@ -3,6 +3,9 @@
     "rootNamespace": "",
     "references": [
         "TTWebGL",
+        "TTLitJson",
+        "OppoGameSDK",
+        "VIVO-Game-SDK",
         "Frame_Base",
         "Unity.RenderPipelines.Universal.Runtime",
         "Unity.TextMeshPro",

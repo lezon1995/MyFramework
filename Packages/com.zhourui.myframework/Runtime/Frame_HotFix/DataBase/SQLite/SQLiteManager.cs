@@ -13,6 +13,7 @@ using static FileUtility;
 using static StringUtility;
 using static FrameBaseUtility;
 using static FrameBaseHotFix;
+using static FrameBaseDefine;
 
 // SQLite数据表格管理器
 public class SQLiteManager : FrameSystem
@@ -34,6 +35,7 @@ public class SQLiteManager : FrameSystem
 			return;
 		}
 		DateTime startTime = DateTime.Now;
+		migrateLegacyCache();
 		int tableCount = mTableList.Count;
 		int finishCount = 0;
 		foreach (var item in mTableList)
@@ -43,6 +45,15 @@ public class SQLiteManager : FrameSystem
 			{
 				if (++finishCount == tableCount)
 				{
+					// 加载回调只表示本次尝试结束，数据库不可用时不能继续启动游戏。
+					foreach (SQLiteTable loadedTable in mTableList.Values)
+					{
+						if (!loadedTable.isLoaded())
+						{
+							logError("SQLite表格加载失败,已停止启动游戏, table:" + loadedTable.getTableName());
+							return;
+						}
+					}
 					// 所有当前版本文件名都已经确定以后再清理旧版本缓存。
 					// 原实现放在加载前清理,会因为mDecryptFileName尚未生成而把全部可复用缓存删除。
 					deleteUselessTempFile();
@@ -85,6 +96,53 @@ public class SQLiteManager : FrameSystem
 	public SQLiteTable getTableByDataType(Type type) { return mTableDataTypeList.get(type); }
 	public SQLiteTable getTable(string tableName) { return mTableNameList.get(tableName); }
 	//------------------------------------------------------------------------------------------------------------------------------
+	// 迁移旧版放在下载目录里的数据库缓存,保留新目录中已存在的文件。
+	protected void migrateLegacyCache()
+	{
+		if (isEditor())
+		{
+			return;
+		}
+		string legacyPath = F_PERSISTENT_ASSETS_PATH + SQLITE_CACHE_DIRECTORY;
+		string cachePath = SQLiteTable.getDecryptFilePath();
+		foreach (string file in findFilesNonAlloc(legacyPath, ".db", false))
+		{
+			string destination = cachePath + getFileNameWithSuffix(file);
+			try
+			{
+				int sourceSize = getFileSize(file);
+				if (sourceSize <= 0)
+				{
+					continue;
+				}
+				if (isFileExist(destination))
+				{
+					if (getFileSize(destination) == sourceSize)
+					{
+						deleteFile(file);
+					}
+					continue;
+				}
+				byte[] bytes = openFileSync(file, true);
+				if (bytes == null || bytes.Length != sourceSize)
+				{
+					continue;
+				}
+				writeFile(destination, bytes);
+				if (getFileSize(destination) != sourceSize)
+				{
+					deleteFile(destination);
+					logWarning("迁移SQLite缓存写入不完整, file:" + destination);
+					continue;
+				}
+				deleteFile(file);
+			}
+			catch (Exception e)
+			{
+				logWarning("迁移SQLite缓存失败, file:" + file + ", error:" + e.Message);
+			}
+		}
+	}
 	// 删除旧资源版本遗留的SQLite明文缓存文件
 	protected void deleteUselessTempFile()
 	{

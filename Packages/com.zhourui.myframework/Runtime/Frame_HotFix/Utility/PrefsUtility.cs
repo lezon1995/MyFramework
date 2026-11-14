@@ -1,4 +1,9 @@
+using UnityEngine;
+#if !UNITY_EDITOR && UNITY_WEBGL && (OPPO_MINI_GAME || VIVO_MINI_GAME || UNITY_WEIXINMINIGAME)
+using UPlayerPrefs = MiniGamePlayerPrefs;
+#else
 using UPlayerPrefs = UnityEngine.PlayerPrefs;
+#endif
 #if BYTE_DANCE
 using TTSDK;
 #endif
@@ -116,6 +121,22 @@ public class PrefsUtility
 		TT.PlayerPrefs.DeleteKey(key);
 #else
 		UPlayerPrefs.DeleteKey(key);
+#endif
+	}
+	public static void prefsSave(string key)
+	{
+#if !UNITY_EDITOR && BYTE_DANCE
+		TT.PlayerPrefs.Save();
+#else
+		UPlayerPrefs.Save();
+#endif
+	}
+	public static void prefsDeleteAll(string key)
+	{
+#if !UNITY_EDITOR && BYTE_DANCE
+		TT.PlayerPrefs.DeleteAll();
+#else
+		UPlayerPrefs.DeleteAll();
 #endif
 	}
 }

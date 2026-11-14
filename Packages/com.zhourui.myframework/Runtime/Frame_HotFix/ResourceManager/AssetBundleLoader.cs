@@ -1,8 +1,7 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.XR;
 using static FileUtility;
 using static FrameBaseDefine;
 using static FrameBaseHotFix;
@@ -24,7 +23,6 @@ public class AssetBundleLoader
 	protected HashSet<Coroutine> mCoroutineList = new();                            // 当前的协程列表
 	protected HashSet<string> mDontUnloadAssetBundle = new();                       // 即使没有引用也不会调用卸载的AssetBundle
 	protected List<AssetBundleInfo> mDelayUnloadAssetBundleList = new();             // 当前正在等待延迟卸载的AssetBundle,只有这些AssetBundle需要每帧更新
-	protected WaitForEndOfFrame mWaitForEndOfFrame = new();                         // 用于避免GC
 	protected string mDownloadURL;                                                  // 资源包下载的地址
 	protected bool mAutoLoad = true;                                                // 当资源可用时是否自动初始化AssetBundle
 	protected bool mInited;                                                         // AssetBundleLoader是否已经初始化
@@ -71,11 +69,19 @@ public class AssetBundleLoader
 	public bool isDontUnloadAssetBundle(string bundleFileName) { return mDontUnloadAssetBundle.Contains(bundleFileName); }
 	public void unloadAll()
 	{
-		foreach (Coroutine item in mCoroutineList)
-		{
-			GameEntryBase.getInstance().StopCoroutine(item);
-		}
+		// StopCoroutine期间协程可能进入finally并尝试从mCoroutineList移除自己,
+		// 所以不能直接遍历mCoroutineList停止协程。
+		// 使用ListScope从List对象池取得临时列表,避免这里产生临时GC。
+		using var a = new ListScope<Coroutine>(out var coroutineList);
+		coroutineList.AddRange(mCoroutineList);
 		mCoroutineList.Clear();
+		foreach (Coroutine item in coroutineList)
+		{
+			if (item != null)
+			{
+				GameEntryBase.getInstance().StopCoroutine(item);
+			}
+		}
 		mAssetToAssetBundleInfo.Clear();
 		foreach (var item in mAssetBundleInfoList)
 		{
@@ -309,7 +315,7 @@ public class AssetBundleLoader
 			logError("AssetBundleLoader is not inited!");
 			return;
 		}
-		mCoroutineList.Add(GameEntryBase.startCoroutine(loadAssetBundleCoroutine(bundleInfo)));
+		startTrackedCoroutine(loadAssetBundleCoroutine(bundleInfo));
 	}
 	// AssetBundle进入延迟卸载状态时加入更新列表,该操作发生频率很低,使用Contains避免额外维护HashSet
 	public void requestDelayUnloadAssetBundle(AssetBundleInfo bundleInfo)
@@ -326,7 +332,7 @@ public class AssetBundleLoader
 			logError("AssetBundleLoader is not inited!");
 			return;
 		}
-		mCoroutineList.Add(GameEntryBase.startCoroutine(loadAssetCoroutine(bundleInfo, fileNameWithSuffix)));
+		startTrackedCoroutine(loadAssetCoroutine(bundleInfo, fileNameWithSuffix));
 	}
 	public void notifyAssetLoaded(UObject asset, AssetBundleInfo bundle)
 	{
@@ -351,8 +357,58 @@ public class AssetBundleLoader
 			logError("can not find resource : " + fileName + ",请确认文件存在,且带后缀名,且不能使用反斜杠\\," + (fileName.Contains(' ') || fileName.Contains('　') ? "注意此文件名中带有空格" : ""));
 			return;
 		}
-		mCoroutineList.Add(GameEntryBase.startCoroutine(downloadAssetBundleCoroutine(asset.getAssetBundle(), callback)));
+		startTrackedCoroutine(downloadAssetBundleCoroutine(asset.getAssetBundle(), callback));
 	}
+	//------------------------------------------------------------------------------------------------------------------------------
+	// 启动并追踪一个资源协程。
+	// mCoroutineList只保存仍在执行中的Coroutine,协程正常完成、yield break或抛异常时都会自动移除。
+	protected void startTrackedCoroutine(IEnumerator routine)
+	{
+		if (routine == null)
+		{
+			return;
+		}
+
+		Coroutine coroutine = null;
+		bool finishedBeforeStartReturned = false;
+		coroutine = GameEntryBase.startCoroutine(trackCoroutine(routine, () =>
+		{
+			finishedBeforeStartReturned = true;
+			if (coroutine != null)
+			{
+				mCoroutineList.Remove(coroutine);
+			}
+		}));
+
+		// StartCoroutine会立即执行到第一个yield。
+		// 如果协程在StartCoroutine返回前已经执行完,finally已经执行过,此时不能再把句柄加入集合。
+		if (!finishedBeforeStartReturned && coroutine != null)
+		{
+			mCoroutineList.Add(coroutine);
+		}
+	}
+	// 包装原协程,确保结束时释放追踪引用。
+	// 主动驱动原IEnumerator而不是简单yield return routine,
+	// 这样原协程本身MoveNext抛异常时也会经过本层finally。
+	protected IEnumerator trackCoroutine(IEnumerator routine, Action onFinish)
+	{
+		try
+		{
+			while (routine.MoveNext())
+			{
+				yield return routine.Current;
+			}
+		}
+		finally
+		{
+			if (routine is IDisposable disposable)
+			{
+				disposable.Dispose();
+			}
+			onFinish?.Invoke();
+		}
+	}
+
 	//------------------------------------------------------------------------------------------------------------------------------
 	// 下载资源包的协程
 	protected IEnumerator downloadAssetBundleCoroutine(AssetBundleInfo bundleInfo, BytesCallback callback)
@@ -382,6 +438,13 @@ public class AssetBundleLoader
 			string bundleFileName = bundleInfo.getBundleFileName();
 			yield return loadAssetsFromUrlWaiting(mDownloadURL + bundleFileName, (byte[] bytes) =>
 			{
+				GameFileInfo expected = mAssetVersionSystem.getRemoteFileInfo(bundleFileName);
+				if (bytes != null && expected != null && (bytes.Length != expected.mFileSize ||
+					!string.Equals(generateFileMD5(bytes), expected.mMD5, StringComparison.OrdinalIgnoreCase)))
+				{
+					logError("下载资源校验失败:" + bundleFileName);
+					bytes = null;
+				}
 				if (bytes != null)
 				{
 					// 写入到本地,并且更新资源列表
@@ -415,18 +478,32 @@ public class AssetBundleLoader
 		}
 		string bundleFileName = bundleInfo.getBundleFileName();
 		string fullPath = availableReadPath(bundleFileName);
-		byte[] assetBundleBytes = null;
 		bundleInfo.setLoadState(LOAD_STATE.LOADING);
-		// 返回空表示本地没有此文件,需要先下载
-		if (fullPath == null)
+		AssetBundleCreateRequest createRequest;
+		if (fullPath != null && (isWindows() || ((isAndroid() || isIOS()) && !fullPath.Contains("://"))))
 		{
-			yield return downloadAssetBundleCoroutine(bundleInfo, (byte[] bytes) => { assetBundleBytes = bytes; });
+			// 普通本地文件直接加载,避免整包读入byte[],APK内路径仍使用原有读取方式。
+			createRequest = AssetBundle.LoadFromFileAsync(fullPath);
 		}
 		else
 		{
-			yield return openFileAsyncInternal(fullPath, true, (byte[] bytes)=> { assetBundleBytes = bytes; });
+			byte[] assetBundleBytes = null;
+			// 返回空表示本地没有此文件,需要先下载
+			if (fullPath == null)
+			{
+				yield return downloadAssetBundleCoroutine(bundleInfo, (byte[] bytes) => { assetBundleBytes = bytes; });
+			}
+			else
+			{
+				yield return openFileAsyncInternal(fullPath, true, (byte[] bytes)=> { assetBundleBytes = bytes; });
+			}
+			if (assetBundleBytes == null || assetBundleBytes.Length == 0)
+			{
+				bundleInfo.notifyAssetBundleAsyncLoaded(null);
+				yield break;
+			}
+			createRequest = AssetBundle.LoadFromMemoryAsync(assetBundleBytes);
 		}
-		AssetBundleCreateRequest createRequest = AssetBundle.LoadFromMemoryAsync(assetBundleBytes);
 		yield return createRequest;
 		AssetBundle assetBundle = createRequest.assetBundle;
 		if (isDevOrEditor() && assetBundle != null)
@@ -437,7 +514,7 @@ public class AssetBundleLoader
 		{
 			logError("can not load asset bundle async : " + fullPath);
 		}
-		yield return mWaitForEndOfFrame;
+		// 资源包已加载完成,立即通知,不再额外等待一帧。
 		// 通知AssetBundleInfo
 		try
 		{

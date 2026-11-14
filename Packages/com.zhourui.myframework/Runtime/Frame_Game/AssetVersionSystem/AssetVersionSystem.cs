@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using static FrameBaseDefine;
@@ -12,6 +12,7 @@ public class AssetVersionSystem : FrameSystem
 	protected Dictionary<string, GameFileInfo> mStreamingAssetsFileList = new();    // StreamingAssets中的文件列表,从StreamingAssets中获取
 	protected Dictionary<string, GameFileInfo> mPersistentAssetsFileList = new();   // PersistentPath中的文件列表,从PersistentPath中获取
 	protected Dictionary<string, GameFileInfo> mRemoteAssetsFileList = new();       // 远端服务器上的文件列表,从远端服务器获取
+	protected List<string> mRemoteDynamicDownloadList = new();
 	protected List<string> mTotalDownloadedFiles = new();   // 已经下载的文件列表,用于统计下载文件记录
 	protected long mTotalDownloadByteCount;                 // 已经消耗的总下载量,单位字节,用于统计下载字节数
 	protected Action mRemoteFileListFailCallback;           // 获取远端文件列表失败的回调,当获取远端文件列表失败后会回调,一般是网络异常或者远端服务器异常导致无法获取到远端文件列表
@@ -48,8 +49,31 @@ public class AssetVersionSystem : FrameSystem
 			callback?.Invoke();
 		}
 	}
+	// 取消检查并使旧回调失效；已经验证的资源表保留给离线回退。
+	public void cancelFileListCheck()
+	{
+		++mCheckFileListGeneration;
+		mSuccessCallback = null;
+		mRemoteFileListFailCallback = null;
+		mPersistentDone = false;
+		mStreamingDone = false;
+		mRemoteDone = false;
+		mCheckFileListFailed = false;
+	}
 	public long getTotalDownloadedByteCount() { return mTotalDownloadByteCount; }
 	public List<string> getTotalDownloadedFiles() { return mTotalDownloadedFiles; }
+	public List<string> getRemoteDynamicDownloadList()
+	{
+		return mRemoteDynamicDownloadList;
+	}
+	public void setRemoteDynamicDownloadList(IEnumerable<string> directories)
+	{
+		mRemoteDynamicDownloadList.Clear();
+		if (directories != null)
+		{
+			mRemoteDynamicDownloadList.AddRange(directories);
+		}
+	}
 	public void addDownloadedInfo(int byteCount, string fileName)
 	{
 		mTotalDownloadByteCount += byteCount;
@@ -194,11 +218,8 @@ public class AssetVersionSystem : FrameSystem
 		ignorePath.addUnique("/temp/");
 		mSuccessCallback = successCallback;
 
-		// 编辑器下和不下载更新的版本中不获取远端文件列表和PersistentPath的文件列表
-		// 如果本地版本号大于远端的,则不下载,此时远端资源还未上传,本地可以直接正常运行,认为安装的是全量包
-		if (isEditor() ||
-			!isEnableHotFix() ||
-			compareVersion3(mRemoteVersion, getLocalVersion(), out _, out _) == VERSION_COMPARE.REMOTE_LOWER)
+		// 编辑器和不启用热更的版本不获取文件列表。
+		if (isEditor() || !isEnableHotFix())
 		{
 			mStreamingDone = true;
 			mPersistentDone = true;
@@ -206,7 +227,8 @@ public class AssetVersionSystem : FrameSystem
 			return;
 		}
 
-		if (remoteFileListMD5.isEmpty())
+		bool localVersionHigher = compareVersion3(mRemoteVersion, getLocalVersion(), out _, out _) == VERSION_COMPARE.REMOTE_LOWER;
+		if (!localVersionHigher && remoteFileListMD5.isEmpty())
 		{
 			notifyRemoteFileListFailed("远端FileList MD5为空", generation);
 			return;
@@ -223,6 +245,14 @@ public class AssetVersionSystem : FrameSystem
 			logBase("获取StreamingAssets文件列表完成");
 			mStreamingDone = true;
 		}, ignorePath, ignoreFile);
+
+		// 本地版本高于远端时只读取安装包清单，等待读取完成后再判断是否为全量包。
+		if (localVersionHigher)
+		{
+			mPersistentDone = true;
+			mRemoteDone = true;
+			return;
+		}
 
 		openFileList(F_PERSISTENT_ASSETS_PATH, generation, () =>
 		{
@@ -283,6 +313,7 @@ public class AssetVersionSystem : FrameSystem
 		}
 		DateTime start = DateTime.Now;
 		string fileListFullPath = path + FILE_LIST;
+		bool isPersistentPath = path == F_PERSISTENT_ASSETS_PATH;
 		// 本地已经有生成好的FileList文件,不过即使读取的是已经生成好的文件信息,也要再获取所有文件的文件名和大小进行校验,避免记录错误的信息
 		openTxtFileAsync(fileListFullPath, false, (string content) =>
 		{
@@ -297,20 +328,29 @@ public class AssetVersionSystem : FrameSystem
 				List<string> fileList = null;
 				// 扫描本地文件进行校验,只有PersistentPath中的才能扫描,且webgl无法扫描
 				bool isSame = true;
-				if (!isWebGL() && path == F_PERSISTENT_ASSETS_PATH)
+				if (!isWebGL() && isPersistentPath)
 				{
+					// 旧版可能已把SQLite缓存写入本地清单,比较时两边都要排除。
+					foreach (string file in new List<string>(fileInfoList.Keys))
+					{
+						if (isLegacySQLiteCacheFile(file))
+						{
+							fileInfoList.Remove(file);
+						}
+					}
 					fileList = new();
 					findFilesInternal(path, fileList, null, true);
 					for (int i = 0; i < fileList.Count; ++i)
 					{
 						string file = fileList[i];
-						if (isIgnorePath(file, ignorePath) || ignoreFile.Contains(getFileNameWithSuffix(file)))
+						string relativePath = file.removeStartCount(path.Length);
+						if (isLegacySQLiteCacheFile(relativePath) || isIgnorePath(file, ignorePath) || ignoreFile.Contains(getFileNameWithSuffix(file)))
 						{
 							fileList.RemoveAt(i--);
 						}
 						else
 						{
-							fileList[i] = file.removeStartCount(path.Length);
+							fileList[i] = relativePath;
 						}
 					}
 					isSame = fileInfoList.Count == fileList.Count;
@@ -386,7 +426,10 @@ public class AssetVersionSystem : FrameSystem
 					int count = fileList.Count;
 					for (int i = 0; i < fileList.Count; ++i)
 					{
-						if (isIgnorePath(fileList[i], ignorePath) || ignoreFile.Contains(getFileNameWithSuffix(fileList[i])))
+						string file = fileList[i];
+						if (isIgnorePath(file, ignorePath) || 
+							ignoreFile.Contains(getFileNameWithSuffix(file)) ||
+							isPersistentPath && isLegacySQLiteCacheFile(file.removeStartCount(path.Length)))
 						{
 							fileList.RemoveAt(i--);
 						}
@@ -517,6 +560,12 @@ public class AssetVersionSystem : FrameSystem
 		{
 			logErrorBase("setFileListToAssetSystem path error:" + path);
 		}
+	}
+	protected static bool isLegacySQLiteCacheFile(string relativePath)
+	{
+		return relativePath.StartsWith(SQLITE_CACHE_DIRECTORY) &&
+			   relativePath.EndsWith(".db") && 
+			   relativePath.IndexOf('/', SQLITE_CACHE_DIRECTORY.Length) < 0;
 	}
 	protected bool isIgnorePath(string fullPath, List<string> ignorePath)
 	{

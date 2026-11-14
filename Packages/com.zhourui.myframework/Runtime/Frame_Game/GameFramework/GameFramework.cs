@@ -125,7 +125,10 @@ public class GameFramework : IFramework
 		mFrameComponentList = null;
 	}
 	//------------------------------------------------------------------------------------------------------------------------------
-	protected virtual void initSDK(){}
+	protected virtual void initSDK()
+	{
+		PlatformSDK.initSDK();
+	}
 	protected void initFrameSystem()
 	{
 		registeFrameSystem<GameSceneManager>((com) =>		{ mGameSceneManager = com; });

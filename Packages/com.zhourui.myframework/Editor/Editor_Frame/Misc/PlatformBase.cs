@@ -1,14 +1,16 @@
 ﻿using UnityEditor;
+using UnityEngine;
 using UnityEditor.Build.Reporting;
 using UnityEditor.SceneManagement;
 using UnityEditorInternal;
 #if USE_HYBRID_CLR
-using HybridCLR.Editor;
-using HybridCLR.Editor.Commands;
-using HybridCLR.Editor.Settings;
+using HybridCLR;
+using HybridCLR.Commands;
+using HybridCLR.Settings;
 #endif
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Threading;
 using static FileUtility;
@@ -95,7 +97,7 @@ public abstract class PlatformBase
 			{
 				string relativePath = file.removeStart(mAssetBundleFullPath);
 				// 删除指定
-				if (relativePath != FILE_LIST && !containOnlyFileList.contains(relativePath))
+				if (relativePath != FILE_LIST && relativePath != DYNAMIC_DOWNLOAD_LIST && !containOnlyFileList.contains(relativePath))
 				{
 					deleteFile(dest + relativePath);
 					newList.Remove(file);
@@ -121,7 +123,7 @@ public abstract class PlatformBase
 		}
 
 		// 检查项目配置文件中的热更列表是否与HybridCLR中设置的一致
-		AssemblyDefinitionAsset[] hybridCLRList = HybridCLRSettings.Instance.hotUpdateAssemblyDefinitions;
+		AssemblyDefinitionAsset[] hybridCLRList = HybridCLRSettings.instance.hotUpdateAssemblyDefinitions;
 		List<string> frameSettingsList = FrameSettings.getHotFixList();
 		if (hybridCLRList.Length != frameSettingsList.Count)
 		{
@@ -145,11 +147,15 @@ public abstract class PlatformBase
 		}
 		// 拷贝补充数据dll
 		string aotDllSrcPath = SettingsUtil.GetAssembliesPostIl2CppStripDir(EditorUserBuildSettings.activeBuildTarget) + "/";
-		foreach (string aotFile in AOTGenericReferences.PatchedAOTAssemblyList)
+		foreach (string aotFile in getRequiredAOTAssemblies())
 		{
 			copyFile(aotDllSrcPath + aotFile, mAssetBundleFullPath + aotFile + ".bytes");
 		}
 		checkAccessMissingMetadata();
+		if (mEnableHotFix && !AOTMetadataBuildUtility.optimize(mAssetBundleFullPath, AOTGenericReferences.PatchedAOTAssemblyList))
+		{
+			logError("AOT 补充元数据精简失败");
+		}
 
 #if USE_OBFUZ
 		// 对dll进行混淆,dll顺序很重要,被依赖的需要在前面
@@ -184,26 +190,63 @@ public abstract class PlatformBase
 		mLocalVersion = mBuildVersion;
 		return true;
 	}
-	public bool writeFileList(string path)
+	public bool writeFileList(string path, bool includeDynamicAssets = true)
 	{
-		string content = generateFileList(path, mIgnoreFile, FrameSettings.getDynamicDownloadList());
+		if (!writeDynamicDownloadList(path))
+		{
+			return false;
+		}
+		string content = generateResourceFileList(path, includeDynamicAssets ? null : FrameSettings.getDynamicDownloadList());
 		writeTxtFile(path + FILE_LIST, content);
 		return true;
 	}
+	public bool writeDynamicDownloadList(string path)
+	{
+		string version = openTxtFile(path + VERSION, false)?.Trim();
+		DynamicDownloadConfig config = new()
+		{
+			Version = version,
+			Directories = new List<string>(FrameSettings.getDynamicDownloadList()),
+		};
+		if (!DynamicDownloadConfig.tryParse(JsonUtility.ToJson(config), version, out DynamicDownloadConfig normalized))
+		{
+			logError("动态下载列表或资源版本无效,请检查FrameSettings和Version:" + path);
+			return false;
+		}
+		writeTxtFile(path + DYNAMIC_DOWNLOAD_LIST, JsonUtility.ToJson(normalized));
+		return true;
+	}
 	// 检查所有的热更dll,以及AOT的dll是否都存在
+	public List<string> getRequiredAOTAssemblies()
+	{
+		List<string> names = new();
+#if USE_HYBRID_CLR
+		string source = File.ReadAllText(Path.Combine(Application.dataPath, HybridCLRSettings.instance.outputAOTGenericReferenceFile));
+		int start = source.IndexOf("PatchedAOTAssemblyList", StringComparison.Ordinal);
+		int end = start < 0 ? -1 : source.IndexOf("};", start, StringComparison.Ordinal);
+		if (end < 0)
+		{
+			throw new InvalidDataException("Generated AOT assembly list is missing");
+		}
+		foreach (string value in source.Substring(start, end - start).Split('"'))
+		{
+			if (value.EndsWith(".dll", StringComparison.Ordinal)) names.Add(value);
+		}
+#endif
+		return names;
+	}
 	public bool checkAllDllExist()
 	{
+#if USE_HYBRID_CLR
 		List<string> dllList = new();
 		foreach (string name in FrameSettings.getHotFixList())
 		{
 			dllList.add(mAssetBundleFullPath + name + ".dll.bytes");
 		}
-#if USE_HYBRID_CLR
-		foreach (string aotFile in AOTGenericReferences.PatchedAOTAssemblyList)
+		foreach (string aotFile in getRequiredAOTAssemblies())
 		{
 			dllList.Add(mAssetBundleFullPath + aotFile + ".bytes");
 		}
-#endif
 		bool allExist = true;
 		foreach (string file in dllList)
 		{
@@ -214,6 +257,10 @@ public abstract class PlatformBase
 			}
 		}
 		return allExist;
+#else
+		// 资源更新不要求DLL；未启用HybridCLR时业务程序集已编译进程序。
+		return true;
+#endif
 	}
 	// 框架中只根据是否启用热更和是否为测试客户端来增加对应的宏
 	public string getBuildTimePlatformDefine()
@@ -229,6 +276,22 @@ public abstract class PlatformBase
 			buildDefine += ";";
 		}
 		string platformDefine = defaultDefine + buildDefine;
+		if (isByteDance())
+		{
+			platformDefine += BYTE_DANCE + ";";
+		}
+		else if (isOppo())
+		{
+			platformDefine += OPPO_MINI_GAME + ";";
+		}
+		else if (isVivo())
+		{
+			platformDefine += VIVO_MINI_GAME + ";";
+		}
+		else if (isWeiXin())
+		{
+			platformDefine += UNITY_WEIXINMINIGAME + ";";
+		}
 		if (mEnableHotFix)
 		{
 			platformDefine += ENABLE_HOTFIX + ";";
@@ -311,7 +374,11 @@ public abstract class PlatformBase
 	public bool uploadVersion()
 	{
 		string remotePath = getRemotePathInEditor("") + VERSION;
-		uploadSingleFile(mAssetBundleFullPath + VERSION, remotePath, true);
+		log("上传远端版本号:" + openTxtFile(mAssetBundleFullPath + VERSION, true));
+		if (!uploadSingleFile(mAssetBundleFullPath + VERSION, remotePath, true))
+		{
+			return false;
+		}
 		// 上传版本号以后立即刷新cdn
 		mObjectStorageSystem?.refreshCDN(remotePath);
 		updateRemoteVersion();
@@ -320,9 +387,69 @@ public abstract class PlatformBase
 	// 获取在远端资源的路径,一般都会根据版本号来隔离每个版本的资源,而且在应用层最好自己再实现一个利用宏来判断的路径
 	// 在编辑器非运行模式下就不要用宏来判断了,因为此时本身就要去添加编译宏,所以编辑器非运行模式下的宏可能更新没那么及时,会导致获取到错误的值
 	// 比如本地StreamingAssets/1.txt对应的远端位置是domain/ProjectName/Verison/1.txt,那么这里返回的就应该是ProjectName/Verison/
-	public abstract string getRemotePathInEditor(string version);
+	public virtual string getRemotePathInEditor(string version)
+	{
+		string folder = FrameSettings.getGameName() + "/Assets_";
+		if (mTestClient)
+		{
+			folder += "Test_";
+		}
+		if (isAndroid())
+		{
+			folder += "Android/";
+		}
+		else if (isWindows())
+		{
+			folder += "Windows/";
+		}
+		else if (isIOS())
+		{
+			folder += "iOS/";
+		}
+		else if (isMacOS())
+		{
+			folder += "MacOS/";
+		}
+		else if (isWebGL())
+		{
+			if (isByteDance())
+			{
+				folder += "ByteDance/";
+			}
+			else if (isOppo())
+			{
+				folder += "Oppo/";
+			}
+			else if (isVivo())
+			{
+				folder += "Vivo/";
+			}
+			else if (isWeiXin())
+			{
+				folder += "WeChat";
+			}
+			else
+			{
+				folder += "WebGL/";
+			}
+		}
+		else
+		{
+			logErrorBase("未知平台");
+		}
+		if (!version.isEmpty())
+		{
+			version += "/";
+		}
+		return folder + version;
+	}
 	public bool uploadResources(bool autoUploadVersion, string uploadLocalPath = null, int rertyCount = 5)
 	{
+		if (mObjectStorageSystem == null)
+		{
+			logError("资源上传配置未就绪，未发布版本");
+			return false;
+		}
 		if (uploadLocalPath.isEmpty())
 		{
 			uploadLocalPath = mAssetBundleFullPath;
@@ -330,6 +457,16 @@ public abstract class PlatformBase
 		if (!isDirExist(uploadLocalPath))
 		{
 			dialog("错误", "上传的资源路径不存在:" + uploadLocalPath, "确定");
+			return false;
+		}
+		validPath(ref uploadLocalPath);
+		if (openTxtFile(uploadLocalPath + VERSION, false)?.Trim() != mLocalVersion)
+		{
+			logError("上传资源版本与当前版本不一致");
+			return false;
+		}
+		if (!writeDynamicDownloadList(uploadLocalPath))
+		{
 			return false;
 		}
 		string remotePath = getRemotePathInEditor(mLocalVersion);
@@ -340,6 +477,7 @@ public abstract class PlatformBase
 		progressBar(displayTitle, "正在获取远端文件列表");
 		var remoteFileList = mObjectStorageSystem?.getFileList(remotePath);
 		remoteFileList.remove(mIgnoreFile);
+		remoteFileList?.Remove(DYNAMIC_DOWNLOAD_LIST);
 		log("远端共" + remoteFileList.count() + "个文件");
 		progressBar(displayTitle, "正在计算本地文件列表");
 		// 对比远端和本地的文件,删除远端无用的文件
@@ -352,7 +490,7 @@ public abstract class PlatformBase
 			clearProgress();
 			return false;
 		}
-		string generatedContent = generateFileList(uploadLocalPath, mIgnoreFile, FrameSettings.getDynamicDownloadList());
+		string generatedContent = generateResourceFileList(uploadLocalPath, null);
 		// 如果扫描出来不一样就更新本地文件列表
 		if (generatedContent != content)
 		{
@@ -375,7 +513,10 @@ public abstract class PlatformBase
 
 		// 对比远端需要删除的文件
 		progressBar(displayTitle, "正在删除远端文件");
-		bool hasError = doDelete(checkDeleteFile(localFileInfoList, remoteFileList), remotePath, displayTitle);
+		if (doDelete(checkDeleteFile(localFileInfoList, remoteFileList), remotePath, displayTitle))
+		{
+			return false;
+		}
 
 		// 对比需要上传的文件,计算出上传的文件列表
 		progressBar(displayTitle, "正在上传文件");
@@ -383,6 +524,7 @@ public abstract class PlatformBase
 		// 要将资源列表文件上传上去
 		// 版本号文件不上传
 		modifyList.add(FILE_LIST);
+		modifyList.add(DYNAMIC_DOWNLOAD_LIST);
 		modifyList.Remove(VERSION);
 		Dictionary<string, string> uploadList = new();
 		foreach (string item in modifyList)
@@ -398,39 +540,42 @@ public abstract class PlatformBase
 			}
 		}
 
-		// 将文件全部上传,如果上传失败,则最多重试5次
+		// doUpload同步完成；将上传、重试和版本发布的结果传回打包流水线。
+		bool success = false;
 		doUpload(uploadList, displayTitle, (int failedCount) =>
 		{
 			log("上传完毕:" + uploadLocalPath + ", 失败数量:" + failedCount);
 			if (failedCount > 0)
 			{
-				// 还有重试次数就自动重试,没有次数了就手动点击重试
 				if (rertyCount > 0)
 				{
 					log("上传完成后有失败,正在自动重试");
-					uploadResources(autoUploadVersion, uploadLocalPath, rertyCount - 1);
+					success = uploadResources(autoUploadVersion, uploadLocalPath, rertyCount - 1);
 				}
-				else if (messageYesNo("上传失败数量:" + failedCount + ", 是否重试?"))
+				else if (!Application.isBatchMode && messageYesNo("上传失败数量:" + failedCount + ", 是否重试?"))
 				{
-					uploadResources(autoUploadVersion, uploadLocalPath, rertyCount - 1);
+					success = uploadResources(autoUploadVersion, uploadLocalPath, rertyCount - 1);
 				}
+				return;
 			}
-			else
-			{
-				// 最后上传版本号
-				if (autoUploadVersion)
-				{
-					uploadVersion();
-				}
-			}
+			// 资源、文件列表及动态策略全部成功后才发布顶层版本号。
+			success = !autoUploadVersion || uploadVersion();
 		});
-		return hasError;
+		return success;
 	}
 	// 除了动态配置以外的宏,比如USE_HYBRID_CLR,USE_OBFUZ等基本固定的宏,一般都是使用FrameMacro中定义的值,由应用层自己决定,也是用于打包完以后的宏配置还原
 	public abstract string getDefaultPlatformDefine();
 	//------------------------------------------------------------------------------------------------------------------------------
-	// 获取打包时的宏配置,不包含getDefaultPlatformDefine的宏,会拼接以后设置到当前宏定义
-	protected abstract string getBuildTimePlatformDefineInternal();
+	// 获取打包时的宏配置,不包含getDefaultPlatformDefine的宏,会拼接以后设置到当前宏定义,可能使用频率不高
+	protected virtual string getBuildTimePlatformDefineInternal() { return ""; }
+	protected string generateResourceFileList(string path, List<string> ignorePath)
+	{
+		List<string> ignoreFiles = mIgnoreFile == null ? new() : new(mIgnoreFile);
+		ignoreFiles.addUnique(VERSION);
+		ignoreFiles.addUnique(FILE_LIST);
+		ignoreFiles.addUnique(DYNAMIC_DOWNLOAD_LIST);
+		return generateFileList(path, ignoreFiles, ignorePath);
+	}
 	protected void updateEditVersionNumber()
 	{
 		mVersionNumber = mRemoteVersion.split('.');
@@ -467,36 +612,44 @@ public abstract class PlatformBase
 		log("设置宏:" + platformDefine);
 		PlayerSettings.SetScriptingDefineSymbols(getNameBuildTarget(), platformDefine);
 
-		if (mBuildHybridCLR)
+		if (mBuildHybridCLR && !buildHotFix(true))
 		{
-			buildHotFix(true);
+			return false;
 		}
 
 		createDir(mOutputPath);
 
 		// 打包时只启用第一个场景,因为微信平台的打包是直接读的编辑器设置,而不能自己传参
-		for (int i = 0; i < EditorBuildSettings.scenes.Length; ++i)
+		var scenes = EditorBuildSettings.scenes;
+		for (int i = 0; i < scenes.Length; ++i)
 		{
-			EditorBuildSettings.scenes[i].enabled = i == 0;
+			scenes[i].enabled = i == 0;
 		}
+		EditorBuildSettings.scenes = scenes;
 
 		AssetDatabase.Refresh();
 
 		// 需要先更新版本号文件
 		writeVersion();
 		// 在备份文件之前计算文件列表
-		writeFileList(mAssetBundleFullPath);
+		if (!writeFileList(mAssetBundleFullPath, false))
+		{
+			return false;
+		}
 		backupAssets();
 		return true;
 	}
 	protected virtual void postBuild(string fullPath)
 	{
 		// 打包时只启用第一个场景,因为微信平台的打包是直接读的编辑器设置,而不能自己传参
-		for (int i = 0; i < EditorBuildSettings.scenes.Length; ++i)
+		var scenes = EditorBuildSettings.scenes;
+		for (int i = 0; i < scenes.Length; ++i)
 		{
-			EditorBuildSettings.scenes[i].enabled = true;
+			scenes[i].enabled = true;
 		}
+		EditorBuildSettings.scenes = scenes;
 		recoverAssets();
+		writeFileList(mAssetBundleFullPath);
 		// 还原宏定义
 		string platformDefine = getDefaultPlatformDefine();
 		log("还原宏:" + platformDefine);
@@ -540,11 +693,6 @@ public abstract class PlatformBase
 				else if (file.EndsWith(VERSION))
 				{
 					backupDest = BACKUP_TARGET.NONE;
-				}
-				// webgl中需要将所有文件都备份到临时目录,这些文件不打包到包体中,这是需要上传到cdn
-				else if (isWebGL())
-				{
-					backupDest = BACKUP_TARGET.BUILD_TEMP;
 				}
 				// 启用热更时,动态下载的文件备份到临时目录,其他不进行备份
 				else if (mEnableHotFix)

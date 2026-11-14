@@ -1183,20 +1183,17 @@ public class StringUtility
 					colorStart = j;
 					curColor = colorLine[j];
 				}
-				// 遇到不一样的颜色或者已经遍历到了最后一个,则截取这段字符
-				else if (colorLine[j] != curColor || j == lineLength - 1)
+				// 遇到不一样的颜色时截取前一段字符
+				else if (colorLine[j] != curColor)
 				{
-					if (j == lineLength - 1)
-					{
-						tempList.Add(new(strLine.removeStartCount(colorStart), curColor));
-					}
-					else
-					{
-						tempList.Add(new(strLine.range(colorStart, j), curColor));
-						colorStart = j;
-						curColor = colorLine[j];
-					}
+					tempList.Add(new(strLine.range(colorStart, j), curColor));
+					colorStart = j;
+					curColor = colorLine[j];
 				}
+			}
+			if (colorStart >= 0)
+			{
+				tempList.Add(new(strLine.removeStartCount(colorStart), curColor));
 			}
 			// 再将各个分段的字符串使用颜色拼接起来
 			using var b = new MyStringBuilderScope(out var builder);
@@ -1218,12 +1215,19 @@ public class StringUtility
 	// 默认每一行至少可以容纳30个字符,所以都是从30开始截取字符串,为了提高效率
 	public static void generateMultiLine(myUGUIText textWindow, string originString, List<string> lineList, int minStringLength = 30)
 	{
+		generateMultiLine(textWindow.getTextComponent(), (int)textWindow.getSize().x, originString, lineList, minStringLength);
+	}
+	public static void generateMultiLine(myUGUITextImage textWindow, string originString, List<string> lineList, int minStringLength = 30)
+	{
+		generateMultiLine(textWindow.getTextImage(), (int)textWindow.getSize().x, originString, lineList, minStringLength);
+	}
+	private static void generateMultiLine(UnityEngine.UI.Text textComponent, int maxContentDisplayWidth, string originString, List<string> lineList, int minStringLength)
+	{
 		if (originString.Length < minStringLength)
 		{
 			lineList.Add(originString);
 			return;
 		}
-		int maxContentDisplayWidth = (int)textWindow.getSize().x;
 		int charIndex = minStringLength;
 		int startIndex = 0;
 		while (true)
@@ -1233,7 +1237,7 @@ public class StringUtility
 				lineList.Add(originString.removeStartCount(startIndex));
 				break;
 			}
-			if (getContentLength(textWindow.getTextComponent(), originString.substr(startIndex, charIndex)) >= maxContentDisplayWidth)
+			if (getContentLength(textComponent, originString.substr(startIndex, charIndex)) >= maxContentDisplayWidth)
 			{
 				// 超出以后需要减少一个字符,避免超出显示范围
 				--charIndex;

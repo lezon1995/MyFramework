@@ -16,6 +16,6 @@ public class COMMovableObjectVolume : ComponentKeyFrame
 	//------------------------------------------------------------------------------------------------------------------------------
 	protected override void applyTrembling(float value)
 	{
-		mComponentOwner.getOrAddComponent<COMMovableObjectAudio>().setVolume(lerpSimple(mStart, mTarget, value));
+		owner.getOrAddComponent<COMMovableObjectAudio>().setVolume(lerpSimple(mStart, mTarget, value));
 	}
 }

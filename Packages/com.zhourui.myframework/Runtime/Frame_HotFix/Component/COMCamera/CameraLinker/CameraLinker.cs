@@ -37,7 +37,7 @@ public class CameraLinker : GameComponent
 	{
 		base.init(owner);
 		initSwitch();
-		mCamera = mComponentOwner as GameCamera;
+		mCamera = base.owner as GameCamera;
 	}
 	public override void destroy()
 	{
