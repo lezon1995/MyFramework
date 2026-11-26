@@ -128,6 +128,7 @@ namespace MoreMountains
 
         public override void OnUpdate(float dt)
         {
+            if (RunSettlement.IsFinished) return;
             base.OnUpdate(dt);
 
             if (!enabled)
@@ -159,6 +160,7 @@ namespace MoreMountains
 
         public override void OnFixedUpdate(float dt)
         {
+            if (RunSettlement.IsFinished) return;
             FixedUpdatePowers(dt);
             CheckBrickHitTimerExpiration(dt);
 

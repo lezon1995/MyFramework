@@ -648,6 +648,7 @@ namespace MoreMountains
         /// </summary>
         public override void OnFixedUpdate(float dt)
         {
+            if (RunSettlement.IsFinished) return;
             base.OnFixedUpdate(dt);
             CheckInCombatStatus(dt);
 
@@ -663,6 +664,7 @@ namespace MoreMountains
         /// </summary>
         public override void OnUpdate(float dt)
         {
+            if (RunSettlement.IsFinished) return;
             base.OnUpdate(dt);
             // we process our abilities
             UpdateAbilitiesBefore();

@@ -70,6 +70,7 @@ public partial class Game
             waveManager = null;
             coinManager = null;
             expManager = null;
+            RunSettlement.Reset();
             if (GameManager.Instance != null) GameManager.Instance.Reset();
             stopClock = false;
             loadingSave = false;
@@ -106,6 +107,7 @@ public partial class Game
         {
             if (mode == GameMode.MAIN_MENU)
             {
+                RunSettlement.Reset();
                 stopClock = false;
                 if (GameManager.Instance != null && GameManager.Instance.Paused) GameManager.Instance.Reset();
             }

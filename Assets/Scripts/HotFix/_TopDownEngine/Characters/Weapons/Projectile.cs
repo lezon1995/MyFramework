@@ -235,6 +235,7 @@ namespace MoreMountains
 
         public override void OnFixedUpdate(float dt)
         {
+            if (RunSettlement.IsFinished) return;
             if (_shouldMove)
             {
                 Movement(dt);

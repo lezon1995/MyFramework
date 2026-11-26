@@ -106,6 +106,7 @@ namespace MoreMountains
                 return;
             }
 
+            RunSettlement.Begin(this);
             CurrentLevelConfig = levelConfig;
             TotalPlayTime = 0f;
             TotalKills = 0;
@@ -260,6 +261,7 @@ namespace MoreMountains
 
         void HandleGameEnd(GameResult result)
         {
+            RunSettlement.Finish(result);
             var gameEndEvent = new OnGameEnd(result, CurWave, TotalKills, TotalPlayTime);
             gameEndEvent.trigger();
 

@@ -52,7 +52,7 @@ namespace MoreMountains
         /// <summary>绑定 APlayer 并打开面板。</summary>
         public void Open(ARoom room, APlayer player)
         {
-            if (_opened || Game.RunExitPending || player == null) return;
+            if (_opened || Game.RunExitPending || RunSettlement.IsFinished || player == null) return;
             if (_binder == null)
             {
                 logError("EscPanelService.Open: panel / binder not registered.");

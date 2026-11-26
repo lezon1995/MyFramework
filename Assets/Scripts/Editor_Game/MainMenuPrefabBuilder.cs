@@ -10,7 +10,7 @@ using UnityEngine.UI;
 namespace MoreMountains;
 
 /// <summary>生成与项目世界空间 UI、ScaleAnchor 一致的可编辑主菜单白模。</summary>
-public static class MainMenuPrefabBuilder
+public static partial class MainMenuPrefabBuilder
 {
     const string Folder = "Assets/GameResources/UI/UIPrefab/";
     static TMP_FontAsset font;
@@ -218,7 +218,9 @@ public static class MainMenuPrefabBuilder
         Debug.Log("[MainMenu] PASS: all page assignWindow/init bindings; four settings tabs; volume slider; defaults. No saves or player preferences modified.");
     }
 
-    static void Preview(GameObject root)
+    public static void PreviewResult(GameObject root, string name) => Preview(root, name);
+
+    static void Preview(GameObject root, string previewName = "main-menu-settings")
     {
         if (SystemInfo.graphicsDeviceType == UnityEngine.Rendering.GraphicsDeviceType.Null)
         {
@@ -259,7 +261,7 @@ public static class MainMenuPrefabBuilder
             RenderTexture.active = target;
             image.ReadPixels(new Rect(0, 0, 1920, 1080), 0, 0);
             image.Apply();
-            var path = Path.Combine(Path.GetTempPath(), "main-menu-settings-preview.png");
+            var path = Path.Combine(Path.GetTempPath(), previewName + "-preview.png");
             File.WriteAllBytes(path, image.EncodeToPNG());
             Debug.Log("[MainMenu] Preview: " + path);
         }

@@ -90,6 +90,7 @@ namespace MoreMountains
 
         public override void OnUpdate(float dt)
         {
+            if (RunSettlement.IsFinished) return;
             base.OnUpdate(dt);
             // DebugDrawRect();
 
@@ -98,6 +99,7 @@ namespace MoreMountains
 
         public override void OnFixedUpdate(float dt)
         {
+            if (RunSettlement.IsFinished) return;
             base.OnFixedUpdate(dt);
 
             fixedUpdatePowers(dt);

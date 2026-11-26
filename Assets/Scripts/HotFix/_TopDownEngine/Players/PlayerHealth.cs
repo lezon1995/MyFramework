@@ -199,6 +199,7 @@ namespace MoreMountains
 
         public override void Damage(ref Dmg dmg, GameObject instigator, Character source = null, float invincibleTime = 0F, Vector3 direction = default, IDmgCalculator calculator = null)
         {
+            if (RunSettlement.IsFinished) return;
             if (!CanTakeDamageThisFrame(out var resistDamageType))
             {
                 if (resistDamageType == ResistDamageType.Invincible && !dmg.IgnoreInvincible)
@@ -431,6 +432,9 @@ namespace MoreMountains
 
         public override bool Kill(Character killBySource = null)
         {
+            if (RunSettlement.IsFinished)
+                return false;
+
             if (ImmuneToDamage)
                 return false;
 
@@ -465,6 +469,8 @@ namespace MoreMountains
                 }
             }
 
+            waveManager?.ForceWaveFailed();
+            RunSettlement.Finish(GameResult.Defeat);
             Event.trigger(new OnDeath());
 
             if (DisableControllerOnDeath && _controller)
@@ -473,12 +479,13 @@ namespace MoreMountains
             if (DisableModelOnDeath && Model)
                 Model.SetActive(false);
 
-            if (DelayBeforeDestruction > 0f)
+            // 结算期间保留玩家，供房间解绑和退出时统一回收。
+            if (!RunSettlement.IsFinished && DelayBeforeDestruction > 0f)
             {
                 _coroutineTimeElapsed = 0F;
                 _coroutineState = CoroutineState.DestroyObject;
             }
-            else
+            else if (!RunSettlement.IsFinished)
                 DestroyObject();
 
             _controller.IntentVelocity = Vector3.zero;

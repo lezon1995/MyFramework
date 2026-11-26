@@ -211,6 +211,7 @@ namespace MoreMountains
 
         public override void Damage(ref Dmg dmg, GameObject instigator, Character source = null, float invincibleTime = 0F, Vector3 direction = default, IDmgCalculator calculator = null)
         {
+            if (RunSettlement.IsFinished) return;
             if (!CanTakeDamageThisFrame(out _))
                 return;
 
@@ -350,6 +351,8 @@ namespace MoreMountains
                     // 无护盾时，全部伤害作用于生命值
                     actualHealthDamage = rawDamage;
                 }
+
+                RunSettlement.RecordAppliedDamage(ball.Def, rawDamage, actualHealthDamage, CurrentHealth);
 
                 // =====================================================
                 // 应用实际生命值伤害
@@ -616,6 +619,8 @@ namespace MoreMountains
                     // 无护盾时，全部伤害作用于生命值
                     actualHealthDamage = rawDamage;
                 }
+
+                RunSettlement.RecordAppliedDamage(RunSettlement.ResolveBall(instigator), rawDamage, actualHealthDamage, CurrentHealth);
 
                 // =====================================================
                 // 应用实际生命值伤害

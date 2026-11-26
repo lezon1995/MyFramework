@@ -161,6 +161,7 @@ namespace MoreMountains
 
         public void Update()
         {
+            if (RunSettlement.IsFinished) return;
             var dt = Time.deltaTime;
 
             if (!IsPlaying)
@@ -327,6 +328,7 @@ namespace MoreMountains
         /// </summary>
         public void ForceWaveFailed()
         {
+            if (FinalResult != GameResult.None) return;
             FinalResult = GameResult.Defeat;
             SetState(WaveState.Failed);
             OnWaveFailed?.Invoke(CurWave, FinalResult);
@@ -417,14 +419,18 @@ namespace MoreMountains
         /// </summary>
         public void UnregisterMonster(Brick monster, Character killer)
         {
-            if (monster == null)
+            if (monster == null || FinalResult != GameResult.None || RunSettlement.IsFinished || !ActiveMonsters.Contains(monster))
                 return;
 
+            bool wasBoss = ActiveBosses.Contains(monster);
             ActiveMonsters.Remove(monster);
             ActiveBosses.Remove(monster);
             WaveKillCount++;
             NotifyMonsterKilled(); // 持续刷怪：通知击杀
             OnMonsterKilled?.Invoke(monster, killer as APlayer);
+            if (wasBoss && CurLevel != null && CurLevel.IsLastWave(WaveNumber) &&
+                (CurWave?.bossMonsterId == null || _bossSpawnedThisWave) && ActiveBossCount == 0)
+                CompleteLevel();
         }
 
         /// <summary>
@@ -861,6 +867,9 @@ namespace MoreMountains
         {
             if (CurWave == null)
                 return false;
+
+            if (CurLevel.IsLastWave(WaveNumber) && CurWave.bossMonsterId != null)
+                return false; // 最终 Boss 击杀由 UnregisterMonster 直接结算。
 
             switch (CurWave.clearStrategy)
             {
@@ -1345,6 +1354,7 @@ namespace MoreMountains
 
         void CompleteLevel()
         {
+            if (FinalResult != GameResult.None || RunSettlement.IsFinished) return;
             FinalResult = GameResult.Victory;
             SetState(WaveState.AllCleared);
             OnLevelComplete?.Invoke(CurLevel);

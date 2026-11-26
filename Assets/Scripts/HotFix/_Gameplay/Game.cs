@@ -225,6 +225,11 @@ namespace MoreMountains
                 CompleteRunExit();
                 return;
             }
+            if (RunSettlement.IsFinished)
+            {
+                RunSettlement.Present();
+                return;
+            }
             if (Settings.isDebug)
             {
                 using var _ = new MyStringBuilderScope(out var sb);

@@ -654,11 +654,13 @@ namespace MoreMountains
 
         void Update()
         {
+            if (RunSettlement.IsFinished) return;
             OnUpdate(Time.deltaTime);
         }
 
         void FixedUpdate()
         {
+            if (RunSettlement.IsFinished) return;
             OnFixedUpdate(Time.fixedDeltaTime);
         }
 
@@ -667,6 +669,7 @@ namespace MoreMountains
         /// </summary>
         void LateUpdate()
         {
+            if (RunSettlement.IsFinished) return;
             var dt = Time.deltaTime;
             OnLateUpdate(dt);
         }
