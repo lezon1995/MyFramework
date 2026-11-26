@@ -6,7 +6,7 @@ namespace MoreMountains
 {
     /// <summary>
     /// Draws the brick field in shared visual stages instead of repeating all stages per brick.
-    /// Health bars and labels are overlays above every brick body. Local transforms are untouched.
+    /// Health bars and labels are overlays above every brick body. Visual Root depth preserves row priority.
     /// </summary>
     [DisallowMultipleComponent, DefaultExecutionOrder(9000)]
     public sealed class BrickRenderBatchGroup : MonoBehaviour
@@ -22,9 +22,10 @@ namespace MoreMountains
         public Entry[] entries = Array.Empty<Entry>();
         int[] originalLayers, originalOrders;
         bool groupWasEnabled;
+        Transform visualRoot;
+        float originalVisualZ;
 
-        // Keep the existing per-row priority within each stage without giving every brick
-        // a different sortingOrder (which would split instancing again). The game is on XY.
+        // Keep row priority within a shared stage using visual depth in this XY game.
         public float DepthOffset => sortingGroup ? -sortingGroup.sortingOrder * 0.0001f : 0;
 
         public static int GetStage(string name) => name switch
@@ -44,6 +45,8 @@ namespace MoreMountains
 
         void OnEnable()
         {
+            visualRoot = transform.Find("Root");
+            if (visualRoot) originalVisualZ = visualRoot.localPosition.z;
             originalLayers = new int[entries.Length];
             originalOrders = new int[entries.Length];
             groupWasEnabled = sortingGroup && sortingGroup.enabled;
@@ -64,6 +67,13 @@ namespace MoreMountains
             // Leaving the component present keeps BrickRenderer's existing API valid.
             // Its per-row order must not split the shared stages into individual bricks again.
             sortingGroup.enabled = false;
+            // Root is not animated; animations target its Pivot descendants. Physics stays at the gameplay root.
+            if (visualRoot)
+            {
+                var position = visualRoot.localPosition;
+                position.z = originalVisualZ + transform.InverseTransformVector(new Vector3(0, 0, DepthOffset)).z;
+                visualRoot.localPosition = position;
+            }
             foreach (var entry in entries)
                 if (entry.renderer)
                 {
@@ -81,6 +91,12 @@ namespace MoreMountains
                     entries[i].renderer.sortingLayerID = originalLayers[i];
                     entries[i].renderer.sortingOrder = originalOrders[i];
                 }
+            if (visualRoot)
+            {
+                var position = visualRoot.localPosition;
+                position.z = originalVisualZ;
+                visualRoot.localPosition = position;
+            }
             if (sortingGroup) sortingGroup.enabled = groupWasEnabled;
         }
     }

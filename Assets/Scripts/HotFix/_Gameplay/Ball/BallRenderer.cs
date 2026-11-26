@@ -34,6 +34,12 @@ namespace MoreMountains
                 particleProperties = new RendererPropertyOverrides(particleRenderer.GetComponent<ParticleSystemRenderer>());
         }
 
+        void OnDestroy()
+        {
+            spriteProperties?.Dispose();
+            particleProperties?.Dispose();
+        }
+
         public void setRendererActive(bool active)
         {
             renderer.gameObject.SetActive(active);

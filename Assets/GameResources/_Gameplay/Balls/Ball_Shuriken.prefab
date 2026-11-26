@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 868290077174734681}
   - component: {fileID: 2505308618373015969}
-  - component: {fileID: 3033444785262683147}
   m_Layer: 0
   m_Name: ball_sprite
   m_TagString: Untagged
@@ -627,17 +626,3 @@ MonoBehaviour:
   _worldRotationAxis: {x: 0, y: 0, z: 0}
   _snappedPosition: {x: 0, y: 0, z: 0}
   _radius: {x: 0, y: 0, z: 0}
---- !u!114 &3033444785262683147
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2010884045572182298}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e4d5b90e3b9cf457c8791796d8098a62, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
-  instancedShader: {fileID: 4800000, guid: 7284787e91c4a400fb269fbc490fcd45, type: 3}
-  instancedMaterial: {fileID: 2100000, guid: 999fda2da4d2643af93d67a039292ca9, type: 2}

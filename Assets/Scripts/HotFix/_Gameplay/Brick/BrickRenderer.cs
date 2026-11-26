@@ -90,6 +90,12 @@ namespace MoreMountains
             }
         }
 
+        protected virtual void OnDestroy()
+        {
+            matBlock?.Dispose();
+            matUnit?.Dispose();
+        }
+
         void Update()
         {
             update(Time.deltaTime);

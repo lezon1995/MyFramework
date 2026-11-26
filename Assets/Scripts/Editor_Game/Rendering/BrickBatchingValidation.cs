@@ -10,20 +10,21 @@ using Object = UnityEngine.Object;
 
 namespace MoreMountains;
 
-/// <summary>Regression checks for stage ordering, many distinct TMP labels and per-instance health state.</summary>
+/// <summary>Regression checks for stage ordering, many distinct TMP labels and native sprites and shared SSU effect states.</summary>
 public static class BrickBatchingValidation
 {
-    [MenuItem("Tools/Gameplay/GPU Instancing/Validate Brick Batching")]
+    [MenuItem("Tools/Gameplay/Sprite Batching/Validate Brick Batching")]
     public static void Run()
     {
-        GameplayInstancingValidation.Run();
+        ValidateSharedEffects();
+        ValidateNativePrefabs();
         var prefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/GameResources/_Gameplay/Bricks/Brick_1x1.prefab");
         TextMeshPro labelTemplate = null;
-        InstancedSpriteProxy healthTemplate = null;
+        SpriteRenderer healthTemplate = null;
         foreach (var text in prefab.GetComponentsInChildren<TextMeshPro>(true))
             if (text.name == "Health") labelTemplate = text;
-        foreach (var proxy in prefab.GetComponentsInChildren<InstancedSpriteProxy>(true))
-            if (proxy.name == "HealthBarRenderer") healthTemplate = proxy;
+        foreach (var sprite in prefab.GetComponentsInChildren<SpriteRenderer>(true))
+            if (sprite.name == "HealthBarRenderer") healthTemplate = sprite;
         Require(labelTemplate && healthTemplate, "Prefab migration is incomplete");
 
         int prefabCount = 0;
@@ -42,7 +43,6 @@ public static class BrickBatchingValidation
         var labels = new List<BatchedWorldText>();
         var groups = new List<BrickRenderBatchGroup>();
         var sources = new List<SpriteRenderer>();
-        var proxies = new List<InstancedSpriteProxy>();
         WorldTextBatchRenderer manager = null;
         try
         {
@@ -51,13 +51,15 @@ public static class BrickBatchingValidation
                 var root = new GameObject("Brick batching regression " + i) { hideFlags = HideFlags.HideAndDontSave };
                 objects.Add(root);
                 root.transform.position = new Vector3((i % 8) * 2, (i / 8) * 2, 0);
+                var visualRoot = new GameObject("Root").transform;
+                visualRoot.SetParent(root.transform, false);
                 var sorting = root.AddComponent<SortingGroup>();
                 sorting.sortingLayerName = "Brick";
                 sorting.sortingOrder = i;
                 var barObject = new GameObject("HealthBarRenderer");
-                barObject.transform.SetParent(root.transform, false);
+                barObject.transform.SetParent(visualRoot, false);
                 var sprite = barObject.AddComponent<SpriteRenderer>();
-                var sourceTemplate = healthTemplate.GetComponent<SpriteRenderer>();
+                var sourceTemplate = healthTemplate;
                 sprite.sprite = sourceTemplate.sprite;
                 sprite.drawMode = sourceTemplate.drawMode;
                 sprite.size = sourceTemplate.size;
@@ -67,7 +69,7 @@ public static class BrickBatchingValidation
                 sprite.SetPropertyBlock(block);
                 sources.Add(sprite);
 
-                var labelObject = Object.Instantiate(labelTemplate.gameObject, root.transform);
+                var labelObject = Object.Instantiate(labelTemplate.gameObject, visualRoot);
                 labelObject.name = "Health";
                 var text = labelObject.GetComponent<TextMeshPro>();
                 text.text = (i * 137 + 1).ToString();
@@ -82,28 +84,19 @@ public static class BrickBatchingValidation
                 };
                 Invoke(group, "OnEnable");
                 groups.Add(group);
+                Require(Mathf.Approximately(visualRoot.position.z, -i * 0.0001f), "Row depth priority was lost");
                 Invoke(label, "OnEnable");
                 labels.Add(label);
-                var proxy = barObject.AddComponent<InstancedSpriteProxy>();
-                proxy.instancedShader = healthTemplate.instancedShader;
-                proxy.instancedMaterial = healthTemplate.instancedMaterial;
-                Invoke(proxy, "OnEnable");
-                proxies.Add(proxy);
                 Require(!sorting.enabled && sprite.sortingOrder == 60 && text.sortingOrder == 80, "Per-brick sorting still splits stages");
             }
             manager = Resources.FindObjectsOfTypeAll<WorldTextBatchRenderer>()[0];
             manager.Rebuild();
             Require(manager.VisibleLabelCount == 64 && manager.ActiveBatchCount == 1,
                 $"64 different health labels produced {manager.ActiveBatchCount} batches / {manager.VisibleLabelCount} labels");
-            var firstTarget = sources[0].GetComponentInChildren<MeshRenderer>();
             foreach (var sprite in sources)
-            {
-                var target = sprite.GetComponentInChildren<MeshRenderer>();
-                Require(target.sharedMaterial == firstTarget.sharedMaterial && target.sortingOrder == 60 &&
-                    !target.GetComponentInParent<SortingGroup>().enabled, "Health renderer cannot join the shared batch");
-            }
-            Require(sources[63].GetComponentInChildren<MeshRenderer>().transform.position.z < firstTarget.transform.position.z,
-                "Existing per-row depth priority was lost");
+                Require(!sprite.forceRenderingOff && sprite.GetComponentsInChildren<MeshRenderer>().Length == 0 &&
+                    sprite.sharedMaterial == healthTemplate.sharedMaterial && sprite.sortingOrder == 60,
+                    "Health bar no longer uses native SpriteRenderer");
             // Dynamic text, transform, alpha and pooled visibility must update the combined mesh.
             var changedText = labels[0].GetComponent<TextMeshPro>();
             changedText.SetText("999999");
@@ -128,19 +121,18 @@ public static class BrickBatchingValidation
             labels.RemoveAt(0);
             Require(manager.VisibleLabelCount == 63, "Pooled label lingered in the batch");
 
-            ValidateHealthGpu(healthTemplate.instancedMaterial);
-            Directory.CreateDirectory("Library/GameplayInstancing");
-            File.WriteAllText("Library/GameplayInstancing/brick-batching-validation.txt",
+
+            Directory.CreateDirectory("Library/GameplaySpriteBatching");
+            File.WriteAllText("Library/GameplaySpriteBatching/brick-batching-validation.txt",
                 "PASS: 15 prefabs use shared visual stages; 64 distinct TMP health labels combine into ONE mesh/material draw; " +
-                "64 independent health bars share mesh/material/stage; dynamic text, alpha, transform, override fallback and pooling; " +
-                "GPU instanced health/shield/chunk colors and progress verified by pixel readback; " +
+                "64 native health SpriteRenderers share material/stage; dynamic text, alpha, transform, override fallback and pooling; " +
+                "equal SSU effect states share materials, independent states remain isolated and disposal restores materials; " +
                 "combined TMP rendering matches separate TMP draws by pixel comparison.\n");
-            Debug.Log("[GameplayInstancing] Brick batching regression passed: 64 health labels => 1 text mesh draw; health GPU readback passed.");
+            Debug.Log("[SpriteBatching] Brick batching regression passed: 64 health labels => 1 text mesh draw; native sprites and shared SSU states passed.");
         }
         finally
         {
             foreach (var label in labels) Invoke(label, "OnDisable");
-            foreach (var proxy in proxies) Invoke(proxy, "OnDestroy");
             foreach (var group in groups) Invoke(group, "OnDisable");
             foreach (var go in objects) Object.DestroyImmediate(go);
             if (manager) Object.DestroyImmediate(manager.gameObject);
@@ -196,9 +188,9 @@ public static class BrickBatchingValidation
             }
             Require(lit > 100, "TMP reference render is empty");
             Require(different < lit * 0.05f, $"Combined TMP output changed appearance: {different}/{lit} pixels differ");
-            File.WriteAllBytes("Library/GameplayInstancing/text-separate.png", reference.EncodeToPNG());
-            File.WriteAllBytes("Library/GameplayInstancing/text-combined.png", combined.EncodeToPNG());
-            Debug.Log($"[GameplayInstancing] TMP pixel comparison: {lit} visible pixels, {different} different pixels.");
+            File.WriteAllBytes("Library/GameplaySpriteBatching/text-separate.png", reference.EncodeToPNG());
+            File.WriteAllBytes("Library/GameplaySpriteBatching/text-combined.png", combined.EncodeToPNG());
+            Debug.Log($"[SpriteBatching] TMP pixel comparison: {lit} visible pixels, {different} different pixels.");
         }
         finally
         {
@@ -211,53 +203,64 @@ public static class BrickBatchingValidation
         }
     }
 
-    static void ValidateHealthGpu(Material template)
+    static void ValidateNativePrefabs()
     {
-        var material = new Material(template) { enableInstancing = true };
-        var mesh = new Mesh();
-        mesh.vertices = new[] { new Vector3(-0.9f, -0.4f), new Vector3(-0.9f, 0.4f), new Vector3(0.9f, 0.4f), new Vector3(0.9f, -0.4f) };
-        mesh.uv = new[] { Vector2.zero, Vector2.up, Vector2.one, Vector2.right };
-        mesh.triangles = new[] { 0, 1, 2, 0, 2, 3 };
-        var target = RenderTexture.GetTemporary(200, 50, 0, RenderTextureFormat.ARGB32);
-        var pixels = new Texture2D(200, 50, TextureFormat.RGBA32, false);
-        var previous = RenderTexture.active;
-        var cmd = new CommandBuffer { name = "Health bar instance regression" };
+        int count = 0;
+        foreach (var guid in AssetDatabase.FindAssets("t:Prefab", NativeSpriteBatchingSetup.Folders))
+        {
+            string path = AssetDatabase.GUIDToAssetPath(guid);
+            if (Array.IndexOf(NativeSpriteBatchingSetup.Folders, Path.GetDirectoryName(path)?.Replace('\\', '/')) < 0) continue;
+            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+            foreach (var sprite in prefab.GetComponentsInChildren<SpriteRenderer>(true))
+            {
+                Require(!sprite.forceRenderingOff && sprite.GetComponents<MeshRenderer>().Length == 0, "Sprite proxy still present: " + path);
+                Require(sprite.sharedMaterial && !sprite.sharedMaterial.shader.name.StartsWith("Gameplay/"), "Proxy shader remains");
+                count++;
+            }
+            foreach (var script in prefab.GetComponentsInChildren<MonoBehaviour>(true)) Require(script, "Missing script: " + path);
+        }
+        Require(count == 145, "Expected 145 native sprite renderers, got " + count);
+    }
+
+    static void ValidateSharedEffects()
+    {
+        var prefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/GameResources/_Gameplay/Bricks/Brick_1x1.prefab");
+        Material original = null;
+        foreach (var sprite in prefab.GetComponentsInChildren<SpriteRenderer>(true))
+            if (sprite.name == "SpriteBlock") original = sprite.sharedMaterial;
+        Require(original, "Missing SSU template");
+        var a = new GameObject("Shared material A") { hideFlags = HideFlags.HideAndDontSave };
+        var b = new GameObject("Shared material B") { hideFlags = HideFlags.HideAndDontSave };
+        var left = a.AddComponent<SpriteRenderer>();
+        var right = b.AddComponent<SpriteRenderer>();
+        left.sharedMaterial = right.sharedMaterial = original;
+        var first = new RendererPropertyOverrides(left);
+        var second = new RendererPropertyOverrides(right);
+        int frozen = Shader.PropertyToID("_FrozenFade"), poison = Shader.PropertyToID("_PoisonFade");
         try
         {
-            material.SetTexture("_MainTex", Texture2D.whiteTexture);
+            first.SetFloat(frozen, 1);
+            second.SetFloat(frozen, 1);
+            Require(left.sharedMaterial == right.sharedMaterial && left.sharedMaterial != original, "Equal effects failed to share");
+            second.SetFloat(poison, 1);
+            Require(left.sharedMaterial != right.sharedMaterial && left.sharedMaterial.GetFloat(poison) == original.GetFloat(poison), "Effects leaked");
+            second.SetFloat(poison, original.GetFloat(poison));
+            Require(left.sharedMaterial == right.sharedMaterial, "Effects failed to rejoin");
+            first.SetFloat(frozen, original.GetFloat(frozen));
+            Require(left.sharedMaterial == original && right.sharedMaterial.GetFloat(frozen) == 1, "Baseline or isolation failed");
             var block = new MaterialPropertyBlock();
-            block.SetFloatArray("_ForegroundProgress", new[] { 0.25f, 0.75f });
-            block.SetVectorArray("_ForegroundColor", new[] { new Vector4(1, 0, 0, 1), new Vector4(0, 1, 0, 1) });
-            block.SetFloatArray("_UseShield", new[] { 1f, 1f });
-            block.SetFloatArray("_ShieldLength", new[] { 0.25f, 0.125f });
-            block.SetFloatArray("_ShieldGlow", new[] { 0f, 0f });
-            block.SetVectorArray("_ShieldColor", new[] { new Vector4(0, 0, 1, 1), new Vector4(0, 0, 1, 1) });
-            block.SetVectorArray("_Chunk7", new[] { new Vector4(0.75f, 0.9f, 1, 0), Vector4.zero });
-            block.SetVectorArray("_DamageChunkColor7", new[] { new Vector4(1, 1, 0, 1), Vector4.zero });
-            block.SetVectorArray("_GameplayColor", new[] { Vector4.one, Vector4.one });
-            block.SetVectorArray("_GameplayFlip", new[] { Vector4.one, Vector4.one });
-            cmd.SetRenderTarget(target);
-            cmd.ClearRenderTarget(false, true, Color.black);
-            cmd.SetViewProjectionMatrices(Matrix4x4.identity, GL.GetGPUProjectionMatrix(Matrix4x4.Ortho(-2, 2, -0.5f, 0.5f, -10, 10), true));
-            cmd.DrawMeshInstanced(mesh, 0, material, 0, new[] { Matrix4x4.Translate(Vector3.left), Matrix4x4.Translate(Vector3.right) }, 2, block);
-            Graphics.ExecuteCommandBuffer(cmd);
-            RenderTexture.active = target;
-            pixels.ReadPixels(new Rect(0, 0, 200, 50), 0, 0);
-            pixels.Apply();
-            Require(pixels.GetPixel(16, 25).r > 0.9f && pixels.GetPixel(116, 25).g > 0.9f, "Health instance colors leaked");
-            Require(pixels.GetPixel(39, 25).b > 0.9f && pixels.GetPixel(139, 25).g > 0.9f, "Shield/progress instance values leaked");
-            var chunk = pixels.GetPixel(77, 25);
-            Require(chunk.r > 0.9f && chunk.g > 0.9f && chunk.b < 0.1f, "Damage chunk instance data missing");
-            File.WriteAllBytes("Library/GameplayInstancing/health-instancing-validation.png", pixels.EncodeToPNG());
+            right.GetPropertyBlock(block);
+            Require(block.isEmpty, "Custom effect property block still present");
+            second.Dispose();
+            Require(right.sharedMaterial == original, "Material disposal failed");
+            Require(original.GetFloat(frozen) != 1, "Source material was mutated");
         }
         finally
         {
-            RenderTexture.active = previous;
-            cmd.Dispose();
-            RenderTexture.ReleaseTemporary(target);
-            Object.DestroyImmediate(pixels);
-            Object.DestroyImmediate(mesh);
-            Object.DestroyImmediate(material);
+            first.Dispose();
+            second.Dispose();
+            Object.DestroyImmediate(a);
+            Object.DestroyImmediate(b);
         }
     }
 
