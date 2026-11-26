@@ -109,12 +109,13 @@ public class GameDownload
 			allFinished();
 			return;
 		}
-		// 大版本号低于远端,本地无法直接升级大版本号,所以直接忽略,如果网络消息版本号匹配就继续运行,不匹配就会提示退出
+		// 大版本号低于远端时只使用本地资源,不提交远端版本号,避免旧客户端被错误标记为新版本。
 		if (bigCompare == VERSION_COMPARE.LOCAL_LOWER)
 		{
-			mAssetVersionSystem.setAssetReadPath(ASSET_READ_PATH.PERSISTENT_FIRST);
+			mAssetVersionSystem.setAssetReadPath(mAssetVersionSystem.getPersistentDataVersion().isEmpty() ?
+				ASSET_READ_PATH.STREAMING_ASSETS_ONLY : ASSET_READ_PATH.PERSISTENT_FIRST);
 			mTipCallback?.Invoke(DOWNLOAD_ERROR.NONE);
-			allFinished();
+			allFinished(false);
 			return;
 		}
 
@@ -307,7 +308,7 @@ public class GameDownload
 		mProgressCallback?.Invoke(allCount != 0 ? index / (float)allCount : 0.0f, PROGRESS_TYPE.DOWNLOAD_RESOURCE, fileName, mDownloadSpeed, remainTime);
 	}
 	// 所有资源更新完毕
-	protected void allFinished()
+	protected void allFinished(bool writeRemoteVersion = true)
 	{
 		// FileList描述的是已经真正落盘的资源状态,必须先提交FileList。
 		// VERSION最后写入,把它作为整次资源更新的提交标记。
@@ -315,16 +316,19 @@ public class GameDownload
 		{
 			return;
 		}
-		string remoteVersion = mAssetVersionSystem.getRemoteVersion();
-		if (!remoteVersion.isEmpty())
+		if (writeRemoteVersion)
 		{
-			if (!writeTxtFileSafe(mDownloadWritePath + VERSION, remoteVersion))
+			string remoteVersion = mAssetVersionSystem.getRemoteVersion();
+			if (!remoteVersion.isEmpty())
 			{
-				logErrorBase("写入资源版本号失败:" + mDownloadWritePath + VERSION);
-				mTipCallback?.Invoke(DOWNLOAD_ERROR.WRITE_FAILED);
-				return;
+				if (!writeTxtFileSafe(mDownloadWritePath + VERSION, remoteVersion))
+				{
+					logErrorBase("写入资源版本号失败:" + mDownloadWritePath + VERSION);
+					mTipCallback?.Invoke(DOWNLOAD_ERROR.WRITE_FAILED);
+					return;
+				}
+				mAssetVersionSystem.setPersistentDataVersion(remoteVersion);
 			}
-			mAssetVersionSystem.setPersistentDataVersion(remoteVersion);
 		}
 
 		// 游戏更新完毕

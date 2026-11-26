@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using static MathUtility;
 
 // 自定义的线条组件,可以用于代替LineRenderer在UI上显示
+[RequireComponent(typeof(CanvasRenderer))]
 public class CustomLine : MaskableGraphic
 {
 	protected List<Vector3> mPointList = new();
