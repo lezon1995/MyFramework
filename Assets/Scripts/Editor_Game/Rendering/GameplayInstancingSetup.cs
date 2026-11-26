@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
+using TMPro;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace MoreMountains;
 
@@ -60,7 +62,8 @@ public static class GameplayInstancingSetup
     {
         var ssu = AssetDatabase.LoadAssetAtPath<Shader>(ShaderFolder + "GameplaySSUInstanced.shader");
         var simple = AssetDatabase.LoadAssetAtPath<Shader>(ShaderFolder + "GameplaySpriteInstanced.shader");
-        if (!ssu || !simple) throw new InvalidOperationException("Instancing shaders have not imported.");
+        var health = AssetDatabase.LoadAssetAtPath<Shader>(ShaderFolder + "GameplayHealthBarInstanced.shader");
+        if (!ssu || !simple || !health) throw new InvalidOperationException("Instancing shaders have not imported.");
         var report = new StringBuilder("GPU Instancing prefab audit\n");
         var templates = new Dictionary<Material, Material>();
         int added = 0;
@@ -83,6 +86,8 @@ public static class GameplayInstancingSetup
                     if (material && material.shader && material.shader.name == SsuName) shader = ssu;
                     else if (renderer.name == "SpriteShadow" && material && material.shader.name == "Sprites/Default") shader = simple;
                     else if (material && material.shader && material.shader.name == "Universal Render Pipeline/2D/Sprite-Unlit-Default") shader = simple;
+                    else if (material && material.shader && material.shader.name == "Game/DamageChunkHealthBar") shader = health;
+                    else if (renderer.name == "SpriteUnitShadow" && material && material.shader.name == "Mobile/Particles/Alpha Blended") shader = simple;
                     bool eligible = shader && renderer.drawMode != SpriteDrawMode.Tiled &&
                         renderer.maskInteraction == SpriteMaskInteraction.None;
                     report.AppendLine($"  {AnimationUtility.CalculateTransformPath(renderer.transform, root.transform)}: " +
@@ -97,12 +102,38 @@ public static class GameplayInstancingSetup
                             template = new Material(material) { shader = shader, enableInstancing = true };
                             AssetDatabase.CreateAsset(template, templatePath);
                         }
+                        // Mobile/Particles/Alpha Blended has no tint property: texture * vertex color.
+                        if (material.shader.name == "Mobile/Particles/Alpha Blended")
+                        {
+                            template.SetColor("_Color", Color.white);
+                            EditorUtility.SetDirty(template);
+                            AssetDatabase.SaveAssetIfDirty(template);
+                        }
                         templates.Add(material, template);
                     }
                     var proxy = renderer.GetComponent<InstancedSpriteProxy>();
                     if (!proxy) { proxy = renderer.gameObject.AddComponent<InstancedSpriteProxy>(); added++; changed = true; }
                     if (proxy.instancedShader != shader) { proxy.instancedShader = shader; changed = true; }
                     if (proxy.instancedMaterial != template) { proxy.instancedMaterial = template; changed = true; }
+                }
+                if (path.StartsWith(Folders[0] + "/", StringComparison.Ordinal) && root.TryGetComponent<SortingGroup>(out var sortingGroup))
+                {
+                    var group = root.GetComponent<BrickRenderBatchGroup>();
+                    if (!group) group = root.AddComponent<BrickRenderBatchGroup>();
+                    group.sortingGroup = sortingGroup;
+                    var entries = new List<BrickRenderBatchGroup.Entry>();
+                    foreach (var renderer in root.GetComponentsInChildren<Renderer>(true))
+                    {
+                        int stage = BrickRenderBatchGroup.GetStage(renderer.name);
+                        if (stage >= 0) entries.Add(new BrickRenderBatchGroup.Entry { renderer = renderer, order = stage });
+                    }
+                    group.entries = entries.ToArray();
+                    foreach (var text in root.GetComponentsInChildren<TextMeshPro>(true))
+                    {
+                        if (BrickRenderBatchGroup.GetStage(text.name) < 0) continue;
+                        if (!text.TryGetComponent<BatchedWorldText>(out _)) text.gameObject.AddComponent<BatchedWorldText>();
+                    }
+                    changed = true;
                 }
                 if (changed)
                 {
@@ -122,10 +153,15 @@ public static class GameplayInstancingSetup
 
     static string PreserveOriginalSerialization(string original, string saved)
     {
-        string scriptGuid = AssetDatabase.AssetPathToGUID("Assets/Scripts/Game/Rendering/InstancedSpriteProxy.cs");
+        var scriptGuids = new[]
+        {
+            AssetDatabase.AssetPathToGUID("Assets/Scripts/Game/Rendering/InstancedSpriteProxy.cs"),
+            AssetDatabase.AssetPathToGUID("Assets/Scripts/Game/Rendering/BrickRenderBatchGroup.cs"),
+            AssetDatabase.AssetPathToGUID("Assets/Scripts/Game/Rendering/BatchedWorldText.cs")
+        };
         foreach (Match match in Regex.Matches(saved, @"--- !u!114 &(-?\d+)\n.*?(?=--- !u!|\z)", RegexOptions.Singleline))
         {
-            if (!match.Value.Contains("guid: " + scriptGuid)) continue;
+            if (!Array.Exists(scriptGuids, guid => match.Value.Contains("guid: " + guid))) continue;
             string proxyText = Regex.Replace(match.Value, @"[ \t]+$", "", RegexOptions.Multiline);
             string id = match.Groups[1].Value;
             string go = Regex.Match(match.Value, @"m_GameObject: \{fileID: (-?\d+)\}").Groups[1].Value;

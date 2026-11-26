@@ -104,6 +104,7 @@ GameObject:
   - component: {fileID: 6161718232591950015}
   - component: {fileID: 4565849977143107635}
   - component: {fileID: 4757578489172850058}
+  - component: {fileID: 7632634523262357910}
   m_Layer: 0
   m_Name: ShieldAmount
   m_TagString: Untagged
@@ -464,6 +465,7 @@ GameObject:
   - component: {fileID: -5906346836173129937}
   - component: {fileID: -2375815759049658533}
   - component: {fileID: -6861125125466406647}
+  - component: {fileID: 3284148213129650860}
   m_Layer: 7
   m_Name: Brick_Boss_4
   m_TagString: Block
@@ -1037,6 +1039,7 @@ GameObject:
   - component: {fileID: 8373397489315394413}
   - component: {fileID: 5658903894415123304}
   - component: {fileID: 5338772345900413661}
+  - component: {fileID: 7194377320346224666}
   m_Layer: 0
   m_Name: HealthBarRenderer
   m_TagString: Untagged
@@ -1539,6 +1542,7 @@ GameObject:
   - component: {fileID: 6920836506653929980}
   - component: {fileID: 8876044709362941637}
   - component: {fileID: 8549236398018298956}
+  - component: {fileID: 2466200773838860921}
   m_Layer: 0
   m_Name: Health
   m_TagString: Untagged
@@ -2034,3 +2038,73 @@ MonoBehaviour:
   m_EditorClassIdentifier:
   instancedShader: {fileID: 4800000, guid: a7e551ba02577493ab1d9e7808407f41, type: 3}
   instancedMaterial: {fileID: 2100000, guid: d581e3a1b818e48a7881eaf656ff81f5, type: 2}
+--- !u!114 &7632634523262357910
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 866161711216766045}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d2fd0e04635f4e7a9a2279bca1b0f93, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+--- !u!114 &3284148213129650860
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3237124602915234066}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a385a6547c994e679ed5c47d0b2dd85, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  sortingGroup: {fileID: 7328556129454814211}
+  entries:
+  - renderer: {fileID: 1609617606926249969}
+    order: 0
+  - renderer: {fileID: 1771825175656162568}
+    order: 10
+  - renderer: {fileID: 1831395398832997300}
+    order: 30
+  - renderer: {fileID: 6914635734420987374}
+    order: 40
+  - renderer: {fileID: 6161718232591950015}
+    order: 45
+  - renderer: {fileID: 4404507348167855201}
+    order: 50
+  - renderer: {fileID: 5658903894415123304}
+    order: 60
+  - renderer: {fileID: 1443503197619317117}
+    order: 70
+  - renderer: {fileID: 6920836506653929980}
+    order: 80
+--- !u!114 &7194377320346224666
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4684237851118184338}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e4d5b90e3b9cf457c8791796d8098a62, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  instancedShader: {fileID: 4800000, guid: ee413e2621cc44ed6a264056abb37384, type: 3}
+  instancedMaterial: {fileID: 2100000, guid: b3b58de50900c4bf997ae06e83d9f7ad, type: 2}
+--- !u!114 &2466200773838860921
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8224753280143679623}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d2fd0e04635f4e7a9a2279bca1b0f93, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:

@@ -21,6 +21,7 @@ namespace MoreMountains
         SpriteRenderer source;
         MeshRenderer target;
         MeshFilter filter;
+        BrickRenderBatchGroup batchGroup;
         GameObject proxy;
         Sprite sprite;
         Vector2 geometrySize;
@@ -40,6 +41,7 @@ namespace MoreMountains
         void OnEnable()
         {
             source = GetComponent<SpriteRenderer>();
+            batchGroup = GetComponentInParent<BrickRenderBatchGroup>();
             block ??= new MaterialPropertyBlock();
             originalForceOff = source.forceRenderingOff;
             if (!SystemInfo.supportsInstancing || !instancedShader || !instancedShader.isSupported) return;
@@ -142,6 +144,8 @@ namespace MoreMountains
             target.sortingLayerID = source.sortingLayerID;
             target.sortingOrder = source.sortingOrder;
             target.renderingLayerMask = source.renderingLayerMask;
+            proxy.transform.localPosition = batchGroup && batchGroup.isActiveAndEnabled
+                ? transform.InverseTransformVector(new Vector3(0, 0, batchGroup.DepthOffset)) : Vector3.zero;
             proxy.layer = gameObject.layer;
             target.enabled = true;
             source.forceRenderingOff = true;
