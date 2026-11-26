@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using MoreMountains.Tools;
 using UnityEngine;
 using UnityEngine.UI;
 using UIEventSystem = UnityEngine.EventSystems.EventSystem;
@@ -17,8 +18,7 @@ public partial class MainMenuScreen
         if (menuInteraction == null)
         {
             var content = mTransform.Find("Content").gameObject;
-            menuInteraction = content.GetComponent<CanvasGroup>();
-            if (menuInteraction == null) menuInteraction = content.AddComponent<CanvasGroup>();
+            menuInteraction = content.MMGetOrAddComponent<CanvasGroup>();
         }
         menuInteraction.interactable = value;
         menuInteraction.blocksRaycasts = value;

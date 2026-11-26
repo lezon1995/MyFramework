@@ -597,7 +597,7 @@ MonoBehaviour:
     mUseCustomName: 1
     mRegisterCollider: 0
     mHasClickEvent: 0
-  mParentType: WindowRecyclableUGUI
+  mParentType: WindowObjectUGUI
   mParentGenericType: 
   mAutoType: 1
   mCustomClassName: MenuOptionView
@@ -7791,7 +7791,7 @@ MonoBehaviour:
     mRegisterCollider: 0
     mHasClickEvent: 0
   - mObject: {fileID: 6485891773087565475}
-    mType: myUGUISlider
+    mType: myUGUIObject
     mArrayType: 0
     mArrayLength: 0
     mWindowType: 0
@@ -9739,7 +9739,7 @@ RectTransform:
   m_Father: {fileID: 2998513753399721362}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -10011,7 +10011,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1972499736520245574
 RectTransform:
   m_ObjectHideFlags: 0
@@ -12212,6 +12212,11 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -15
       objectReference: {fileID: 0}
+    - target: {fileID: 7390063628698623806, guid: 4feae4394a887f148a3cb654afac191d,
+        type: 3}
+      propertyPath: mMemberList.Array.data[0].mType
+      value: myUGUIObject
+      objectReference: {fileID: 0}
     - target: {fileID: 7563644102848467458, guid: 4feae4394a887f148a3cb654afac191d,
         type: 3}
       propertyPath: m_Name
@@ -12556,6 +12561,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5295301969991124182, guid: 2e583c2ad8d4ac647af714b1056e4c21,
+        type: 3}
+      propertyPath: mMemberList.Array.data[0].mType
+      value: myUGUIObject
       objectReference: {fileID: 0}
     - target: {fileID: 8045327564859639448, guid: 2e583c2ad8d4ac647af714b1056e4c21,
         type: 3}
