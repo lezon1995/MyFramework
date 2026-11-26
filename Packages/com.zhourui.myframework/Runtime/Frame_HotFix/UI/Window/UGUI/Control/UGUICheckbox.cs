@@ -21,7 +21,7 @@ public class UGUICheckbox : WindowObjectUGUI
 		{
 			logError("UGUICheckbox需要有一个名为Mark的节点");
 		}
-		mRoot.registerCollider(onCheckClick);
+		mRoot.registeCollider(onCheckClick);
 	}
 	public myUGUITextAuto getLabelObject() { return mLabel; }
 	public void setLabel(string label) { mLabel?.setText(label); }

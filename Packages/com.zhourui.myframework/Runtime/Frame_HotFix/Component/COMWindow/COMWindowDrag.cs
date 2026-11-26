@@ -16,7 +16,7 @@ public class COMWindowDrag : ComponentDrag
 	public override void initDrag(Vector2 dragDirection, float dragStartAngleRadian, bool centerAlignMouse, bool movable)
 	{
 		base.initDrag(dragDirection, dragStartAngleRadian, centerAlignMouse, movable);
-		mWindow.registerCollider();
+		mWindow.registeCollider();
 	}
 	public override void resetProperty()
 	{

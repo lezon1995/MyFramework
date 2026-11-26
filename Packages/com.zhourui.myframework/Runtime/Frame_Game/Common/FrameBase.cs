@@ -5,6 +5,7 @@ public class FrameBase
 	// FrameSystem
 	public static GameSceneManager mGameSceneManager;
 	public static LayoutManager mLayoutManager;
-	public static ResourceManager res;
+	public static ResourceManager res => mResourceManager;
+	public static ResourceManager mResourceManager;
 	public static AssetVersionSystem mAssetVersionSystem;
 }

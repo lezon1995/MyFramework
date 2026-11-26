@@ -34,6 +34,7 @@ public class ClassObject : IEquatable<ClassObject>, IEventListener, IResetProper
 	public void setAssignID(long assignID)			{ mAssignID = assignID; }
 	public void setPendingDestroy(bool pending)		{ mPendingDestroy = pending; }
 	public bool isDestroy()							{ return mHasDestroy; }
+	public long id => mAssignID;
 	public long getAssignID()						{ return mAssignID; }
 	public long getObjectInstanceID()				{ return mObjectInstanceID; }
 	public bool Equals(ClassObject obj)				{ return mObjectInstanceID == obj.mObjectInstanceID; }

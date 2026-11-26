@@ -7,6 +7,9 @@ public struct DeadClick
 {
     public DateTime clickTime;
     public Vector3 clickPos;
+    
+    public DateTime mClickTime => clickTime;
+    public Vector3 mClickPosition => clickPos;
 
     public DeadClick(Vector3 p)
     {

@@ -7,6 +7,7 @@ using static MathUtility;
 // 系统组件基类,一般都是管理器
 public class FrameSystem : ComponentOwner
 {
+	protected GameObject go => mObject;		// 管理器节点,一般用于作为管理物体的父节点,或者挂接调试脚本
 	protected GameObject mObject;		// 管理器节点,一般用于作为管理物体的父节点,或者挂接调试脚本
 	protected int mDestroyOrder;		// 销毁顺序
 	protected int mUpdateOrder;			// 更新顺序

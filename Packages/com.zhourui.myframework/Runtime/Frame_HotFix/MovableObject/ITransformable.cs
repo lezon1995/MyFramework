@@ -3,6 +3,7 @@ using UnityEngine;
 // 可变换对象接口,提供位置/旋转/缩放的读写能力
 public interface ITransformable
 {
+	long id => getAssignID();
 	public Vector3 getPosition();
 	public Vector3 getWorldPosition();
 	public Vector3 getRotation();
