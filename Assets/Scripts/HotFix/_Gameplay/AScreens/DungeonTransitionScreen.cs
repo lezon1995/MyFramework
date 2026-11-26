@@ -20,7 +20,7 @@ namespace MoreMountains
         float oscillateTimer;
         float continueFader;
         float animTimer;
-        Color continueColor = Color.gold;
+        Color continueColor = new Color32(255, 215, 0, 255);
 
         public DungeonTransitionScreen(string key)
         {

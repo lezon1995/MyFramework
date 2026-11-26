@@ -24,7 +24,7 @@ public abstract class ARoomPhase : IDisposable
     public virtual void update(float dt)
     {
         timeElapsed += dt;
-        Draw.ingame.xy.Label2D(new Vector2(Screen.width / 4F, 0F), $"({timeElapsed:F2}) {GetType().Name}", 20, LabelAlignment.Center, Color.darkOrange);
+        Draw.ingame.xy.Label2D(new Vector2(Screen.width / 4F, 0F), $"({timeElapsed:F2}) {GetType().Name}", 20, LabelAlignment.Center, new Color32(255, 140, 0, 255));
     }
 
     public virtual void fixedUpdate(float dt)

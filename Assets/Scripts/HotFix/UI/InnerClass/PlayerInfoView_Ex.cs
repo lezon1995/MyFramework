@@ -15,10 +15,10 @@ public partial class PlayerInfoView
     {
         textCurExp.setText(cur.IToS());
         textMaxExp.setText(max.IToS());
-        if (expSlider != null)
+        if (expSlider != null && expSlider.tryGetUnityComponent(out UnityEngine.UI.Slider slider))
         {
             float v = max > 0 ? Mathf.Clamp01((float)cur / max) : 0f;
-            expSlider.setValue(v);
+            slider.normalizedValue = v;
         }
     }
 

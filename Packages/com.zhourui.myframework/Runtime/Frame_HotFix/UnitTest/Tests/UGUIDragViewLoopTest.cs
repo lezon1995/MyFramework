@@ -121,7 +121,7 @@ public static class UGUIDragViewLoopTest
 		int clearCount = item.mClearDataCount;
 		for (int i = 0; i < 16; ++i)
 		{
-			f.mLoop.updateDragView(0.02F);
+			f.mLoop.updateDragView(1.0f / 60.0f);
 			f.mLoop.updateDisplayItem(false);
 		}
 		assertEqual(setCount, item.mSetDataCount, "位置和范围不变时不能每帧重新绑定");
@@ -297,7 +297,7 @@ public static class UGUIDragViewLoopTest
 		{
 			myUGUIDragView content = mLoop.getContent();
 			content.setPosition(content.getPosition() + new Vector3(0.0f, distance, 0.0f));
-			mLoop.updateDragView(0.02F);
+			mLoop.updateDragView(0.0f);
 		}
 		public void Dispose()
 		{

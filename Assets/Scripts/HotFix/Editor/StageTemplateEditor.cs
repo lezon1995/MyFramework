@@ -73,7 +73,7 @@ public class StageTemplateEditor : Editor
                 var sMin = WorldToScreen(brickMinWorld, worldBounds, in previewRect);
                 var sMax = WorldToScreen(brickMaxWorld, worldBounds, in previewRect);
                 var rect = new Rect(sMin, sMax - sMin);
-                Color color = Color.wheat;
+                Color color = new Color32(245, 222, 179, 255);
                 if (rect.Contains(e.mousePosition))
                     color = Color.gray;
                 // else

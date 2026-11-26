@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 
 using System.Collections;
 using System.Collections.Generic;
@@ -47,17 +47,17 @@ namespace SpriteShadersUltimate
 
             string codeText = default;
             string propertyText = default;
-            if (prop.propertyType == UnityEngine.Rendering.ShaderPropertyType.Color)
+            if (prop.type == MaterialProperty.PropType.Color)
             {
                 propertyText = "public Color colorValue;";
                 codeText = ".SetColor(<b>\"" + prop.name + "\"</b>, colorValue);";
             }
-            else if (prop.propertyType == UnityEngine.Rendering.ShaderPropertyType.Vector)
+            else if (prop.type == MaterialProperty.PropType.Vector)
             {
                 propertyText = "public Vector2 vectorValue;";
                 codeText = ".SetVector(<b>\"" + prop.name + "\"</b>, vectorValue);";
             }
-            else if (prop.propertyType == UnityEngine.Rendering.ShaderPropertyType.Texture)
+            else if (prop.type == MaterialProperty.PropType.Texture)
             {
                 propertyText = "public Texture textureValue;";
                 codeText = ".SetTexture(<b>\"" + prop.name + "\"</b>, textureValue);";

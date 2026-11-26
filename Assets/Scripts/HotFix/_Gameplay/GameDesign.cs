@@ -131,7 +131,7 @@ namespace MoreMountains
             public Color cursed;
             public Color unafforded;
             public Color statEntry;
-            public Color statValueRaw = Color.gray2;
+            public Color statValueRaw = new Color(0.2f, 0.2f, 0.2f, 1.0f);
         }
 
         public RarityColor getRarityColor(ItemRarity rarity)
@@ -151,9 +151,9 @@ namespace MoreMountains
         [Serializable]
         public class TagColor
         {
-            public Color mechanic = Color.blueViolet;
-            public Color status = Color.brown;
-            public Color amplifier = Color.cornflowerBlue;
+            public Color mechanic = new Color32(138, 43, 226, 255);
+            public Color status = new Color32(165, 42, 42, 255);
+            public Color amplifier = new Color32(100, 149, 237, 255);
         }
     }
 }
