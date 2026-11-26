@@ -453,7 +453,7 @@ public partial class MainMenuScreen
 
     void handleInput()
     {
-        // confirmButton.update();
+        ensureMenuSelection();
     }
 
     public void fadeOutMusic()
@@ -528,12 +528,14 @@ public partial class MainMenuScreen
 
     public void hideMenuButtons()
     {
-        // foreach (MenuButton b in buttons)
-        //     b.hide();
+        setMenuInteractable(false);
+        foreach (var button in buttons.Values)
+            button.setActive(false);
     }
     
     protected void onPlayClick()
     {
+        if (isFadingOut || activePage != null) return;
         if (Settings.seed == 0)
         {
             setRandomSeed();
@@ -580,6 +582,12 @@ public partial class MainMenuScreen
     
     protected void onResumeGameClick()
     {
+        if (isFadingOut || activePage != null) return;
+        if (!characterManager.anySaveFileExists())
+        {
+            refreshMenuVisibility();
+            return;
+        }
         Game.mainMenuScreen.screen = CurScreen.NONE;
         Game.mainMenuScreen.hideMenuButtons();
         Game.mainMenuScreen.darken();
@@ -596,6 +604,6 @@ public partial class MainMenuScreen
     
     protected void onQuitClick()
     {
-        Application.Quit();
+        confirmQuit();
     }
 }

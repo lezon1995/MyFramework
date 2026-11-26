@@ -156,6 +156,7 @@ namespace MoreMountains
                 CardLibrary.initialize();
                 RelicLibrary.initialize();
                 InputHelper.initialize();
+                MenuPreferences.Initialize();
                 TipTracker.initialize();
                 ModHelper.initialize();
                 // ShaderHelper.initializeShaders();
@@ -218,6 +219,7 @@ namespace MoreMountains
 
         public void update(float dt)
         {
+            MenuPreferences.TickFocus();
             if (Settings.isDebug)
             {
                 using var _ = new MyStringBuilderScope(out var sb);

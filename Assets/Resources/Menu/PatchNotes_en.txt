@@ -1,0 +1,10 @@
+Main menu update
+
+• Added confirmation before abandoning the current character's run.
+• Added an encyclopedia of characters, balls and relics from game definitions.
+• Added lifetime statistics for the current save slot.
+• Added display, audio, game and control settings.
+• Display changes require confirmation within 15 seconds or revert automatically.
+• Added quit confirmation and bundled patch notes.
+
+These notes ship with the game build.

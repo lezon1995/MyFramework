@@ -26,6 +26,7 @@ public partial class MainMenuScreen : LayoutScript
         MainMenuButtonPool = new(this);
         // auto generate constructor end
         mNeedUpdate = false;
+        mUnuseAllWhenHide = false;
     }
 
     public override void assignWindow()
@@ -48,6 +49,13 @@ public partial class MainMenuScreen : LayoutScript
     public override void onGameState()
     {
         base.onGameState();
+        screen = CurScreen.MAIN_MENU;
+        isFadingOut = fadedOut = isDarken = superDarken = false;
+        setOverlapRaycastTarget(false);
+        setMenuInteractable(true);
+        foreach (var button in buttons.Values)
+            button.setActive(true);
+        refreshMenuVisibility();
     }
 
     public void addButton(MainMenuType type)
@@ -64,14 +72,19 @@ public partial class MainMenuScreen : LayoutScript
                 item.setOnClick(onResumeGameClick);
                 break;
             case MainMenuType.ABANDON_RUN:
+                item.setOnClick(onAbandonClick);
                 break;
             case MainMenuType.INFO:
+                item.setOnClick(() => openPage<EncyclopediaScreen>(CurScreen.CARD_LIBRARY));
                 break;
             case MainMenuType.STATS:
+                item.setOnClick(() => openPage<StatisticsScreen>(CurScreen.STATS));
                 break;
             case MainMenuType.SETTINGS:
+                item.setOnClick(() => openPage<DesktopSettingsScreen>(CurScreen.SETTINGS));
                 break;
             case MainMenuType.PATCH_NOTES:
+                item.setOnClick(() => openPage<PatchNotesScreen>(CurScreen.PATCH_NOTES));
                 break;
             case MainMenuType.QUIT:
                 item.setOnClick(onQuitClick);
@@ -120,6 +133,11 @@ public partial class MainMenuScreen : LayoutScript
         addButton(MainMenuType.QUIT);
         addButton(MainMenuType.PATCH_NOTES);
 
+        refreshMenuVisibility();
+    }
+
+    void refreshMenuVisibility()
+    {
         setShowPlayButton(!characterManager.anySaveFileExists());
         setShowStatAndInfoButton(!Settings.isShowBuild /* && statsScreen.statScreenUnlocked()*/);
         setShowQuitAndPatchButton(!Settings.isMobile && !Settings.isConsoleBuild);

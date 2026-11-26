@@ -18,5 +18,10 @@ public class LayoutRegisterHotFix
 		registeLayout<TooltipScreen>(script =>					mTooltipScreen = script);
 		registeLayout<UIGame>(script =>							mUIGame = script);
 		// auto generate end
+		registeLayout<EncyclopediaScreen>((EncyclopediaScreen _) => { });
+		registeLayout<StatisticsScreen>((StatisticsScreen _) => { });
+		registeLayout<DesktopSettingsScreen>((DesktopSettingsScreen _) => { });
+		registeLayout<PatchNotesScreen>((PatchNotesScreen _) => { });
+		registeLayout<MainMenuConfirmScreen>((MainMenuConfirmScreen _) => { });
 	}
 }
