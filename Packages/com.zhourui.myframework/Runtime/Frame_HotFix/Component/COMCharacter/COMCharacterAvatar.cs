@@ -381,9 +381,9 @@ public class COMCharacterAvatar : GameComponent
 		{
 			return;
 		}
-		if (mObject.activeSelf != active)
+		if (mObject.activeSelf != mActive)
 		{
-			mObject.SetActive(active);
+			mObject.SetActive(mActive);
 		}
 		mObject.TryGetComponent(out mController);
 		mObject.TryGetComponent(out mModelTransform);

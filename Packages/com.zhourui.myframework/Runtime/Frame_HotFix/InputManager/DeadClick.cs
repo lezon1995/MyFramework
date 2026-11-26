@@ -5,12 +5,11 @@ using System;
 // 记录单击发生的时间和位置,InputSystem通过对比两次单击的间隔和位置差判断是否为双击
 public struct DeadClick
 {
-    public DateTime clickTime;
-    public Vector3 clickPos;
-
-    public DeadClick(Vector3 p)
+    public DateTime mClickTime;
+    public Vector3 mClickPosition;
+    public DeadClick(Vector3 clickPos)
     {
-        clickTime = DateTime.Now;
-        clickPos = p;
+        mClickTime = DateTime.Now;
+        mClickPosition = clickPos;
     }
 }

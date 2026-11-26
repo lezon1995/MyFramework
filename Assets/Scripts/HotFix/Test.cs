@@ -12,28 +12,28 @@ public class Test : MonoBehaviour
             safeList.add(i);
         }
 
-        using var _ = new SafeListReader<int>(safeList, out var readList);
-        for (var i = 0; i < readList.Count; i++)
+        foreach (int value in safeList)
         {
-            var value = readList[i];
             Debug.Log(value);
         }
-        
-        for (var i = 0; i < readList.Count; i++)
+
+        int index = 0;
+        int removedCount = 0;
+        foreach (int value in safeList)
         {
-            if (i % 2 == 0)
+            if (index % 2 == 0)
             {
-                safeList.removeAt(i);
+                safeList.removeAt(index - removedCount);
+                ++removedCount;
             }
+            ++index;
         }
     }
 
     void Start()
     {
-        using var _ = new SafeListReader<int>(safeList, out var readList);
-        for (var i = 0; i < readList.Count; i++)
+        foreach (int value in safeList)
         {
-            var value = readList[i];
             Debug.Log(value);
         }
     }

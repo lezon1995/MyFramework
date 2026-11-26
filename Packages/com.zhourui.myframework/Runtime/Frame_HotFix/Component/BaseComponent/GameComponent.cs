@@ -3,6 +3,7 @@
 // 组件基类,只是使用了MonoBehaviour的组件思想
 public abstract class GameComponent : ClassObject
 {
+	protected ComponentOwner owner => mComponentOwner;   // 该组件的拥有者
 	protected ComponentOwner mComponentOwner;   // 该组件的拥有者
 	protected bool mIgnoreTimeScale;			// 更新时是否忽略时间缩放
 	protected bool mDefaultActive;				// 默认的启用状态

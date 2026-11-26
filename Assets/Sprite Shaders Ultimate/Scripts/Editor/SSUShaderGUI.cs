@@ -299,11 +299,11 @@ namespace SpriteShadersUltimate
 
                 //Display:
                 EditorGUILayout.BeginHorizontal();
-                if (prop.propertyType == UnityEngine.Rendering.ShaderPropertyType.Texture)
+                if (prop.type == MaterialProperty.PropType.Texture)
                 {
                     prop.textureValue = (Texture)EditorGUILayout.ObjectField(displayContent, prop.textureValue, typeof(Texture), false, GUILayout.Height(50));
                 }
-                else if (prop.propertyType == UnityEngine.Rendering.ShaderPropertyType.Vector)
+                else if (prop.type == MaterialProperty.PropType.Vector)
                 {
                     if(prop.name == "_SpriteSheetRect")
                     {
@@ -314,7 +314,7 @@ namespace SpriteShadersUltimate
                         prop.vectorValue = EditorGUI.Vector2Field(PropertyLabel(displayContent), GUIContent.none, prop.vectorValue);
                     }
                 }
-                else if (prop.propertyType == UnityEngine.Rendering.ShaderPropertyType.Range)
+                else if (prop.type == MaterialProperty.PropType.Range)
                 {
                     bool isSlider = true;
                     if (prop.name == "_FadingFade" && Mathf.RoundToInt(shaderFading) == 4)
@@ -331,7 +331,7 @@ namespace SpriteShadersUltimate
                         prop.floatValue = EditorGUI.FloatField(GetPropertySize(prop, isKeyword), displayContent, prop.floatValue);
                     }
                 }
-                else if (prop.propertyType == UnityEngine.Rendering.ShaderPropertyType.Color)
+                else if (prop.type == MaterialProperty.PropType.Color)
                 {
                     EditorGUI.BeginChangeCheck();
                     EditorGUI.showMixedValue = prop.hasMixedValue;
@@ -1778,7 +1778,7 @@ namespace SpriteShadersUltimate
             resetButton.text = "R";
             resetButton.tooltip = "Resets this property.";
 
-            if (prop.propertyType == UnityEngine.Rendering.ShaderPropertyType.Color)
+            if (prop.type == MaterialProperty.PropType.Color)
             {
                 Color defaultValue = defaultMaterial.GetColor(prop.name);
 
@@ -1792,7 +1792,7 @@ namespace SpriteShadersUltimate
                     prop.colorValue = defaultValue;
                 }
             }
-            else if (prop.propertyType == UnityEngine.Rendering.ShaderPropertyType.Vector)
+            else if (prop.type == MaterialProperty.PropType.Vector)
             {
                 Vector4 defaultValue = defaultMaterial.GetVector(prop.name);
 
@@ -1806,7 +1806,7 @@ namespace SpriteShadersUltimate
                     prop.vectorValue = defaultValue;
                 }
             }
-            else if (prop.propertyType == UnityEngine.Rendering.ShaderPropertyType.Float || prop.propertyType == UnityEngine.Rendering.ShaderPropertyType.Range)
+            else if (prop.type == MaterialProperty.PropType.Float || prop.type == MaterialProperty.PropType.Range)
             {
                 float defaultValue = defaultMaterial.GetFloat(prop.name);
 
@@ -1820,7 +1820,7 @@ namespace SpriteShadersUltimate
                     prop.floatValue = defaultValue;
                 }
             }
-            else if (prop.propertyType == UnityEngine.Rendering.ShaderPropertyType.Texture)
+            else if (prop.type == MaterialProperty.PropType.Texture)
             {
                 Texture defaultValue = defaultMaterial.GetTexture(prop.name);
 
@@ -1844,7 +1844,7 @@ namespace SpriteShadersUltimate
             infoButton.text = "<size=1> </size>C<size=10>#</size>";
             infoButton.tooltip = "Useful information for programmers.";
 
-            if (GUILayout.Button(infoButton, buttonStyle, GUILayout.Width(26), GUILayout.Height((prop.propertyType == UnityEngine.Rendering.ShaderPropertyType.Texture) ? 50 : 20)))
+            if (GUILayout.Button(infoButton, buttonStyle, GUILayout.Width(26), GUILayout.Height((prop.type == MaterialProperty.PropType.Texture) ? 50 : 20)))
             {
                 CodingHelper.Open(displayContent, prop, shader, EditorGUIUtility.currentViewWidth);
             }
@@ -1900,7 +1900,7 @@ namespace SpriteShadersUltimate
             EditorGUIUtility.fieldWidth = fieldRect.width;
             EditorGUIUtility.labelWidth = labelRect.width;
 
-            if (prop.propertyType == UnityEngine.Rendering.ShaderPropertyType.Range)
+            if (prop.type == MaterialProperty.PropType.Range)
             {
                 EditorGUIUtility.fieldWidth = 50;
                 EditorGUIUtility.labelWidth = labelRect.width;

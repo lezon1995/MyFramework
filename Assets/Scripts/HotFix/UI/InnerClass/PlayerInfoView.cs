@@ -8,7 +8,7 @@ public partial class PlayerInfoView : WindowObjectUGUI
 {
 	// auto generate member start
 	protected myUGUITextTMP textLevel;
-	protected myUGUISlider expSlider;
+	protected myUGUIObject expSlider;
 	protected myUGUITextTMP textCurExp;
 	protected myUGUITextTMP textMaxExp;
 	protected myUGUIObject itemParent;

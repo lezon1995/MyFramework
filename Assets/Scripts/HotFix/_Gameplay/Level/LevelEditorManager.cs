@@ -124,7 +124,7 @@ namespace MoreMountains
             var grids = layout.getAllGrids();
             foreach (var grid in grids)
             {
-                Color color = Color.gray6;
+                Color color = new Color(0.6f, 0.6f, 0.6f, 1.0f);
                 if (grid.Contains(mousePos))
                 {
                     color = Color.green;
@@ -149,7 +149,7 @@ namespace MoreMountains
 
             foreach (var template in brickTemplates)
             {
-                Color color = Color.gray6;
+                Color color = new Color(0.6f, 0.6f, 0.6f, 1.0f);
                 Draw.ingame.xy.SolidRectangle(template.rect, color);
                 var selectedColor = Color.red;
                 if (template.rect.Contains(mousePos))
