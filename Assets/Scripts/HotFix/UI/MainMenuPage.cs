@@ -9,6 +9,7 @@ namespace MoreMountains;
 /// <summary>主菜单子页面共用的框架生命周期、返回和焦点处理。</summary>
 public abstract class MainMenuPage : LayoutScript
 {
+    public static int LastBackFrame { get; private set; } = -1;
     protected TMP_Text title;
     protected TMP_Text status;
     protected Button back;
@@ -46,6 +47,7 @@ public abstract class MainMenuPage : LayoutScript
 
     public override bool onESCDown()
     {
+        LastBackFrame = Time.frameCount;
         close();
         return true;
     }
@@ -57,7 +59,7 @@ public abstract class MainMenuPage : LayoutScript
         var scale = Mathf.Min(size.x / 1920f, size.y / 1080f);
         mTransform.Find("Panel").localScale = Vector3.one * scale;
         if (Input.GetKeyDown(KeyCode.JoystickButton1))
-            close();
+            onESCDown();
     }
 
     public override void onHide()

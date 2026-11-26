@@ -165,12 +165,12 @@ namespace MoreMountains
 
         public void adjustVolume(string key, int id, float volume)
         {
-            map[key].setVolume(id, volume);
+            if (map.TryGetValue(key, out var sfx)) sfx.setVolume(id, volume);
         }
 
         public void adjustVolume(string key, int id)
         {
-            map[key].setVolume(id, Settings.SOUND_VOLUME * Settings.MASTER_VOLUME);
+            if (map.TryGetValue(key, out var sfx)) sfx.setVolume(id, Settings.SOUND_VOLUME * Settings.MASTER_VOLUME);
         }
 
         public void fadeOut(string key, int id)

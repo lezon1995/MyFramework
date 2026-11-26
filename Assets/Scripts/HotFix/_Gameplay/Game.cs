@@ -8,7 +8,7 @@ using Object = UnityEngine.Object;
 
 namespace MoreMountains
 {
-    public class Game
+    public partial class Game
     {
         public Game()
         {
@@ -220,6 +220,11 @@ namespace MoreMountains
         public void update(float dt)
         {
             MenuPreferences.TickFocus();
+            if (RunExitPending)
+            {
+                CompleteRunExit();
+                return;
+            }
             if (Settings.isDebug)
             {
                 using var _ = new MyStringBuilderScope(out var sb);

@@ -48,5 +48,7 @@ public class LevelUpRewardPhase : ARoomPhase
 
     protected override void onUnbindListeners()
     {
+        var reward = OperationPanelService.Instance.Binder?.RewardChoose;
+        if (reward != null) reward.OfferBuyClicked -= OnRewardItemChosen;
     }
 }

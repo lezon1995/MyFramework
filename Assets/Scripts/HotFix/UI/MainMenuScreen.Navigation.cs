@@ -8,6 +8,7 @@ namespace MoreMountains;
 
 public partial class MainMenuScreen
 {
+    public void BeginNewRun() => onPlayClick();
     MainMenuPage activePage;
     CanvasGroup menuInteraction;
 
@@ -16,7 +17,8 @@ public partial class MainMenuScreen
         if (menuInteraction == null)
         {
             var content = mTransform.Find("Content").gameObject;
-            menuInteraction = content.GetComponent<CanvasGroup>() ?? content.AddComponent<CanvasGroup>();
+            menuInteraction = content.GetComponent<CanvasGroup>();
+            if (menuInteraction == null) menuInteraction = content.AddComponent<CanvasGroup>();
         }
         menuInteraction.interactable = value;
         menuInteraction.blocksRaycasts = value;

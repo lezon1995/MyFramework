@@ -209,21 +209,6 @@ namespace MoreMountains
 
         public virtual void update(float dt)
         {
-            if (!ADungeon.isScreenUp && InputHelper.pressedEscape)
-            {
-                // ADungeon.settingsScreen.open();
-                if (EscPanelService.Instance.Opened)
-                {
-                    GameManager.Instance.UnPause();
-                    EscPanelService.Instance.Close();
-                }
-                else
-                {
-                    EscPanelService.Instance.Open(this, Player);
-                    GameManager.Instance.Pause();
-                }
-            }
-
             if (Settings.isDebug)
             {
                 // if (InputHelper.justClickedRight)

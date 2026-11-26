@@ -168,7 +168,15 @@ namespace MoreMountains
 
         public void destroyAllBall()
         {
+            foreach (var ball in new List<Ball>(activeBalls))
+                releaseBall(ball);
+            foreach (var pool in ballPools.Values)
+                pool.Clear();
+            ballPools.Clear();
+            activeBalls.Clear();
+            inactiveBalls.Clear();
             ballTypeList.Clear();
+            ballGUIDList.Clear();
         }
 
         void destroyBall(Ball ball)

@@ -6,6 +6,8 @@
 public partial class MenuOptionView : WindowRecyclableUGUI
 // auto generate classname end
 {
+    EscPanel panel;
+    public void SetPanel(EscPanel owner) => panel = owner;
     // auto generate member start
     protected myUGUIButton btnContinue;
     protected myUGUIButton btnRestart;
@@ -43,20 +45,22 @@ public partial class MenuOptionView : WindowRecyclableUGUI
 
     void onBtnContinueClick()
     {
-        GameManager.Instance.UnPause();
         EscPanelService.Instance.Close();
     }
 
     void onBtnRestartClick()
     {
+        panel.ShowRestartConfirmation();
     }
 
     void onBtnSettingsClick()
     {
+        panel.ShowSettings();
     }
 
     void onBtnReturnMainMenuClick()
     {
+        panel.ShowReturnConfirmation();
     }
 
     public override void onShow()

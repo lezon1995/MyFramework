@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 
 namespace MoreMountains
 {
@@ -27,10 +28,14 @@ namespace MoreMountains
         APlayer _boundPlayer;
         ARoom _room;
         bool _opened;
+        bool ownsPause;
+        bool previousStopClock;
+        int lastToggleFrame = -1;
 
         public EscPanelBinder Binder => _binder;
         public APlayer CurrentPlayer => _boundPlayer;
         public bool Opened => _opened;
+        public bool HasChildPage => _binder?.Panel.HasChildPage == true;
 
         public void Register(EscPanelBinder binder)
         {
@@ -39,12 +44,15 @@ namespace MoreMountains
 
         public void Unregister()
         {
+            Close();
+            ReleasePlayer();
             _binder = null;
         }
 
         /// <summary>绑定 APlayer 并打开面板。</summary>
         public void Open(ARoom room, APlayer player)
         {
+            if (_opened || Game.RunExitPending || player == null) return;
             if (_binder == null)
             {
                 logError("EscPanelService.Open: panel / binder not registered.");
@@ -60,8 +68,13 @@ namespace MoreMountains
             }
 
             _room =  room;
-            _binder.Open();
             _opened = true;
+            lastToggleFrame = Time.frameCount;
+            previousStopClock = Game.stopClock;
+            Game.stopClock = true;
+            ownsPause = GameManager.Instance != null && !GameManager.Instance.Paused;
+            if (ownsPause) GameManager.Instance.Pause(unpauseIfPaused: false);
+            _binder.Open();
         }
 
         /// <summary>打开面板，使用最近一次绑定过的玩家；不存在则报错。</summary>
@@ -78,15 +91,32 @@ namespace MoreMountains
         /// <summary>关闭面板并保留绑定（同一个玩家下一阶段直接 Open）。</summary>
         public void Close()
         {
+            if (!_opened) return;
+            lastToggleFrame = Time.frameCount;
             _binder?.Close();
             _opened = false;
+            Game.stopClock = previousStopClock;
+            if (ownsPause && GameManager.Instance != null) GameManager.Instance.UnPause();
+            ownsPause = false;
+        }
+
+        public void HandleRoomInput(ARoom room, APlayer player)
+        {
+            if (Game.RunExitPending || HasChildPage || MainMenuPage.LastBackFrame == Time.frameCount ||
+                lastToggleFrame == Time.frameCount) return;
+            bool back = InputHelper.pressedEscape || Input.GetKeyDown(KeyCode.JoystickButton1);
+            if (!back) return;
+            if (_opened) Close();
+            else if (!ADungeon.isScreenUp) Open(room, player);
         }
 
         /// <summary>完全解除绑定（玩家销毁时）。</summary>
         public void ReleasePlayer()
         {
+            Close();
             _binder?.Unbind();
             _boundPlayer = null;
+            _room = null;
         }
     }
 }

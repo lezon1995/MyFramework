@@ -226,6 +226,10 @@ namespace MoreMountains
 
         public void update(float dt)
         {
+            if (screen == CurrentScreen.GAMEPLAY)
+                EscPanelService.Instance.HandleRoomInput(room, player);
+            if (EscPanelService.Instance.Opened || GameManager.Instance != null && GameManager.Instance.Paused)
+                return;
             if (!Game.stopClock)
                 Game.playtime += dt;
 
@@ -364,6 +368,8 @@ namespace MoreMountains
 
         public void fixedUpdate(float dt)
         {
+            if (EscPanelService.Instance.Opened || GameManager.Instance != null && GameManager.Instance.Paused)
+                return;
             switch (screen)
             {
                 case CurrentScreen.NONE:

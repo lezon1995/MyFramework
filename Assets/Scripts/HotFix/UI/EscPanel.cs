@@ -44,6 +44,7 @@ public partial class EscPanel : LayoutScript
 	}
 	public override void init()
 	{
+		menuOptionView.SetPanel(this);
 		initBinder();
 		base.init();
 		// auto generate init start

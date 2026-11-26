@@ -43,5 +43,6 @@ public abstract class ARoomPhase : IDisposable
 
     public virtual void Dispose()
     {
+        onUnbindListeners();
     }
 }

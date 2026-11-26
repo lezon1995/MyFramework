@@ -379,6 +379,7 @@ namespace MoreMountains
             if (brickPools.TryGetValue(brick.getDef(), out var pool))
             {
                 brick.onRelease();
+                activeBrickList.Remove(brick);
                 pool.Release(brick);
             }
         }

@@ -64,14 +64,17 @@ namespace MoreMountains
         public void Open()
         {
             _panel.setActive(true);
+            _panel.OnPauseOpened();
         }
 
         /// <summary>外部调用:本阶段结束。</summary>
         public void Close()
         {
             _panel.setActive(false);
+            _panel.OnPauseClosed();
         }
 
         public APlayer Player => _player;
+        public EscPanel Panel => _panel;
     }
 }
