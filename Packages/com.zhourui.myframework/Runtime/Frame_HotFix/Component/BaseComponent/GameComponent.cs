@@ -7,6 +7,7 @@ public abstract class GameComponent : ClassObject
 	protected ComponentOwner mComponentOwner;   // 该组件的拥有者
 	protected bool mIgnoreTimeScale;			// 更新时是否忽略时间缩放
 	protected bool mDefaultActive;				// 默认的启用状态
+	protected bool active => mActive;                     // 是否激活组件
 	protected bool mActive;                     // 是否激活组件
 	protected string mTypeName;					// 一般给Profiler传参用
 	public GameComponent()

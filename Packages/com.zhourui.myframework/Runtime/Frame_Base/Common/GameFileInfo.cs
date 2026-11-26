@@ -6,6 +6,22 @@ public class GameFileInfo
     public string mFileName; // StreamingAssets下的相对路径
     public long mFileSize; // 文件大小
     public string mMD5; // 文件MD5
+    
+    public string name 
+    {
+        get=> mFileName;
+        set => mFileName = value;
+    }
+    public long size 
+    {
+        get=> mFileSize;
+        set => mFileSize = value;
+    }
+    public string md5 
+    {
+        get=> mMD5;
+          set=>mMD5 = value;
+    }
 
     public static GameFileInfo createInfo(string infoString)
     {
