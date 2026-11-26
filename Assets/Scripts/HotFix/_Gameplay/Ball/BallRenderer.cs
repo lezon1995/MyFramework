@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 namespace MoreMountains
 {
@@ -17,6 +17,7 @@ namespace MoreMountains
         ParticleSystem particleRenderer;
 
         ParticleSystem fxDead;
+        RendererPropertyOverrides spriteProperties, particleProperties;
 
         void Awake()
         {
@@ -28,6 +29,9 @@ namespace MoreMountains
             obj.find(out smoothTrail);
             obj.find(out fxDead, "FxDead");
             obj.find(out trailRenderer, "Trail");
+            spriteProperties = new RendererPropertyOverrides(spriteRenderer);
+            if (particleRenderer)
+                particleProperties = new RendererPropertyOverrides(particleRenderer.GetComponent<ParticleSystemRenderer>());
         }
 
         public void setRendererActive(bool active)
@@ -37,18 +41,17 @@ namespace MoreMountains
 
         public void setLevel(int level)
         {
-            Material material = null;
+            RendererPropertyOverrides material = null;
             if (spriteRenderer.gameObject.activeSelf)
             {
-                material = spriteRenderer.material;
+                material = spriteProperties;
             }
             else if (particleRenderer)
             {
-                var renderer = particleRenderer.GetComponent<ParticleSystemRenderer>();
-                material = renderer.material;
+                material = particleProperties;
             }
 
-            if (!material)
+            if (material == null)
                 return;
 
             if (level > 1)

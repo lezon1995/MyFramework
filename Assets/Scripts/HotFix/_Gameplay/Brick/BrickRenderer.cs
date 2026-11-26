@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using MoreMountains.Tools;
 using PrimeTween;
 using TMPro;
@@ -33,7 +33,7 @@ namespace MoreMountains
         SpriteRenderer spriteShield;
         TextMeshPro shieldAmount;
 
-        protected Material matBlock, matUnit;
+        protected RendererPropertyOverrides matBlock, matUnit;
         protected Timer flashRemainSeconds;
 
         public HealthBar healthBar;
@@ -61,12 +61,12 @@ namespace MoreMountains
 
             if (obj.find(out spriteBlock, "SpriteBlock"))
             {
-                matBlock = spriteBlock.material;
+                matBlock = new RendererPropertyOverrides(spriteBlock);
             }
 
             if (obj.find(out spriteUnit, "SpriteUnit"))
             {
-                matUnit = spriteUnit.material;
+                matUnit = new RendererPropertyOverrides(spriteUnit);
             }
 
             obj.find(out spriteShield, "Shield");
