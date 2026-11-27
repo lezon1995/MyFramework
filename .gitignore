@@ -1,0 +1,43 @@
+# Unity generated data and local settings
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Ll]ogs/
+/[Uu]ser[Ss]ettings/
+/[Mm]emoryCaptures/
+/[Rr]ecordings/
+/[Bb]uild/
+/[Bb]uilds/
+
+# Unity and IDE generated project files
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+*.VC.VC.opendb
+ExportedObj/
+.vs/
+.gradle/
+.consulo/
+
+# Rider local project state
+/.idea/
+
+# OS metadata
+.DS_Store
+
+# Project-specific generated or externally supplied content
+/Assets/MobileDependencyResolver/
+/Assets/MobileDependencyResolver.meta
+/Assets/StreamingAssets/
+/Assets/StreamingAssets.meta
+/AssetBundleBuild/
