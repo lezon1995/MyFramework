@@ -70,7 +70,7 @@ namespace RenderHeads.Media.AVProVideo.Editor
 				List<GUIContent> items = new List<GUIContent>(16);
 				foreach (MaterialProperty matProp in matProps)
 				{
-#if UNITY_6000_0_OR_NEWER
+#if UNITY_6000_3_OR_NEWER
                     if (matProp.propertyType == UnityEngine.Rendering.ShaderPropertyType.Texture)
 #else
 					if (matProp.type == MaterialProperty.PropType.Texture)
